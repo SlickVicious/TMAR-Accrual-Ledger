@@ -3214,9 +3214,28 @@
         ⚖️ <strong>Legal Instrument Note:</strong> A properly executed Bill of Exchange is a negotiable instrument under UCC §3-104 — an unconditional written order by the Drawer directing the Drawee to pay a fixed sum to the Payee on demand or at a specified future date. All three parties, the amount, tenor, and consideration are required fields for a complete instrument.
       </div>
 
+      <!-- International / Domestic Toggle -->
+      <div id="boeVariantBar" class="flex items-center gap-4 mb-4 p-3 rounded-lg bg-gray-700/50 border border-gray-600">
+        <span class="text-xs font-bold text-gray-300 uppercase tracking-wide">Variant:</span>
+        <label class="flex items-center gap-1 text-sm text-gray-200 cursor-pointer">
+          <input type="radio" name="boeVariant" value="domestic" checked onchange="toggleBOEVariant('domestic')" class="accent-yellow-400" /> Domestic (UCC)
+        </label>
+        <label class="flex items-center gap-1 text-sm text-gray-200 cursor-pointer">
+          <input type="radio" name="boeVariant" value="international" onchange="toggleBOEVariant('international')" class="accent-yellow-400" /> International
+        </label>
+        <div id="boeIntlOptions" class="hidden flex items-center gap-3 ml-4">
+          <select id="boeLanguage" onchange="updateBOELanguageLabel()" class="border border-gray-600 rounded-lg bg-gray-700 text-white text-xs px-2 py-1">
+            <option value="en">EN - English</option>
+            <option value="fr">FR - French</option>
+            <option value="es">ES - Spanish</option>
+          </select>
+          <span id="boeUNCITRALBadge" class="text-xs font-bold text-emerald-400 border border-emerald-500/40 rounded-full px-3 py-0.5 bg-emerald-500/10">UNCITRAL Compliant</span>
+        </div>
+      </div>
+
       <!-- BOE Form -->
       <div class="border border-yellow-500/40 rounded-2xl p-6 mb-6 bg-yellow-500/5">
-        <h3 class="text-lg font-bold text-yellow-300 mb-5">📋 Draft New Bill of Exchange</h3>
+        <h3 id="boeFormHeading" class="text-lg font-bold text-yellow-300 mb-5">📋 Draft New Bill of Exchange</h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
           <div><label class="block text-xs text-gray-400 mb-1">BOE Reference No.</label><input type="text" id="boeNumber" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white font-mono" readonly /></div>
           <div><label class="block text-xs text-gray-400 mb-1">Date of Drawing</label><input type="date" id="boeDate" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
@@ -3266,6 +3285,24 @@
           <div class="md:col-span-2"><label class="block text-xs text-gray-400 mb-1">Special Conditions or Endorsements</label><textarea id="boeConditions" rows="2" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white text-sm" placeholder="Any endorsements, conditions, or restrictions on transfer"></textarea></div>
         </div>
 
+        <!-- Authorized Signature Section -->
+        <div id="boeSignatureSection" class="border border-purple-500/30 rounded-xl p-4 mb-5 bg-purple-500/5">
+          <h4 class="text-sm font-bold text-purple-400 mb-3">Authorized Signature</h4>
+          <div id="boeCanvasWrapper">
+            <canvas id="boeSignatureCanvas" style="width:100%;height:200px;border:1px solid #555;background:#fff;border-radius:8px;cursor:crosshair;touch-action:none;"></canvas>
+            <div class="flex gap-2 mt-2">
+              <button type="button" onclick="boeClearSignature()" class="bg-gray-600 hover:bg-gray-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Clear Signature</button>
+              <button type="button" onclick="boeUndoStroke()" class="bg-gray-600 hover:bg-gray-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Undo Stroke</button>
+              <button type="button" onclick="boeAcceptSignature()" class="bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Accept Signature</button>
+            </div>
+          </div>
+          <div id="boeSignaturePreviewWrapper" class="hidden mt-3">
+            <p class="text-xs text-gray-400 mb-1">Accepted Signature:</p>
+            <img id="boeSignaturePreview" class="border border-gray-600 rounded-lg bg-white" style="max-height:100px;" alt="Accepted Signature" />
+            <button type="button" onclick="boeResetSignature()" class="mt-2 text-xs text-purple-400 hover:text-purple-300 underline">Re-sign</button>
+          </div>
+        </div>
+
         <div class="flex flex-wrap gap-3">
           <button onclick="saveBOE()" class="bg-yellow-500 hover:bg-yellow-400 text-black px-5 py-2 rounded-lg font-bold">💾 Save Bill of Exchange</button>
           <button onclick="printBOE()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg font-bold">🖨️ Print / Preview</button>
@@ -3285,10 +3322,11 @@
             <th class="border border-gray-600 px-3 py-2 text-right">Amount</th>
             <th class="border border-gray-600 px-3 py-2 text-left">Tenor</th>
             <th class="border border-gray-600 px-3 py-2 text-left">Status</th>
+            <th class="border border-gray-600 px-3 py-2 text-center">Sig</th>
             <th class="border border-gray-600 px-3 py-2 text-center">Actions</th>
           </tr></thead>
           <tbody id="boeListBody">
-            <tr><td colspan="9" class="text-center text-gray-400 py-4">No bills of exchange created yet.</td></tr>
+            <tr><td colspan="10" class="text-center text-gray-400 py-4">No bills of exchange created yet.</td></tr>
           </tbody>
         </table>
       </div>
@@ -7242,13 +7280,167 @@
 
   // ─── BILLS OF EXCHANGE MODULE ─────────────────────────────────────────
   let billsOfExchange = [];
-  let boeCounter = 5000;
+  let boeSignatureData = null;
+  let boeStrokeHistory = [];
+  let boeIsDrawing = false;
+  let boeCurrentStroke = [];
+  let boeCanvas = null;
+  let boeCtx = null;
 
+  // ── Serial Generator (Fisher-Yates shuffle) ────────────────────────
+  function generateBOESerial() {
+    const pool = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const arr = pool.split('');
+    // Fisher-Yates shuffle
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return 'TMAR-BOE-' + arr.slice(0, 6).join('');
+  }
+
+  // ── International / Domestic Variant ────────────────────────────────
+  function toggleBOEVariant(variant) {
+    const intlOpts = document.getElementById('boeIntlOptions');
+    if (variant === 'international') {
+      intlOpts.classList.remove('hidden');
+      intlOpts.classList.add('flex');
+      updateBOELanguageLabel();
+    } else {
+      intlOpts.classList.add('hidden');
+      intlOpts.classList.remove('flex');
+      document.getElementById('boeFormHeading').textContent = '\uD83D\uDCCB Draft New Bill of Exchange';
+    }
+  }
+
+  function updateBOELanguageLabel() {
+    const lang = document.getElementById('boeLanguage').value;
+    const heading = document.getElementById('boeFormHeading');
+    const labels = { en: '\uD83D\uDCCB Draft New Bill of Exchange', fr: '\uD83D\uDCCB Lettre de Change', es: '\uD83D\uDCCB Letra de Cambio' };
+    heading.textContent = labels[lang] || labels.en;
+  }
+
+  // ── Signature Canvas ────────────────────────────────────────────────
+  function initBOESignature() {
+    boeCanvas = document.getElementById('boeSignatureCanvas');
+    if (!boeCanvas) return;
+    // Set internal resolution to match displayed size
+    const rect = boeCanvas.getBoundingClientRect();
+    boeCanvas.width = rect.width || 600;
+    boeCanvas.height = rect.height || 200;
+    boeCtx = boeCanvas.getContext('2d');
+    boeCtx.strokeStyle = '#1B2A4A';
+    boeCtx.lineWidth = 2;
+    boeCtx.lineCap = 'round';
+    boeCtx.lineJoin = 'round';
+
+    // Mouse events
+    boeCanvas.addEventListener('mousedown', boeCanvasDown);
+    boeCanvas.addEventListener('mousemove', boeCanvasDraw);
+    boeCanvas.addEventListener('mouseup', boeCanvasUp);
+    boeCanvas.addEventListener('mouseleave', boeCanvasUp);
+
+    // Touch events
+    boeCanvas.addEventListener('touchstart', boeCanvasDown, { passive: false });
+    boeCanvas.addEventListener('touchmove', boeCanvasDraw, { passive: false });
+    boeCanvas.addEventListener('touchend', boeCanvasUp);
+    boeCanvas.addEventListener('touchcancel', boeCanvasUp);
+  }
+
+  function boeGetCanvasPoint(e) {
+    const rect = boeCanvas.getBoundingClientRect();
+    if (e.touches && e.touches.length > 0) {
+      return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
+    }
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  }
+
+  function boeCanvasDown(e) {
+    e.preventDefault();
+    boeIsDrawing = true;
+    const pt = boeGetCanvasPoint(e);
+    boeCurrentStroke = [pt];
+    boeCtx.beginPath();
+    boeCtx.moveTo(pt.x, pt.y);
+  }
+
+  function boeCanvasDraw(e) {
+    if (!boeIsDrawing) return;
+    e.preventDefault();
+    const pt = boeGetCanvasPoint(e);
+    boeCurrentStroke.push(pt);
+    boeCtx.lineTo(pt.x, pt.y);
+    boeCtx.stroke();
+  }
+
+  function boeCanvasUp() {
+    if (!boeIsDrawing) return;
+    boeIsDrawing = false;
+    if (boeCurrentStroke.length > 0) {
+      boeStrokeHistory.push([...boeCurrentStroke]);
+    }
+    boeCurrentStroke = [];
+  }
+
+  function boeRedrawStrokes() {
+    boeCtx.clearRect(0, 0, boeCanvas.width, boeCanvas.height);
+    boeCtx.strokeStyle = '#1B2A4A';
+    boeCtx.lineWidth = 2;
+    boeCtx.lineCap = 'round';
+    boeCtx.lineJoin = 'round';
+    boeStrokeHistory.forEach(stroke => {
+      if (stroke.length < 1) return;
+      boeCtx.beginPath();
+      boeCtx.moveTo(stroke[0].x, stroke[0].y);
+      for (let i = 1; i < stroke.length; i++) {
+        boeCtx.lineTo(stroke[i].x, stroke[i].y);
+      }
+      boeCtx.stroke();
+    });
+  }
+
+  function boeClearSignature() {
+    boeStrokeHistory = [];
+    boeCurrentStroke = [];
+    boeSignatureData = null;
+    if (boeCtx) boeCtx.clearRect(0, 0, boeCanvas.width, boeCanvas.height);
+    document.getElementById('boeSignaturePreviewWrapper').classList.add('hidden');
+    document.getElementById('boeCanvasWrapper').classList.remove('hidden');
+  }
+
+  function boeUndoStroke() {
+    if (boeStrokeHistory.length === 0) return;
+    boeStrokeHistory.pop();
+    boeRedrawStrokes();
+  }
+
+  function boeAcceptSignature() {
+    if (boeStrokeHistory.length === 0) {
+      alert('Please draw your signature before accepting.');
+      return;
+    }
+    boeSignatureData = boeCanvas.toDataURL('image/png');
+    const preview = document.getElementById('boeSignaturePreview');
+    preview.src = boeSignatureData;
+    document.getElementById('boeSignaturePreviewWrapper').classList.remove('hidden');
+    document.getElementById('boeCanvasWrapper').classList.add('hidden');
+  }
+
+  function boeResetSignature() {
+    boeSignatureData = null;
+    document.getElementById('boeSignaturePreviewWrapper').classList.add('hidden');
+    document.getElementById('boeCanvasWrapper').classList.remove('hidden');
+    // Keep stroke history so user can continue editing
+  }
+
+  // ── Init ────────────────────────────────────────────────────────────
   function initBOE() {
     billsOfExchange = JSON.parse(localStorage.getItem('TMAR_BOE') || '[]');
-    boeCounter = parseInt(localStorage.getItem('TMAR_BOECounter') || '5000');
+    // Clean up legacy counter from localStorage
+    localStorage.removeItem('TMAR_BOECounter');
     renderBOEList();
-    document.getElementById('boeNumber').value = 'BOE-' + String(boeCounter + 1).padStart(6,'0');
+    document.getElementById('boeNumber').value = generateBOESerial();
+    initBOESignature();
   }
 
   function boeWriteAmount() {
@@ -7256,6 +7448,7 @@
     document.getElementById('boeAmountWords').value = numberToWords(n);
   }
 
+  // ── Save ────────────────────────────────────────────────────────────
   function saveBOE() {
     const num = document.getElementById('boeNumber').value;
     const date = document.getElementById('boeDate').value;
@@ -7283,25 +7476,27 @@
       alert('Please fill in Drawer, Drawee, Payee, and Amount.');
       return;
     }
-    boeCounter++;
-    billsOfExchange.push({ num, date, tenor, maturityDate, place, currency, drawerName, drawerAddr, drawerAcct, draweeName, draweeAddr, draweeRef, acceptance, payeeName, payeeAddr, amount, amountWords, consideration, interestRate, protest, jurisdiction, conditions, status: acceptance });
+    const variant = document.querySelector('input[name="boeVariant"]:checked')?.value || 'domestic';
+    const language = variant === 'international' ? (document.getElementById('boeLanguage')?.value || 'en') : null;
+    billsOfExchange.push({ num, date, tenor, maturityDate, place, currency, drawerName, drawerAddr, drawerAcct, draweeName, draweeAddr, draweeRef, acceptance, payeeName, payeeAddr, amount, amountWords, consideration, interestRate, protest, jurisdiction, conditions, status: acceptance, signatureData: boeSignatureData || null, variant, language });
     localStorage.setItem('TMAR_BOE', JSON.stringify(billsOfExchange));
-    localStorage.setItem('TMAR_BOECounter', String(boeCounter));
     renderBOEList();
     clearBOEForm();
     alert('Bill of Exchange ' + num + ' saved!');
   }
 
+  // ── Render List ─────────────────────────────────────────────────────
   function renderBOEList() {
     const tbody = document.getElementById('boeListBody');
     if (!billsOfExchange.length) {
-      tbody.innerHTML = '<tr><td colspan="9" class="text-center text-gray-400 py-4">No bills of exchange created yet.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="10" class="text-center text-gray-400 py-4">No bills of exchange created yet.</td></tr>';
       return;
     }
     tbody.innerHTML = billsOfExchange.map((b, i) => {
       const badge = b.acceptance === 'Accepted' ? '<span class="status-badge bg-green-500/20 text-green-400">Accepted</span>' :
         b.acceptance === 'Dishonored' ? '<span class="status-badge bg-red-500/20 text-red-400">Dishonored</span>' :
         '<span class="status-badge bg-amber-500/20 text-amber-400">' + b.acceptance + '</span>';
+      const sigThumb = b.signatureData ? `<img src="${b.signatureData}" style="height:24px;border-radius:3px;background:#fff;border:1px solid #666;" alt="sig" />` : '<span class="text-gray-500">\u2014</span>';
       return `<tr class="border-t border-gray-700 hover:bg-gray-700/30">
         <td class="px-3 py-2 font-mono text-yellow-400">${b.num}</td>
         <td class="px-3 py-2">${b.date}</td>
@@ -7311,21 +7506,23 @@
         <td class="px-3 py-2 text-right font-mono text-green-400 font-bold">${fmt$(b.amount)}</td>
         <td class="px-3 py-2 text-xs text-gray-400">${b.tenor}</td>
         <td class="px-3 py-2 text-center">${badge}</td>
+        <td class="px-3 py-2 text-center">${sigThumb}</td>
         <td class="px-3 py-2 text-center space-x-2">
-          <button onclick="printSpecificBOE(${i})" class="text-blue-400 text-xs">🖨</button>
-          <button onclick="billsOfExchange.splice(${i},1);localStorage.setItem('TMAR_BOE',JSON.stringify(billsOfExchange));renderBOEList()" class="text-red-400 text-xs">🗑</button>
+          <button onclick="printSpecificBOE(${i})" class="text-blue-400 text-xs">\uD83D\uDDA8</button>
+          <button onclick="billsOfExchange.splice(${i},1);localStorage.setItem('TMAR_BOE',JSON.stringify(billsOfExchange));renderBOEList()" class="text-red-400 text-xs">\uD83D\uDDD1</button>
         </td>
       </tr>`;
     }).join('');
   }
 
+  // ── Clear Form ──────────────────────────────────────────────────────
   function clearBOEForm() {
     ['boeDrawerName','boeDrawerAddr','boeDrawerAcct','boeDraweeName','boeDraweeAddr','boeDraweeRef',
      'boePayeeName','boePayeeAddr','boePlace','boeConsideration','boeInterestRate','boeJurisdiction','boeConditions'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('boeAmount').value = '';
     document.getElementById('boeAmountWords').value = '';
-    boeCounter++;
-    document.getElementById('boeNumber').value = 'BOE-' + String(boeCounter + 1).padStart(6,'0');
+    document.getElementById('boeNumber').value = generateBOESerial();
+    boeClearSignature();
   }
 
   function printSpecificBOE(idx) { printBOEDocument(billsOfExchange[idx]); }
@@ -7353,12 +7550,17 @@
       interestRate: document.getElementById('boeInterestRate').value,
       protest: document.getElementById('boeProtest').value,
       jurisdiction: document.getElementById('boeJurisdiction').value,
-      conditions: document.getElementById('boeConditions').value
+      conditions: document.getElementById('boeConditions').value,
+      signatureData: boeSignatureData || null
     };
     printBOEDocument(b);
   }
 
+  // ── Print Document ──────────────────────────────────────────────────
   function printBOEDocument(b) {
+    const sigHtml = b.signatureData
+      ? `<img src="${b.signatureData}" style="max-height:60px;margin:6px 0;background:#fff;" alt="Drawer Signature" />`
+      : '';
     const w = window.open('','_blank');
     w.document.write(`<!DOCTYPE html><html><head><title>Bill of Exchange ${b.num}</title><style>
       body{font-family:'Times New Roman',serif;padding:50px;max-width:780px;margin:auto;color:#000}
@@ -7381,7 +7583,7 @@
       <div class="boe-outer">
         <div class="boe-header">
           <h1>Bill of Exchange</h1>
-          <div class="sub">No. ${b.num} &nbsp;&nbsp;|&nbsp;&nbsp; Date of Drawing: ${b.date} &nbsp;&nbsp;|&nbsp;&nbsp; Place: ${b.place||'—'}</div>
+          <div class="sub">No. ${b.num} &nbsp;&nbsp;|&nbsp;&nbsp; Date of Drawing: ${b.date} &nbsp;&nbsp;|&nbsp;&nbsp; Place: ${b.place||'\u2014'}</div>
           <div class="sub" style="margin-top:4px">Tenor: <strong>${b.tenor}</strong>${b.maturityDate ? ' &nbsp;|&nbsp; Pay Date: <strong>' + b.maturityDate + '</strong>' : ''}</div>
         </div>
 
@@ -7396,22 +7598,22 @@
 
         <div class="grid3">
           <div class="party-box">
-            <div class="party-title">✍ Drawer (Issuer)</div>
+            <div class="party-title">Drawer (Issuer)</div>
             <div class="fl">Name</div><div class="fv">${b.drawerName}</div>
-            <div class="fl">Address</div><div class="fv">${b.drawerAddr||'—'}</div>
-            <div class="fl">Account Ref. No.</div><div class="fv" style="font-family:monospace">${b.drawerAcct||'—'}</div>
+            <div class="fl">Address</div><div class="fv">${b.drawerAddr||'\u2014'}</div>
+            <div class="fl">Account Ref. No.</div><div class="fv" style="font-family:monospace">${b.drawerAcct||'\u2014'}</div>
           </div>
           <div class="party-box">
-            <div class="party-title">🏦 Drawee (Ordered to Pay)</div>
+            <div class="party-title">Drawee (Ordered to Pay)</div>
             <div class="fl">Name / Institution</div><div class="fv">${b.draweeName}</div>
-            <div class="fl">Address</div><div class="fv">${b.draweeAddr||'—'}</div>
-            <div class="fl">Institution Ref. No.</div><div class="fv" style="font-family:monospace">${b.draweeRef||'—'}</div>
+            <div class="fl">Address</div><div class="fv">${b.draweeAddr||'\u2014'}</div>
+            <div class="fl">Institution Ref. No.</div><div class="fv" style="font-family:monospace">${b.draweeRef||'\u2014'}</div>
             <div class="fl">Acceptance Status</div><div class="fv">${b.acceptance}</div>
           </div>
           <div class="party-box">
-            <div class="party-title">💰 Payee (Beneficiary)</div>
+            <div class="party-title">Payee (Beneficiary)</div>
             <div class="fl">Name</div><div class="fv" style="font-weight:bold">${b.payeeName}</div>
-            <div class="fl">Address</div><div class="fv">${b.payeeAddr||'—'}</div>
+            <div class="fl">Address</div><div class="fv">${b.payeeAddr||'\u2014'}</div>
           </div>
         </div>
 
@@ -7424,7 +7626,8 @@
 
         <div class="sig-area">
           <div class="sig-box" style="min-height:60px">
-            <strong>Drawer's Signature</strong><br><br>
+            <strong>Drawer's Signature</strong><br>
+            ${sigHtml}
             <div style="font-size:.95rem">${b.drawerName}</div>
             <div style="color:#777;font-size:.8rem">Date: ${b.date}</div>
           </div>
@@ -7439,7 +7642,7 @@
           This Bill of Exchange is a negotiable instrument governed by UCC Article 3 and applicable commercial law.
           It constitutes an unconditional written order by the Drawer directing the Drawee to pay the stated sum to the order of the Payee
           on the stated tenor and terms. This instrument is complete and regular on its face.
-          BOE Reference: ${b.num} | Date of Drawing: ${b.date} | Place of Drawing: ${b.place||'—'}
+          BOE Reference: ${b.num} | Date of Drawing: ${b.date} | Place of Drawing: ${b.place||'\u2014'}
         </div>
       </div>
     </body></html>`);
