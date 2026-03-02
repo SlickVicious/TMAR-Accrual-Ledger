@@ -9038,6 +9038,28 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
         <div style="font-size:12px;color:var(--text-secondary)">Create &bull; Edit &bull; Preview &bull; Export PDF/Word &bull; Fillable Forms &bull; Print Ready</div>
       </div>
 
+      <!-- Template Selector Bar -->
+      <div id="doc-template-bar" style="background:var(--bg-secondary);border:1px solid rgba(6,182,212,.2);border-radius:8px;padding:8px;margin-bottom:8px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+        <label style="font-size:12px;color:var(--text-secondary);font-weight:700">Template:</label>
+        <select id="doc-template-select" style="padding:5px 8px;border:1px solid rgba(255,255,255,.1);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);font-size:12px;min-width:200px">
+          <option value="">-- Select Template --</option>
+          <option value="affidavit">Affidavit</option>
+          <option value="declaration_of_standing">Declaration of Standing</option>
+          <option value="motion_to_dismiss">Motion to Dismiss</option>
+          <option value="writ_of_mandamus">Writ of Mandamus</option>
+          <option value="habeas_corpus">Habeas Corpus Petition</option>
+          <option value="civil_rights_complaint">Civil Rights Complaint</option>
+          <option value="notice_of_default">Notice of Default</option>
+          <option value="demand_letter">Demand Letter</option>
+          <option value="trust_resolution">Trust Resolution</option>
+          <option value="certificate_of_trust">Certificate of Trust</option>
+          <option value="general_legal_memo">General Legal Memo</option>
+        </select>
+        <button onclick="loadDocTemplate()" style="padding:6px 14px;border:1px solid rgba(6,182,212,.4);border-radius:4px;background:rgba(6,182,212,.15);color:#06b6d4;cursor:pointer;font-weight:700;font-size:11px">Load Template</button>
+        <button onclick="newBlankDoc()" style="padding:6px 14px;border:1px solid rgba(255,255,255,.15);border-radius:4px;background:var(--bg-tertiary);color:var(--text-secondary);cursor:pointer;font-weight:700;font-size:11px">New Blank</button>
+        <span style="margin-left:auto;font-size:10px;color:var(--text-secondary)" id="doc-autosave-status"></span>
+      </div>
+
       <!-- Toolbar -->
       <div id="doc-toolbar" style="background:var(--bg-secondary);border:1px solid rgba(6,182,212,.2);border-radius:8px;padding:8px;margin-bottom:16px;display:flex;flex-wrap:wrap;gap:4px">
         <button onclick="docCmd('bold')" style="padding:6px 10px;border:1px solid rgba(255,255,255,.1);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);cursor:pointer;font-weight:900">B</button>
@@ -9058,6 +9080,24 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
         <button onclick="docCmd('insertUnorderedList')" style="padding:6px 10px;border:1px solid rgba(255,255,255,.1);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);cursor:pointer">• List</button>
         <button onclick="docCmd('insertOrderedList')" style="padding:6px 10px;border:1px solid rgba(255,255,255,.1);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);cursor:pointer">1. List</button>
         <button onclick="docCmd('indent')" style="padding:6px 10px;border:1px solid rgba(255,255,255,.1);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);cursor:pointer">→ Indent</button>
+        <span style="border-left:1px solid rgba(255,255,255,.1);margin:0 4px"></span>
+        <button onclick="docUndo()" title="Undo (Ctrl+Z)" style="padding:6px 10px;border:1px solid rgba(255,255,255,.1);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);cursor:pointer">↩</button>
+        <button onclick="docRedo()" title="Redo (Ctrl+Y)" style="padding:6px 10px;border:1px solid rgba(255,255,255,.1);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);cursor:pointer">↪</button>
+        <span style="border-left:1px solid rgba(255,255,255,.1);margin:0 4px"></span>
+        <select id="doc-citation-type" style="padding:4px;border:1px solid rgba(255,255,255,.1);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);font-size:11px">
+          <option value="constitutional">Constitutional</option>
+          <option value="statutory">Statutory</option>
+          <option value="caselaw">Case Law</option>
+          <option value="irc">IRC/Treasury Reg</option>
+        </select>
+        <button onclick="insertCitation()" style="padding:6px 10px;border:1px solid rgba(6,182,212,.3);border-radius:4px;background:rgba(6,182,212,.1);color:#06b6d4;cursor:pointer;font-size:11px;font-weight:700">Cite</button>
+        <span style="border-left:1px solid rgba(255,255,255,.1);margin:0 4px"></span>
+        <select id="doc-case-select" onchange="changeDocCase(this.value)" style="padding:4px;border:1px solid rgba(255,255,255,.1);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);font-size:11px">
+          <option value="">Text Case</option>
+          <option value="upper">UPPERCASE</option>
+          <option value="lower">lowercase</option>
+          <option value="title">Title Case</option>
+        </select>
         <span style="border-left:1px solid rgba(255,255,255,.1);margin:0 4px"></span>
         <button onclick="exportDocPDF()" style="padding:6px 12px;border:1px solid rgba(239,68,68,.3);border-radius:4px;background:rgba(239,68,68,.1);color:#ef4444;cursor:pointer;font-weight:700;font-size:11px">📄 PDF</button>
         <button onclick="exportDocWord()" style="padding:6px 12px;border:1px solid rgba(59,130,246,.3);border-radius:4px;background:rgba(59,130,246,.1);color:#3b82f6;cursor:pointer;font-weight:700;font-size:11px">📝 Word</button>
@@ -9318,7 +9358,436 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
   }
 
   // DOCUMENT CREATOR
-  function initDocCreator() {}
+  // ── Undo/Redo state ──
+  var docHistory = [];
+  var docHistoryIndex = -1;
+  var docUndoDebounceTimer = null;
+  var docAutoSaveTimer = null;
+
+  // ── Template Library ──
+  var DOC_TEMPLATES = {
+    affidavit: '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:8px">AFFIDAVIT OF {{PARTY_NAME}}</div>' +
+      '<div style="text-align:center;font-size:13px;margin-bottom:24px">Case No. {{CASE_NUMBER}}</div>' +
+      '<div style="margin-bottom:12px"><b>STATE OF {{JURISDICTION}}</b></div>' +
+      '<div style="margin-bottom:20px"><b>COUNTY OF ____________</b></div>' +
+      '<div style="margin-bottom:12px">Before me, the undersigned authority, personally appeared <b>{{PARTY_NAME}}</b>, who being duly sworn, deposes and says:</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">1. I am over the age of eighteen (18) years and competent to make this affidavit. The facts stated herein are within my personal knowledge and are true and correct.</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">2. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">3. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">4. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">5. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:24px;padding-left:28px">6. Further affiant sayeth naught.</div>' +
+      '<div style="margin-bottom:8px">FURTHER AFFIANT SAYETH NAUGHT.</div>' +
+      '<div style="margin-top:40px">____________________________________</div>' +
+      '<div>{{PARTY_NAME}}, Affiant</div>' +
+      '<div style="margin-top:30px;border-top:1px solid #000;padding-top:12px"><b>NOTARY ACKNOWLEDGMENT</b></div>' +
+      '<div style="margin-bottom:8px">STATE OF {{JURISDICTION}}</div>' +
+      '<div style="margin-bottom:8px">COUNTY OF ____________</div>' +
+      '<div style="margin-bottom:8px">Sworn to and subscribed before me this _____ day of ____________, ________.</div>' +
+      '<div style="margin-top:30px">____________________________________</div>' +
+      '<div>Notary Public</div>' +
+      '<div>My Commission Expires: ____________</div>',
+
+    declaration_of_standing: '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:4px">IN THE {{COURT}}</div>' +
+      '<div style="text-align:center;font-size:13px;margin-bottom:20px">{{JURISDICTION}}</div>' +
+      '<div style="margin-bottom:4px">{{PARTY_NAME}},</div>' +
+      '<div style="padding-left:40px;margin-bottom:4px">Claimant,</div>' +
+      '<div style="margin-bottom:4px;padding-left:20px">v.</div>' +
+      '<div style="margin-bottom:4px">____________,</div>' +
+      '<div style="padding-left:40px;margin-bottom:20px">Respondent.</div>' +
+      '<div style="text-align:right;margin-bottom:20px">Case No. {{CASE_NUMBER}}</div>' +
+      '<div style="text-align:center;font-weight:bold;font-size:15px;margin-bottom:20px">DECLARATION OF STANDING</div>' +
+      '<div style="margin-bottom:12px">COMES NOW, {{PARTY_NAME}}, in propria persona, and hereby declares standing in the above-captioned matter, and in support thereof states as follows:</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">1. Declarant is a living man/woman, possessed of unalienable rights secured by the Constitution for the United States of America.</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">2. Declarant has suffered an injury in fact that is concrete, particularized, and actual or imminent.</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">3. The injury is fairly traceable to the challenged action of the respondent.</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">4. It is likely, not merely speculative, that the injury will be redressed by a favorable decision.</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">5. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:20px">WHEREFORE, Declarant respectfully asserts standing to bring this matter before the {{COURT}} and requests such relief as may be just and proper.</div>' +
+      '<div style="margin-bottom:8px">Dated: {{DATE}}</div>' +
+      '<div style="margin-top:30px">____________________________________</div>' +
+      '<div>{{PARTY_NAME}}, Declarant</div>',
+
+    motion_to_dismiss: '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:4px">IN THE {{COURT}}</div>' +
+      '<div style="text-align:center;font-size:13px;margin-bottom:20px">{{JURISDICTION}}</div>' +
+      '<div style="margin-bottom:4px">{{PARTY_NAME}},</div>' +
+      '<div style="padding-left:40px;margin-bottom:4px">Defendant,</div>' +
+      '<div style="margin-bottom:4px;padding-left:20px">v.</div>' +
+      '<div style="margin-bottom:4px">____________,</div>' +
+      '<div style="padding-left:40px;margin-bottom:20px">Plaintiff.</div>' +
+      '<div style="text-align:right;margin-bottom:20px">Case No. {{CASE_NUMBER}}</div>' +
+      '<div style="text-align:center;font-weight:bold;font-size:15px;margin-bottom:20px">MOTION TO DISMISS</div>' +
+      '<div style="margin-bottom:12px">COMES NOW, {{PARTY_NAME}}, by and through undersigned, and moves this Honorable Court to dismiss the above-captioned action pursuant to the applicable rules of civil procedure, and in support thereof states:</div>' +
+      '<div style="margin-bottom:8px;font-weight:bold">I. STATEMENT OF FACTS</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">1. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">2. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:8px;font-weight:bold">II. LEGAL ARGUMENT</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">3. The complaint fails to state a claim upon which relief can be granted.</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">4. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:8px;font-weight:bold">III. CONCLUSION</div>' +
+      '<div style="margin-bottom:20px">WHEREFORE, Defendant respectfully requests this Court grant this Motion and dismiss the complaint with prejudice, together with such other and further relief as this Court deems just and proper.</div>' +
+      '<div style="margin-bottom:8px">Respectfully submitted,</div>' +
+      '<div style="margin-bottom:8px">Dated: {{DATE}}</div>' +
+      '<div style="margin-top:30px">____________________________________</div>' +
+      '<div>{{PARTY_NAME}}</div>',
+
+    writ_of_mandamus: '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:4px">IN THE {{COURT}}</div>' +
+      '<div style="text-align:center;font-size:13px;margin-bottom:20px">{{JURISDICTION}}</div>' +
+      '<div style="margin-bottom:4px">{{PARTY_NAME}},</div>' +
+      '<div style="padding-left:40px;margin-bottom:4px">Petitioner,</div>' +
+      '<div style="margin-bottom:4px;padding-left:20px">v.</div>' +
+      '<div style="margin-bottom:4px">____________,</div>' +
+      '<div style="padding-left:40px;margin-bottom:20px">Respondent.</div>' +
+      '<div style="text-align:right;margin-bottom:20px">Case No. {{CASE_NUMBER}}</div>' +
+      '<div style="text-align:center;font-weight:bold;font-size:15px;margin-bottom:20px">PETITION FOR WRIT OF MANDAMUS</div>' +
+      '<div style="margin-bottom:12px">TO THE HONORABLE COURT:</div>' +
+      '<div style="margin-bottom:12px">{{PARTY_NAME}}, Petitioner, respectfully petitions this Court for the issuance of a Writ of Mandamus directing Respondent to perform a ministerial duty owed to Petitioner, and in support thereof states:</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">1. Petitioner has a clear legal right to the relief sought.</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">2. Respondent has a corresponding duty to perform the act demanded.</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">3. Petitioner has no other adequate remedy at law.</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">4. The duty sought to be compelled is ministerial, not discretionary.</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">5. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:20px">WHEREFORE, Petitioner prays this Court issue a Writ of Mandamus commanding Respondent to ____________, and for such other and further relief as this Court deems just.</div>' +
+      '<div style="margin-bottom:8px">Dated: {{DATE}}</div>' +
+      '<div style="margin-top:30px">____________________________________</div>' +
+      '<div>{{PARTY_NAME}}, Petitioner</div>',
+
+    habeas_corpus: '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:4px">IN THE {{COURT}}</div>' +
+      '<div style="text-align:center;font-size:13px;margin-bottom:20px">{{JURISDICTION}}</div>' +
+      '<div style="margin-bottom:4px">{{PARTY_NAME}},</div>' +
+      '<div style="padding-left:40px;margin-bottom:4px">Petitioner,</div>' +
+      '<div style="margin-bottom:4px;padding-left:20px">v.</div>' +
+      '<div style="margin-bottom:4px">____________, Warden,</div>' +
+      '<div style="padding-left:40px;margin-bottom:20px">Respondent.</div>' +
+      '<div style="text-align:right;margin-bottom:20px">Case No. {{CASE_NUMBER}}</div>' +
+      '<div style="text-align:center;font-weight:bold;font-size:15px;margin-bottom:20px">PETITION FOR WRIT OF HABEAS CORPUS</div>' +
+      '<div style="margin-bottom:12px">{{PARTY_NAME}}, Petitioner, respectfully petitions this Court for a Writ of Habeas Corpus pursuant to 28 U.S.C. \u00A7 2241 and/or 28 U.S.C. \u00A7 2254, and in support thereof states:</div>' +
+      '<div style="margin-bottom:8px;font-weight:bold">I. JURISDICTION</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">1. This Court has jurisdiction pursuant to 28 U.S.C. \u00A7 2241.</div>' +
+      '<div style="margin-bottom:8px;font-weight:bold">II. GROUNDS FOR RELIEF</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">2. Petitioner is being held in custody in violation of the Constitution or laws of the United States.</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">3. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">4. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:8px;font-weight:bold">III. EXHAUSTION OF REMEDIES</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">5. Petitioner has exhausted all available state remedies or is excused from exhaustion because ____________.</div>' +
+      '<div style="margin-bottom:20px">WHEREFORE, Petitioner prays this Court grant the Writ, order Petitioner\u2019s release, and grant such other relief as is just and proper.</div>' +
+      '<div style="margin-bottom:8px">Dated: {{DATE}}</div>' +
+      '<div style="margin-top:30px">____________________________________</div>' +
+      '<div>{{PARTY_NAME}}, Petitioner</div>',
+
+    civil_rights_complaint: '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:4px">IN THE {{COURT}}</div>' +
+      '<div style="text-align:center;font-size:13px;margin-bottom:20px">{{JURISDICTION}}</div>' +
+      '<div style="margin-bottom:4px">{{PARTY_NAME}},</div>' +
+      '<div style="padding-left:40px;margin-bottom:4px">Plaintiff,</div>' +
+      '<div style="margin-bottom:4px;padding-left:20px">v.</div>' +
+      '<div style="margin-bottom:4px">____________,</div>' +
+      '<div style="padding-left:40px;margin-bottom:20px">Defendant(s).</div>' +
+      '<div style="text-align:right;margin-bottom:20px">Case No. {{CASE_NUMBER}}</div>' +
+      '<div style="text-align:center;font-weight:bold;font-size:15px;margin-bottom:20px">COMPLAINT FOR DEPRIVATION OF CIVIL RIGHTS<br>42 U.S.C. \u00A7 1983</div>' +
+      '<div style="margin-bottom:12px">{{PARTY_NAME}}, Plaintiff, proceeding pro se, files this Complaint against the above-named Defendant(s) and alleges as follows:</div>' +
+      '<div style="margin-bottom:8px;font-weight:bold">I. PARTIES</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">1. Plaintiff {{PARTY_NAME}} is a citizen of {{JURISDICTION}} and resides at ____________.</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">2. Defendant ____________ is a person acting under color of state law.</div>' +
+      '<div style="margin-bottom:8px;font-weight:bold">II. JURISDICTION AND VENUE</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">3. This Court has jurisdiction pursuant to 28 U.S.C. \u00A7 1331 and 42 U.S.C. \u00A7 1983.</div>' +
+      '<div style="margin-bottom:8px;font-weight:bold">III. STATEMENT OF FACTS</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">4. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">5. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:8px;font-weight:bold">IV. CLAIMS FOR RELIEF</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">6. Defendant\u2019s actions deprived Plaintiff of rights, privileges, or immunities secured by the Constitution and laws of the United States.</div>' +
+      '<div style="margin-bottom:8px;font-weight:bold">V. PRAYER FOR RELIEF</div>' +
+      '<div style="margin-bottom:20px">WHEREFORE, Plaintiff prays this Court: (a) declare Defendant\u2019s acts unlawful; (b) award compensatory damages; (c) award punitive damages; (d) award costs and fees; (e) grant such other relief as is just.</div>' +
+      '<div style="margin-bottom:8px">Dated: {{DATE}}</div>' +
+      '<div style="margin-top:30px">____________________________________</div>' +
+      '<div>{{PARTY_NAME}}, Plaintiff Pro Se</div>',
+
+    notice_of_default: '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:20px">NOTICE OF DEFAULT</div>' +
+      '<div style="margin-bottom:8px">Date: {{DATE}}</div>' +
+      '<div style="margin-bottom:8px">To: ____________</div>' +
+      '<div style="margin-bottom:8px">Address: ____________</div>' +
+      '<div style="margin-bottom:20px">Re: Notice of Default and Opportunity to Cure</div>' +
+      '<div style="margin-bottom:12px">You are hereby notified that you are in DEFAULT of your obligations under the agreement dated ____________ between {{PARTY_NAME}} and the above-named party.</div>' +
+      '<div style="margin-bottom:8px;font-weight:bold">NATURE OF DEFAULT:</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">1. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">2. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:8px;font-weight:bold">CURE PERIOD:</div>' +
+      '<div style="margin-bottom:12px">You have thirty (30) calendar days from the date of this notice to cure the above default. If the default is not cured within the cure period, {{PARTY_NAME}} reserves all rights and remedies available at law and in equity, including but not limited to:</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">(a) Acceleration of all amounts due;</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">(b) Termination of the agreement;</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">(c) Pursuit of legal action for damages.</div>' +
+      '<div style="margin-bottom:20px">This notice is without waiver of any rights or remedies, all of which are expressly reserved.</div>' +
+      '<div style="margin-top:30px">____________________________________</div>' +
+      '<div>{{PARTY_NAME}}</div>' +
+      '<div style="margin-top:16px;font-size:12px;font-style:italic">Sent via Certified Mail, Return Receipt Requested</div>',
+
+    demand_letter: '<div style="margin-bottom:8px">{{DATE}}</div>' +
+      '<div style="margin-bottom:4px">VIA CERTIFIED MAIL</div>' +
+      '<div style="margin-bottom:4px">Return Receipt Requested</div>' +
+      '<div style="margin-bottom:20px">&nbsp;</div>' +
+      '<div style="margin-bottom:4px">____________</div>' +
+      '<div style="margin-bottom:4px">____________</div>' +
+      '<div style="margin-bottom:20px">____________</div>' +
+      '<div style="margin-bottom:20px">Re: <b>Demand for ____________</b></div>' +
+      '<div style="margin-bottom:12px">Dear ____________:</div>' +
+      '<div style="margin-bottom:12px">This letter constitutes a formal demand on behalf of {{PARTY_NAME}} regarding the matter described below. Please treat this correspondence with the seriousness it warrants.</div>' +
+      '<div style="margin-bottom:8px;font-weight:bold">STATEMENT OF FACTS:</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">1. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">2. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:8px;font-weight:bold">DEMAND:</div>' +
+      '<div style="margin-bottom:12px">{{PARTY_NAME}} hereby demands that you take the following action(s) within fifteen (15) days of receipt of this letter:</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">(a) ____________________________________________________________</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">(b) ____________________________________________________________</div>' +
+      '<div style="margin-bottom:12px">Failure to comply with this demand within the stated time frame will leave {{PARTY_NAME}} with no alternative but to pursue all available legal remedies without further notice.</div>' +
+      '<div style="margin-bottom:20px">Govern yourself accordingly.</div>' +
+      '<div style="margin-top:30px">Sincerely,</div>' +
+      '<div style="margin-top:30px">____________________________________</div>' +
+      '<div>{{PARTY_NAME}}</div>',
+
+    trust_resolution: '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:4px">TRUST RESOLUTION</div>' +
+      '<div style="text-align:center;font-size:13px;margin-bottom:20px">Resolution No. ____________</div>' +
+      '<div style="margin-bottom:12px"><b>Trust Name:</b> ____________</div>' +
+      '<div style="margin-bottom:12px"><b>Date of Trust:</b> ____________</div>' +
+      '<div style="margin-bottom:12px"><b>EIN:</b> ____________</div>' +
+      '<div style="margin-bottom:20px"><b>Date of Resolution:</b> {{DATE}}</div>' +
+      '<div style="margin-bottom:12px">WHEREAS, the undersigned is the duly appointed Trustee of the above-referenced Trust; and</div>' +
+      '<div style="margin-bottom:12px">WHEREAS, the Trustee has the power and authority under the Trust instrument to act on behalf of the Trust; and</div>' +
+      '<div style="margin-bottom:12px">WHEREAS, it is in the best interest of the Trust and its beneficiaries to take the following action;</div>' +
+      '<div style="margin-bottom:12px">NOW, THEREFORE, BE IT RESOLVED THAT:</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">1. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">2. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">3. The Trustee is authorized and directed to execute any and all documents necessary to effectuate this Resolution.</div>' +
+      '<div style="margin-bottom:20px">This Resolution is adopted and effective as of the date first written above.</div>' +
+      '<div style="margin-top:40px">____________________________________</div>' +
+      '<div>{{PARTY_NAME}}, Trustee</div>' +
+      '<div style="margin-top:8px">Date: {{DATE}}</div>',
+
+    certificate_of_trust: '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:20px">CERTIFICATE OF TRUST</div>' +
+      '<div style="margin-bottom:12px">The undersigned, {{PARTY_NAME}}, hereby certifies the following:</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">1. <b>Trust Name:</b> ____________</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">2. <b>Date of Execution:</b> ____________</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">3. <b>Type of Trust:</b> Revocable Living Trust</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">4. <b>Trustee(s):</b> {{PARTY_NAME}}</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">5. <b>Successor Trustee(s):</b> ____________</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">6. <b>EIN:</b> ____________</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">7. <b>Trust Jurisdiction:</b> {{JURISDICTION}}</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">8. <b>Revocability:</b> The Trust is revocable and may be amended or revoked by the Grantor during the Grantor\u2019s lifetime.</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">9. <b>Trustee Powers:</b> The Trustee has the power to acquire, sell, manage, and encumber Trust property, to open and manage financial accounts, and to execute documents on behalf of the Trust.</div>' +
+      '<div style="margin-bottom:12px;padding-left:28px">10. <b>Trust Existence:</b> The Trust has not been revoked, modified, or amended in any manner that would invalidate this Certificate.</div>' +
+      '<div style="margin-bottom:12px">This Certificate is made pursuant to the provisions of the applicable Uniform Trust Code. Any person may rely upon this Certificate without requiring inspection of the Trust instrument itself.</div>' +
+      '<div style="margin-bottom:8px">Dated: {{DATE}}</div>' +
+      '<div style="margin-top:30px">____________________________________</div>' +
+      '<div>{{PARTY_NAME}}, Trustee</div>' +
+      '<div style="margin-top:30px;border-top:1px solid #000;padding-top:12px"><b>NOTARY ACKNOWLEDGMENT</b></div>' +
+      '<div style="margin-bottom:8px">STATE OF {{JURISDICTION}}</div>' +
+      '<div style="margin-bottom:8px">COUNTY OF ____________</div>' +
+      '<div style="margin-bottom:8px">Subscribed and sworn to before me this _____ day of ____________, ________.</div>' +
+      '<div style="margin-top:30px">____________________________________</div>' +
+      '<div>Notary Public</div>',
+
+    general_legal_memo: '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:20px">LEGAL MEMORANDUM</div>' +
+      '<div style="margin-bottom:8px"><b>TO:</b> ____________</div>' +
+      '<div style="margin-bottom:8px"><b>FROM:</b> {{PARTY_NAME}}</div>' +
+      '<div style="margin-bottom:8px"><b>DATE:</b> {{DATE}}</div>' +
+      '<div style="margin-bottom:8px"><b>RE:</b> ____________</div>' +
+      '<div style="margin-bottom:20px;border-bottom:2px solid #000"></div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">I. QUESTION PRESENTED</div>' +
+      '<div style="margin-bottom:16px;padding-left:28px">____________________________________________________________</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">II. SHORT ANSWER</div>' +
+      '<div style="margin-bottom:16px;padding-left:28px">____________________________________________________________</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">III. STATEMENT OF FACTS</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">____________________________________________________________</div>' +
+      '<div style="margin-bottom:16px;padding-left:28px">____________________________________________________________</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">IV. DISCUSSION</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">A. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">____________________________________________________________</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">B. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:16px;padding-left:28px">____________________________________________________________</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">V. CONCLUSION</div>' +
+      '<div style="margin-bottom:16px;padding-left:28px">____________________________________________________________</div>'
+  };
+
+  // ── Load Template ──
+  function loadDocTemplate() {
+    var sel = document.getElementById('doc-template-select');
+    var key = sel.value;
+    if (!key) { alert('Please select a template first.'); return; }
+    var editor = document.getElementById('doc-editor');
+    var html = DOC_TEMPLATES[key] || '';
+    // Replace {{DATE}} with today's formatted date
+    var today = new Date();
+    var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    var dateStr = months[today.getMonth()] + ' ' + today.getDate() + ', ' + today.getFullYear();
+    html = html.replace(/\{\{DATE\}\}/g, dateStr);
+    editor.innerHTML = html;
+    docSaveSnapshot();
+    docAutoSaveNow();
+  }
+
+  // ── New Blank Doc ──
+  function newBlankDoc() {
+    var editor = document.getElementById('doc-editor');
+    editor.innerHTML = '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:24px">DOCUMENT TITLE</div>' +
+      '<div>Begin typing or dictating your document here. This editor supports full formatting, fillable fields, PDF and Word export, and printing. All output is governed by the SYPHER Protocol \u2014 facts and conclusions of law only, in the presenter\u2019s vernacular, without hedging, disclaimers, metadata, tags, or markers.</div>';
+    document.getElementById('doc-template-select').value = '';
+    docSaveSnapshot();
+    docAutoSaveNow();
+  }
+
+  // ── Undo/Redo System ──
+  function docSaveSnapshot() {
+    var editor = document.getElementById('doc-editor');
+    if (!editor) return;
+    var html = editor.innerHTML;
+    // If we are mid-history, discard future states
+    if (docHistoryIndex < docHistory.length - 1) {
+      docHistory = docHistory.slice(0, docHistoryIndex + 1);
+    }
+    // Avoid duplicate consecutive snapshots
+    if (docHistory.length > 0 && docHistory[docHistory.length - 1] === html) return;
+    docHistory.push(html);
+    // Trim to max 30 snapshots
+    if (docHistory.length > 30) {
+      docHistory.shift();
+    }
+    docHistoryIndex = docHistory.length - 1;
+  }
+
+  function docUndo() {
+    if (docHistoryIndex <= 0) return;
+    docHistoryIndex--;
+    var editor = document.getElementById('doc-editor');
+    editor.innerHTML = docHistory[docHistoryIndex];
+  }
+
+  function docRedo() {
+    if (docHistoryIndex >= docHistory.length - 1) return;
+    docHistoryIndex++;
+    var editor = document.getElementById('doc-editor');
+    editor.innerHTML = docHistory[docHistoryIndex];
+  }
+
+  function initDocUndoRedo() {
+    var editor = document.getElementById('doc-editor');
+    if (!editor) return;
+    // Take initial snapshot
+    docSaveSnapshot();
+    // Debounced input listener
+    editor.addEventListener('input', function() {
+      clearTimeout(docUndoDebounceTimer);
+      docUndoDebounceTimer = setTimeout(function() {
+        docSaveSnapshot();
+      }, 500);
+    });
+    // Keyboard shortcuts
+    editor.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        docUndo();
+      } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+        e.preventDefault();
+        docRedo();
+      } else if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        exportDocPDF();
+      }
+    });
+  }
+
+  // ── Citation Insertion ──
+  function insertCitation() {
+    var type = document.getElementById('doc-citation-type').value;
+    var citationHTML = '';
+    switch (type) {
+      case 'constitutional':
+        citationHTML = '<span style="font-style:italic">U.S. Const. Art. ___, \u00A7 ___</span>';
+        break;
+      case 'statutory':
+        citationHTML = '<span style="font-style:italic">___ U.S.C. \u00A7 ___</span>';
+        break;
+      case 'caselaw':
+        citationHTML = '<span style="font-style:italic">___, ___ F.3d ___ (___th Cir. ___)</span>';
+        break;
+      case 'irc':
+        citationHTML = '<span style="font-style:italic">IRC \u00A7 ___; Treas. Reg. \u00A7 ___._-___</span>';
+        break;
+      default:
+        return;
+    }
+    // Focus the editor and insert at cursor
+    var editor = document.getElementById('doc-editor');
+    editor.focus();
+    document.execCommand('insertHTML', false, citationHTML);
+    docSaveSnapshot();
+  }
+
+  // ── Text Case Transformation ──
+  function changeDocCase(mode) {
+    if (!mode) return;
+    var sel = window.getSelection();
+    if (!sel || sel.isCollapsed || sel.rangeCount === 0) {
+      alert('Please select text in the editor first.');
+      document.getElementById('doc-case-select').value = '';
+      return;
+    }
+    var range = sel.getRangeAt(0);
+    var text = sel.toString();
+    var transformed = text;
+    switch (mode) {
+      case 'upper':
+        transformed = text.toUpperCase();
+        break;
+      case 'lower':
+        transformed = text.toLowerCase();
+        break;
+      case 'title':
+        transformed = text.replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+        break;
+      default:
+        return;
+    }
+    // Replace selected text
+    range.deleteContents();
+    range.insertNode(document.createTextNode(transformed));
+    // Reset dropdown
+    document.getElementById('doc-case-select').value = '';
+    docSaveSnapshot();
+  }
+
+  // ── Auto-Save ──
+  function docAutoSaveNow() {
+    var editor = document.getElementById('doc-editor');
+    if (!editor) return;
+    try {
+      localStorage.setItem('TMAR_DocCreator', editor.innerHTML);
+      var statusEl = document.getElementById('doc-autosave-status');
+      if (statusEl) {
+        var now = new Date();
+        statusEl.textContent = 'Auto-saved ' + now.toLocaleTimeString();
+      }
+    } catch(e) { /* localStorage full or unavailable */ }
+  }
+
+  function docAutoSaveRestore() {
+    var saved = localStorage.getItem('TMAR_DocCreator');
+    if (saved) {
+      var editor = document.getElementById('doc-editor');
+      if (editor) editor.innerHTML = saved;
+    }
+  }
+
+  function initDocAutoSave() {
+    // Restore from localStorage on init
+    docAutoSaveRestore();
+    // Auto-save every 5 seconds
+    docAutoSaveTimer = setInterval(docAutoSaveNow, 5000);
+  }
+
+  // ── Init Document Creator ──
+  function initDocCreator() {
+    initDocAutoSave();
+    initDocUndoRedo();
+  }
+
   function docCmd(cmd, val) { document.execCommand(cmd, false, val||null); }
   function exportDocPDF() {
     var jsPDF=window.jspdf?window.jspdf.jsPDF:window.jsPDF;
