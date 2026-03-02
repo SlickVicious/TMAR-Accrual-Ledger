@@ -346,15 +346,40 @@
           <div>
             <label class="block text-sm font-medium mb-1 text-gray-400">Category</label>
             <select id="category" class="w-full border border-gray-600 p-3 rounded-lg bg-gray-700 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent">
-              <option>Income</option>
-              <option>Business Expense</option>
-              <option>Debt Forgiven (Receivable)</option>
-              <option>Offset (Expense Applied)</option>
-              <option>Charitable Contribution</option>
-              <option>Trust Distribution</option>
-              <option>Investment Income</option>
-              <option>Capital Gain/Loss</option>
-              <option>Other</option>
+              <option value="">Select Category...</option>
+              <option value="Checking">Checking</option>
+              <option value="Savings">Savings</option>
+              <option value="Credit Card">Credit Card</option>
+              <option value="Mortgage">Mortgage</option>
+              <option value="Auto Loan">Auto Loan</option>
+              <option value="Student Loan">Student Loan</option>
+              <option value="Personal Loan">Personal Loan</option>
+              <option value="Gym Membership">Gym Membership</option>
+              <option value="Investment">Investment</option>
+              <option value="Retirement">Retirement</option>
+              <option value="Brokerage">Brokerage</option>
+              <option value="HSA">HSA</option>
+              <option value="FSA">FSA</option>
+              <option value="Life Insurance">Life Insurance</option>
+              <option value="Auto Insurance">Auto Insurance</option>
+              <option value="Health Insurance">Health Insurance</option>
+              <option value="Dental Insurance">Dental Insurance</option>
+              <option value="Vision Insurance">Vision Insurance</option>
+              <option value="Homeowners Insurance">Homeowners Insurance</option>
+              <option value="Renters Insurance">Renters Insurance</option>
+              <option value="Utility">Utility</option>
+              <option value="Subscription">Subscription</option>
+              <option value="Streaming">Streaming</option>
+              <option value="Phone">Phone</option>
+              <option value="Internet">Internet</option>
+              <option value="Medical">Medical</option>
+              <option value="Dental">Dental</option>
+              <option value="Tax Account">Tax Account</option>
+              <option value="Trust Account">Trust Account</option>
+              <option value="Business Account">Business Account</option>
+              <option value="Government Account">Government Account</option>
+              <option value="Collections">Collections</option>
+              <option value="Other">Other</option>
             </select>
           </div>
           <div>
@@ -1993,6 +2018,8 @@
                 <th class="border border-gray-600 px-4 py-3 text-left text-sm">Entity Name</th>
                 <th class="border border-gray-600 px-4 py-3 text-left text-sm">EIN</th>
                 <th class="border border-gray-600 px-4 py-3 text-left text-sm">Type</th>
+                <th class="border border-gray-600 px-4 py-3 text-left text-sm">Status</th>
+                <th class="border border-gray-600 px-4 py-3 text-left text-sm">Primary User</th>
                 <th class="border border-gray-600 px-4 py-3 text-left text-sm">Parent</th>
                 <th class="border border-gray-600 px-4 py-3 text-left text-sm">Ownership %</th>
                 <th class="border border-gray-600 px-4 py-3 text-left text-sm">Fiscal Year End</th>
@@ -2000,7 +2027,7 @@
               </tr>
             </thead>
             <tbody id="entitiesTableBody">
-              <tr><td colspan="7" class="text-center text-gray-400 py-4">No entities configured. Click "Add Entity" to begin.</td></tr>
+              <tr><td colspan="9" class="text-center text-gray-400 py-4">No entities configured. Click "Add Entity" to begin.</td></tr>
             </tbody>
           </table>
         </div>
@@ -5097,7 +5124,7 @@
 
       showModal(`
         <h3 class="text-lg font-bold mb-4">${entity ? 'Edit' : 'Add'} Entity</h3>
-        <form onsubmit="saveEntity(event, ${editId || 'null'})">
+        <form onsubmit="saveEntity(event, ${editId ? `'${editId}'` : 'null'})">
           <div class="space-y-4">
             <div>
               <label class="block text-sm font-medium mb-1 text-gray-400">Entity Name</label>
@@ -5140,6 +5167,29 @@
                 <option value="9" ${entity?.fye === '9' ? 'selected' : ''}>September</option>
               </select>
             </div>
+            <div>
+              <label class="block text-sm font-medium mb-1 text-gray-400">Status</label>
+              <select id="entityStatus" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white">
+                <option value="Active" ${entity?.status === 'Active' ? 'selected' : ''}>Active</option>
+                <option value="Closed" ${entity?.status === 'Closed' ? 'selected' : ''}>Closed</option>
+                <option value="Pending" ${entity?.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                <option value="Suspended" ${entity?.status === 'Suspended' ? 'selected' : ''}>Suspended</option>
+                <option value="In Review" ${entity?.status === 'In Review' ? 'selected' : ''}>In Review</option>
+                <option value="Dormant" ${entity?.status === 'Dormant' ? 'selected' : ''}>Dormant</option>
+                <option value="Under Dispute" ${entity?.status === 'Under Dispute' ? 'selected' : ''}>Under Dispute</option>
+                <option value="Transferred" ${entity?.status === 'Transferred' ? 'selected' : ''}>Transferred</option>
+                <option value="Archived" ${entity?.status === 'Archived' ? 'selected' : ''}>Archived</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1 text-gray-400">Primary User</label>
+              <select id="entityPrimaryUser" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white">
+                <option value="Clint" ${entity?.primaryUser === 'Clint' ? 'selected' : ''}>Clint</option>
+                <option value="Syrina" ${entity?.primaryUser === 'Syrina' ? 'selected' : ''}>Syrina</option>
+                <option value="Joint" ${entity?.primaryUser === 'Joint' ? 'selected' : ''}>Joint</option>
+                <option value="Trust" ${entity?.primaryUser === 'Trust' ? 'selected' : ''}>Trust</option>
+              </select>
+            </div>
           </div>
           <div class="flex justify-end gap-2 mt-6">
             <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg font-semibold">Cancel</button>
@@ -5165,7 +5215,9 @@
         type: document.getElementById('entityType').value,
         parentId: document.getElementById('entityParent').value || null,
         ownership: parseFloat(document.getElementById('entityOwnership').value) || 100,
-        fye: document.getElementById('entityFYE').value
+        fye: document.getElementById('entityFYE').value,
+        status: document.getElementById('entityStatus').value,
+        primaryUser: document.getElementById('entityPrimaryUser').value
       };
 
       if (editId) {
@@ -5194,7 +5246,7 @@
     function updateEntitiesTable() {
       const tbody = document.getElementById('entitiesTableBody');
       if (!appData.entities.length) {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-400 py-4">No entities configured.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center text-gray-400 py-4">No entities configured.</td></tr>';
         updateEntityStructure();
         return;
       }
@@ -5205,6 +5257,10 @@
           parent: 'blue', subsidiary: 'purple', trust: 'amber', estate: 'amber',
           partnership: 'cyan', nonprofit: 'green', llc: 'gray'
         };
+        const statusColors = {
+          Active: 'green', Closed: 'red', Pending: 'yellow', Suspended: 'orange',
+          'In Review': 'blue', Dormant: 'gray', 'Under Dispute': 'red', Transferred: 'purple', Archived: 'gray'
+        };
         return `
           <tr class="hover:bg-gray-600/50">
             <td class="border border-gray-600 px-4 py-2 font-semibold">${e.name}</td>
@@ -5212,12 +5268,16 @@
             <td class="border border-gray-600 px-4 py-2">
               <span class="status-badge bg-${typeColors[e.type] || 'gray'}-500/20 text-${typeColors[e.type] || 'gray'}-400">${e.type}</span>
             </td>
+            <td class="border border-gray-600 px-4 py-2">
+              <span class="status-badge bg-${statusColors[e.status] || 'gray'}-500/20 text-${statusColors[e.status] || 'gray'}-400">${e.status || '-'}</span>
+            </td>
+            <td class="border border-gray-600 px-4 py-2">${e.primaryUser || '-'}</td>
             <td class="border border-gray-600 px-4 py-2">${parent?.name || '-'}</td>
             <td class="border border-gray-600 px-4 py-2">${e.type === 'subsidiary' ? e.ownership + '%' : '-'}</td>
             <td class="border border-gray-600 px-4 py-2">${getFYEMonth(e.fye)}</td>
             <td class="border border-gray-600 px-4 py-2 text-center">
-              <button onclick="showEntityModal(${e.id})" class="text-blue-400 hover:text-blue-300 p-1">✏️</button>
-              <button onclick="deleteEntity(${e.id})" class="text-red-400 hover:text-red-300 p-1">🗑️</button>
+              <button onclick="showEntityModal('${e.id}')" class="text-blue-400 hover:text-blue-300 p-1">✏️</button>
+              <button onclick="deleteEntity('${e.id}')" class="text-red-400 hover:text-red-300 p-1">🗑️</button>
             </td>
           </tr>
         `;
