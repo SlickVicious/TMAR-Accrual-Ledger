@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Universal Accrual Ledger App</title>
+  <title>TMAR Universal Accrual Ledger</title>
+  <meta name="description" content="TMAR-Aligned Universal Accrual Ledger - Trust accounting, double-entry journal, tax forms, financial statements">
+  <meta name="author" content="Clinton Wimberly IV">
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -3915,7 +3917,7 @@
     
     // Master Export Function
     function exportAllData(format) {
-      const title = 'Universal_Accrual_Ledger_Export';
+      const title = 'TMAR_Accrual_Ledger_Export';
       
       if (format === 'json') {
         const blob = new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' });
@@ -3942,7 +3944,7 @@
         const doc = new jsPDF();
         
         doc.setFontSize(20);
-        doc.text('Universal Accrual Ledger - Complete Export', 14, 20);
+        doc.text('TMAR Universal Accrual Ledger - Complete Export', 14, 20);
         doc.setFontSize(10);
         doc.text('Generated: ' + new Date().toLocaleString(), 14, 28);
         
@@ -3983,7 +3985,7 @@
           html += '<p>No journal entries</p>';
         }
         
-        exportToWord('Universal_Accrual_Ledger_Export', html);
+        exportToWord('TMAR_Accrual_Ledger_Export', html);
       }
       
       if (format === 'csv') {
@@ -4014,7 +4016,7 @@
       var html = '<!DOCTYPE html><html><head><title>Ledger Preview</title>';
       html += '<style>body{font-family:Arial,sans-serif;padding:20px;} table{border-collapse:collapse;width:100%;margin:20px 0;} th,td{border:1px solid #333;padding:8px;text-align:left;} th{background:#1e3c72;color:white;} h1{color:#1e3c72;} h2{color:#2a5298;margin-top:30px;} .summary{background:#f0f0f0;padding:15px;border-radius:8px;margin:20px 0;}</style>';
       html += '</head><body>';
-      html += '<h1>Universal Accrual Ledger - Preview</h1>';
+      html += '<h1>TMAR Universal Accrual Ledger - Preview</h1>';
       html += '<p>Generated: ' + new Date().toLocaleString() + '</p>';
       
       // Summary
@@ -4337,7 +4339,7 @@
 
     function saveLedger() {
       const blob = new Blob([JSON.stringify(appData.ledgerEntries, null, 2)], { type: 'application/json' });
-      saveAs(blob, 'UniversalLedgerBook.json');
+      saveAs(blob, 'TMAR_LedgerBook.json');
     }
 
     function exportCSV() {
@@ -4346,7 +4348,7 @@
         csv += `"${entry.date}","${entry.description}","${entry.category}",${entry.debit || 0},${entry.credit || 0}\n`;
       });
       const blob = new Blob([csv], { type: 'text/csv' });
-      saveAs(blob, 'UniversalLedger.csv');
+      saveAs(blob, 'TMAR_Ledger.csv');
     }
 
     function showClearConfirm() {
@@ -7965,7 +7967,7 @@
     // Attestation
     +'<div class="border border-gray-500 rounded-xl p-5 text-sm text-gray-400">'
     +'<div class="font-bold text-white mb-2 text-base">ATTESTATION &amp; MEMORIALIZATION</div>'
-    +'<p>This report was generated on <strong class="text-white">'+genDate+' at '+genTime+'</strong> by the Universal Accrual Ledger System for <strong class="text-white">'+entity+'</strong>. This document constitutes a consolidated memorialization of all financial activity entered into this system for the stated period. Prepared by: <strong class="text-white">'+preparedBy+'</strong>.</p>'
+    +'<p>This report was generated on <strong class="text-white">'+genDate+' at '+genTime+'</strong> by the TMAR Universal Accrual Ledger System for <strong class="text-white">'+entity+'</strong>. This document constitutes a consolidated memorialization of all financial activity entered into this system for the stated period. Prepared by: <strong class="text-white">'+preparedBy+'</strong>.</p>'
     +'<div class="grid grid-cols-2 gap-10 mt-6">'
     +'<div><div style="border-bottom:1px solid #6b7280;min-height:44px"></div><div class="text-xs mt-1">Authorized Signature &amp; Date</div></div>'
     +'<div><div style="border-bottom:1px solid #6b7280;min-height:44px"></div><div class="text-xs mt-1">Title / Capacity</div></div>'
