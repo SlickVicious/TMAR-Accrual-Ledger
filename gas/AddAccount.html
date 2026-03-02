@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #1B2A4A;
+      font-size: 13px;
+    }
+
+    .required::after {
+      content: " *";
+      color: #C62828;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #2E7D32;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-right: 10px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #2E7D32;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #1B5E20;
+    }
+
+    .btn-secondary {
+      background: #666;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #444;
+    }
+
+    .form-actions {
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 2px solid #ddd;
+      text-align: right;
+    }
+
+    .message {
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      font-size: 13px;
+    }
+
+    .success {
+      background: #E8F5E9;
+      color: #2E7D32;
+      border: 1px solid #2E7D32;
+    }
+
+    .error {
+      background: #FFEBEE;
+      color: #C62828;
+      border: 1px solid #C62828;
+    }
+
+    .form-header {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #2E7D32;
+    }
+
+    .form-header h2 {
+      margin: 0;
+      color: #1B2A4A;
+      font-size: 20px;
+    }
+
+    .form-header p {
+      margin: 5px 0 0 0;
+      color: #666;
+      font-size: 13px;
+    }
+
+    .row {
+      display: flex;
+      gap: 15px;
+    }
+
+    .col-50 {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-header">
+    <h2>Add New Account</h2>
+    <p>Enter account details to add to Master Register</p>
+  </div>
+
+  <div id="message"></div>
+
+  <form id="accountForm">
+    <div class="form-group">
+      <label class="required">Account Name / Provider</label>
+      <input type="text" id="name" required placeholder="e.g., Chase Bank, Capital One">
+    </div>
+
+    <div class="form-group">
+      <label class="required">Account Type</label>
+      <select id="type" required>
+        <option value="">-- Select Account Type --</option>
+        <option>Bank Account - Checking</option>
+        <option>Bank Account - Savings</option>
+        <option>Bank Account - Money Market</option>
+        <option>Credit Card - Personal</option>
+        <option>Credit Card - Business</option>
+        <option>Mortgage - Primary Residence</option>
+        <option>Auto Loan</option>
+        <option>Student Loan - Federal</option>
+        <option>Student Loan - Private</option>
+        <option>Investment - Brokerage (Individual)</option>
+        <option>Investment - IRA Traditional</option>
+        <option>Investment - 401(k)</option>
+        <option>Personal Loan</option>
+        <option>Line of Credit</option>
+        <option>Other</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <div class="col-50 form-group">
+        <label>Account Number (Last 4)</label>
+        <input type="text" id="accountNumber" placeholder="****1234">
+      </div>
+      <div class="col-50 form-group">
+        <label>Status</label>
+        <select id="status">
+          <option>Active</option>
+          <option>Closed</option>
+          <option>Pending</option>
+          <option>Dormant</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-50 form-group">
+        <label>Current Balance</label>
+        <input type="number" id="balance" step="0.01" placeholder="0.00">
+      </div>
+      <div class="col-50 form-group">
+        <label>Monthly Payment</label>
+        <input type="number" id="monthlyPayment" step="0.01" placeholder="0.00">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-50 form-group">
+        <label>Primary User</label>
+        <select id="primaryUser">
+          <option value="">-- Select User --</option>
+          <option>Clint</option>
+          <option>Syrina</option>
+          <option>Joint</option>
+          <option>Trust</option>
+          <option>Business</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="col-50 form-group">
+        <label>Billing Frequency</label>
+        <select id="billingFrequency">
+          <option value="">-- Select --</option>
+          <option>Daily</option>
+          <option>Weekly</option>
+          <option>Bi-Weekly</option>
+          <option>Monthly</option>
+          <option>Quarterly</option>
+          <option>Annually</option>
+          <option>One-Time</option>
+          <option>None</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Mailing Address</label>
+      <textarea id="mailingAddress" placeholder="Street Address, City, State ZIP"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="notes" placeholder="Additional notes or important information"></textarea>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" onclick="closeDialog()">Cancel</button>
+      <button type="submit" class="btn btn-primary">Add Account</button>
+    </div>
+  </form>
+
+  <script>
+    document.getElementById('accountForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      submitAccount();
+    });
+
+    function submitAccount() {
+      // Get form values
+      var accountData = {
+        name: document.getElementById('name').value,
+        type: document.getElementById('type').value,
+        accountNumber: document.getElementById('accountNumber').value,
+        status: document.getElementById('status').value,
+        balance: parseFloat(document.getElementById('balance').value) || 0,
+        monthlyPayment: parseFloat(document.getElementById('monthlyPayment').value) || 0,
+        primaryUser: document.getElementById('primaryUser').value,
+        billingFrequency: document.getElementById('billingFrequency').value,
+        mailingAddress: document.getElementById('mailingAddress').value,
+        notes: document.getElementById('notes').value
+      };
+
+      // Disable submit button
+      var submitBtn = document.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Adding...';
+
+      // Call Apps Script function
+      google.script.run
+        .withSuccessHandler(onSuccess)
+        .withFailureHandler(onError)
+        .addTMARAccount(accountData);
+    }
+
+    function onSuccess(result) {
+      if (result.success) {
+        showMessage('success', result.message);
+        // Reset form
+        document.getElementById('accountForm').reset();
+        // Re-enable button
+        var submitBtn = document.querySelector('button[type="submit"]');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Add Account';
+
+        // Close dialog after 2 seconds
+        setTimeout(function() {
+          closeDialog();
+        }, 2000);
+      } else {
+        showMessage('error', result.error || 'Error adding account');
+        var submitBtn = document.querySelector('button[type="submit"]');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Add Account';
+      }
+    }
+
+    function onError(error) {
+      showMessage('error', 'Error: ' + error);
+      var submitBtn = document.querySelector('button[type="submit"]');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Add Account';
+    }
+
+    function showMessage(type, message) {
+      var messageDiv = document.getElementById('message');
+      messageDiv.className = 'message ' + type;
+      messageDiv.textContent = message;
+    }
+
+    function closeDialog() {
+      google.script.host.close();
+    }
+  </script>
+</body>
+</html>

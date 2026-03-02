@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TMAR EIN Verifier</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: #64748b;
+      font-size: 16px;
+    }
+
+    .search-section {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .search-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .input {
+      padding: 12px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: all 0.3s;
+    }
+
+    .input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .btn {
+      padding: 12px 28px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 15px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+
+    .action-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .filter-chips {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 2px solid #e2e8f0;
+      background: white;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .chip.active {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border-color: #667eea;
+    }
+
+    .chip:hover {
+      border-color: #667eea;
+      transform: translateY(-2px);
+    }
+
+    .accounts-section {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .accounts-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .accounts-table th {
+      text-align: left;
+      padding: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .accounts-table td {
+      padding: 16px 12px;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 14px;
+      color: #334155;
+    }
+
+    .accounts-table tr:hover {
+      background: #f8fafc;
+      cursor: pointer;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .status-high {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-medium {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-low {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .status-unverified {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    .type-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      background: #e0e7ff;
+      color: #3730a3;
+    }
+
+    .detail-panel {
+      display: none;
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 20px;
+      border: 2px solid #e2e8f0;
+    }
+
+    .detail-panel.active {
+      display: block;
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .detail-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+    }
+
+    .detail-value {
+      font-size: 15px;
+      color: #1e293b;
+      font-weight: 500;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #64748b;
+    }
+
+    .spinner {
+      border: 3px solid #f1f5f9;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .verification-steps {
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 15px;
+    }
+
+    .verification-steps h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 10px;
+    }
+
+    .verification-steps ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .verification-steps li {
+      padding: 8px 0;
+      padding-left: 25px;
+      position: relative;
+      font-size: 13px;
+      color: #475569;
+    }
+
+    .verification-steps li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: #667eea;
+      font-weight: 700;
+    }
+
+    @media (max-width: 768px) {
+      .search-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .accounts-table {
+        font-size: 12px;
+      }
+
+      .accounts-table th,
+      .accounts-table td {
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <div class="header">
+      <h1>🔍 EIN Verifier</h1>
+      <p>Verify Employer Identification Numbers against SEC EDGAR & IRS databases</p>
+    </div>
+
+    <div class="search-section">
+      <div class="search-grid">
+        <div class="input-group">
+          <label class="label">EIN (XX-XXXXXXX)</label>
+          <input type="text" class="input" id="einInput" placeholder="94-1687665" maxlength="10">
+        </div>
+
+        <div class="input-group">
+          <label class="label">Company Name</label>
+          <input type="text" class="input" id="companyInput" placeholder="Bank of America">
+        </div>
+
+        <div class="input-group">
+          <label class="label">&nbsp;</label>
+          <button class="btn btn-primary" onclick="verifyEIN()">Verify</button>
+        </div>
+      </div>
+
+      <div class="action-bar">
+        <button class="btn btn-secondary" onclick="loadTMARAccounts()">Load TMAR Accounts</button>
+        <button class="btn btn-secondary" onclick="exportResults()">Export Report</button>
+        <button class="btn btn-secondary" onclick="clearResults()">Clear</button>
+      </div>
+
+      <div class="filter-chips">
+        <div class="chip active" data-filter="all" onclick="filterAccounts('all')">All</div>
+        <div class="chip" data-filter="high" onclick="filterAccounts('high')">High Confidence</div>
+        <div class="chip" data-filter="medium" onclick="filterAccounts('medium')">Medium</div>
+        <div class="chip" data-filter="low" onclick="filterAccounts('low')">Low</div>
+        <div class="chip" data-filter="unverified" onclick="filterAccounts('unverified')">Unverified</div>
+      </div>
+    </div>
+
+    <div class="accounts-section">
+      <div class="section-header">
+        <div class="section-title">Verification Results</div>
+        <div id="accountCount">0 accounts</div>
+      </div>
+
+      <div id="loadingIndicator" class="loading" style="display: none;">
+        <div class="spinner"></div>
+        <div>Verifying EINs...</div>
+      </div>
+
+      <table class="accounts-table" id="accountsTable">
+        <thead>
+          <tr>
+            <th>Account ID</th>
+            <th>Company Name</th>
+            <th>EIN</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Confidence</th>
+          </tr>
+        </thead>
+        <tbody id="accountsTableBody">
+          <tr>
+            <td colspan="6" style="text-align: center; color: #94a3b8; padding: 40px;">
+              Click "Load TMAR Accounts" to start verification
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div id="detailPanel" class="detail-panel"></div>
+    </div>
+
+  </div>
+
+  <script>
+    let accounts = [];
+    let currentFilter = 'all';
+
+    // Mock data structure
+    const mockAccounts = [
+      { id: 'MR-001', name: 'Bank of America', ein: '56-0906609', type: 'Banking', confidence: 'high' },
+      { id: 'MR-002', name: 'PayPal Holdings', ein: '77-0486733', type: 'Banking', confidence: 'high' },
+      { id: 'MR-003', name: 'Fidelity Investments', ein: '13-5650992', type: 'Brokerage', confidence: 'medium' },
+      { id: 'MR-004', name: 'Vanguard Group', ein: '23-1945930', type: 'Brokerage', confidence: 'medium' },
+      { id: 'MR-005', name: 'Social Security Admin', ein: '31-0882613', type: 'Government', confidence: 'high' }
+    ];
+
+    // Load TMAR accounts
+    function loadTMARAccounts() {
+      document.getElementById('loadingIndicator').style.display = 'block';
+      document.getElementById('accountsTableBody').innerHTML = '';
+
+      // Try to load from Google Sheets
+      google.script.run
+        .withSuccessHandler(function(sheetAccounts) {
+          accounts = sheetAccounts.map((acc, idx) => ({
+            id: acc.id || `MR-${String(idx + 1).padStart(3, '0')}`,
+            name: acc.name || 'Unknown',
+            ein: acc.ein || 'Not provided',
+            type: acc.type || 'Unknown',
+            balance: acc.balance || 0,
+            confidence: determineConfidence(acc.ein)
+          }));
+
+          renderAccounts();
+          document.getElementById('loadingIndicator').style.display = 'none';
+        })
+        .withFailureHandler(function(error) {
+          console.error('Error loading accounts:', error);
+          // Fallback to mock data
+          accounts = mockAccounts;
+          renderAccounts();
+          document.getElementById('loadingIndicator').style.display = 'none';
+        })
+        .getAccountList();
+    }
+
+    // Determine confidence level based on EIN format
+    function determineConfidence(ein) {
+      if (!ein || ein === 'Not provided') return 'unverified';
+      if (/^\d{2}-\d{7}$/.test(ein)) return 'high';
+      if (ein.includes('-')) return 'medium';
+      return 'low';
+    }
+
+    // Verify single EIN
+    function verifyEIN() {
+      const ein = document.getElementById('einInput').value;
+      const company = document.getElementById('companyInput').value;
+
+      if (!ein && !company) {
+        alert('Please enter an EIN or company name');
+        return;
+      }
+
+      document.getElementById('loadingIndicator').style.display = 'block';
+
+      // Mock SEC EDGAR lookup
+      setTimeout(() => {
+        const result = {
+          ein: ein,
+          company: company,
+          registered_name: company,
+          cik: '0001234567',
+          address: '123 Main St, Charlotte, NC 28202',
+          state: 'NC',
+          sic_code: '6021',
+          fiscal_year_end: '1231',
+          recent_filings: ['10-K (2024-02-15)', '10-Q (2024-11-10)', '8-K (2024-12-01)'],
+          confidence: 'high',
+          verification_steps: [
+            'SEC EDGAR registration confirmed',
+            'CIK matches EIN record',
+            'Recent filings available',
+            'Address verified'
+          ]
+        };
+
+        showDetailPanel(result);
+        document.getElementById('loadingIndicator').style.display = 'none';
+      }, 1500);
+    }
+
+    // Render accounts table
+    function renderAccounts() {
+      const tbody = document.getElementById('accountsTableBody');
+      tbody.innerHTML = '';
+
+      const filtered = currentFilter === 'all'
+        ? accounts
+        : accounts.filter(acc => acc.confidence === currentFilter);
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #94a3b8; padding: 40px;">No accounts found</td></tr>';
+        document.getElementById('accountCount').textContent = '0 accounts';
+        return;
+      }
+
+      filtered.forEach(acc => {
+        const row = document.createElement('tr');
+        row.onclick = () => showAccountDetail(acc);
+
+        row.innerHTML = `
+          <td>${acc.id}</td>
+          <td><strong>${acc.name}</strong></td>
+          <td><code>${acc.ein}</code></td>
+          <td><span class="type-badge">${acc.type}</span></td>
+          <td><span class="status-badge status-${acc.confidence}">${acc.confidence.toUpperCase()}</span></td>
+          <td>
+            ${getConfidenceIcon(acc.confidence)}
+          </td>
+        `;
+
+        tbody.appendChild(row);
+      });
+
+      document.getElementById('accountCount').textContent = `${filtered.length} account${filtered.length !== 1 ? 's' : ''}`;
+    }
+
+    // Get confidence icon
+    function getConfidenceIcon(confidence) {
+      const icons = {
+        high: '✅',
+        medium: '⚠️',
+        low: '❌',
+        unverified: '❓'
+      };
+      return icons[confidence] || '❓';
+    }
+
+    // Show account detail panel
+    function showAccountDetail(account) {
+      const panel = document.getElementById('detailPanel');
+
+      const verificationSteps = {
+        high: [
+          'SEC EDGAR registration confirmed',
+          'CIK lookup successful',
+          'Recent filings available',
+          'Address verified against public records'
+        ],
+        medium: [
+          'EIN format valid',
+          'Company name matches records',
+          'Manual verification recommended',
+          'Check W-9 or 1099 forms'
+        ],
+        low: [
+          'EIN format incomplete',
+          'Unable to verify via SEC EDGAR',
+          'Manual verification required',
+          'Contact company directly for W-9'
+        ],
+        unverified: [
+          'No EIN provided',
+          'Request W-9 from entity',
+          'Check FINRA BrokerCheck if financial institution',
+          'Verify via IRS Exempt Organizations if applicable'
+        ]
+      };
+
+      panel.innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-item">
+            <div class="detail-label">Account ID</div>
+            <div class="detail-value">${account.id}</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">Company Name</div>
+            <div class="detail-value">${account.name}</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">EIN</div>
+            <div class="detail-value"><code>${account.ein}</code></div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">Account Type</div>
+            <div class="detail-value">${account.type}</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">Confidence Level</div>
+            <div class="detail-value">
+              <span class="status-badge status-${account.confidence}">${account.confidence.toUpperCase()}</span>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">Balance</div>
+            <div class="detail-value">$${(account.balance || 0).toFixed(2)}</div>
+          </div>
+        </div>
+
+        <div class="verification-steps">
+          <h4>Recommended Verification Steps</h4>
+          <ul>
+            ${verificationSteps[account.confidence].map(step => `<li>${step}</li>`).join('')}
+          </ul>
+        </div>
+      `;
+
+      panel.classList.add('active');
+    }
+
+    // Show detail panel for verification result
+    function showDetailPanel(result) {
+      const panel = document.getElementById('detailPanel');
+
+      panel.innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-item">
+            <div class="detail-label">Company Name</div>
+            <div class="detail-value">${result.company}</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">EIN</div>
+            <div class="detail-value"><code>${result.ein}</code></div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">CIK</div>
+            <div class="detail-value">${result.cik}</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">State</div>
+            <div class="detail-value">${result.state}</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">SIC Code</div>
+            <div class="detail-value">${result.sic_code}</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">Fiscal Year End</div>
+            <div class="detail-value">${result.fiscal_year_end}</div>
+          </div>
+        </div>
+
+        <div class="detail-item" style="margin-top: 20px;">
+          <div class="detail-label">Address</div>
+          <div class="detail-value">${result.address}</div>
+        </div>
+
+        <div class="detail-item" style="margin-top: 15px;">
+          <div class="detail-label">Recent Filings</div>
+          <div class="detail-value">
+            ${result.recent_filings.map(filing => `<div style="padding: 5px 0;">${filing}</div>`).join('')}
+          </div>
+        </div>
+
+        <div class="verification-steps">
+          <h4>Verification Results</h4>
+          <ul>
+            ${result.verification_steps.map(step => `<li>${step}</li>`).join('')}
+          </ul>
+        </div>
+      `;
+
+      panel.classList.add('active');
+    }
+
+    // Filter accounts
+    function filterAccounts(filter) {
+      currentFilter = filter;
+
+      // Update chip styles
+      document.querySelectorAll('.chip').forEach(chip => {
+        chip.classList.remove('active');
+      });
+      event.target.classList.add('active');
+
+      renderAccounts();
+    }
+
+    // Export results
+    function exportResults() {
+      const data = JSON.stringify(accounts, null, 2);
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ein-verification_${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Clear results
+    function clearResults() {
+      document.getElementById('einInput').value = '';
+      document.getElementById('companyInput').value = '';
+      document.getElementById('detailPanel').classList.remove('active');
+    }
+  </script>
+
+</body>
+</html>

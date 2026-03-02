@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TMAR Bill of Exchange Generator</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600;700&family=Crimson+Pro:wght@400;600&display=swap');
+
+    :root {
+      --navy: #0a1628;
+      --gold: #c9a962;
+      --parchment: #f5f0e6;
+      --white: #ffffff;
+      --light-gold: #e8dcc4;
+      --dark-navy: #050b14;
+      --border-color: rgba(201, 169, 98, 0.3);
+      --text-muted: #5a6a7f;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Crimson Pro', serif;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--dark-navy) 100%);
+      color: var(--navy);
+      min-height: 100vh;
+      padding: 20px;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image:
+        repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(201, 169, 98, 0.03) 10px, rgba(201, 169, 98, 0.03) 20px),
+        repeating-linear-gradient(-45deg, transparent, transparent 10px, rgba(201, 169, 98, 0.03) 10px, rgba(201, 169, 98, 0.03) 20px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header {
+      background: linear-gradient(135deg, var(--parchment) 0%, var(--light-gold) 100%);
+      border: 3px solid var(--gold);
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      text-align: center;
+      position: relative;
+    }
+
+    .seal {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--gold) 0%, #8b7340 100%);
+      border: 4px solid var(--navy);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'EB Garamond', serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--navy);
+      box-shadow:
+        0 0 0 2px var(--gold),
+        0 0 0 4px var(--navy),
+        0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .header h1 {
+      font-family: 'EB Garamond', serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 10px;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .header .subtitle {
+      font-size: 18px;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      background: var(--parchment);
+      padding: 15px;
+      border-radius: 8px;
+      border: 2px solid var(--border-color);
+    }
+
+    .nav-tab {
+      padding: 12px 24px;
+      background: var(--white);
+      border: 2px solid var(--gold);
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'EB Garamond', serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--navy);
+      transition: all 0.3s;
+      flex: 1;
+      min-width: 150px;
+      text-align: center;
+    }
+
+    .nav-tab:hover {
+      background: var(--light-gold);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(201, 169, 98, 0.3);
+    }
+
+    .nav-tab.active {
+      background: var(--gold);
+      color: var(--white);
+      box-shadow: 0 4px 15px rgba(201, 169, 98, 0.5);
+    }
+
+    .document-controls {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      background: var(--parchment);
+      padding: 20px;
+      border-radius: 8px;
+      border: 2px solid var(--border-color);
+      flex-wrap: wrap;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .control-label {
+      font-family: 'EB Garamond', serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--navy);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .control-select, .control-input {
+      padding: 10px 15px;
+      border: 2px solid var(--gold);
+      border-radius: 6px;
+      background: var(--white);
+      color: var(--navy);
+      font-family: 'Crimson Pro', serif;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+
+    .control-select:focus, .control-input:focus {
+      outline: none;
+      border-color: var(--navy);
+      box-shadow: 0 0 0 3px rgba(201, 169, 98, 0.2);
+    }
+
+    .btn {
+      padding: 12px 28px;
+      border: 2px solid var(--gold);
+      border-radius: 6px;
+      background: var(--gold);
+      color: var(--white);
+      font-family: 'EB Garamond', serif;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn:hover {
+      background: var(--navy);
+      border-color: var(--navy);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(10, 22, 40, 0.4);
+    }
+
+    .btn-secondary {
+      background: var(--white);
+      color: var(--navy);
+    }
+
+    .btn-secondary:hover {
+      background: var(--light-gold);
+    }
+
+    .action-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .document-wrapper {
+      background: var(--parchment);
+      border: 4px double var(--gold);
+      border-radius: 8px;
+      padding: 40px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      min-height: 800px;
+      position: relative;
+    }
+
+    .document-wrapper::before {
+      content: '';
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      pointer-events: none;
+    }
+
+    .document-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .doc-header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 3px double var(--gold);
+    }
+
+    .doc-title {
+      font-family: 'EB Garamond', serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .doc-subtitle {
+      font-size: 18px;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .serial-number {
+      text-align: right;
+      margin-bottom: 30px;
+      font-family: 'EB Garamond', serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    .serial-number span {
+      color: var(--gold);
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .form-section {
+      margin-bottom: 30px;
+    }
+
+    .section-title {
+      font-family: 'EB Garamond', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 15px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--gold);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--navy);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .field-input {
+      padding: 10px 15px;
+      border: 2px solid var(--gold);
+      border-radius: 4px;
+      background: var(--white);
+      color: var(--navy);
+      font-family: 'Crimson Pro', serif;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+
+    .field-input:focus {
+      outline: none;
+      border-color: var(--navy);
+      background: var(--parchment);
+    }
+
+    .legal-text {
+      line-height: 1.8;
+      margin-bottom: 20px;
+      text-align: justify;
+      font-size: 15px;
+      color: var(--navy);
+    }
+
+    .legal-text strong {
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .amount-display {
+      text-align: center;
+      padding: 20px;
+      background: var(--white);
+      border: 3px double var(--gold);
+      border-radius: 8px;
+      margin: 30px 0;
+    }
+
+    .amount-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .amount-value {
+      font-family: 'EB Garamond', serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .signature-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      margin-top: 60px;
+      padding-top: 30px;
+      border-top: 2px solid var(--gold);
+    }
+
+    .signature-box {
+      text-align: center;
+    }
+
+    .signature-line {
+      width: 100%;
+      height: 80px;
+      border-bottom: 2px solid var(--navy);
+      margin-bottom: 10px;
+      cursor: crosshair;
+    }
+
+    .signature-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .language-version {
+      display: none;
+    }
+
+    .language-version.active {
+      display: block;
+    }
+
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+
+      body::before {
+        display: none;
+      }
+
+      .nav-tabs,
+      .document-controls,
+      .action-bar {
+        display: none !important;
+      }
+
+      .document-wrapper {
+        box-shadow: none;
+        border: none;
+        padding: 20px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 24px;
+      }
+
+      .nav-tab {
+        min-width: 100px;
+        padding: 10px 16px;
+        font-size: 14px;
+      }
+
+      .document-wrapper {
+        padding: 20px;
+      }
+
+      .doc-title {
+        font-size: 24px;
+      }
+
+      .amount-value {
+        font-size: 28px;
+      }
+    }
+
+    .info-banner {
+      background: linear-gradient(135deg, rgba(201, 169, 98, 0.1), rgba(201, 169, 98, 0.2));
+      border-left: 4px solid var(--gold);
+      padding: 15px 20px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      color: var(--navy);
+    }
+
+    .reference-list {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .reference-list li {
+      padding: 8px 0;
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .reference-list li::before {
+      content: '§';
+      position: absolute;
+      left: 0;
+      color: var(--gold);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="seal">⚖</div>
+      <h1>TMAR Bill of Exchange Generator</h1>
+      <p class="subtitle">Domestic & International Negotiable Instruments</p>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="switchDocumentType('bill-of-exchange')">Bill of Exchange</button>
+      <button class="nav-tab" onclick="switchDocumentType('payment-order')">Payment Order</button>
+      <button class="nav-tab" onclick="switchDocumentType('promissory-note')">Promissory Note</button>
+      <button class="nav-tab" onclick="switchDocumentType('assignment')">Credit Assignment</button>
+    </div>
+
+    <!-- Document Controls -->
+    <div class="document-controls">
+      <div class="control-group">
+        <label class="control-label">Document Type</label>
+        <select class="control-select" id="docScope" onchange="updateDocumentScope()">
+          <option value="international">International (UNCITRAL)</option>
+          <option value="domestic">Domestic (US Treasury)</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">Language</label>
+        <select class="control-select" id="languageSelect" onchange="changeLanguage()">
+          <option value="en">English</option>
+          <option value="fr">Français</option>
+          <option value="es">Español</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">Load TMAR Account</label>
+        <select class="control-select" id="accountSelect" onchange="loadAccountData()">
+          <option value="">Select Account...</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+      <button class="btn" onclick="generateSerialNumber()">🔢 Generate Serial Number</button>
+      <button class="btn" onclick="printDocument()">🖨️ Print</button>
+      <button class="btn" onclick="saveDocument()">💾 Save HTML</button>
+      <button class="btn btn-secondary" onclick="exportPDF()">📄 Export PDF</button>
+      <button class="btn btn-secondary" onclick="shareDocument()">📤 Share</button>
+    </div>
+
+    <!-- Document Wrapper -->
+    <div class="document-wrapper">
+      <div class="document-content" id="documentContent">
+
+        <!-- English Version -->
+        <div class="language-version active" id="version-en">
+
+          <div class="doc-header">
+            <div class="doc-title" id="docTitle-en">Bill of Exchange</div>
+            <div class="doc-subtitle" id="docSubtitle-en">Negotiable Instrument - UNCITRAL Compliant</div>
+          </div>
+
+          <div class="serial-number">
+            Serial No: <span id="serialNumber-en">XXXX-XXXX-XXXX-XXXX</span>
+          </div>
+
+          <div class="info-banner">
+            This Bill of Exchange is created pursuant to the Uniform Commercial Code (UCC) and UNCITRAL Model Law on International Bills of Exchange and International Promissory Notes.
+          </div>
+
+          <!-- Amount Section -->
+          <div class="amount-display">
+            <div class="amount-label">Amount Payable</div>
+            <div class="amount-value">$<span id="amountDisplay-en">0.00</span></div>
+          </div>
+
+          <!-- Form Fields -->
+          <div class="form-section">
+            <div class="section-title">Instrument Details</div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="field-label">Issue Date</label>
+                <input type="date" class="field-input" id="issueDate-en" data-sync-group="issueDate">
+              </div>
+
+              <div class="form-field">
+                <label class="field-label">Maturity Date</label>
+                <input type="date" class="field-input" id="maturityDate-en" data-sync-group="maturityDate">
+              </div>
+
+              <div class="form-field">
+                <label class="field-label">Amount (USD)</label>
+                <input type="number" step="0.01" class="field-input" id="amount-en" data-sync-group="amount" onchange="updateAmountDisplay()">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="field-label">Place of Issue</label>
+                <input type="text" class="field-input" id="placeOfIssue-en" data-sync-group="placeOfIssue">
+              </div>
+
+              <div class="form-field">
+                <label class="field-label">Place of Payment</label>
+                <input type="text" class="field-input" id="placeOfPayment-en" data-sync-group="placeOfPayment">
+              </div>
+            </div>
+          </div>
+
+          <!-- Parties Section -->
+          <div class="form-section">
+            <div class="section-title">Parties to the Instrument</div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="field-label">Drawer (Issuer)</label>
+                <input type="text" class="field-input" id="drawer-en" data-sync-group="drawer">
+              </div>
+
+              <div class="form-field">
+                <label class="field-label">Drawer Address</label>
+                <input type="text" class="field-input" id="drawerAddress-en" data-sync-group="drawerAddress">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="field-label">Drawee (Payer)</label>
+                <input type="text" class="field-input" id="drawee-en" data-sync-group="drawee">
+              </div>
+
+              <div class="form-field">
+                <label class="field-label">Drawee Address</label>
+                <input type="text" class="field-input" id="draweeAddress-en" data-sync-group="draweeAddress">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="field-label">Payee (Beneficiary)</label>
+                <input type="text" class="field-input" id="payee-en" data-sync-group="payee">
+              </div>
+
+              <div class="form-field">
+                <label class="field-label">Payee Address</label>
+                <input type="text" class="field-input" id="payeeAddress-en" data-sync-group="payeeAddress">
+              </div>
+            </div>
+          </div>
+
+          <!-- Legal Declaration -->
+          <div class="form-section">
+            <div class="section-title">Declaration & Authorization</div>
+
+            <div class="legal-text">
+              <strong>TO THE DRAWEE:</strong> At maturity, <strong>pay to the order of</strong> the Payee named herein the sum specified above, value received, and charge the same to the account of the undersigned Drawer.
+            </div>
+
+            <div class="legal-text">
+              This Bill of Exchange is drawn pursuant to and in accordance with:
+              <ul class="reference-list">
+                <li><strong>UCC Article 3</strong> - Negotiable Instruments</li>
+                <li><strong>31 U.S.C. § 3123</strong> - Payment of obligations</li>
+                <li><strong>Federal Reserve Act, Title IV § 401</strong></li>
+                <li><strong>UNCITRAL Model Law</strong> on International Bills of Exchange</li>
+                <li><strong>Supreme Court precedent:</strong> Juilliard v. Greenman (1884)</li>
+              </ul>
+            </div>
+
+            <div class="legal-text">
+              The Drawer hereby <strong>authorizes and directs</strong> the Drawee to honor this instrument on the date specified, drawn against funds, credits, or instruments held in the name of the Drawer or available through the Federal Reserve System pursuant to the Internal Revenue Manual 3.8.45.5.10.1 and related Treasury procedures.
+            </div>
+
+            <div class="legal-text">
+              This Bill of Exchange constitutes a <strong>valid negotiable instrument</strong> and may be presented for payment, discount, or acceptance by any holder in due course. The undersigned Drawer agrees to all terms and conditions set forth herein and acknowledges personal liability for payment if dishonored.
+            </div>
+          </div>
+
+          <!-- Signature Section -->
+          <div class="signature-section">
+            <div class="signature-box">
+              <canvas class="signature-line" id="drawerSignature-en" width="300" height="80"></canvas>
+              <div class="signature-label">Drawer Signature</div>
+              <input type="text" class="field-input" id="drawerPrint-en" data-sync-group="drawerPrint" placeholder="Print Name">
+              <input type="date" class="field-input" id="drawerDate-en" data-sync-group="drawerDate" style="margin-top: 10px;">
+            </div>
+
+            <div class="signature-box">
+              <canvas class="signature-line" id="acceptorSignature-en" width="300" height="80"></canvas>
+              <div class="signature-label">Acceptor/Drawee Signature</div>
+              <input type="text" class="field-input" id="acceptorPrint-en" data-sync-group="acceptorPrint" placeholder="Print Name">
+              <input type="date" class="field-input" id="acceptorDate-en" data-sync-group="acceptorDate" style="margin-top: 10px;">
+            </div>
+          </div>
+
+        </div>
+
+        <!-- French Version -->
+        <div class="language-version" id="version-fr">
+
+          <div class="doc-header">
+            <div class="doc-title" id="docTitle-fr">Lettre de Change</div>
+            <div class="doc-subtitle" id="docSubtitle-fr">Effet de Commerce - Conforme CNUDCI</div>
+          </div>
+
+          <div class="serial-number">
+            Numéro de série: <span id="serialNumber-fr">XXXX-XXXX-XXXX-XXXX</span>
+          </div>
+
+          <div class="info-banner">
+            Cette Lettre de Change est créée conformément au Code de commerce uniforme (UCC) et à la Loi type de la CNUDCI sur les lettres de change internationales et les billets à ordre internationaux.
+          </div>
+
+          <div class="amount-display">
+            <div class="amount-label">Montant à Payer</div>
+            <div class="amount-value">$<span id="amountDisplay-fr">0.00</span></div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-title">Détails de l'Instrument</div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="field-label">Date d'émission</label>
+                <input type="date" class="field-input" id="issueDate-fr" data-sync-group="issueDate">
+              </div>
+
+              <div class="form-field">
+                <label class="field-label">Date d'échéance</label>
+                <input type="date" class="field-input" id="maturityDate-fr" data-sync-group="maturityDate">
+              </div>
+
+              <div class="form-field">
+                <label class="field-label">Montant (USD)</label>
+                <input type="number" step="0.01" class="field-input" id="amount-fr" data-sync-group="amount" onchange="updateAmountDisplay()">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="field-label">Lieu d'émission</label>
+                <input type="text" class="field-input" id="placeOfIssue-fr" data-sync-group="placeOfIssue">
+              </div>
+
+              <div class="form-field">
+                <label class="field-label">Lieu de paiement</label>
+                <input type="text" class="field-input" id="placeOfPayment-fr" data-sync-group="placeOfPayment">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-title">Parties à l'Instrument</div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="field-label">Tireur (Émetteur)</label>
+                <input type="text" class="field-input" id="drawer-fr" data-sync-group="drawer">
+              </div>
+
+              <div class="form-field">
+                <label class="field-label">Adresse du tireur</label>
+                <input type="text" class="field-input" id="drawerAddress-fr" data-sync-group="drawerAddress">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="field-label">Tiré (Payeur)</label>
+                <input type="text" class="field-input" id="drawee-fr" data-sync-group="drawee">
+              </div>
+
+              <div class="form-field">
+                <label class="field-label">Adresse du tiré</label>
+                <input type="text" class="field-input" id="draweeAddress-fr" data-sync-group="draweeAddress">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="field-label">Bénéficiaire</label>
+                <input type="text" class="field-input" id="payee-fr" data-sync-group="payee">
+              </div>
+
+              <div class="form-field">
+                <label class="field-label">Adresse du bénéficiaire</label>
+                <input type="text" class="field-input" id="payeeAddress-fr" data-sync-group="payeeAddress">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-title">Déclaration et Autorisation</div>
+
+            <div class="legal-text">
+              <strong>AU TIRÉ:</strong> À l'échéance, <strong>payez à l'ordre de</strong> le Bénéficiaire nommé ci-dessus la somme spécifiée, valeur reçue, et portez le même au compte du Tireur soussigné.
+            </div>
+
+            <div class="legal-text">
+              Cette Lettre de Change est tirée conformément à:
+              <ul class="reference-list">
+                <li><strong>UCC Article 3</strong> - Instruments négociables</li>
+                <li><strong>31 U.S.C. § 3123</strong> - Paiement des obligations</li>
+                <li><strong>Loi sur la Réserve fédérale, Titre IV § 401</strong></li>
+                <li><strong>Loi type de la CNUDCI</strong> sur les lettres de change internationales</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="signature-section">
+            <div class="signature-box">
+              <canvas class="signature-line" id="drawerSignature-fr" width="300" height="80"></canvas>
+              <div class="signature-label">Signature du Tireur</div>
+              <input type="text" class="field-input" id="drawerPrint-fr" data-sync-group="drawerPrint" placeholder="Nom imprimé">
+              <input type="date" class="field-input" id="drawerDate-fr" data-sync-group="drawerDate" style="margin-top: 10px;">
+            </div>
+
+            <div class="signature-box">
+              <canvas class="signature-line" id="acceptorSignature-fr" width="300" height="80"></canvas>
+              <div class="signature-label">Signature de l'Accepteur</div>
+              <input type="text" class="field-input" id="acceptorPrint-fr" data-sync-group="acceptorPrint" placeholder="Nom imprimé">
+              <input type="date" class="field-input" id="acceptorDate-fr" data-sync-group="acceptorDate" style="margin-top: 10px;">
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Spanish Version -->
+        <div class="language-version" id="version-es">
+
+          <div class="doc-header">
+            <div class="doc-title" id="docTitle-es">Letra de Cambio</div>
+            <div class="doc-subtitle" id="docSubtitle-es">Instrumento Negociable - Conforme CNUDMI</div>
+          </div>
+
+          <div class="serial-number">
+            Número de serie: <span id="serialNumber-es">XXXX-XXXX-XXXX-XXXX</span>
+          </div>
+
+          <div class="info-banner">
+            Esta Letra de Cambio se crea de conformidad con el Código Comercial Uniforme (UCC) y la Ley Modelo de la CNUDMI sobre Letras de Cambio Internacionales y Pagarés Internacionales.
+          </div>
+
+          <div class="amount-display">
+            <div class="amount-label">Importe a Pagar</div>
+            <div class="amount-value">$<span id="amountDisplay-es">0.00</span></div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-title">Detalles del Instrumento</div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="field-label">Fecha de emisión</label>
+                <input type="date" class="field-input" id="issueDate-es" data-sync-group="issueDate">
+              </div>
+
+              <div class="form-field">
+                <label class="field-label">Fecha de vencimiento</label>
+                <input type="date" class="field-input" id="maturityDate-es" data-sync-group="maturityDate">
+              </div>
+
+              <div class="form-field">
+                <label class="field-label">Importe (USD)</label>
+                <input type="number" step="0.01" class="field-input" id="amount-es" data-sync-group="amount" onchange="updateAmountDisplay()">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="field-label">Lugar de emisión</label>
+                <input type="text" class="field-input" id="placeOfIssue-es" data-sync-group="placeOfIssue">
+              </div>
+
+              <div class="form-field">
+                <label class="field-label">Lugar de pago</label>
+                <input type="text" class="field-input" id="placeOfPayment-es" data-sync-group="placeOfPayment">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-title">Partes del Instrumento</div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="field-label">Librador (Emisor)</label>
+                <input type="text" class="field-input" id="drawer-es" data-sync-group="drawer">
+              </div>
+
+              <div class="form-field">
+                <label class="field-label">Dirección del librador</label>
+                <input type="text" class="field-input" id="drawerAddress-es" data-sync-group="drawerAddress">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="field-label">Librado (Pagador)</label>
+                <input type="text" class="field-input" id="drawee-es" data-sync-group="drawee">
+              </div>
+
+              <div class="form-field">
+                <label class="field-label">Dirección del librado</label>
+                <input type="text" class="field-input" id="draweeAddress-es" data-sync-group="draweeAddress">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="field-label">Beneficiario</label>
+                <input type="text" class="field-input" id="payee-es" data-sync-group="payee">
+              </div>
+
+              <div class="form-field">
+                <label class="field-label">Dirección del beneficiario</label>
+                <input type="text" class="field-input" id="payeeAddress-es" data-sync-group="payeeAddress">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-title">Declaración y Autorización</div>
+
+            <div class="legal-text">
+              <strong>AL LIBRADO:</strong> Al vencimiento, <strong>pague a la orden de</strong> el Beneficiario nombrado arriba la suma especificada, valor recibido, y cargue lo mismo a la cuenta del Librador suscrito.
+            </div>
+
+            <div class="legal-text">
+              Esta Letra de Cambio se gira conforme a:
+              <ul class="reference-list">
+                <li><strong>UCC Artículo 3</strong> - Instrumentos negociables</li>
+                <li><strong>31 U.S.C. § 3123</strong> - Pago de obligaciones</li>
+                <li><strong>Ley de la Reserva Federal, Título IV § 401</strong></li>
+                <li><strong>Ley Modelo de la CNUDMI</strong> sobre letras de cambio internacionales</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="signature-section">
+            <div class="signature-box">
+              <canvas class="signature-line" id="drawerSignature-es" width="300" height="80"></canvas>
+              <div class="signature-label">Firma del Librador</div>
+              <input type="text" class="field-input" id="drawerPrint-es" data-sync-group="drawerPrint" placeholder="Nombre impreso">
+              <input type="date" class="field-input" id="drawerDate-es" data-sync-group="drawerDate" style="margin-top: 10px;">
+            </div>
+
+            <div class="signature-box">
+              <canvas class="signature-line" id="acceptorSignature-es" width="300" height="80"></canvas>
+              <div class="signature-label">Firma del Aceptante</div>
+              <input type="text" class="field-input" id="acceptorPrint-es" data-sync-group="acceptorPrint" placeholder="Nombre impreso">
+              <input type="date" class="field-input" id="acceptorDate-es" data-sync-group="acceptorDate" style="margin-top: 10px;">
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let currentDocType = 'bill-of-exchange';
+    let currentLanguage = 'en';
+    let currentScope = 'international';
+
+    // Initialize
+    function init() {
+      setupFieldSync();
+      loadAccountsFromSheets();
+      setTodayDate();
+      generateSerialNumber();
+    }
+
+    // Switch document type
+    function switchDocumentType(type) {
+      currentDocType = type;
+
+      // Update active tab
+      document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+      event.target.classList.add('active');
+
+      // Update titles based on document type
+      const titles = {
+        'bill-of-exchange': {
+          en: { title: 'Bill of Exchange', subtitle: 'Negotiable Instrument - UNCITRAL Compliant' },
+          fr: { title: 'Lettre de Change', subtitle: 'Effet de Commerce - Conforme CNUDCI' },
+          es: { title: 'Letra de Cambio', subtitle: 'Instrumento Negociable - Conforme CNUDMI' }
+        },
+        'payment-order': {
+          en: { title: 'Payment Order', subtitle: 'Treasury Payment Instrument' },
+          fr: { title: 'Ordre de Paiement', subtitle: 'Instrument de Paiement du Trésor' },
+          es: { title: 'Orden de Pago', subtitle: 'Instrumento de Pago del Tesoro' }
+        },
+        'promissory-note': {
+          en: { title: 'Promissory Note', subtitle: 'Unconditional Promise to Pay' },
+          fr: { title: 'Billet à Ordre', subtitle: 'Promesse Inconditionnelle de Payer' },
+          es: { title: 'Pagaré', subtitle: 'Promesa Incondicional de Pago' }
+        },
+        'assignment': {
+          en: { title: 'Assignment of Credit', subtitle: 'Federal Credit Mechanism' },
+          fr: { title: 'Cession de Crédit', subtitle: 'Mécanisme de Crédit Fédéral' },
+          es: { title: 'Cesión de Crédito', subtitle: 'Mecanismo de Crédito Federal' }
+        }
+      };
+
+      const docTitles = titles[type];
+      ['en', 'fr', 'es'].forEach(lang => {
+        document.getElementById(`docTitle-${lang}`).textContent = docTitles[lang].title;
+        document.getElementById(`docSubtitle-${lang}`).textContent = docTitles[lang].subtitle;
+      });
+    }
+
+    // Update document scope
+    function updateDocumentScope() {
+      currentScope = document.getElementById('docScope').value;
+    }
+
+    // Change language
+    function changeLanguage() {
+      const newLang = document.getElementById('languageSelect').value;
+
+      // Hide all versions
+      document.querySelectorAll('.language-version').forEach(v => v.classList.remove('active'));
+
+      // Show selected version
+      document.getElementById(`version-${newLang}`).classList.add('active');
+
+      currentLanguage = newLang;
+    }
+
+    // Generate serial number
+    function generateSerialNumber() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      const special = '!@#$%&*';
+      let serial = '';
+
+      for (let i = 0; i < 4; i++) {
+        if (i > 0) serial += '-';
+        for (let j = 0; j < 4; j++) {
+          if (Math.random() > 0.9 && j > 0) {
+            serial += special.charAt(Math.floor(Math.random() * special.length));
+          } else {
+            serial += chars.charAt(Math.floor(Math.random() * chars.length));
+          }
+        }
+      }
+
+      // Update all language versions
+      ['en', 'fr', 'es'].forEach(lang => {
+        document.getElementById(`serialNumber-${lang}`).textContent = serial;
+      });
+    }
+
+    // Setup field synchronization
+    function setupFieldSync() {
+      const syncFields = document.querySelectorAll('[data-sync-group]');
+
+      syncFields.forEach(field => {
+        field.addEventListener('input', function() {
+          const group = this.getAttribute('data-sync-group');
+          const value = this.value;
+
+          // Update all fields in the same sync group
+          document.querySelectorAll(`[data-sync-group="${group}"]`).forEach(syncField => {
+            if (syncField !== this) {
+              syncField.value = value;
+            }
+          });
+        });
+      });
+    }
+
+    // Update amount display
+    function updateAmountDisplay() {
+      const amount = parseFloat(document.getElementById(`amount-${currentLanguage}`).value) || 0;
+      const formatted = amount.toFixed(2);
+
+      ['en', 'fr', 'es'].forEach(lang => {
+        document.getElementById(`amountDisplay-${lang}`).textContent = formatted;
+      });
+    }
+
+    // Load accounts from Google Sheets
+    function loadAccountsFromSheets() {
+      google.script.run
+        .withSuccessHandler(function(accounts) {
+          const dropdown = document.getElementById('accountSelect');
+          dropdown.innerHTML = '<option value="">Select Account...</option>';
+
+          accounts.forEach(acc => {
+            const option = document.createElement('option');
+            option.value = acc.id;
+            option.textContent = `${acc.id} - ${acc.name}`;
+            option.dataset.account = JSON.stringify(acc);
+            dropdown.appendChild(option);
+          });
+        })
+        .withFailureHandler(function(error) {
+          console.error('Error loading accounts:', error);
+        })
+        .getAccountList();
+    }
+
+    // Load account data
+    function loadAccountData() {
+      const dropdown = document.getElementById('accountSelect');
+      const selectedOption = dropdown.options[dropdown.selectedIndex];
+
+      if (!selectedOption.dataset.account) return;
+
+      const account = JSON.parse(selectedOption.dataset.account);
+
+      // Populate drawer fields with account data
+      ['en', 'fr', 'es'].forEach(lang => {
+        document.getElementById(`drawer-${lang}`).value = account.primaryUser || '';
+        document.getElementById(`amount-${lang}`).value = Math.abs(account.balance) || 0;
+      });
+
+      updateAmountDisplay();
+    }
+
+    // Print document
+    function printDocument() {
+      window.print();
+    }
+
+    // Save document as HTML
+    function saveDocument() {
+      const html = document.getElementById('documentContent').innerHTML;
+      const fullHtml = `
+<!DOCTYPE html>
+<html lang="${currentLanguage}">
+<head>
+  <meta charset="UTF-8">
+  <title>${currentDocType.replace('-', ' ').toUpperCase()}</title>
+  <style>
+    ${document.querySelector('style').textContent}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="document-wrapper">
+      <div class="document-content">
+        ${html}
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+      `;
+
+      const blob = new Blob([fullHtml], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${currentDocType}_${new Date().toISOString().split('T')[0]}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Export PDF (future feature - requires library)
+    function exportPDF() {
+      alert('PDF export will be available in the next version. Please use Print → Save as PDF for now.');
+    }
+
+    // Share document
+    function shareDocument() {
+      const text = `TMAR ${currentDocType.replace('-', ' ').toUpperCase()}`;
+
+      if (navigator.share) {
+        navigator.share({
+          title: text,
+          text: 'Generated via TMAR Bill of Exchange Generator',
+          url: window.location.href
+        }).catch(err => console.log('Share failed:', err));
+      } else {
+        // Fallback: copy to clipboard
+        const serialNumber = document.getElementById(`serialNumber-${currentLanguage}`).textContent;
+        navigator.clipboard.writeText(`${text} - Serial: ${serialNumber}`);
+        alert('Document info copied to clipboard!');
+      }
+    }
+
+    // Set today's date
+    function setTodayDate() {
+      const today = new Date().toISOString().split('T')[0];
+      ['en', 'fr', 'es'].forEach(lang => {
+        const issueDateField = document.getElementById(`issueDate-${lang}`);
+        const drawerDateField = document.getElementById(`drawerDate-${lang}`);
+        if (issueDateField) issueDateField.value = today;
+        if (drawerDateField) drawerDateField.value = today;
+      });
+    }
+
+    // Initialize on load
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+
+</body>
+</html>

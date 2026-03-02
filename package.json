@@ -1,0 +1,50 @@
+{
+  "name": "tmar-trust-master-account-register",
+  "version": "1.0.0",
+  "description": "Trust Master Account Register - Financial management system with Google Sheets integration",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
+    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
+    "build": "node build.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": [
+    "financial",
+    "accounting",
+    "trust",
+    "spreadsheet",
+    "ledger"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jspdf": "^2.5.1",
+    "html2canvas": "^1.4.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "@testing-library/dom": "^9.3.4",
+    "@testing-library/jest-dom": "^6.1.5"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "transform": {},
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/**/*.test.js",
+      "!src/__tests__/**"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 70,
+        "functions": 70,
+        "lines": 70,
+        "statements": 70
+      }
+    }
+  }
+}

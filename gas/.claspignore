@@ -1,0 +1,6 @@
+# Exclude backup directories from deployment
+**/backup_*/**
+backup_*/**
+backup_20260228/**
+**/.DS_Store
+*.md

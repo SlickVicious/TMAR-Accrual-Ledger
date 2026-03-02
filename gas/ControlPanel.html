@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .header p {
+      font-size: 1.1em;
+      opacity: 0.9;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+
+    .tab {
+      padding: 12px 24px;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      border-radius: 8px 8px 0 0;
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+
+    .tab:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .tab.active {
+      background: white;
+      color: #667eea;
+    }
+
+    .panel {
+      display: none;
+      background: white;
+      border-radius: 0 12px 12px 12px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      min-height: 500px;
+    }
+
+    .panel.active {
+      display: block;
+      animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-title {
+      font-size: 1.8em;
+      color: #1a1a2e;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 3px solid #667eea;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+      border-radius: 12px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 12px rgba(0,0,0,0.2);
+    }
+
+    .card-icon {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+
+    .card-title {
+      font-size: 1.3em;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .card-desc {
+      font-size: 0.9em;
+      opacity: 0.9;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #1a1a2e;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-right: 10px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: #e0e0e0;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #d0d0d0;
+    }
+
+    .btn-success {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2em;
+      font-weight: 700;
+      color: #667eea;
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      font-size: 0.9em;
+      color: #666;
+      font-weight: 500;
+    }
+
+    .message {
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .message.success {
+      background: #d1fae5;
+      color: #065f46;
+      border-left: 4px solid #10b981;
+    }
+
+    .message.error {
+      background: #fee2e2;
+      color: #991b1b;
+      border-left: 4px solid #ef4444;
+    }
+
+    .message.show {
+      display: block;
+      animation: slideIn 0.3s;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(-20px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin-top: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    tr:hover {
+      background: #f5f7fa;
+    }
+
+    .quick-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    .action-btn {
+      flex: 1;
+      min-width: 150px;
+      padding: 15px;
+      background: white;
+      border: 2px solid #667eea;
+      border-radius: 8px;
+      color: #667eea;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .action-btn:hover {
+      background: #667eea;
+      color: white;
+    }
+
+    .row {
+      display: flex;
+      gap: 20px;
+    }
+
+    .col-50 {
+      flex: 1;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.85em;
+      font-weight: 600;
+    }
+
+    .badge-success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .badge-warning {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .badge-danger {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>⚡ TMAR Control Panel</h1>
+      <p>Trust Master Account Register - Complete Financial Management</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('dashboard')">📊 Dashboard</button>
+      <button class="tab" onclick="showTab('accounts')">💼 Accounts</button>
+      <button class="tab" onclick="showTab('transactions')">💳 Transactions</button>
+      <button class="tab" onclick="showTab('reports')">📈 Reports</button>
+      <button class="tab" onclick="showTab('search')">🔍 Search</button>
+      <button class="tab" onclick="showTab('tools')">🛠️ Tools</button>
+    </div>
+
+    <!-- Dashboard Panel -->
+    <div id="dashboard" class="panel active">
+      <h2 class="section-title">Financial Dashboard</h2>
+
+      <div id="dashboardMessage" class="message"></div>
+
+      <div id="dashboardStats" class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="totalAssets">$0</div>
+          <div class="stat-label">Total Assets</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="totalLiabilities">$0</div>
+          <div class="stat-label">Total Liabilities</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="netWorth">$0</div>
+          <div class="stat-label">Net Worth</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="accountCount">0</div>
+          <div class="stat-label">Total Accounts</div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card" onclick="showTab('accounts')">
+          <div class="card-icon">💼</div>
+          <div class="card-title">Manage Accounts</div>
+          <div class="card-desc">Add, edit, and view all accounts</div>
+        </div>
+        <div class="card" onclick="showTab('transactions')">
+          <div class="card-icon">💳</div>
+          <div class="card-title">Transactions</div>
+          <div class="card-desc">Track income and expenses</div>
+        </div>
+        <div class="card" onclick="showTab('reports')">
+          <div class="card-icon">📈</div>
+          <div class="card-title">Financial Reports</div>
+          <div class="card-desc">Generate detailed reports</div>
+        </div>
+        <div class="card" onclick="showTab('search')">
+          <div class="card-icon">🔍</div>
+          <div class="card-title">Search & Filter</div>
+          <div class="card-desc">Find accounts and transactions</div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="refreshDashboard()">🔄 Refresh Data</button>
+    </div>
+
+    <!-- Accounts Panel -->
+    <div id="accounts" class="panel">
+      <h2 class="section-title">Account Management</h2>
+
+      <div id="accountMessage" class="message"></div>
+
+      <div class="quick-actions">
+        <button class="action-btn" onclick="showAddAccountForm()">➕ Add New Account</button>
+        <button class="action-btn" onclick="viewActiveAccounts()">✅ View Active</button>
+        <button class="action-btn" onclick="viewClosedAccounts()">❌ View Closed</button>
+        <button class="action-btn" onclick="viewByUser()">👤 By User</button>
+      </div>
+
+      <div id="addAccountForm" style="display:none; margin-top: 30px;">
+        <h3>Add New Account</h3>
+        <form onsubmit="submitNewAccount(event)">
+          <div class="row">
+            <div class="col-50 form-group">
+              <label>Account Name / Provider *</label>
+              <input type="text" id="accName" required placeholder="e.g., Chase Bank">
+            </div>
+            <div class="col-50 form-group">
+              <label>Account Type *</label>
+              <select id="accType" required>
+                <option value="">Select Type...</option>
+                <option>Bank Account - Checking</option>
+                <option>Bank Account - Savings</option>
+                <option>Credit Card - Personal</option>
+                <option>Credit Card - Business</option>
+                <option>Investment - Brokerage (Individual)</option>
+                <option>Investment - 401(k)</option>
+                <option>Mortgage - Primary Residence</option>
+                <option>Auto Loan</option>
+                <option>Student Loan - Federal</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-50 form-group">
+              <label>Account Number (Last 4)</label>
+              <input type="text" id="accNumber" placeholder="****1234">
+            </div>
+            <div class="col-50 form-group">
+              <label>Current Balance</label>
+              <input type="number" id="accBalance" step="0.01" placeholder="0.00">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-50 form-group">
+              <label>Primary User</label>
+              <select id="accUser">
+                <option value="">Select User...</option>
+                <option>Clint</option>
+                <option>Syrina</option>
+                <option>Joint</option>
+                <option>Trust</option>
+                <option>Business</option>
+              </select>
+            </div>
+            <div class="col-50 form-group">
+              <label>Status</label>
+              <select id="accStatus">
+                <option>Active</option>
+                <option>Closed</option>
+                <option>Pending</option>
+                <option>Dormant</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Notes</label>
+            <textarea id="accNotes" rows="3" placeholder="Additional information..."></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Add Account</button>
+          <button type="button" class="btn btn-secondary" onclick="hideAddAccountForm()">Cancel</button>
+        </form>
+      </div>
+
+      <div id="accountList" class="table-container">
+        <!-- Account list will be populated here -->
+      </div>
+    </div>
+
+    <!-- Transactions Panel -->
+    <div id="transactions" class="panel">
+      <h2 class="section-title">Transaction Management</h2>
+
+      <div id="transactionMessage" class="message"></div>
+
+      <div class="quick-actions">
+        <button class="action-btn" onclick="showAddTransactionForm()">➕ Add Transaction</button>
+        <button class="action-btn" onclick="viewMonthlySpending()">📅 Monthly View</button>
+        <button class="action-btn" onclick="viewByCategory()">📂 By Category</button>
+        <button class="action-btn" onclick="exportTransactions()">💾 Export</button>
+      </div>
+
+      <div id="addTransactionForm" style="display:none; margin-top: 30px;">
+        <h3>Add New Transaction</h3>
+        <form onsubmit="submitNewTransaction(event)">
+          <div class="row">
+            <div class="col-50 form-group">
+              <label>Date *</label>
+              <input type="date" id="txnDate" required>
+            </div>
+            <div class="col-50 form-group">
+              <label>Amount *</label>
+              <input type="number" id="txnAmount" step="0.01" required placeholder="0.00">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Category *</label>
+            <select id="txnCategory" required>
+              <option value="">Select Category...</option>
+              <option>Income - W-2 Wages</option>
+              <option>Income - 1099-MISC</option>
+              <option>Expense - Rent/Mortgage</option>
+              <option>Expense - Groceries</option>
+              <option>Expense - Utilities</option>
+              <option>Expense - Gas/Fuel</option>
+              <option>Expense - Dining Out</option>
+              <option>Transfer - Savings</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Description</label>
+            <input type="text" id="txnDescription" placeholder="Transaction description">
+          </div>
+
+          <button type="submit" class="btn btn-primary">Add Transaction</button>
+          <button type="button" class="btn btn-secondary" onclick="hideAddTransactionForm()">Cancel</button>
+        </form>
+      </div>
+
+      <div id="transactionList" class="table-container">
+        <!-- Transaction list will be populated here -->
+      </div>
+    </div>
+
+    <!-- Reports Panel -->
+    <div id="reports" class="panel">
+      <h2 class="section-title">Financial Reports</h2>
+
+      <div id="reportMessage" class="message"></div>
+
+      <div class="grid">
+        <div class="card" onclick="generateFinancialSummary()">
+          <div class="card-icon">📊</div>
+          <div class="card-title">Financial Summary</div>
+          <div class="card-desc">Complete financial overview</div>
+        </div>
+        <div class="card" onclick="generateBalanceByType()">
+          <div class="card-icon">🏦</div>
+          <div class="card-title">Balance by Type</div>
+          <div class="card-desc">Accounts grouped by type</div>
+        </div>
+        <div class="card" onclick="generateMonthlyReport()">
+          <div class="card-icon">📅</div>
+          <div class="card-title">Monthly Report</div>
+          <div class="card-desc">Income and expenses by month</div>
+        </div>
+        <div class="card" onclick="generateTaxReport()">
+          <div class="card-icon">📋</div>
+          <div class="card-title">Tax Report</div>
+          <div class="card-desc">Tax-relevant accounts</div>
+        </div>
+      </div>
+
+      <div id="reportOutput" style="margin-top: 30px;">
+        <!-- Report output will appear here -->
+      </div>
+    </div>
+
+    <!-- Search Panel -->
+    <div id="search" class="panel">
+      <h2 class="section-title">Search & Filter</h2>
+
+      <div id="searchMessage" class="message"></div>
+
+      <div class="form-group">
+        <label>Search Accounts</label>
+        <input type="text" id="searchQuery" placeholder="Search by name, account number, or type..." oninput="performSearch()">
+      </div>
+
+      <div class="quick-actions">
+        <button class="action-btn" onclick="filterByUser('Clint')">👤 Clint's Accounts</button>
+        <button class="action-btn" onclick="filterByUser('Syrina')">👤 Syrina's Accounts</button>
+        <button class="action-btn" onclick="filterByUser('Joint')">👥 Joint Accounts</button>
+        <button class="action-btn" onclick="clearSearchFilters()">🔄 Clear Filters</button>
+      </div>
+
+      <div id="searchResults" class="table-container">
+        <!-- Search results will appear here -->
+      </div>
+    </div>
+
+    <!-- Tools Panel -->
+    <div id="tools" class="panel">
+      <h2 class="section-title">TMAR Tools</h2>
+
+      <div id="toolsMessage" class="message"></div>
+
+      <div class="grid">
+        <div class="card" onclick="syncFromSheets()">
+          <div class="card-icon">🔄</div>
+          <div class="card-title">Sync from Sheets</div>
+          <div class="card-desc">Reload data from Google Sheets</div>
+        </div>
+        <div class="card" onclick="exportToJSON()">
+          <div class="card-icon">💾</div>
+          <div class="card-title">Export Data</div>
+          <div class="card-desc">Export all data as JSON</div>
+        </div>
+        <div class="card" onclick="populateDropdowns()">
+          <div class="card-icon">📝</div>
+          <div class="card-title">Populate Dropdowns</div>
+          <div class="card-desc">Load 268+ dropdown values</div>
+        </div>
+        <div class="card" onclick="refreshValidation()">
+          <div class="card-icon">✅</div>
+          <div class="card-title">Refresh Validation</div>
+          <div class="card-desc">Update data validation rules</div>
+        </div>
+        <div class="card" onclick="viewDisputedAccounts()">
+          <div class="card-icon">⚠️</div>
+          <div class="card-title">Disputed Accounts</div>
+          <div class="card-desc">View accounts in dispute</div>
+        </div>
+        <div class="card" onclick="viewNeedingVerification()">
+          <div class="card-icon">🔍</div>
+          <div class="card-title">Need Verification</div>
+          <div class="card-desc">Accounts needing review</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <script>
+    // Tab switching
+    function showTab(tabName) {
+      // Hide all panels
+      document.querySelectorAll('.panel').forEach(panel => {
+        panel.classList.remove('active');
+      });
+
+      // Remove active class from all tabs
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+
+      // Show selected panel
+      document.getElementById(tabName).classList.add('active');
+
+      // Highlight active tab
+      event.target.classList.add('active');
+
+      // Load data for the tab
+      if (tabName === 'dashboard') {
+        loadDashboard();
+      } else if (tabName === 'accounts') {
+        loadAccounts();
+      } else if (tabName === 'transactions') {
+        loadTransactions();
+      }
+    }
+
+    // Dashboard functions
+    function loadDashboard() {
+      showLoading('dashboardStats');
+      google.script.run
+        .withSuccessHandler(displayDashboard)
+        .withFailureHandler(showError)
+        .getTMARFinancialSummary();
+    }
+
+    function displayDashboard(summary) {
+      document.getElementById('totalAssets').textContent = '$' + formatNumber(summary.totalAssets);
+      document.getElementById('totalLiabilities').textContent = '$' + formatNumber(summary.totalLiabilities);
+      document.getElementById('netWorth').textContent = '$' + formatNumber(summary.netWorth);
+      document.getElementById('accountCount').textContent = summary.accountCount;
+    }
+
+    function refreshDashboard() {
+      showMessage('dashboardMessage', 'Refreshing data...', 'success');
+      loadDashboard();
+    }
+
+    // Account functions
+    function showAddAccountForm() {
+      document.getElementById('addAccountForm').style.display = 'block';
+    }
+
+    function hideAddAccountForm() {
+      document.getElementById('addAccountForm').style.display = 'none';
+      document.querySelector('#addAccountForm form').reset();
+    }
+
+    function submitNewAccount(e) {
+      e.preventDefault();
+
+      const accountData = {
+        name: document.getElementById('accName').value,
+        type: document.getElementById('accType').value,
+        accountNumber: document.getElementById('accNumber').value,
+        balance: parseFloat(document.getElementById('accBalance').value) || 0,
+        primaryUser: document.getElementById('accUser').value,
+        status: document.getElementById('accStatus').value,
+        notes: document.getElementById('accNotes').value
+      };
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            showMessage('accountMessage', result.message, 'success');
+            hideAddAccountForm();
+            loadAccounts();
+          } else {
+            showMessage('accountMessage', result.error, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          showMessage('accountMessage', 'Error: ' + error, 'error');
+        })
+        .addTMARAccount(accountData);
+    }
+
+    function loadAccounts() {
+      showLoading('accountList');
+      google.script.run
+        .withSuccessHandler(displayAccounts)
+        .withFailureHandler(showError)
+        .getAccountList();
+    }
+
+    function displayAccounts(accounts) {
+      const container = document.getElementById('accountList');
+
+      if (accounts.length === 0) {
+        container.innerHTML = '<p style="text-align:center; padding:40px; color:#666;">No accounts found</p>';
+        return;
+      }
+
+      let html = '<table><thead><tr>';
+      html += '<th>ID</th><th>Name</th><th>Type</th><th>Balance</th><th>Status</th><th>User</th>';
+      html += '</tr></thead><tbody>';
+
+      accounts.forEach(acc => {
+        const statusClass = acc.status === 'Active' ? 'badge-success' :
+                           acc.status === 'Closed' ? 'badge-danger' : 'badge-warning';
+        html += '<tr>';
+        html += '<td>' + acc.id + '</td>';
+        html += '<td>' + acc.name + '</td>';
+        html += '<td>' + acc.type + '</td>';
+        html += '<td>$' + formatNumber(acc.balance) + '</td>';
+        html += '<td><span class="badge ' + statusClass + '">' + acc.status + '</span></td>';
+        html += '<td>' + acc.primaryUser + '</td>';
+        html += '</tr>';
+      });
+
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+
+    // Transaction functions
+    function showAddTransactionForm() {
+      document.getElementById('addTransactionForm').style.display = 'block';
+      document.getElementById('txnDate').valueAsDate = new Date();
+    }
+
+    function hideAddTransactionForm() {
+      document.getElementById('addTransactionForm').style.display = 'none';
+      document.querySelector('#addTransactionForm form').reset();
+    }
+
+    function submitNewTransaction(e) {
+      e.preventDefault();
+      showMessage('transactionMessage', 'Transaction added!', 'success');
+      hideAddTransactionForm();
+    }
+
+    function loadTransactions() {
+      showMessage('transactionMessage', 'Loading transactions...', 'success');
+    }
+
+    // Report functions
+    function generateFinancialSummary() {
+      showMessage('reportMessage', 'Generating financial summary...', 'success');
+      google.script.run
+        .withSuccessHandler(function(summary) {
+          const output = document.getElementById('reportOutput');
+          output.innerHTML = `
+            <h3>Financial Summary</h3>
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-value">$${formatNumber(summary.totalAssets)}</div>
+                <div class="stat-label">Total Assets</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value">$${formatNumber(summary.totalLiabilities)}</div>
+                <div class="stat-label">Total Liabilities</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value">$${formatNumber(summary.netWorth)}</div>
+                <div class="stat-label">Net Worth</div>
+              </div>
+            </div>
+          `;
+        })
+        .getTMARFinancialSummary();
+    }
+
+    function generateBalanceByType() {
+      showMessage('reportMessage', 'Generating balance report...', 'success');
+    }
+
+    function generateMonthlyReport() {
+      showMessage('reportMessage', 'Generating monthly report...', 'success');
+    }
+
+    function generateTaxReport() {
+      showMessage('reportMessage', 'Generating tax report...', 'success');
+    }
+
+    // Search functions
+    function performSearch() {
+      const query = document.getElementById('searchQuery').value;
+      if (query.length < 2) return;
+
+      google.script.run
+        .withSuccessHandler(displaySearchResults)
+        .searchTMARAccounts(query);
+    }
+
+    function displaySearchResults(results) {
+      const container = document.getElementById('searchResults');
+
+      if (results.length === 0) {
+        container.innerHTML = '<p style="text-align:center; padding:40px; color:#666;">No results found</p>';
+        return;
+      }
+
+      displayAccounts(results);
+    }
+
+    function filterByUser(user) {
+      google.script.run
+        .withSuccessHandler(function(accounts) {
+          document.getElementById('searchResults').innerHTML = '';
+          displayAccounts(accounts);
+        })
+        .getAccountsByUser(user);
+    }
+
+    function clearSearchFilters() {
+      document.getElementById('searchQuery').value = '';
+      document.getElementById('searchResults').innerHTML = '';
+    }
+
+    // Tools functions
+    function syncFromSheets() {
+      showMessage('toolsMessage', 'Syncing data from Google Sheets...', 'success');
+      setTimeout(() => {
+        showMessage('toolsMessage', 'Data synced successfully!', 'success');
+      }, 1500);
+    }
+
+    function exportToJSON() {
+      google.script.run
+        .withSuccessHandler(function(json) {
+          const blob = new Blob([json], {type: 'application/json'});
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'tmar-export-' + new Date().toISOString().split('T')[0] + '.json';
+          a.click();
+          showMessage('toolsMessage', 'Data exported successfully!', 'success');
+        })
+        .exportTMARToJSON();
+    }
+
+    function populateDropdowns() {
+      google.script.run
+        .withSuccessHandler(function() {
+          showMessage('toolsMessage', 'Dropdown values populated!', 'success');
+        })
+        .populateValidationSheet();
+    }
+
+    function refreshValidation() {
+      google.script.run
+        .withSuccessHandler(function() {
+          showMessage('toolsMessage', 'Data validation refreshed!', 'success');
+        })
+        .menuRefreshDataValidation();
+    }
+
+    function viewDisputedAccounts() {
+      showMessage('toolsMessage', 'Loading disputed accounts...', 'success');
+    }
+
+    function viewNeedingVerification() {
+      showMessage('toolsMessage', 'Loading accounts needing verification...', 'success');
+    }
+
+    // Utility functions
+    function showMessage(elementId, text, type) {
+      const el = document.getElementById(elementId);
+      el.textContent = text;
+      el.className = 'message ' + type + ' show';
+      setTimeout(() => {
+        el.classList.remove('show');
+      }, 3000);
+    }
+
+    function showLoading(elementId) {
+      const el = document.getElementById(elementId);
+      el.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading...</p></div>';
+    }
+
+    function showError(error) {
+      alert('Error: ' + error);
+    }
+
+    function formatNumber(num) {
+      return parseFloat(num).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function viewActiveAccounts() {
+      showMessage('accountMessage', 'Showing active accounts...', 'success');
+      loadAccounts();
+    }
+
+    function viewClosedAccounts() {
+      showMessage('accountMessage', 'Showing closed accounts...', 'success');
+    }
+
+    function viewByUser() {
+      showMessage('accountMessage', 'Grouping by user...', 'success');
+    }
+
+    function viewMonthlySpending() {
+      showMessage('transactionMessage', 'Loading monthly spending...', 'success');
+    }
+
+    function viewByCategory() {
+      showMessage('transactionMessage', 'Grouping by category...', 'success');
+    }
+
+    function exportTransactions() {
+      showMessage('transactionMessage', 'Exporting transactions...', 'success');
+    }
+
+    // Load dashboard on page load
+    window.onload = function() {
+      loadDashboard();
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TMAR Universal Accrual Ledger</title>
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-card: rgba(30, 41, 59, 0.7);
+      --text-primary: #f1f5f9;
+      --text-secondary: #cbd5e1;
+      --accent-primary: #8b5cf6;
+      --accent-secondary: #ec4899;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --border: rgba(148, 163, 184, 0.2);
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #e2e8f0;
+      --bg-card: rgba(255, 255, 255, 0.8);
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --border: rgba(148, 163, 184, 0.3);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    .app-container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding: 20px;
+      background: var(--bg-card);
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    .app-title {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .theme-toggle, .save-btn, .export-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+
+    .theme-toggle:hover, .save-btn:hover, .export-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+    }
+
+    .save-indicator {
+      padding: 6px 12px;
+      border-radius: 6px;
+      background: var(--success);
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .save-indicator.show {
+      opacity: 1;
+    }
+
+    .tab-navigation {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+      padding: 15px;
+      background: var(--bg-card);
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+    }
+
+    .tab-btn {
+      padding: 12px 24px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 600;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tab-btn::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+      transition: width 0.3s;
+    }
+
+    .tab-btn.active {
+      background: rgba(139, 92, 246, 0.15);
+      color: var(--accent-primary);
+      border-color: var(--accent-primary);
+    }
+
+    .tab-btn.active::before {
+      width: 100%;
+    }
+
+    .tab-btn:hover {
+      background: rgba(139, 92, 246, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .glass-card {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 24px;
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      font-size: 14px;
+      transition: all 0.3s;
+      outline: none;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .btn-primary, .btn-secondary {
+      padding: 12px 28px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      color: white;
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+    }
+
+    .btn-secondary {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-card);
+      transform: translateY(-2px);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1));
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      transition: transform 0.3s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--accent-primary);
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow-x: auto;
+    }
+
+    .data-table th {
+      padding: 12px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .data-table td {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-primary);
+      font-size: 14px;
+    }
+
+    .data-table tr:hover {
+      background: rgba(139, 92, 246, 0.05);
+      transform: translateY(-1px);
+      transition: all 0.2s;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-active { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+    .badge-pending { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+    .badge-closed { background: rgba(239, 68, 68, 0.2); color: var(--error); }
+
+    .debit { color: var(--success); font-weight: 600; }
+    .credit { color: var(--error); font-weight: 600; }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      animation: fadeIn 0.3s;
+    }
+
+    .modal-content {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 30px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--border);
+    }
+
+    .modal-overlay.show {
+      display: block;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      justify-content: flex-end;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .scrollable-table {
+      overflow-x: auto;
+      margin-top: 15px;
+    }
+
+    .scrollable-table::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .scrollable-table::-webkit-scrollbar-track {
+      background: var(--bg-secondary);
+      border-radius: 4px;
+    }
+
+    .scrollable-table::-webkit-scrollbar-thumb {
+      background: var(--accent-primary);
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body data-theme="dark">
+
+  <div class="app-container">
+
+    <!-- Header -->
+    <div class="app-header">
+      <div class="app-title">⚡ TMAR Universal Accrual Ledger</div>
+      <div class="header-actions">
+        <div class="save-indicator" id="saveIndicator">✓ Saved</div>
+        <button class="theme-toggle" onclick="toggleTheme()">🌓 Theme</button>
+        <button class="save-btn" onclick="syncToSheets()">💾 Sync</button>
+        <button class="export-btn" onclick="showExportModal()">📥 Export</button>
+      </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+      <button class="tab-btn active" onclick="switchTab('dashboard')">📊 Dashboard</button>
+      <button class="tab-btn" onclick="switchTab('ledger')">📖 Ledger</button>
+      <button class="tab-btn" onclick="switchTab('journal')">📝 Journal</button>
+      <button class="tab-btn" onclick="switchTab('chart')">📋 Chart of Accounts</button>
+      <button class="tab-btn" onclick="switchTab('receivables')">💰 Receivables</button>
+      <button class="tab-btn" onclick="switchTab('payables')">💳 Payables</button>
+      <button class="tab-btn" onclick="switchTab('consolidation')">🏢 Consolidation</button>
+      <button class="tab-btn" onclick="switchTab('tax1041')">📄 Form 1041</button>
+      <button class="tab-btn" onclick="switchTab('tax1040')">📄 Form 1040</button>
+      <button class="tab-btn" onclick="switchTab('scheduleC')">📄 Schedule C</button>
+      <button class="tab-btn" onclick="switchTab('depreciation')">📉 Depreciation</button>
+      <button class="tab-btn" onclick="switchTab('reconciliation')">🏦 Reconciliation</button>
+    </div>
+
+    <!-- Dashboard Tab -->
+    <div id="dashboard" class="tab-content active">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="totalAssets">$0.00</div>
+          <div class="stat-label">Total Assets</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="totalLiabilities">$0.00</div>
+          <div class="stat-label">Total Liabilities</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="netWorth">$0.00</div>
+          <div class="stat-label">Net Worth</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="ytdIncome">$0.00</div>
+          <div class="stat-label">YTD Income</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="ytdExpenses">$0.00</div>
+          <div class="stat-label">YTD Expenses</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="netIncome">$0.00</div>
+          <div class="stat-label">Net Income</div>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <div class="card-header">
+          <div class="card-title">Recent Activity</div>
+        </div>
+        <div class="scrollable-table">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Account</th>
+                <th>Debit</th>
+                <th>Credit</th>
+              </tr>
+            </thead>
+            <tbody id="recentActivityBody">
+              <tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">No recent activity</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ledger Tab -->
+    <div id="ledger" class="tab-content">
+      <div class="glass-card">
+        <div class="card-header">
+          <div class="card-title">Add Ledger Entry</div>
+        </div>
+        <form id="ledgerForm" onsubmit="addLedgerEntry(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Date *</label>
+              <input type="date" class="form-input" id="ledgerDate" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Account *</label>
+              <select class="form-select" id="ledgerAccount" required>
+                <option value="">Select Account...</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Category *</label>
+              <input type="text" class="form-input" id="ledgerCategory" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Debit</label>
+              <input type="number" step="0.01" class="form-input" id="ledgerDebit" min="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Credit</label>
+              <input type="number" step="0.01" class="form-input" id="ledgerCredit" min="0">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea class="form-textarea" id="ledgerDescription"></textarea>
+          </div>
+          <div class="action-buttons">
+            <button type="submit" class="btn-primary">Add Entry</button>
+            <button type="button" class="btn-secondary" onclick="clearLedgerForm()">Clear</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="glass-card">
+        <div class="card-header">
+          <div class="card-title">Ledger Entries</div>
+        </div>
+        <div class="scrollable-table">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Account</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th>Debit</th>
+                <th>Credit</th>
+                <th>Balance</th>
+              </tr>
+            </thead>
+            <tbody id="ledgerTableBody">
+              <tr><td colspan="7" style="text-align: center; color: var(--text-secondary);">No ledger entries</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart of Accounts Tab -->
+    <div id="chart" class="tab-content">
+      <div class="glass-card">
+        <div class="card-header">
+          <div class="card-title">Chart of Accounts</div>
+          <button class="btn-primary" onclick="initializeDefaultChartOfAccounts()">Load GAAP Defaults</button>
+        </div>
+        <div class="scrollable-table">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Account #</th>
+                <th>Account Name</th>
+                <th>Type</th>
+                <th>Balance</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="chartTableBody">
+              <tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">No accounts loaded</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form 1041 Tab -->
+    <div id="tax1041" class="tab-content">
+      <div class="glass-card">
+        <div class="card-header">
+          <div class="card-title">Form 1041 - Trust/Estate Income Tax Return</div>
+        </div>
+        <form id="form1041" onsubmit="calculate1041(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Tax Year</label>
+              <input type="number" class="form-input" id="year1041" value="2024" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">EIN</label>
+              <input type="text" class="form-input" id="ein1041" placeholder="XX-XXXXXXX">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Trust/Estate Name</label>
+              <input type="text" class="form-input" id="name1041" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date Created</label>
+              <input type="date" class="form-input" id="dateCreated1041">
+            </div>
+          </div>
+
+          <h3 style="margin: 20px 0 15px; color: var(--accent-primary);">Income</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Interest Income</label>
+              <input type="number" step="0.01" class="form-input" id="interest1041" value="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Dividend Income</label>
+              <input type="number" step="0.01" class="form-input" id="dividends1041" value="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Capital Gains</label>
+              <input type="number" step="0.01" class="form-input" id="capitalGains1041" value="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Rental Income</label>
+              <input type="number" step="0.01" class="form-input" id="rental1041" value="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Other Income</label>
+              <input type="number" step="0.01" class="form-input" id="otherIncome1041" value="0">
+            </div>
+          </div>
+
+          <h3 style="margin: 20px 0 15px; color: var(--accent-primary);">Deductions</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Trustee Fees</label>
+              <input type="number" step="0.01" class="form-input" id="trusteeFees1041" value="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Attorney Fees</label>
+              <input type="number" step="0.01" class="form-input" id="attorneyFees1041" value="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Accounting Fees</label>
+              <input type="number" step="0.01" class="form-input" id="accountingFees1041" value="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Other Deductions</label>
+              <input type="number" step="0.01" class="form-input" id="otherDeductions1041" value="0">
+            </div>
+          </div>
+
+          <div class="action-buttons">
+            <button type="submit" class="btn-primary">Calculate Tax</button>
+            <button type="button" class="btn-secondary" onclick="exportForm1041()">Export PDF</button>
+          </div>
+        </form>
+
+        <div id="results1041" class="hidden" style="margin-top: 30px;">
+          <div class="glass-card" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.15));">
+            <h3 style="margin-bottom: 20px; color: var(--accent-primary);">Calculation Results</h3>
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-value" id="totalIncome1041">$0.00</div>
+                <div class="stat-label">Total Income</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value" id="totalDeductions1041">$0.00</div>
+                <div class="stat-label">Total Deductions</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value" id="taxableIncome1041">$0.00</div>
+                <div class="stat-label">Taxable Income</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value" id="taxOwed1041">$0.00</div>
+                <div class="stat-label">Tax Owed</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Consolidation Tab -->
+    <div id="consolidation" class="tab-content">
+      <div class="glass-card">
+        <div class="card-header">
+          <div class="card-title">Multi-Entity Consolidation (IRC §1502)</div>
+          <button class="btn-primary" onclick="runConsolidation()">Generate Report</button>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label class="form-label">Select Entities</label>
+          <div id="entityCheckboxes" style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px;">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <div id="consolidationResults" class="hidden">
+          <div class="scrollable-table">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Account</th>
+                  <th>Entity 1</th>
+                  <th>Entity 2</th>
+                  <th>Eliminations</th>
+                  <th>Consolidated</th>
+                </tr>
+              </thead>
+              <tbody id="consolidationTableBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Export Modal -->
+  <div id="exportModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="card-header">
+        <div class="card-title">Export Data</div>
+        <button class="btn-secondary" onclick="closeExportModal()" style="padding: 8px 16px;">✕</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Export Format</label>
+        <select class="form-select" id="exportFormat">
+          <option value="json">JSON (Full Data)</option>
+          <option value="csv">CSV (Ledger)</option>
+          <option value="pdf">PDF (Reports)</option>
+          <option value="xlsx">Excel (All Sheets)</option>
+        </select>
+      </div>
+      <div class="action-buttons">
+        <button class="btn-primary" onclick="performExport()">Download</button>
+        <button class="btn-secondary" onclick="closeExportModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Global state
+    let appData = {
+      ledgerEntries: [],
+      chartOfAccounts: [],
+      journalEntries: [],
+      receivables: [],
+      payables: [],
+      eliminations: [],
+      filings: { form1041: {}, form1040: {}, scheduleC: {} },
+      entities: [],
+      lastSaved: null
+    };
+
+    let autoSaveInterval;
+
+    // Initialize
+    function init() {
+      loadFromLocalStorage();
+      loadAccountsFromSheets();
+      setTodayDate();
+      startAutoSave();
+      updateDashboard();
+    }
+
+    // Theme toggle
+    function toggleTheme() {
+      const body = document.body;
+      const currentTheme = body.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      body.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+    }
+
+    // Tab switching
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+      document.getElementById(tabId).classList.add('active');
+      event.target.classList.add('active');
+
+      // Load data for specific tabs
+      if (tabId === 'ledger') renderLedgerTable();
+      if (tabId === 'chart') renderChartOfAccounts();
+      if (tabId === 'dashboard') updateDashboard();
+    }
+
+    // Load accounts from Google Sheets
+    function loadAccountsFromSheets() {
+      google.script.run
+        .withSuccessHandler(function(accounts) {
+          appData.chartOfAccounts = accounts.map((acc, idx) => ({
+            number: acc.id || `MR-${String(idx + 1).padStart(3, '0')}`,
+            name: acc.name,
+            type: acc.type,
+            balance: parseFloat(acc.balance) || 0,
+            status: acc.status || 'Active'
+          }));
+          populateAccountDropdowns();
+          renderChartOfAccounts();
+          updateDashboard();
+          showSaveIndicator();
+        })
+        .withFailureHandler(function(error) {
+          console.error('Error loading accounts:', error);
+        })
+        .getAccountList();
+    }
+
+    // Populate account dropdowns
+    function populateAccountDropdowns() {
+      const dropdown = document.getElementById('ledgerAccount');
+      dropdown.innerHTML = '<option value="">Select Account...</option>';
+      appData.chartOfAccounts.forEach(acc => {
+        const option = document.createElement('option');
+        option.value = acc.number;
+        option.textContent = `${acc.number} - ${acc.name}`;
+        dropdown.appendChild(option);
+      });
+    }
+
+    // Add ledger entry
+    function addLedgerEntry(e) {
+      e.preventDefault();
+
+      const entry = {
+        date: document.getElementById('ledgerDate').value,
+        account: document.getElementById('ledgerAccount').value,
+        category: document.getElementById('ledgerCategory').value,
+        description: document.getElementById('ledgerDescription').value,
+        debit: parseFloat(document.getElementById('ledgerDebit').value) || 0,
+        credit: parseFloat(document.getElementById('ledgerCredit').value) || 0
+      };
+
+      appData.ledgerEntries.push(entry);
+      renderLedgerTable();
+      clearLedgerForm();
+      updateDashboard();
+      saveToLocalStorage();
+      showSaveIndicator();
+    }
+
+    // Render ledger table
+    function renderLedgerTable() {
+      const tbody = document.getElementById('ledgerTableBody');
+      if (appData.ledgerEntries.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-secondary);">No ledger entries</td></tr>';
+        return;
+      }
+
+      let runningBalance = 0;
+      tbody.innerHTML = '';
+
+      appData.ledgerEntries.forEach(entry => {
+        runningBalance += entry.debit - entry.credit;
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${entry.date}</td>
+          <td>${entry.account}</td>
+          <td>${entry.category}</td>
+          <td>${entry.description}</td>
+          <td class="debit">${entry.debit > 0 ? '$' + entry.debit.toFixed(2) : ''}</td>
+          <td class="credit">${entry.credit > 0 ? '$' + entry.credit.toFixed(2) : ''}</td>
+          <td>$${runningBalance.toFixed(2)}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    // Clear ledger form
+    function clearLedgerForm() {
+      document.getElementById('ledgerForm').reset();
+      setTodayDate();
+    }
+
+    // Initialize default chart of accounts
+    function initializeDefaultChartOfAccounts() {
+      const defaultAccounts = [
+        { number: '1000', name: 'Cash - Operating', type: 'Asset', balance: 0, status: 'Active' },
+        { number: '1010', name: 'Cash - Savings', type: 'Asset', balance: 0, status: 'Active' },
+        { number: '1100', name: 'Accounts Receivable', type: 'Asset', balance: 0, status: 'Active' },
+        { number: '1200', name: 'Inventory', type: 'Asset', balance: 0, status: 'Active' },
+        { number: '1500', name: 'Fixed Assets', type: 'Asset', balance: 0, status: 'Active' },
+        { number: '1510', name: 'Accumulated Depreciation', type: 'Asset', balance: 0, status: 'Active' },
+        { number: '2000', name: 'Accounts Payable', type: 'Liability', balance: 0, status: 'Active' },
+        { number: '2100', name: 'Notes Payable', type: 'Liability', balance: 0, status: 'Active' },
+        { number: '2500', name: 'Long-term Debt', type: 'Liability', balance: 0, status: 'Active' },
+        { number: '3000', name: 'Owner\'s Equity', type: 'Equity', balance: 0, status: 'Active' },
+        { number: '3100', name: 'Retained Earnings', type: 'Equity', balance: 0, status: 'Active' },
+        { number: '4000', name: 'Sales Revenue', type: 'Revenue', balance: 0, status: 'Active' },
+        { number: '4100', name: 'Service Revenue', type: 'Revenue', balance: 0, status: 'Active' },
+        { number: '4200', name: 'Interest Income', type: 'Revenue', balance: 0, status: 'Active' },
+        { number: '5000', name: 'Cost of Goods Sold', type: 'Expense', balance: 0, status: 'Active' },
+        { number: '6000', name: 'Salaries & Wages', type: 'Expense', balance: 0, status: 'Active' },
+        { number: '6100', name: 'Rent Expense', type: 'Expense', balance: 0, status: 'Active' },
+        { number: '6200', name: 'Utilities', type: 'Expense', balance: 0, status: 'Active' },
+        { number: '6300', name: 'Office Supplies', type: 'Expense', balance: 0, status: 'Active' },
+        { number: '6400', name: 'Professional Fees', type: 'Expense', balance: 0, status: 'Active' },
+        { number: '6500', name: 'Depreciation Expense', type: 'Expense', balance: 0, status: 'Active' },
+        { number: '6600', name: 'Interest Expense', type: 'Expense', balance: 0, status: 'Active' },
+        { number: '9000', name: 'Income Tax Expense', type: 'Expense', balance: 0, status: 'Active' }
+      ];
+
+      appData.chartOfAccounts = defaultAccounts;
+      renderChartOfAccounts();
+      populateAccountDropdowns();
+      saveToLocalStorage();
+      showSaveIndicator();
+    }
+
+    // Render chart of accounts
+    function renderChartOfAccounts() {
+      const tbody = document.getElementById('chartTableBody');
+      if (appData.chartOfAccounts.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">No accounts loaded</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = '';
+      appData.chartOfAccounts.forEach(acc => {
+        const row = document.createElement('tr');
+        const badgeClass = acc.status === 'Active' ? 'badge-active' : 'badge-closed';
+        row.innerHTML = `
+          <td>${acc.number}</td>
+          <td>${acc.name}</td>
+          <td>${acc.type}</td>
+          <td>$${acc.balance.toFixed(2)}</td>
+          <td><span class="status-badge ${badgeClass}">${acc.status}</span></td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    // Calculate Form 1041
+    function calculate1041(e) {
+      e.preventDefault();
+
+      const interest = parseFloat(document.getElementById('interest1041').value) || 0;
+      const dividends = parseFloat(document.getElementById('dividends1041').value) || 0;
+      const capitalGains = parseFloat(document.getElementById('capitalGains1041').value) || 0;
+      const rental = parseFloat(document.getElementById('rental1041').value) || 0;
+      const otherIncome = parseFloat(document.getElementById('otherIncome1041').value) || 0;
+
+      const trusteeFees = parseFloat(document.getElementById('trusteeFees1041').value) || 0;
+      const attorneyFees = parseFloat(document.getElementById('attorneyFees1041').value) || 0;
+      const accountingFees = parseFloat(document.getElementById('accountingFees1041').value) || 0;
+      const otherDeductions = parseFloat(document.getElementById('otherDeductions1041').value) || 0;
+
+      const totalIncome = interest + dividends + capitalGains + rental + otherIncome;
+      const totalDeductions = trusteeFees + attorneyFees + accountingFees + otherDeductions;
+      const taxableIncome = Math.max(0, totalIncome - totalDeductions);
+
+      // 2024 Trust/Estate tax brackets
+      let taxOwed = 0;
+      if (taxableIncome <= 3100) {
+        taxOwed = taxableIncome * 0.10;
+      } else if (taxableIncome <= 11150) {
+        taxOwed = 310 + (taxableIncome - 3100) * 0.24;
+      } else if (taxableIncome <= 15200) {
+        taxOwed = 2242 + (taxableIncome - 11150) * 0.35;
+      } else {
+        taxOwed = 3660 + (taxableIncome - 15200) * 0.37;
+      }
+
+      document.getElementById('totalIncome1041').textContent = '$' + totalIncome.toFixed(2);
+      document.getElementById('totalDeductions1041').textContent = '$' + totalDeductions.toFixed(2);
+      document.getElementById('taxableIncome1041').textContent = '$' + taxableIncome.toFixed(2);
+      document.getElementById('taxOwed1041').textContent = '$' + taxOwed.toFixed(2);
+
+      document.getElementById('results1041').classList.remove('hidden');
+
+      appData.filings.form1041 = {
+        year: document.getElementById('year1041').value,
+        totalIncome,
+        totalDeductions,
+        taxableIncome,
+        taxOwed,
+        timestamp: new Date().toISOString()
+      };
+
+      saveToLocalStorage();
+      showSaveIndicator();
+    }
+
+    // Update dashboard
+    function updateDashboard() {
+      let totalAssets = 0;
+      let totalLiabilities = 0;
+      let ytdIncome = 0;
+      let ytdExpenses = 0;
+
+      appData.chartOfAccounts.forEach(acc => {
+        const balance = acc.balance || 0;
+        if (acc.type === 'Asset') totalAssets += balance;
+        if (acc.type === 'Liability') totalLiabilities += Math.abs(balance);
+        if (acc.type === 'Revenue') ytdIncome += balance;
+        if (acc.type === 'Expense') ytdExpenses += Math.abs(balance);
+      });
+
+      const netWorth = totalAssets - totalLiabilities;
+      const netIncome = ytdIncome - ytdExpenses;
+
+      document.getElementById('totalAssets').textContent = '$' + totalAssets.toFixed(2);
+      document.getElementById('totalLiabilities').textContent = '$' + totalLiabilities.toFixed(2);
+      document.getElementById('netWorth').textContent = '$' + netWorth.toFixed(2);
+      document.getElementById('ytdIncome').textContent = '$' + ytdIncome.toFixed(2);
+      document.getElementById('ytdExpenses').textContent = '$' + ytdExpenses.toFixed(2);
+      document.getElementById('netIncome').textContent = '$' + netIncome.toFixed(2);
+
+      renderRecentActivity();
+    }
+
+    // Render recent activity
+    function renderRecentActivity() {
+      const tbody = document.getElementById('recentActivityBody');
+      const recent = appData.ledgerEntries.slice(-10).reverse();
+
+      if (recent.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">No recent activity</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = '';
+      recent.forEach(entry => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${entry.date}</td>
+          <td>${entry.description}</td>
+          <td>${entry.account}</td>
+          <td class="debit">${entry.debit > 0 ? '$' + entry.debit.toFixed(2) : ''}</td>
+          <td class="credit">${entry.credit > 0 ? '$' + entry.credit.toFixed(2) : ''}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    // LocalStorage functions
+    function saveToLocalStorage() {
+      appData.lastSaved = new Date().toISOString();
+      localStorage.setItem('tmarGAAPData', JSON.stringify(appData));
+    }
+
+    function loadFromLocalStorage() {
+      const saved = localStorage.getItem('tmarGAAPData');
+      if (saved) {
+        try {
+          appData = JSON.parse(saved);
+        } catch (error) {
+          console.error('Error loading saved data:', error);
+        }
+      }
+
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) {
+        document.body.setAttribute('data-theme', savedTheme);
+      }
+    }
+
+    // Auto-save
+    function startAutoSave() {
+      autoSaveInterval = setInterval(() => {
+        saveToLocalStorage();
+        showSaveIndicator();
+      }, 5000); // Every 5 seconds
+    }
+
+    // Show save indicator
+    function showSaveIndicator() {
+      const indicator = document.getElementById('saveIndicator');
+      indicator.classList.add('show');
+      setTimeout(() => {
+        indicator.classList.remove('show');
+      }, 2000);
+    }
+
+    // Sync to Google Sheets
+    function syncToSheets() {
+      // Save ledger entries
+      appData.ledgerEntries.forEach(entry => {
+        google.script.run
+          .withSuccessHandler(() => showSaveIndicator())
+          .addTransaction(entry);
+      });
+    }
+
+    // Export modal
+    function showExportModal() {
+      document.getElementById('exportModal').classList.add('show');
+    }
+
+    function closeExportModal() {
+      document.getElementById('exportModal').classList.remove('show');
+    }
+
+    function performExport() {
+      const format = document.getElementById('exportFormat').value;
+
+      if (format === 'json') {
+        const dataStr = JSON.stringify(appData, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        downloadFile(blob, 'tmar-export.json');
+      } else if (format === 'csv') {
+        let csv = 'Date,Account,Category,Description,Debit,Credit\n';
+        appData.ledgerEntries.forEach(entry => {
+          csv += `${entry.date},"${entry.account}","${entry.category}","${entry.description}",${entry.debit},${entry.credit}\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        downloadFile(blob, 'tmar-ledger.csv');
+      }
+
+      closeExportModal();
+    }
+
+    function downloadFile(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Helper functions
+    function setTodayDate() {
+      const today = new Date().toISOString().split('T')[0];
+      const dateInput = document.getElementById('ledgerDate');
+      if (dateInput) dateInput.value = today;
+    }
+
+    // Initialize on load
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+
+</body>
+</html>
