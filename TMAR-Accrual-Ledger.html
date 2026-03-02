@@ -3705,7 +3705,7 @@
     // ========================================
     // PERSISTENT DATA STORAGE WITH LOCALSTORAGE
     // ========================================
-    const STORAGE_KEY = 'GAAP_UniversalLedger_Data';
+    const STORAGE_KEY = 'TMAR_AccrualLedger_Data';
     const AUTO_SAVE_INTERVAL = 5000; // Auto-save every 5 seconds
     
     // Default data structure
@@ -6247,7 +6247,7 @@
   ═══════════════════════════════════════════════════════ -->
   <script>
   // ── Trust Estate Data Store ──────────────────────────────────
-  const TRUST_KEY = 'GAAP_TrustEstate_Data';
+  const TRUST_KEY = 'TMAR_TrustEstate_Data';
 
   let trustData = (function () {
     try {
@@ -6568,8 +6568,8 @@
   let invCounter = 1000;
 
   function initInvoicing() {
-    invoices = JSON.parse(localStorage.getItem('RR_Invoices') || '[]');
-    invCounter = parseInt(localStorage.getItem('RR_InvCounter') || '1000');
+    invoices = JSON.parse(localStorage.getItem('TMAR_Invoices') || '[]');
+    invCounter = parseInt(localStorage.getItem('TMAR_InvCounter') || '1000');
     renderInvoiceList();
     updateInvoiceDashboard();
   }
@@ -6638,8 +6638,8 @@
     if (!customer || !date) { alert('Please fill in Customer and Date.'); return; }
     const inv = { num, date, due, customer, addr, terms, notes, amount, status: 'Unpaid', created: new Date().toISOString() };
     invoices.push(inv);
-    localStorage.setItem('RR_Invoices', JSON.stringify(invoices));
-    localStorage.setItem('RR_InvCounter', String(invCounter));
+    localStorage.setItem('TMAR_Invoices', JSON.stringify(invoices));
+    localStorage.setItem('TMAR_InvCounter', String(invCounter));
     renderInvoiceList();
     updateInvoiceDashboard();
     document.getElementById('invoiceFormPanel').classList.add('hidden');
@@ -6648,7 +6648,7 @@
 
   function markInvoicePaid(idx) {
     invoices[idx].status = 'Paid';
-    localStorage.setItem('RR_Invoices', JSON.stringify(invoices));
+    localStorage.setItem('TMAR_Invoices', JSON.stringify(invoices));
     renderInvoiceList();
     updateInvoiceDashboard();
   }
@@ -6656,7 +6656,7 @@
   function deleteInvoice(idx) {
     if (!confirm('Delete invoice ' + invoices[idx].num + '?')) return;
     invoices.splice(idx, 1);
-    localStorage.setItem('RR_Invoices', JSON.stringify(invoices));
+    localStorage.setItem('TMAR_Invoices', JSON.stringify(invoices));
     renderInvoiceList();
     updateInvoiceDashboard();
   }
@@ -6719,7 +6719,7 @@
   let payrollRecords = [];
 
   function initPayroll() {
-    payrollRecords = JSON.parse(localStorage.getItem('RR_Payroll') || '[]');
+    payrollRecords = JSON.parse(localStorage.getItem('TMAR_Payroll') || '[]');
     renderPayrollRecords();
     updatePayrollDashboard();
   }
@@ -6774,7 +6774,7 @@
     const net = parseFloat(document.getElementById('prNetPay').textContent.replace(/[$,]/g,'')) || 0;
     if (!name || !gross) { alert('Enter employee name and gross wages.'); return; }
     payrollRecords.push({ date: new Date().toISOString().split('T')[0], name, type, gross, fed, fica, net });
-    localStorage.setItem('RR_Payroll', JSON.stringify(payrollRecords));
+    localStorage.setItem('TMAR_Payroll', JSON.stringify(payrollRecords));
     renderPayrollRecords();
     updatePayrollDashboard();
     alert('Payroll record saved for ' + name);
@@ -6795,7 +6795,7 @@
         <td class="px-3 py-2 text-right font-mono text-amber-400">${fmt$(r.fed)}</td>
         <td class="px-3 py-2 text-right font-mono text-red-400">${fmt$(r.fica)}</td>
         <td class="px-3 py-2 text-right font-mono text-green-400 font-bold">${fmt$(r.net)}</td>
-        <td class="px-3 py-2 text-center"><button onclick="payrollRecords.splice(${i},1);localStorage.setItem('RR_Payroll',JSON.stringify(payrollRecords));renderPayrollRecords();updatePayrollDashboard()" class="text-red-400 text-xs">🗑</button></td>
+        <td class="px-3 py-2 text-center"><button onclick="payrollRecords.splice(${i},1);localStorage.setItem('TMAR_Payroll',JSON.stringify(payrollRecords));renderPayrollRecords();updatePayrollDashboard()" class="text-red-400 text-xs">🗑</button></td>
       </tr>`
     ).join('');
   }
@@ -6818,7 +6818,7 @@
   let inventoryItems = [];
 
   function initInventory() {
-    inventoryItems = JSON.parse(localStorage.getItem('RR_Inventory') || '[]');
+    inventoryItems = JSON.parse(localStorage.getItem('TMAR_Inventory') || '[]');
     renderInventoryTable();
     updateInventoryDashboard();
   }
@@ -6839,7 +6839,7 @@
     const vendor = document.getElementById('itmVendor').value;
     if (!name) { alert('Item name required.'); return; }
     inventoryItems.push({ name, category, uom, qoh, reorder, cost, price, vendor, id: Date.now() });
-    localStorage.setItem('RR_Inventory', JSON.stringify(inventoryItems));
+    localStorage.setItem('TMAR_Inventory', JSON.stringify(inventoryItems));
     renderInventoryTable();
     updateInventoryDashboard();
     document.getElementById('inventoryItemForm').classList.add('hidden');
@@ -6868,7 +6868,7 @@
         <td class="px-3 py-2 text-right font-mono text-green-400">${fmt$(item.price)}</td>
         <td class="px-3 py-2 text-right font-mono text-blue-400">${fmt$(val)}</td>
         <td class="px-3 py-2 text-center">${badge}</td>
-        <td class="px-3 py-2 text-center"><button onclick="inventoryItems.splice(${i},1);localStorage.setItem('RR_Inventory',JSON.stringify(inventoryItems));renderInventoryTable();updateInventoryDashboard()" class="text-red-400 text-xs">🗑</button></td>
+        <td class="px-3 py-2 text-center"><button onclick="inventoryItems.splice(${i},1);localStorage.setItem('TMAR_Inventory',JSON.stringify(inventoryItems));renderInventoryTable();updateInventoryDashboard()" class="text-red-400 text-xs">🗑</button></td>
       </tr>`;
     }).join('');
   }
@@ -6882,7 +6882,7 @@
 
   // ─── BUDGET & FORECAST MODULE ─────────────────────────────────────────
   function initBudget() {
-    const b = JSON.parse(localStorage.getItem('RR_Budget') || 'null');
+    const b = JSON.parse(localStorage.getItem('TMAR_Budget') || 'null');
     if (b) {
       ['budgRevenue','budgCOGS','budgOpEx','budgPayroll','budgCapEx','budgOther'].forEach(id => {
         if (b[id] !== undefined) document.getElementById(id).value = b[id];
@@ -6919,7 +6919,7 @@
     ['budgRevenue','budgCOGS','budgOpEx','budgPayroll','budgCapEx','budgOther'].forEach(id => {
       b[id] = document.getElementById(id).value;
     });
-    localStorage.setItem('RR_Budget', JSON.stringify(b));
+    localStorage.setItem('TMAR_Budget', JSON.stringify(b));
     alert('Budget plan saved!');
   }
 
@@ -6985,8 +6985,8 @@
   let poCounter = 3000;
 
   function initPaymentOrders() {
-    paymentOrders = JSON.parse(localStorage.getItem('RR_PaymentOrders') || '[]');
-    poCounter = parseInt(localStorage.getItem('RR_POCounter') || '3000');
+    paymentOrders = JSON.parse(localStorage.getItem('TMAR_PaymentOrders') || '[]');
+    poCounter = parseInt(localStorage.getItem('TMAR_POCounter') || '3000');
     renderPaymentOrders();
     document.getElementById('poNumber').value = 'PO-' + String(poCounter + 1).padStart(6,'0');
   }
@@ -7017,8 +7017,8 @@
     if (!drawerName || !payeeName || !amount) { alert('Please fill in Drawer, Payee, and Amount.'); return; }
     poCounter++;
     paymentOrders.push({ num, date, valDate, drawerName, drawerAddr, drawerAcct, drawerBank, drawerRouting, payeeName, payeeAddr, payeeAcct, amount, amountWords, memo, currency, signature, notes, status: 'Issued' });
-    localStorage.setItem('RR_PaymentOrders', JSON.stringify(paymentOrders));
-    localStorage.setItem('RR_POCounter', String(poCounter));
+    localStorage.setItem('TMAR_PaymentOrders', JSON.stringify(paymentOrders));
+    localStorage.setItem('TMAR_POCounter', String(poCounter));
     renderPaymentOrders();
     clearPOForm();
     alert('Payment Order ' + num + ' saved!');
@@ -7041,7 +7041,7 @@
         <td class="px-3 py-2 text-gray-400 text-xs">${po.memo||'—'}</td>
         <td class="px-3 py-2 text-center space-x-2">
           <button onclick="printSpecificPO(${i})" class="text-blue-400 text-xs">🖨</button>
-          <button onclick="paymentOrders.splice(${i},1);localStorage.setItem('RR_PaymentOrders',JSON.stringify(paymentOrders));renderPaymentOrders()" class="text-red-400 text-xs">🗑</button>
+          <button onclick="paymentOrders.splice(${i},1);localStorage.setItem('TMAR_PaymentOrders',JSON.stringify(paymentOrders));renderPaymentOrders()" class="text-red-400 text-xs">🗑</button>
         </td>
       </tr>`).join('');
   }
@@ -7149,8 +7149,8 @@
   let boeCounter = 5000;
 
   function initBOE() {
-    billsOfExchange = JSON.parse(localStorage.getItem('RR_BOE') || '[]');
-    boeCounter = parseInt(localStorage.getItem('RR_BOECounter') || '5000');
+    billsOfExchange = JSON.parse(localStorage.getItem('TMAR_BOE') || '[]');
+    boeCounter = parseInt(localStorage.getItem('TMAR_BOECounter') || '5000');
     renderBOEList();
     document.getElementById('boeNumber').value = 'BOE-' + String(boeCounter + 1).padStart(6,'0');
   }
@@ -7189,8 +7189,8 @@
     }
     boeCounter++;
     billsOfExchange.push({ num, date, tenor, maturityDate, place, currency, drawerName, drawerAddr, drawerAcct, draweeName, draweeAddr, draweeRef, acceptance, payeeName, payeeAddr, amount, amountWords, consideration, interestRate, protest, jurisdiction, conditions, status: acceptance });
-    localStorage.setItem('RR_BOE', JSON.stringify(billsOfExchange));
-    localStorage.setItem('RR_BOECounter', String(boeCounter));
+    localStorage.setItem('TMAR_BOE', JSON.stringify(billsOfExchange));
+    localStorage.setItem('TMAR_BOECounter', String(boeCounter));
     renderBOEList();
     clearBOEForm();
     alert('Bill of Exchange ' + num + ' saved!');
@@ -7217,7 +7217,7 @@
         <td class="px-3 py-2 text-center">${badge}</td>
         <td class="px-3 py-2 text-center space-x-2">
           <button onclick="printSpecificBOE(${i})" class="text-blue-400 text-xs">🖨</button>
-          <button onclick="billsOfExchange.splice(${i},1);localStorage.setItem('RR_BOE',JSON.stringify(billsOfExchange));renderBOEList()" class="text-red-400 text-xs">🗑</button>
+          <button onclick="billsOfExchange.splice(${i},1);localStorage.setItem('TMAR_BOE',JSON.stringify(billsOfExchange));renderBOEList()" class="text-red-400 text-xs">🗑</button>
         </td>
       </tr>`;
     }).join('');
@@ -7382,7 +7382,7 @@
   // ══════════════════════════════════════════════════════════════════
   var expenses=[];
   function initExpenses(){
-    expenses=JSON.parse(localStorage.getItem('RR_Expenses')||'[]');
+    expenses=JSON.parse(localStorage.getItem('TMAR_Expenses')||'[]');
     renderExpenses(); updateExpenseDash();
   }
   function saveExpense(){
@@ -7395,7 +7395,7 @@
     var memo=document.getElementById('expMemo').value;
     if(!date||!amount){alert('Date and Amount required.');return;}
     expenses.push({date:date,vendor:vendor,category:category,amount:amount,method:method,job:job,memo:memo,id:Date.now()});
-    localStorage.setItem('RR_Expenses',JSON.stringify(expenses));
+    localStorage.setItem('TMAR_Expenses',JSON.stringify(expenses));
     renderExpenses(); updateExpenseDash();
     document.getElementById('expVendor').value='';
     document.getElementById('expAmount').value='';
@@ -7426,7 +7426,7 @@
   }
   function deleteExpense(i){
     expenses.splice(i,1);
-    localStorage.setItem('RR_Expenses',JSON.stringify(expenses));
+    localStorage.setItem('TMAR_Expenses',JSON.stringify(expenses));
     renderExpenses(); updateExpenseDash();
   }
   function updateExpenseDash(){
@@ -7473,8 +7473,8 @@
   // ══════════════════════════════════════════════════════════════════
   var customers=[], vendors=[];
   function initContacts(){
-    customers=JSON.parse(localStorage.getItem('RR_Customers')||'[]');
-    vendors=JSON.parse(localStorage.getItem('RR_Vendors')||'[]');
+    customers=JSON.parse(localStorage.getItem('TMAR_Customers')||'[]');
+    vendors=JSON.parse(localStorage.getItem('TMAR_Vendors')||'[]');
     renderCustomers(); renderVendors();
   }
   function showAddContact(type){
@@ -7488,7 +7488,7 @@
         addr:document.getElementById('custAddr').value,terms:document.getElementById('custTerms').value,balance:0,id:Date.now()};
       if(!c.name){alert('Name required.');return;}
       customers.push(c);
-      localStorage.setItem('RR_Customers',JSON.stringify(customers));
+      localStorage.setItem('TMAR_Customers',JSON.stringify(customers));
       document.getElementById('customerAddForm').classList.add('hidden');
       ['custName','custCompany','custEmail','custPhone','custAddr'].forEach(function(id){document.getElementById(id).value='';});
       renderCustomers();
@@ -7498,7 +7498,7 @@
         addr:document.getElementById('vendAddr').value,type:document.getElementById('vendType').value,ytdPaid:0,id:Date.now()};
       if(!v.name){alert('Name required.');return;}
       vendors.push(v);
-      localStorage.setItem('RR_Vendors',JSON.stringify(vendors));
+      localStorage.setItem('TMAR_Vendors',JSON.stringify(vendors));
       document.getElementById('vendorAddForm').classList.add('hidden');
       ['vendName','vendContact','vendEmail','vendPhone','vendAddr'].forEach(function(id){document.getElementById(id).value='';});
       renderVendors();
@@ -7517,7 +7517,7 @@
         +'</tr>';
     }).join('');
   }
-  function deleteCustomer(i){customers.splice(i,1);localStorage.setItem('RR_Customers',JSON.stringify(customers));renderCustomers();}
+  function deleteCustomer(i){customers.splice(i,1);localStorage.setItem('TMAR_Customers',JSON.stringify(customers));renderCustomers();}
   function renderVendors(){
     var tbody=document.getElementById('vendorTableBody'); if(!tbody)return;
     if(!vendors.length){tbody.innerHTML='<tr><td colspan="5" class="text-center text-gray-400 py-3">No vendors.</td></tr>';return;}
@@ -7531,7 +7531,7 @@
         +'</tr>';
     }).join('');
   }
-  function deleteVendor(i){vendors.splice(i,1);localStorage.setItem('RR_Vendors',JSON.stringify(vendors));renderVendors();}
+  function deleteVendor(i){vendors.splice(i,1);localStorage.setItem('TMAR_Vendors',JSON.stringify(vendors));renderVendors();}
 
   // ══════════════════════════════════════════════════════════════════
   // 3. SCHEDULE A — ITEMIZED DEDUCTIONS DETAIL
@@ -7563,7 +7563,7 @@
   }
   function saveScheduleA(){
     var total=document.getElementById('schaTotal').textContent;
-    localStorage.setItem('RR_ScheduleA_Total',total);
+    localStorage.setItem('TMAR_ScheduleA_Total',total);
     alert('Schedule A saved. Total Itemized Deductions: '+total);
   }
 
@@ -7575,7 +7575,7 @@
   var MACRS7r=[0.1429,0.2449,0.1749,0.1249,0.0893,0.0892,0.0893,0.0446];
   var methodLabels={sl:'Straight-Line','macrs5':'MACRS 5-yr','macrs7':'MACRS 7-yr','macrs27':'MACRS 27.5-yr','macrs39':'MACRS 39-yr','179':'Sec. 179 Full'};
   function initDepreciation(){
-    fixedAssets=JSON.parse(localStorage.getItem('RR_Assets')||'[]');
+    fixedAssets=JSON.parse(localStorage.getItem('TMAR_Assets')||'[]');
     renderAssets(); updateDeprDash();
   }
   function saveAsset(){
@@ -7599,7 +7599,7 @@
     else if(method==='macrs39'){yd=cost*0.02564;accum=Math.min(cost,yd*(yr+1));}
     var netBook=Math.max(0,cost-accum);
     fixedAssets.push({desc:desc,date:date,cost:cost,salvage:salvage,life:life,method:method,category:category,yd:yd,accum:accum,netBook:netBook});
-    localStorage.setItem('RR_Assets',JSON.stringify(fixedAssets));
+    localStorage.setItem('TMAR_Assets',JSON.stringify(fixedAssets));
     renderAssets(); updateDeprDash();
     document.getElementById('deprAddForm').classList.add('hidden');
     document.getElementById('deprDesc').value='';
@@ -7623,7 +7623,7 @@
         +'</tr>';
     }).join('');
   }
-  function deleteAsset(i){fixedAssets.splice(i,1);localStorage.setItem('RR_Assets',JSON.stringify(fixedAssets));renderAssets();updateDeprDash();}
+  function deleteAsset(i){fixedAssets.splice(i,1);localStorage.setItem('TMAR_Assets',JSON.stringify(fixedAssets));renderAssets();updateDeprDash();}
   function updateDeprDash(){
     function s(id,v){var el=document.getElementById(id);if(el)el.textContent=v;}
     s('deprAssetCount',fixedAssets.length);
@@ -7637,7 +7637,7 @@
   // ══════════════════════════════════════════════════════════════════
   var reconciliations=[];
   function initBankRecon(){
-    reconciliations=JSON.parse(localStorage.getItem('RR_Reconciliations')||'[]');
+    reconciliations=JSON.parse(localStorage.getItem('TMAR_Reconciliations')||'[]');
     renderReconHistory();
     var el=document.getElementById('reconStmtDate');
     if(el) el.value=new Date().toISOString().split('T')[0];
@@ -7684,7 +7684,7 @@
     var bookBal=parseFloat(document.getElementById('reconBookBalance').value)||0;
     var balanced=Math.abs(adjBank-adjBook)<0.01;
     reconciliations.push({acct:acct,date:date,bankBal:bankBal,bookBal:bookBal,adjBank:adjBank,adjBook:adjBook,balanced:balanced});
-    localStorage.setItem('RR_Reconciliations',JSON.stringify(reconciliations));
+    localStorage.setItem('TMAR_Reconciliations',JSON.stringify(reconciliations));
     renderReconHistory();
     alert('Reconciliation saved'+(acct?' for '+acct:'')+' on '+date);
   }
@@ -7702,7 +7702,7 @@
         +'</tr>';
     }).join('');
   }
-  function deleteRecon(i){reconciliations.splice(i,1);localStorage.setItem('RR_Reconciliations',JSON.stringify(reconciliations));renderReconHistory();}
+  function deleteRecon(i){reconciliations.splice(i,1);localStorage.setItem('TMAR_Reconciliations',JSON.stringify(reconciliations));renderReconHistory();}
   function printReconciliation(){
     var acct=document.getElementById('reconAcctName').value;
     var date=document.getElementById('reconStmtDate').value;
@@ -7757,7 +7757,7 @@
     var totalCurDepr=fixedAssets.reduce(function(s,a){return s+a.yd;},0);
     var poTotal=pos.reduce(function(s,p){return s+p.amount;},0);
     var boeTotal=boes.reduce(function(s,b){return s+b.amount;},0);
-    var schedATotal=localStorage.getItem('RR_ScheduleA_Total')||'$0.00';
+    var schedATotal=localStorage.getItem('TMAR_ScheduleA_Total')||'$0.00';
     var lastRecon=reconciliations.length?reconciliations[reconciliations.length-1]:null;
     var netOperating=totalPaidInv-totalExpAmt-totalGrossWages-totalCurDepr;
 
@@ -8884,8 +8884,8 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
 
   // VOICE RECOGNITION
   var vcRecognition = null;
-  var vcHistory = JSON.parse(localStorage.getItem('vcHistory') || '[]');
-  var vcStats = JSON.parse(localStorage.getItem('vcStats') || '{"total":0,"user":0,"agent":0,"voice":0,"search":0}');
+  var vcHistory = JSON.parse(localStorage.getItem('TMAR_vcHistory') || '[]');
+  var vcStats = JSON.parse(localStorage.getItem('TMAR_vcStats') || '{"total":0,"user":0,"agent":0,"voice":0,"search":0}');
 
   function initVoiceChat() { updateVCStats(); renderChatHistory(); }
 
@@ -8910,7 +8910,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     vcRecognition.start();
     var btn = document.getElementById('vc-rec-btn');
     if(btn) { btn.style.background='rgba(239,68,68,.3)'; btn.textContent='🔴 Recording...'; }
-    vcStats.voice++; localStorage.setItem('vcStats',JSON.stringify(vcStats)); updateVCStats();
+    vcStats.voice++; localStorage.setItem('TMAR_vcStats',JSON.stringify(vcStats)); updateVCStats();
   }
 
   function stopVoiceRec() {
@@ -8933,11 +8933,11 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     var ts = new Date().toLocaleTimeString();
     var msg = {role:role, text:text, time:ts, date:new Date().toISOString()};
     vcHistory.push(msg);
-    localStorage.setItem('vcHistory',JSON.stringify(vcHistory));
+    localStorage.setItem('TMAR_vcHistory',JSON.stringify(vcHistory));
     vcStats.total++;
     if(role==='user') vcStats.user++;
     if(role==='agent') vcStats.agent++;
-    localStorage.setItem('vcStats',JSON.stringify(vcStats));
+    localStorage.setItem('TMAR_vcStats',JSON.stringify(vcStats));
     updateVCStats();
     var area = document.getElementById('vc-chat-area');
     var color = role==='user'?'#3b82f6':role==='agent'?'#10b981':'#f59e0b';
@@ -8982,7 +8982,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     var input = document.getElementById('vc-input');
     var q = (input.value||'').trim();
     if(!q){addChatMsg('system','Enter a search query first.');return;}
-    vcStats.search++; localStorage.setItem('vcStats',JSON.stringify(vcStats)); updateVCStats();
+    vcStats.search++; localStorage.setItem('TMAR_vcStats',JSON.stringify(vcStats)); updateVCStats();
     addChatMsg('user','[WEB SEARCH] '+q);
     window.open('https://www.google.com/search?q='+encodeURIComponent(q),'_blank');
     input.value='';
@@ -9008,7 +9008,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
 
   function clearChat() {
     vcHistory=[];vcStats={total:0,user:0,agent:0,voice:0,search:0};
-    localStorage.setItem('vcHistory','[]');localStorage.setItem('vcStats',JSON.stringify(vcStats));
+    localStorage.setItem('TMAR_vcHistory','[]');localStorage.setItem('TMAR_vcStats',JSON.stringify(vcStats));
     var area=document.getElementById('vc-chat-area');if(area)area.innerHTML='<div style="color:var(--text-secondary);font-style:italic">Chat cleared. SYPHER Protocol v7.1 active.</div>';
     updateVCStats();
   }
