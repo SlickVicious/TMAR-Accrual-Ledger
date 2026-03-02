@@ -269,9 +269,6 @@
         <button onclick="switchMainTab('spvLedger')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="spvLedger">
           📋 SPV Ledger
         </button>
-        <button onclick="switchMainTab('ukAccounting')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="ukAccounting">
-          🇬🇧 UK Accounting
-        </button>
         <button onclick="switchMainTab('spvReports')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="spvReports">
           📈 SPV Reports
         </button>
@@ -2450,7 +2447,6 @@
       <h3 class="text-lg font-semibold mb-4 text-amber-400">⚡ Quick Actions</h3>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <button onclick="switchMainTab('spvLedger')" class="px-4 py-3 bg-green-700 hover:bg-green-600 text-white rounded-lg font-semibold text-sm">+ Add Entry</button>
-        <button onclick="switchMainTab('ukAccounting')" class="px-4 py-3 bg-blue-700 hover:bg-blue-600 text-white rounded-lg font-semibold text-sm">UK Accounting</button>
         <button onclick="switchMainTab('spvReports')" class="px-4 py-3 bg-purple-700 hover:bg-purple-600 text-white rounded-lg font-semibold text-sm">SPV Reports</button>
         <button onclick="spvExportCSV()" class="px-4 py-3 bg-amber-700 hover:bg-amber-600 text-white rounded-lg font-semibold text-sm">Export CSV</button>
       </div>
@@ -2613,120 +2609,6 @@
             <td colspan="2"></td>
           </tr></tfoot>
         </table>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════════════════════
-       UK ACCOUNTING SECTION
-  ═══════════════════════════════════════════════════════════ -->
-  <section id="ukAccountingSection" class="form-section hidden">
-    <div class="glass-card p-6 rounded-xl mb-6">
-      <h2 class="text-2xl font-bold text-blue-400 mb-2">🇬🇧 UK Accounting — FRS 102 / IFRS Compliance</h2>
-      <p class="text-sm text-gray-400">United Kingdom financial reporting standards for SPV structures</p>
-    </div>
-
-    <!-- UK Entity Settings -->
-    <div class="glass-card p-6 rounded-xl mb-6">
-      <h3 class="text-lg font-semibold text-blue-400 mb-4">⚙️ UK Entity Configuration</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium mb-1 text-gray-400">Company Name</label>
-          <input type="text" id="ukCompanyName" class="w-full border border-gray-600 p-3 rounded-lg bg-gray-700 text-white" placeholder="SPV Ltd.">
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1 text-gray-400">Companies House Number</label>
-          <input type="text" id="ukCompanyNumber" class="w-full border border-gray-600 p-3 rounded-lg bg-gray-700 text-white" placeholder="12345678">
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1 text-gray-400">Financial Year End</label>
-          <input type="date" id="ukYearEnd" class="w-full border border-gray-600 p-3 rounded-lg bg-gray-700 text-white">
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1 text-gray-400">Reporting Framework</label>
-          <select id="ukFramework" class="w-full border border-gray-600 p-3 rounded-lg bg-gray-700 text-white">
-            <option value="frs102">FRS 102 (UK GAAP)</option>
-            <option value="frs105">FRS 105 (Micro-entity)</option>
-            <option value="ifrs">IFRS (Full)</option>
-            <option value="frs101">FRS 101 (Reduced Disclosure)</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1 text-gray-400">Presentation Currency</label>
-          <select id="ukCurrency" class="w-full border border-gray-600 p-3 rounded-lg bg-gray-700 text-white">
-            <option value="gbp">GBP — Pounds Sterling (£)</option>
-            <option value="usd">USD — US Dollar ($)</option>
-            <option value="eur">EUR — Euro (€)</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1 text-gray-400">Registered Office</label>
-          <input type="text" id="ukRegisteredOffice" class="w-full border border-gray-600 p-3 rounded-lg bg-gray-700 text-white" placeholder="London, England">
-        </div>
-      </div>
-      <button onclick="saveUKSettings()" class="mt-4 px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-semibold text-sm">💾 Save UK Settings</button>
-    </div>
-
-    <!-- UK Compliance Checklist -->
-    <div class="glass-card p-6 rounded-xl mb-6">
-      <h3 class="text-lg font-semibold text-amber-400 mb-4">✅ UK Compliance Checklist</h3>
-      <div class="space-y-3" id="ukComplianceChecklist">
-        <div class="flex items-center gap-3 p-3 bg-gray-700/30 rounded-lg">
-          <input type="checkbox" id="ukChk1" class="w-4 h-4 accent-green-500">
-          <label for="ukChk1" class="text-sm text-gray-200">Companies Act 2006 — Annual accounts filed within 9 months of year end (private company)</label>
-        </div>
-        <div class="flex items-center gap-3 p-3 bg-gray-700/30 rounded-lg">
-          <input type="checkbox" id="ukChk2" class="w-4 h-4 accent-green-500">
-          <label for="ukChk2" class="text-sm text-gray-200">FCA / HMRC — Trust Registration Service (TRS) compliance for relevant trusts</label>
-        </div>
-        <div class="flex items-center gap-3 p-3 bg-gray-700/30 rounded-lg">
-          <input type="checkbox" id="ukChk3" class="w-4 h-4 accent-green-500">
-          <label for="ukChk3" class="text-sm text-gray-200">HMRC — Corporation Tax CT600 return filed within 12 months of year end</label>
-        </div>
-        <div class="flex items-center gap-3 p-3 bg-gray-700/30 rounded-lg">
-          <input type="checkbox" id="ukChk4" class="w-4 h-4 accent-green-500">
-          <label for="ukChk4" class="text-sm text-gray-200">FRS 102 s.11/12 — Financial instruments disclosed at fair value or amortised cost</label>
-        </div>
-        <div class="flex items-center gap-3 p-3 bg-gray-700/30 rounded-lg">
-          <input type="checkbox" id="ukChk5" class="w-4 h-4 accent-green-500">
-          <label for="ukChk5" class="text-sm text-gray-200">CASS Rules — Client asset segregation documented if holding third-party assets</label>
-        </div>
-        <div class="flex items-center gap-3 p-3 bg-gray-700/30 rounded-lg">
-          <input type="checkbox" id="ukChk6" class="w-4 h-4 accent-green-500">
-          <label for="ukChk6" class="text-sm text-gray-200">PSC Register — Persons with Significant Control registered at Companies House</label>
-        </div>
-      </div>
-      <button onclick="generateUKComplianceReport()" class="mt-4 px-5 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-semibold text-sm">📄 Generate UK Compliance Report</button>
-    </div>
-
-    <!-- UK Financial Statements Generator -->
-    <div class="glass-card p-6 rounded-xl mb-6">
-      <h3 class="text-lg font-semibold text-green-400 mb-4">📑 UK Financial Statements</h3>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-        <div>
-          <label class="block text-sm font-medium mb-1 text-gray-400">Statement Type</label>
-          <select id="ukStatementType" class="w-full border border-gray-600 p-3 rounded-lg bg-gray-700 text-white">
-            <option value="balance-sheet">Balance Sheet (Statement of Financial Position)</option>
-            <option value="income">Profit &amp; Loss Account</option>
-            <option value="cashflow">Cash Flow Statement</option>
-            <option value="directors">Directors' Report</option>
-            <option value="notes">Notes to the Accounts</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1 text-gray-400">Report Date</label>
-          <input type="date" id="ukReportDate" class="w-full border border-gray-600 p-3 rounded-lg bg-gray-700 text-white">
-        </div>
-        <div class="flex items-end">
-          <button onclick="generateUKStatement()" class="w-full px-5 py-3 bg-green-600 hover:bg-green-500 text-white rounded-lg font-semibold text-sm">Generate Statement</button>
-        </div>
-      </div>
-      <div id="ukStatementOutput" class="mt-4 hidden">
-        <div class="flex justify-between items-center mb-3">
-          <h4 class="font-semibold text-gray-200" id="ukStatementTitle">Statement</h4>
-          <button onclick="printUKStatement()" class="px-3 py-1 bg-gray-600 hover:bg-gray-500 text-white rounded-lg text-sm">🖨️ Print</button>
-        </div>
-        <div id="ukStatementContent" class="bg-white text-gray-900 p-6 rounded-lg text-sm leading-relaxed"></div>
       </div>
     </div>
   </section>
@@ -6627,128 +6509,10 @@
 
   function spvPrintReport() { window.print(); }
 
-  // ── UK Settings & Statements ──────────────────────────
-  function saveUKSettings() {
-    const settings = {
-      company: document.getElementById('ukCompanyName').value,
-      number:  document.getElementById('ukCompanyNumber').value,
-      yearEnd: document.getElementById('ukYearEnd').value,
-      framework: document.getElementById('ukFramework').value,
-      currency: document.getElementById('ukCurrency').value,
-      office:  document.getElementById('ukRegisteredOffice').value
-    };
-    localStorage.setItem('RR_UK_Settings', JSON.stringify(settings));
-    alert('UK settings saved.');
-  }
-
-  function generateUKComplianceReport() {
-    const checks = [];
-    for (let i = 1; i <= 6; i++) {
-      const el = document.getElementById('ukChk' + i);
-      checks.push({ label: el.nextElementSibling.textContent.trim(), checked: el.checked });
-    }
-    const passed = checks.filter(c => c.checked).length;
-    const failed = checks.filter(c => !c.checked).length;
-    alert(`UK Compliance Report\n\nPassed: ${passed} / ${checks.length}\nFailed: ${failed}\n\n${checks.filter(c=>!c.checked).map(c=>'⚠ '+c.label).join('\n') || 'All items checked.'}`);
-  }
-
-  function generateUKStatement() {
-    const type    = document.getElementById('ukStatementType').value;
-    const date    = document.getElementById('ukReportDate').value || new Date().toISOString().split('T')[0];
-    const company = document.getElementById('ukCompanyName').value || 'SPV Ltd.';
-    const framework = document.getElementById('ukFramework').value;
-    const currency = document.getElementById('ukCurrency').value;
-    const sym = spvCurrSymbol(currency);
-
-    const completed = spvData.entries.filter(e => e.status === 'completed' && e.currency === currency);
-    const totalAssets = completed.reduce((s,e) => s + e.amount, 0);
-    const tcu = completed.filter(e=>e.type==='tcu').reduce((s,e)=>s+e.amount,0);
-    const loc = completed.filter(e=>e.type==='loc').reduce((s,e)=>s+e.amount,0);
-    const tok = completed.filter(e=>e.type==='digital-token').reduce((s,e)=>s+e.amount,0);
-    const ar  = completed.filter(e=>e.type==='receivable').reduce((s,e)=>s+e.amount,0);
-
-    const fw = { frs102:'FRS 102', frs105:'FRS 105', ifrs:'IFRS', frs101:'FRS 101' }[framework] || 'FRS 102';
-    const fmt = n => sym + n.toLocaleString('en-US',{minimumFractionDigits:2});
-
-    let html = '';
-    const titles = { 'balance-sheet': 'Statement of Financial Position', income: 'Profit & Loss Account',
-      cashflow: 'Cash Flow Statement', directors: "Directors' Report", notes: 'Notes to the Accounts' };
-    document.getElementById('ukStatementTitle').textContent = titles[type] || 'Statement';
-
-    if (type === 'balance-sheet') {
-      html = `<div style="font-family:serif">
-        <h2 style="text-align:center;font-size:1.1rem;margin-bottom:4px">${company}</h2>
-        <h3 style="text-align:center;font-size:1rem;margin-bottom:2px">STATEMENT OF FINANCIAL POSITION</h3>
-        <p style="text-align:center;font-size:.85rem;color:#666">As at ${date} | Prepared under ${fw}</p>
-        <hr style="margin:12px 0">
-        <table style="width:100%;border-collapse:collapse;font-size:.9rem">
-          <thead><tr style="border-bottom:2px solid #000">
-            <th style="text-align:left;padding:6px 4px">NOTE</th>
-            <th style="text-align:left;padding:6px 4px">ASSETS</th>
-            <th style="text-align:right;padding:6px 4px">${currency.toUpperCase()}</th>
-          </tr></thead>
-          <tbody>
-            <tr><td></td><td style="padding:4px;font-weight:600">NON-CURRENT ASSETS</td><td></td></tr>
-            <tr><td style="color:#666">1</td><td style="padding:4px 4px 4px 16px">Trust Credit Units</td><td style="text-align:right;padding:4px;font-family:monospace">${fmt(tcu)}</td></tr>
-            <tr><td style="color:#666">2</td><td style="padding:4px 4px 4px 16px">Letters of Credit</td><td style="text-align:right;padding:4px;font-family:monospace">${fmt(loc)}</td></tr>
-            <tr><td style="color:#666">3</td><td style="padding:4px 4px 4px 16px">Digital Token Holdings</td><td style="text-align:right;padding:4px;font-family:monospace">${fmt(tok)}</td></tr>
-            <tr style="border-top:1px solid #ccc"><td></td><td style="padding:4px;font-weight:600">CURRENT ASSETS</td><td></td></tr>
-            <tr><td style="color:#666">4</td><td style="padding:4px 4px 4px 16px">Trade & Other Receivables</td><td style="text-align:right;padding:4px;font-family:monospace">${fmt(ar)}</td></tr>
-            <tr style="border-top:2px solid #000;background:#f9f9f9"><td></td><td style="padding:6px 4px;font-weight:700">TOTAL ASSETS</td><td style="text-align:right;padding:6px 4px;font-family:monospace;font-weight:700">${fmt(totalAssets)}</td></tr>
-          </tbody>
-        </table>
-        <p style="margin-top:16px;font-size:.8rem;color:#666">Prepared in accordance with ${fw}. These financial statements were approved by the directors on ${date}.</p>
-      </div>`;
-    } else if (type === 'income') {
-      html = `<div style="font-family:serif">
-        <h2 style="text-align:center;font-size:1.1rem">PROFIT & LOSS ACCOUNT</h2>
-        <h3 style="text-align:center;font-size:.95rem;color:#444">${company} | Period ending ${date}</h3>
-        <hr style="margin:10px 0">
-        <p style="color:#666;font-size:.85rem;margin-bottom:10px">Based on ${completed.length} completed SPV transactions under ${fw}</p>
-        <table style="width:100%;border-collapse:collapse;font-size:.9rem">
-          <tr style="border-bottom:1px solid #ccc"><td style="padding:6px">Total Instrument Revenue / Income</td><td style="text-align:right;font-family:monospace">${fmt(totalAssets)}</td></tr>
-          <tr><td style="padding:6px">Less: Administrative Expenses</td><td style="text-align:right;font-family:monospace">${fmt(0)}</td></tr>
-          <tr style="border-top:2px solid #000;font-weight:700;background:#f9f9f9"><td style="padding:6px">PROFIT / (LOSS) FOR THE PERIOD</td><td style="text-align:right;font-family:monospace">${fmt(totalAssets)}</td></tr>
-        </table>
-      </div>`;
-    } else {
-      html = `<div style="font-family:serif"><p style="color:#444;line-height:1.8">
-        Statement Type: <strong>${titles[type]}</strong><br>
-        Company: <strong>${company}</strong><br>
-        Date: <strong>${date}</strong><br>
-        Framework: <strong>${fw}</strong><br>
-        Currency: <strong>${currency.toUpperCase()}</strong><br>
-        Total Entries: <strong>${spvData.entries.length}</strong><br>
-        Completed Entries: <strong>${completed.length}</strong><br>
-        Total Asset Value: <strong>${fmt(totalAssets)}</strong>
-      </p></div>`;
-    }
-
-    document.getElementById('ukStatementContent').innerHTML = html;
-    document.getElementById('ukStatementOutput').classList.remove('hidden');
-  }
-
-  function printUKStatement() {
-    const content = document.getElementById('ukStatementContent').innerHTML;
-    const w = window.open('','_blank');
-    w.document.write(`<html><head><title>UK Statement</title></head><body style="font-family:serif;padding:40px">${content}</body></html>`);
-    w.document.close(); w.print();
-  }
-
   // ── Init on load ─────────────────────────────────────
   window.addEventListener('DOMContentLoaded', function () {
     spvRenderLedger();
     spvUpdateDashboard();
-    // Restore UK settings
-    try {
-      const s = JSON.parse(localStorage.getItem('RR_UK_Settings') || '{}');
-      if (s.company) document.getElementById('ukCompanyName').value = s.company;
-      if (s.number)  document.getElementById('ukCompanyNumber').value = s.number;
-      if (s.yearEnd) document.getElementById('ukYearEnd').value = s.yearEnd;
-      if (s.framework) document.getElementById('ukFramework').value = s.framework;
-      if (s.currency)  document.getElementById('ukCurrency').value = s.currency;
-      if (s.office)    document.getElementById('ukRegisteredOffice').value = s.office;
-    } catch (e) {}
     // Init new modules
     initInvoicing();
     initPayroll();
