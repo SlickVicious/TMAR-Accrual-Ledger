@@ -186,6 +186,11 @@
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    .tmar-reading-highlight {
+      background: rgba(255, 215, 0, 0.2) !important;
+      border-radius: 4px;
+      transition: background 0.3s ease;
+    }
   </style>
 </head>
 <body class="p-0">
@@ -9729,7 +9734,17 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
       <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
         <button onclick="startVoiceRec()" id="vc-rec-btn" style="padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;border:2px solid #ef4444;background:rgba(239,68,68,.1);color:#ef4444;cursor:pointer">🎤 Start Recording</button>
         <button onclick="stopVoiceRec()" style="padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;border:1px solid rgba(255,255,255,.1);background:var(--bg-tertiary);color:var(--text-primary);cursor:pointer">⏹ Stop</button>
+        <button onclick="pauseVoice()" id="vc-pause-btn" style="padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;border:1px solid rgba(245,158,11,.3);background:rgba(245,158,11,.1);color:#f59e0b;cursor:pointer">⏸️ Pause</button>
+        <button onclick="stopVoiceTTS()" style="padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.1);color:#ef4444;cursor:pointer">⏹ Stop TTS</button>
         <button onclick="speakResponse()" style="padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;border:1px solid rgba(59,130,246,.3);background:rgba(59,130,246,.1);color:#3b82f6;cursor:pointer">🔊 Read Aloud</button>
+        <select id="vc-voice-select" style="padding:10px 12px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid rgba(245,158,11,.3);background:var(--bg-tertiary);color:var(--text-primary);cursor:pointer;min-width:150px;max-width:220px">
+          <option value="">Loading voices...</option>
+        </select>
+        <div style="display:flex;align-items:center;gap:6px;padding:4px 8px;border-radius:8px;border:1px solid rgba(245,158,11,.2);background:var(--bg-tertiary)">
+          <span style="font-size:11px;color:var(--text-secondary);white-space:nowrap">Speed</span>
+          <input type="range" id="vc-speed" min="0.5" max="2" step="0.1" value="1" oninput="document.getElementById('vc-speed-label').textContent=this.value+'x'" style="width:80px;accent-color:#f59e0b">
+          <span id="vc-speed-label" style="font-size:11px;font-weight:700;color:#f59e0b;min-width:28px">1.0x</span>
+        </div>
         <button onclick="searchWeb()" style="padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;border:1px solid rgba(16,185,129,.3);background:rgba(16,185,129,.1);color:#10b981;cursor:pointer">🌐 Search Web</button>
         <button onclick="exportChatHistory()" style="padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;border:1px solid rgba(139,92,246,.3);background:rgba(139,92,246,.1);color:#8b5cf6;cursor:pointer">💾 Save History</button>
         <button onclick="clearChat()" style="padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;border:1px solid rgba(255,255,255,.1);background:var(--bg-tertiary);color:var(--text-secondary);cursor:pointer">🗑️ Clear</button>
@@ -9955,7 +9970,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
   var vcHistory = JSON.parse(localStorage.getItem('TMAR_vcHistory') || '[]');
   var vcStats = JSON.parse(localStorage.getItem('TMAR_vcStats') || '{"total":0,"user":0,"agent":0,"voice":0,"search":0}');
 
-  function initVoiceChat() { updateVCStats(); renderChatHistory(); }
+  function initVoiceChat() { updateVCStats(); renderChatHistory(); loadVoices(); }
 
   function startVoiceRec() {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
@@ -9987,14 +10002,151 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     if(btn) { btn.style.background='rgba(239,68,68,.1)'; btn.textContent='🎤 Start Recording'; }
   }
 
-  function speakResponse() {
-    if (vcHistory.length === 0) return;
-    var last = vcHistory[vcHistory.length-1];
-    if (last && last.text) {
-      var u = new SpeechSynthesisUtterance(last.text.replace(/<[^>]*>/g,''));
-      u.rate = 0.9; u.pitch = 1;
-      speechSynthesis.speak(u);
+  // ── TTS: Voice Selection, Speed Control, Reading Highlights ──
+  var vcTTSPaused = false;
+
+  function loadVoices() {
+    var sel = document.getElementById('vc-voice-select');
+    if (!sel) return;
+    var voices = speechSynthesis.getVoices();
+    // Filter for English voices
+    var englishVoices = voices.filter(function(v) {
+      return v.lang && v.lang.toLowerCase().indexOf('en') === 0;
+    });
+    // Fall back to all voices if no English found
+    if (englishVoices.length === 0) englishVoices = voices;
+    if (englishVoices.length === 0) {
+      sel.innerHTML = '<option value="">No voices available</option>';
+      return;
     }
+    sel.innerHTML = '';
+    englishVoices.forEach(function(v, i) {
+      var opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = v.name + (v.localService ? '' : ' [remote]');
+      opt.setAttribute('data-voice-name', v.name);
+      opt.setAttribute('data-voice-lang', v.lang);
+      sel.appendChild(opt);
+    });
+    // Store filtered voices for lookup
+    sel._voices = englishVoices;
+  }
+
+  // Handle async voice loading (Chrome loads voices asynchronously)
+  if (typeof speechSynthesis !== 'undefined') {
+    speechSynthesis.onvoiceschanged = loadVoices;
+    // Also try loading immediately (Firefox loads synchronously)
+    if (speechSynthesis.getVoices().length > 0) loadVoices();
+  }
+
+  function getSelectedVoice() {
+    var sel = document.getElementById('vc-voice-select');
+    if (!sel || !sel._voices || sel._voices.length === 0) return null;
+    var idx = parseInt(sel.value, 10);
+    return isNaN(idx) ? null : sel._voices[idx] || null;
+  }
+
+  function getTTSRate() {
+    var slider = document.getElementById('vc-speed');
+    return slider ? parseFloat(slider.value) : 1.0;
+  }
+
+  function speakResponse() {
+    speakWithHighlight();
+  }
+
+  function speakWithHighlight(overrideText) {
+    if (!vcHistory.length && !overrideText) return;
+    // Cancel any ongoing speech first
+    speechSynthesis.cancel();
+    removeAllHighlights();
+    vcTTSPaused = false;
+    var pauseBtn = document.getElementById('vc-pause-btn');
+    if (pauseBtn) pauseBtn.textContent = '\u23F8\uFE0F Pause';
+
+    // Get text to speak
+    var rawText = overrideText;
+    if (!rawText) {
+      var last = vcHistory[vcHistory.length - 1];
+      if (!last || !last.text) return;
+      rawText = last.text;
+    }
+    // Strip HTML tags
+    var plainText = rawText.replace(/<[^>]*>/g, '');
+    if (!plainText.trim()) return;
+
+    // Split into sentences (on . ! ? followed by space or end-of-string)
+    var sentences = plainText.match(/[^.!?]*[.!?]+[\s]?|[^.!?]+$/g);
+    if (!sentences || sentences.length === 0) sentences = [plainText];
+    // Clean up whitespace
+    sentences = sentences.map(function(s) { return s.trim(); }).filter(function(s) { return s.length > 0; });
+
+    // Find the last chat bubble in the chat area for highlighting
+    var chatArea = document.getElementById('vc-chat-area');
+    var lastBubble = null;
+    if (chatArea) {
+      var bubbles = chatArea.querySelectorAll('div[style*="border-left"]');
+      if (bubbles.length > 0) lastBubble = bubbles[bubbles.length - 1];
+    }
+
+    var voice = getSelectedVoice();
+    var rate = getTTSRate();
+
+    // Queue all sentences
+    sentences.forEach(function(sentence, idx) {
+      var utt = new SpeechSynthesisUtterance(sentence);
+      if (voice) utt.voice = voice;
+      utt.rate = rate;
+      utt.pitch = 1;
+
+      utt.onstart = function() {
+        if (lastBubble) {
+          lastBubble.classList.add('tmar-reading-highlight');
+          // Auto-scroll chat area to keep highlighted bubble visible
+          if (chatArea) {
+            lastBubble.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        }
+      };
+
+      utt.onend = function() {
+        // Remove highlight when this sentence ends
+        if (idx === sentences.length - 1 && lastBubble) {
+          lastBubble.classList.remove('tmar-reading-highlight');
+        }
+      };
+
+      speechSynthesis.speak(utt);
+    });
+  }
+
+  function pauseVoice() {
+    if (!speechSynthesis.speaking && !speechSynthesis.paused) return;
+    var btn = document.getElementById('vc-pause-btn');
+    if (speechSynthesis.paused) {
+      speechSynthesis.resume();
+      vcTTSPaused = false;
+      if (btn) btn.textContent = '\u23F8\uFE0F Pause';
+    } else {
+      speechSynthesis.pause();
+      vcTTSPaused = true;
+      if (btn) btn.textContent = '\u25B6\uFE0F Resume';
+    }
+  }
+
+  function stopVoiceTTS() {
+    speechSynthesis.cancel();
+    vcTTSPaused = false;
+    var btn = document.getElementById('vc-pause-btn');
+    if (btn) btn.textContent = '\u23F8\uFE0F Pause';
+    removeAllHighlights();
+  }
+
+  function removeAllHighlights() {
+    var highlighted = document.querySelectorAll('.tmar-reading-highlight');
+    highlighted.forEach(function(el) {
+      el.classList.remove('tmar-reading-highlight');
+    });
   }
 
   function addChatMsg(role, text) {
@@ -10075,6 +10227,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
   }
 
   function clearChat() {
+    stopVoiceTTS();
     vcHistory=[];vcStats={total:0,user:0,agent:0,voice:0,search:0};
     localStorage.setItem('TMAR_vcHistory','[]');localStorage.setItem('TMAR_vcStats',JSON.stringify(vcStats));
     var area=document.getElementById('vc-chat-area');if(area)area.innerHTML='<div style="color:var(--text-secondary);font-style:italic">Chat cleared. SYPHER Protocol v7.1 active.</div>';
