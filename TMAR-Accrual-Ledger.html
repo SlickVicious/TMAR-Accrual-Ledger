@@ -3078,7 +3078,18 @@
   <section id="taxEstimatorSection" class="form-section hidden">
     <div class="glass-card p-6 rounded-xl mb-6">
       <h2 class="text-2xl font-bold text-red-400 mb-1">🧮 Year-Round Tax Estimator</h2>
-      <p class="text-sm text-gray-400 mb-6">Estimate your tax liability at any point during the year — individual, self-employed, or business</p>
+      <p class="text-sm text-gray-400 mb-4">Estimate your tax liability at any point during the year — individual, self-employed, or business</p>
+
+      <!-- Sub-tab bar -->
+      <div class="flex flex-wrap gap-2 mb-6 p-1 rounded-lg bg-gray-800/50 border border-gray-700" id="taxSubTabBar">
+        <button onclick="showTaxSubTab('income')" id="taxSubTab_income" class="px-4 py-2 rounded-lg text-sm font-bold bg-red-600 text-white transition-all">📊 Income Estimator</button>
+        <button onclick="showTaxSubTab('badDebt')" id="taxSubTab_badDebt" class="px-4 py-2 rounded-lg text-sm font-bold text-red-400 border border-red-500/30 hover:bg-red-500/10 transition-all">💰 Bad Debt Refund</button>
+        <button onclick="showTaxSubTab('lossCalc')" id="taxSubTab_lossCalc" class="px-4 py-2 rounded-lg text-sm font-bold text-red-400 border border-red-500/30 hover:bg-red-500/10 transition-all">📉 Loss Calculator</button>
+        <button onclick="showTaxSubTab('interest')" id="taxSubTab_interest" class="px-4 py-2 rounded-lg text-sm font-bold text-red-400 border border-red-500/30 hover:bg-red-500/10 transition-all">🏦 Interest Refund</button>
+      </div>
+
+      <!-- Panel: Income Estimator (existing) -->
+      <div id="taxIncomePanel">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="space-y-4">
           <div class="border border-gray-600 rounded-xl p-4">
@@ -3126,6 +3137,319 @@
           <button onclick="window.print()" class="mt-4 w-full bg-red-700 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-bold text-sm">🖨️ Print Tax Estimate</button>
         </div>
       </div>
+      </div><!-- /taxIncomePanel -->
+
+      <!-- ═══ Panel: Bad Debt Refund (Task 2.1) ═══ -->
+      <div id="taxBadDebtPanel" class="hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Left: Form -->
+          <div class="space-y-4">
+            <!-- Route Selector -->
+            <div class="border border-red-500/30 rounded-xl p-4 bg-red-500/5">
+              <h3 class="text-sm font-bold text-red-400 mb-3">📋 Select Refund Route</h3>
+              <div class="space-y-2">
+                <label class="flex items-center gap-2 text-sm text-gray-200 cursor-pointer">
+                  <input type="radio" name="bdRoute" value="1" checked onchange="selectBadDebtRoute(1)" class="accent-red-400" />
+                  Route 1: Direct Refund (Form 4466/1120X)
+                </label>
+                <label class="flex items-center gap-2 text-sm text-gray-200 cursor-pointer">
+                  <input type="radio" name="bdRoute" value="2" onchange="selectBadDebtRoute(2)" class="accent-red-400" />
+                  Route 2: NOL Carryback (Form 1139)
+                </label>
+              </div>
+            </div>
+
+            <!-- Route 1 Fields -->
+            <div id="bdRoute1Fields" class="border border-gray-600 rounded-xl p-4">
+              <h3 class="text-sm font-bold text-amber-400 mb-3">💰 Route 1: Direct Refund</h3>
+              <div class="space-y-3 text-sm">
+                <div><label class="block text-xs text-gray-400 mb-1">Bad Debt Amount ($)</label><input type="number" id="bdAmount1" step="0.01" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+                <div><label class="block text-xs text-gray-400 mb-1">Corporate Tax Rate</label><select id="bdTaxRate" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white"><option value="0.15">15%</option><option value="0.21" selected>21%</option><option value="0.25">25%</option><option value="0.28">28%</option><option value="0.33">33%</option><option value="0.35">35%</option></select></div>
+                <div><label class="block text-xs text-gray-400 mb-1">Estimated Payments Made ($)</label><input type="number" id="bdPaymentsMade" step="0.01" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+                <div><label class="block text-xs text-gray-400 mb-1">Current Year Income ($)</label><input type="number" id="bdCurrentIncome1" step="0.01" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+              </div>
+            </div>
+
+            <!-- Route 2 Fields -->
+            <div id="bdRoute2Fields" class="hidden border border-gray-600 rounded-xl p-4">
+              <h3 class="text-sm font-bold text-amber-400 mb-3">📉 Route 2: NOL Carryback</h3>
+              <div class="space-y-3 text-sm">
+                <div><label class="block text-xs text-gray-400 mb-1">Bad Debt Amount ($)</label><input type="number" id="bdAmount2" step="0.01" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+                <div><label class="block text-xs text-gray-400 mb-1">Current Year Income ($)</label><input type="number" id="bdCurrentIncome2" step="0.01" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+                <div><label class="block text-xs text-gray-400 mb-1">Current Year Deductions ($)</label><input type="number" id="bdCurrentDeductions" step="0.01" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+                <div><label class="block text-xs text-gray-400 mb-1">Prior Year Taxable Income ($)</label><input type="number" id="bdPriorIncome" step="0.01" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+                <div><label class="block text-xs text-gray-400 mb-1">Prior Year Taxes Paid ($)</label><input type="number" id="bdPriorTaxesPaid" step="0.01" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+              </div>
+            </div>
+
+            <!-- Documentation Checklist -->
+            <div class="border border-gray-600 rounded-xl p-4">
+              <h3 class="text-sm font-bold text-green-400 mb-3">✅ Documentation Checklist</h3>
+              <div class="space-y-2 text-sm">
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="bdDocCheck accent-green-400" /> Award documentation / original debt instrument</label>
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="bdDocCheck accent-green-400" /> Collection efforts evidence</label>
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="bdDocCheck accent-green-400" /> Board resolution declaring debt uncollectible</label>
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="bdDocCheck accent-green-400" /> Accountant workpapers</label>
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="bdDocCheck accent-green-400" /> Payment confirmations / receipts</label>
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="bdDocCheck accent-green-400" /> Ledger entries documenting write-off</label>
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="bdDocCheck accent-green-400" /> Corporate bad debt policy on file</label>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap gap-3">
+              <button onclick="calculateBadDebtRefund()" class="bg-red-700 hover:bg-red-600 text-white px-5 py-2 rounded-lg font-bold text-sm">🧮 Calculate</button>
+              <button onclick="generateBadDebtActionPlan()" class="bg-amber-700 hover:bg-amber-600 text-white px-5 py-2 rounded-lg font-bold text-sm">📋 Generate Action Plan</button>
+            </div>
+          </div>
+
+          <!-- Right: Results -->
+          <div class="space-y-4">
+            <div class="border border-red-500/30 rounded-xl p-5 bg-red-500/5 h-fit">
+              <h3 class="text-lg font-bold text-red-400 mb-4">📋 Bad Debt Refund Summary</h3>
+              <div class="space-y-3 text-sm" id="bdResults">
+                <div class="flex justify-between py-2 border-b border-gray-700"><span class="text-gray-400">Tax Reduction Amount</span><span class="font-mono text-white" id="bdTaxReduction">$0.00</span></div>
+                <div class="flex justify-between py-2 border-b border-gray-700"><span class="text-gray-400">Refund / Overpayment</span><span class="font-mono text-green-400" id="bdRefundAmt">$0.00</span></div>
+                <div class="flex justify-between py-2 border-b border-gray-700"><span class="text-gray-400">Recommended Form</span><span class="font-mono text-amber-400" id="bdRecForm">—</span></div>
+                <div class="flex justify-between py-2 border-b border-gray-700"><span class="text-gray-400">Filing Deadline</span><span class="font-mono text-blue-400" id="bdDeadline">—</span></div>
+              </div>
+            </div>
+            <div id="bdActionPlanOutput" class="border border-gray-600 rounded-xl p-5 bg-gray-800/50 hidden">
+              <h3 class="text-sm font-bold text-amber-400 mb-3">📋 Action Plan</h3>
+              <div id="bdActionPlanContent" class="text-sm text-gray-300 space-y-2"></div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /taxBadDebtPanel -->
+
+      <!-- ═══ Panel: Financial Instrument Loss Calculator (Task 2.2) ═══ -->
+      <div id="taxLossCalcPanel" class="hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Left: Form -->
+          <div class="space-y-4">
+            <!-- Method Selector -->
+            <div class="border border-red-500/30 rounded-xl p-4 bg-red-500/5">
+              <h3 class="text-sm font-bold text-red-400 mb-3">📋 Loss Recognition Method</h3>
+              <div class="space-y-2">
+                <label class="flex items-center gap-2 text-sm text-gray-200 cursor-pointer"><input type="radio" name="lossMethod" value="165" checked onchange="selectLossMethod('165')" class="accent-red-400" /> IRC &sect;165 Realized Loss</label>
+                <label class="flex items-center gap-2 text-sm text-gray-200 cursor-pointer"><input type="radio" name="lossMethod" value="166" onchange="selectLossMethod('166')" class="accent-red-400" /> IRC &sect;166 Worthlessness</label>
+                <label class="flex items-center gap-2 text-sm text-gray-200 cursor-pointer"><input type="radio" name="lossMethod" value="475" onchange="selectLossMethod('475')" class="accent-red-400" /> IRC &sect;475 Mark-to-Market</label>
+                <label class="flex items-center gap-2 text-sm text-gray-200 cursor-pointer"><input type="radio" name="lossMethod" value="1221" onchange="selectLossMethod('1221')" class="accent-red-400" /> IRC &sect;1221 Hedging</label>
+              </div>
+            </div>
+
+            <!-- Instrument Type -->
+            <div class="border border-gray-600 rounded-xl p-4">
+              <h3 class="text-sm font-bold text-blue-400 mb-3">🏦 Instrument Details</h3>
+              <div class="space-y-3 text-sm">
+                <div><label class="block text-xs text-gray-400 mb-1">Instrument Type</label><select id="lossInstrType" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white"><option>Corporate Bonds</option><option>Government Bonds</option><option>Municipal Bonds</option><option>Equity Securities</option><option>Preferred Stock</option><option>Options</option><option>Futures</option><option>Swaps</option><option>CDOs/CMOs</option><option>Derivatives</option><option>Mutual Funds</option><option>ETFs</option></select></div>
+                <div><label class="block text-xs text-gray-400 mb-1">Original Cost Basis ($)</label><input type="number" id="lossCostBasis" step="0.01" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+                <div><label class="block text-xs text-gray-400 mb-1">Fair Market Value ($)</label><input type="number" id="lossFMV" step="0.01" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+                <div><label class="block text-xs text-gray-400 mb-1">Date Acquired</label><input type="date" id="lossDateAcq" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+                <div><label class="block text-xs text-gray-400 mb-1">Date of Disposition</label><input type="date" id="lossDateDisp" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+              </div>
+            </div>
+
+            <!-- Method-specific fields: 165 -->
+            <div id="lossFields165" class="border border-gray-600 rounded-xl p-4">
+              <h3 class="text-sm font-bold text-amber-400 mb-3">&sect;165 — Realized Loss Fields</h3>
+              <div class="space-y-3 text-sm">
+                <div><label class="block text-xs text-gray-400 mb-1">Sale Proceeds ($)</label><input type="number" id="lossSaleProceeds" step="0.01" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+                <div><label class="block text-xs text-gray-400 mb-1">Transaction Costs ($)</label><input type="number" id="lossTransCosts" step="0.01" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+              </div>
+            </div>
+
+            <!-- Method-specific fields: 166 -->
+            <div id="lossFields166" class="hidden border border-gray-600 rounded-xl p-4">
+              <h3 class="text-sm font-bold text-amber-400 mb-3">&sect;166 — Worthlessness Fields</h3>
+              <div class="space-y-3 text-sm">
+                <div><label class="block text-xs text-gray-400 mb-1">Date of Worthlessness</label><input type="date" id="lossWorthlessDate" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+                <div><label class="block text-xs text-gray-400 mb-1">Evidence of Worthlessness</label><textarea id="lossWorthlessEvidence" rows="3" placeholder="Describe evidence supporting worthlessness determination..." class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white text-sm"></textarea></div>
+              </div>
+            </div>
+
+            <!-- Method-specific fields: 475 -->
+            <div id="lossFields475" class="hidden border border-gray-600 rounded-xl p-4">
+              <h3 class="text-sm font-bold text-amber-400 mb-3">&sect;475 — Mark-to-Market Fields</h3>
+              <div class="space-y-3 text-sm">
+                <div><label class="block text-xs text-gray-400 mb-1">Year-End FMV ($)</label><input type="number" id="lossYearEndFMV" step="0.01" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+                <div><label class="block text-xs text-gray-400 mb-1">Election Date</label><input type="date" id="lossElectionDate" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+              </div>
+            </div>
+
+            <!-- Method-specific fields: 1221 -->
+            <div id="lossFields1221" class="hidden border border-gray-600 rounded-xl p-4">
+              <h3 class="text-sm font-bold text-amber-400 mb-3">&sect;1221 — Hedging Fields</h3>
+              <div class="space-y-3 text-sm">
+                <div><label class="block text-xs text-gray-400 mb-1">Hedging Gain/Loss ($)</label><input type="number" id="lossHedgingGL" step="0.01" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+                <div><label class="block text-xs text-gray-400 mb-1">Hedged Item Description</label><input type="text" id="lossHedgedItem" placeholder="Describe the hedged item..." class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+                <div><label class="block text-xs text-gray-400 mb-1">Effectiveness (%)</label><input type="number" id="lossEffectiveness" step="0.1" min="0" max="100" placeholder="100" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+              </div>
+            </div>
+
+            <!-- Documentation Checklist -->
+            <div class="border border-gray-600 rounded-xl p-4">
+              <h3 class="text-sm font-bold text-green-400 mb-3">✅ Documentation Checklist</h3>
+              <div class="space-y-2 text-sm">
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="lossDocCheck accent-green-400" /> Original purchase confirmation / trade ticket</label>
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="lossDocCheck accent-green-400" /> Brokerage account statements</label>
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="lossDocCheck accent-green-400" /> 1099-B or equivalent reporting</label>
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="lossDocCheck accent-green-400" /> Valuation report / appraisal</label>
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="lossDocCheck accent-green-400" /> Board resolution (if entity-level)</label>
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="lossDocCheck accent-green-400" /> Tax advisor workpapers</label>
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="lossDocCheck accent-green-400" /> Hedging documentation / election statement</label>
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="lossDocCheck accent-green-400" /> Mark-to-market election (if &sect;475)</label>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap gap-3">
+              <button onclick="calculateInstrumentLoss()" class="bg-red-700 hover:bg-red-600 text-white px-5 py-2 rounded-lg font-bold text-sm">🧮 Calculate</button>
+              <button onclick="generateLossActionPlan()" class="bg-amber-700 hover:bg-amber-600 text-white px-5 py-2 rounded-lg font-bold text-sm">📋 Generate Action Plan</button>
+            </div>
+          </div>
+
+          <!-- Right: Results -->
+          <div class="space-y-4">
+            <div class="border border-red-500/30 rounded-xl p-5 bg-red-500/5 h-fit">
+              <h3 class="text-lg font-bold text-red-400 mb-4">📋 Loss Calculation Summary</h3>
+              <div class="space-y-3 text-sm" id="lossResults">
+                <div class="flex justify-between py-2 border-b border-gray-700"><span class="text-gray-400">Loss Amount</span><span class="font-mono text-white" id="lossAmount">$0.00</span></div>
+                <div class="flex justify-between py-2 border-b border-gray-700"><span class="text-gray-400">Loss Character</span><span class="font-mono text-amber-400" id="lossCharacter">—</span></div>
+                <div class="flex justify-between py-2 border-b border-gray-700"><span class="text-gray-400">Recommended Forms</span><span class="font-mono text-blue-400" id="lossRecForms">—</span></div>
+                <div class="flex justify-between py-2 border-b border-gray-700"><span class="text-gray-400">Carry-Forward Amount</span><span class="font-mono text-green-400" id="lossCarryFwd">$0.00</span></div>
+              </div>
+            </div>
+            <div id="lossActionPlanOutput" class="border border-gray-600 rounded-xl p-5 bg-gray-800/50 hidden">
+              <h3 class="text-sm font-bold text-amber-400 mb-3">📋 Action Plan</h3>
+              <div id="lossActionPlanContent" class="text-sm text-gray-300 space-y-2"></div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /taxLossCalcPanel -->
+
+      <!-- ═══ Panel: Interest Refund Strategy (Task 2.3) ═══ -->
+      <div id="taxInterestPanel" class="hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Left: Form -->
+          <div class="space-y-4">
+            <!-- Category Selector -->
+            <div class="border border-red-500/30 rounded-xl p-4 bg-red-500/5">
+              <h3 class="text-sm font-bold text-red-400 mb-3">📋 Interest Category</h3>
+              <select id="intCategory" onchange="selectInterestCategory(this.value)" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white">
+                <option value="163j">Business Interest (&sect;163(j))</option>
+                <option value="oid">Original Issue Discount (OID)</option>
+                <option value="marketDiscount">Market Discount</option>
+                <option value="bondPremium">Bond Premium</option>
+                <option value="capitalized">Capitalized Interest</option>
+                <option value="imputed">Imputed Interest (&sect;483/&sect;1274)</option>
+                <option value="ahydo">AHYDO</option>
+                <option value="overpayment">Overpayment Interest</option>
+              </select>
+            </div>
+
+            <!-- Common Fields -->
+            <div class="border border-gray-600 rounded-xl p-4">
+              <h3 class="text-sm font-bold text-blue-400 mb-3">🏦 Common Fields</h3>
+              <div class="space-y-3 text-sm">
+                <div><label class="block text-xs text-gray-400 mb-1">Principal Amount ($)</label><input type="number" id="intPrincipal" step="0.01" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+                <div><label class="block text-xs text-gray-400 mb-1">Interest Rate (%)</label><input type="number" id="intRate" step="0.01" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+                <div><label class="block text-xs text-gray-400 mb-1">Term / Period (Years)</label><input type="number" id="intTerm" step="0.1" placeholder="1" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+              </div>
+            </div>
+
+            <!-- Category-specific: 163(j) -->
+            <div id="intFields163j" class="border border-gray-600 rounded-xl p-4">
+              <h3 class="text-sm font-bold text-amber-400 mb-3">&sect;163(j) — Business Interest Limitation</h3>
+              <div class="space-y-3 text-sm">
+                <div><label class="block text-xs text-gray-400 mb-1">Adjusted Taxable Income (ATI) ($)</label><input type="number" id="intATI" step="0.01" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+              </div>
+            </div>
+
+            <!-- Category-specific: OID -->
+            <div id="intFieldsOID" class="hidden border border-gray-600 rounded-xl p-4">
+              <h3 class="text-sm font-bold text-amber-400 mb-3">OID — Original Issue Discount</h3>
+              <div class="space-y-3 text-sm">
+                <div><label class="block text-xs text-gray-400 mb-1">Issue Price ($)</label><input type="number" id="intIssuePrice" step="0.01" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+                <div><label class="block text-xs text-gray-400 mb-1">Stated Redemption Price ($)</label><input type="number" id="intRedemptionPrice" step="0.01" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+                <div><label class="block text-xs text-gray-400 mb-1">Yield to Maturity (%)</label><input type="number" id="intYTM" step="0.01" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+              </div>
+            </div>
+
+            <!-- Category-specific: Bond Premium -->
+            <div id="intFieldsBondPrem" class="hidden border border-gray-600 rounded-xl p-4">
+              <h3 class="text-sm font-bold text-amber-400 mb-3">Bond Premium Amortization</h3>
+              <div class="space-y-3 text-sm">
+                <div><label class="block text-xs text-gray-400 mb-1">Purchase Price ($)</label><input type="number" id="intPurchasePrice" step="0.01" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+                <div><label class="block text-xs text-gray-400 mb-1">Par Value ($)</label><input type="number" id="intParValue" step="0.01" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+                <div><label class="block text-xs text-gray-400 mb-1">Amortization Method</label><select id="intAmortMethod" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white"><option value="constant-yield">Constant Yield (Required)</option><option value="straight-line">Straight-Line (if elected)</option></select></div>
+              </div>
+            </div>
+
+            <!-- State Tax Rate -->
+            <div class="border border-gray-600 rounded-xl p-4">
+              <h3 class="text-sm font-bold text-purple-400 mb-3">🗺️ State Tax Impact</h3>
+              <div class="text-sm">
+                <label class="block text-xs text-gray-400 mb-1">State Tax Rate</label>
+                <select id="intStateTax" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white">
+                  <option value="0.0884">CA — 8.84%</option>
+                  <option value="0.0725">NY — 7.25%</option>
+                  <option value="0">TX — 0%</option>
+                  <option value="0">FL — 0%</option>
+                  <option value="0.095">IL — 9.5%</option>
+                  <option value="0.115">NJ — 11.5%</option>
+                  <option value="0.0899">PA — 8.99%</option>
+                  <option value="0">OH — 0%</option>
+                  <option value="0.0575">GA — 5.75%</option>
+                  <option value="0.025">NC — 2.5%</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Documentation Checklist -->
+            <div class="border border-gray-600 rounded-xl p-4">
+              <h3 class="text-sm font-bold text-green-400 mb-3">✅ Documentation Checklist</h3>
+              <div class="space-y-2 text-sm">
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="intDocCheck accent-green-400" /> Original loan/bond agreement</label>
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="intDocCheck accent-green-400" /> Interest payment schedule / amortization table</label>
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="intDocCheck accent-green-400" /> 1099-INT or 1099-OID forms</label>
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="intDocCheck accent-green-400" /> &sect;163(j) computation workpapers</label>
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="intDocCheck accent-green-400" /> Bond premium election statement</label>
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="intDocCheck accent-green-400" /> OID accrual schedule</label>
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="intDocCheck accent-green-400" /> Market discount computation</label>
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="intDocCheck accent-green-400" /> Capitalized interest calculation</label>
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="intDocCheck accent-green-400" /> AFR rate documentation</label>
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="intDocCheck accent-green-400" /> Tax return prior year copies</label>
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="intDocCheck accent-green-400" /> Bank/broker statements</label>
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="intDocCheck accent-green-400" /> Imputed interest calculation under &sect;7872</label>
+                <label class="flex items-center gap-2 text-gray-300 cursor-pointer"><input type="checkbox" class="intDocCheck accent-green-400" /> AHYDO yield/term verification</label>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap gap-3">
+              <button onclick="calculateInterestRefund()" class="bg-red-700 hover:bg-red-600 text-white px-5 py-2 rounded-lg font-bold text-sm">🧮 Calculate</button>
+              <button onclick="generateInterestReport()" class="bg-amber-700 hover:bg-amber-600 text-white px-5 py-2 rounded-lg font-bold text-sm">📋 Generate Report</button>
+            </div>
+          </div>
+
+          <!-- Right: Results -->
+          <div class="space-y-4">
+            <div class="border border-red-500/30 rounded-xl p-5 bg-red-500/5 h-fit">
+              <h3 class="text-lg font-bold text-red-400 mb-4">📋 Interest Refund Summary</h3>
+              <div class="space-y-3 text-sm" id="intResults">
+                <div class="flex justify-between py-2 border-b border-gray-700"><span class="text-gray-400">Deductible Amount</span><span class="font-mono text-white" id="intDeductible">$0.00</span></div>
+                <div class="flex justify-between py-2 border-b border-gray-700"><span class="text-gray-400">Refund Opportunity</span><span class="font-mono text-green-400" id="intRefundOpp">$0.00</span></div>
+                <div class="flex justify-between py-2 border-b border-gray-700"><span class="text-gray-400">Carry-Forward</span><span class="font-mono text-amber-400" id="intCarryFwd">$0.00</span></div>
+                <div class="flex justify-between py-2 border-b border-gray-700"><span class="text-gray-400">State Tax Impact</span><span class="font-mono text-purple-400" id="intStateImpact">$0.00</span></div>
+                <div class="flex justify-between py-2 border-b border-gray-700"><span class="text-gray-400">Recommended Forms</span><span class="font-mono text-blue-400" id="intRecForms">—</span></div>
+              </div>
+            </div>
+            <div id="intReportOutput" class="border border-gray-600 rounded-xl p-5 bg-gray-800/50 hidden">
+              <h3 class="text-sm font-bold text-amber-400 mb-3">📋 Interest Refund Report</h3>
+              <div id="intReportContent" class="text-sm text-gray-300 space-y-2"></div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /taxInterestPanel -->
+
     </div>
   </section>
 
@@ -6658,6 +6982,7 @@
     initBOE();
     initBudget();
     initTaxEstimator();
+    initTaxCalculators();
     // Set default dates
     const today = new Date().toISOString().split('T')[0];
     ['invDate','invDueDate','poDate','poValueDate','boeDate'].forEach(id => {
@@ -7112,6 +7437,410 @@
     document.getElementById('teResultLabel').style.color = refund ? '#4ade80' : '#f87171';
     document.getElementById('teResultAmount').textContent = fmt$(Math.abs(balance));
     document.getElementById('teResultAmount').style.color = refund ? '#4ade80' : '#f87171';
+  }
+
+  // ─── TAX CALCULATOR SUB-TABS & SHARED ───────────────────────────────────
+  function showTaxSubTab(tabName) {
+    const panels = ['taxIncomePanel','taxBadDebtPanel','taxLossCalcPanel','taxInterestPanel'];
+    const tabs = ['taxSubTab_income','taxSubTab_badDebt','taxSubTab_lossCalc','taxSubTab_interest'];
+    const map = { income: 0, badDebt: 1, lossCalc: 2, interest: 3 };
+    const idx = map[tabName] ?? 0;
+    panels.forEach((id, i) => {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('hidden', i !== idx);
+    });
+    tabs.forEach((id, i) => {
+      const btn = document.getElementById(id);
+      if (!btn) return;
+      if (i === idx) {
+        btn.className = 'px-4 py-2 rounded-lg text-sm font-bold bg-red-600 text-white transition-all';
+      } else {
+        btn.className = 'px-4 py-2 rounded-lg text-sm font-bold text-red-400 border border-red-500/30 hover:bg-red-500/10 transition-all';
+      }
+    });
+  }
+
+  function initTaxCalculators() {
+    // Sub-tab bar is wired via onclick; nothing else needed at init
+  }
+
+  // ─── BAD DEBT REFUND (Task 2.1) ────────────────────────────────────────
+  function selectBadDebtRoute(route) {
+    document.getElementById('bdRoute1Fields').classList.toggle('hidden', route !== 1);
+    document.getElementById('bdRoute2Fields').classList.toggle('hidden', route !== 2);
+  }
+
+  function calculateBadDebtRefund() {
+    const route = document.querySelector('input[name="bdRoute"]:checked')?.value;
+    let taxReduction = 0, refund = 0, form = '', deadline = '';
+
+    if (route === '1') {
+      const badDebt = parseFloat(document.getElementById('bdAmount1').value) || 0;
+      const taxRate = parseFloat(document.getElementById('bdTaxRate').value) || 0.21;
+      const payments = parseFloat(document.getElementById('bdPaymentsMade').value) || 0;
+      taxReduction = badDebt * taxRate;
+      refund = Math.max(0, taxReduction - payments);
+      if (refund <= 0) refund = taxReduction; // overpayment scenario
+      form = badDebt > 0 ? 'Form 4466 (Quick Refund) / Form 1120X (Amended)' : '—';
+      deadline = 'Within 12 months of tax year end (Form 4466); 3 years (Form 1120X)';
+    } else {
+      const badDebt = parseFloat(document.getElementById('bdAmount2').value) || 0;
+      const curIncome = parseFloat(document.getElementById('bdCurrentIncome2').value) || 0;
+      const curDeductions = parseFloat(document.getElementById('bdCurrentDeductions').value) || 0;
+      const priorIncome = parseFloat(document.getElementById('bdPriorIncome').value) || 0;
+      const priorTaxesPaid = parseFloat(document.getElementById('bdPriorTaxesPaid').value) || 0;
+
+      // NOL = current deductions + bad debt - current income
+      const nol = Math.max(0, (curDeductions + badDebt) - curIncome);
+      // Reduce prior year income by NOL, recompute tax
+      const adjustedPrior = Math.max(0, priorIncome - nol);
+      // Use corporate flat rate 21% for simplicity
+      const priorTaxOriginal = priorIncome * 0.21;
+      const priorTaxRevised = adjustedPrior * 0.21;
+      taxReduction = priorTaxOriginal - priorTaxRevised;
+      refund = Math.min(taxReduction, priorTaxesPaid);
+      form = 'Form 1139 (Corporation Application for Tentative Refund)';
+      deadline = 'Within 12 months after NOL year end';
+    }
+
+    document.getElementById('bdTaxReduction').textContent = fmt$(taxReduction);
+    document.getElementById('bdRefundAmt').textContent = fmt$(refund);
+    document.getElementById('bdRecForm').textContent = form;
+    document.getElementById('bdDeadline').textContent = deadline;
+  }
+
+  function validateBadDebtDocs() {
+    const checks = document.querySelectorAll('.bdDocCheck');
+    const total = checks.length;
+    const checked = [...checks].filter(c => c.checked).length;
+    if (checked < total) {
+      alert('Documentation incomplete: ' + checked + ' of ' + total + ' items checked.\nPlease complete all documentation before filing.');
+    } else {
+      alert('All ' + total + ' documentation items verified. Ready to file.');
+    }
+  }
+
+  function generateBadDebtActionPlan() {
+    const route = document.querySelector('input[name="bdRoute"]:checked')?.value;
+    const output = document.getElementById('bdActionPlanOutput');
+    const content = document.getElementById('bdActionPlanContent');
+    let steps = [];
+
+    if (route === '1') {
+      steps = [
+        '1. Compile all bad debt documentation (award docs, collection efforts, board resolution)',
+        '2. Calculate the corporate bad debt deduction amount on Form 1139 Schedule A or 1120X',
+        '3. Verify estimated tax payments already made for the current year',
+        '4. Prepare Form 4466 for quick refund (if within 12 months of year-end) OR Form 1120X',
+        '5. Attach supporting schedules: detailed bad debt computation, proof of uncollectibility',
+        '6. File with IRS Service Center; retain proof of mailing (certified mail recommended)',
+        '7. Monitor refund status via IRS.gov "Where\'s My Refund" or call (800) 829-4933'
+      ];
+    } else {
+      steps = [
+        '1. Compute Net Operating Loss (NOL) for the current tax year including bad debt deduction',
+        '2. Determine NOL carryback eligibility (generally 2-year carryback for most corps)',
+        '3. Recompute prior year tax liability with NOL carryback applied',
+        '4. Prepare Form 1139 (Corporation Application for Tentative Refund)',
+        '5. Attach: NOL computation, amended tax computation for prior year, bad debt documentation',
+        '6. File Form 1139 within 12 months after the close of the NOL year',
+        '7. IRS processes Form 1139 within 90 days — no formal audit required for tentative refund',
+        '8. If denied, file Form 1120X as an alternative amended return claim'
+      ];
+    }
+
+    // Check documentation status
+    const checks = document.querySelectorAll('.bdDocCheck');
+    const checked = [...checks].filter(c => c.checked).length;
+    if (checked < checks.length) {
+      steps.push('⚠️ WARNING: Only ' + checked + '/' + checks.length + ' documentation items are checked. Complete all before filing.');
+    }
+
+    content.innerHTML = steps.map(s => '<div class="py-1">' + s + '</div>').join('');
+    output.classList.remove('hidden');
+  }
+
+  // ─── FINANCIAL INSTRUMENT LOSS CALCULATOR (Task 2.2) ────────────────────
+  function selectLossMethod(method) {
+    ['lossFields165','lossFields166','lossFields475','lossFields1221'].forEach(id => {
+      document.getElementById(id).classList.add('hidden');
+    });
+    document.getElementById('lossFields' + method).classList.remove('hidden');
+  }
+
+  function calculateInstrumentLoss() {
+    const method = document.querySelector('input[name="lossMethod"]:checked')?.value;
+    const costBasis = parseFloat(document.getElementById('lossCostBasis').value) || 0;
+    const dateAcq = document.getElementById('lossDateAcq').value;
+    const dateDisp = document.getElementById('lossDateDisp').value;
+    let lossAmt = 0, character = '', forms = '', carryFwd = 0;
+
+    // Determine holding period for character
+    let longTerm = false;
+    if (dateAcq && dateDisp) {
+      const acq = new Date(dateAcq);
+      const disp = new Date(dateDisp);
+      const diffMs = disp - acq;
+      longTerm = diffMs > (365.25 * 24 * 60 * 60 * 1000); // > 1 year
+    }
+
+    switch (method) {
+      case '165': {
+        const proceeds = parseFloat(document.getElementById('lossSaleProceeds').value) || 0;
+        const transCosts = parseFloat(document.getElementById('lossTransCosts').value) || 0;
+        lossAmt = costBasis - proceeds - transCosts;
+        character = longTerm ? 'Long-Term Capital Loss' : 'Short-Term Capital Loss';
+        forms = 'Form 8949, Schedule D';
+        // Capital loss limitation: $3,000/year for individuals
+        carryFwd = Math.max(0, lossAmt - 3000);
+        break;
+      }
+      case '166': {
+        lossAmt = costBasis; // full write-off
+        character = 'Ordinary Loss (if business debt) / Capital Loss (if non-business)';
+        forms = 'Form 8949, Schedule D; attach worthlessness statement';
+        carryFwd = 0;
+        break;
+      }
+      case '475': {
+        const yearEndFMV = parseFloat(document.getElementById('lossYearEndFMV').value) || 0;
+        lossAmt = costBasis - yearEndFMV;
+        character = 'Ordinary Loss (mark-to-market)';
+        forms = 'Form 4797 (Part II); attach §475 election statement';
+        carryFwd = 0; // ordinary losses not subject to capital loss limits
+        break;
+      }
+      case '1221': {
+        const hedgingGL = parseFloat(document.getElementById('lossHedgingGL').value) || 0;
+        const effectiveness = parseFloat(document.getElementById('lossEffectiveness').value) || 100;
+        lossAmt = Math.abs(hedgingGL) * (effectiveness / 100);
+        character = 'Ordinary Loss (hedging transaction)';
+        forms = 'Form 4797; hedging identification documentation';
+        carryFwd = 0;
+        break;
+      }
+    }
+
+    lossAmt = Math.max(0, lossAmt);
+    document.getElementById('lossAmount').textContent = fmt$(lossAmt);
+    document.getElementById('lossCharacter').textContent = character || '—';
+    document.getElementById('lossRecForms').textContent = forms || '—';
+    document.getElementById('lossCarryFwd').textContent = fmt$(carryFwd);
+  }
+
+  function generateLossActionPlan() {
+    const method = document.querySelector('input[name="lossMethod"]:checked')?.value;
+    const output = document.getElementById('lossActionPlanOutput');
+    const content = document.getElementById('lossActionPlanContent');
+    let steps = [];
+
+    const baseSteps = [
+      '1. Gather all trade confirmations, brokerage statements, and cost basis documentation',
+      '2. Verify acquisition date and disposition date for holding period determination'
+    ];
+
+    switch (method) {
+      case '165':
+        steps = [...baseSteps,
+          '3. Compute realized loss: Cost Basis - Sale Proceeds - Transaction Costs',
+          '4. Determine loss character based on holding period (short-term < 1 year, long-term > 1 year)',
+          '5. Report on Form 8949 (Part I for short-term, Part II for long-term)',
+          '6. Transfer totals to Schedule D; apply $3,000 annual capital loss limitation',
+          '7. Carry forward excess capital losses to subsequent tax years via Schedule D worksheet'
+        ];
+        break;
+      case '166':
+        steps = [...baseSteps,
+          '3. Document that the security/debt became wholly worthless during the tax year',
+          '4. Gather evidence: bankruptcy filings, cessation of business, zero trading value',
+          '5. Report as if sold on last day of tax year for $0 on Form 8949',
+          '6. Attach statement explaining worthlessness determination',
+          '7. Note: 7-year statute of limitations applies to worthlessness claims (IRC §6511(d)(1))'
+        ];
+        break;
+      case '475':
+        steps = [...baseSteps,
+          '3. Verify §475(f) election was timely filed (by original due date of prior year return)',
+          '4. Mark all securities to fair market value as of last business day of tax year',
+          '5. Report ordinary gains/losses on Form 4797, Part II',
+          '6. Attach election statement referencing IRC §475(f) and the tax year of election',
+          '7. Note: §475 losses are NOT subject to capital loss limitations or wash sale rules'
+        ];
+        break;
+      case '1221':
+        steps = [...baseSteps,
+          '3. Verify hedging transaction identification was made before end of acquisition day',
+          '4. Document the hedged item and confirm the hedge substantially reduces risk',
+          '5. Compute effectiveness percentage and applicable gain/loss',
+          '6. Report as ordinary gain/loss on Form 4797',
+          '7. Retain hedging identification records for at least 7 years'
+        ];
+        break;
+    }
+
+    const checks = document.querySelectorAll('.lossDocCheck');
+    const checked = [...checks].filter(c => c.checked).length;
+    if (checked < checks.length) {
+      steps.push('⚠️ WARNING: Only ' + checked + '/' + checks.length + ' documentation items are checked.');
+    }
+
+    content.innerHTML = steps.map(s => '<div class="py-1">' + s + '</div>').join('');
+    output.classList.remove('hidden');
+  }
+
+  // ─── INTEREST REFUND STRATEGY (Task 2.3) ────────────────────────────────
+  const STATE_TAX_RATES = {
+    CA: 0.0884, NY: 0.0725, TX: 0, FL: 0, IL: 0.095,
+    NJ: 0.115, PA: 0.0899, OH: 0, GA: 0.0575, NC: 0.025
+  };
+
+  function selectInterestCategory(cat) {
+    ['intFields163j','intFieldsOID','intFieldsBondPrem'].forEach(id => {
+      document.getElementById(id).classList.add('hidden');
+    });
+    switch (cat) {
+      case '163j': document.getElementById('intFields163j').classList.remove('hidden'); break;
+      case 'oid': document.getElementById('intFieldsOID').classList.remove('hidden'); break;
+      case 'bondPremium': document.getElementById('intFieldsBondPrem').classList.remove('hidden'); break;
+    }
+  }
+
+  function calculateInterestRefund() {
+    const cat = document.getElementById('intCategory').value;
+    const principal = parseFloat(document.getElementById('intPrincipal').value) || 0;
+    const rate = (parseFloat(document.getElementById('intRate').value) || 0) / 100;
+    const term = parseFloat(document.getElementById('intTerm').value) || 1;
+    const stateRate = parseFloat(document.getElementById('intStateTax').value) || 0;
+
+    let deductible = 0, refundOpp = 0, carryFwd = 0, forms = '';
+
+    switch (cat) {
+      case '163j': {
+        const ati = parseFloat(document.getElementById('intATI').value) || 0;
+        const interestExpense = principal * rate * term;
+        const limit = ati * 0.30;
+        deductible = Math.min(interestExpense, limit);
+        carryFwd = Math.max(0, interestExpense - limit);
+        refundOpp = deductible * 0.21; // federal corporate rate
+        forms = 'Form 8990 (Limitation on Business Interest Expense)';
+        break;
+      }
+      case 'oid': {
+        const issuePrice = parseFloat(document.getElementById('intIssuePrice').value) || 0;
+        const redemptionPrice = parseFloat(document.getElementById('intRedemptionPrice').value) || 0;
+        const oidTotal = redemptionPrice - issuePrice;
+        deductible = term > 0 ? oidTotal / term : oidTotal; // annual accrual
+        refundOpp = deductible * 0.21;
+        carryFwd = 0;
+        forms = '1099-OID; Schedule B (Form 1040) or Schedule K-1';
+        break;
+      }
+      case 'bondPremium': {
+        const purchasePrice = parseFloat(document.getElementById('intPurchasePrice').value) || 0;
+        const parValue = parseFloat(document.getElementById('intParValue').value) || 0;
+        const premium = Math.max(0, purchasePrice - parValue);
+        deductible = term > 0 ? premium / term : premium; // annual amortization
+        refundOpp = deductible * 0.21;
+        carryFwd = 0;
+        forms = 'Form 1099-INT (Box 11); Schedule B; Election statement under §171';
+        break;
+      }
+      case 'marketDiscount': {
+        deductible = principal * rate * term;
+        refundOpp = deductible * 0.21;
+        forms = 'Form 1099-INT; Schedule B; §1276 computation';
+        break;
+      }
+      case 'capitalized': {
+        deductible = principal * rate * term;
+        refundOpp = deductible * 0.21;
+        forms = 'Form 3468 or applicable capitalization schedule';
+        break;
+      }
+      case 'imputed': {
+        deductible = principal * rate * term;
+        refundOpp = deductible * 0.21;
+        forms = 'Imputed interest schedule under §483 or §1274; Form 1099-OID if applicable';
+        break;
+      }
+      case 'ahydo': {
+        deductible = principal * rate * term;
+        refundOpp = deductible * 0.21;
+        forms = 'AHYDO limitation schedule; Form 8990 if §163(j) also applies';
+        break;
+      }
+      case 'overpayment': {
+        deductible = principal * rate * term;
+        refundOpp = deductible; // overpayment interest is directly refundable
+        forms = 'Form 843 (Claim for Refund); IRS overpayment interest computation';
+        break;
+      }
+      default: {
+        deductible = principal * rate * term;
+        refundOpp = deductible * 0.21;
+        forms = '—';
+      }
+    }
+
+    const stateImpact = deductible * stateRate;
+
+    document.getElementById('intDeductible').textContent = fmt$(deductible);
+    document.getElementById('intRefundOpp').textContent = fmt$(refundOpp);
+    document.getElementById('intCarryFwd').textContent = fmt$(carryFwd);
+    document.getElementById('intStateImpact').textContent = fmt$(stateImpact);
+    document.getElementById('intRecForms').textContent = forms || '—';
+  }
+
+  function generateInterestReport() {
+    const cat = document.getElementById('intCategory').value;
+    const output = document.getElementById('intReportOutput');
+    const content = document.getElementById('intReportContent');
+    const catNames = {
+      '163j': 'Business Interest under IRC §163(j)',
+      'oid': 'Original Issue Discount (OID)',
+      'marketDiscount': 'Market Discount',
+      'bondPremium': 'Bond Premium Amortization',
+      'capitalized': 'Capitalized Interest',
+      'imputed': 'Imputed Interest (§483/§1274)',
+      'ahydo': 'Applicable High-Yield Discount Obligation (AHYDO)',
+      'overpayment': 'Overpayment Interest Refund'
+    };
+
+    const principal = parseFloat(document.getElementById('intPrincipal').value) || 0;
+    const rate = parseFloat(document.getElementById('intRate').value) || 0;
+    const term = parseFloat(document.getElementById('intTerm').value) || 1;
+    const deductible = document.getElementById('intDeductible').textContent;
+    const refundOpp = document.getElementById('intRefundOpp').textContent;
+    const carryFwd = document.getElementById('intCarryFwd').textContent;
+    const stateImpact = document.getElementById('intStateImpact').textContent;
+    const forms = document.getElementById('intRecForms').textContent;
+
+    const checks = document.querySelectorAll('.intDocCheck');
+    const checked = [...checks].filter(c => c.checked).length;
+
+    let html = '';
+    html += '<div class="font-bold text-white border-b border-gray-600 pb-2 mb-2">Interest Refund Strategy Report</div>';
+    html += '<div><span class="text-gray-400">Category:</span> ' + (catNames[cat] || cat) + '</div>';
+    html += '<div><span class="text-gray-400">Principal:</span> ' + fmt$(principal) + '</div>';
+    html += '<div><span class="text-gray-400">Rate:</span> ' + rate + '%</div>';
+    html += '<div><span class="text-gray-400">Term:</span> ' + term + ' year(s)</div>';
+    html += '<div class="border-t border-gray-700 mt-2 pt-2"></div>';
+    html += '<div><span class="text-gray-400">Deductible Amount:</span> <span class="text-white font-mono">' + deductible + '</span></div>';
+    html += '<div><span class="text-gray-400">Federal Refund Opportunity:</span> <span class="text-green-400 font-mono">' + refundOpp + '</span></div>';
+    html += '<div><span class="text-gray-400">Carry-Forward:</span> <span class="text-amber-400 font-mono">' + carryFwd + '</span></div>';
+    html += '<div><span class="text-gray-400">State Tax Impact:</span> <span class="text-purple-400 font-mono">' + stateImpact + '</span></div>';
+    html += '<div><span class="text-gray-400">Recommended Forms:</span> ' + forms + '</div>';
+    html += '<div class="border-t border-gray-700 mt-2 pt-2"></div>';
+    html += '<div><span class="text-gray-400">Documentation:</span> ' + checked + ' of ' + checks.length + ' items verified</div>';
+
+    if (checked < checks.length) {
+      html += '<div class="text-amber-400 mt-1">⚠️ Complete all documentation items before filing.</div>';
+    } else {
+      html += '<div class="text-green-400 mt-1">All documentation items verified. Ready to file.</div>';
+    }
+
+    content.innerHTML = html;
+    output.classList.remove('hidden');
   }
 
   // ─── PAYMENT ORDERS MODULE ────────────────────────────────────────────
