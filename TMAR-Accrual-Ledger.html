@@ -263,14 +263,14 @@
         <button onclick="switchMainTab('reports')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="reports">
           📊 Reports
         </button>
-        <button onclick="switchMainTab('spvDashboard')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="spvDashboard">
-          🏦 SPV Dashboard
+        <button onclick="switchMainTab('trustDashboard')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="trustDashboard">
+          🏦 Trust Estate Dashboard
         </button>
-        <button onclick="switchMainTab('spvLedger')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="spvLedger">
-          📋 SPV Ledger
+        <button onclick="switchMainTab('trustLedger')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="trustLedger">
+          📋 Trust Estate Ledger
         </button>
-        <button onclick="switchMainTab('spvReports')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="spvReports">
-          📈 SPV Reports
+        <button onclick="switchMainTab('trustReports')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="trustReports">
+          📈 Trust Estate Reports
         </button>
         <button onclick="switchMainTab('invoicing')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="invoicing" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4)">
           🧾 Invoicing
@@ -2412,15 +2412,15 @@
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════
-       SPV DASHBOARD SECTION
+       TRUST ESTATE DASHBOARD SECTION
   ═══════════════════════════════════════════════════════════ -->
-  <div class="p-4 md:p-6" id="spvWrapper">
+  <div class="p-4 md:p-6" id="trustWrapper">
   <div class="max-w-7xl mx-auto">
 
-  <section id="spvDashboardSection" class="form-section hidden">
+  <section id="trustDashboardSection" class="form-section hidden">
     <div class="glass-card p-6 rounded-xl mb-6">
-      <h2 class="text-2xl font-bold text-green-400 mb-2">🏦 SPV Dashboard</h2>
-      <p class="text-sm text-gray-400">Special Purpose Vehicle — Consolidated Asset Overview</p>
+      <h2 class="text-2xl font-bold text-green-400 mb-2">🏦 Trust Estate Dashboard</h2>
+      <p class="text-sm text-gray-400">Trust Estate — Consolidated Asset Overview</p>
     </div>
 
     <!-- Summary Cards -->
@@ -2428,7 +2428,7 @@
       <div class="glass-card p-6 rounded-xl text-center">
         <p class="text-sm text-gray-400 mb-1 uppercase tracking-widest">Total Assets</p>
         <p class="text-3xl font-bold text-green-400" id="spv-total-assets">$0.00</p>
-        <p class="text-xs text-gray-500 mt-1">Combined asset value across all SPVs</p>
+        <p class="text-xs text-gray-500 mt-1">Combined asset value across all trust accounts</p>
       </div>
       <div class="glass-card p-6 rounded-xl text-center">
         <p class="text-sm text-gray-400 mb-1 uppercase tracking-widest">Trust Credit Units</p>
@@ -2446,15 +2446,15 @@
     <div class="glass-card p-6 rounded-xl mb-6">
       <h3 class="text-lg font-semibold mb-4 text-amber-400">⚡ Quick Actions</h3>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <button onclick="switchMainTab('spvLedger')" class="px-4 py-3 bg-green-700 hover:bg-green-600 text-white rounded-lg font-semibold text-sm">+ Add Entry</button>
-        <button onclick="switchMainTab('spvReports')" class="px-4 py-3 bg-purple-700 hover:bg-purple-600 text-white rounded-lg font-semibold text-sm">SPV Reports</button>
+        <button onclick="switchMainTab('trustLedger')" class="px-4 py-3 bg-green-700 hover:bg-green-600 text-white rounded-lg font-semibold text-sm">+ Add Entry</button>
+        <button onclick="switchMainTab('trustReports')" class="px-4 py-3 bg-purple-700 hover:bg-purple-600 text-white rounded-lg font-semibold text-sm">Trust Estate Reports</button>
         <button onclick="spvExportCSV()" class="px-4 py-3 bg-amber-700 hover:bg-amber-600 text-white rounded-lg font-semibold text-sm">Export CSV</button>
       </div>
     </div>
 
     <!-- Recent Activity -->
     <div class="glass-card p-6 rounded-xl">
-      <h3 class="text-lg font-semibold mb-4 text-cyan-400">📋 Recent SPV Activity</h3>
+      <h3 class="text-lg font-semibold mb-4 text-cyan-400">📋 Recent Trust Estate Activity</h3>
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead><tr class="bg-gray-700">
@@ -2464,7 +2464,7 @@
             <th class="p-3 text-center text-white">Status</th>
           </tr></thead>
           <tbody id="spvRecentActivity">
-            <tr><td colspan="4" class="p-4 text-gray-400 text-center">No SPV entries yet. Add entries in the SPV Ledger tab.</td></tr>
+            <tr><td colspan="4" class="p-4 text-gray-400 text-center">No Trust Estate entries yet. Add entries in the Trust Estate Ledger tab.</td></tr>
           </tbody>
         </table>
       </div>
@@ -2472,14 +2472,14 @@
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════
-       SPV LEDGER SECTION
+       TRUST ESTATE LEDGER SECTION
   ═══════════════════════════════════════════════════════════ -->
-  <section id="spvLedgerSection" class="form-section hidden">
+  <section id="trustLedgerSection" class="form-section hidden">
     <div class="glass-card p-6 rounded-xl mb-6">
       <div class="flex justify-between items-center flex-wrap gap-4">
         <div>
-          <h2 class="text-2xl font-bold text-green-400">📋 SPV Ledger Entries</h2>
-          <p class="text-sm text-gray-400 mt-1">Double-entry bookkeeping for Special Purpose Vehicle instruments</p>
+          <h2 class="text-2xl font-bold text-green-400">📋 Trust Estate Ledger Entries</h2>
+          <p class="text-sm text-gray-400 mt-1">Double-entry bookkeeping for Trust Estate instruments</p>
         </div>
         <button onclick="spvShowForm()" class="px-5 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg font-semibold text-sm">+ Add Entry</button>
       </div>
@@ -2487,7 +2487,7 @@
 
     <!-- Entry Form -->
     <div id="spvEntryForm" class="glass-card p-6 rounded-xl mb-6 hidden">
-      <h3 class="text-lg font-semibold mb-4 text-green-400" id="spvFormTitle">Add SPV Ledger Entry</h3>
+      <h3 class="text-lg font-semibold mb-4 text-green-400" id="spvFormTitle">Add Trust Estate Ledger Entry</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div>
           <label class="block text-sm font-medium mb-1 text-gray-400">Date</label>
@@ -2614,19 +2614,19 @@
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════
-       SPV REPORTS SECTION
+       TRUST ESTATE REPORTS SECTION
   ═══════════════════════════════════════════════════════════ -->
-  <section id="spvReportsSection" class="form-section hidden">
+  <section id="trustReportsSection" class="form-section hidden">
     <div class="glass-card p-6 rounded-xl mb-6">
-      <h2 class="text-2xl font-bold text-purple-400 mb-2">📈 SPV Reports Dashboard</h2>
-      <p class="text-sm text-gray-400">Generate, view, and export SPV-specific financial and compliance reports</p>
+      <h2 class="text-2xl font-bold text-purple-400 mb-2">📈 Trust Estate Reports Dashboard</h2>
+      <p class="text-sm text-gray-400">Generate, view, and export trust-specific financial and compliance reports</p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
       <!-- Trial Balance -->
       <div class="glass-card p-6 rounded-xl">
-        <h3 class="text-lg font-semibold text-cyan-400 mb-4">⚖️ SPV Trial Balance</h3>
-        <p class="text-sm text-gray-400 mb-4">Confirms all Debits equal all Credits across SPV ledger entries.</p>
+        <h3 class="text-lg font-semibold text-cyan-400 mb-4">⚖️ Trust Estate Trial Balance</h3>
+        <p class="text-sm text-gray-400 mb-4">Confirms all Debits equal all Credits across Trust Estate ledger entries.</p>
         <button onclick="generateSPVTrialBalance()" class="w-full px-4 py-3 bg-cyan-700 hover:bg-cyan-600 text-white rounded-lg font-semibold text-sm">Generate Trial Balance</button>
         <div id="spvTrialBalanceOutput" class="mt-4 hidden">
           <table class="w-full text-sm mt-2">
@@ -2661,7 +2661,7 @@
 
     <!-- Export Options -->
     <div class="glass-card p-6 rounded-xl">
-      <h3 class="text-lg font-semibold text-green-400 mb-4">📤 Export SPV Data</h3>
+      <h3 class="text-lg font-semibold text-green-400 mb-4">📤 Export Trust Estate Data</h3>
       <div class="flex flex-wrap gap-4">
         <button onclick="spvExportCSV()" class="px-5 py-2 bg-green-700 hover:bg-green-600 text-white rounded-lg font-semibold text-sm">📊 Export CSV</button>
         <button onclick="spvExportJSON()" class="px-5 py-2 bg-blue-700 hover:bg-blue-600 text-white rounded-lg font-semibold text-sm">📋 Export JSON</button>
@@ -3250,7 +3250,7 @@
   </section>
 
   </div><!-- end max-w-7xl -->
-  </div><!-- end spvWrapper -->
+  </div><!-- end trustWrapper -->
 
   <!-- ═══════════════════════════════════════════════════════════════════
        EXPENSE ITEMIZATION SECTION
@@ -6290,7 +6290,7 @@
       document.getElementById('spvNotes').value       = e.notes;
     } else {
       spvData.editingId = null;
-      document.getElementById('spvFormTitle').textContent = 'Add SPV Ledger Entry';
+      document.getElementById('spvFormTitle').textContent = 'Add Trust Estate Ledger Entry';
       document.getElementById('spvDate').value = new Date().toISOString().split('T')[0];
       ['spvDescription','spvReference','spvDebitAccount','spvCreditAccount','spvNotes'].forEach(id => document.getElementById(id).value = '');
       document.getElementById('spvAmount').value = '';
