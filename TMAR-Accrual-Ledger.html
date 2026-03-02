@@ -191,6 +191,23 @@
       border-radius: 4px;
       transition: background 0.3s ease;
     }
+    /* Task 3.2 — Particle Canvas */
+    #tmar-particles { position: absolute; top: 0; left: 0; width: 100%; height: 300px; pointer-events: none; z-index: 0; }
+    #trustDashboardSection { position: relative; }
+    #trustDashboardSection > .glass-card:first-child,
+    #trustDashboardSection > .grid,
+    #trustDashboardSection > div { position: relative; z-index: 1; }
+    /* Task 3.3 — Scroll-Reveal Animations */
+    .tmar-reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .tmar-reveal.visible { opacity: 1; transform: translateY(0); }
+    /* Task 3.4 — Accordion Sections */
+    .tmar-accordion { margin-bottom: 12px; }
+    .tmar-accordion-header { cursor: pointer; padding: 12px 16px; background: var(--bg-tertiary); border-radius: 8px; font-weight: 700; font-size: 14px; color: var(--text-primary); display: flex; justify-content: space-between; align-items: center; transition: background 0.2s; }
+    .tmar-accordion-header:hover { background: rgba(59, 130, 246, 0.1); }
+    .tmar-accordion-header::after { content: '\25BE'; transition: transform 0.3s ease; font-size: 12px; }
+    .tmar-accordion-header.collapsed::after { transform: rotate(-90deg); }
+    .tmar-accordion-content { overflow: hidden; transition: max-height 0.5s ease; }
+    .tmar-accordion-content.collapsed { max-height: 0 !important; padding: 0 !important; }
   </style>
 </head>
 <body class="p-0">
@@ -2467,6 +2484,7 @@
   <div class="max-w-7xl mx-auto">
 
   <section id="trustDashboardSection" class="form-section hidden">
+    <canvas id="tmar-particles"></canvas>
     <div class="glass-card p-6 rounded-xl mb-6">
       <h2 class="text-2xl font-bold text-green-400 mb-2">🏦 Trust Estate Dashboard</h2>
       <p class="text-sm text-gray-400">Trust Estate — Consolidated Asset Overview</p>
@@ -2474,17 +2492,17 @@
 
     <!-- Summary Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-      <div class="glass-card p-6 rounded-xl text-center">
+      <div class="glass-card p-6 rounded-xl text-center tmar-reveal">
         <p class="text-sm text-gray-400 mb-1 uppercase tracking-widest">Total Assets</p>
         <p class="text-3xl font-bold text-green-400" id="trust-total-assets">$0.00</p>
         <p class="text-xs text-gray-500 mt-1">Combined asset value across all trust accounts</p>
       </div>
-      <div class="glass-card p-6 rounded-xl text-center">
+      <div class="glass-card p-6 rounded-xl text-center tmar-reveal">
         <p class="text-sm text-gray-400 mb-1 uppercase tracking-widest">Corpus Distributions</p>
         <p class="text-3xl font-bold text-blue-400" id="trust-tcu-total">$0.00</p>
         <p class="text-xs text-gray-500 mt-1">Total corpus distribution value</p>
       </div>
-      <div class="glass-card p-6 rounded-xl text-center">
+      <div class="glass-card p-6 rounded-xl text-center tmar-reveal">
         <p class="text-sm text-gray-400 mb-1 uppercase tracking-widest">Beneficiary Payments</p>
         <p class="text-3xl font-bold text-purple-400" id="trust-token-total">$0.00</p>
         <p class="text-xs text-gray-500 mt-1">Total beneficiary payment value</p>
@@ -4622,10 +4640,11 @@
       if (tabName === 'consolidation') { updateEliminationsTable(); updateConsolidationWorksheet(); }
       if (tabName === 'statements') { updateEntitySelects(); generateStatements(); }
       if (tabName === 'ledger') { if (typeof loadEntries === 'function') loadEntries(); }
-      if (tabName === 'trustDashboard') { if (typeof updateTrustDashboard === 'function') updateTrustDashboard(); }
+      if (tabName === 'trustDashboard') { if (typeof updateTrustDashboard === 'function') updateTrustDashboard(); if (typeof initParticles === 'function') initParticles(); }
+      if (tabName !== 'trustDashboard') { if (typeof stopParticles === 'function') stopParticles(); }
       if (tabName === 'trustReports') { if (typeof updateTrustReports === 'function') updateTrustReports(); }
       if (tabName === 'masterReport') { if (typeof generateMasterReport === 'function') generateMasterReport(); }
-      if (tabName === 'financialAssets') { if (typeof initFinancialAssets === 'function') initFinancialAssets(); }
+      if (tabName === 'financialAssets') { if (typeof initFinancialAssets === 'function') initFinancialAssets(); if (typeof initScrollReveal === 'function') initScrollReveal(); }
       if (tabName === 'voiceChat') { if (typeof initVoiceChat === 'function') initVoiceChat(); }
       if (tabName === 'docCreator') { if (typeof initDocCreator === 'function') initDocCreator(); }
     }
@@ -9501,11 +9520,11 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
 
       <!-- LIVE DASHBOARD — pulls from ledger -->
       <div id="fa-live-dash" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px">
-        <div style="text-align:center;padding:14px;background:var(--bg-secondary);border:1px solid rgba(59,130,246,.3);border-radius:10px"><div style="font-size:10px;color:var(--text-secondary)">TOTAL ASSETS (LEDGER)</div><div id="fa-total-assets" style="font-size:20px;font-weight:900;color:#3b82f6">$0.00</div></div>
-        <div style="text-align:center;padding:14px;background:var(--bg-secondary);border:1px solid rgba(59,130,246,.3);border-radius:10px"><div style="font-size:10px;color:var(--text-secondary)">TOTAL EXPENSES (LEDGER)</div><div id="fa-total-expenses" style="font-size:20px;font-weight:900;color:#ef4444">$0.00</div></div>
-        <div style="text-align:center;padding:14px;background:var(--bg-secondary);border:1px solid rgba(16,185,129,.3);border-radius:10px"><div style="font-size:10px;color:var(--text-secondary)">FINANCIAL ASSET POOL</div><div id="fa-pool" style="font-size:20px;font-weight:900;color:#10b981">$0.00</div></div>
-        <div style="text-align:center;padding:14px;background:var(--bg-secondary);border:1px solid rgba(245,158,11,.3);border-radius:10px"><div style="font-size:10px;color:var(--text-secondary)">TAX LIABILITY (31%)</div><div id="fa-tax-due" style="font-size:20px;font-weight:900;color:#f59e0b">$0.00</div></div>
-        <div style="text-align:center;padding:14px;background:var(--bg-secondary);border:2px solid rgba(16,185,129,.5);border-radius:10px"><div style="font-size:10px;color:var(--text-secondary)">OVERPAYMENT (REFUNDABLE)</div><div id="fa-overpay" style="font-size:20px;font-weight:900;color:#10b981">$0.00</div></div>
+        <div class="tmar-reveal" style="text-align:center;padding:14px;background:var(--bg-secondary);border:1px solid rgba(59,130,246,.3);border-radius:10px"><div style="font-size:10px;color:var(--text-secondary)">TOTAL ASSETS (LEDGER)</div><div id="fa-total-assets" style="font-size:20px;font-weight:900;color:#3b82f6">$0.00</div></div>
+        <div class="tmar-reveal" style="text-align:center;padding:14px;background:var(--bg-secondary);border:1px solid rgba(59,130,246,.3);border-radius:10px"><div style="font-size:10px;color:var(--text-secondary)">TOTAL EXPENSES (LEDGER)</div><div id="fa-total-expenses" style="font-size:20px;font-weight:900;color:#ef4444">$0.00</div></div>
+        <div class="tmar-reveal" style="text-align:center;padding:14px;background:var(--bg-secondary);border:1px solid rgba(16,185,129,.3);border-radius:10px"><div style="font-size:10px;color:var(--text-secondary)">FINANCIAL ASSET POOL</div><div id="fa-pool" style="font-size:20px;font-weight:900;color:#10b981">$0.00</div></div>
+        <div class="tmar-reveal" style="text-align:center;padding:14px;background:var(--bg-secondary);border:1px solid rgba(245,158,11,.3);border-radius:10px"><div style="font-size:10px;color:var(--text-secondary)">TAX LIABILITY (31%)</div><div id="fa-tax-due" style="font-size:20px;font-weight:900;color:#f59e0b">$0.00</div></div>
+        <div class="tmar-reveal" style="text-align:center;padding:14px;background:var(--bg-secondary);border:2px solid rgba(16,185,129,.5);border-radius:10px"><div style="font-size:10px;color:var(--text-secondary)">OVERPAYMENT (REFUNDABLE)</div><div id="fa-overpay" style="font-size:20px;font-weight:900;color:#10b981">$0.00</div></div>
       </div>
 
       <!-- Panel container -->
@@ -9568,9 +9587,11 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
 
         <!-- ARBITRATION PANEL -->
         <div id="fap-arbitration" class="fap" style="display:none">
-          <div style="background:var(--bg-secondary);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:18px;margin-bottom:16px">
-            <div style="font-size:15px;font-weight:800;color:#3b82f6;margin-bottom:12px">THE ARBITRATION AWARD AS FINANCIAL ASSET AND CASH EQUIVALENT</div>
-            <div style="font-size:12px;color:var(--text-secondary);line-height:1.8">A final arbitration award, once issued and no longer subject to modification or vacatur under the Federal Arbitration Act (43 Stat. 883 §§9-12), establishes a legally enforceable obligation for payment that constitutes property in the hands of the creditor. Awards issued under valid, written arbitration agreements are governed by the FAA Sections 1-2. The parties contractually agreed that arbitration outcomes would be final and binding. No motions to vacate, modify, or correct were filed within the statutory 90-day period (FAA §§10-12). More than 300 days elapsed, making the awards final, binding, and uncontested by law.
+          <div class="tmar-accordion">
+            <div class="tmar-accordion-header" onclick="toggleAccordion(this)">THE ARBITRATION AWARD AS FINANCIAL ASSET AND CASH EQUIVALENT</div>
+            <div class="tmar-accordion-content open" style="max-height:2000px">
+              <div style="background:var(--bg-secondary);border:1px solid rgba(59,130,246,.2);border-radius:0 0 10px 10px;padding:18px;margin-bottom:16px">
+                <div style="font-size:12px;color:var(--text-secondary);line-height:1.8">A final arbitration award, once issued and no longer subject to modification or vacatur under the Federal Arbitration Act (43 Stat. 883 §§9-12), establishes a legally enforceable obligation for payment that constitutes property in the hands of the creditor. Awards issued under valid, written arbitration agreements are governed by the FAA Sections 1-2. The parties contractually agreed that arbitration outcomes would be final and binding. No motions to vacate, modify, or correct were filed within the statutory 90-day period (FAA §§10-12). More than 300 days elapsed, making the awards final, binding, and uncontested by law.
 
 <br><br>The awards represent permanent, enforceable judgments between the parties without the need for judicial confirmation under §9, because no party sought such confirmation within the statutory one-year window. Judicial confirmation is NOT mandatory — it is a separate, optional enforcement mechanism. The award IS the judgment between the parties by contractual agreement and operation of law.
 
@@ -9581,14 +9602,18 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
 <br><br>Under GAAP (ASC 305-10-20), an asset qualifies as a cash equivalent when its value is readily determinable and it is readily convertible to known amounts of cash without significant risk of change in value. After the statutory contest period has expired (90 days per 43 Stat. 885 §12), the award becomes final and non-appealable, fixes a definite monetary amount, bears no further contingencies, and is immediately collectible.
 
 <br><br>Spring City Foundry Co. v. Commissioner, 292 U.S. 182 (1934): When the right to receive income becomes fixed, the income accrues, although not then actually received.</div>
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- SECURITIES PANEL -->
         <div id="fap-securities" class="fap" style="display:none">
-          <div style="background:var(--bg-secondary);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:18px;margin-bottom:16px">
-            <div style="font-size:15px;font-weight:800;color:#3b82f6;margin-bottom:12px">PRIVATE SECURITIES, SECURITIZATION &amp; TOKENIZATION</div>
-            <div style="font-size:12px;color:var(--text-secondary);line-height:1.8">A private company was formed to hold, manage, and leverage the arbitration-award assets. Primary business purpose: document preparation, registration, and issuance of private securities between private parties. The company facilitates credit creation and structured collateralization using internal asset value.
+          <div class="tmar-accordion">
+            <div class="tmar-accordion-header" onclick="toggleAccordion(this)">PRIVATE SECURITIES, SECURITIZATION &amp; TOKENIZATION</div>
+            <div class="tmar-accordion-content open" style="max-height:2000px">
+              <div style="background:var(--bg-secondary);border:1px solid rgba(59,130,246,.2);border-radius:0 0 10px 10px;padding:18px;margin-bottom:16px">
+                <div style="font-size:12px;color:var(--text-secondary);line-height:1.8">A private company was formed to hold, manage, and leverage the arbitration-award assets. Primary business purpose: document preparation, registration, and issuance of private securities between private parties. The company facilitates credit creation and structured collateralization using internal asset value.
 
 <br><br>A portfolio of 17+ verified arbitration awards was assembled, each containing the arbitration clause, proof of notice, final judgment, and certification of validity. Each client contract package is prepared and registered with the County Recorder's Office — three copies produced, two certified copies delivered to the client, one retained in archives.
 
@@ -9597,14 +9622,18 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
 <br><br>The company aggregated multiple award credits into an asset pool. Used this pool to collateralize newly created private securities for clients. Plan to tokenize the aggregated award-based assets for internal liquidity and capital mobilization: create digital tokens representing fractional value of the awards, donate 41% of total value through the U.S. Treasury Gifting Program.
 
 <br><br>All transactions are conducted between private individuals or entities with pre-existing relationships — no public solicitation. The structure relies on the private-contract principle under common law and Section 4(a)(2) of the Securities Act for non-public offerings.</div>
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- TAX PAYMENT PANEL -->
         <div id="fap-taxpay" class="fap" style="display:none">
-          <div style="background:var(--bg-secondary);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:18px">
-            <div style="font-size:15px;font-weight:800;color:#3b82f6;margin-bottom:12px">PROPERTY-BASED TAX PAYMENT AUTHORITY</div>
-            <div style="font-size:12px;color:var(--text-secondary);line-height:1.8">Revenue Act of 1918, §1307, 40 Stat. 1143: "Taxes shall be paid in money, or in obligations having a fair market value equivalent thereto."
+          <div class="tmar-accordion">
+            <div class="tmar-accordion-header" onclick="toggleAccordion(this)">PROPERTY-BASED TAX PAYMENT AUTHORITY</div>
+            <div class="tmar-accordion-content open" style="max-height:2000px">
+              <div style="background:var(--bg-secondary);border:1px solid rgba(59,130,246,.2);border-radius:0 0 10px 10px;padding:18px">
+                <div style="font-size:12px;color:var(--text-secondary);line-height:1.8">Revenue Act of 1918, §1307, 40 Stat. 1143: "Taxes shall be paid in money, or in obligations having a fair market value equivalent thereto."
 
 <br><br>The word "shall" is mandatory language — Runkle v. United States, 122 U.S. 543 (1887). The word "or" creates alternatives of equal validity. Property payment is not subordinate to cash payment — both are authorized methods.
 
@@ -9615,14 +9644,18 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
 <br><br>United States v. Kirby Lumber Co., 284 U.S. 1 (1931): Satisfaction of an obligation by property of equivalent value is treated the same as payment in cash.
 
 <br><br>Under §§202(b)-(c) of the Revenue Acts of 1918 and 1921, §1307 of the Revenue Act of 1918, and the Supreme Court authorities cited above, property having an ascertainable market value may lawfully be used to discharge a tax debt. The IRS lacks authority to refuse statutory payment methods. Chrysler Corp. v. Brown, 441 U.S. 281 (1979): An agency literally has no power to act unless and until Congress confers power upon it.</div>
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- NOL PANEL -->
         <div id="fap-nol" class="fap" style="display:none">
-          <div style="background:var(--bg-secondary);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:18px;margin-bottom:16px">
-            <div style="font-size:15px;font-weight:800;color:#3b82f6;margin-bottom:12px">NET OPERATING LOSSES AS FINANCIAL ASSETS</div>
-            <div style="font-size:12px;color:var(--text-secondary);line-height:1.8">Revenue Act of 1918, §204(b), 40 Stat. 1060: "The term 'net operating loss' means the excess of the deductions allowed over the gross income." Congress defined losses in exact dollar amounts.
+          <div class="tmar-accordion">
+            <div class="tmar-accordion-header" onclick="toggleAccordion(this)">NET OPERATING LOSSES AS FINANCIAL ASSETS</div>
+            <div class="tmar-accordion-content open" style="max-height:2000px">
+              <div style="background:var(--bg-secondary);border:1px solid rgba(59,130,246,.2);border-radius:0 0 10px 10px;padding:18px;margin-bottom:16px">
+                <div style="font-size:12px;color:var(--text-secondary);line-height:1.8">Revenue Act of 1918, §204(b), 40 Stat. 1060: "The term 'net operating loss' means the excess of the deductions allowed over the gross income." Congress defined losses in exact dollar amounts.
 
 <br><br>Revenue Act of 1939, §122, 53 Stat. 862: "There SHALL be allowed as a deduction the amount of the net operating loss carry-over." The phrase "shall be allowed" is mandatory, not permissive.
 
@@ -9631,14 +9664,20 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
 <br><br>Libson Shops, Inc. v. Koehler, 353 U.S. 382 (1957): Congress intended "the actual dollar amount of the loss sustained" to offset future profits.
 
 <br><br>By statutory language and Supreme Court construction, a net operating loss is a dollar-for-dollar financial asset. Every dollar of documented loss equals one dollar of recognized property value. There is no discount, no present-value calculation, and no reduction factor applied by law.</div>
+              </div>
+            </div>
           </div>
-          <div style="background:var(--bg-secondary);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:18px">
-            <div style="font-size:15px;font-weight:800;color:#3b82f6;margin-bottom:12px">ACCUMULATED EXPENSE ASSETS</div>
-            <div style="font-size:12px;color:var(--text-secondary);line-height:1.8">Each documented business expense possessing cash-equivalent character is a financial asset, NOT a deferred tax asset. The accumulated expense asset represents actual documented business expenses that have been incurred and paid, creating a property right with present economic value.
+          <div class="tmar-accordion">
+            <div class="tmar-accordion-header" onclick="toggleAccordion(this)">ACCUMULATED EXPENSE ASSETS</div>
+            <div class="tmar-accordion-content open" style="max-height:2000px">
+              <div style="background:var(--bg-secondary);border:1px solid rgba(59,130,246,.2);border-radius:0 0 10px 10px;padding:18px">
+                <div style="font-size:12px;color:var(--text-secondary);line-height:1.8">Each documented business expense possessing cash-equivalent character is a financial asset, NOT a deferred tax asset. The accumulated expense asset represents actual documented business expenses that have been incurred and paid, creating a property right with present economic value.
 
 <br><br>Eisner v. Macomber, 252 U.S. 189 (1920): Income means gain derived from capital, from labor, or from both combined.
 
 <br><br>Helvering v. Horst, 311 U.S. 112 (1940): The power to dispose of or apply an economic gain is itself realization of income.</div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -9669,14 +9708,18 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
 
         <!-- REBUTTALS PANEL -->
         <div id="fap-rebuttals" class="fap" style="display:none">
-          <div style="background:var(--bg-secondary);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:18px">
-            <div style="font-size:15px;font-weight:800;color:#3b82f6;margin-bottom:14px">IRREFUTABLE REBUTTALS TO CONTRARY PRESUMPTIONS</div>
+          <div class="tmar-accordion">
+            <div class="tmar-accordion-header" onclick="toggleAccordion(this)">IRREFUTABLE REBUTTALS TO CONTRARY PRESUMPTIONS</div>
+            <div class="tmar-accordion-content open" style="max-height:4000px">
+          <div style="background:var(--bg-secondary);border:1px solid rgba(59,130,246,.2);border-radius:0 0 10px 10px;padding:18px">
             <div style="background:rgba(239,68,68,.04);border-left:4px solid #ef4444;padding:12px 14px;margin-bottom:14px;border-radius:0 8px 8px 0"><div style="font-weight:800;color:#ef4444;margin-bottom:4px;font-size:12px">PRESUMPTION: Awards Must Be Monetized Before Payment</div><div style="font-size:11px;color:var(--text-secondary);line-height:1.7">Revenue Act of 1918, §202(b)-(c) and §1307 explicitly authorize satisfaction of obligations "with property" at fair market value. The statutes do not require conversion to currency as a precondition. Bowers v. Kerbaugh-Empire Co., 271 U.S. 170 (1926) and Old Colony Trust Co. v. Commissioner, 279 U.S. 716 (1929) both hold that property having ascertainable value may be transferred in satisfaction of a debt without first converting it to money.</div></div>
             <div style="background:rgba(239,68,68,.04);border-left:4px solid #ef4444;padding:12px 14px;margin-bottom:14px;border-radius:0 8px 8px 0"><div style="font-weight:800;color:#ef4444;margin-bottom:4px;font-size:12px">PRESUMPTION: NOLs Are Not Contractual Rights</div><div style="font-size:11px;color:var(--text-secondary);line-height:1.7">Perry v. United States, 294 U.S. 330 (1935): "The United States are as much bound by their contracts as are individuals." When Congress enacts a mandatory deduction using "shall be allowed," it creates an enforceable obligation backed by the sovereign credit. Lynch v. United States, 292 U.S. 571 (1934): "Rights against the United States arising out of its contracts are protected by the Constitution."</div></div>
             <div style="background:rgba(239,68,68,.04);border-left:4px solid #ef4444;padding:12px 14px;margin-bottom:14px;border-radius:0 8px 8px 0"><div style="font-weight:800;color:#ef4444;margin-bottom:4px;font-size:12px">PRESUMPTION: Only Cash Can Pay Taxes</div><div style="font-size:11px;color:var(--text-secondary);line-height:1.7">Revenue Act of 1918, §1307 expressly states: "Taxes shall be paid in money, or in obligations having a fair market value equivalent thereto." The statute explicitly permits non-cash payment. Helvering v. Bruun, 309 U.S. 461 (1940) held that transfer of property in satisfaction of a tax constitutes payment at fair market value.</div></div>
             <div style="background:rgba(239,68,68,.04);border-left:4px solid #ef4444;padding:12px 14px;margin-bottom:14px;border-radius:0 8px 8px 0"><div style="font-weight:800;color:#ef4444;margin-bottom:4px;font-size:12px">PRESUMPTION: Property Payment Requires IRS Pre-Approval</div><div style="font-size:11px;color:var(--text-secondary);line-height:1.7">Revenue Act of 1918, §1307 contains no pre-approval requirement. The statute is self-executing. United States v. Shreveport Grain &amp; Elevator Co., 287 U.S. 77 (1932): "Where statutory language is clear and unambiguous, courts must give effect to the plain meaning." Chevron U.S.A. Inc. v. NRDC, 467 U.S. 837 (1984): Administrative agencies may only fill gaps in ambiguous statutes.</div></div>
             <div style="background:rgba(239,68,68,.04);border-left:4px solid #ef4444;padding:12px 14px;margin-bottom:14px;border-radius:0 8px 8px 0"><div style="font-weight:800;color:#ef4444;margin-bottom:4px;font-size:12px">PRESUMPTION: Expenses Cannot Become Financial Assets</div><div style="font-size:11px;color:var(--text-secondary);line-height:1.7">Under accrual accounting as authorized by Revenue Act of 1918, §212(b), expenses create deductible items. United States v. Kirby Lumber Co., 284 U.S. 1 (1931) and Commissioner v. Tufts, 461 U.S. 300 (1983) both hold that when a liability is discharged, the monetary value constitutes income or realized gain. If discharge creates taxable income for the debtor, then the creditor's documented loss creates a monetary asset with equivalent value.</div></div>
             <div style="background:rgba(239,68,68,.04);border-left:4px solid #ef4444;padding:12px 14px;border-radius:0 8px 8px 0"><div style="font-weight:800;color:#ef4444;margin-bottom:4px;font-size:12px">PRESUMPTION: Statutory Benefits Are Mere Gratuities</div><div style="font-size:11px;color:var(--text-secondary);line-height:1.7">Lynch v. United States expressly rejected the gratuity theory: "Valid contracts are property, whether the obligor be a private individual, a municipality, a State, or the United States." Revenue Act language is mandatory: "shall be allowed." When Congress uses imperative language and conditions are met, rights vest. Runkle v. United States, 122 U.S. 543 (1887) establishes that "shall" creates obligation, not discretion.</div></div>
+          </div>
+            </div>
           </div>
         </div>
 
@@ -10727,6 +10770,145 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
   }
   // Init source folders display
   setTimeout(function(){renderSourceFolders();var p=localStorage.getItem('acctLibPath');if(p){var el=document.getElementById('sf-acct-path');if(el)el.value=p;}},500);
+
+  // ═══════════════════════════════════════════════════════════
+  // Task 3.4 — Accordion Toggle
+  // ═══════════════════════════════════════════════════════════
+  function toggleAccordion(header) {
+    header.classList.toggle('collapsed');
+    var content = header.nextElementSibling;
+    if (content) {
+      if (content.classList.contains('collapsed')) {
+        content.classList.remove('collapsed');
+        content.style.maxHeight = content.scrollHeight + 'px';
+      } else {
+        content.style.maxHeight = content.scrollHeight + 'px';
+        // Force reflow then collapse
+        content.offsetHeight;
+        content.classList.add('collapsed');
+      }
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // Task 3.3 — Scroll-Reveal Observer
+  // ═══════════════════════════════════════════════════════════
+  function initScrollReveal() {
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.tmar-reveal').forEach(function(el) {
+      observer.observe(el);
+    });
+  }
+  document.addEventListener('DOMContentLoaded', initScrollReveal);
+
+  // ═══════════════════════════════════════════════════════════
+  // Task 3.2 — Particle Canvas Animation
+  // ═══════════════════════════════════════════════════════════
+  var _particleCanvas = null;
+  var _particleCtx = null;
+  var _particles = [];
+  var _particleAnimId = null;
+  var _particlesActive = false;
+
+  function initParticles() {
+    _particleCanvas = document.getElementById('tmar-particles');
+    if (!_particleCanvas) return;
+    _particleCtx = _particleCanvas.getContext('2d');
+
+    // Size canvas to match section width
+    var section = document.getElementById('trustDashboardSection');
+    _particleCanvas.width = section ? section.offsetWidth : 1200;
+    _particleCanvas.height = 300;
+
+    // Generate 50 particles
+    _particles = [];
+    for (var i = 0; i < 50; i++) {
+      _particles.push({
+        x: Math.random() * _particleCanvas.width,
+        y: Math.random() * _particleCanvas.height,
+        vx: (Math.random() - 0.5) * 0.8,
+        vy: (Math.random() - 0.5) * 0.8,
+        size: 1 + Math.random() * 2,
+        opacity: 0.2 + Math.random() * 0.5
+      });
+    }
+
+    _particlesActive = true;
+    animateParticles();
+  }
+
+  function animateParticles() {
+    if (!_particlesActive || !_particleCtx) return;
+
+    _particleCtx.clearRect(0, 0, _particleCanvas.width, _particleCanvas.height);
+
+    for (var i = 0; i < _particles.length; i++) {
+      var p = _particles[i];
+
+      // Update position
+      p.x += p.vx;
+      p.y += p.vy;
+
+      // Bounce off edges
+      if (p.x < 0 || p.x > _particleCanvas.width) p.vx *= -1;
+      if (p.y < 0 || p.y > _particleCanvas.height) p.vy *= -1;
+
+      // Clamp to bounds
+      p.x = Math.max(0, Math.min(p.x, _particleCanvas.width));
+      p.y = Math.max(0, Math.min(p.y, _particleCanvas.height));
+
+      // Draw particle
+      _particleCtx.beginPath();
+      _particleCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      _particleCtx.fillStyle = 'rgba(74, 127, 191, ' + p.opacity + ')';
+      _particleCtx.fill();
+    }
+
+    // Draw faint connecting lines between nearby particles
+    for (var i = 0; i < _particles.length; i++) {
+      for (var j = i + 1; j < _particles.length; j++) {
+        var dx = _particles[i].x - _particles[j].x;
+        var dy = _particles[i].y - _particles[j].y;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 120) {
+          _particleCtx.beginPath();
+          _particleCtx.moveTo(_particles[i].x, _particles[i].y);
+          _particleCtx.lineTo(_particles[j].x, _particles[j].y);
+          _particleCtx.strokeStyle = 'rgba(74, 127, 191, ' + (0.08 * (1 - dist / 120)) + ')';
+          _particleCtx.lineWidth = 0.5;
+          _particleCtx.stroke();
+        }
+      }
+    }
+
+    _particleAnimId = requestAnimationFrame(animateParticles);
+  }
+
+  function stopParticles() {
+    _particlesActive = false;
+    if (_particleAnimId) {
+      cancelAnimationFrame(_particleAnimId);
+      _particleAnimId = null;
+    }
+  }
+
+  function resizeParticlesCanvas() {
+    if (!_particleCanvas) return;
+    var section = document.getElementById('trustDashboardSection');
+    if (section && !section.classList.contains('hidden')) {
+      _particleCanvas.width = section.offsetWidth;
+      _particleCanvas.height = 300;
+    }
+  }
+  window.addEventListener('resize', resizeParticlesCanvas);
   </script>
 
   <script src="shared-toolbar.js"></script>
