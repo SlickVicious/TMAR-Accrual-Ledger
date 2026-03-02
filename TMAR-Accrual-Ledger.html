@@ -557,6 +557,95 @@
               <span class="status-badge bg-orange-500/20 text-orange-400">Sole Prop</span>
             </div>
           </div>
+
+          <!-- 1099 Series Divider -->
+          <div class="col-span-full mt-4 mb-2">
+            <div class="flex items-center gap-3">
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-gray-600 to-transparent"></div>
+              <span class="text-sm font-bold text-gray-400 uppercase tracking-wider">📑 1099 Information Returns</span>
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-gray-600 to-transparent"></div>
+            </div>
+          </div>
+
+          <!-- Form 1099-A - Acquisition/Abandonment -->
+          <div onclick="selectFilingType('1099-A')" class="filing-card glass-card p-6 rounded-xl border-2 border-transparent" data-filing="1099-A">
+            <div class="text-4xl mb-3">🏠</div>
+            <h3 class="text-lg font-bold text-rose-400">Form 1099-A</h3>
+            <p class="text-sm text-gray-400 mt-2">Acquisition or Abandonment of Secured Property</p>
+            <div class="mt-3">
+              <span class="status-badge bg-rose-500/20 text-rose-400">Property</span>
+            </div>
+          </div>
+
+          <!-- Form 1099-B - Broker/Barter -->
+          <div onclick="selectFilingType('1099-B')" class="filing-card glass-card p-6 rounded-xl border-2 border-transparent" data-filing="1099-B">
+            <div class="text-4xl mb-3">📈</div>
+            <h3 class="text-lg font-bold text-pink-400">Form 1099-B</h3>
+            <p class="text-sm text-gray-400 mt-2">Proceeds from Broker & Barter Exchange</p>
+            <div class="mt-3">
+              <span class="status-badge bg-pink-500/20 text-pink-400">Securities</span>
+            </div>
+          </div>
+
+          <!-- Form 1099-C - Cancellation of Debt -->
+          <div onclick="selectFilingType('1099-C')" class="filing-card glass-card p-6 rounded-xl border-2 border-transparent" data-filing="1099-C">
+            <div class="text-4xl mb-3">💳</div>
+            <h3 class="text-lg font-bold text-red-400">Form 1099-C</h3>
+            <p class="text-sm text-gray-400 mt-2">Cancellation of Debt</p>
+            <div class="mt-3">
+              <span class="status-badge bg-red-500/20 text-red-400">Debt</span>
+            </div>
+          </div>
+
+          <!-- Form 1099-INT - Interest Income -->
+          <div onclick="selectFilingType('1099-INT')" class="filing-card glass-card p-6 rounded-xl border-2 border-transparent" data-filing="1099-INT">
+            <div class="text-4xl mb-3">🏦</div>
+            <h3 class="text-lg font-bold text-indigo-400">Form 1099-INT</h3>
+            <p class="text-sm text-gray-400 mt-2">Interest Income</p>
+            <div class="mt-3">
+              <span class="status-badge bg-indigo-500/20 text-indigo-400">Interest</span>
+            </div>
+          </div>
+
+          <!-- Form 1099-DIV - Dividends -->
+          <div onclick="selectFilingType('1099-DIV')" class="filing-card glass-card p-6 rounded-xl border-2 border-transparent" data-filing="1099-DIV">
+            <div class="text-4xl mb-3">💹</div>
+            <h3 class="text-lg font-bold text-violet-400">Form 1099-DIV</h3>
+            <p class="text-sm text-gray-400 mt-2">Dividends and Distributions</p>
+            <div class="mt-3">
+              <span class="status-badge bg-violet-500/20 text-violet-400">Dividends</span>
+            </div>
+          </div>
+
+          <!-- Form 1099-R - Retirement Distributions -->
+          <div onclick="selectFilingType('1099-R')" class="filing-card glass-card p-6 rounded-xl border-2 border-transparent" data-filing="1099-R">
+            <div class="text-4xl mb-3">🎯</div>
+            <h3 class="text-lg font-bold text-fuchsia-400">Form 1099-R</h3>
+            <p class="text-sm text-gray-400 mt-2">Distributions from Pensions/Annuities/IRAs</p>
+            <div class="mt-3">
+              <span class="status-badge bg-fuchsia-500/20 text-fuchsia-400">Retirement</span>
+            </div>
+          </div>
+
+          <!-- Form 1099-NEC - Nonemployee Compensation -->
+          <div onclick="selectFilingType('1099-NEC')" class="filing-card glass-card p-6 rounded-xl border-2 border-transparent" data-filing="1099-NEC">
+            <div class="text-4xl mb-3">📋</div>
+            <h3 class="text-lg font-bold text-lime-400">Form 1099-NEC</h3>
+            <p class="text-sm text-gray-400 mt-2">Nonemployee Compensation</p>
+            <div class="mt-3">
+              <span class="status-badge bg-lime-500/20 text-lime-400">Contractor</span>
+            </div>
+          </div>
+
+          <!-- Form 1099-MISC - Miscellaneous -->
+          <div onclick="selectFilingType('1099-MISC')" class="filing-card glass-card p-6 rounded-xl border-2 border-transparent" data-filing="1099-MISC">
+            <div class="text-4xl mb-3">📎</div>
+            <h3 class="text-lg font-bold text-sky-400">Form 1099-MISC</h3>
+            <p class="text-sm text-gray-400 mt-2">Miscellaneous Information</p>
+            <div class="mt-3">
+              <span class="status-badge bg-sky-500/20 text-sky-400">Misc Income</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1966,6 +2055,863 @@
         </form>
       </div>
 
+      <!-- Form 1099-A - Acquisition/Abandonment -->
+      <div id="form1099A" class="filing-form glass-card p-6 rounded-xl hidden">
+        <div class="filing-header rounded-t-xl p-4 -m-6 mb-6">
+          <h2 class="text-2xl font-bold flex items-center gap-3">
+            <span class="text-4xl">🏠</span>
+            Form 1099-A — Acquisition or Abandonment of Secured Property
+          </h2>
+          <p class="text-sm text-gray-400 mt-2">Report acquisition or abandonment of property securing a debt</p>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(16,185,129,.12),rgba(59,130,246,.08));border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:.8rem;color:#94a3b8;line-height:1.5;">
+          <span style="color:#10b981;font-weight:700;">📋 IRS FORM REFERENCE:</span> File by Feb 15 following calendar year. Reports acquisition or abandonment of property that secures a debt. Lender must file if they know or have reason to know the property has been abandoned.
+        </div>
+        <form id="form1099AForm" class="space-y-6">
+          <!-- Lender Information -->
+          <div class="border border-gray-600 rounded-lg p-4">
+            <h3 class="text-lg font-semibold text-rose-400 mb-4">🏦 Lender Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Lender Name</label>
+                <input type="text" name="lenderName1099A" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="Lender/creditor name">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Lender EIN</label>
+                <input type="text" name="lenderEIN1099A" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="XX-XXXXXXX">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Lender Address</label>
+                <input type="text" name="lenderAddress1099A" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="Street, City, State, ZIP">
+              </div>
+            </div>
+          </div>
+          <!-- Borrower Information -->
+          <div class="border border-gray-600 rounded-lg p-4">
+            <h3 class="text-lg font-semibold text-rose-400 mb-4">👤 Borrower Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Borrower Name</label>
+                <input type="text" name="borrowerName1099A" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="Borrower full name">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Borrower TIN</label>
+                <input type="text" name="borrowerTIN1099A" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="SSN or EIN">
+              </div>
+            </div>
+          </div>
+          <!-- Property & Financial Details -->
+          <div class="border border-gray-600 rounded-lg p-4">
+            <h3 class="text-lg font-semibold text-rose-400 mb-4">🏠 Property & Financial Details</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Date of Acquisition/Abandonment</label>
+                <input type="date" name="dateEvent1099A" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 2: Balance of Principal Outstanding ($)</label>
+                <input type="number" step="0.01" min="0" name="balancePrincipal1099A" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099A()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 4: FMV of Property ($)</label>
+                <input type="number" step="0.01" min="0" name="fmvProperty1099A" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099A()">
+              </div>
+              <div class="lg:col-span-2">
+                <label class="block text-sm text-gray-400 mb-1">Box 5: Description of Property</label>
+                <textarea name="propertyDesc1099A" rows="2" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="Describe the property..."></textarea>
+              </div>
+              <div class="flex flex-col gap-3">
+                <label class="flex items-center gap-2 text-sm text-gray-400">
+                  <input type="checkbox" name="personallyLiable1099A" class="rounded bg-gray-700 border-gray-600">
+                  Box 5: Borrower personally liable
+                </label>
+                <div>
+                  <label class="block text-sm text-gray-400 mb-1">Event Type</label>
+                  <div class="flex gap-4">
+                    <label class="flex items-center gap-2 text-sm text-gray-400">
+                      <input type="radio" name="eventType1099A" value="acquisition" class="bg-gray-700 border-gray-600"> Acquisition
+                    </label>
+                    <label class="flex items-center gap-2 text-sm text-gray-400">
+                      <input type="radio" name="eventType1099A" value="abandonment" class="bg-gray-700 border-gray-600"> Abandonment
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Results -->
+          <div class="mt-6 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+            <h4 class="text-lg font-bold mb-3 text-green-400">📊 Results</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Gain/Loss (FMV - Principal)</label>
+                <input type="text" id="resultGainLoss1099A" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white font-bold" readonly>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button type="button" onclick="calculate1099A()" class="bg-green-500 hover:bg-green-600 text-black px-6 py-3 rounded-lg font-bold">🧮 Calculate</button>
+            <button type="button" onclick="saveFiling('1099-A')" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-bold">💾 Save Filing</button>
+            <button type="button" onclick="exportFiling('1099-A')" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg font-bold">📄 Export Data</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Form 1099-B - Broker/Barter Exchange -->
+      <div id="form1099B" class="filing-form glass-card p-6 rounded-xl hidden">
+        <div class="filing-header rounded-t-xl p-4 -m-6 mb-6">
+          <h2 class="text-2xl font-bold flex items-center gap-3">
+            <span class="text-4xl">📈</span>
+            Form 1099-B — Proceeds from Broker & Barter Exchange
+          </h2>
+          <p class="text-sm text-gray-400 mt-2">Report sales or exchanges of securities and barter exchange transactions</p>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(16,185,129,.12),rgba(59,130,246,.08));border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:.8rem;color:#94a3b8;line-height:1.5;">
+          <span style="color:#10b981;font-weight:700;">📋 IRS FORM REFERENCE:</span> File by Feb 15 following calendar year. Reports proceeds from broker and barter exchange transactions including stocks, bonds, commodities, and regulated futures contracts.
+        </div>
+        <form id="form1099BForm" class="space-y-6">
+          <!-- Payer Information -->
+          <div class="border border-gray-600 rounded-lg p-4">
+            <h3 class="text-lg font-semibold text-pink-400 mb-4">🏦 Payer/Broker Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Payer/Broker Name</label>
+                <input type="text" name="payerName1099B" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="Broker or barter exchange name">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Payer EIN</label>
+                <input type="text" name="payerEIN1099B" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="XX-XXXXXXX">
+              </div>
+            </div>
+          </div>
+          <!-- Transaction Details -->
+          <div class="border border-gray-600 rounded-lg p-4">
+            <h3 class="text-lg font-semibold text-pink-400 mb-4">📊 Transaction Details</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 1a: Description of Property</label>
+                <input type="text" name="propertyDesc1099B" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="e.g., 100 sh XYZ Corp">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 1b: Date Acquired</label>
+                <input type="date" name="dateAcquired1099B" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 1c: Date Sold or Disposed</label>
+                <input type="date" name="dateSold1099B" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 1d: Proceeds ($)</label>
+                <input type="number" step="0.01" min="0" name="proceeds1099B" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099B()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 1e: Cost or Other Basis ($)</label>
+                <input type="number" step="0.01" min="0" name="costBasis1099B" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099B()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 1f: Accrued Market Discount ($)</label>
+                <input type="number" step="0.01" min="0" name="accruedDiscount1099B" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099B()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 1g: Wash Sale Loss Disallowed ($)</label>
+                <input type="number" step="0.01" min="0" name="washSaleLoss1099B" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099B()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Type of Gain/Loss</label>
+                <select name="gainType1099B" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white">
+                  <option value="">Select type...</option>
+                  <option value="short-term">Short-term</option>
+                  <option value="long-term">Long-term</option>
+                  <option value="short-term-noncovered">Short-term (Noncovered)</option>
+                  <option value="long-term-noncovered">Long-term (Noncovered)</option>
+                </select>
+              </div>
+              <div class="flex flex-col gap-2 justify-center">
+                <label class="flex items-center gap-2 text-sm text-gray-400">
+                  <input type="checkbox" name="reportedToIRS1099B" class="rounded bg-gray-700 border-gray-600">
+                  Reported to IRS
+                </label>
+                <label class="flex items-center gap-2 text-sm text-gray-400">
+                  <input type="checkbox" name="noncoveredSecurity1099B" class="rounded bg-gray-700 border-gray-600">
+                  Noncovered Security
+                </label>
+                <label class="flex items-center gap-2 text-sm text-gray-400">
+                  <input type="checkbox" name="basisReported1099B" class="rounded bg-gray-700 border-gray-600">
+                  Basis Reported to IRS
+                </label>
+              </div>
+            </div>
+          </div>
+          <!-- Results -->
+          <div class="mt-6 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+            <h4 class="text-lg font-bold mb-3 text-green-400">📊 Results</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Gain/Loss</label>
+                <input type="text" id="resultGainLoss1099B" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white font-bold" readonly>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button type="button" onclick="calculate1099B()" class="bg-green-500 hover:bg-green-600 text-black px-6 py-3 rounded-lg font-bold">🧮 Calculate</button>
+            <button type="button" onclick="saveFiling('1099-B')" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-bold">💾 Save Filing</button>
+            <button type="button" onclick="exportFiling('1099-B')" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg font-bold">📄 Export Data</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Form 1099-C - Cancellation of Debt -->
+      <div id="form1099C" class="filing-form glass-card p-6 rounded-xl hidden">
+        <div class="filing-header rounded-t-xl p-4 -m-6 mb-6">
+          <h2 class="text-2xl font-bold flex items-center gap-3">
+            <span class="text-4xl">💳</span>
+            Form 1099-C — Cancellation of Debt
+          </h2>
+          <p class="text-sm text-gray-400 mt-2">Report cancellation of debt of $600 or more</p>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(16,185,129,.12),rgba(59,130,246,.08));border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:.8rem;color:#94a3b8;line-height:1.5;">
+          <span style="color:#10b981;font-weight:700;">📋 IRS FORM REFERENCE:</span> File by Jan 31 following calendar year. Reports cancellation of debt of $600 or more. Canceled debt may be taxable income to the debtor unless an exclusion applies (insolvency, bankruptcy, etc.).
+        </div>
+        <form id="form1099CForm" class="space-y-6">
+          <!-- Creditor Information -->
+          <div class="border border-gray-600 rounded-lg p-4">
+            <h3 class="text-lg font-semibold text-red-400 mb-4">🏦 Creditor Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Creditor Name</label>
+                <input type="text" name="creditorName1099C" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="Creditor name">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Creditor EIN</label>
+                <input type="text" name="creditorEIN1099C" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="XX-XXXXXXX">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Creditor Address</label>
+                <input type="text" name="creditorAddress1099C" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="Street, City, State, ZIP">
+              </div>
+            </div>
+          </div>
+          <!-- Debtor Information -->
+          <div class="border border-gray-600 rounded-lg p-4">
+            <h3 class="text-lg font-semibold text-red-400 mb-4">👤 Debtor Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Debtor Name</label>
+                <input type="text" name="debtorName1099C" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="Debtor full name">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Debtor TIN</label>
+                <input type="text" name="debtorTIN1099C" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="SSN or EIN">
+              </div>
+            </div>
+          </div>
+          <!-- Debt Details -->
+          <div class="border border-gray-600 rounded-lg p-4">
+            <h3 class="text-lg font-semibold text-red-400 mb-4">💳 Debt Details</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 1: Date of Identifiable Event</label>
+                <input type="date" name="dateEvent1099C" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 2: Amount of Debt Discharged ($)</label>
+                <input type="number" step="0.01" min="0" name="debtDischarged1099C" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099C()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 3: Interest Included in Box 2 ($)</label>
+                <input type="number" step="0.01" min="0" name="interestIncluded1099C" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099C()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 4: Debt Description</label>
+                <input type="text" name="debtDescription1099C" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="e.g., Credit card, Mortgage">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 7: FMV of Property ($)</label>
+                <input type="number" step="0.01" min="0" name="fmvProperty1099C" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099C()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 6: Identifiable Event Code</label>
+                <select name="eventCode1099C" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white">
+                  <option value="">Select code...</option>
+                  <option value="A">A - Bankruptcy</option>
+                  <option value="B">B - Expiration of statute</option>
+                  <option value="C">C - Agreed upon cancellation</option>
+                  <option value="D">D - Foreclosure</option>
+                  <option value="E">E - Debt relief</option>
+                  <option value="F">F - By agreement</option>
+                  <option value="G">G - Decision/policy</option>
+                  <option value="H">H - Other</option>
+                </select>
+              </div>
+              <div class="flex items-center">
+                <label class="flex items-center gap-2 text-sm text-gray-400">
+                  <input type="checkbox" name="debtorLiable1099C" class="rounded bg-gray-700 border-gray-600">
+                  Box 5: Debtor personally liable
+                </label>
+              </div>
+            </div>
+          </div>
+          <!-- Results -->
+          <div class="mt-6 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+            <h4 class="text-lg font-bold mb-3 text-green-400">📊 Results</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Net Discharge Amount</label>
+                <input type="text" id="resultNetDischarge1099C" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white font-bold" readonly>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button type="button" onclick="calculate1099C()" class="bg-green-500 hover:bg-green-600 text-black px-6 py-3 rounded-lg font-bold">🧮 Calculate</button>
+            <button type="button" onclick="saveFiling('1099-C')" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-bold">💾 Save Filing</button>
+            <button type="button" onclick="exportFiling('1099-C')" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg font-bold">📄 Export Data</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Form 1099-INT - Interest Income -->
+      <div id="form1099INT" class="filing-form glass-card p-6 rounded-xl hidden">
+        <div class="filing-header rounded-t-xl p-4 -m-6 mb-6">
+          <h2 class="text-2xl font-bold flex items-center gap-3">
+            <span class="text-4xl">🏦</span>
+            Form 1099-INT — Interest Income
+          </h2>
+          <p class="text-sm text-gray-400 mt-2">Report interest income of $10 or more</p>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(16,185,129,.12),rgba(59,130,246,.08));border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:.8rem;color:#94a3b8;line-height:1.5;">
+          <span style="color:#10b981;font-weight:700;">📋 IRS FORM REFERENCE:</span> File by Jan 31 following calendar year. Reports interest income paid by banks, savings institutions, and other payers. Box 1 is taxable interest; Box 8 is tax-exempt interest.
+        </div>
+        <form id="form1099INTForm" class="space-y-6">
+          <!-- Payer Information -->
+          <div class="border border-gray-600 rounded-lg p-4">
+            <h3 class="text-lg font-semibold text-indigo-400 mb-4">🏦 Payer Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Payer Name</label>
+                <input type="text" name="payerName1099INT" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="Bank or institution name">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Payer EIN</label>
+                <input type="text" name="payerEIN1099INT" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="XX-XXXXXXX">
+              </div>
+            </div>
+          </div>
+          <!-- Interest Details -->
+          <div class="border border-gray-600 rounded-lg p-4">
+            <h3 class="text-lg font-semibold text-indigo-400 mb-4">💰 Interest Income Details</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 1: Interest Income ($)</label>
+                <input type="number" step="0.01" min="0" name="interestIncome1099INT" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099INT()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 2: Early Withdrawal Penalty ($)</label>
+                <input type="number" step="0.01" min="0" name="earlyPenalty1099INT" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099INT()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 3: Interest on US Savings Bonds ($)</label>
+                <input type="number" step="0.01" min="0" name="savingsBondInt1099INT" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099INT()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 4: Federal Tax Withheld ($)</label>
+                <input type="number" step="0.01" min="0" name="fedWithheld1099INT" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099INT()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 5: Investment Expenses ($)</label>
+                <input type="number" step="0.01" min="0" name="investmentExp1099INT" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099INT()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 6: Foreign Tax Paid ($)</label>
+                <input type="number" step="0.01" min="0" name="foreignTaxPaid1099INT" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099INT()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 7: Foreign Country</label>
+                <input type="text" name="foreignCountry1099INT" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="Country name">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 8: Tax-Exempt Interest ($)</label>
+                <input type="number" step="0.01" min="0" name="taxExemptInt1099INT" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 9: Specified Private Activity Bond Interest ($)</label>
+                <input type="number" step="0.01" min="0" name="privActivityBond1099INT" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 10: Market Discount ($)</label>
+                <input type="number" step="0.01" min="0" name="marketDiscount1099INT" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099INT()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 11: Bond Premium ($)</label>
+                <input type="number" step="0.01" min="0" name="bondPremium1099INT" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 12: Bond Premium on Treasury ($)</label>
+                <input type="number" step="0.01" min="0" name="bondPremTreasury1099INT" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 13: Tax-Exempt Bond CUSIP</label>
+                <input type="text" name="bondCUSIP1099INT" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="CUSIP number">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 15: State</label>
+                <input type="text" name="state1099INT" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="State abbreviation">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 16: State ID</label>
+                <input type="text" name="stateId1099INT" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="State payer ID">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 17: State Tax Withheld ($)</label>
+                <input type="number" step="0.01" min="0" name="stateTaxWithheld1099INT" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00">
+              </div>
+            </div>
+          </div>
+          <!-- Results -->
+          <div class="mt-6 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+            <h4 class="text-lg font-bold mb-3 text-green-400">📊 Results</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Total Taxable Interest</label>
+                <input type="text" id="resultTotalTaxable1099INT" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white font-bold" readonly>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button type="button" onclick="calculate1099INT()" class="bg-green-500 hover:bg-green-600 text-black px-6 py-3 rounded-lg font-bold">🧮 Calculate</button>
+            <button type="button" onclick="saveFiling('1099-INT')" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-bold">💾 Save Filing</button>
+            <button type="button" onclick="exportFiling('1099-INT')" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg font-bold">📄 Export Data</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Form 1099-DIV - Dividends -->
+      <div id="form1099DIV" class="filing-form glass-card p-6 rounded-xl hidden">
+        <div class="filing-header rounded-t-xl p-4 -m-6 mb-6">
+          <h2 class="text-2xl font-bold flex items-center gap-3">
+            <span class="text-4xl">💹</span>
+            Form 1099-DIV — Dividends and Distributions
+          </h2>
+          <p class="text-sm text-gray-400 mt-2">Report dividends and distributions of $10 or more</p>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(16,185,129,.12),rgba(59,130,246,.08));border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:.8rem;color:#94a3b8;line-height:1.5;">
+          <span style="color:#10b981;font-weight:700;">📋 IRS FORM REFERENCE:</span> File by Jan 31 following calendar year. Reports dividends and other distributions paid on stock and mutual fund shares. Qualified dividends receive preferential tax rates.
+        </div>
+        <form id="form1099DIVForm" class="space-y-6">
+          <!-- Payer Information -->
+          <div class="border border-gray-600 rounded-lg p-4">
+            <h3 class="text-lg font-semibold text-violet-400 mb-4">🏦 Payer Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Payer Name</label>
+                <input type="text" name="payerName1099DIV" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="Corporation or fund name">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Payer EIN</label>
+                <input type="text" name="payerEIN1099DIV" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="XX-XXXXXXX">
+              </div>
+            </div>
+          </div>
+          <!-- Dividend Details -->
+          <div class="border border-gray-600 rounded-lg p-4">
+            <h3 class="text-lg font-semibold text-violet-400 mb-4">💹 Dividend Details</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 1a: Total Ordinary Dividends ($)</label>
+                <input type="number" step="0.01" min="0" name="ordinaryDiv1099DIV" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099DIV()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 1b: Qualified Dividends ($)</label>
+                <input type="number" step="0.01" min="0" name="qualifiedDiv1099DIV" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099DIV()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 2a: Total Capital Gain Distributions ($)</label>
+                <input type="number" step="0.01" min="0" name="capitalGainDist1099DIV" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099DIV()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 2b: Unrecaptured §1250 Gain ($)</label>
+                <input type="number" step="0.01" min="0" name="unrecaptured1250_1099DIV" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 2c: §1202 Gain ($)</label>
+                <input type="number" step="0.01" min="0" name="sec1202Gain1099DIV" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 2d: Collectibles (28%) Gain ($)</label>
+                <input type="number" step="0.01" min="0" name="collectiblesGain1099DIV" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 3: Nondividend Distributions ($)</label>
+                <input type="number" step="0.01" min="0" name="nondivDist1099DIV" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 4: Federal Tax Withheld ($)</label>
+                <input type="number" step="0.01" min="0" name="fedWithheld1099DIV" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 5: §199A Dividends ($)</label>
+                <input type="number" step="0.01" min="0" name="sec199aDividends1099DIV" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 6: Investment Expenses ($)</label>
+                <input type="number" step="0.01" min="0" name="investmentExp1099DIV" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 7: Foreign Tax Paid ($)</label>
+                <input type="number" step="0.01" min="0" name="foreignTaxPaid1099DIV" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Foreign Country</label>
+                <input type="text" name="foreignCountry1099DIV" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="Country name">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 12: Exempt-Interest Dividends ($)</label>
+                <input type="number" step="0.01" min="0" name="exemptIntDiv1099DIV" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 13: Specified Private Activity Bond Dividends ($)</label>
+                <input type="number" step="0.01" min="0" name="privActivityBondDiv1099DIV" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00">
+              </div>
+            </div>
+          </div>
+          <!-- Results -->
+          <div class="mt-6 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+            <h4 class="text-lg font-bold mb-3 text-green-400">📊 Results</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Total Dividend Income</label>
+                <input type="text" id="resultTotalIncome1099DIV" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white font-bold" readonly>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button type="button" onclick="calculate1099DIV()" class="bg-green-500 hover:bg-green-600 text-black px-6 py-3 rounded-lg font-bold">🧮 Calculate</button>
+            <button type="button" onclick="saveFiling('1099-DIV')" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-bold">💾 Save Filing</button>
+            <button type="button" onclick="exportFiling('1099-DIV')" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg font-bold">📄 Export Data</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Form 1099-R - Retirement Distributions -->
+      <div id="form1099R" class="filing-form glass-card p-6 rounded-xl hidden">
+        <div class="filing-header rounded-t-xl p-4 -m-6 mb-6">
+          <h2 class="text-2xl font-bold flex items-center gap-3">
+            <span class="text-4xl">🎯</span>
+            Form 1099-R — Distributions from Pensions, Annuities, IRAs
+          </h2>
+          <p class="text-sm text-gray-400 mt-2">Report distributions from retirement plans and insurance contracts</p>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(16,185,129,.12),rgba(59,130,246,.08));border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:.8rem;color:#94a3b8;line-height:1.5;">
+          <span style="color:#10b981;font-weight:700;">📋 IRS FORM REFERENCE:</span> File by Jan 31 following calendar year. Reports distributions from pensions, annuities, retirement or profit-sharing plans, IRAs, and insurance contracts. Distribution code determines tax treatment.
+        </div>
+        <form id="form1099RForm" class="space-y-6">
+          <!-- Payer Information -->
+          <div class="border border-gray-600 rounded-lg p-4">
+            <h3 class="text-lg font-semibold text-fuchsia-400 mb-4">🏦 Payer Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Payer Name</label>
+                <input type="text" name="payerName1099R" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="Plan administrator or insurance company">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Payer EIN</label>
+                <input type="text" name="payerEIN1099R" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="XX-XXXXXXX">
+              </div>
+            </div>
+          </div>
+          <!-- Distribution Details -->
+          <div class="border border-gray-600 rounded-lg p-4">
+            <h3 class="text-lg font-semibold text-fuchsia-400 mb-4">🎯 Distribution Details</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 1: Gross Distribution ($)</label>
+                <input type="number" step="0.01" min="0" name="grossDist1099R" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099R()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 2a: Taxable Amount ($)</label>
+                <input type="number" step="0.01" min="0" name="taxableAmount1099R" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099R()">
+              </div>
+              <div class="flex flex-col gap-2 justify-center">
+                <label class="flex items-center gap-2 text-sm text-gray-400">
+                  <input type="checkbox" name="taxableNotDetermined1099R" class="rounded bg-gray-700 border-gray-600">
+                  Box 2b: Taxable amount not determined
+                </label>
+                <label class="flex items-center gap-2 text-sm text-gray-400">
+                  <input type="checkbox" name="totalDistribution1099R" class="rounded bg-gray-700 border-gray-600">
+                  Total distribution
+                </label>
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 3: Capital Gain ($)</label>
+                <input type="number" step="0.01" min="0" name="capitalGain1099R" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 4: Federal Tax Withheld ($)</label>
+                <input type="number" step="0.01" min="0" name="fedWithheld1099R" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099R()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 5: Employee Contributions ($)</label>
+                <input type="number" step="0.01" min="0" name="employeeContrib1099R" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 6: Net Unrealized Appreciation ($)</label>
+                <input type="number" step="0.01" min="0" name="nua1099R" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 7: Distribution Code</label>
+                <select name="distCode1099R" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white">
+                  <option value="">Select code...</option>
+                  <option value="1">1 - Early distribution, no exception</option>
+                  <option value="2">2 - Early distribution, exception applies</option>
+                  <option value="3">3 - Disability</option>
+                  <option value="4">4 - Death</option>
+                  <option value="7">7 - Normal distribution</option>
+                  <option value="G">G - Direct rollover</option>
+                  <option value="L">L - Loans as deemed distributions</option>
+                  <option value="T">T - Roth IRA distribution</option>
+                </select>
+              </div>
+              <div class="flex flex-col gap-2 justify-center">
+                <label class="flex items-center gap-2 text-sm text-gray-400">
+                  <input type="checkbox" name="iraSepSimple1099R" class="rounded bg-gray-700 border-gray-600">
+                  IRA/SEP/SIMPLE
+                </label>
+                <div>
+                  <label class="block text-sm text-gray-400 mb-1">Roth First Year</label>
+                  <input type="date" name="rothFirstYear1099R" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white">
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Results -->
+          <div class="mt-6 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+            <h4 class="text-lg font-bold mb-3 text-green-400">📊 Results</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Taxable Net (After Withholding)</label>
+                <input type="text" id="resultTaxableNet1099R" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white font-bold" readonly>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button type="button" onclick="calculate1099R()" class="bg-green-500 hover:bg-green-600 text-black px-6 py-3 rounded-lg font-bold">🧮 Calculate</button>
+            <button type="button" onclick="saveFiling('1099-R')" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-bold">💾 Save Filing</button>
+            <button type="button" onclick="exportFiling('1099-R')" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg font-bold">📄 Export Data</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Form 1099-NEC - Nonemployee Compensation -->
+      <div id="form1099NEC" class="filing-form glass-card p-6 rounded-xl hidden">
+        <div class="filing-header rounded-t-xl p-4 -m-6 mb-6">
+          <h2 class="text-2xl font-bold flex items-center gap-3">
+            <span class="text-4xl">📋</span>
+            Form 1099-NEC — Nonemployee Compensation
+          </h2>
+          <p class="text-sm text-gray-400 mt-2">Report nonemployee compensation of $600 or more</p>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(16,185,129,.12),rgba(59,130,246,.08));border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:.8rem;color:#94a3b8;line-height:1.5;">
+          <span style="color:#10b981;font-weight:700;">📋 IRS FORM REFERENCE:</span> File by Jan 31 following calendar year. Reports nonemployee compensation (previously Box 7 of 1099-MISC). Recipients must report this as self-employment income and pay SE tax.
+        </div>
+        <form id="form1099NECForm" class="space-y-6">
+          <!-- Payer Information -->
+          <div class="border border-gray-600 rounded-lg p-4">
+            <h3 class="text-lg font-semibold text-lime-400 mb-4">🏢 Payer Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Payer Name</label>
+                <input type="text" name="payerName1099NEC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="Company or individual name">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Payer EIN</label>
+                <input type="text" name="payerEIN1099NEC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="XX-XXXXXXX">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Payer Address</label>
+                <input type="text" name="payerAddress1099NEC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="Street, City, State, ZIP">
+              </div>
+            </div>
+          </div>
+          <!-- Recipient Information -->
+          <div class="border border-gray-600 rounded-lg p-4">
+            <h3 class="text-lg font-semibold text-lime-400 mb-4">👤 Recipient Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Recipient Name</label>
+                <input type="text" name="recipientName1099NEC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="Contractor/recipient name">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Recipient TIN</label>
+                <input type="text" name="recipientTIN1099NEC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="SSN or EIN">
+              </div>
+            </div>
+          </div>
+          <!-- Compensation Details -->
+          <div class="border border-gray-600 rounded-lg p-4">
+            <h3 class="text-lg font-semibold text-lime-400 mb-4">💰 Compensation Details</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 1: Nonemployee Compensation ($)</label>
+                <input type="number" step="0.01" min="0" name="compensation1099NEC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099NEC()">
+              </div>
+              <div class="flex items-center">
+                <label class="flex items-center gap-2 text-sm text-gray-400">
+                  <input type="checkbox" name="directSales1099NEC" class="rounded bg-gray-700 border-gray-600">
+                  Box 2: Direct sales $5,000+
+                </label>
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 4: Federal Tax Withheld ($)</label>
+                <input type="number" step="0.01" min="0" name="fedWithheld1099NEC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099NEC()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 5: State</label>
+                <input type="text" name="state1099NEC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="State abbreviation">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 6: State Payer ID</label>
+                <input type="text" name="statePayerId1099NEC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="State payer ID number">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 7: State Income ($)</label>
+                <input type="number" step="0.01" min="0" name="stateIncome1099NEC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00">
+              </div>
+            </div>
+          </div>
+          <!-- Results -->
+          <div class="mt-6 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+            <h4 class="text-lg font-bold mb-3 text-green-400">📊 Results</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Estimated SE Tax (15.3%)</label>
+                <input type="text" id="resultSETax1099NEC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white font-bold" readonly>
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Net Compensation (After Withholding)</label>
+                <input type="text" id="resultNetComp1099NEC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white font-bold" readonly>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button type="button" onclick="calculate1099NEC()" class="bg-green-500 hover:bg-green-600 text-black px-6 py-3 rounded-lg font-bold">🧮 Calculate</button>
+            <button type="button" onclick="saveFiling('1099-NEC')" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-bold">💾 Save Filing</button>
+            <button type="button" onclick="exportFiling('1099-NEC')" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg font-bold">📄 Export Data</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Form 1099-MISC - Miscellaneous -->
+      <div id="form1099MISC" class="filing-form glass-card p-6 rounded-xl hidden">
+        <div class="filing-header rounded-t-xl p-4 -m-6 mb-6">
+          <h2 class="text-2xl font-bold flex items-center gap-3">
+            <span class="text-4xl">📎</span>
+            Form 1099-MISC — Miscellaneous Information
+          </h2>
+          <p class="text-sm text-gray-400 mt-2">Report miscellaneous income including rents, royalties, and other payments</p>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(16,185,129,.12),rgba(59,130,246,.08));border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:.8rem;color:#94a3b8;line-height:1.5;">
+          <span style="color:#10b981;font-weight:700;">📋 IRS FORM REFERENCE:</span> File by Jan 31 (Feb 15 for Box 8/10). Reports miscellaneous income including rents, royalties, prizes, medical payments, crop insurance proceeds, and attorney fees.
+        </div>
+        <form id="form1099MISCForm" class="space-y-6">
+          <!-- Payer Information -->
+          <div class="border border-gray-600 rounded-lg p-4">
+            <h3 class="text-lg font-semibold text-sky-400 mb-4">🏢 Payer Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Payer Name</label>
+                <input type="text" name="payerName1099MISC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="Payer name">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Payer EIN</label>
+                <input type="text" name="payerEIN1099MISC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="XX-XXXXXXX">
+              </div>
+            </div>
+          </div>
+          <!-- Income Details -->
+          <div class="border border-gray-600 rounded-lg p-4">
+            <h3 class="text-lg font-semibold text-sky-400 mb-4">💰 Income Details</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 1: Rents ($)</label>
+                <input type="number" step="0.01" min="0" name="rents1099MISC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099MISC()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 2: Royalties ($)</label>
+                <input type="number" step="0.01" min="0" name="royalties1099MISC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099MISC()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 3: Other Income ($)</label>
+                <input type="number" step="0.01" min="0" name="otherIncome1099MISC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099MISC()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 4: Federal Tax Withheld ($)</label>
+                <input type="number" step="0.01" min="0" name="fedWithheld1099MISC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099MISC()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 5: Fishing Boat Proceeds ($)</label>
+                <input type="number" step="0.01" min="0" name="fishingBoat1099MISC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099MISC()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 6: Medical/Healthcare Payments ($)</label>
+                <input type="number" step="0.01" min="0" name="medicalPayments1099MISC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099MISC()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 8: Substitute Payments ($)</label>
+                <input type="number" step="0.01" min="0" name="substitutePmts1099MISC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099MISC()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 9: Crop Insurance Proceeds ($)</label>
+                <input type="number" step="0.01" min="0" name="cropIns1099MISC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099MISC()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 10: Gross Proceeds to Attorney ($)</label>
+                <input type="number" step="0.01" min="0" name="attorneyProceeds1099MISC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099MISC()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 12: §409A Deferrals ($)</label>
+                <input type="number" step="0.01" min="0" name="s409aDeferrals1099MISC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099MISC()">
+              </div>
+              <div class="flex items-center">
+                <label class="flex items-center gap-2 text-sm text-gray-400">
+                  <input type="checkbox" name="fatcaFiling1099MISC" class="rounded bg-gray-700 border-gray-600">
+                  FATCA Filing Requirement
+                </label>
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 14: Nonqualified Deferred Compensation ($)</label>
+                <input type="number" step="0.01" min="0" name="nqDeferredComp1099MISC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00" oninput="calculate1099MISC()">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 15: State</label>
+                <input type="text" name="state1099MISC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="State abbreviation">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 16: State Payer ID</label>
+                <input type="text" name="statePayerId1099MISC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="State payer ID number">
+              </div>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Box 17: State Income ($)</label>
+                <input type="number" step="0.01" min="0" name="stateIncome1099MISC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="0.00">
+              </div>
+            </div>
+          </div>
+          <!-- Results -->
+          <div class="mt-6 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+            <h4 class="text-lg font-bold mb-3 text-green-400">📊 Results</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Total Miscellaneous Income</label>
+                <input type="text" id="resultTotalIncome1099MISC" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white font-bold" readonly>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button type="button" onclick="calculate1099MISC()" class="bg-green-500 hover:bg-green-600 text-black px-6 py-3 rounded-lg font-bold">🧮 Calculate</button>
+            <button type="button" onclick="saveFiling('1099-MISC')" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-bold">💾 Save Filing</button>
+            <button type="button" onclick="exportFiling('1099-MISC')" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg font-bold">📄 Export Data</button>
+          </div>
+        </form>
+      </div>
+
       <!-- Saved Filings List -->
       <div id="savedFilings" class="glass-card p-6 rounded-xl mt-6">
         <h3 class="text-xl font-bold mb-4">📁 Saved Filings</h3>
@@ -2004,7 +2950,7 @@
 
         <div class="mt-8">
           <h3 class="text-xl font-bold mb-4">📅 Filing Summary</h3>
-          <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4" id="filingSummary">
+          <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4" id="filingSummary">
             <div class="p-4 bg-blue-500/10 rounded-lg border border-blue-500/30">
               <div class="text-sm text-gray-400">Form 1120</div>
               <div class="text-2xl font-bold text-blue-400" id="count1120">0</div>
@@ -2032,6 +2978,38 @@
             <div class="p-4 bg-orange-500/10 rounded-lg border border-orange-500/30">
               <div class="text-sm text-gray-400">Schedule C</div>
               <div class="text-2xl font-bold text-orange-400" id="countSchC">0</div>
+            </div>
+            <div class="p-4 bg-rose-500/10 rounded-lg border border-rose-500/30">
+              <div class="text-sm text-gray-400">1099-A</div>
+              <div class="text-2xl font-bold text-rose-400" id="count1099A">0</div>
+            </div>
+            <div class="p-4 bg-pink-500/10 rounded-lg border border-pink-500/30">
+              <div class="text-sm text-gray-400">1099-B</div>
+              <div class="text-2xl font-bold text-pink-400" id="count1099B">0</div>
+            </div>
+            <div class="p-4 bg-red-500/10 rounded-lg border border-red-500/30">
+              <div class="text-sm text-gray-400">1099-C</div>
+              <div class="text-2xl font-bold text-red-400" id="count1099C">0</div>
+            </div>
+            <div class="p-4 bg-indigo-500/10 rounded-lg border border-indigo-500/30">
+              <div class="text-sm text-gray-400">1099-INT</div>
+              <div class="text-2xl font-bold text-indigo-400" id="count1099INT">0</div>
+            </div>
+            <div class="p-4 bg-violet-500/10 rounded-lg border border-violet-500/30">
+              <div class="text-sm text-gray-400">1099-DIV</div>
+              <div class="text-2xl font-bold text-violet-400" id="count1099DIV">0</div>
+            </div>
+            <div class="p-4 bg-fuchsia-500/10 rounded-lg border border-fuchsia-500/30">
+              <div class="text-sm text-gray-400">1099-R</div>
+              <div class="text-2xl font-bold text-fuchsia-400" id="count1099R">0</div>
+            </div>
+            <div class="p-4 bg-lime-500/10 rounded-lg border border-lime-500/30">
+              <div class="text-sm text-gray-400">1099-NEC</div>
+              <div class="text-2xl font-bold text-lime-400" id="count1099NEC">0</div>
+            </div>
+            <div class="p-4 bg-sky-500/10 rounded-lg border border-sky-500/30">
+              <div class="text-sm text-gray-400">1099-MISC</div>
+              <div class="text-2xl font-bold text-sky-400" id="count1099MISC">0</div>
             </div>
           </div>
         </div>
@@ -4147,7 +5125,9 @@
         '1041-ES': [],
         '1040': [],
         '1040-ES': [],
-        'SchC': []
+        'SchC': [],
+        '1099-A': [], '1099-B': [], '1099-C': [], '1099-INT': [],
+        '1099-DIV': [], '1099-R': [], '1099-NEC': [], '1099-MISC': []
       },
       entities: [{
         id: 'trust_primary',
@@ -4185,7 +5165,10 @@
           const parsed = JSON.parse(saved);
           console.log('✅ Data loaded from localStorage');
           showAutoSaveStatus('Data loaded from browser storage');
-          return { ...defaultAppData, ...parsed };
+          // Deep-merge filings so new form types (e.g. 1099 series) are preserved
+          const merged = { ...defaultAppData, ...parsed };
+          merged.filings = { ...defaultAppData.filings, ...(parsed.filings || {}) };
+          return merged;
         }
       } catch (e) {
         console.error('Error loading from localStorage:', e);
@@ -4660,7 +5643,10 @@
       const formIdMap = {
         '1041-ES': 'form1041ES',
         '1040-ES': 'form1040ES',
-        'SchC': 'formSchC'
+        'SchC': 'formSchC',
+        '1099-A': 'form1099A', '1099-B': 'form1099B', '1099-C': 'form1099C',
+        '1099-INT': 'form1099INT', '1099-DIV': 'form1099DIV', '1099-R': 'form1099R',
+        '1099-NEC': 'form1099NEC', '1099-MISC': 'form1099MISC'
       };
       const formId = formIdMap[type] || `form${type}`;
       document.getElementById(formId).classList.remove('hidden');
@@ -5213,12 +6199,125 @@
       showAlert(`Gross Income: $${grossIncome.toFixed(2)}\nTotal Expenses: $${totalExpenses.toFixed(2)}\nHome Office: $${homeOfficeDeduction.toFixed(2)}\n${profitLossText}: $${Math.abs(netProfit).toFixed(2)}\n\nEstimated SE Tax: $${seTax.toFixed(2)}`, 'Schedule C Calculation');
     }
 
+    // =====================================================
+    // 1099 SERIES CALCULATE FUNCTIONS
+    // =====================================================
+
+    function calculate1099A() {
+      const form = document.getElementById('form1099AForm');
+      const getValue = (name) => parseFloat(form.querySelector(`[name="${name}"]`)?.value) || 0;
+      const fmvProperty = getValue('fmvProperty1099A');
+      const balancePrincipal = getValue('balancePrincipal1099A');
+      const gainLoss = fmvProperty - balancePrincipal;
+      const prefix = gainLoss >= 0 ? '+' : '-';
+      document.getElementById('resultGainLoss1099A').value = `${prefix}$${Math.abs(gainLoss).toFixed(2)}`;
+      showAlert(`FMV of Property: $${fmvProperty.toFixed(2)}\nPrincipal Outstanding: $${balancePrincipal.toFixed(2)}\nGain/Loss: ${prefix}$${Math.abs(gainLoss).toFixed(2)}`, 'Form 1099-A Calculation');
+    }
+
+    function calculate1099B() {
+      const form = document.getElementById('form1099BForm');
+      const getValue = (name) => parseFloat(form.querySelector(`[name="${name}"]`)?.value) || 0;
+      const proceeds = getValue('proceeds1099B');
+      const costBasis = getValue('costBasis1099B');
+      const accruedDiscount = getValue('accruedDiscount1099B');
+      const washSaleLoss = getValue('washSaleLoss1099B');
+      const gainLoss = proceeds - costBasis + accruedDiscount - washSaleLoss;
+      const prefix = gainLoss >= 0 ? '+' : '-';
+      document.getElementById('resultGainLoss1099B').value = `${prefix}$${Math.abs(gainLoss).toFixed(2)}`;
+      showAlert(`Proceeds: $${proceeds.toFixed(2)}\nCost Basis: $${costBasis.toFixed(2)}\nAccrued Discount: $${accruedDiscount.toFixed(2)}\nWash Sale Disallowed: $${washSaleLoss.toFixed(2)}\nGain/Loss: ${prefix}$${Math.abs(gainLoss).toFixed(2)}`, 'Form 1099-B Calculation');
+    }
+
+    function calculate1099C() {
+      const form = document.getElementById('form1099CForm');
+      const getValue = (name) => parseFloat(form.querySelector(`[name="${name}"]`)?.value) || 0;
+      const debtDischarged = getValue('debtDischarged1099C');
+      const interestIncluded = getValue('interestIncluded1099C');
+      const fmvProperty = getValue('fmvProperty1099C');
+      const netDischarge = debtDischarged - interestIncluded - fmvProperty;
+      document.getElementById('resultNetDischarge1099C').value = `$${netDischarge.toFixed(2)}`;
+      showAlert(`Debt Discharged: $${debtDischarged.toFixed(2)}\nInterest Included: $${interestIncluded.toFixed(2)}\nFMV of Property: $${fmvProperty.toFixed(2)}\nNet Discharge: $${netDischarge.toFixed(2)}`, 'Form 1099-C Calculation');
+    }
+
+    function calculate1099INT() {
+      const form = document.getElementById('form1099INTForm');
+      const getValue = (name) => parseFloat(form.querySelector(`[name="${name}"]`)?.value) || 0;
+      const interestIncome = getValue('interestIncome1099INT');
+      const savingsBondInt = getValue('savingsBondInt1099INT');
+      const marketDiscount = getValue('marketDiscount1099INT');
+      const earlyPenalty = getValue('earlyPenalty1099INT');
+      const foreignTaxPaid = getValue('foreignTaxPaid1099INT');
+      const investmentExp = getValue('investmentExp1099INT');
+      const totalTaxable = interestIncome + savingsBondInt + marketDiscount - earlyPenalty - foreignTaxPaid - investmentExp;
+      document.getElementById('resultTotalTaxable1099INT').value = `$${totalTaxable.toFixed(2)}`;
+      showAlert(`Interest Income: $${interestIncome.toFixed(2)}\nSavings Bond Interest: $${savingsBondInt.toFixed(2)}\nMarket Discount: $${marketDiscount.toFixed(2)}\nEarly Withdrawal Penalty: -$${earlyPenalty.toFixed(2)}\nForeign Tax Paid: -$${foreignTaxPaid.toFixed(2)}\nInvestment Expenses: -$${investmentExp.toFixed(2)}\nTotal Taxable: $${totalTaxable.toFixed(2)}`, 'Form 1099-INT Calculation');
+    }
+
+    function calculate1099DIV() {
+      const form = document.getElementById('form1099DIVForm');
+      const getValue = (name) => parseFloat(form.querySelector(`[name="${name}"]`)?.value) || 0;
+      const ordinaryDiv = getValue('ordinaryDiv1099DIV');
+      const qualifiedDiv = getValue('qualifiedDiv1099DIV');
+      const capitalGainDist = getValue('capitalGainDist1099DIV');
+      const totalIncome = ordinaryDiv + capitalGainDist;
+      const qualifiedPct = ordinaryDiv > 0 ? (qualifiedDiv / ordinaryDiv * 100).toFixed(1) : '0.0';
+      document.getElementById('resultTotalIncome1099DIV').value = `$${totalIncome.toFixed(2)} (${qualifiedPct}% qualified)`;
+      showAlert(`Ordinary Dividends: $${ordinaryDiv.toFixed(2)}\nQualified Dividends: $${qualifiedDiv.toFixed(2)} (${qualifiedPct}%)\nCapital Gain Distributions: $${capitalGainDist.toFixed(2)}\nTotal Income: $${totalIncome.toFixed(2)}`, 'Form 1099-DIV Calculation');
+    }
+
+    function calculate1099R() {
+      const form = document.getElementById('form1099RForm');
+      const getValue = (name) => parseFloat(form.querySelector(`[name="${name}"]`)?.value) || 0;
+      const taxableAmount = getValue('taxableAmount1099R');
+      const fedWithheld = getValue('fedWithheld1099R');
+      const taxableNet = taxableAmount - fedWithheld;
+      const prefix = taxableNet >= 0 ? '' : '-';
+      document.getElementById('resultTaxableNet1099R').value = `${prefix}$${Math.abs(taxableNet).toFixed(2)}`;
+      const grossDist = getValue('grossDist1099R');
+      showAlert(`Gross Distribution: $${grossDist.toFixed(2)}\nTaxable Amount: $${taxableAmount.toFixed(2)}\nFederal Tax Withheld: $${fedWithheld.toFixed(2)}\nTaxable Net: ${prefix}$${Math.abs(taxableNet).toFixed(2)}`, 'Form 1099-R Calculation');
+    }
+
+    function calculate1099NEC() {
+      const form = document.getElementById('form1099NECForm');
+      const getValue = (name) => parseFloat(form.querySelector(`[name="${name}"]`)?.value) || 0;
+      const compensation = getValue('compensation1099NEC');
+      const fedWithheld = getValue('fedWithheld1099NEC');
+      const seTaxableIncome = compensation * 0.9235;
+      const seTax = seTaxableIncome > 0 ? seTaxableIncome * 0.153 : 0;
+      const netComp = compensation - fedWithheld;
+      document.getElementById('resultSETax1099NEC').value = `$${seTax.toFixed(2)}`;
+      document.getElementById('resultNetComp1099NEC').value = `$${netComp.toFixed(2)}`;
+      showAlert(`Nonemployee Compensation: $${compensation.toFixed(2)}\nSE Taxable (92.35%): $${seTaxableIncome.toFixed(2)}\nEstimated SE Tax (15.3%): $${seTax.toFixed(2)}\nFederal Withheld: $${fedWithheld.toFixed(2)}\nNet Compensation: $${netComp.toFixed(2)}`, 'Form 1099-NEC Calculation');
+    }
+
+    function calculate1099MISC() {
+      const form = document.getElementById('form1099MISCForm');
+      const getValue = (name) => parseFloat(form.querySelector(`[name="${name}"]`)?.value) || 0;
+      const rents = getValue('rents1099MISC');
+      const royalties = getValue('royalties1099MISC');
+      const otherIncome = getValue('otherIncome1099MISC');
+      const fishingBoat = getValue('fishingBoat1099MISC');
+      const medicalPayments = getValue('medicalPayments1099MISC');
+      const substitutePmts = getValue('substitutePmts1099MISC');
+      const cropIns = getValue('cropIns1099MISC');
+      const attorneyProceeds = getValue('attorneyProceeds1099MISC');
+      const s409aDeferrals = getValue('s409aDeferrals1099MISC');
+      const nqDeferredComp = getValue('nqDeferredComp1099MISC');
+      const fedWithheld = getValue('fedWithheld1099MISC');
+      const totalIncome = rents + royalties + otherIncome + fishingBoat + medicalPayments + substitutePmts + cropIns + attorneyProceeds + s409aDeferrals + nqDeferredComp;
+      const netIncome = totalIncome - fedWithheld;
+      document.getElementById('resultTotalIncome1099MISC').value = `$${totalIncome.toFixed(2)} (Net: $${netIncome.toFixed(2)})`;
+      showAlert(`Rents: $${rents.toFixed(2)}\nRoyalties: $${royalties.toFixed(2)}\nOther Income: $${otherIncome.toFixed(2)}\nFishing Boat: $${fishingBoat.toFixed(2)}\nMedical Payments: $${medicalPayments.toFixed(2)}\nSubstitute Payments: $${substitutePmts.toFixed(2)}\nCrop Insurance: $${cropIns.toFixed(2)}\nAttorney Proceeds: $${attorneyProceeds.toFixed(2)}\n§409A Deferrals: $${s409aDeferrals.toFixed(2)}\nNQ Deferred Comp: $${nqDeferredComp.toFixed(2)}\nTotal Income: $${totalIncome.toFixed(2)}\nFederal Withheld: $${fedWithheld.toFixed(2)}\nNet Income: $${netIncome.toFixed(2)}`, 'Form 1099-MISC Calculation');
+    }
+
     // Save Filing
     function saveFiling(formType) {
       const formIdMap = {
         '1041-ES': 'form1041ESForm',
         '1040-ES': 'form1040ESForm',
-        'SchC': 'formSchCForm'
+        'SchC': 'formSchCForm',
+        '1099-A': 'form1099AForm', '1099-B': 'form1099BForm', '1099-C': 'form1099CForm',
+        '1099-INT': 'form1099INTForm', '1099-DIV': 'form1099DIVForm', '1099-R': 'form1099RForm',
+        '1099-NEC': 'form1099NECForm', '1099-MISC': 'form1099MISCForm'
       };
       const formId = formIdMap[formType] || `form${formType}Form`;
       const form = document.getElementById(formId);
@@ -5317,7 +6416,73 @@
       travelSchC: 'Travel', mealsSchC: 'Meals', utilitiesSchC: 'Utilities', wagesSchC: 'Wages',
       otherExpSchC: 'Other Expenses', homeOfficeMethod: 'Home Office Method',
       homeOfficeSqFt: 'Home Office Sq Ft', homeOfficeAmount: 'Home Office Amount',
-      homeOfficeDeductionSchC: 'Home Office Deduction', netProfitSchC: 'Net Profit/Loss'
+      homeOfficeDeductionSchC: 'Home Office Deduction', netProfitSchC: 'Net Profit/Loss',
+      // Form 1099-A fields
+      lenderName1099A: 'Lender Name', lenderEIN1099A: 'Lender EIN', lenderAddress1099A: 'Lender Address',
+      borrowerName1099A: 'Borrower Name', borrowerTIN1099A: 'Borrower TIN',
+      dateEvent1099A: 'Date of Acquisition/Abandonment', balancePrincipal1099A: 'Balance of Principal Outstanding',
+      fmvProperty1099A: 'FMV of Property', propertyDesc1099A: 'Property Description',
+      personallyLiable1099A: 'Borrower Personally Liable', eventType1099A: 'Event Type',
+      // Form 1099-B fields
+      payerName1099B: 'Payer/Broker Name', payerEIN1099B: 'Payer EIN',
+      propertyDesc1099B: 'Description of Property', dateAcquired1099B: 'Date Acquired',
+      dateSold1099B: 'Date Sold/Disposed', proceeds1099B: 'Proceeds',
+      costBasis1099B: 'Cost or Other Basis', accruedDiscount1099B: 'Accrued Market Discount',
+      washSaleLoss1099B: 'Wash Sale Loss Disallowed', gainType1099B: 'Type of Gain/Loss',
+      reportedToIRS1099B: 'Reported to IRS', noncoveredSecurity1099B: 'Noncovered Security',
+      basisReported1099B: 'Basis Reported to IRS',
+      // Form 1099-C fields
+      creditorName1099C: 'Creditor Name', creditorEIN1099C: 'Creditor EIN',
+      creditorAddress1099C: 'Creditor Address', debtorName1099C: 'Debtor Name',
+      debtorTIN1099C: 'Debtor TIN', dateEvent1099C: 'Date of Identifiable Event',
+      debtDischarged1099C: 'Amount of Debt Discharged', interestIncluded1099C: 'Interest Included in Box 2',
+      debtDescription1099C: 'Debt Description', fmvProperty1099C: 'FMV of Property',
+      debtorLiable1099C: 'Debtor Personally Liable', eventCode1099C: 'Identifiable Event Code',
+      // Form 1099-INT fields
+      payerName1099INT: 'Payer Name', payerEIN1099INT: 'Payer EIN',
+      interestIncome1099INT: 'Interest Income (Box 1)', earlyPenalty1099INT: 'Early Withdrawal Penalty (Box 2)',
+      savingsBondInt1099INT: 'Interest on US Savings Bonds (Box 3)',
+      fedWithheld1099INT: 'Federal Tax Withheld (Box 4)', investmentExp1099INT: 'Investment Expenses (Box 5)',
+      foreignTaxPaid1099INT: 'Foreign Tax Paid (Box 6)', foreignCountry1099INT: 'Foreign Country',
+      taxExemptInt1099INT: 'Tax-Exempt Interest (Box 8)', privActivityBond1099INT: 'Private Activity Bond Interest (Box 9)',
+      marketDiscount1099INT: 'Market Discount (Box 10)', bondPremium1099INT: 'Bond Premium (Box 11)',
+      bondPremTreasury1099INT: 'Bond Premium on Treasury (Box 12)', bondCUSIP1099INT: 'Tax-Exempt Bond CUSIP (Box 13)',
+      state1099INT: 'State', stateId1099INT: 'State ID', stateTaxWithheld1099INT: 'State Tax Withheld (Box 17)',
+      // Form 1099-DIV fields
+      payerName1099DIV: 'Payer Name', payerEIN1099DIV: 'Payer EIN',
+      ordinaryDiv1099DIV: 'Total Ordinary Dividends (Box 1a)', qualifiedDiv1099DIV: 'Qualified Dividends (Box 1b)',
+      capitalGainDist1099DIV: 'Total Capital Gain Distributions (Box 2a)',
+      unrecaptured1250_1099DIV: 'Unrecaptured §1250 Gain (Box 2b)',
+      sec1202Gain1099DIV: '§1202 Gain (Box 2c)', collectiblesGain1099DIV: 'Collectibles (28%) Gain (Box 2d)',
+      nondivDist1099DIV: 'Nondividend Distributions (Box 3)', fedWithheld1099DIV: 'Federal Tax Withheld (Box 4)',
+      sec199aDividends1099DIV: '§199A Dividends (Box 5)', investmentExp1099DIV: 'Investment Expenses (Box 6)',
+      foreignTaxPaid1099DIV: 'Foreign Tax Paid (Box 7)', foreignCountry1099DIV: 'Foreign Country',
+      exemptIntDiv1099DIV: 'Exempt-Interest Dividends (Box 12)',
+      privActivityBondDiv1099DIV: 'Specified Private Activity Bond Dividends (Box 13)',
+      // Form 1099-R fields
+      payerName1099R: 'Payer Name', payerEIN1099R: 'Payer EIN',
+      grossDist1099R: 'Gross Distribution (Box 1)', taxableAmount1099R: 'Taxable Amount (Box 2a)',
+      taxableNotDetermined1099R: 'Taxable Amount Not Determined (Box 2b)',
+      totalDistribution1099R: 'Total Distribution', capitalGain1099R: 'Capital Gain (Box 3)',
+      fedWithheld1099R: 'Federal Tax Withheld (Box 4)', employeeContrib1099R: 'Employee Contributions (Box 5)',
+      nua1099R: 'Net Unrealized Appreciation (Box 6)', distCode1099R: 'Distribution Code (Box 7)',
+      iraSepSimple1099R: 'IRA/SEP/SIMPLE', rothFirstYear1099R: 'Roth First Year',
+      // Form 1099-NEC fields
+      payerName1099NEC: 'Payer Name', payerEIN1099NEC: 'Payer EIN', payerAddress1099NEC: 'Payer Address',
+      recipientName1099NEC: 'Recipient Name', recipientTIN1099NEC: 'Recipient TIN',
+      compensation1099NEC: 'Nonemployee Compensation (Box 1)', directSales1099NEC: 'Direct Sales $5,000+ (Box 2)',
+      fedWithheld1099NEC: 'Federal Tax Withheld (Box 4)', state1099NEC: 'State',
+      statePayerId1099NEC: 'State Payer ID', stateIncome1099NEC: 'State Income (Box 7)',
+      // Form 1099-MISC fields
+      payerName1099MISC: 'Payer Name', payerEIN1099MISC: 'Payer EIN',
+      rents1099MISC: 'Rents (Box 1)', royalties1099MISC: 'Royalties (Box 2)',
+      otherIncome1099MISC: 'Other Income (Box 3)', fedWithheld1099MISC: 'Federal Tax Withheld (Box 4)',
+      fishingBoat1099MISC: 'Fishing Boat Proceeds (Box 5)', medicalPayments1099MISC: 'Medical/Healthcare Payments (Box 6)',
+      substitutePmts1099MISC: 'Substitute Payments (Box 8)', cropIns1099MISC: 'Crop Insurance Proceeds (Box 9)',
+      attorneyProceeds1099MISC: 'Gross Proceeds to Attorney (Box 10)',
+      s409aDeferrals1099MISC: '§409A Deferrals (Box 12)', fatcaFiling1099MISC: 'FATCA Filing Requirement',
+      nqDeferredComp1099MISC: 'Nonqualified Deferred Compensation (Box 14)',
+      state1099MISC: 'State', statePayerId1099MISC: 'State Payer ID', stateIncome1099MISC: 'State Income (Box 17)'
     };
 
     // Export Filing - improved to include ALL fields
@@ -5325,7 +6490,10 @@
       const formIdMap = {
         '1041-ES': 'form1041ESForm',
         '1040-ES': 'form1040ESForm',
-        'SchC': 'formSchCForm'
+        'SchC': 'formSchCForm',
+        '1099-A': 'form1099AForm', '1099-B': 'form1099BForm', '1099-C': 'form1099CForm',
+        '1099-INT': 'form1099INTForm', '1099-DIV': 'form1099DIVForm', '1099-R': 'form1099RForm',
+        '1099-NEC': 'form1099NECForm', '1099-MISC': 'form1099MISCForm'
       };
       const formId = formIdMap[formType] || `form${formType}Form`;
       const form = document.getElementById(formId);
@@ -5392,13 +6560,18 @@
             '1041-ES': 'cyan',
             '1040': 'green',
             '1040-ES': 'teal',
-            'SchC': 'orange'
+            'SchC': 'orange',
+            '1099-A': 'rose', '1099-B': 'pink', '1099-C': 'red', '1099-INT': 'indigo',
+            '1099-DIV': 'violet', '1099-R': 'fuchsia', '1099-NEC': 'lime', '1099-MISC': 'sky'
           }[formType] || 'gray';
           
           // Get display name from various form fields
-          const displayName = filing.corpName || filing.orgName || filing.trustName || filing.trustNameES || 
+          const displayName = filing.corpName || filing.orgName || filing.trustName || filing.trustNameES ||
                              filing.firstName1040 && filing.lastName1040 ? `${filing.firstName1040} ${filing.lastName1040}` :
-                             filing.name1040ES || filing.proprietorName || 'Unnamed';
+                             filing.name1040ES || filing.proprietorName ||
+                             filing.lenderName1099A || filing.payerName1099B || filing.creditorName1099C ||
+                             filing.payerName1099INT || filing.payerName1099DIV || filing.payerName1099R ||
+                             filing.payerName1099NEC || filing.payerName1099MISC || 'Unnamed';
           
           html += `
             <div class="flex items-center justify-between p-4 bg-gray-700/50 rounded-lg">
@@ -5429,13 +6602,16 @@
     function loadFiling(formType, id) {
       const filing = appData.filings[formType].find(f => f.id === id);
       if (!filing) return;
-      
+
       selectFilingType(formType);
-      
+
       const formIdMap = {
         '1041-ES': 'form1041ESForm',
         '1040-ES': 'form1040ESForm',
-        'SchC': 'formSchCForm'
+        'SchC': 'formSchCForm',
+        '1099-A': 'form1099AForm', '1099-B': 'form1099BForm', '1099-C': 'form1099CForm',
+        '1099-INT': 'form1099INTForm', '1099-DIV': 'form1099DIVForm', '1099-R': 'form1099RForm',
+        '1099-NEC': 'form1099NECForm', '1099-MISC': 'form1099MISCForm'
       };
       const formId = formIdMap[formType] || `form${formType}Form`;
       const form = document.getElementById(formId);
@@ -5511,6 +6687,16 @@
       document.getElementById('count1040').textContent = appData.filings['1040'].length;
       document.getElementById('count1040ES').textContent = appData.filings['1040-ES'].length;
       document.getElementById('countSchC').textContent = appData.filings['SchC'].length;
+      // 1099 Series counts (safe access for backward compatibility)
+      const f = appData.filings;
+      if (document.getElementById('count1099A')) document.getElementById('count1099A').textContent = (f['1099-A'] || []).length;
+      if (document.getElementById('count1099B')) document.getElementById('count1099B').textContent = (f['1099-B'] || []).length;
+      if (document.getElementById('count1099C')) document.getElementById('count1099C').textContent = (f['1099-C'] || []).length;
+      if (document.getElementById('count1099INT')) document.getElementById('count1099INT').textContent = (f['1099-INT'] || []).length;
+      if (document.getElementById('count1099DIV')) document.getElementById('count1099DIV').textContent = (f['1099-DIV'] || []).length;
+      if (document.getElementById('count1099R')) document.getElementById('count1099R').textContent = (f['1099-R'] || []).length;
+      if (document.getElementById('count1099NEC')) document.getElementById('count1099NEC').textContent = (f['1099-NEC'] || []).length;
+      if (document.getElementById('count1099MISC')) document.getElementById('count1099MISC').textContent = (f['1099-MISC'] || []).length;
     }
 
     // =====================================================
