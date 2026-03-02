@@ -2016,7 +2016,7 @@
       </div>
     </section>
 
-    <!-- GAAP Multi-Entity: Entities Section -->
+    <!-- TMAR Multi-Entity: Entities Section -->
     <section id="entitiesSection" class="form-section hidden">
       <div class="glass-card p-6 rounded-xl mb-6">
         <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
@@ -2059,7 +2059,7 @@
       </div>
     </section>
 
-    <!-- GAAP Multi-Entity: Chart of Accounts Section -->
+    <!-- TMAR Multi-Entity: Chart of Accounts Section -->
     <section id="coaSection" class="form-section hidden">
       <div class="glass-card p-6 rounded-xl">
         <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
@@ -2107,7 +2107,7 @@
       </div>
     </section>
 
-    <!-- GAAP Multi-Entity: Journal Entry Section -->
+    <!-- TMAR Multi-Entity: Journal Entry Section -->
     <section id="journalSection" class="form-section hidden">
       <!-- New Journal Entry Form -->
       <div class="glass-card p-6 rounded-xl mb-6">
@@ -2230,7 +2230,7 @@
       </div>
     </section>
 
-    <!-- GAAP Multi-Entity: Accounts Receivable Section -->
+    <!-- TMAR Multi-Entity: Accounts Receivable Section -->
     <section id="receivablesSection" class="form-section hidden">
       <div class="glass-card p-6 rounded-xl mb-6">
         <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
@@ -2283,7 +2283,7 @@
       </div>
     </section>
 
-    <!-- GAAP Multi-Entity: Accounts Payable Section -->
+    <!-- TMAR Multi-Entity: Accounts Payable Section -->
     <section id="payablesSection" class="form-section hidden">
       <div class="glass-card p-6 rounded-xl mb-6">
         <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
@@ -2336,7 +2336,7 @@
       </div>
     </section>
 
-    <!-- GAAP Multi-Entity: Consolidation Section -->
+    <!-- TMAR Multi-Entity: Consolidation Section -->
     <section id="consolidationSection" class="form-section hidden">
       <div class="glass-card p-6 rounded-xl mb-6">
         <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
@@ -2394,7 +2394,7 @@
       </div>
     </section>
 
-    <!-- GAAP Multi-Entity: Financial Statements Section -->
+    <!-- TMAR Multi-Entity: Financial Statements Section -->
     <section id="statementsSection" class="form-section hidden">
       <div class="glass-card p-6 rounded-xl mb-6">
         <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
@@ -4082,7 +4082,7 @@
       reader.readAsText(file);
     };
 
-    // Default GAAP Chart of Accounts
+    // Default TMAR Chart of Accounts (GAAP-compliant)
     const defaultCOA = [
       // Assets (1000-1999)
       { num: '1000', name: 'Cash - Operating', type: 'asset', subtype: 'current', normalBal: 'debit', formLine: 'SchL-1' },
@@ -5128,7 +5128,7 @@
     }
 
     // =====================================================
-    // GAAP MULTI-ENTITY FUNCTIONS
+    // TMAR MULTI-ENTITY FUNCTIONS
     // =====================================================
 
     // --- ENTITY MANAGEMENT ---
@@ -6327,7 +6327,7 @@
       const today = new Date().toISOString().split('T')[0];
       document.getElementById('date').value = today;
 
-      // Initialize GAAP features
+      // Initialize TMAR features
       updateEntitiesTable();
       updateCOATable();
       updateJournalTable();
