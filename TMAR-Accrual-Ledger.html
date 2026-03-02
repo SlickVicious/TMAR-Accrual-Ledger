@@ -131,7 +131,7 @@
       body { background: white !important; color: black !important; }
       .glass-card { background: white !important; border: 1px solid #ccc !important; }
       * { color: black !important; }
-      .redressright-header, nav, button, .tab-btn { display: none !important; }
+      nav, .tab-btn, #themeToggle, #autoSaveStatus { display: none !important; }
     }
     .scrollbar-thin::-webkit-scrollbar {
       width: 6px;
@@ -185,94 +185,7 @@
     }
   </style>
 </head>
-<body class="p-0" style="padding-top: 70px;">
-<!-- REDRESSRIGHT NAVIGATION HEADER - START -->
-<style>
-    /* === STANDARD REDRESSRIGHT NAV === */
-    .redressright-header {
-        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 1000;
-        width: 100%;
-    }
-    .redressright-nav-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 0 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        height: 70px;
-    }
-    .redressright-logo { font-size: 28px; font-weight: bold; color: #ffffff; text-decoration: none; letter-spacing: 1px; transition: color 0.3s ease; }
-    .redressright-logo:hover { color: #ffd700; }
-    .redressright-nav-links { display: flex; gap: 5px; list-style: none; overflow-x: auto; }
-    .redressright-nav-links::-webkit-scrollbar { height: 0; }
-    .redressright-nav-links li a { display: block; padding: 12px 15px; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 500; border-radius: 6px; transition: all 0.3s ease; position: relative; white-space: nowrap; }
-    .redressright-nav-links li a:hover { background-color: rgba(255,255,255,0.15); color: #ffd700; }
-    .redressright-nav-links li a::after { content: ''; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 0; height: 2px; background: #ffd700; transition: width 0.3s; }
-    .redressright-nav-links li a:hover::after { width: 60%; }
-    .redressright-mobile-toggle { display: none; flex-direction: column; cursor: pointer; gap: 5px; }
-    .redressright-mobile-toggle span { width: 30px; height: 3px; background-color: #ffffff; border-radius: 3px; transition: all 0.3s ease; }
-    @media (max-width: 768px) {
-        .redressright-nav-links { position: absolute; top: 70px; left: 0; right: 0; background: linear-gradient(135deg, #1e3c72, #2a5298); flex-direction: column; gap: 0; max-height: 0; overflow: hidden; transition: max-height 0.3s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .redressright-nav-links.active { max-height: 600px; }
-        .redressright-nav-links li { border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .redressright-nav-links li a { padding: 16px 20px; border-radius: 0; }
-        .redressright-mobile-toggle { display: flex; }
-    }
-    /* === END STANDARD NAV === */
-</style>
-<header class="redressright-header">
-    <nav class="redressright-nav-container">
-        <a href="https://redressright.com" class="redressright-logo">RedressRight</a>
-        <ul class="redressright-nav-links" id="navLinks">
-            <li><a href="http://redressright.me/">Home</a></li>
-            <li><a href="http://redressright.me/PFR.html" style="color:#ffd700;font-weight:700">PETITION FOR REDRESS</a></li>
-            <li><a href="http://redressright.me/GAAP.html">GAAP LEDGER</a></li>
-            <li><a href="http://redressright.me/CLMP.html">MEMORIAL AND CONGRESSIONAL PETITION</a></li>
-            <li><a href="http://redressright.me/CPSA.html">CPSA</a></li>
-            <li><a href="http://redressright.me/PORG.html">PORG</a></li>
-            <li><a href="http://redressright.me/TRCF.html">TRCF</a></li>
-            <li><a href="http://redressright.me/DIBE.html">DIBE</a></li>
-            <li><a href="http://redressright.me/CCSN.html">CCSN</a></li>
-            <li><a href="http://redressright.me/EEEJ.html">EEEJ</a></li>
-            <li><a href="http://redressright.me/FDRF.html">FDRF</a></li>
-            <li><a href="http://redressright.me/At-PAR.html">At-Par Tutorial</a></li>
-            <li><a href="http://redressright.me/Agent.html" style="color:#00d4ff;font-weight:700">AI AGENT</a></li>
-            <li><a href="http://redressright.me/huma.html" style="color:#ffd700">AI HUMANIZER</a></li>
-            <li><a href="http://redressright.me/Terms.html">TERMS &amp; CONDITIONS</a></li>
-        </ul>
-        <div class="redressright-mobile-toggle" id="mobileToggle"><span></span><span></span><span></span></div>
-    </nav>
-</header>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var toggle = document.getElementById('mobileToggle');
-        var navLinks = document.getElementById('navLinks');
-
-        if (toggle && navLinks) {
-            toggle.addEventListener('click', function () {
-                toggle.classList.toggle('active');
-                navLinks.classList.toggle('active');
-            });
-
-            document.addEventListener('click', function (event) {
-                var isClickInsideNav =
-                    toggle.contains(event.target) || navLinks.contains(event.target);
-                if (!isClickInsideNav && navLinks.classList.contains('active')) {
-                    toggle.classList.remove('active');
-                    navLinks.classList.remove('active');
-                }
-            });
-        }
-    });
-</script>
-<!-- REDRESSRIGHT NAVIGATION HEADER - END -->
+<body class="p-0">
 
   <div class="p-4 md:p-6">
   <div id="app" class="max-w-7xl mx-auto">
@@ -281,11 +194,11 @@
       <button onclick="toggleDarkMode()" id="themeToggle" class="absolute top-0 right-0 p-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors" title="Toggle Light/Dark Mode">
         <span id="themeIcon">☀️</span>
       </button>
-      <h1 class="text-3xl md:text-4xl font-bold mb-2" style="font-family: 'Space Grotesk', sans-serif;">
-        <span class="text-green-400">📘</span> Universal Accrual Ledger
+      <h1 class="text-3xl md:text-4xl font-bold mb-2" style="font-family: Calibri, 'Segoe UI', system-ui, sans-serif;">
+        <span class="text-blue-400">⚖️</span> TMAR Universal Accrual Ledger
       </h1>
       <p class="text-sm text-gray-400 max-w-2xl mx-auto">
-        Comprehensive financial record system with multi-entity tax filing support
+        A Provident Private Creditor Revocable Living Trust — EIN 41-6809588
       </p>
       
       <!-- Save & Export Toolbar -->
