@@ -1,5 +1,8 @@
 # TMAR-Aligned Universal Accrual Ledger — Design Document
 
+**Status**: ✅ IMPLEMENTED — 2026-03-01
+**Output File**: `TMAR-Accrual-Ledger.html` (9,180 lines, 616KB)
+
 **Version**: 2.0 (expanded from elegant-drifting-goblet plan)
 **Date**: 2026-03-01
 **Approach**: Fork & Refactor from `redressright.me/GAAP.html`
