@@ -311,8 +311,8 @@
         <button onclick="switchMainTab('masterReport')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="masterReport" style="background:linear-gradient(135deg,rgba(16,185,129,0.3),rgba(59,130,246,0.3));border:2px solid rgba(16,185,129,0.8);font-weight:900;color:#10b981">
           📑 MASTER REPORT
         </button>
-        <button onclick="switchMainTab('gaapAgent')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="gaapAgent" style="background:linear-gradient(135deg,rgba(16,185,129,0.3),rgba(5,150,105,0.3));border:2px solid rgba(16,185,129,0.8);font-weight:900;color:#10b981">
-          ⚖️ GAAP Agent
+        <button onclick="switchMainTab('trustAgent')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="trustAgent" style="background:linear-gradient(135deg,rgba(16,185,129,0.3),rgba(5,150,105,0.3));border:2px solid rgba(16,185,129,0.8);font-weight:900;color:#10b981">
+          ⚖️ Trust Accounting Agent
         </button>
         <button onclick="switchMainTab('financialAssets')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="financialAssets" style="background:linear-gradient(135deg,rgba(59,130,246,0.3),rgba(139,92,246,0.3));border:2px solid rgba(59,130,246,0.8);font-weight:900;color:#3b82f6">
           🏛️ Financial Assets
@@ -7920,14 +7920,14 @@
 
 
   <!-- ═══════════════════════════════════════════════════════════
-       GAAP ACCRUAL ACCOUNTING AGENT — CHIEF ARCHITECT SECTION
+       TRUST ACCOUNTING AGENT — CHIEF ARCHITECT SECTION
        ═══════════════════════════════════════════════════════════ -->
-  <section id="gaapAgentSection" class="form-section hidden">
+  <section id="trustAgentSection" class="form-section hidden">
     <div style="padding:20px;max-width:1200px;margin:0 auto">
       <!-- Header -->
       <div style="background:linear-gradient(135deg,rgba(16,185,129,.12),rgba(5,150,105,.08));border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:20px 24px;margin-bottom:20px">
-        <div style="font-size:22px;font-weight:800;color:#10b981;margin-bottom:6px">⚖️ GAAP ACCRUAL ACCOUNTING AGENT — CHIEF ARCHITECT</div>
-        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">GAAP &bull; ASC &bull; IRC &bull; IRS Rules &bull; Treasury Procedures &bull; Facts and Conclusions of Law Only</div>
+        <div style="font-size:22px;font-weight:800;color:#10b981;margin-bottom:6px">⚖️ TRUST ACCOUNTING AGENT — CHIEF ARCHITECT</div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">Trust Administration &bull; GAAP &bull; ASC &bull; IRC &bull; IRS Rules &bull; Treasury Procedures &bull; Facts and Conclusions of Law Only</div>
         <div style="display:flex;flex-wrap:wrap;gap:6px">
           <span style="background:rgba(16,185,129,.15);color:#10b981;padding:3px 10px;border-radius:20px;font-size:11px">GAAP Accrual</span>
           <span style="background:rgba(16,185,129,.15);color:#10b981;padding:3px 10px;border-radius:20px;font-size:11px">ASC 310/820/305/605/740</span>
@@ -7997,51 +7997,53 @@
       <div style="background:var(--bg-secondary, rgba(30,41,59,.8));border:1px solid rgba(16,185,129,.2);border-radius:10px;padding:16px;margin-bottom:20px">
         <div style="font-size:13px;font-weight:700;color:#10b981;margin-bottom:10px">QUICK QUERIES — CLICK TO SEND TO AGENT</div>
         <div style="display:flex;flex-wrap:wrap;gap:8px">
-          <button onclick="gaapAgentQ('Explain why a purchase and an acquisition are two separate legal events and how the chose in action is treated as a financial asset under GAAP and federal law between those events, including mandatory journal entries and form placement')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Purchase vs Acquisition</button>
-          <button onclick="gaapAgentQ('Explain why the cash method of accounting is a legal presumption with no foundation: payment and receipt are two separate events that cannot occur simultaneously')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Cash Method is a Presumption</button>
-          <button onclick="gaapAgentQ('Explain the legal distinction between realization and recognition under the accrual method, who controls recognition timing, and cite the controlling authority')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Realization vs Recognition</button>
-          <button onclick="gaapAgentQ('Classify a final arbitration award as a financial asset and cash equivalent under ASC 305-10-20 and ASC 310-10, state its valuation, and identify every IRS form and line where it is recorded')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Arbitration Award</button>
-          <button onclick="gaapAgentQ('Explain why a Net Operating Loss is a financial asset with dollar-for-dollar monetary value backed by Congressional guarantee, state the controlling Revenue Acts, and identify form placements')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">NOL as Financial Asset</button>
-          <button onclick="gaapAgentQ('Produce the complete journal entries for a corporation applying $400,000,000 in financial assets to satisfy a $190,000,000 tax liability creating a $210,000,000 overpayment receivable. State every form and line on Form 1120, Schedule J, Schedule M-1, and Schedule M-2.')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">$400M Property Payment Journal Entries</button>
-          <button onclick="gaapAgentQ('Explain the overpayment receivable: why it is a corporate asset, what statute creates it, why the Secretary has no discretion to refuse the refund, and where it is recorded on Form 1120 and Schedule M-2')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Overpayment Receivable</button>
-          <button onclick="gaapAgentQ('Explain accumulated expense assets under GAAP: how documented business expenses become a financial asset, the controlling ASC standards, the Revenue Act authority, and specific Schedule C and Form 1120 line placements')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Accumulated Expense Assets</button>
-          <button onclick="gaapAgentQ('Explain chose in action: its definition under federal law, its classification as a financial asset, mandatory journal entries from purchase to acquisition, and form placement on Form 1099-A and Form 8949')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Chose in Action</button>
-          <button onclick="gaapAgentQ('Explain the 80% total remittance strategy: 38% tax plus 42% overpayment, the statutory basis under 26 U.S.C. 6401(a) and 6402(a), form placement on Form 1120, and why the taxpayer controls designation on Line 35b')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">80% Remittance / 38%+42%</button>
-          <button onclick="gaapAgentQ('Explain the 20/70/10 allocation strategy for a $500,000,000 income corporation and produce all journal entries with form placement')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">20/70/10 Allocation</button>
-          <button onclick="gaapAgentQ('Explain ASC 820-10 fair value measurement as it applies to financial assets used in property-based tax payment under Revenue Act of 1918 Section 1307')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">ASC 820-10 Fair Value</button>
-          <button onclick="gaapAgentQ('State the complete mandatory citation hierarchy for GAAP accounting authority: Acts of Congress, Supreme Court precedent, FASB ASC, Treasury Regulations, IRS Revenue Procedures, and 26 U.S.C. — with the legal basis for each tier.')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Citation Hierarchy</button>
-          <button onclick="gaapAgentQ('Explain the income doctrine: Eisner v. Macomber definition, Glenshaw Glass three-part test, the dual character of a financial asset at T1 (income) and T2 (loss), and how both events are documentable and legally recognized.')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Income Doctrine</button>
-          <button onclick="gaapAgentQ('Explain ASC 805 business combinations: why an acquisition is NOT a purchase, what each event is, when they occur, the distinct accounting treatment for each, and why conflating them constitutes a GAAP violation.')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">ASC 805 Business Combinations</button>
+          <button onclick="trustAgentQ('Explain why a purchase and an acquisition are two separate legal events and how the chose in action is treated as a financial asset under GAAP and federal law between those events, including mandatory journal entries and form placement')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Purchase vs Acquisition</button>
+          <button onclick="trustAgentQ('Explain why the cash method of accounting is a legal presumption with no foundation: payment and receipt are two separate events that cannot occur simultaneously')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Cash Method is a Presumption</button>
+          <button onclick="trustAgentQ('Explain the legal distinction between realization and recognition under the accrual method, who controls recognition timing, and cite the controlling authority')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Realization vs Recognition</button>
+          <button onclick="trustAgentQ('Classify a final arbitration award as a financial asset and cash equivalent under ASC 305-10-20 and ASC 310-10, state its valuation, and identify every IRS form and line where it is recorded')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Arbitration Award</button>
+          <button onclick="trustAgentQ('Explain why a Net Operating Loss is a financial asset with dollar-for-dollar monetary value backed by Congressional guarantee, state the controlling Revenue Acts, and identify form placements')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">NOL as Financial Asset</button>
+          <button onclick="trustAgentQ('Produce the complete journal entries for a corporation applying $400,000,000 in financial assets to satisfy a $190,000,000 tax liability creating a $210,000,000 overpayment receivable. State every form and line on Form 1120, Schedule J, Schedule M-1, and Schedule M-2.')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">$400M Property Payment Journal Entries</button>
+          <button onclick="trustAgentQ('Explain the overpayment receivable: why it is a corporate asset, what statute creates it, why the Secretary has no discretion to refuse the refund, and where it is recorded on Form 1120 and Schedule M-2')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Overpayment Receivable</button>
+          <button onclick="trustAgentQ('Explain accumulated expense assets under GAAP: how documented business expenses become a financial asset, the controlling ASC standards, the Revenue Act authority, and specific Schedule C and Form 1120 line placements')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Accumulated Expense Assets</button>
+          <button onclick="trustAgentQ('Explain chose in action: its definition under federal law, its classification as a financial asset, mandatory journal entries from purchase to acquisition, and form placement on Form 1099-A and Form 8949')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Chose in Action</button>
+          <button onclick="trustAgentQ('Explain the 80% total remittance strategy: 38% tax plus 42% overpayment, the statutory basis under 26 U.S.C. 6401(a) and 6402(a), form placement on Form 1120, and why the taxpayer controls designation on Line 35b')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">80% Remittance / 38%+42%</button>
+          <button onclick="trustAgentQ('Explain the 20/70/10 allocation strategy for a $500,000,000 income corporation and produce all journal entries with form placement')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">20/70/10 Allocation</button>
+          <button onclick="trustAgentQ('Explain ASC 820-10 fair value measurement as it applies to financial assets used in property-based tax payment under Revenue Act of 1918 Section 1307')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">ASC 820-10 Fair Value</button>
+          <button onclick="trustAgentQ('State the complete mandatory citation hierarchy for GAAP accounting authority: Acts of Congress, Supreme Court precedent, FASB ASC, Treasury Regulations, IRS Revenue Procedures, and 26 U.S.C. — with the legal basis for each tier.')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Citation Hierarchy</button>
+          <button onclick="trustAgentQ('Explain the income doctrine: Eisner v. Macomber definition, Glenshaw Glass three-part test, the dual character of a financial asset at T1 (income) and T2 (loss), and how both events are documentable and legally recognized.')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Income Doctrine</button>
+          <button onclick="trustAgentQ('Explain ASC 805 business combinations: why an acquisition is NOT a purchase, what each event is, when they occur, the distinct accounting treatment for each, and why conflating them constitutes a GAAP violation.')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">ASC 805 Business Combinations</button>
         </div>
       </div>
 
-      <!-- GAAP Agent Chat Interface -->
+      <!-- Trust Accounting Agent Chat Interface -->
       <div style="background:var(--bg-secondary, rgba(30,41,59,.8));border:1px solid rgba(16,185,129,.2);border-radius:10px;padding:16px">
-        <div style="font-size:14px;font-weight:700;color:#10b981;margin-bottom:12px">⚖️ GAAP ACCOUNTING AGENT — DIRECT QUERY</div>
+        <div style="font-size:14px;font-weight:700;color:#10b981;margin-bottom:12px">⚖️ TRUST ACCOUNTING AGENT — DIRECT QUERY</div>
         <div style="font-size:11px;color:#94a3b8;margin-bottom:12px;padding:8px;background:rgba(16,185,129,.06);border-radius:6px;border-left:3px solid #10b981">
           This agent operates as the chief architect on all accounting matters. It produces FACTS AND CONCLUSIONS OF LAW ONLY under GAAP, ASC, IRC, IRS rules, and Treasury procedures. No nuance. No opinion. No presumption.
         </div>
-        <textarea id="gaap-agent-input" placeholder="Ask any GAAP / ASC / IRC accounting question — journal entries, form placement, asset classification, valuation, event sequencing, or rebuttal of any accounting presumption..." style="width:100%;min-height:90px;background:rgba(0,0,0,.3);color:#f1f5f9;border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:10px;font-size:13px;font-family:'SF Mono','Cascadia Code',monospace;resize:vertical;box-sizing:border-box"></textarea>
+        <textarea id="trust-agent-input" placeholder="Ask any trust accounting, GAAP / ASC / IRC question — journal entries, form placement, asset classification, valuation, event sequencing, or rebuttal of any accounting presumption..." style="width:100%;min-height:90px;background:rgba(0,0,0,.3);color:#f1f5f9;border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:10px;font-size:13px;font-family:'SF Mono','Cascadia Code',monospace;resize:vertical;box-sizing:border-box"></textarea>
         <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
-          <button onclick="sendGaapAgentQuery()" style="background:#10b981;color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px">⚖️ Submit to GAAP Agent</button>
-          <button onclick="clearGaapAgentChat()" style="background:rgba(255,255,255,.08);color:#94a3b8;border:1px solid rgba(255,255,255,.1);padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">Clear</button>
+          <button onclick="sendTrustAgentQuery()" style="background:#10b981;color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px">⚖️ Submit to Trust Agent</button>
+          <button onclick="clearTrustAgentChat()" style="background:rgba(255,255,255,.08);color:#94a3b8;border:1px solid rgba(255,255,255,.1);padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">Clear</button>
         </div>
-        <div id="gaap-agent-response" style="margin-top:16px;min-height:40px;font-size:13px;color:#94a3b8;line-height:1.7">
+        <div id="trust-agent-response" style="margin-top:16px;min-height:40px;font-size:13px;color:#94a3b8;line-height:1.7">
           Ask any accounting question — journal entries, form placement, asset classification, valuation, accrual events, IRC compliance, or rebuttal of any accounting presumption.
         </div>
       </div>
     </div>
   </section>
-  <!-- END GAAP AGENT SECTION -->
+  <!-- END TRUST ACCOUNTING AGENT SECTION -->
 
 
   <script>
   // ═══════════════════════════════════════════════════════════════════════════
-  // GAAP ACCRUAL ACCOUNTING AGENT — CHIEF ARCHITECT
-  // Facts and Conclusions of Law Only. GAAP | ASC | IRC | IRS | Treasury
+  // TRUST ACCOUNTING AGENT — CHIEF ARCHITECT
+  // Trust Administration | GAAP | ASC | IRC | IRS | Treasury
   // ═══════════════════════════════════════════════════════════════════════════
 
-  const GAAP_AGENT_SYSTEM_PROMPT = `You are the GAAP ACCRUAL ACCOUNTING AGENT operating within the E2ZERO framework.
+  const TRUST_AGENT_SYSTEM_PROMPT = `You are the TRUST ACCOUNTING AGENT for A Provident Private Creditor Revocable Living Trust (EIN 41-6809588), Trustee Clinton Wimberly IV (CAF 0317-17351). You operate within the GAAP accrual accounting framework aligned with the Freeway Mechanics (FWM) trust administration system (7-Part, 11 Binder Tabs).
+
+You are the GAAP ACCRUAL ACCOUNTING AGENT operating within the E2ZERO framework.
 
 You are the definitive authority on GAAP, ASC, IRC, IRS rules and regulations, Treasury procedures, and federal accounting requirements. You produce FACTS AND CONCLUSIONS OF LAW ONLY. NO NUANCE. NO INTERPRETATION. NO OPINION. NO PRESUMPTION. NO CLARIFICATION.
 
@@ -8356,29 +8358,29 @@ FACTS AND CONCLUSIONS OF LAW ONLY.
 NO NUANCE. NO INTERPRETATION. NO OPINION. NO PRESUMPTION. NO CLARIFICATION.
 ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
 
-  function gaapAgentQ(question) {
-    var input = document.getElementById('gaap-agent-input');
+  function trustAgentQ(question) {
+    var input = document.getElementById('trust-agent-input');
     if (input) {
       input.value = question;
-      sendGaapAgentQuery();
+      sendTrustAgentQuery();
     }
   }
 
-  function clearGaapAgentChat() {
-    var resp = document.getElementById('gaap-agent-response');
+  function clearTrustAgentChat() {
+    var resp = document.getElementById('trust-agent-response');
     if (resp) resp.innerHTML = 'Ask any accounting question — journal entries, form placement, asset classification, valuation, accrual events, IRC compliance, or rebuttal of any accounting presumption.';
-    var input = document.getElementById('gaap-agent-input');
+    var input = document.getElementById('trust-agent-input');
     if (input) input.value = '';
   }
 
-  async function sendGaapAgentQuery() {
-    var input = document.getElementById('gaap-agent-input');
-    var respDiv = document.getElementById('gaap-agent-response');
+  async function sendTrustAgentQuery() {
+    var input = document.getElementById('trust-agent-input');
+    var respDiv = document.getElementById('trust-agent-response');
     if (!input || !respDiv) return;
     var question = (input.value || '').trim();
     if (!question) return;
 
-    respDiv.innerHTML = '<div style="color:#10b981;font-weight:700;display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:16px;height:16px;border:2px solid #10b981;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite"></span>Processing — GAAP Accrual Accounting Agent...</div>';
+    respDiv.innerHTML = '<div style="color:#10b981;font-weight:700;display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:16px;height:16px;border:2px solid #10b981;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite"></span>Processing — Trust Accounting Agent...</div>';
     input.value = '';
 
     try {
@@ -8388,7 +8390,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
           max_tokens: 4096,
-          system: GAAP_AGENT_SYSTEM_PROMPT,
+          system: TRUST_AGENT_SYSTEM_PROMPT,
           messages: [{ role: 'user', content: question }]
         })
       });
@@ -8409,15 +8411,15 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
         .replace(/\n/g,'<br>');
 
       respDiv.innerHTML =
-        '<div style="color:#10b981;font-weight:700;font-size:12px;margin-bottom:8px;border-bottom:1px solid rgba(16,185,129,.2);padding-bottom:6px">⚖️ GAAP ACCRUAL ACCOUNTING AGENT — RESPONSE</div>' +
+        '<div style="color:#10b981;font-weight:700;font-size:12px;margin-bottom:8px;border-bottom:1px solid rgba(16,185,129,.2);padding-bottom:6px">⚖️ TRUST ACCOUNTING AGENT — RESPONSE</div>' +
         '<div style="font-size:13px;line-height:1.7;color:#f1f5f9">' + formatted + '</div>' +
-        '<div style="margin-top:10px;font-size:10px;color:#64748b;border-top:1px solid rgba(255,255,255,.06);padding-top:6px">Agent: GAAP Accrual Accounting Agent &bull; Facts and Conclusions of Law Only &bull; GAAP | ASC | IRC | IRS | Treasury</div>';
+        '<div style="margin-top:10px;font-size:10px;color:#64748b;border-top:1px solid rgba(255,255,255,.06);padding-top:6px">Agent: Trust Accounting Agent &bull; Facts and Conclusions of Law Only &bull; GAAP | ASC | IRC | IRS | Treasury</div>';
 
     } catch(err) {
       var msg = err.message || String(err);
       // If API key missing, give helpful message
       if (msg.includes('401') || msg.includes('authentication') || msg.includes('api_key')) {
-        respDiv.innerHTML = '<div style="color:#f59e0b;font-size:13px"><strong>API Key Required:</strong> To use the GAAP Agent, open the browser console and set:<br><code style="background:rgba(0,0,0,.3);padding:2px 6px;border-radius:4px">window._gaapApiKey = 'your-anthropic-key'</code><br>Then reload this tab.<br><br>Alternatively, run the full E2ZERO server (E2ZERO_MASTER_ACCOUNTING_AGENT.py) which handles API calls server-side via /api/chat.</div>';
+        respDiv.innerHTML = '<div style="color:#f59e0b;font-size:13px"><strong>API Key Required:</strong> To use the Trust Accounting Agent, open the browser console and set:<br><code style="background:rgba(0,0,0,.3);padding:2px 6px;border-radius:4px">window._trustApiKey = \'your-anthropic-key\'</code><br>Then reload this tab.<br><br>Alternatively, run the full E2ZERO server (E2ZERO_MASTER_ACCOUNTING_AGENT.py) which handles API calls server-side via /api/chat.</div>';
       } else {
         respDiv.innerHTML = '<div style="color:#ef4444">⚠ Error: ' + msg.replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</div>';
       }
@@ -8953,15 +8955,15 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     if (!q) return;
     addChatMsg('user', q);
     input.value = '';
-    // Send to GAAP Agent API
-    addChatMsg('agent','Processing query via GAAP Accrual Accounting Agent...');
+    // Send to Trust Accounting Agent API
+    addChatMsg('agent','Processing query via Trust Accounting Agent...');
     fetch('https://api.anthropic.com/v1/messages', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         model:'claude-sonnet-4-20250514',
         max_tokens:4096,
-        system:typeof GAAP_AGENT_SYSTEM_PROMPT!=='undefined'?GAAP_AGENT_SYSTEM_PROMPT:'You are the GAAP Accrual Accounting Agent operating under SYPHER Protocol v7.1. Respond with facts and conclusions of law only. No hedging. No disclaimers. No metadata.',
+        system:typeof TRUST_AGENT_SYSTEM_PROMPT!=='undefined'?TRUST_AGENT_SYSTEM_PROMPT:'You are the Trust Accounting Agent operating under SYPHER Protocol v7.1. Respond with facts and conclusions of law only. No hedging. No disclaimers. No metadata.',
         messages:[{role:'user',content:q}]
       })
     }).then(function(r){return r.json()}).then(function(d){
@@ -8972,7 +8974,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
       addChatMsg('agent',t);
     }).catch(function(e){
       vcHistory.pop();
-      addChatMsg('system','API connection required. Set window._gaapApiKey or run E2ZERO server. Error: '+e.message);
+      addChatMsg('system','API connection required. Set window._trustApiKey or run E2ZERO server. Error: '+e.message);
     });
   }
 
