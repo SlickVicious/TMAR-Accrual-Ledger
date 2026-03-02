@@ -233,6 +233,7 @@
     <!-- Main Navigation Tabs -->
     <nav class="glass-card rounded-xl p-2 mb-6 overflow-x-auto">
       <div class="flex space-x-2 min-w-max">
+        <!-- Group 1: Core Accounting -->
         <button onclick="switchMainTab('ledger')" class="tab-btn active px-4 py-3 rounded-lg font-semibold text-sm" data-tab="ledger">
           📒 Ledger
         </button>
@@ -245,24 +246,35 @@
         <button onclick="switchMainTab('journal')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="journal">
           📝 Journal
         </button>
+        <div class="w-px h-6 bg-gray-600 mx-1 hidden md:block"></div>
+        <!-- Group 2: Receivables & Payables -->
         <button onclick="switchMainTab('receivables')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="receivables">
           📥 A/R
         </button>
         <button onclick="switchMainTab('payables')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="payables">
           📤 A/P
         </button>
+        <div class="w-px h-6 bg-gray-600 mx-1 hidden md:block"></div>
+        <!-- Group 3: Consolidation & Statements -->
         <button onclick="switchMainTab('consolidation')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="consolidation">
           🔗 Consolidation
         </button>
         <button onclick="switchMainTab('statements')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="statements">
           📑 Statements
         </button>
+        <div class="w-px h-6 bg-gray-600 mx-1 hidden md:block"></div>
+        <!-- Group 4: Tax & Compliance -->
         <button onclick="switchMainTab('filings')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="filings">
           🏛️ Tax Filings
         </button>
-        <button onclick="switchMainTab('reports')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="reports">
-          📊 Reports
+        <button onclick="switchMainTab('taxEstimator')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="taxEstimator" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4)">
+          🧮 Tax Estimator
         </button>
+        <button onclick="switchMainTab('scheduleA')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="scheduleA" style="background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.4)">
+          📋 Schedule A Detail
+        </button>
+        <div class="w-px h-6 bg-gray-600 mx-1 hidden md:block"></div>
+        <!-- Group 5: Trust Estate -->
         <button onclick="switchMainTab('trustDashboard')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="trustDashboard">
           🏦 Trust Estate Dashboard
         </button>
@@ -272,6 +284,8 @@
         <button onclick="switchMainTab('trustReports')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="trustReports">
           📈 Trust Estate Reports
         </button>
+        <div class="w-px h-6 bg-gray-600 mx-1 hidden md:block"></div>
+        <!-- Group 6: Operations -->
         <button onclick="switchMainTab('invoicing')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="invoicing" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4)">
           🧾 Invoicing
         </button>
@@ -283,9 +297,6 @@
         </button>
         <button onclick="switchMainTab('budgetForecast')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="budgetForecast" style="background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.4)">
           📈 Budget &amp; Forecast
-        </button>
-        <button onclick="switchMainTab('taxEstimator')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="taxEstimator" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4)">
-          🧮 Tax Estimator
         </button>
         <button onclick="switchMainTab('paymentOrders')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="paymentOrders" style="background:rgba(6,182,212,0.2);border:2px solid rgba(6,182,212,0.6);font-weight:800;">
           💳 Payment Orders
@@ -299,14 +310,16 @@
         <button onclick="switchMainTab('customers')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="customers" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4)">
           👥 Customers &amp; Vendors
         </button>
-        <button onclick="switchMainTab('scheduleA')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="scheduleA" style="background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.4)">
-          📋 Schedule A Detail
-        </button>
         <button onclick="switchMainTab('depreciation')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="depreciation" style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.4)">
           🏗️ Asset Depreciation
         </button>
         <button onclick="switchMainTab('bankRecon')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="bankRecon" style="background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.4)">
           🏦 Bank Reconciliation
+        </button>
+        <div class="w-px h-6 bg-gray-600 mx-1 hidden md:block"></div>
+        <!-- Group 7: Reports & Intelligence -->
+        <button onclick="switchMainTab('reports')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="reports">
+          📊 Reports
         </button>
         <button onclick="switchMainTab('masterReport')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="masterReport" style="background:linear-gradient(135deg,rgba(16,185,129,0.3),rgba(59,130,246,0.3));border:2px solid rgba(16,185,129,0.8);font-weight:900;color:#10b981">
           📑 MASTER REPORT
@@ -314,11 +327,13 @@
         <button onclick="switchMainTab('trustAgent')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="trustAgent" style="background:linear-gradient(135deg,rgba(16,185,129,0.3),rgba(5,150,105,0.3));border:2px solid rgba(16,185,129,0.8);font-weight:900;color:#10b981">
           ⚖️ Trust Accounting Agent
         </button>
-        <button onclick="switchMainTab('financialAssets')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="financialAssets" style="background:linear-gradient(135deg,rgba(59,130,246,0.3),rgba(139,92,246,0.3));border:2px solid rgba(59,130,246,0.8);font-weight:900;color:#3b82f6">
-          🏛️ Financial Assets
-        </button>
         <button onclick="switchMainTab('voiceChat')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="voiceChat" style="background:linear-gradient(135deg,rgba(245,158,11,0.3),rgba(239,68,68,0.3));border:2px solid rgba(245,158,11,0.8);font-weight:900;color:#f59e0b">
           🎙️ Voice &amp; Chat
+        </button>
+        <div class="w-px h-6 bg-gray-600 mx-1 hidden md:block"></div>
+        <!-- Group 8: Tools -->
+        <button onclick="switchMainTab('financialAssets')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="financialAssets" style="background:linear-gradient(135deg,rgba(59,130,246,0.3),rgba(139,92,246,0.3));border:2px solid rgba(59,130,246,0.8);font-weight:900;color:#3b82f6">
+          🏛️ Financial Assets
         </button>
         <button onclick="switchMainTab('docCreator')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="docCreator" style="background:linear-gradient(135deg,rgba(6,182,212,0.3),rgba(59,130,246,0.3));border:2px solid rgba(6,182,212,0.8);font-weight:900;color:#06b6d4">
           📄 Document Creator
