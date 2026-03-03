@@ -1,7 +1,7 @@
 # TMAR Universal Accrual Ledger - User Guide
 
-**Version:** 1.0.0
-**Last Updated:** 2026-02-28
+**Version:** 1.1.0
+**Last Updated:** 2026-03-03
 **Status:** ✅ Deployed and Ready
 
 ---
@@ -322,6 +322,22 @@ When you open the interface, it automatically loads accounts from your Master Re
 - Outstanding deposits list
 - Ending balance calculation
 - Reconciliation difference resolution
+
+---
+
+### 13-17. RedressRight Source Libraries (Group 9)
+
+Five reference tools integrated from `redressright.me` as dedicated tabs:
+
+| # | Tab | Purpose | Key Features |
+|---|---|---|---|
+| 13 | ⚖️ Constitutional Challenges (CPSA) | Generate constitutional challenge documents | 12 templates, rich text editor, save/load drafts, PDF/Word export |
+| 14 | 💰 Tax Refund Calculator (TRCF) | Calculate tax refunds via two routes | 7 sub-tabs, Route 1/Route 2 calculators, 2024 brackets, interest calculator |
+| 15 | 📊 NOL Classification (CCSN) | Net Operating Loss asset classification | 72-slide presentation, prev/next navigation, table of contents |
+| 16 | 🏛️ Federal Damages (FDRF) | Federal damages framework reference | 4-part accordion layout, text-to-speech read-aloud |
+| 17 | 📓 Tutorial Journal (EEEJ) | Educational tutorial journal | 28 slides, topic navigation, progress tracking |
+
+**How to access:** Click any tab in the "RedressRight Source Libraries" group at the right end of the tab bar.
 
 ---
 
@@ -758,7 +774,20 @@ To practice with realistic data:
 - ✅ Glass-morphism design with backdrop blur
 - ✅ Responsive layout (desktop, tablet, mobile)
 
-**Coming Soon (v1.1):**
+### v1.1.0 (2026-03-03)
+
+**RedressRight Source Libraries (5 new tabs):**
+- ✅ Constitutional Challenges (CPSA) — 12 legal document templates with rich text editor
+- ✅ Tax Refund Calculator (TRCF) — Route 1/Route 2 calculators with 2024 brackets
+- ✅ NOL Classification (CCSN) — 72-slide asset classification reference
+- ✅ Federal Damages (FDRF) — 4-part framework with text-to-speech
+- ✅ Tutorial Journal (EEEJ) — 28-slide educational journal with progress tracking
+
+**Bug Fixes:**
+- ✅ Fixed Document Creator autosave overwriting in-memory drafts on tab re-entry
+- ✅ Fixed duplicate autosave intervals accumulating on tab switches
+
+**Coming Soon (v1.2):**
 - Journal entries with multi-line support
 - Accounts Receivable aging
 - Accounts Payable tracking

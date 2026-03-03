@@ -1,6 +1,6 @@
 # GAAP Source — Complete Association Chart
 
-**Source**: `GAAP-source.html` (9,401 lines, 643KB)
+**Source**: `TMAR-Accrual-Ledger.html` (16,280 lines, 1.1MB)
 **Date**: 2026-03-01
 **Purpose**: Map every GUI element to its function, document navigation flow, and break down all core/sub/remote functions.
 
@@ -22,7 +22,7 @@
 
 ## 2. MAIN TAB NAVIGATION (Lines 322-417)
 
-### Tab Buttons (32 total → 31 after removing UK Accounting)
+### Tab Buttons (37 total → 36 after removing UK Accounting)
 
 All buttons call `switchMainTab(tabName)` which:
 1. Removes `.active` from all `.tab-btn` elements
@@ -65,6 +65,12 @@ All buttons call `switchMainTab(tabName)` which:
 | 30 | 🎙️ Voice & Chat | `voiceChat` | `initVoiceChat()` (guarded) | Gradient yellow/red, bold |
 | 31 | 📄 Document Creator | `docCreator` | `initDocCreator()` (guarded) | Gradient cyan/blue, bold |
 | 32 | 📁 Source Folders | `sourceFolders` | *(setTimeout init)* | Purple tint border |
+| | **Group 9: RedressRight Source Libraries** | | | |
+| 33 | ⚖️ Constitutional Challenges | `cpsa` | `initCPSA()` (guarded) | Cyan bold border |
+| 34 | 💰 Tax Refund Calculator | `trcf` | `initTRCF()` (guarded) | Red tint border |
+| 35 | 📊 NOL Classification | `ccsn` | `initCCSN()` (guarded) | Amber bold border |
+| 36 | 🏛️ Federal Damages | `fdrf` | `initFDRF()` (guarded) | Green bold border |
+| 37 | 📓 Tutorial Journal | `eeej` | `initEEEJ()` (guarded) | Yellow bold border |
 
 ---
 
@@ -122,8 +128,23 @@ switchMainTab(tabName)
 ├── voiceChat ───────→ initVoiceChat()
 │                      └── SpeechRecognition + SpeechSynthesis + Anthropic API chat
 │
-└── docCreator ──────→ initDocCreator()
-                       └── Document template selection + PDF generation
+├── docCreator ──────→ initDocCreator()
+│                      └── Document template selection + PDF generation
+│
+├── cpsa ────────────→ initCPSA()
+│                      └── 12 constitutional challenge templates, rich text editor, save/load/export
+│
+├── trcf ────────────→ initTRCF()
+│                      └── 7 sub-tabs, Route 1/Route 2 tax refund calculators (2024 brackets)
+│
+├── ccsn ────────────→ initCCSN()
+│                      └── 72-slide NOL asset classification, prev/next navigation, TOC
+│
+├── fdrf ────────────→ initFDRF()
+│                      └── 4-part accordion, TTS via speakWithHighlight()
+│
+└── eeej ────────────→ initEEEJ()
+                       └── 28-slide tutorial journal, topic nav, progress tracking
 ```
 
 ---
@@ -435,6 +456,65 @@ switchMainTab(tabName)
 | Delete Folder | `onclick` | `deleteSourceFolder(id)` | Removes |
 | Category Filter | `onchange` | `filterSourceFolders()` | Filters by category |
 
+### 4.32 Constitutional Challenges Tab (CPSA)
+
+| Button/Element | Handler | Function | Sub-functions |
+|---|---|---|---|
+| Template Select (12) | `onclick` | `cpsaSelectTemplate(type)` | Loads constitutional challenge template into rich text editor |
+| Bold / Italic / Underline | `onclick` | `cpsaCmd('bold'\|'italic'\|'underline')` | `document.execCommand()` formatting |
+| Insert Citation | `onclick` | `cpsaInsertCitation(type)` | Inserts legal citation block (USC, CFR, Case Law) |
+| Set Font Size | `onchange` | `cpsaSetFontSize(size)` | Changes editor font size |
+| Set Case | `onclick` | `cpsaSetCase(type)` | Transforms text: uppercase, lowercase, title case |
+| Save Draft | `onclick` | `cpsaSave()` | localStorage persist |
+| Load Draft | `onclick` | `cpsaLoad()` | Restores from localStorage |
+| Export PDF | `onclick` | `cpsaExportPDF()` | jsPDF export |
+| Export Word | `onclick` | `cpsaExportWord()` | HTML-based .doc export |
+| Print | `onclick` | `cpsaPrint()` | `window.print()` |
+| View Source | `onclick` | `cpsaViewSource()` | Shows raw HTML of editor content |
+| Clean HTML | `onclick` | `cpsaCleanHTML()` | Strips unnecessary formatting |
+
+### 4.33 Tax Refund Calculator Tab (TRCF)
+
+| Button/Element | Handler | Function | Sub-functions |
+|---|---|---|---|
+| Sub-tab Buttons (7) | `onclick` | `trcfSwitchTab(tabName)` | Switches between 7 calculator sub-tabs |
+| Route Select (1/2) | `onclick` | `trcfSelectRoute(routeNum)` | Toggles Route 1 vs Route 2 calculator view |
+| Route 1 Calculate | `onclick` | `trcfCalculateRoute1()` | Standard refund with 2024 individual/trust brackets |
+| Route 2 Calculate | `onclick` | `trcfCalculateRoute2()` | Alternative method refund calculation |
+| Interest Calculator | `onclick` | `trcfCalcInterestUI()` | `trcfCalcInterest(principal, rate, days)` — simple interest |
+| Number Formatter | auto | `trcfFmt(n)` | Currency formatting helper |
+| Tax Bracket Engine | internal | `trcfCalcTax(income, status)` | 2024 brackets: Single, MFJ, MFS, HOH |
+| Trust Tax Engine | internal | `trcfCalcTrustTax(income)` | 2024 trust brackets: 10%→37% |
+
+### 4.34 NOL Classification Tab (CCSN)
+
+| Button/Element | Handler | Function | Sub-functions |
+|---|---|---|---|
+| Next Slide | `onclick` | `ccsnNext()` | `ccsnShowSlide(ccsnCurrentSlide + 1)` |
+| Prev Slide | `onclick` | `ccsnPrev()` | `ccsnShowSlide(ccsnCurrentSlide - 1)` |
+| Jump to Slide | `onclick` | `ccsnJumpTo(n)` | Direct slide navigation from TOC |
+| TOC Toggle | `onclick` | `ccsnToggleTOC()` | Shows/hides table of contents panel |
+| TOC Update | auto | `ccsnUpdateTOC(n)` | Highlights current slide in TOC |
+| Slide Counter | auto | — | Displays "Slide X of 72" |
+
+### 4.35 Federal Damages Tab (FDRF)
+
+| Button/Element | Handler | Function | Sub-functions |
+|---|---|---|---|
+| Part Toggle (4 parts) | `onclick` | `fdrfTogglePart(partNum)` | Expand/collapse major damage framework sections |
+| Accordion Headers | `onclick` | `fdrfToggleAccordion(el)` | Expand/collapse individual accordion items within parts |
+| Read Section Aloud | `onclick` | `fdrfReadSection(sectionId)` | `speakWithHighlight(text)` — TTS via existing utility |
+
+### 4.36 Tutorial Journal Tab (EEEJ)
+
+| Button/Element | Handler | Function | Sub-functions |
+|---|---|---|---|
+| Next Slide | `onclick` | `eeejNext()` | Advances to next slide, updates progress |
+| Prev Slide | `onclick` | `eeejPrev()` | Returns to previous slide |
+| Jump to Slide | `onclick` | `eeejJumpTo(index)` | Direct slide navigation from topic list |
+| Render Slide | internal | `eeejRenderSlide(index)` | Builds slide HTML from data array |
+| Progress Update | auto | `eeejUpdateProgress()` | Updates progress bar and "X of 28" counter |
+
 ---
 
 ## 5. CORE FUNCTIONS BREAKDOWN
@@ -521,7 +601,7 @@ Page Load
 │   └── CSS variables, dark/light mode, glass morphism, responsive
 │
 ├── HTML renders (lines 189-3850)
-│   └── RedressRight nav, app header, 32 tab buttons, 32 tab sections
+│   └── RedressRight nav, app header, 37 tab buttons, 36 tab sections
 │
 ├── <script> executes (line 3877+)
 │   ├── Theme init: isDarkMode from localStorage → applyTheme()
@@ -569,6 +649,7 @@ Page Load
 | `RR_Reconciliations` | Bank reconciliation data | Bank Recon module |
 | `vcHistory` | Voice & Chat history | Voice & Chat module |
 | `vcStats` | Voice & Chat statistics | Voice & Chat module |
+| `cpsa_draft` | CPSA editor draft content | Constitutional Challenges module |
 
 **TMAR Rename Plan:**
 - `GAAP_UniversalLedger_Data` → `TMAR_AccrualLedger_Data`
@@ -593,7 +674,7 @@ Page Load
 ## 9. TMAR ADAPTATION NOTES
 
 ### Tabs to Remove
-- `ukAccounting` (1 tab removed → 31 remain)
+- `ukAccounting` (1 tab removed → 36 remain)
 
 ### Tabs to Rename
 - `spvDashboard` → `trustDashboard` (Trust Estate Dashboard)
