@@ -1,6 +1,6 @@
 # TMAR Universal Accrual Ledger - User Guide
 
-**Version:** 1.1.0
+**Version:** 1.1.1
 **Last Updated:** 2026-03-03
 **Status:** ✅ Deployed and Ready
 
@@ -583,12 +583,20 @@ While auto-save runs every 5 seconds, you can also:
 - Apps Script authorization prompt: Review permissions → Allow
 - Only accesses TMAR spreadsheet, no other files
 
+### PII Masking (v1.1.1)
+
+- **Trust Name**: Defaults to `[Trust Entity Name]` placeholder; only shows real name after user enters it via Entities tab
+- **EIN**: Always masked in UI and AI prompts — shows only last 4 digits (e.g., `••-•••9588`)
+- **Source code**: No hardcoded PII — default entity/settings data ships with empty fields
+- **AI System Prompt**: Built dynamically at runtime via `buildTrustAgentSystemPrompt()` using current settings
+
 ### Best Practices
 
 1. **Regular backups** - Export JSON weekly
 2. **Sync frequently** - Click Sync button after important entries
 3. **Private browsing caution** - localStorage clears when you close browser
 4. **Multi-device note** - Data is per-browser, not synced across devices (until Google Sheets sync)
+5. **Sharing safely** - The HTML file contains no PII by default; safe to share with peers for testing
 
 ---
 
@@ -786,6 +794,15 @@ To practice with realistic data:
 **Bug Fixes:**
 - ✅ Fixed Document Creator autosave overwriting in-memory drafts on tab re-entry
 - ✅ Fixed duplicate autosave intervals accumulating on tab switches
+
+### v1.1.1 (2026-03-03)
+
+**Security — PII Masking:**
+- ✅ Trust name defaults to `[Trust Entity Name]` placeholder (no hardcoded PII)
+- ✅ EIN masked to last 4 digits everywhere: header, AI prompt (`••-•••9588`)
+- ✅ Default entity/settings data ships empty — user populates via Entities tab
+- ✅ AI system prompt rebuilt dynamically at runtime via `buildTrustAgentSystemPrompt()`
+- ✅ New utilities: `maskEIN()`, `updateHeaderSubtitle()`, `buildTrustAgentSystemPrompt()`
 
 **Coming Soon (v1.2):**
 - Journal entries with multi-line support

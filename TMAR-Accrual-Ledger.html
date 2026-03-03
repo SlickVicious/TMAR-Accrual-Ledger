@@ -298,8 +298,8 @@
       <h1 class="text-3xl md:text-4xl font-bold mb-2" style="font-family: Calibri, 'Segoe UI', system-ui, sans-serif;">
         <span class="text-blue-400">⚖️</span> TMAR Universal Accrual Ledger
       </h1>
-      <p class="text-sm text-gray-400 max-w-2xl mx-auto">
-        A Provident Private Creditor Revocable Living Trust — EIN 41-6809588
+      <p id="headerTrustSubtitle" class="text-sm text-gray-400 max-w-2xl mx-auto">
+        [Trust Entity Name] — EIN ••-•••••••
       </p>
       
       <!-- Save & Export Toolbar -->
@@ -5224,11 +5224,11 @@
       },
       entities: [{
         id: 'trust_primary',
-        name: 'A Provident Private Creditor Revocable Living Trust',
+        name: '',
         type: 'Trust',
-        ein: '41-6809588',
-        trustee: 'Clinton Wimberly IV',
-        cafNumber: '0317-17351',
+        ein: '',
+        trustee: '',
+        cafNumber: '',
         fiscalYearEnd: '12/31',
         status: 'Active',
         primaryUser: 'Trust',
@@ -5241,10 +5241,10 @@
       payables: [],
       eliminations: [],
       settings: {
-        trustName: 'A Provident Private Creditor Revocable Living Trust',
-        trustEIN: '41-6809588',
-        trusteeName: 'Clinton Wimberly IV',
-        cafNumber: '0317-17351',
+        trustName: '',
+        trustEIN: '',
+        trusteeName: '',
+        cafNumber: '',
         activeYear: '2025'
       },
       lastSaved: null
@@ -5268,7 +5268,25 @@
       }
       return { ...defaultAppData };
     }
-    
+
+    // Mask EIN to show only last 4 digits (XX-XXXXXXX → ••-•••XXXX)
+    function maskEIN(ein) {
+      if (!ein) return '••-•••••••';
+      var digits = ein.replace(/\D/g, '');
+      if (digits.length < 4) return '••-•••••••';
+      return '••-•••' + digits.slice(-4);
+    }
+
+    // Update the header subtitle with trust name and masked EIN from settings
+    function updateHeaderSubtitle() {
+      var el = document.getElementById('headerTrustSubtitle');
+      if (!el) return;
+      var s = appData && appData.settings ? appData.settings : {};
+      var name = s.trustName || '[Trust Entity Name]';
+      var ein = s.trustEIN ? maskEIN(s.trustEIN) : '••-•••••••';
+      el.textContent = name + ' — EIN ' + ein;
+    }
+
     // Save data to localStorage
     function saveToStorage() {
       try {
@@ -5302,7 +5320,9 @@
     
     // Initialize appData from localStorage
     const appData = loadFromStorage();
-    
+    // Refresh header subtitle from loaded settings
+    updateHeaderSubtitle();
+
     // Auto-save interval
     setInterval(saveToStorage, AUTO_SAVE_INTERVAL);
     
@@ -10377,7 +10397,15 @@
   // Trust Administration | GAAP | ASC | IRC | IRS | Treasury
   // ═══════════════════════════════════════════════════════════════════════════
 
-  const TRUST_AGENT_SYSTEM_PROMPT = `You are the TRUST ACCOUNTING AGENT for A Provident Private Creditor Revocable Living Trust (EIN 41-6809588), Trustee Clinton Wimberly IV (CAF 0317-17351). You operate within the GAAP accrual accounting framework aligned with the Freeway Mechanics (FWM) trust administration system (7-Part, 11 Binder Tabs).
+  function buildTrustAgentSystemPrompt() {
+    const s = (typeof appData !== 'undefined' && appData.settings) ? appData.settings : {};
+    const tName = s.trustName || '[Trust Entity Name]';
+    const tEIN = s.trustEIN ? maskEIN(s.trustEIN) : '••-•••••••';
+    const tTrustee = s.trusteeName || '[Trustee Name]';
+    const tCAF = s.cafNumber || '[CAF Number]';
+    return `You are the TRUST ACCOUNTING AGENT for ${tName} (EIN ${tEIN}), Trustee ${tTrustee} (CAF ${tCAF}). You operate within the GAAP accrual accounting framework aligned with the Freeway Mechanics (FWM) trust administration system (7-Part, 11 Binder Tabs).`;
+  }
+  const TRUST_AGENT_PROMPT_BODY = `
 
 You are the GAAP ACCRUAL ACCOUNTING AGENT operating within the E2ZERO framework.
 
@@ -10726,7 +10754,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
           max_tokens: 4096,
-          system: TRUST_AGENT_SYSTEM_PROMPT,
+          system: buildTrustAgentSystemPrompt() + TRUST_AGENT_PROMPT_BODY,
           messages: [{ role: 'user', content: question }]
         })
       });
@@ -13827,7 +13855,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
       body:JSON.stringify({
         model:'claude-sonnet-4-20250514',
         max_tokens:4096,
-        system:typeof TRUST_AGENT_SYSTEM_PROMPT!=='undefined'?TRUST_AGENT_SYSTEM_PROMPT:'You are the Trust Accounting Agent operating under SYPHER Protocol v7.1. Respond with facts and conclusions of law only. No hedging. No disclaimers. No metadata.',
+        system:(typeof buildTrustAgentSystemPrompt==='function'?(buildTrustAgentSystemPrompt()+TRUST_AGENT_PROMPT_BODY):'You are the Trust Accounting Agent operating under SYPHER Protocol v7.1. Respond with facts and conclusions of law only. No hedging. No disclaimers. No metadata.'),
         messages:[{role:'user',content:q}]
       })
     }).then(function(r){return r.json()}).then(function(d){

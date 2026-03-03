@@ -523,9 +523,12 @@ switchMainTab(tabName)
 
 | Function | Line | Purpose | Called By |
 |---|---|---|---|
-| `loadFromStorage()` | ~3935 | Loads `GAAP_UniversalLedger_Data` from localStorage, merges with defaults | App init (once) |
-| `saveToStorage()` | ~3951 | JSON.stringify → localStorage.setItem + timestamp | Auto-save interval, manual save, every CRUD op |
-| `showAutoSaveStatus(msg, isError)` | ~3966 | Fixed-position toast (bottom-right), fades after 2s | `loadFromStorage()`, `saveToStorage()` |
+| `loadFromStorage()` | ~5254 | Loads `TMAR_AccrualLedger_Data` from localStorage, merges with defaults | App init (once) |
+| `saveToStorage()` | ~5290 | JSON.stringify → localStorage.setItem + timestamp | Auto-save interval, manual save, every CRUD op |
+| `maskEIN(ein)` | ~5272 | Masks EIN to last 4 digits: `'41-6809588'` → `'••-•••9588'` | `updateHeaderSubtitle()`, `buildTrustAgentSystemPrompt()` |
+| `updateHeaderSubtitle()` | ~5280 | Refreshes `#headerTrustSubtitle` from `appData.settings` with masked EIN | App init (after `loadFromStorage()`) |
+| `buildTrustAgentSystemPrompt()` | ~10397 | Builds AI system prompt dynamically from `appData.settings` with masked EIN | `sendTrustAgentQuery()`, `sendChat()` |
+| `showAutoSaveStatus(msg, isError)` | ~5305 | Fixed-position toast (bottom-right), fades after 2s | `loadFromStorage()`, `saveToStorage()` |
 | `applyTheme()` | ~3886 | Adds/removes `.dark` on `<html>`, updates icon | `toggleDarkMode()`, init |
 | `toggleDarkMode()` | ~3895 | Flips `isDarkMode`, persists to localStorage | Header toggle button |
 
@@ -582,8 +585,8 @@ switchMainTab(tabName)
 
 | Function | Endpoint | Method | Auth | Purpose |
 |---|---|---|---|---|
-| `sendGaapAgentQuery()` | `https://api.anthropic.com/v1/messages` | POST | `x-api-key` header (user-provided) | GAAP accounting Q&A with 6,000-char system prompt |
-| `sendChat()` | `https://api.anthropic.com/v1/messages` | POST | `x-api-key` header (user-provided) | Voice & Chat conversational AI |
+| `sendTrustAgentQuery()` | `https://api.anthropic.com/v1/messages` | POST | `x-api-key` header (user-provided) | GAAP accounting Q&A; system prompt built dynamically via `buildTrustAgentSystemPrompt() + TRUST_AGENT_PROMPT_BODY` |
+| `sendChat()` | `https://api.anthropic.com/v1/messages` | POST | `x-api-key` header (user-provided) | Voice & Chat conversational AI; same dynamic prompt builder |
 
 **Browser APIs Used:**
 - `SpeechRecognition` (Web Speech API) — voice input transcription
@@ -606,6 +609,7 @@ Page Load
 ├── <script> executes (line 3877+)
 │   ├── Theme init: isDarkMode from localStorage → applyTheme()
 │   ├── Data init: appData = loadFromStorage()
+│   ├── Header refresh: updateHeaderSubtitle() — masked EIN from settings
 │   ├── Auto-save: setInterval(saveToStorage, 5000)
 │   ├── Unload save: window.addEventListener('beforeunload', saveToStorage)
 │   ├── Default COA: defaultCOA[] (68 accounts)
@@ -639,7 +643,7 @@ Page Load
 
 | Key | Scope | Used By |
 |---|---|---|
-| `GAAP_UniversalLedger_Data` | Main app data (all core modules) | `loadFromStorage()` / `saveToStorage()` |
+| `TMAR_AccrualLedger_Data` | Main app data (all core modules) | `loadFromStorage()` / `saveToStorage()` |
 | `darkMode` | Theme preference | `toggleDarkMode()` / `applyTheme()` |
 | `RR_BOE` | Bills of Exchange | BOE module |
 | `RR_Expenses` | Expense Itemization | Expenses module |
@@ -651,9 +655,8 @@ Page Load
 | `vcStats` | Voice & Chat statistics | Voice & Chat module |
 | `cpsa_draft` | CPSA editor draft content | Constitutional Challenges module |
 
-**TMAR Rename Plan:**
-- `GAAP_UniversalLedger_Data` → `TMAR_AccrualLedger_Data`
-- `RR_*` prefix → `TMAR_*` prefix
+**Pending Renames:**
+- `RR_*` prefix → `TMAR_*` prefix (future cleanup)
 - `darkMode` → keep as-is (generic)
 
 ---
@@ -682,8 +685,11 @@ Page Load
 - `spvReports` → `trustReports` (Trust Estate Reports)
 - `gaapAgent` → `trustAgent` (Trust Accounting Agent)
 
-### Pre-populated Data
-- **Entities**: A Provident Private Creditor RLT (EIN 41-6809588, Trustee Clinton Wimberly IV, CAF 0317-17351)
+### Pre-populated Data & PII Security
+- **Entities**: Defaults are empty placeholders; user enters trust name, EIN, trustee, CAF via Entities tab
+- **EIN Masking**: `maskEIN()` shows only last 4 digits everywhere (header, AI prompt) — e.g. `••-•••9588`
+- **Header**: `updateHeaderSubtitle()` refreshes on load from `appData.settings`; shows `[Trust Entity Name] — EIN ••-•••••••` for fresh installs
+- **AI Prompt**: `buildTrustAgentSystemPrompt()` injects settings dynamically with masked EIN; replaces former hardcoded `TRUST_AGENT_SYSTEM_PROMPT` const
 - **COA**: 68 default accounts (keep as-is, GAAP-standard)
 - **Account Types**: 33 TMAR types for Ledger category dropdown
 - **Statuses**: 9 TMAR statuses for entity status
