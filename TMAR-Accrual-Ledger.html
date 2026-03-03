@@ -4199,6 +4199,10 @@
               <div><label class="block text-xs text-gray-400 mb-1">Capital Gains (Short-Term)</label><input type="number" id="taxEstCapGain" step="0.01" oninput="calcTaxEstimate()" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
               <div><label class="block text-xs text-gray-400 mb-1">Rental Income (Net)</label><input type="number" id="taxEstRental" step="0.01" oninput="calcTaxEstimate()" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
               <div><label class="block text-xs text-gray-400 mb-1">Other Income</label><input type="number" id="taxEstOther" step="0.01" oninput="calcTaxEstimate()" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white" /></div>
+              <div class="pt-2">
+                <button type="button" onclick="import1099ToEstimator()" class="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition-all">📥 Import from 1099 Filings</button>
+                <div id="taxEstImportSummary" class="hidden mt-2 p-3 bg-gray-800/50 rounded-lg border border-purple-500/30 text-xs text-gray-300"></div>
+              </div>
             </div>
           </div>
           <div class="border border-gray-600 rounded-xl p-4">
@@ -8772,6 +8776,134 @@
     document.getElementById('teResultAmount').style.color = refund ? '#4ade80' : '#f87171';
   }
 
+  // ─── 1099 DATA AGGREGATION (shared across Tax Estimator + TRCF) ─────────
+  function aggregate1099Data() {
+    var f = appData.filings;
+    var pf = function(arr, field) { return (arr || []).reduce(function(sum, entry) { return sum + (parseFloat(entry[field]) || 0); }, 0); };
+
+    // Investment & Dividend Income (1099-DIV + 1099-INT)
+    var divOrdinary = pf(f['1099-DIV'], 'ordinaryDiv1099DIV');
+    var divCapGainDist = pf(f['1099-DIV'], 'capitalGainDist1099DIV');
+    var intIncome = pf(f['1099-INT'], 'interestIncome1099INT');
+    var intSavingsBond = pf(f['1099-INT'], 'savingsBondInt1099INT');
+    var intMarketDiscount = pf(f['1099-INT'], 'marketDiscount1099INT');
+    var investmentTotal = divOrdinary + intIncome + intSavingsBond + intMarketDiscount;
+
+    // Capital Gains (1099-B net + 1099-DIV cap gain distributions)
+    var bProceeds = pf(f['1099-B'], 'proceeds1099B');
+    var bCostBasis = pf(f['1099-B'], 'costBasis1099B');
+    var bAccruedDiscount = pf(f['1099-B'], 'accruedDiscount1099B');
+    var bWashSale = pf(f['1099-B'], 'washSaleLoss1099B');
+    var capitalGains = bProceeds - bCostBasis + bAccruedDiscount - bWashSale + divCapGainDist;
+
+    // Self-Employment Income (1099-NEC)
+    var necCompensation = pf(f['1099-NEC'], 'compensation1099NEC');
+
+    // Rental Income (1099-MISC rents)
+    var miscRents = pf(f['1099-MISC'], 'rents1099MISC');
+
+    // Other Income (1099-R taxable + 1099-C net discharge + 1099-A gain + 1099-MISC other/royalties)
+    var rTaxable = pf(f['1099-R'], 'taxableAmount1099R');
+    var cDebt = pf(f['1099-C'], 'debtDischarged1099C');
+    var cInterest = pf(f['1099-C'], 'interestIncluded1099C');
+    var cFmv = pf(f['1099-C'], 'fmvProperty1099C');
+    var cNetDischarge = cDebt - cInterest - cFmv;
+    var aFmv = pf(f['1099-A'], 'fmvProperty1099A');
+    var aPrincipal = pf(f['1099-A'], 'balancePrincipal1099A');
+    var aGain = Math.max(0, aFmv - aPrincipal);
+    var miscOther = pf(f['1099-MISC'], 'otherIncome1099MISC');
+    var miscRoyalties = pf(f['1099-MISC'], 'royalties1099MISC');
+    var otherTotal = rTaxable + Math.max(0, cNetDischarge) + aGain + miscOther + miscRoyalties;
+
+    // Federal Withholding (only forms that have it)
+    var fedWithholding =
+      pf(f['1099-DIV'], 'fedWithheld1099DIV') +
+      pf(f['1099-INT'], 'fedWithheld1099INT') +
+      pf(f['1099-R'], 'fedWithheld1099R') +
+      pf(f['1099-NEC'], 'fedWithheld1099NEC') +
+      pf(f['1099-MISC'], 'fedWithheld1099MISC');
+
+    // Filing counts
+    var counts = {};
+    var types = ['1099-A','1099-B','1099-C','1099-DIV','1099-INT','1099-R','1099-NEC','1099-MISC'];
+    types.forEach(function(t) { counts[t] = (f[t] || []).length; });
+    var totalFilings = Object.values(counts).reduce(function(a,b) { return a + b; }, 0);
+
+    return {
+      investmentTotal: investmentTotal, capitalGains: capitalGains, necCompensation: necCompensation,
+      miscRents: miscRents, otherTotal: otherTotal, fedWithholding: fedWithholding,
+      counts: counts, totalFilings: totalFilings,
+      detail: {
+        divOrdinary: divOrdinary, divCapGainDist: divCapGainDist, intIncome: intIncome,
+        intSavingsBond: intSavingsBond, intMarketDiscount: intMarketDiscount,
+        bProceeds: bProceeds, bCostBasis: bCostBasis, necCompensation: necCompensation,
+        miscRents: miscRents, miscRoyalties: miscRoyalties, miscOther: miscOther,
+        rTaxable: rTaxable, cNetDischarge: cNetDischarge, aGain: aGain, fedWithholding: fedWithholding
+      }
+    };
+  }
+
+  // ─── TAX ESTIMATOR: IMPORT FROM 1099 FILINGS ──────────────────────────
+  function import1099ToEstimator() {
+    var agg = aggregate1099Data();
+    if (agg.totalFilings === 0) {
+      showAlert('No 1099 filings found. Save some 1099 forms in the Tax Filings module first.', 'No 1099 Data');
+      return;
+    }
+    var d = agg.detail;
+    var html = '<div style="font-weight:700;color:#a855f7;font-size:18px;margin-bottom:12px">Import from 1099 Filings</div>';
+    html += '<p style="font-size:13px;color:#9ca3af;margin-bottom:16px">The following totals from <strong style="color:white">' + agg.totalFilings + '</strong> filed 1099 form(s) will populate the Tax Estimator:</p>';
+    html += '<div style="font-size:13px;line-height:2.2">';
+    if (agg.investmentTotal > 0) {
+      html += '<div style="display:flex;justify-content:space-between"><span style="color:#9ca3af">Investment / Dividend Income</span><span style="color:#4ade80;font-family:monospace;font-weight:700">' + fmt$(agg.investmentTotal) + '</span></div>';
+      if (d.divOrdinary > 0) html += '<div style="display:flex;justify-content:space-between;padding-left:20px"><span style="color:#6b7280;font-size:12px">1099-DIV ordinary dividends</span><span style="font-family:monospace;color:#d1d5db;font-size:12px">' + fmt$(d.divOrdinary) + '</span></div>';
+      if (d.intIncome > 0) html += '<div style="display:flex;justify-content:space-between;padding-left:20px"><span style="color:#6b7280;font-size:12px">1099-INT interest income</span><span style="font-family:monospace;color:#d1d5db;font-size:12px">' + fmt$(d.intIncome) + '</span></div>';
+    }
+    if (agg.capitalGains !== 0) {
+      html += '<div style="display:flex;justify-content:space-between"><span style="color:#9ca3af">Capital Gains</span><span style="color:' + (agg.capitalGains >= 0 ? '#4ade80' : '#f87171') + ';font-family:monospace;font-weight:700">' + fmt$(agg.capitalGains) + '</span></div>';
+    }
+    if (agg.necCompensation > 0) {
+      html += '<div style="display:flex;justify-content:space-between"><span style="color:#9ca3af">Self-Employment (1099-NEC)</span><span style="color:#4ade80;font-family:monospace;font-weight:700">' + fmt$(agg.necCompensation) + '</span></div>';
+    }
+    if (agg.miscRents > 0) {
+      html += '<div style="display:flex;justify-content:space-between"><span style="color:#9ca3af">Rental Income (1099-MISC)</span><span style="color:#4ade80;font-family:monospace;font-weight:700">' + fmt$(agg.miscRents) + '</span></div>';
+    }
+    if (agg.otherTotal > 0) {
+      html += '<div style="display:flex;justify-content:space-between"><span style="color:#9ca3af">Other Income</span><span style="color:#4ade80;font-family:monospace;font-weight:700">' + fmt$(agg.otherTotal) + '</span></div>';
+      if (d.rTaxable > 0) html += '<div style="display:flex;justify-content:space-between;padding-left:20px"><span style="color:#6b7280;font-size:12px">1099-R distributions</span><span style="font-family:monospace;color:#d1d5db;font-size:12px">' + fmt$(d.rTaxable) + '</span></div>';
+      if (d.cNetDischarge > 0) html += '<div style="display:flex;justify-content:space-between;padding-left:20px"><span style="color:#6b7280;font-size:12px">1099-C canceled debt</span><span style="font-family:monospace;color:#d1d5db;font-size:12px">' + fmt$(d.cNetDischarge) + '</span></div>';
+      if (d.aGain > 0) html += '<div style="display:flex;justify-content:space-between;padding-left:20px"><span style="color:#6b7280;font-size:12px">1099-A property gain</span><span style="font-family:monospace;color:#d1d5db;font-size:12px">' + fmt$(d.aGain) + '</span></div>';
+    }
+    if (agg.fedWithholding > 0) {
+      html += '<div style="display:flex;justify-content:space-between;border-top:1px solid #4b5563;padding-top:8px;margin-top:8px"><span style="color:#9ca3af;font-weight:700">Federal Withholding (all 1099s)</span><span style="color:#60a5fa;font-family:monospace;font-weight:700">' + fmt$(agg.fedWithholding) + '</span></div>';
+    }
+    html += '</div>';
+    html += '<div style="font-size:11px;color:#6b7280;margin-top:12px;margin-bottom:16px">Income fields will be replaced. Withholding will be added to existing value.</div>';
+    html += '<div style="display:flex;justify-content:flex-end;gap:10px">';
+    html += '<button onclick="closeModal()" style="padding:8px 20px;border-radius:8px;background:rgba(107,114,128,0.3);color:white;border:1px solid rgba(107,114,128,0.4);cursor:pointer;font-weight:600;font-size:13px">Cancel</button>';
+    html += '<button onclick="apply1099ToEstimator();closeModal();" style="padding:8px 20px;border-radius:8px;background:rgba(168,85,247,0.3);color:#a855f7;border:1px solid rgba(168,85,247,0.5);cursor:pointer;font-weight:700;font-size:13px">Apply to Estimator</button>';
+    html += '</div>';
+    showModal(html);
+  }
+
+  function apply1099ToEstimator() {
+    var agg = aggregate1099Data();
+    document.getElementById('taxEstInv').value = agg.investmentTotal.toFixed(2);
+    document.getElementById('taxEstCapGain').value = agg.capitalGains.toFixed(2);
+    document.getElementById('taxEstSE').value = agg.necCompensation.toFixed(2);
+    document.getElementById('taxEstRental').value = agg.miscRents.toFixed(2);
+    document.getElementById('taxEstOther').value = agg.otherTotal.toFixed(2);
+    // Add 1099 withholding to existing (preserves W-2 withholding)
+    var existingWH = parseFloat(document.getElementById('taxEstWHeld').value) || 0;
+    document.getElementById('taxEstWHeld').value = (existingWH + agg.fedWithholding).toFixed(2);
+    calcTaxEstimate();
+    var summaryEl = document.getElementById('taxEstImportSummary');
+    if (summaryEl) {
+      summaryEl.classList.remove('hidden');
+      summaryEl.innerHTML = '<span style="color:#a855f7;font-weight:700">1099 data imported:</span> ' + agg.totalFilings + ' filing(s). Investment: ' + fmt$(agg.investmentTotal) + ' | Cap Gains: ' + fmt$(agg.capitalGains) + ' | SE: ' + fmt$(agg.necCompensation) + ' | Rental: ' + fmt$(agg.miscRents) + ' | Other: ' + fmt$(agg.otherTotal) + ' | Withholding: +' + fmt$(agg.fedWithholding);
+    }
+  }
+
   // ─── TAX CALCULATOR SUB-TABS & SHARED ───────────────────────────────────
   function showTaxSubTab(tabName) {
     const panels = ['taxIncomePanel','taxBadDebtPanel','taxLossCalcPanel','taxInterestPanel'];
@@ -12529,7 +12661,11 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
               <option value="yes">Yes</option>
             </select>
           </div>
-          <button onclick="trcfCalculateRoute1()" style="padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;border:1px solid rgba(239,68,68,0.4);background:rgba(239,68,68,0.15);color:#ef4444;cursor:pointer;transition:all 0.2s">Calculate Refund (Route 1)</button>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <button onclick="trcfCalculateRoute1()" style="padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;border:1px solid rgba(239,68,68,0.4);background:rgba(239,68,68,0.15);color:#ef4444;cursor:pointer;transition:all 0.2s">Calculate Refund (Route 1)</button>
+            <button onclick="import1099ToTRCF()" style="padding:12px 20px;border-radius:10px;font-size:13px;font-weight:700;border:1px solid rgba(168,85,247,0.4);background:rgba(168,85,247,0.15);color:#a855f7;cursor:pointer;transition:all 0.2s">📥 Import from 1099 Filings</button>
+          </div>
+          <div id="trcfImportSummary" style="display:none;margin-top:10px;padding:10px;background:var(--bg-tertiary);border:1px solid rgba(168,85,247,0.3);border-radius:8px;font-size:12px;color:var(--text-secondary)"></div>
         </div>
 
         <!-- Route 2 Inputs -->
@@ -12658,6 +12794,61 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
             <div style="padding:14px;border:1px solid rgba(239,68,68,0.2);border-radius:10px;background:var(--bg-tertiary)">
               <div style="font-weight:700;color:#ef4444;font-size:14px">Form 1041 Amended</div>
               <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">Amended Estate/Trust Return -- check "Amended" box on Form 1041</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Information Returns (1099 Series) -->
+        <div style="margin-top:20px">
+          <div style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:10px;border-bottom:1px solid rgba(239,68,68,0.2);padding-bottom:6px">Information Returns (1099 Series)</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div style="padding:14px;border:1px solid rgba(239,68,68,0.2);border-radius:10px;background:var(--bg-tertiary)">
+              <div style="font-weight:700;color:#ef4444;font-size:14px">Form 1099-A</div>
+              <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">Acquisition or Abandonment of Secured Property</div>
+              <div style="font-size:11px;color:var(--text-secondary);margin-top:6px"><strong>Reports:</strong> Foreclosures, repossessions, abandonments of property securing a debt</div>
+              <div style="font-size:11px;color:var(--text-secondary)"><strong>Tax Impact:</strong> May trigger gain/loss; reported on Form 4797 or Schedule D</div>
+            </div>
+            <div style="padding:14px;border:1px solid rgba(239,68,68,0.2);border-radius:10px;background:var(--bg-tertiary)">
+              <div style="font-weight:700;color:#ef4444;font-size:14px">Form 1099-B</div>
+              <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">Proceeds From Broker and Barter Exchange Transactions</div>
+              <div style="font-size:11px;color:var(--text-secondary);margin-top:6px"><strong>Reports:</strong> Sale of stocks, bonds, commodities, regulated futures</div>
+              <div style="font-size:11px;color:var(--text-secondary)"><strong>Tax Impact:</strong> Form 8949 / Schedule D; short-term vs. long-term rates</div>
+            </div>
+            <div style="padding:14px;border:1px solid rgba(239,68,68,0.2);border-radius:10px;background:var(--bg-tertiary)">
+              <div style="font-weight:700;color:#ef4444;font-size:14px">Form 1099-C</div>
+              <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">Cancellation of Debt</div>
+              <div style="font-size:11px;color:var(--text-secondary);margin-top:6px"><strong>Threshold:</strong> Canceled debt of $600 or more</div>
+              <div style="font-size:11px;color:var(--text-secondary)"><strong>Tax Impact:</strong> Taxable as ordinary income unless insolvent (Form 982)</div>
+            </div>
+            <div style="padding:14px;border:1px solid rgba(239,68,68,0.2);border-radius:10px;background:var(--bg-tertiary)">
+              <div style="font-weight:700;color:#ef4444;font-size:14px">Form 1099-DIV</div>
+              <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">Dividends and Distributions</div>
+              <div style="font-size:11px;color:var(--text-secondary);margin-top:6px"><strong>Threshold:</strong> $10 or more in dividends</div>
+              <div style="font-size:11px;color:var(--text-secondary)"><strong>Tax Impact:</strong> Qualified dividends at capital gains rates; ordinary at regular rates</div>
+            </div>
+            <div style="padding:14px;border:1px solid rgba(239,68,68,0.2);border-radius:10px;background:var(--bg-tertiary)">
+              <div style="font-weight:700;color:#ef4444;font-size:14px">Form 1099-INT</div>
+              <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">Interest Income</div>
+              <div style="font-size:11px;color:var(--text-secondary);margin-top:6px"><strong>Threshold:</strong> $10 or more in interest</div>
+              <div style="font-size:11px;color:var(--text-secondary)"><strong>Tax Impact:</strong> Schedule B if over $1,500; taxed as ordinary income</div>
+            </div>
+            <div style="padding:14px;border:1px solid rgba(239,68,68,0.2);border-radius:10px;background:var(--bg-tertiary)">
+              <div style="font-weight:700;color:#ef4444;font-size:14px">Form 1099-NEC</div>
+              <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">Nonemployee Compensation</div>
+              <div style="font-size:11px;color:var(--text-secondary);margin-top:6px"><strong>Threshold:</strong> $600 or more paid to a non-employee</div>
+              <div style="font-size:11px;color:var(--text-secondary)"><strong>Tax Impact:</strong> Schedule C + SE Tax (15.3%); deadline Jan 31</div>
+            </div>
+            <div style="padding:14px;border:1px solid rgba(239,68,68,0.2);border-radius:10px;background:var(--bg-tertiary)">
+              <div style="font-weight:700;color:#ef4444;font-size:14px">Form 1099-R</div>
+              <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">Distributions From Pensions, Annuities, IRAs, etc.</div>
+              <div style="font-size:11px;color:var(--text-secondary);margin-top:6px"><strong>Threshold:</strong> $10 or more in distributions</div>
+              <div style="font-size:11px;color:var(--text-secondary)"><strong>Tax Impact:</strong> Lines 5a-5b of 1040; distribution code determines taxability</div>
+            </div>
+            <div style="padding:14px;border:1px solid rgba(239,68,68,0.2);border-radius:10px;background:var(--bg-tertiary)">
+              <div style="font-weight:700;color:#ef4444;font-size:14px">Form 1099-MISC</div>
+              <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">Miscellaneous Information</div>
+              <div style="font-size:11px;color:var(--text-secondary);margin-top:6px"><strong>Threshold:</strong> $600+ rents, royalties, prizes; $10+ royalties</div>
+              <div style="font-size:11px;color:var(--text-secondary)"><strong>Tax Impact:</strong> Rents to Sch E; royalties to Sch E; other to Sch 1 Line 8z</div>
             </div>
           </div>
         </div>
@@ -12926,6 +13117,14 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
       <!-- ==================== TAB 6: 1099/1065 REFUNDS ==================== -->
       <div id="trcf-tab-info-returns" class="trcf-tab-content">
         <div style="font-size:18px;font-weight:700;color:#ef4444;margin-bottom:16px">1099 / 1065 Refund Mechanics</div>
+
+        <!-- Live 1099 Filing Summary -->
+        <div style="margin-bottom:20px;padding:16px;border:1px solid rgba(168,85,247,0.3);border-radius:12px;background:rgba(168,85,247,0.05)">
+          <div style="font-weight:700;color:#a855f7;margin-bottom:10px;font-size:15px">Your 1099 Filings Summary</div>
+          <div id="trcf-1099-summary-content" style="font-size:13px;color:var(--text-secondary)">
+            <em>Select this tab to load summary...</em>
+          </div>
+        </div>
 
         <!-- How 1099 Income Flows -->
         <div style="margin-bottom:20px;padding:16px;border:1px solid rgba(239,68,68,0.2);border-radius:12px;background:var(--bg-tertiary)">
@@ -14688,6 +14887,75 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     document.querySelectorAll('.trcf-subtab').forEach(function(btn) {
       btn.classList.toggle('active', btn.getAttribute('data-trcf-tab') === tabName);
     });
+    if (tabName === 'info-returns') updateTRCF1099Summary();
+  }
+
+  // ─── TRCF: IMPORT FROM 1099 FILINGS ───────────────────────────────────
+  function import1099ToTRCF() {
+    var agg = aggregate1099Data();
+    if (agg.totalFilings === 0) {
+      showAlert('No 1099 filings found. Save some 1099 forms in the Tax Filings module first.', 'No 1099 Data');
+      return;
+    }
+    var totalGrossIncome = agg.investmentTotal + Math.max(0, agg.capitalGains) + agg.necCompensation + agg.miscRents + agg.otherTotal;
+    var html = '<div style="font-weight:700;color:#a855f7;font-size:18px;margin-bottom:12px">Import 1099 Data to Refund Calculator</div>';
+    html += '<p style="font-size:13px;color:#9ca3af;margin-bottom:16px">From <strong style="color:white">' + agg.totalFilings + '</strong> filed 1099 form(s):</p>';
+    html += '<div style="font-size:14px;line-height:2.4">';
+    html += '<div style="display:flex;justify-content:space-between"><span style="color:#9ca3af">Total 1099 Gross Income</span><span style="color:#4ade80;font-family:monospace;font-weight:700">' + fmt$(totalGrossIncome) + '</span></div>';
+    html += '<div style="display:flex;justify-content:space-between"><span style="color:#9ca3af">1099 Federal Withholding</span><span style="color:#60a5fa;font-family:monospace;font-weight:700">' + fmt$(agg.fedWithholding) + '</span></div>';
+    html += '</div>';
+    html += '<div style="font-size:11px;color:#6b7280;margin-top:12px;margin-bottom:16px">Gross Income will be set. Withholding will be added to existing value.</div>';
+    html += '<div style="display:flex;justify-content:flex-end;gap:10px">';
+    html += '<button onclick="closeModal()" style="padding:8px 20px;border-radius:8px;background:rgba(107,114,128,0.3);color:white;border:1px solid rgba(107,114,128,0.4);cursor:pointer;font-weight:600;font-size:13px">Cancel</button>';
+    html += '<button onclick="apply1099ToTRCF();closeModal();" style="padding:8px 20px;border-radius:8px;background:rgba(168,85,247,0.3);color:#a855f7;border:1px solid rgba(168,85,247,0.5);cursor:pointer;font-weight:700;font-size:13px">Apply to Route 1</button>';
+    html += '</div>';
+    showModal(html);
+  }
+
+  function apply1099ToTRCF() {
+    var agg = aggregate1099Data();
+    var totalGrossIncome = agg.investmentTotal + Math.max(0, agg.capitalGains) + agg.necCompensation + agg.miscRents + agg.otherTotal;
+    var incomeEl = document.getElementById('trcf-r1-income');
+    var whEl = document.getElementById('trcf-r1-withholding');
+    if (incomeEl) incomeEl.value = totalGrossIncome.toFixed(2);
+    if (whEl) {
+      var existingWH = parseFloat(whEl.value) || 0;
+      whEl.value = (existingWH + agg.fedWithholding).toFixed(2);
+    }
+    var summaryEl = document.getElementById('trcfImportSummary');
+    if (summaryEl) {
+      summaryEl.style.display = 'block';
+      summaryEl.innerHTML = '<span style="color:#a855f7;font-weight:700">Imported:</span> ' + agg.totalFilings + ' 1099 filing(s). Gross Income: ' + fmt$(totalGrossIncome) + ' | Withholding: +' + fmt$(agg.fedWithholding);
+    }
+  }
+
+  // ─── TRCF: LIVE 1099 FILING SUMMARY ───────────────────────────────────
+  function updateTRCF1099Summary() {
+    var el = document.getElementById('trcf-1099-summary-content');
+    if (!el) return;
+    var agg = aggregate1099Data();
+    if (agg.totalFilings === 0) {
+      el.innerHTML = '<span style="color:var(--text-secondary)">No 1099 filings saved yet. Use the Tax Filings module to enter 1099 data.</span>';
+      return;
+    }
+    var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:12px">';
+    var types = ['1099-A','1099-B','1099-C','1099-DIV','1099-INT','1099-R','1099-NEC','1099-MISC'];
+    types.forEach(function(t) {
+      var count = agg.counts[t] || 0;
+      if (count > 0) {
+        html += '<div style="padding:10px;border:1px solid rgba(239,68,68,0.15);border-radius:8px;background:var(--bg-tertiary);text-align:center">';
+        html += '<div style="font-weight:700;color:#ef4444;font-size:12px">' + t + '</div>';
+        html += '<div style="font-size:20px;font-weight:800;color:var(--text-primary)">' + count + '</div>';
+        html += '</div>';
+      }
+    });
+    html += '</div>';
+    var totalIncome = agg.investmentTotal + Math.max(0, agg.capitalGains) + agg.necCompensation + agg.miscRents + agg.otherTotal;
+    html += '<div style="font-size:12px;color:var(--text-secondary);line-height:2">';
+    html += '<div style="display:flex;justify-content:space-between"><span>Total 1099 Gross Income:</span><span style="color:#4ade80;font-weight:700">' + fmt$(totalIncome) + '</span></div>';
+    html += '<div style="display:flex;justify-content:space-between"><span>Total Federal Withholding:</span><span style="color:#60a5fa;font-weight:700">' + fmt$(agg.fedWithholding) + '</span></div>';
+    html += '</div>';
+    el.innerHTML = html;
   }
 
   function trcfSelectRoute(routeNum) {

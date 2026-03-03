@@ -343,6 +343,8 @@ switchMainTab(tabName)
 | Calculate Estimate | `onclick` | `calcTaxEstimate()` | Combined federal + state + SE tax |
 | Filing Status Select | `onchange` | *(inline)* | Adjusts brackets |
 | What-If Scenarios | `onclick` | `runTaxScenario()` | Adjustable income/deduction sliders |
+| Import 1099 Data | `onclick` | `import1099ToEstimator()` | Preview modal → `apply1099ToEstimator()` sets income fields + additive withholding |
+| 1099 Aggregation | internal | `aggregate1099Data()` | Shared: sums all `appData.filings` 1099 types into investment/capGains/SE/rental/other/withholding |
 
 ### 4.19 Payment Orders Tab (setTimeout 0ms init)
 
@@ -489,6 +491,8 @@ switchMainTab(tabName)
 | Number Formatter | auto | `trcfFmt(n)` | Currency formatting helper |
 | Tax Bracket Engine | internal | `trcfCalcTax(income, status)` | 2024 brackets: Single, MFJ, MFS, HOH |
 | Trust Tax Engine | internal | `trcfCalcTrustTax(income)` | 2024 trust brackets: 10%→37% |
+| Import 1099 Data (Route 1) | `onclick` | `import1099ToTRCF()` | Preview modal → `apply1099ToTRCF()` sets gross income + additive withholding |
+| Live 1099 Summary | auto (tab switch) | `updateTRCF1099Summary()` | Shows filing counts + totals on 1099/1065 Mechanics sub-tab |
 
 ### 4.34 NOL Classification Tab (CCSN)
 

@@ -1,6 +1,6 @@
 # TMAR Universal Accrual Ledger - User Guide
 
-**Version:** 1.2.0
+**Version:** 1.2.1
 **Last Updated:** 2026-03-03
 **Status:** ✅ Deployed and Ready
 
@@ -332,7 +332,7 @@ Five reference tools integrated from `redressright.me` as dedicated tabs:
 | # | Tab | Purpose | Key Features |
 |---|---|---|---|
 | 13 | ⚖️ Constitutional Challenges (CPSA) | Generate constitutional challenge documents | 12 templates, rich text editor, save/load drafts, PDF/Word export |
-| 14 | 💰 Tax Refund Calculator (TRCF) | Calculate tax refunds via two routes | 7 sub-tabs, Route 1/Route 2 calculators, 2024 brackets, interest calculator |
+| 14 | 💰 Tax Refund Calculator (TRCF) | Calculate tax refunds via two routes | 7 sub-tabs, Route 1/Route 2 calculators, 2024 brackets, interest calculator, 1099 import, 8 form cards in Form Guidance |
 | 15 | 📊 NOL Classification (CCSN) | Net Operating Loss asset classification | 72-slide presentation, prev/next navigation, table of contents |
 | 16 | 🏛️ Federal Damages (FDRF) | Federal damages framework reference | 4-part accordion layout, text-to-speech read-aloud |
 | 17 | 📓 Tutorial Journal (EEEJ) | Educational tutorial journal | 28 slides, topic navigation, progress tracking |
@@ -811,6 +811,16 @@ To practice with realistic data:
 **Bug Fixes:**
 - ✅ Fixed Document Creator autosave overwriting in-memory drafts on tab re-entry
 - ✅ Fixed duplicate autosave intervals accumulating on tab switches
+
+### v1.2.1 (2026-03-03)
+
+**1099 Series Cross-Module Integration:**
+- ✅ 8 new form cards (1099-A through 1099-MISC) in TRCF Form Guidance
+- ✅ Shared `aggregate1099Data()` function sums all 1099 filings into tax categories
+- ✅ Tax Estimator: "Import from 1099 Filings" button with preview modal
+- ✅ TRCF Route 1: "Import from 1099 Filings" populates gross income + withholding
+- ✅ 1099/1065 Mechanics tab: live filing summary with counts and totals
+- ✅ Income fields replaced on import; withholding added to existing value (preserves W-2)
 
 ### v1.2.0 (2026-03-03)
 
