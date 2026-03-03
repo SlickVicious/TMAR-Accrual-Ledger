@@ -71,6 +71,7 @@ All buttons call `switchMainTab(tabName)` which:
 | 35 | 📊 NOL Classification | `ccsn` | `initCCSN()` (guarded) | Amber bold border |
 | 36 | 🏛️ Federal Damages | `fdrf` | `initFDRF()` (guarded) | Green bold border |
 | 37 | 📓 Tutorial Journal | `eeej` | `initEEEJ()` (guarded) | Yellow bold border |
+| 38 | 🔍 Entity Verifier | `entityVerifier` | `initEntityVerifier()` (guarded) | Blue bold border |
 
 ---
 
@@ -143,8 +144,11 @@ switchMainTab(tabName)
 ├── fdrf ────────────→ initFDRF()
 │                      └── 4-part accordion, TTS via speakWithHighlight()
 │
-└── eeej ────────────→ initEEEJ()
-                       └── 28-slide tutorial journal, topic nav, progress tracking
+├── eeej ────────────→ initEEEJ()
+│                      └── 28-slide tutorial journal, topic nav, progress tracking
+│
+└── entityVerifier ──→ initEntityVerifier()
+                       └── SEC EDGAR verification, EIN cross-ref, detail modal, JSON export
 ```
 
 ---
@@ -515,6 +519,21 @@ switchMainTab(tabName)
 | Render Slide | internal | `eeejRenderSlide(index)` | Builds slide HTML from data array |
 | Progress Update | auto | `eeejUpdateProgress()` | Updates progress bar and "X of 28" counter |
 
+### 4.37 Entity Verifier Tab
+
+| Button/Element | Handler | Function | Sub-functions |
+|---|---|---|---|
+| Verify All | `onclick` | `runEntityVerification()` | Loops entities, calls `verifyEntity()` per entity, updates progress bar |
+| Export JSON | `onclick` | `exportVerifierResults('json')` | Exports masked verification results as JSON file download |
+| Summary Cards | `onclick` | `filterVerifierResults(level)` | Filters table by confidence: all/HIGH/MEDIUM/LOW/UNVERIFIED |
+| Search Input | `oninput` | `filterVerifierResults()` | Filters by entity name, EIN, or account number |
+| Table Row Click | `onclick` | `showVerifierDetail(idx)` | Opens modal with TMAR record, SEC data, filings, recommended actions |
+| SEC EDGAR Ticker | internal | `edgarLookupByTicker(ticker)` | Fetches `sec.gov/files/company_tickers.json` |
+| SEC EDGAR Name | internal | `edgarLookupByName(name)` | Searches ticker JSON by company name substring |
+| SEC EDGAR CIK | internal | `edgarGetSubmissions(cik)` | Fetches `data.sec.gov/submissions/CIK{padded}.json` |
+| SEC EDGAR EIN | internal | `edgarSearchByEIN(ein)` | Full-text EIN search via `efts.sec.gov/LATEST/search-index` |
+| Verify Entity | internal | `verifyEntity(entity)` | Core engine: ticker → name → EIN search, confidence scoring |
+
 ---
 
 ## 5. CORE FUNCTIONS BREAKDOWN
@@ -587,6 +606,9 @@ switchMainTab(tabName)
 |---|---|---|---|---|
 | `sendTrustAgentQuery()` | `https://api.anthropic.com/v1/messages` | POST | `x-api-key` header (user-provided) | GAAP accounting Q&A; system prompt built dynamically via `buildTrustAgentSystemPrompt() + TRUST_AGENT_PROMPT_BODY` |
 | `sendChat()` | `https://api.anthropic.com/v1/messages` | POST | `x-api-key` header (user-provided) | Voice & Chat conversational AI; same dynamic prompt builder |
+| `edgarLookupByTicker()` / `edgarLookupByName()` | `https://www.sec.gov/files/company_tickers.json` | GET | `User-Agent` header | Entity Verifier: look up CIK by ticker symbol or company name |
+| `edgarGetSubmissions()` | `https://data.sec.gov/submissions/CIK{padded}.json` | GET | `User-Agent` header | Entity Verifier: fetch entity details, address, EIN, filings |
+| `edgarSearchByEIN()` | `https://efts.sec.gov/LATEST/search-index` | GET | `User-Agent` header | Entity Verifier: full-text EIN search in 10-K/10-Q/8-K filings |
 
 **Browser APIs Used:**
 - `SpeechRecognition` (Web Speech API) — voice input transcription
@@ -604,7 +626,7 @@ Page Load
 │   └── CSS variables, dark/light mode, glass morphism, responsive
 │
 ├── HTML renders (lines 189-3850)
-│   └── RedressRight nav, app header, 37 tab buttons, 36 tab sections
+│   └── RedressRight nav, app header, 37 tab buttons, 37 tab sections
 │
 ├── <script> executes (line 3877+)
 │   ├── Theme init: isDarkMode from localStorage → applyTheme()

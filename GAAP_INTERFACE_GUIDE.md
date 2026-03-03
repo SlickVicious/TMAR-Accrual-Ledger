@@ -1,6 +1,6 @@
 # TMAR Universal Accrual Ledger - User Guide
 
-**Version:** 1.1.1
+**Version:** 1.2.0
 **Last Updated:** 2026-03-03
 **Status:** ✅ Deployed and Ready
 
@@ -336,8 +336,9 @@ Five reference tools integrated from `redressright.me` as dedicated tabs:
 | 15 | 📊 NOL Classification (CCSN) | Net Operating Loss asset classification | 72-slide presentation, prev/next navigation, table of contents |
 | 16 | 🏛️ Federal Damages (FDRF) | Federal damages framework reference | 4-part accordion layout, text-to-speech read-aloud |
 | 17 | 📓 Tutorial Journal (EEEJ) | Educational tutorial journal | 28 slides, topic navigation, progress tracking |
+| 18 | 🔍 Entity Verifier | SEC EDGAR & EIN cross-reference verification | Live entity verification, confidence scoring, detail modal, JSON export |
 
-**How to access:** Click any tab in the "RedressRight Source Libraries" group at the right end of the tab bar.
+**How to access:** Click any tab in the "RedressRight Source Libraries" or "Verification Tools" groups at the right end of the tab bar.
 
 ---
 
@@ -590,6 +591,22 @@ While auto-save runs every 5 seconds, you can also:
 - **Source code**: No hardcoded PII — default entity/settings data ships with empty fields
 - **AI System Prompt**: Built dynamically at runtime via `buildTrustAgentSystemPrompt()` using current settings
 
+### Entity Verifier (v1.2.0)
+
+The Entity Verifier tab provides automated SEC EDGAR cross-reference verification for all entities in the system.
+
+**Features:**
+- **Live data** — reads entities directly from `appData.entities` (no hardcoded accounts)
+- **SEC EDGAR verification** — ticker lookup, company name search, CIK submission details
+- **EIN cross-reference** — full-text EIN search in 10-K/10-Q/8-K filings via `efts.sec.gov`
+- **Confidence scoring** — HIGH (EIN confirmed via EDGAR), MEDIUM (SEC match, no EIN), LOW (private entity with context), UNVERIFIED
+- **Detail modal** — click any row to see TMAR record, SEC EDGAR data, recent filings, verification notes, and recommended verification steps
+- **EIN masking** — all EINs displayed as `••-•••XXXX` using the existing `maskEIN()` utility; exported JSON also uses masked EINs
+- **JSON export** — download verification results as a timestamped JSON file for audit trails
+- **Rate limiting** — 250ms delay between SEC EDGAR API calls to respect rate limits
+
+**Data sources:** SEC EDGAR (public companies only). Private entities, government agencies, and nonprofits require manual W-9/1099 cross-reference.
+
 ### Best Practices
 
 1. **Regular backups** - Export JSON weekly
@@ -794,6 +811,19 @@ To practice with realistic data:
 **Bug Fixes:**
 - ✅ Fixed Document Creator autosave overwriting in-memory drafts on tab re-entry
 - ✅ Fixed duplicate autosave intervals accumulating on tab switches
+
+### v1.2.0 (2026-03-03)
+
+**New Feature — Entity Verifier Tab:**
+- ✅ New tab: Entity Verifier with SEC EDGAR & EIN cross-reference verification
+- ✅ Reads live entities from `appData.entities` (no hardcoded PII)
+- ✅ SEC EDGAR verification: ticker lookup, name search, CIK submissions, full-text EIN search
+- ✅ Confidence scoring: HIGH / MEDIUM / LOW / UNVERIFIED
+- ✅ Detail modal: TMAR record, SEC data, recent filings, recommended verification steps
+- ✅ Summary dashboard with clickable filter cards and search
+- ✅ JSON export for verification audit trail (EINs masked in export)
+- ✅ 250ms rate limiting between SEC EDGAR API calls
+- ✅ Tab count: 36 → 37 sections, 37 tab buttons
 
 ### v1.1.1 (2026-03-03)
 

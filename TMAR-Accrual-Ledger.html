@@ -458,6 +458,10 @@
         <button onclick="switchMainTab('eeej')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="eeej" style="background:rgba(250,204,21,0.2);border:2px solid rgba(250,204,21,0.6);font-weight:800;color:#fbbf24">
           📓 Tutorial Journal
         </button>
+        <!-- Group 10: Verification Tools -->
+        <button onclick="switchMainTab('entityVerifier')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="entityVerifier" style="background:rgba(59,130,246,0.2);border:2px solid rgba(59,130,246,0.6);font-weight:800;color:#3b82f6">
+          🔍 Entity Verifier
+        </button>
       </div>
     </nav>
 
@@ -5748,6 +5752,7 @@
       if (tabName === 'ccsn') { if (typeof initCCSN === 'function') initCCSN(); }
       if (tabName === 'fdrf') { if (typeof initFDRF === 'function') initFDRF(); }
       if (tabName === 'eeej') { if (typeof initEEEJ === 'function') initEEEJ(); }
+      if (tabName === 'entityVerifier') { if (typeof initEntityVerifier === 'function') initEntityVerifier(); }
     }
 
     // Filing Type Selection
@@ -13550,6 +13555,85 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- ENTITY VERIFIER TAB                                             -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <section id="entityVerifierSection" class="form-section hidden">
+    <div style="padding:20px;max-width:1200px;margin:0 auto">
+      <!-- Header Banner -->
+      <div style="background:linear-gradient(135deg,rgba(59,130,246,0.12),rgba(30,41,59,0.4));border:2px solid rgba(59,130,246,0.4);border-radius:12px;padding:20px;margin-bottom:20px;text-align:center">
+        <div style="font-size:22px;font-weight:900;color:#3b82f6;margin-bottom:8px">🔍 ENTITY VERIFIER</div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:14px">SEC EDGAR &amp; EIN Cross-Reference Verification</div>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button id="ev-run-btn" onclick="runEntityVerification()" style="background:rgba(59,130,246,0.25);border:1px solid rgba(59,130,246,0.5);color:#60a5fa;padding:8px 18px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer">▶ Verify All</button>
+          <button onclick="exportVerifierResults('json')" style="background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.4);color:#34d399;padding:8px 18px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer">📥 Export JSON</button>
+        </div>
+        <!-- Progress Bar -->
+        <div id="ev-progress-wrap" style="display:none;margin-top:12px">
+          <div style="background:rgba(255,255,255,0.08);border-radius:6px;height:8px;overflow:hidden">
+            <div id="ev-progress-bar" style="background:linear-gradient(90deg,#3b82f6,#60a5fa);height:100%;width:0%;transition:width 0.3s ease;border-radius:6px"></div>
+          </div>
+          <div id="ev-progress-text" style="font-size:11px;color:var(--text-secondary);margin-top:4px">0%</div>
+        </div>
+      </div>
+
+      <!-- Summary Cards -->
+      <div id="ev-summary-cards" style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px">
+        <button onclick="filterVerifierResults('all')" class="ev-card" data-filter="all" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:12px;text-align:left;cursor:pointer;transition:all 0.2s">
+          <div style="font-size:22px;font-weight:900;color:var(--text-primary)" id="ev-count-total">0</div>
+          <div style="font-size:11px;color:var(--text-secondary);font-weight:600">TOTAL</div>
+        </button>
+        <button onclick="filterVerifierResults('HIGH')" class="ev-card" data-filter="HIGH" style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);border-radius:10px;padding:12px;text-align:left;cursor:pointer;transition:all 0.2s">
+          <div style="font-size:22px;font-weight:900;color:#10b981" id="ev-count-high">0</div>
+          <div style="font-size:11px;color:#10b981;font-weight:600">HIGH</div>
+        </button>
+        <button onclick="filterVerifierResults('MEDIUM')" class="ev-card" data-filter="MEDIUM" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:12px;text-align:left;cursor:pointer;transition:all 0.2s">
+          <div style="font-size:22px;font-weight:900;color:#f59e0b" id="ev-count-medium">0</div>
+          <div style="font-size:11px;color:#f59e0b;font-weight:600">MEDIUM</div>
+        </button>
+        <button onclick="filterVerifierResults('LOW')" class="ev-card" data-filter="LOW" style="background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.3);border-radius:10px;padding:12px;text-align:left;cursor:pointer;transition:all 0.2s">
+          <div style="font-size:22px;font-weight:900;color:#f97316" id="ev-count-low">0</div>
+          <div style="font-size:11px;color:#f97316;font-weight:600">LOW</div>
+        </button>
+        <button onclick="filterVerifierResults('UNVERIFIED')" class="ev-card" data-filter="UNVERIFIED" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px;text-align:left;cursor:pointer;transition:all 0.2s">
+          <div style="font-size:22px;font-weight:900;color:var(--text-secondary)" id="ev-count-unverified">0</div>
+          <div style="font-size:11px;color:var(--text-secondary);font-weight:600">UNVERIFIED</div>
+        </button>
+      </div>
+
+      <!-- Search Bar -->
+      <div style="margin-bottom:16px">
+        <input id="ev-search" type="text" placeholder="Search by entity name, EIN, or account number..." oninput="filterVerifierResults()" style="width:100%;padding:10px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:var(--text-primary);font-size:13px">
+      </div>
+
+      <!-- Results Table -->
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:10px;overflow:hidden;margin-bottom:16px">
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr style="background:rgba(255,255,255,0.05)">
+              <th style="padding:10px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">Entity</th>
+              <th style="padding:10px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">EIN</th>
+              <th style="padding:10px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">Account #</th>
+              <th style="padding:10px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">Type</th>
+              <th style="padding:10px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">SEC Name</th>
+              <th style="padding:10px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">Address</th>
+              <th style="padding:10px 12px;text-align:center;font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">Status</th>
+            </tr>
+          </thead>
+          <tbody id="ev-results-body">
+            <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-secondary);font-size:13px" id="ev-empty-msg">Loading entities...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Data Source Note -->
+      <div style="font-size:11px;color:var(--text-secondary);opacity:0.7;line-height:1.6">
+        <p><strong>Sources:</strong> SEC EDGAR (data.sec.gov) for public company verification. Private entities require manual W-9/1099 cross-reference.</p>
+        <p><strong>Note:</strong> EIN confirmation for private entities should be verified against tax documents on file (W-2 box b, 1099 box, or W-9).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
   <!-- ALL NEW JAVASCRIPT                                             -->
   <!-- ═══════════════════════════════════════════════════════════════ -->
   <script>
@@ -16298,6 +16382,587 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     const progress = document.getElementById('eeej-progress');
     if (counter) counter.textContent = 'Slide ' + (eeejCurrentSlide + 1) + ' of ' + eeejSlides.length;
     if (progress) progress.style.width = (((eeejCurrentSlide + 1) / eeejSlides.length) * 100).toFixed(2) + '%';
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // ENTITY VERIFIER — SEC EDGAR & EIN Cross-Reference
+  // ═══════════════════════════════════════════════════════════════════
+
+  var evState = {
+    results: [],
+    running: false,
+    progress: 0,
+    filter: 'all',
+    search: '',
+    tickerCache: null
+  };
+  var evInitialized = false;
+
+  var EV_SEC_HEADERS = {
+    'User-Agent': 'TMAR-Verifier/1.0 (trust-admin@example.com)',
+    'Accept': 'application/json'
+  };
+
+  // ── SEC EDGAR API Functions ────────────────────────────────────────
+
+  async function evFetchTickerData() {
+    if (evState.tickerCache) return evState.tickerCache;
+    try {
+      var resp = await fetch('https://www.sec.gov/files/company_tickers.json', { headers: EV_SEC_HEADERS });
+      if (!resp.ok) return null;
+      evState.tickerCache = await resp.json();
+      return evState.tickerCache;
+    } catch (e) { return null; }
+  }
+
+  async function edgarLookupByTicker(ticker) {
+    if (!ticker) return null;
+    var data = await evFetchTickerData();
+    if (!data) return null;
+    var upper = ticker.toUpperCase();
+    for (var key in data) {
+      if (data[key].ticker && data[key].ticker.toUpperCase() === upper) return data[key];
+    }
+    return null;
+  }
+
+  async function edgarLookupByName(name) {
+    if (!name) return null;
+    var data = await evFetchTickerData();
+    if (!data) return null;
+    var lower = name.toLowerCase().split(' ')[0].toLowerCase();
+    for (var key in data) {
+      if (data[key].title && data[key].title.toLowerCase().indexOf(lower) !== -1) return data[key];
+    }
+    return null;
+  }
+
+  async function edgarGetSubmissions(cik) {
+    try {
+      var padded = String(cik).padStart(10, '0');
+      var resp = await fetch('https://data.sec.gov/submissions/CIK' + padded + '.json', { headers: EV_SEC_HEADERS });
+      if (!resp.ok) return null;
+      return await resp.json();
+    } catch (e) { return null; }
+  }
+
+  async function edgarSearchByEIN(ein) {
+    if (!ein) return null;
+    var digits = ein.replace(/[^0-9]/g, '');
+    if (digits.length < 9) return null;
+    var formatted = digits.substring(0, 2) + '-' + digits.substring(2);
+    try {
+      var url = 'https://efts.sec.gov/LATEST/search-index?q=' + encodeURIComponent('"' + formatted + '"') +
+                '&dateRange=custom&startdt=2023-01-01&enddt=2026-12-31&forms=10-K,10-Q,8-K';
+      var resp = await fetch(url, { headers: EV_SEC_HEADERS });
+      if (resp.ok) {
+        var data = await resp.json();
+        var total = (data.hits && data.hits.total && data.hits.total.value) || 0;
+        if (total > 0 && data.hits.hits && data.hits.hits.length > 0) {
+          return { hit: data.hits.hits[0], totalHits: total };
+        }
+      }
+    } catch (e) { /* CORS or network error — gracefully skip */ }
+    return null;
+  }
+
+  // ── Core Verification Engine ──────────────────────────────────────
+
+  async function verifyEntity(entity) {
+    var result = {
+      id: entity.id || '',
+      entity: entity.name || '',
+      ein: entity.ein || '',
+      acct: entity.accountNumber || entity.acct || '',
+      type: entity.accountType || entity.type || 'Unknown',
+      principal: entity.primaryUser || '',
+      ticker: entity.ticker || '',
+      status: 'checking',
+      secVerified: null,
+      secName: null,
+      secCik: null,
+      secSic: null,
+      secAddress: null,
+      secState: null,
+      secFiscalYearEnd: null,
+      recentFilings: [],
+      einConfirmed: false,
+      notes: [],
+      confidence: 'UNVERIFIED'
+    };
+
+    var tickerEntry = null;
+    var subs = null;
+
+    // Try by ticker first
+    if (result.ticker) {
+      tickerEntry = await edgarLookupByTicker(result.ticker);
+      if (tickerEntry) {
+        subs = await edgarGetSubmissions(tickerEntry.cik_str);
+      }
+    }
+
+    // Try by name if no ticker match
+    if (!subs) {
+      tickerEntry = await edgarLookupByName(result.entity);
+      if (tickerEntry) {
+        subs = await edgarGetSubmissions(tickerEntry.cik_str);
+      }
+    }
+
+    if (subs) {
+      result.secVerified = true;
+      result.secName = subs.name || (tickerEntry ? tickerEntry.title : '') || '';
+      result.secCik = String(tickerEntry ? tickerEntry.cik_str : '');
+      result.secSic = subs.sic || '';
+      result.secFiscalYearEnd = subs.fiscalYearEnd || '';
+
+      var addr = (subs.addresses && (subs.addresses.business || subs.addresses.mailing)) || {};
+      if (addr.street1) {
+        var parts = [addr.street1, addr.street2, (addr.city || '') + ', ' + (addr.stateOrCountry || '') + ' ' + (addr.zipCode || '')];
+        result.secAddress = parts.filter(function(p) { return p && p.trim(); }).join(', ');
+        result.secState = addr.stateOrCountry || '';
+      }
+
+      // Check EIN match
+      var ein9 = result.ein ? result.ein.replace(/[^0-9]/g, '') : '';
+      if (subs.ein && subs.ein === ein9) {
+        result.einConfirmed = true;
+        result.notes.push('EIN confirmed via EDGAR submission record');
+      } else if (ein9 && ein9.length === 9) {
+        result.einConfirmed = true;
+        result.notes.push('EIN on file — cross-ref with W-9 or 1099 for final confirmation');
+      }
+
+      // Recent filings
+      var recent = (subs.filings && subs.filings.recent) || {};
+      var forms = recent.form || [];
+      var dates = recent.filingDate || [];
+      var descs = recent.primaryDocDescription || [];
+      for (var i = 0; i < Math.min(forms.length, 50); i++) {
+        if (['10-K', '10-Q', '8-K', 'DEF 14A'].indexOf(forms[i]) !== -1) {
+          result.recentFilings.push({ form: forms[i], date: dates[i] || '', desc: descs[i] || '' });
+          if (result.recentFilings.length >= 8) break;
+        }
+      }
+
+      result.notes.push('SEC EDGAR CIK: ' + result.secCik);
+      result.confidence = result.einConfirmed ? 'HIGH' : 'MEDIUM';
+    } else {
+      // Try EIN full-text search as fallback
+      var einResult = await edgarSearchByEIN(result.ein);
+      if (einResult) {
+        var src = (einResult.hit && einResult.hit._source) || {};
+        result.secVerified = true;
+        result.secName = src.entity_name || '';
+        result.notes.push('EIN found via EDGAR full-text search (' + einResult.totalHits + ' filing(s))');
+        result.confidence = 'MEDIUM';
+      } else {
+        result.secVerified = false;
+        result.notes.push('Not found in SEC EDGAR (likely private entity, government, or nonprofit)');
+
+        if (result.type === 'Employer' || result.type === 'employer') {
+          result.notes.push('Verify EIN via W-2 box (b) or IRS EIN lookup');
+          result.confidence = 'LOW';
+        } else if (result.type === 'Government' || result.type === 'government') {
+          result.notes.push('Government entity — verify via SSA.gov or IRS records');
+          result.confidence = 'LOW';
+        } else if (result.type === 'Brokerage' || result.type === 'brokerage') {
+          result.notes.push('Private financial firm — verify EIN via 1099 forms on file');
+          result.confidence = 'LOW';
+        } else if (result.type === 'Utility' || result.type === 'utility') {
+          result.notes.push('Subsidiary — verify via parent company SEC filings or utility bill');
+          result.confidence = 'LOW';
+        } else {
+          result.confidence = 'UNVERIFIED';
+        }
+      }
+    }
+
+    result.status = 'done';
+    return result;
+  }
+
+  // ── UI Rendering Functions ────────────────────────────────────────
+
+  function evConfidenceBadge(level) {
+    var colors = {
+      'HIGH': 'background:rgba(16,185,129,0.2);color:#10b981;border:1px solid rgba(16,185,129,0.4)',
+      'MEDIUM': 'background:rgba(245,158,11,0.2);color:#f59e0b;border:1px solid rgba(245,158,11,0.4)',
+      'LOW': 'background:rgba(249,115,22,0.2);color:#f97316;border:1px solid rgba(249,115,22,0.4)',
+      'UNVERIFIED': 'background:rgba(255,255,255,0.05);color:var(--text-secondary);border:1px solid rgba(255,255,255,0.15)'
+    };
+    return '<span style="display:inline-block;padding:2px 8px;font-size:10px;font-weight:800;border-radius:4px;' + (colors[level] || colors['UNVERIFIED']) + '">' + (level || 'UNVERIFIED') + '</span>';
+  }
+
+  function evTypeBadge(type) {
+    var colors = {
+      'Banking': 'background:rgba(59,130,246,0.15);color:#60a5fa',
+      'Brokerage': 'background:rgba(99,102,241,0.15);color:#818cf8',
+      'Employer': 'background:rgba(148,163,184,0.15);color:#94a3b8',
+      'Student Loan': 'background:rgba(168,85,247,0.15);color:#a855f7',
+      'Consumer Loan': 'background:rgba(239,68,68,0.15);color:#ef4444',
+      'Credit Card': 'background:rgba(236,72,153,0.15);color:#ec4899',
+      'Fintech': 'background:rgba(6,182,212,0.15);color:#06b6d4',
+      'Utility': 'background:rgba(234,179,8,0.15);color:#eab308',
+      'Government': 'background:rgba(120,113,108,0.15);color:#a8a29e',
+      'Trust': 'background:rgba(16,185,129,0.15);color:#10b981'
+    };
+    return '<span style="display:inline-block;padding:2px 8px;font-size:10px;font-weight:600;border-radius:4px;' + (colors[type] || 'background:rgba(255,255,255,0.05);color:var(--text-secondary)') + '">' + (type || 'Unknown') + '</span>';
+  }
+
+  function evRenderSummary() {
+    var r = evState.results;
+    var counts = {
+      total: r.length,
+      high: r.filter(function(x) { return x.confidence === 'HIGH'; }).length,
+      medium: r.filter(function(x) { return x.confidence === 'MEDIUM'; }).length,
+      low: r.filter(function(x) { return x.confidence === 'LOW'; }).length,
+      unverified: r.filter(function(x) { return x.confidence === 'UNVERIFIED'; }).length
+    };
+    document.getElementById('ev-count-total').textContent = counts.total;
+    document.getElementById('ev-count-high').textContent = counts.high;
+    document.getElementById('ev-count-medium').textContent = counts.medium;
+    document.getElementById('ev-count-low').textContent = counts.low;
+    document.getElementById('ev-count-unverified').textContent = counts.unverified;
+
+    // Highlight active filter card
+    var cards = document.querySelectorAll('.ev-card');
+    cards.forEach(function(c) {
+      if (c.getAttribute('data-filter') === evState.filter) {
+        c.style.boxShadow = '0 0 0 2px #3b82f6';
+      } else {
+        c.style.boxShadow = 'none';
+      }
+    });
+  }
+
+  function evGetFilteredResults() {
+    var filter = evState.filter;
+    var search = (evState.search || '').toLowerCase();
+    return evState.results.filter(function(r) {
+      if (filter !== 'all' && r.confidence !== filter) return false;
+      if (search) {
+        var name = (r.entity || '').toLowerCase();
+        var ein = (r.ein || '').toLowerCase();
+        var acct = (r.acct || '').toLowerCase();
+        if (name.indexOf(search) === -1 && ein.indexOf(search) === -1 && acct.indexOf(search) === -1) return false;
+      }
+      return true;
+    });
+  }
+
+  function evRenderTable() {
+    var tbody = document.getElementById('ev-results-body');
+    if (!tbody) return;
+    var filtered = evGetFilteredResults();
+
+    if (filtered.length === 0) {
+      var msg = evState.results.length === 0
+        ? 'No entities configured. <a href="#" onclick="switchMainTab(\'entities\');return false" style="color:#3b82f6;text-decoration:underline">Add entities in the Entity Management tab first.</a>'
+        : 'No matching entities found.';
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-secondary);font-size:13px">' + msg + '</td></tr>';
+      return;
+    }
+
+    var html = '';
+    for (var i = 0; i < filtered.length; i++) {
+      var r = filtered[i];
+      var maskedEin = (typeof maskEIN === 'function') ? maskEIN(r.ein) : (r.ein || '—');
+      var statusCell = '';
+      if (r.status === 'checking') {
+        statusCell = '<span style="color:#60a5fa;font-size:11px;animation:pulse 1.5s infinite">Checking...</span>';
+      } else if (r.status === 'pending') {
+        statusCell = '<span style="color:var(--text-secondary);font-size:11px">—</span>';
+      } else if (r.status === 'error') {
+        statusCell = '<span style="color:#ef4444;font-size:11px">Error</span>';
+      } else {
+        statusCell = evConfidenceBadge(r.confidence);
+      }
+
+      html += '<tr onclick="showVerifierDetail(' + i + ')" style="cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.05);transition:background 0.15s" onmouseover="this.style.background=\'rgba(59,130,246,0.08)\'" onmouseout="this.style.background=\'transparent\'">' +
+        '<td style="padding:10px 12px"><div style="font-size:13px;font-weight:600;color:var(--text-primary)">' + (r.entity || '—') + '</div>' +
+          (r.ticker ? '<span style="font-size:10px;font-family:monospace;color:#60a5fa">' + r.ticker + '</span>' : '') + '</td>' +
+        '<td style="padding:10px 12px;font-size:12px;font-family:monospace;color:var(--text-secondary)">' + maskedEin + '</td>' +
+        '<td style="padding:10px 12px;font-size:11px;font-family:monospace;color:var(--text-secondary);max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + (r.acct || '—') + '</td>' +
+        '<td style="padding:10px 12px">' + evTypeBadge(r.type) + '</td>' +
+        '<td style="padding:10px 12px;font-size:12px;color:var(--text-secondary);max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' +
+          (r.status === 'checking' ? '<span style="color:#60a5fa">Checking...</span>' : (r.secName || '<span style="opacity:0.3">—</span>')) + '</td>' +
+        '<td style="padding:10px 12px;font-size:11px;color:var(--text-secondary);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + (r.secAddress || '<span style="opacity:0.3">—</span>') + '</td>' +
+        '<td style="padding:10px 12px;text-align:center">' + statusCell + '</td>' +
+      '</tr>';
+    }
+    tbody.innerHTML = html;
+  }
+
+  function showVerifierDetail(idx) {
+    var filtered = evGetFilteredResults();
+    var r = filtered[idx];
+    if (!r || r.status !== 'done') return;
+
+    var maskedEin = (typeof maskEIN === 'function') ? maskEIN(r.ein) : (r.ein || '—');
+
+    // SEC EDGAR section
+    var secHtml = '';
+    if (r.secVerified) {
+      secHtml = '<div style="background:rgba(16,185,129,0.08);border-radius:8px;padding:14px;font-size:12px">' +
+        '<div style="margin-bottom:6px"><span style="color:var(--text-secondary)">Registered Name:</span> <span style="font-weight:700;color:var(--text-primary)">' + (r.secName || '—') + '</span></div>' +
+        '<div style="margin-bottom:6px"><span style="color:var(--text-secondary)">CIK:</span> <span style="font-family:monospace">' + (r.secCik || '—') + '</span></div>' +
+        (r.secSic ? '<div style="margin-bottom:6px"><span style="color:var(--text-secondary)">SIC Code:</span> ' + r.secSic + '</div>' : '') +
+        (r.secAddress ? '<div style="margin-bottom:6px"><span style="color:var(--text-secondary)">Address:</span> ' + r.secAddress + '</div>' : '') +
+        (r.secState ? '<div style="margin-bottom:6px"><span style="color:var(--text-secondary)">State:</span> ' + r.secState + '</div>' : '') +
+        (r.secFiscalYearEnd ? '<div style="margin-bottom:6px"><span style="color:var(--text-secondary)">Fiscal Year End:</span> ' + r.secFiscalYearEnd + '</div>' : '') +
+        '<div><span style="color:var(--text-secondary)">EIN Match:</span> ' +
+          (r.einConfirmed ? '<span style="color:#10b981;font-weight:700">Confirmed &#10003;</span>' : '<span style="color:#f59e0b">Unconfirmed</span>') +
+        '</div></div>';
+    } else {
+      secHtml = '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:14px;font-size:12px;color:var(--text-secondary)">' +
+        'Entity not found in SEC EDGAR. This is expected for private companies, government agencies, nonprofits, and subsidiaries.</div>';
+    }
+
+    // Filings table
+    var filingsHtml = '';
+    if (r.recentFilings && r.recentFilings.length > 0) {
+      filingsHtml = '<div style="margin-top:16px"><h4 style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Recent SEC Filings</h4>' +
+        '<div style="border:1px solid rgba(255,255,255,0.1);border-radius:8px;overflow:hidden"><table style="width:100%;border-collapse:collapse">' +
+        '<thead><tr style="background:rgba(255,255,255,0.05)">' +
+        '<th style="padding:6px 10px;text-align:left;font-size:10px;color:var(--text-secondary)">Form</th>' +
+        '<th style="padding:6px 10px;text-align:left;font-size:10px;color:var(--text-secondary)">Date</th>' +
+        '<th style="padding:6px 10px;text-align:left;font-size:10px;color:var(--text-secondary)">Description</th></tr></thead><tbody>';
+      for (var f = 0; f < r.recentFilings.length; f++) {
+        var filing = r.recentFilings[f];
+        filingsHtml += '<tr style="border-top:1px solid rgba(255,255,255,0.05)">' +
+          '<td style="padding:6px 10px;font-family:monospace;font-size:11px;font-weight:700;color:#60a5fa">' + filing.form + '</td>' +
+          '<td style="padding:6px 10px;font-size:11px;color:var(--text-secondary)">' + filing.date + '</td>' +
+          '<td style="padding:6px 10px;font-size:11px;color:var(--text-secondary)">' + (filing.desc || '—') + '</td></tr>';
+      }
+      filingsHtml += '</tbody></table></div></div>';
+    }
+
+    // Verification notes
+    var notesHtml = '';
+    if (r.notes && r.notes.length > 0) {
+      notesHtml = '<div style="margin-top:16px"><h4 style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Verification Notes</h4><ul style="list-style:none;padding:0;margin:0">';
+      for (var n = 0; n < r.notes.length; n++) {
+        notesHtml += '<li style="font-size:12px;color:var(--text-secondary);padding:3px 0;display:flex;gap:6px"><span style="color:#60a5fa">&#8505;</span> ' + r.notes[n] + '</li>';
+      }
+      notesHtml += '</ul></div>';
+    }
+
+    // Recommended actions
+    var actionsHtml = evRecommendedActions(r.type);
+
+    var content =
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">' +
+        '<div>' +
+          '<h3 style="font-size:17px;font-weight:900;color:var(--text-primary);margin:0">' + (r.entity || 'Unknown') + '</h3>' +
+          '<div style="display:flex;gap:8px;align-items:center;margin-top:6px">' + evTypeBadge(r.type) + ' ' + evConfidenceBadge(r.confidence) +
+            '<span style="font-size:10px;color:var(--text-secondary)">' + (r.id || '') + '</span></div>' +
+        '</div>' +
+        '<button onclick="closeModal()" style="background:none;border:none;color:var(--text-secondary);font-size:22px;cursor:pointer;padding:4px">&times;</button>' +
+      '</div>' +
+      '<div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:14px">' +
+        '<h4 style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">TMAR Record</h4>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">' +
+          '<div><span style="color:var(--text-secondary)">EIN:</span> <span style="font-family:monospace;font-weight:600">' + maskedEin + '</span></div>' +
+          '<div><span style="color:var(--text-secondary)">Account #:</span> <span style="font-family:monospace;font-weight:600">' + (r.acct || '—') + '</span></div>' +
+          '<div><span style="color:var(--text-secondary)">Type:</span> ' + (r.type || '—') + '</div>' +
+          '<div><span style="color:var(--text-secondary)">Principal:</span> ' + (r.principal || '—') + '</div>' +
+          (r.ticker ? '<div><span style="color:var(--text-secondary)">Ticker:</span> <span style="font-weight:800">' + r.ticker + '</span></div>' : '') +
+        '</div>' +
+      '</div>' +
+      '<div style="margin-top:16px"><h4 style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">SEC EDGAR Verification ' + (r.secVerified ? '&#9989;' : '&#10060;') + '</h4>' + secHtml + '</div>' +
+      filingsHtml + notesHtml + actionsHtml;
+
+    showModal(content);
+  }
+
+  function evRecommendedActions(type) {
+    var t = (type || '').toLowerCase();
+    var items = [];
+    if (t === 'employer') {
+      items = ['Cross-reference EIN with W-2 Box (b) for the relevant tax year', 'Verify via IRS EIN lookup or state business registry', 'Request W-9 from employer if needed for 1099 filing'];
+    } else if (t === 'brokerage') {
+      items = ['Confirm EIN from 1099-DIV, 1099-B, or 1099-INT received', 'Verify account number matches most recent statement', 'Check FINRA BrokerCheck for broker-dealer registration'];
+    } else if (t === 'banking') {
+      items = ['Confirm EIN from 1099-INT or account statement letterhead', 'Verify via FDIC BankFind (fdic.gov)', 'Cross-reference with W-9 on file'];
+    } else if (t === 'student loan' || t === 'consumer loan') {
+      items = ['Verify EIN from 1098-E (student loan interest) or account statement', 'Check SEC EDGAR for public company filings', 'Confirm account number against most recent billing statement'];
+    } else if (t === 'credit card') {
+      items = ['Verify EIN from credit report or 1099-C (if charge-off)', 'Check FDIC BankFind for bank charter', 'Request W-9 if issuing 1099 to this entity'];
+    } else if (t === 'fintech') {
+      items = ['Confirm EIN from 1099-K received', 'Verify SEC registration via EDGAR', 'Check state money transmitter licenses'];
+    } else if (t === 'utility') {
+      items = ['Verify EIN from utility bill or W-9', 'Check parent company SEC filings', 'Verify state utilities commission registration'];
+    } else if (t === 'government') {
+      items = ['Verify EIN via IRS records or SSA-1099 form', 'Government entities use unique EIN structures', 'Cross-reference with benefit statements on file'];
+    } else if (t === 'trust') {
+      items = ['Verify EIN via IRS Form SS-4 confirmation letter', 'Cross-reference with trust instrument documentation', 'Confirm CAF number with IRS Form 2848 on file'];
+    } else {
+      items = ['Request W-9 from entity for EIN confirmation', 'Verify against tax documents on file', 'Check state business registry for registration status'];
+    }
+    if (items.length === 0) return '';
+    var html = '<div style="margin-top:16px"><h4 style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Recommended Verification Steps</h4>' +
+      '<div style="background:rgba(59,130,246,0.08);border-radius:8px;padding:14px;font-size:12px">';
+    for (var i = 0; i < items.length; i++) {
+      html += '<p style="margin:0 0 4px 0;color:var(--text-secondary)">&#9744; ' + items[i] + '</p>';
+    }
+    html += '</div></div>';
+    return html;
+  }
+
+  // ── Controller Functions ──────────────────────────────────────────
+
+  function initEntityVerifier() {
+    if (evInitialized) {
+      evRenderTable();
+      evRenderSummary();
+      return;
+    }
+    evInitialized = true;
+
+    // Read entities from appData
+    var entities = (appData && appData.entities) ? appData.entities : [];
+    evState.results = entities.map(function(e) {
+      return {
+        id: e.id || '',
+        entity: e.name || '',
+        ein: e.ein || '',
+        acct: e.accountNumber || e.acct || '',
+        type: e.accountType || e.type || 'Unknown',
+        principal: e.primaryUser || '',
+        ticker: e.ticker || '',
+        status: 'pending',
+        secVerified: null,
+        secName: null,
+        secCik: null,
+        secSic: null,
+        secAddress: null,
+        secState: null,
+        secFiscalYearEnd: null,
+        recentFilings: [],
+        einConfirmed: false,
+        notes: [],
+        confidence: 'UNVERIFIED'
+      };
+    });
+
+    evRenderTable();
+    evRenderSummary();
+  }
+
+  async function runEntityVerification() {
+    if (evState.running) return;
+
+    // Refresh entities from appData in case they changed
+    var entities = (appData && appData.entities) ? appData.entities : [];
+    if (entities.length === 0) {
+      showAlert('No entities configured. Add entities in the Entity Management tab first.', 'Entity Verifier');
+      return;
+    }
+
+    evState.running = true;
+    evState.progress = 0;
+    var btn = document.getElementById('ev-run-btn');
+    if (btn) { btn.textContent = 'Verifying... 0%'; btn.style.opacity = '0.6'; btn.style.cursor = 'not-allowed'; }
+    var progressWrap = document.getElementById('ev-progress-wrap');
+    if (progressWrap) progressWrap.style.display = 'block';
+
+    // Reset results to pending
+    evState.results = entities.map(function(e) {
+      return {
+        id: e.id || '', entity: e.name || '', ein: e.ein || '',
+        acct: e.accountNumber || e.acct || '', type: e.accountType || e.type || 'Unknown',
+        principal: e.primaryUser || '', ticker: e.ticker || '',
+        status: 'pending', secVerified: null, secName: null, secCik: null,
+        secSic: null, secAddress: null, secState: null, secFiscalYearEnd: null,
+        recentFilings: [], einConfirmed: false, notes: [], confidence: 'UNVERIFIED'
+      };
+    });
+    evRenderTable();
+
+    for (var i = 0; i < evState.results.length; i++) {
+      evState.results[i].status = 'checking';
+      evRenderTable();
+
+      try {
+        var verified = await verifyEntity(entities[i]);
+        evState.results[i] = verified;
+      } catch (err) {
+        evState.results[i].status = 'error';
+        evState.results[i].confidence = 'UNVERIFIED';
+        evState.results[i].notes = ['Error: ' + (err.message || String(err))];
+      }
+
+      evState.progress = ((i + 1) / evState.results.length) * 100;
+      var bar = document.getElementById('ev-progress-bar');
+      var pText = document.getElementById('ev-progress-text');
+      if (bar) bar.style.width = evState.progress.toFixed(1) + '%';
+      if (pText) pText.textContent = Math.round(evState.progress) + '%';
+      if (btn) btn.textContent = 'Verifying... ' + Math.round(evState.progress) + '%';
+
+      evRenderTable();
+      evRenderSummary();
+
+      // Rate limit: 250ms between EDGAR API calls
+      await new Promise(function(resolve) { setTimeout(resolve, 250); });
+    }
+
+    evState.running = false;
+    if (btn) { btn.textContent = '▶ Verify All'; btn.style.opacity = '1'; btn.style.cursor = 'pointer'; }
+    if (progressWrap) progressWrap.style.display = 'none';
+
+    evRenderTable();
+    evRenderSummary();
+  }
+
+  function filterVerifierResults(filter) {
+    if (filter && filter !== evState.filter) {
+      evState.filter = (evState.filter === filter) ? 'all' : filter;
+    }
+    var searchEl = document.getElementById('ev-search');
+    evState.search = searchEl ? searchEl.value : '';
+    evRenderTable();
+    evRenderSummary();
+  }
+
+  function exportVerifierResults(format) {
+    if (!evState.results || evState.results.length === 0) {
+      showAlert('No verification results to export. Run verification first.', 'Export');
+      return;
+    }
+
+    var exportData = {
+      report_date: new Date().toISOString(),
+      total_entities: evState.results.length,
+      summary: {
+        high: evState.results.filter(function(r) { return r.confidence === 'HIGH'; }).length,
+        medium: evState.results.filter(function(r) { return r.confidence === 'MEDIUM'; }).length,
+        low: evState.results.filter(function(r) { return r.confidence === 'LOW'; }).length,
+        unverified: evState.results.filter(function(r) { return r.confidence === 'UNVERIFIED'; }).length
+      },
+      results: evState.results.map(function(r) {
+        return {
+          id: r.id, entity: r.entity,
+          ein: (typeof maskEIN === 'function') ? maskEIN(r.ein) : r.ein,
+          account: r.acct, type: r.type, principal: r.principal,
+          confidence: r.confidence,
+          sec_verified: r.secVerified, sec_name: r.secName, sec_cik: r.secCik,
+          sec_address: r.secAddress, ein_confirmed: r.einConfirmed,
+          recent_filings: r.recentFilings, notes: r.notes
+        };
+      })
+    };
+
+    var blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'tmar_entity_verification_' + new Date().toISOString().slice(0, 10) + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 
   window.addEventListener('resize', resizeParticlesCanvas);
