@@ -1,7 +1,7 @@
 # GAAP Source — Complete Association Chart
 
-**Source**: `TMAR-Accrual-Ledger.html` (16,280 lines, 1.1MB)
-**Date**: 2026-03-01
+**Source**: `TMAR-Accrual-Ledger.html` (~17,500 lines, ~1.2MB)
+**Date**: 2026-03-03
 **Purpose**: Map every GUI element to its function, document navigation flow, and break down all core/sub/remote functions.
 
 ---
@@ -133,7 +133,7 @@ switchMainTab(tabName)
 │                      └── Document template selection + PDF generation
 │
 ├── cpsa ────────────→ initCPSA()
-│                      └── 12 constitutional challenge templates, rich text editor, save/load/export
+│                      └── 15 document type tabs, multi-doc persistence, undo/redo, auto-save, section mgmt, citations DB, form generator, image insert, code editor
 │
 ├── trcf ────────────→ initTRCF()
 │                      └── 7 sub-tabs, Route 1/Route 2 tax refund calculators (2024 brackets)
@@ -462,22 +462,116 @@ switchMainTab(tabName)
 | Delete Folder | `onclick` | `deleteSourceFolder(id)` | Removes |
 | Category Filter | `onchange` | `filterSourceFolders()` | Filters by category |
 
-### 4.32 Constitutional Challenges Tab (CPSA)
+### 4.32 Constitutional Challenges Tab (CPSA) — v1.3.0 Enhanced
+
+#### Document Type Tabs (15 total)
+
+| Tab | `data-cpsa-doc` | Template Key | Document Title |
+|---|---|---|---|
+| 1 | `dismiss` | `dismiss` | Motion to Dismiss |
+| 2 | `summary` | `summary` | Motion for Summary Judgment |
+| 3 | `habeas` | `habeas` | Writ of Habeas Corpus |
+| 4 | `mandamus` | `mandamus` | Writ of Mandamus |
+| 5 | `certiorari` | `certiorari` | Writ of Certiorari |
+| 6 | `declaratory` | `declaratory` | Declaratory Judgment |
+| 7 | `tro` | `tro` | Temporary Restraining Order |
+| 8 | `dueprocess` | `dueprocess` | Due Process Challenge |
+| 9 | `equalprotection` | `equalprotection` | Equal Protection Challenge |
+| 10 | `standing` | `standing` | Declaration of Standing |
+| 11 | `civil` | `civil` | Civil Rights Complaint |
+| 12 | `quowarranto` | `quowarranto` | Quo Warranto |
+| 13 | `prohibition` | `prohibition` | Writ of Prohibition |
+| 14 | `rehearing` | `rehearing` | Motion for Rehearing |
+| 15 | `templates` | — | Legal Templates Generator |
+
+#### Toolbar Buttons
 
 | Button/Element | Handler | Function | Sub-functions |
 |---|---|---|---|
-| Template Select (12) | `onclick` | `cpsaSelectTemplate(type)` | Loads constitutional challenge template into rich text editor |
+| Undo (↩) | `onclick` | `cpsaUndo()` | Navigates `cpsaHistory[]` backward, calls `cpsaRestoreState()` |
+| Redo (↪) | `onclick` | `cpsaRedo()` | Navigates `cpsaHistory[]` forward, calls `cpsaRestoreState()` |
 | Bold / Italic / Underline | `onclick` | `cpsaCmd('bold'\|'italic'\|'underline')` | `document.execCommand()` formatting |
-| Insert Citation | `onclick` | `cpsaInsertCitation(type)` | Inserts legal citation block (USC, CFR, Case Law) |
-| Set Font Size | `onchange` | `cpsaSetFontSize(size)` | Changes editor font size |
-| Set Case | `onclick` | `cpsaSetCase(type)` | Transforms text: uppercase, lowercase, title case |
-| Save Draft | `onclick` | `cpsaSave()` | localStorage persist |
-| Load Draft | `onclick` | `cpsaLoad()` | Restores from localStorage |
-| Export PDF | `onclick` | `cpsaExportPDF()` | jsPDF export |
+| Ordered List | `onclick` | `cpsaCmd('insertOrderedList')` | Inserts numbered list |
+| Unordered List | `onclick` | `cpsaCmd('insertUnorderedList')` | Inserts bullet list |
+| Indent / Outdent | `onclick` | `cpsaCmd('indent'\|'outdent')` | Block indent/outdent |
+| Constitutional Citation | `onclick` | `cpsaInsertCitation('constitutional')` | Modal with amendment/article search |
+| Statutory Citation | `onclick` | `cpsaInsertCitation('statutory')` | Modal with 14-entry statute database |
+| Case Law Citation | `onclick` | `cpsaInsertCitation('caselaw')` | Modal with 20-entry landmark case database |
+| IRC Citation | `onclick` | `cpsaInsertCitation('irc')` | Modal for tax code citations |
+| Font Size − | `onclick` | `cpsaChangeFontSize(-1)` | Decreases font, min 8px |
+| Font Size Input | `oninput` | `cpsaSetFontSize(value)` | Direct numeric input, 8-72 range |
+| Font Size + | `onclick` | `cpsaChangeFontSize(1)` | Increases font, max 72px |
+| UPPER / lower / Title | `onclick` | `cpsaSetCase(type)` | Text case transform on selection |
+| Insert Image (📷) | `onclick` | `cpsaOpenImageModal()` | File upload modal → Base64 insert |
+| Preview (👁) | `onclick` | `cpsaPreviewDocument()` | Opens clean new window preview |
+
+#### Action Bar Buttons
+
+| Button/Element | Handler | Function | Sub-functions |
+|---|---|---|---|
+| Save All | `onclick` | `cpsaSaveAll()` | Persists all 15 documents + state to `cpsa_documents` localStorage |
+| Export PDF | `onclick` | `cpsaExportPDF()` | jsPDF export of current document |
 | Export Word | `onclick` | `cpsaExportWord()` | HTML-based .doc export |
 | Print | `onclick` | `cpsaPrint()` | `window.print()` |
-| View Source | `onclick` | `cpsaViewSource()` | Shows raw HTML of editor content |
+| Code Editor | `onclick` | `cpsaOpenCodeEditor()` | Modal with HTML textarea + Apply/Cancel |
+| View Code | `onclick` | `cpsaViewUpdatedCode()` | Read-only modal + Copy + Download |
 | Clean HTML | `onclick` | `cpsaCleanHTML()` | Strips unnecessary formatting |
+
+#### Form Generator Panel
+
+| Field | ID | Purpose |
+|---|---|---|
+| Your Name | `cpsa-form-name` | Populates `${d.yourName}` in templates |
+| City | `cpsa-form-city` | Populates `${d.city}` |
+| State | `cpsa-form-state` | Populates `${d.state}` |
+| District | `cpsa-form-district` | Populates `${d.district}` |
+| Case Number | `cpsa-form-case` | Populates `${d.caseNumber}` |
+| Date | `cpsa-form-date` | Populates `${d.date}` |
+| Debtor Name | `cpsa-form-debtor` | Populates `${d.debtorName}` |
+| Toggle Form | `onclick` | `cpsaToggleFormPanel()` |
+
+#### Legal Templates Generator (templates tab)
+
+| Template Card | Handler | Function |
+|---|---|---|
+| Declaration of Non-Consent | `onclick` | `cpsaGenerateLegalTemplate('nonConsent')` → `cpsaCreateDeclarationOfNonConsent(d)` |
+| Reservation & Withdrawal | `onclick` | `cpsaGenerateLegalTemplate('withdrawal')` → `cpsaCreateReservationAndWithdrawal(d)` |
+| Adversary Complaint | `onclick` | `cpsaGenerateLegalTemplate('adversary')` → `cpsaCreateAdversaryComplaint(d)` |
+| Voluntary Dismissal | `onclick` | `cpsaGenerateLegalTemplate('dismissal')` → `cpsaCreateVoluntaryDismissal(d)` |
+| Creditor Challenge | `onclick` | `cpsaGenerateLegalTemplate('creditorChallenge')` → `cpsaCreateCreditorChallenge(d)` |
+| Voluntary Challenge | `onclick` | `cpsaGenerateLegalTemplate('voluntaryChallenge')` → `cpsaCreateVoluntaryChallenge(d)` |
+
+#### Core Architecture Functions
+
+| Function | Purpose | Key Details |
+|---|---|---|
+| `initCPSA()` | Initialize module | Loads state, sets up auto-save (5s), keyboard shortcuts, generates doc IDs |
+| `cpsaSwitchDoc(docType, skipSave)` | Switch between 15 document tabs | Saves current → loads target → toggles `.active` tab styling |
+| `cpsaGenerateDocIds()` | Create unique document IDs | Format: `CPSA-{ABBREV}-{YEAR}-{RANDOM3}` (e.g., `CPSA-DISM-2026-042`) |
+| `cpsaSaveToHistory()` | Push undo state | `{docType, content, timestamp}`, trims redo stack, max 20 states |
+| `cpsaUndo()` / `cpsaRedo()` | Navigate history | Array-based with index pointer |
+| `cpsaSaveAll()` | Persist all documents | Writes to `cpsa_documents` localStorage key |
+| `cpsaLoadAll()` | Restore from storage | Migrates legacy `cpsa_draft` key if found |
+| `cpsaSetupAutoSave()` | 5-second interval | Calls `cpsaSaveAll()` + updates green indicator |
+| `cpsaSetupKeyboardShortcuts()` | Ctrl+S/Z/Y/P | Active only when CPSA section visible |
+| `cpsaAddSectionAfter(btn)` | Section management | Insert new `.cpsa-section` after current |
+| `cpsaMoveSection(btn, dir)` | Section management | Swap section with sibling |
+| `cpsaDeleteSection(btn)` | Section management | Confirm + remove section |
+| `cpsaInsertCitation(type)` | Enhanced citations | Modal with searchable database (14 statutes, 20 case law) |
+| `cpsaApplyCitation(className, ref)` | Apply citation | Inserts color-coded span at cursor position |
+| `cpsaOpenImageModal()` | Image insertion | File upload modal with preview |
+| `cpsaInsertImage()` | Image insert | Base64 encode + insert at cursor |
+| `cpsaPreviewDocument()` | Document preview | Clean new window (no UI controls) |
+| `cpsaOpenCodeEditor()` | Code editor | Modal with textarea + Apply/Cancel |
+| `cpsaApplyCodeChanges()` | Apply code | Sets editor innerHTML from textarea |
+| `cpsaViewUpdatedCode()` | View code | Read-only modal + Copy + Download |
+
+#### Citation Databases
+
+| Database | Entries | Example |
+|---|---|---|
+| `cpsaStatuteDB` | 14 statutes | 11 U.S.C. § 362 (Automatic Stay), 26 U.S.C. § 6020(b), etc. |
+| `cpsaCaseLawDB` | 20 cases | Marbury v. Madison, Miranda v. Arizona, etc. |
 
 ### 4.33 Tax Refund Calculator Tab (TRCF)
 
@@ -679,7 +773,8 @@ Page Load
 | `RR_Reconciliations` | Bank reconciliation data | Bank Recon module |
 | `vcHistory` | Voice & Chat history | Voice & Chat module |
 | `vcStats` | Voice & Chat statistics | Voice & Chat module |
-| `cpsa_draft` | CPSA editor draft content | Constitutional Challenges module |
+| `cpsa_documents` | CPSA all 15 documents + state (JSON) | Constitutional Challenges module |
+| `cpsa_draft` | *(legacy, auto-migrated to cpsa_documents)* | Constitutional Challenges module |
 
 **Pending Renames:**
 - `RR_*` prefix → `TMAR_*` prefix (future cleanup)

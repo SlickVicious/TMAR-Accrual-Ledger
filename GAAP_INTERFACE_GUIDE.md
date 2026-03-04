@@ -1,6 +1,6 @@
 # TMAR Universal Accrual Ledger - User Guide
 
-**Version:** 1.2.1
+**Version:** 1.3.0
 **Last Updated:** 2026-03-03
 **Status:** ✅ Deployed and Ready
 
@@ -331,7 +331,7 @@ Five reference tools integrated from `redressright.me` as dedicated tabs:
 
 | # | Tab | Purpose | Key Features |
 |---|---|---|---|
-| 13 | ⚖️ Constitutional Challenges (CPSA) | Generate constitutional challenge documents | 12 templates, rich text editor, save/load drafts, PDF/Word export |
+| 13 | ⚖️ Constitutional Challenges (CPSA) | Full WYSIWYG legal document editor | 15 document type tabs, multi-document persistence, undo/redo (20 states), auto-save (5s), section management, form generator (7 fields), 6 legal template generators, citation databases (14 statutes, 20 cases), image insert, code editor, preview mode, font 8-72pt, keyboard shortcuts (Ctrl+S/Z/Y/P), PDF/Word export |
 | 14 | 💰 Tax Refund Calculator (TRCF) | Calculate tax refunds via two routes | 7 sub-tabs, Route 1/Route 2 calculators, 2024 brackets, interest calculator, 1099 import, 8 form cards in Form Guidance |
 | 15 | 📊 NOL Classification (CCSN) | Net Operating Loss asset classification | 72-slide presentation, prev/next navigation, table of contents |
 | 16 | 🏛️ Federal Damages (FDRF) | Federal damages framework reference | 4-part accordion layout, text-to-speech read-aloud |
@@ -811,6 +811,28 @@ To practice with realistic data:
 **Bug Fixes:**
 - ✅ Fixed Document Creator autosave overwriting in-memory drafts on tab re-entry
 - ✅ Fixed duplicate autosave intervals accumulating on tab switches
+
+### v1.3.0 (2026-03-03)
+
+**Constitutional Challenges (CPSA) — Full Feature Parity with redressright.me/CPSA.html:**
+- ✅ 15 document type tabs (dismiss, summary, habeas, mandamus, certiorari, declaratory, tro, dueprocess, equalprotection, standing, civil, quowarranto, prohibition, rehearing, templates)
+- ✅ Multi-document persistence — all 15 documents stored independently in `cpsa_documents` localStorage
+- ✅ Undo/Redo system — 20-state history with Ctrl+Z/Ctrl+Y keyboard shortcuts
+- ✅ Auto-save — 5-second interval with green indicator flash
+- ✅ Section management — hover-reveal controls for move up/down/delete, add section button
+- ✅ Form generator — 7-field collapsible panel (Name, City, State, District, Case#, Date, Debtor)
+- ✅ 6 Legal Template generators — Declaration of Non-Consent, Reservation & Withdrawal, Adversary Complaint, Voluntary Dismissal, Creditor Challenge, Voluntary Challenge
+- ✅ Enhanced citations — modal-based with searchable databases (14 statutes, 20 landmark cases)
+- ✅ Color-coded citation spans — constitutional (amber), statutory (green), case law (blue), IRC (purple)
+- ✅ Image insertion — file upload modal with preview, Base64 encode + insert at cursor
+- ✅ Font size range expanded — 8pt to 72pt with +/- buttons and direct input
+- ✅ Code editor modal — edit raw HTML with Apply/Cancel
+- ✅ View code modal — read-only with Copy + Download buttons
+- ✅ Document preview — clean new window without UI controls
+- ✅ Document ID auto-generation — format: `CPSA-{ABBREV}-{YEAR}-{RANDOM3}`
+- ✅ Keyboard shortcuts — Ctrl+S (save), Ctrl+Z (undo), Ctrl+Y (redo), Ctrl+P (print)
+- ✅ Legacy migration — auto-migrates old `cpsa_draft` key to new `cpsa_documents` format
+- ✅ 3 new document templates: Writ of Certiorari, Declaration of Standing, Civil Rights Complaint (42 U.S.C. § 1983)
 
 ### v1.2.1 (2026-03-03)
 

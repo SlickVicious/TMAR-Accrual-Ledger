@@ -221,12 +221,31 @@
     .slide-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
     /* CPSA: Constitutional Challenge editor */
+    .cpsa-doc-tab { padding: 8px 14px; border-radius: 6px 6px 0 0; font-weight: 600; font-size: 11px; border: 1px solid rgba(6,182,212,0.2); border-bottom: none; background: transparent; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+    .cpsa-doc-tab.active { background: rgba(6,182,212,0.15); color: #06b6d4; border-color: rgba(6,182,212,0.5); }
+    .cpsa-doc-tab:hover { background: rgba(6,182,212,0.08); }
     .cpsa-template-card { padding: 12px 16px; border: 2px solid rgba(6,182,212,0.2); border-radius: 10px; background: var(--bg-tertiary); cursor: pointer; transition: all 0.2s; }
     .cpsa-template-card:hover { border-color: rgba(6,182,212,0.5); background: rgba(6,182,212,0.08); }
     .cpsa-template-card.active { border-color: #06b6d4; background: rgba(6,182,212,0.12); }
-    .cpsa-editor-area { background: #fff; color: #1B2A4A; border: 2px solid rgba(6,182,212,0.3); border-radius: 10px; min-height: 500px; padding: 40px 50px; font-family: 'Times New Roman', serif; font-size: 14px; line-height: 2; outline: none; overflow-y: auto; }
+    .cpsa-editor-area { background: #fff; color: #1B2A4A; border: 2px solid rgba(6,182,212,0.3); border-radius: 0 0 10px 10px; min-height: 500px; padding: 40px 50px; font-family: 'Times New Roman', serif; font-size: 14px; line-height: 2; outline: none; overflow-y: auto; }
     .cpsa-toolbar-btn { padding: 5px 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; background: var(--bg-tertiary); color: var(--text-primary); cursor: pointer; font-size: 12px; transition: all 0.2s; }
     .cpsa-toolbar-btn:hover { background: rgba(6,182,212,0.15); border-color: rgba(6,182,212,0.3); }
+    .cpsa-autosave { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; background: rgba(139,92,246,0.2); color: #a78bfa; transition: all 0.3s; }
+    .cpsa-autosave.saved { background: rgba(16,185,129,0.2); color: #10b981; }
+    .cpsa-section { position: relative; margin: 16px 0; padding: 16px 20px; border-left: 3px solid #06b6d4; background: rgba(6,182,212,0.03); border-radius: 0 6px 6px 0; }
+    .cpsa-section:hover .cpsa-section-controls { opacity: 1; }
+    .cpsa-section-controls { position: absolute; top: 4px; right: 4px; opacity: 0; transition: opacity 0.3s; display: flex; gap: 3px; z-index: 5; }
+    .cpsa-section-ctrl-btn { width: 22px; height: 22px; border-radius: 50%; border: none; background: rgba(100,116,139,0.7); color: white; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .cpsa-section-ctrl-btn:hover { background: #ef4444; }
+    .cpsa-add-section-btn { display: block; margin: 8px auto; padding: 6px 16px; border-radius: 16px; border: 1px dashed rgba(6,182,212,0.4); background: transparent; color: #06b6d4; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .cpsa-add-section-btn:hover { background: rgba(6,182,212,0.08); border-style: solid; }
+    .cpsa-case-ref { font-weight: 600; color: #60a5fa; }
+    .cpsa-statutory-ref { font-weight: 600; color: #34d399; }
+    .cpsa-constitutional-ref { font-weight: 600; color: #f59e0b; }
+    .cpsa-congressional-ref { font-weight: 600; color: #a78bfa; }
+    .cpsa-form-input { width: 100%; padding: 8px 12px; border: 1px solid rgba(6,182,212,0.3); border-radius: 6px; background: var(--bg-tertiary); color: var(--text-primary); font-size: 13px; }
+    .cpsa-form-input:focus { outline: none; border-color: #06b6d4; box-shadow: 0 0 0 2px rgba(6,182,212,0.15); }
+    .cpsa-doc-id { text-align: right; font-size: 10px; color: var(--text-secondary); font-weight: 700; letter-spacing: 0.5px; margin-bottom: 4px; }
 
     /* TRCF: Tax Refund Calculator sub-tabs */
     .trcf-subtab { padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 12px; border: 1px solid rgba(239,68,68,0.2); background: transparent; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; white-space: nowrap; }
@@ -13261,81 +13280,56 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
   <section id="cpsaSection" class="form-section hidden">
     <div style="padding:20px;max-width:1100px;margin:0 auto">
 
-      <!-- Header Banner -->
-      <div style="background:linear-gradient(135deg,rgba(6,182,212,0.12),rgba(30,41,59,0.4));border:2px solid rgba(6,182,212,0.4);border-radius:14px;padding:24px;margin-bottom:24px;text-align:center">
-        <div style="font-size:22px;font-weight:800;color:#06b6d4;letter-spacing:1px">CONSTITUTIONAL PETITION &amp; STATUTORY AUTHORITY CREATOR</div>
-        <div style="font-size:13px;color:var(--text-secondary);margin-top:8px">Draft constitutional challenges, legal motions, and petitions with built-in templates, citation insertion, and export tools</div>
+      <!-- Header Banner + Auto-Save Indicator -->
+      <div style="background:linear-gradient(135deg,rgba(6,182,212,0.12),rgba(30,41,59,0.4));border:2px solid rgba(6,182,212,0.4);border-radius:14px;padding:24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:22px;font-weight:800;color:#06b6d4;letter-spacing:1px">CONSTITUTIONAL PETITION &amp; STATUTORY AUTHORITY CREATOR</div>
+          <div style="font-size:13px;color:var(--text-secondary);margin-top:8px">Draft constitutional challenges, legal motions, and petitions with built-in templates, citation insertion, and export tools</div>
+        </div>
+        <div id="cpsa-autosave-indicator" class="cpsa-autosave" style="flex-shrink:0;margin-left:16px">Auto-save: off</div>
       </div>
 
-      <!-- Template Selector Grid -->
-      <div style="margin-bottom:20px">
-        <div style="font-size:15px;font-weight:700;color:#06b6d4;margin-bottom:12px">Select Document Template</div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
-          <div class="cpsa-template-card" data-cpsa-tpl="dismiss" onclick="cpsaSelectTemplate('dismiss')">
-            <div style="font-size:18px;margin-bottom:4px">&#9878;&#65039;</div>
-            <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Motion to Dismiss</div>
-            <div style="font-size:11px;color:var(--text-secondary)">FRCP Rule 12(b)</div>
-          </div>
-          <div class="cpsa-template-card" data-cpsa-tpl="summary" onclick="cpsaSelectTemplate('summary')">
-            <div style="font-size:18px;margin-bottom:4px">&#128203;</div>
-            <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Motion for Summary Judgment</div>
-            <div style="font-size:11px;color:var(--text-secondary)">FRCP Rule 56</div>
-          </div>
-          <div class="cpsa-template-card" data-cpsa-tpl="habeas" onclick="cpsaSelectTemplate('habeas')">
-            <div style="font-size:18px;margin-bottom:4px">&#128275;</div>
-            <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Habeas Corpus Petition</div>
-            <div style="font-size:11px;color:var(--text-secondary)">28 U.S.C. &sect; 2241</div>
-          </div>
-          <div class="cpsa-template-card" data-cpsa-tpl="mandamus" onclick="cpsaSelectTemplate('mandamus')">
-            <div style="font-size:18px;margin-bottom:4px">&#128220;</div>
-            <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Mandamus Petition</div>
-            <div style="font-size:11px;color:var(--text-secondary)">28 U.S.C. &sect; 1361</div>
-          </div>
-          <div class="cpsa-template-card" data-cpsa-tpl="declaratory" onclick="cpsaSelectTemplate('declaratory')">
-            <div style="font-size:18px;margin-bottom:4px">&#127963;&#65039;</div>
-            <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Declaratory Judgment</div>
-            <div style="font-size:11px;color:var(--text-secondary)">28 U.S.C. &sect; 2201</div>
-          </div>
-          <div class="cpsa-template-card" data-cpsa-tpl="tro" onclick="cpsaSelectTemplate('tro')">
-            <div style="font-size:18px;margin-bottom:4px">&#128680;</div>
-            <div style="font-size:13px;font-weight:700;color:var(--text-primary)">TRO / Preliminary Injunction</div>
-            <div style="font-size:11px;color:var(--text-secondary)">FRCP Rule 65</div>
-          </div>
-          <div class="cpsa-template-card" data-cpsa-tpl="dueprocess" onclick="cpsaSelectTemplate('dueprocess')">
-            <div style="font-size:18px;margin-bottom:4px">&#9889;</div>
-            <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Constitutional Challenge &ndash; Due Process</div>
-            <div style="font-size:11px;color:var(--text-secondary)">14th Amendment</div>
-          </div>
-          <div class="cpsa-template-card" data-cpsa-tpl="equalprotection" onclick="cpsaSelectTemplate('equalprotection')">
-            <div style="font-size:18px;margin-bottom:4px">&#9878;&#65039;</div>
-            <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Constitutional Challenge &ndash; Equal Protection</div>
-            <div style="font-size:11px;color:var(--text-secondary)">14th Amendment</div>
-          </div>
-          <div class="cpsa-template-card" data-cpsa-tpl="quowarranto" onclick="cpsaSelectTemplate('quowarranto')">
-            <div style="font-size:18px;margin-bottom:4px">&#128203;</div>
-            <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Quo Warranto</div>
-            <div style="font-size:11px;color:var(--text-secondary)">Challenge to Authority of Office</div>
-          </div>
-          <div class="cpsa-template-card" data-cpsa-tpl="prohibition" onclick="cpsaSelectTemplate('prohibition')">
-            <div style="font-size:18px;margin-bottom:4px">&#128721;</div>
-            <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Petition for Writ of Prohibition</div>
-            <div style="font-size:11px;color:var(--text-secondary)">Prevent Unauthorized Jurisdiction</div>
-          </div>
-          <div class="cpsa-template-card" data-cpsa-tpl="rehearing" onclick="cpsaSelectTemplate('rehearing')">
-            <div style="font-size:18px;margin-bottom:4px">&#128260;</div>
-            <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Petition for Rehearing</div>
-            <div style="font-size:11px;color:var(--text-secondary)">Request Reconsideration</div>
-          </div>
-          <div class="cpsa-template-card" data-cpsa-tpl="custom" onclick="cpsaSelectTemplate('custom')">
-            <div style="font-size:18px;margin-bottom:4px">&#128196;</div>
-            <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Custom Document</div>
-            <div style="font-size:11px;color:var(--text-secondary)">Blank Template</div>
+      <!-- Form Generator Panel (collapsible) -->
+      <div style="margin-bottom:16px">
+        <button onclick="cpsaToggleFormPanel()" style="padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(6,182,212,0.3);background:rgba(6,182,212,0.08);color:#06b6d4;cursor:pointer;transition:all 0.2s;margin-bottom:8px">&#128221; Toggle Form Fields</button>
+        <div id="cpsa-form-panel" style="display:none;padding:16px;border:1px solid rgba(6,182,212,0.2);border-radius:10px;background:var(--bg-secondary)">
+          <div style="font-size:13px;font-weight:700;color:#06b6d4;margin-bottom:12px">Document Fields (auto-populate templates)</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+            <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">Your Name</label><input id="cpsa-form-name" class="cpsa-form-input" placeholder="[Your Name]"></div>
+            <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">City</label><input id="cpsa-form-city" class="cpsa-form-input" placeholder="[City]"></div>
+            <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">State</label><input id="cpsa-form-state" class="cpsa-form-input" placeholder="[State]"></div>
+            <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">District</label><input id="cpsa-form-district" class="cpsa-form-input" placeholder="[District]"></div>
+            <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">Case Number</label><input id="cpsa-form-case" class="cpsa-form-input" placeholder="[Case No.]"></div>
+            <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">Date</label><input id="cpsa-form-date" type="date" class="cpsa-form-input"></div>
+            <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">Debtor Name (optional)</label><input id="cpsa-form-debtor" class="cpsa-form-input" placeholder="[Debtor Name]"></div>
           </div>
         </div>
       </div>
 
-      <!-- Rich Text Toolbar -->
-      <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:12px;background:var(--bg-secondary);border:1px solid rgba(6,182,212,0.2);border-radius:10px 10px 0 0;margin-bottom:0">
+      <!-- Document Type Tab Bar -->
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:0;border-bottom:1px solid rgba(6,182,212,0.2);padding-bottom:0">
+        <button class="cpsa-doc-tab active" data-cpsa-doc="dismiss" onclick="cpsaSwitchDoc('dismiss')">Motion to Dismiss</button>
+        <button class="cpsa-doc-tab" data-cpsa-doc="summary" onclick="cpsaSwitchDoc('summary')">Summary Judgment</button>
+        <button class="cpsa-doc-tab" data-cpsa-doc="habeas" onclick="cpsaSwitchDoc('habeas')">Habeas Corpus</button>
+        <button class="cpsa-doc-tab" data-cpsa-doc="mandamus" onclick="cpsaSwitchDoc('mandamus')">Mandamus</button>
+        <button class="cpsa-doc-tab" data-cpsa-doc="certiorari" onclick="cpsaSwitchDoc('certiorari')">Certiorari</button>
+        <button class="cpsa-doc-tab" data-cpsa-doc="declaratory" onclick="cpsaSwitchDoc('declaratory')">Declaratory</button>
+        <button class="cpsa-doc-tab" data-cpsa-doc="tro" onclick="cpsaSwitchDoc('tro')">TRO/Injunction</button>
+        <button class="cpsa-doc-tab" data-cpsa-doc="dueprocess" onclick="cpsaSwitchDoc('dueprocess')">Due Process</button>
+        <button class="cpsa-doc-tab" data-cpsa-doc="equalprotection" onclick="cpsaSwitchDoc('equalprotection')">Equal Protection</button>
+        <button class="cpsa-doc-tab" data-cpsa-doc="standing" onclick="cpsaSwitchDoc('standing')">Standing</button>
+        <button class="cpsa-doc-tab" data-cpsa-doc="civil" onclick="cpsaSwitchDoc('civil')">Civil Rights</button>
+        <button class="cpsa-doc-tab" data-cpsa-doc="quowarranto" onclick="cpsaSwitchDoc('quowarranto')">Quo Warranto</button>
+        <button class="cpsa-doc-tab" data-cpsa-doc="prohibition" onclick="cpsaSwitchDoc('prohibition')">Prohibition</button>
+        <button class="cpsa-doc-tab" data-cpsa-doc="rehearing" onclick="cpsaSwitchDoc('rehearing')">Rehearing</button>
+        <button class="cpsa-doc-tab" data-cpsa-doc="templates" onclick="cpsaSwitchDoc('templates')" style="color:#a855f7;border-color:rgba(168,85,247,0.3)">&#128221; Legal Templates</button>
+      </div>
+
+      <!-- Enhanced Rich Text Toolbar -->
+      <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:10px 12px;background:var(--bg-secondary);border:1px solid rgba(6,182,212,0.2);border-top:none;margin-bottom:0">
+        <button class="cpsa-toolbar-btn" onclick="cpsaUndo()" title="Undo (Ctrl+Z)">&#8630;</button>
+        <button class="cpsa-toolbar-btn" onclick="cpsaRedo()" title="Redo (Ctrl+Y)">&#8631;</button>
+        <span style="width:1px;height:20px;background:rgba(255,255,255,0.1);margin:0 4px"></span>
         <button class="cpsa-toolbar-btn" onclick="cpsaCmd('bold')" title="Bold"><b>B</b></button>
         <button class="cpsa-toolbar-btn" onclick="cpsaCmd('italic')" title="Italic"><i>I</i></button>
         <button class="cpsa-toolbar-btn" onclick="cpsaCmd('underline')" title="Underline"><u>U</u></button>
@@ -13345,38 +13339,82 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
         <button class="cpsa-toolbar-btn" onclick="cpsaCmd('indent')" title="Indent">&#8594;</button>
         <button class="cpsa-toolbar-btn" onclick="cpsaCmd('outdent')" title="Outdent">&#8592;</button>
         <span style="width:1px;height:20px;background:rgba(255,255,255,0.1);margin:0 4px"></span>
-        <button class="cpsa-toolbar-btn" onclick="cpsaInsertCitation('constitutional')" title="Constitutional Citation">&#128220; Constitutional</button>
-        <button class="cpsa-toolbar-btn" onclick="cpsaInsertCitation('statutory')" title="Statutory Citation">&#128203; Statutory</button>
-        <button class="cpsa-toolbar-btn" onclick="cpsaInsertCitation('caselaw')" title="Case Law Citation">&#9878;&#65039; Case Law</button>
+        <button class="cpsa-toolbar-btn" onclick="cpsaInsertCitation('constitutional')" title="Constitutional Citation">&#128220; Const.</button>
+        <button class="cpsa-toolbar-btn" onclick="cpsaInsertCitation('statutory')" title="Statutory Citation">&#128203; Stat.</button>
+        <button class="cpsa-toolbar-btn" onclick="cpsaInsertCitation('caselaw')" title="Case Law Citation">&#9878;&#65039; Case</button>
         <button class="cpsa-toolbar-btn" onclick="cpsaInsertCitation('irc')" title="IRC Citation">&#128176; IRC</button>
         <span style="width:1px;height:20px;background:rgba(255,255,255,0.1);margin:0 4px"></span>
-        <select onchange="cpsaSetFontSize(this.value)" style="padding:4px 8px;border:1px solid rgba(255,255,255,0.1);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);font-size:12px">
-          <option value="">Font Size</option>
-          <option value="12px">12px</option>
-          <option value="14px">14px</option>
-          <option value="16px">16px</option>
-          <option value="18px">18px</option>
-          <option value="20px">20px</option>
-        </select>
+        <div style="display:flex;align-items:center;gap:3px">
+          <button class="cpsa-toolbar-btn" onclick="cpsaChangeFontSize(-1)" title="Decrease Font">-</button>
+          <input type="number" id="cpsa-font-size" value="14" min="8" max="72" onchange="cpsaSetFontSize(this.value+'px')" style="width:40px;padding:3px;text-align:center;border:1px solid rgba(255,255,255,0.1);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);font-size:11px">
+          <button class="cpsa-toolbar-btn" onclick="cpsaChangeFontSize(1)" title="Increase Font">+</button>
+        </div>
+        <span style="width:1px;height:20px;background:rgba(255,255,255,0.1);margin:0 4px"></span>
         <button class="cpsa-toolbar-btn" onclick="cpsaSetCase('upper')">UPPER</button>
         <button class="cpsa-toolbar-btn" onclick="cpsaSetCase('lower')">lower</button>
         <button class="cpsa-toolbar-btn" onclick="cpsaSetCase('title')">Title</button>
+        <span style="width:1px;height:20px;background:rgba(255,255,255,0.1);margin:0 4px"></span>
+        <button class="cpsa-toolbar-btn" onclick="cpsaOpenImageModal()" title="Insert Image">&#128247;</button>
+        <button class="cpsa-toolbar-btn" onclick="cpsaPreviewDocument()" title="Preview">&#128065;</button>
       </div>
 
+      <!-- Document ID Badge -->
+      <div id="cpsa-doc-id-display" class="cpsa-doc-id"></div>
+
       <!-- Contenteditable Editor -->
-      <div id="cpsa-editor" class="cpsa-editor-area" contenteditable="true" data-mode="rich" style="border-top:none;border-radius:0 0 10px 10px">
-        <p style="text-align:center;color:#999;font-style:italic">Select a template above or begin typing your document here...</p>
+      <div id="cpsa-editor" class="cpsa-editor-area" contenteditable="true" data-mode="rich" style="border-top:none">
+        <p style="text-align:center;color:#999;font-style:italic">Select a document tab above or begin typing...</p>
+      </div>
+
+      <!-- Legal Templates Panel (shown only on Templates tab) -->
+      <div id="cpsa-templates-panel" style="display:none">
+        <div style="padding:20px;border:2px solid rgba(168,85,247,0.3);border-radius:10px;background:var(--bg-secondary)">
+          <div style="font-size:16px;font-weight:800;color:#a855f7;margin-bottom:16px">Legal Template Generator</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:16px">Fill in the form fields above, then select a template below to generate a pre-populated legal document.</div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px">
+            <button class="cpsa-template-card" onclick="cpsaGenerateLegalTemplate('nonConsent')" style="text-align:left">
+              <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Declaration of Non-Consent</div>
+              <div style="font-size:11px;color:var(--text-secondary)">Challenge to waiver of rights</div>
+            </button>
+            <button class="cpsa-template-card" onclick="cpsaGenerateLegalTemplate('reservation')" style="text-align:left">
+              <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Reservation &amp; Withdrawal</div>
+              <div style="font-size:11px;color:var(--text-secondary)">Exemption affidavit</div>
+            </button>
+            <button class="cpsa-template-card" onclick="cpsaGenerateLegalTemplate('adversary')" style="text-align:left">
+              <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Adversary Complaint</div>
+              <div style="font-size:11px;color:var(--text-secondary)">Voluntary petition challenge</div>
+            </button>
+            <button class="cpsa-template-card" onclick="cpsaGenerateLegalTemplate('voluntaryDismissal')" style="text-align:left">
+              <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Voluntary Dismissal Petition</div>
+              <div style="font-size:11px;color:var(--text-secondary)">Chapter 11 dismissal</div>
+            </button>
+            <button class="cpsa-template-card" onclick="cpsaGenerateLegalTemplate('creditorChallenge')" style="text-align:left">
+              <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Creditor Challenge</div>
+              <div style="font-size:11px;color:var(--text-secondary)">Negotiable instrument / foreclosure</div>
+            </button>
+            <button class="cpsa-template-card" onclick="cpsaGenerateLegalTemplate('voluntaryChallenge')" style="text-align:left">
+              <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Voluntary Filing Challenge</div>
+              <div style="font-size:11px;color:var(--text-secondary)">Bankruptcy objections</div>
+            </button>
+          </div>
+          <div id="cpsa-generated-doc" style="display:none;background:#fff;color:#1B2A4A;border:2px solid rgba(168,85,247,0.3);border-radius:10px;min-height:300px;padding:40px 50px;font-family:'Times New Roman',serif;font-size:14px;line-height:2" contenteditable="true"></div>
+          <div id="cpsa-gen-actions" style="display:none;margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+            <button onclick="cpsaSaveGenerated()" style="padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(168,85,247,0.3);background:rgba(168,85,247,0.1);color:#a855f7;cursor:pointer">&#128190; Save</button>
+            <button onclick="cpsaPrintGenerated()" style="padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(168,85,247,0.3);background:rgba(168,85,247,0.1);color:#a855f7;cursor:pointer">&#128424; Print</button>
+            <button onclick="cpsaClearGenerated()" style="padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(168,85,247,0.3);background:rgba(168,85,247,0.1);color:#a855f7;cursor:pointer">&#128465; Clear</button>
+          </div>
+        </div>
       </div>
 
       <!-- Action Bar -->
       <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px">
-        <button onclick="cpsaSave()" style="padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;border:1px solid rgba(6,182,212,0.3);background:rgba(6,182,212,0.1);color:#06b6d4;cursor:pointer;transition:all 0.2s">&#128190; Save Draft</button>
-        <button onclick="cpsaLoad()" style="padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;border:1px solid rgba(6,182,212,0.3);background:rgba(6,182,212,0.1);color:#06b6d4;cursor:pointer;transition:all 0.2s">&#128194; Load Draft</button>
+        <button onclick="cpsaSaveAll()" style="padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;border:1px solid rgba(6,182,212,0.3);background:rgba(6,182,212,0.1);color:#06b6d4;cursor:pointer;transition:all 0.2s">&#128190; Save All</button>
         <button onclick="cpsaExportPDF()" style="padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;border:1px solid rgba(6,182,212,0.3);background:rgba(6,182,212,0.1);color:#06b6d4;cursor:pointer;transition:all 0.2s">&#128196; Export PDF</button>
         <button onclick="cpsaExportWord()" style="padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;border:1px solid rgba(6,182,212,0.3);background:rgba(6,182,212,0.1);color:#06b6d4;cursor:pointer;transition:all 0.2s">&#128221; Export Word</button>
         <button onclick="cpsaPrint()" style="padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;border:1px solid rgba(6,182,212,0.3);background:rgba(6,182,212,0.1);color:#06b6d4;cursor:pointer;transition:all 0.2s">&#128424; Print</button>
+        <button onclick="cpsaOpenCodeEditor()" style="padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;border:1px solid rgba(6,182,212,0.3);background:rgba(6,182,212,0.1);color:#06b6d4;cursor:pointer;transition:all 0.2s">&lt;/&gt; Code Editor</button>
+        <button onclick="cpsaViewUpdatedCode()" style="padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;border:1px solid rgba(6,182,212,0.3);background:rgba(6,182,212,0.1);color:#06b6d4;cursor:pointer;transition:all 0.2s">&#128203; View Code</button>
         <button onclick="cpsaCleanHTML()" style="padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;border:1px solid rgba(6,182,212,0.3);background:rgba(6,182,212,0.1);color:#06b6d4;cursor:pointer;transition:all 0.2s">&#129529; Clean HTML</button>
-        <button onclick="cpsaViewSource()" style="padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;border:1px solid rgba(6,182,212,0.3);background:rgba(6,182,212,0.1);color:#06b6d4;cursor:pointer;transition:all 0.2s">&lt;/&gt; View Source</button>
       </div>
 
     </div>
@@ -15143,7 +15181,57 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
   // ═══════════════════════════════════════════════════════════════
   // CPSA: Constitutional Challenge Creator
   // ═══════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════
+  // CPSA: State Management
+  // ═══════════════════════════════════════════════════════════════
   let cpsaInitialized = false;
+  let cpsaCurrentDoc = 'dismiss';
+  let cpsaDocuments = {};
+  let cpsaDocIds = {};
+  let cpsaHistory = [];
+  let cpsaHistoryIndex = -1;
+  var CPSA_MAX_HISTORY = 20;
+  let cpsaAutoSaveTimer = null;
+
+  // Citation databases
+  var cpsaStatuteDB = [
+    { ref: '1 Stat. 68-71 (May 8, 1792)', desc: 'Militia Act' },
+    { ref: '1 Stat. 91 \u00a7 32 (Sept. 29, 1789)', desc: 'Judiciary Act' },
+    { ref: '1 Stat. 123 \u00a7 2 (Feb. 18, 1790)', desc: 'Process Act' },
+    { ref: '13 Stat. 356 \u00a7 13 (1864)', desc: 'National Banking Act' },
+    { ref: '28 U.S.C. \u00a7 1331', desc: 'Federal question jurisdiction' },
+    { ref: '28 U.S.C. \u00a7 1361', desc: 'Mandamus jurisdiction' },
+    { ref: '28 U.S.C. \u00a7 2201', desc: 'Declaratory Judgment Act' },
+    { ref: '28 U.S.C. \u00a7 2241', desc: 'Habeas corpus' },
+    { ref: '42 U.S.C. \u00a7 1983', desc: 'Civil Rights Act' },
+    { ref: '48 Stat. 1064 (June 18, 1934)', desc: 'Gold Reserve Act' },
+    { ref: '62 Stat. 944 (June 25, 1948)', desc: 'Judicial Code revision' },
+    { ref: '50 U.S.C. \u00a7 1601-1651', desc: 'National Emergencies Act' },
+    { ref: 'I.R.C. \u00a7 6020(b)', desc: 'Substitute for return' },
+    { ref: 'I.R.C. \u00a7 6201', desc: 'Assessment authority' }
+  ];
+  var cpsaCaseLawDB = [
+    { ref: 'Marbury v. Madison, 5 U.S. 137 (1803)', desc: 'Judicial review' },
+    { ref: 'McCulloch v. Maryland, 17 U.S. 316 (1819)', desc: 'Federal supremacy' },
+    { ref: 'Knox v. Lee, 79 U.S. 457 (1871)', desc: 'Legal tender' },
+    { ref: 'Ex parte Young, 209 U.S. 123 (1908)', desc: 'State officer suits' },
+    { ref: 'Erie R.R. Co. v. Tompkins, 304 U.S. 64 (1938)', desc: 'Federal common law' },
+    { ref: 'Guaranty Trust Co. v. York, 326 U.S. 99 (1945)', desc: 'Outcome determinative' },
+    { ref: 'Hanna v. Plumer, 380 U.S. 460 (1965)', desc: 'Erie doctrine refinement' },
+    { ref: 'Goldberg v. Kelly, 397 U.S. 254 (1970)', desc: 'Due process hearing' },
+    { ref: 'Mathews v. Eldridge, 424 U.S. 319 (1976)', desc: 'Due process balancing' },
+    { ref: 'Stump v. Sparkman, 435 U.S. 349 (1978)', desc: 'Judicial immunity' },
+    { ref: 'Celotex Corp. v. Catrett, 477 U.S. 317 (1986)', desc: 'Summary judgment burden' },
+    { ref: 'Lujan v. Defenders of Wildlife, 504 U.S. 555 (1992)', desc: 'Standing requirements' },
+    { ref: 'Kokkonen v. Guardian Life, 511 U.S. 375 (1994)', desc: 'Limited jurisdiction' },
+    { ref: 'Seminole Tribe v. Florida, 517 U.S. 44 (1996)', desc: 'Sovereign immunity' },
+    { ref: 'Bell Atlantic v. Twombly, 550 U.S. 544 (2007)', desc: 'Pleading plausibility' },
+    { ref: 'Ashcroft v. Iqbal, 556 U.S. 662 (2009)', desc: 'Pleading standard' },
+    { ref: 'Stern v. Marshall, 564 U.S. 462 (2011)', desc: 'Bankruptcy court limits' },
+    { ref: 'Banco Nacional de Cuba v. Sabbatino, 376 U.S. 398 (1964)', desc: 'Act of state doctrine' },
+    { ref: 'Bivens v. Six Unknown Agents, 403 U.S. 388 (1971)', desc: 'Constitutional tort' },
+    { ref: 'Monell v. Dept of Social Services, 436 U.S. 658 (1978)', desc: 'Municipal liability' }
+  ];
 
   const cpsaTemplates = {
     'dismiss': {
@@ -15619,6 +15707,117 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
         '<p>[ADDRESS]</p>' +
         '<p>Date: _______________</p>'
     },
+    'certiorari': {
+      title: 'PETITION FOR WRIT OF CERTIORARI',
+      content: '<div style="text-align:center;margin-bottom:30px;font-family:Times New Roman,serif">' +
+        '<p style="font-weight:bold;font-size:14px">IN THE SUPREME COURT OF THE UNITED STATES</p>' +
+        '<br>' +
+        '<p>[PETITIONER NAME],</p>' +
+        '<p style="margin-left:40px">Petitioner,</p>' +
+        '<p style="font-weight:bold">v.</p>' +
+        '<p>No. ________</p>' +
+        '<p>[RESPONDENT NAME],</p>' +
+        '<p style="margin-left:40px">Respondent.</p>' +
+        '<br>' +
+        '<p style="font-weight:bold;font-size:16px;text-decoration:underline">PETITION FOR A WRIT OF CERTIORARI</p>' +
+        '</div>' +
+        '<p style="font-weight:bold;text-decoration:underline;margin:20px 0 10px">QUESTIONS PRESENTED</p>' +
+        '<p style="margin-bottom:10px">1. Whether [state the first question presented for review].</p>' +
+        '<p style="margin-bottom:10px">2. Whether [state any additional questions].</p>' +
+        '<p style="font-weight:bold;text-decoration:underline;margin:20px 0 10px">PARTIES TO THE PROCEEDING</p>' +
+        '<p style="margin-bottom:10px">[List all parties to the proceeding in the court whose judgment is sought to be reviewed.]</p>' +
+        '<p style="font-weight:bold;text-decoration:underline;margin:20px 0 10px">TABLE OF AUTHORITIES</p>' +
+        '<p style="margin-bottom:6px;font-weight:bold">Constitutional Provisions:</p>' +
+        '<p style="margin-left:30px;margin-bottom:4px">[List applicable constitutional provisions]</p>' +
+        '<p style="margin-bottom:6px;font-weight:bold">Statutes:</p>' +
+        '<p style="margin-left:30px;margin-bottom:4px">28 U.S.C. \u00a7 1254(1)</p>' +
+        '<p style="margin-bottom:6px;font-weight:bold">Cases:</p>' +
+        '<p style="margin-left:30px;margin-bottom:4px">[List relevant cases]</p>' +
+        '<p style="font-weight:bold;text-decoration:underline;margin:20px 0 10px">OPINIONS BELOW</p>' +
+        '<p style="margin-bottom:10px">The opinion of the [court of appeals/state supreme court] is reported at [citation] and is reproduced in the Appendix at [page].</p>' +
+        '<p style="font-weight:bold;text-decoration:underline;margin:20px 0 10px">JURISDICTION</p>' +
+        '<p style="margin-bottom:10px">The judgment of the [lower court] was entered on [date]. This Court has jurisdiction under 28 U.S.C. \u00a7 1254(1).</p>' +
+        '<p style="font-weight:bold;text-decoration:underline;margin:20px 0 10px">STATEMENT OF THE CASE</p>' +
+        '<p style="margin-bottom:10px">[Provide a concise statement of the case, including the procedural history and relevant facts.]</p>' +
+        '<p style="font-weight:bold;text-decoration:underline;margin:20px 0 10px">REASONS FOR GRANTING THE PETITION</p>' +
+        '<p style="margin-bottom:10px">I. [First reason the Court should grant certiorari.]</p>' +
+        '<p style="margin-bottom:10px">II. [Second reason, e.g., circuit split, important constitutional question.]</p>' +
+        '<p style="font-weight:bold;text-decoration:underline;margin:20px 0 10px">CONCLUSION</p>' +
+        '<p style="margin-bottom:10px">For the foregoing reasons, Petitioner respectfully requests that this Court grant the petition for a writ of certiorari.</p>' +
+        '<br><p>Respectfully submitted,</p><br>' +
+        '<p>_______________________________</p>' +
+        '<p>[NAME], Pro Se / Counsel of Record</p>' +
+        '<p>[ADDRESS]</p><p>[CITY, STATE ZIP]</p><p>[PHONE] | [EMAIL]</p>' +
+        '<p>Date: _______________</p>'
+    },
+    'standing': {
+      title: 'DECLARATION OF STANDING',
+      content: '<div style="text-align:center;margin-bottom:30px;font-family:Times New Roman,serif">' +
+        '<p style="font-weight:bold;font-size:14px">DECLARATION OF STANDING AND SELF-AUTONOMY</p>' +
+        '<br>' +
+        '<p style="font-weight:bold;font-size:16px;text-decoration:underline">DECLARATION</p>' +
+        '</div>' +
+        '<p style="margin-bottom:14px">I, [YOUR FULL NAME], a living man/woman, do hereby make this Declaration of Standing, asserting my inherent rights under the Constitution of the United States and the Laws of Nature.</p>' +
+        '<p style="font-weight:bold;text-decoration:underline;margin:20px 0 10px">I. DECLARATION OF STATUS</p>' +
+        '<p style="margin-bottom:10px">1. I am a natural-born citizen of the United States of America, domiciled in the State of [STATE], with all rights, privileges, and immunities guaranteed by the Constitution.</p>' +
+        '<p style="margin-bottom:10px">2. I possess standing to bring any action in any court of competent jurisdiction as guaranteed by Article III of the Constitution and the First Amendment right to petition for redress of grievances.</p>' +
+        '<p style="font-weight:bold;text-decoration:underline;margin:20px 0 10px">II. ASSERTION OF RIGHTS</p>' +
+        '<p style="margin-bottom:10px">3. I hereby reserve all rights at law and in equity, without prejudice, UCC 1-308.</p>' +
+        '<p style="margin-bottom:10px">4. No government agency, corporation, or individual may diminish, abridge, or deny the rights herein declared without due process of law as required by the 5th and 14th Amendments.</p>' +
+        '<p style="font-weight:bold;text-decoration:underline;margin:20px 0 10px">III. NOTICE OF STANDING</p>' +
+        '<p style="margin-bottom:10px">5. This Declaration serves as formal notice that I, [YOUR FULL NAME], have standing to challenge any action, regulation, or statute that infringes upon my constitutionally protected rights.</p>' +
+        '<p style="margin-bottom:10px">6. Any party seeking to contest this standing bears the burden of proof to demonstrate otherwise, per Lujan v. Defenders of Wildlife, 504 U.S. 555 (1992).</p>' +
+        '<p style="font-weight:bold;text-decoration:underline;margin:20px 0 10px">IV. VERIFICATION</p>' +
+        '<p style="margin-bottom:10px">I declare under penalty of perjury that the foregoing is true and correct to the best of my knowledge and belief.</p>' +
+        '<br><p>Executed this ___ day of __________, 20__.</p><br>' +
+        '<p>_______________________________</p>' +
+        '<p>[YOUR FULL NAME]</p>' +
+        '<p>[ADDRESS]</p><p>[CITY, STATE ZIP]</p>' +
+        '<p>Date: _______________</p>'
+    },
+    'civil': {
+      title: 'CIVIL RIGHTS COMPLAINT UNDER 42 U.S.C. \u00a7 1983',
+      content: '<div style="text-align:center;margin-bottom:30px;font-family:Times New Roman,serif">' +
+        '<p style="font-weight:bold;font-size:14px">IN THE UNITED STATES DISTRICT COURT</p>' +
+        '<p style="font-weight:bold;font-size:14px">FOR THE [________] DISTRICT OF [________]</p>' +
+        '<br>' +
+        '<p>[PLAINTIFF NAME],</p>' +
+        '<p style="margin-left:40px">Plaintiff,</p>' +
+        '<p style="font-weight:bold">v.</p>' +
+        '<p>Civil Action No. ________</p>' +
+        '<p>[DEFENDANT(S) NAME(S)],</p>' +
+        '<p style="margin-left:40px">in their individual and official capacities,</p>' +
+        '<p style="margin-left:40px">Defendants.</p>' +
+        '<br>' +
+        '<p style="font-weight:bold;font-size:16px;text-decoration:underline">COMPLAINT FOR DEPRIVATION OF CIVIL RIGHTS UNDER 42 U.S.C. \u00a7 1983</p>' +
+        '</div>' +
+        '<p style="font-weight:bold;text-decoration:underline;margin:20px 0 10px">I. JURISDICTION AND VENUE</p>' +
+        '<p style="margin-bottom:10px">1. This Court has jurisdiction under 28 U.S.C. \u00a7 1331 (federal question) and 28 U.S.C. \u00a7 1343(a)(3)-(4) (civil rights jurisdiction).</p>' +
+        '<p style="margin-bottom:10px">2. Venue is proper in this district under 28 U.S.C. \u00a7 1391(b) because the events giving rise to this action occurred within this judicial district.</p>' +
+        '<p style="font-weight:bold;text-decoration:underline;margin:20px 0 10px">II. PARTIES</p>' +
+        '<p style="margin-bottom:10px">3. Plaintiff [NAME] is a citizen of the United States, residing in [CITY], [STATE].</p>' +
+        '<p style="margin-bottom:10px">4. Defendant [NAME] is a [state/local government official/employee] who acted under color of state law at all times relevant to this Complaint.</p>' +
+        '<p style="font-weight:bold;text-decoration:underline;margin:20px 0 10px">III. FACTUAL ALLEGATIONS</p>' +
+        '<p style="margin-bottom:10px">5. [Describe the specific facts giving rise to the civil rights violation.]</p>' +
+        '<p style="margin-bottom:10px">6. [Describe the specific constitutional right(s) violated.]</p>' +
+        '<p style="margin-bottom:10px">7. Defendants acted under color of state law when they [describe specific actions]. These actions deprived Plaintiff of rights secured by the [4th/5th/14th] Amendment(s) to the United States Constitution.</p>' +
+        '<p style="font-weight:bold;text-decoration:underline;margin:20px 0 10px">IV. CAUSES OF ACTION</p>' +
+        '<p style="font-weight:bold;margin:16px 0 8px">Count I: Violation of [Constitutional Right] (42 U.S.C. \u00a7 1983)</p>' +
+        '<p style="margin-bottom:10px">8. Defendants, acting under color of state law, deprived Plaintiff of [specific right] in violation of the [Amendment] to the United States Constitution.</p>' +
+        '<p style="margin-bottom:10px">9. Per Bivens v. Six Unknown Named Agents, 403 U.S. 388 (1971), and Monell v. Dept. of Social Services, 436 U.S. 658 (1978), Defendants are liable for damages.</p>' +
+        '<p style="font-weight:bold;text-decoration:underline;margin:20px 0 10px">V. PRAYER FOR RELIEF</p>' +
+        '<p style="margin-bottom:10px">WHEREFORE, Plaintiff respectfully requests that this Court:</p>' +
+        '<p style="margin-left:40px;margin-bottom:8px">A. Enter a declaratory judgment that Defendants\' actions violated Plaintiff\'s constitutional rights;</p>' +
+        '<p style="margin-left:40px;margin-bottom:8px">B. Award compensatory damages in an amount to be determined at trial;</p>' +
+        '<p style="margin-left:40px;margin-bottom:8px">C. Award punitive damages against Defendants in their individual capacities;</p>' +
+        '<p style="margin-left:40px;margin-bottom:8px">D. Award attorneys\' fees and costs pursuant to 42 U.S.C. \u00a7 1988;</p>' +
+        '<p style="margin-left:40px;margin-bottom:8px">E. Grant such other relief as the Court deems just and proper.</p>' +
+        '<br><p>Respectfully submitted,</p><br>' +
+        '<p>_______________________________</p>' +
+        '<p>[NAME], Pro Se / Attorney for Plaintiff</p>' +
+        '<p>[ADDRESS]</p><p>[CITY, STATE ZIP]</p><p>[PHONE] | [EMAIL]</p>' +
+        '<p>Date: _______________</p>'
+    },
     'custom': {
       title: 'CUSTOM DOCUMENT',
       content: '<div style="text-align:center;margin-bottom:30px;font-family:Times New Roman,serif">' +
@@ -15655,22 +15854,534 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     }
   };
 
+  // ═══════════════════════════════════════════════════════════════
+  // CPSA: Core Functions
+  // ═══════════════════════════════════════════════════════════════
+
   function initCPSA() {
     if (cpsaInitialized) return;
     cpsaInitialized = true;
-    cpsaLoad();
+    cpsaLoadAll();
+    cpsaGenerateDocIds();
+    cpsaSetupAutoSave();
+    cpsaSetupKeyboardShortcuts();
+    // Set initial date field
+    var dateField = document.getElementById('cpsa-form-date');
+    if (dateField && !dateField.value) dateField.value = new Date().toISOString().split('T')[0];
+    // Load first document
+    cpsaSwitchDoc(cpsaCurrentDoc, true);
   }
 
-  function cpsaSelectTemplate(type) {
-    var tpl = cpsaTemplates[type];
-    if (!tpl) return;
+  function cpsaSwitchDoc(docType, skipSave) {
     var editor = document.getElementById('cpsa-editor');
-    if (editor) editor.innerHTML = tpl.content;
-    document.querySelectorAll('.cpsa-template-card').forEach(function(c) { c.classList.remove('active'); });
-    var card = document.querySelector('[data-cpsa-tpl="' + type + '"]');
-    if (card) card.classList.add('active');
-    if (typeof showNotification === 'function') showNotification('Template loaded: ' + tpl.title, 'success');
+    var templatesPanel = document.getElementById('cpsa-templates-panel');
+    if (!editor) return;
+    // Save current document content before switching
+    if (!skipSave && cpsaCurrentDoc !== docType) {
+      cpsaDocuments[cpsaCurrentDoc] = editor.innerHTML;
+      cpsaSaveToHistory();
+    }
+    cpsaCurrentDoc = docType;
+    // Toggle tabs
+    document.querySelectorAll('.cpsa-doc-tab').forEach(function(t) { t.classList.remove('active'); });
+    var tab = document.querySelector('[data-cpsa-doc="' + docType + '"]');
+    if (tab) tab.classList.add('active');
+    // Handle templates tab specially
+    if (docType === 'templates') {
+      editor.style.display = 'none';
+      if (templatesPanel) templatesPanel.style.display = 'block';
+    } else {
+      editor.style.display = '';
+      if (templatesPanel) templatesPanel.style.display = 'none';
+      // Load document content (saved or template default)
+      var content = cpsaDocuments[docType];
+      if (!content && cpsaTemplates[docType]) content = cpsaTemplates[docType].content;
+      if (!content) content = '<p style="text-align:center;color:#999;font-style:italic">Begin typing your document here...</p>';
+      editor.innerHTML = content;
+    }
+    // Update document ID display
+    var idDisplay = document.getElementById('cpsa-doc-id-display');
+    if (idDisplay && cpsaDocIds[docType]) idDisplay.textContent = cpsaDocIds[docType];
+    else if (idDisplay) idDisplay.textContent = '';
+    if (typeof showNotification === 'function' && !skipSave) {
+      var title = cpsaTemplates[docType] ? cpsaTemplates[docType].title : docType;
+      showNotification('Document: ' + title, 'info');
+    }
   }
+
+  function cpsaGenerateDocIds() {
+    var abbrevs = { dismiss:'DISM', summary:'SUMJ', habeas:'HC', mandamus:'WOM', certiorari:'WOC', declaratory:'DJ', tro:'TRO', dueprocess:'DP', equalprotection:'EP', standing:'STAND', civil:'CR', quowarranto:'QW', prohibition:'WOP', rehearing:'RH' };
+    var year = new Date().getFullYear();
+    Object.keys(abbrevs).forEach(function(key) {
+      var num = String(Math.floor(Math.random() * 900) + 100);
+      cpsaDocIds[key] = 'CPSA-' + abbrevs[key] + '-' + year + '-' + num;
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // CPSA: Undo/Redo
+  // ═══════════════════════════════════════════════════════════════
+
+  function cpsaSaveToHistory() {
+    var editor = document.getElementById('cpsa-editor');
+    if (!editor) return;
+    var state = { docType: cpsaCurrentDoc, content: editor.innerHTML, timestamp: Date.now() };
+    cpsaHistory = cpsaHistory.slice(0, cpsaHistoryIndex + 1);
+    cpsaHistory.push(state);
+    if (cpsaHistory.length > CPSA_MAX_HISTORY) { cpsaHistory.shift(); } else { cpsaHistoryIndex++; }
+  }
+
+  function cpsaUndo() {
+    if (cpsaHistoryIndex <= 0) { if (typeof showNotification === 'function') showNotification('Nothing to undo', 'info'); return; }
+    // Save current state first if at end
+    if (cpsaHistoryIndex === cpsaHistory.length - 1) {
+      var editor = document.getElementById('cpsa-editor');
+      if (editor) {
+        cpsaHistory = cpsaHistory.slice(0, cpsaHistoryIndex + 1);
+        cpsaHistory.push({ docType: cpsaCurrentDoc, content: editor.innerHTML, timestamp: Date.now() });
+      }
+    }
+    cpsaHistoryIndex--;
+    cpsaRestoreState(cpsaHistory[cpsaHistoryIndex]);
+  }
+
+  function cpsaRedo() {
+    if (cpsaHistoryIndex >= cpsaHistory.length - 1) { if (typeof showNotification === 'function') showNotification('Nothing to redo', 'info'); return; }
+    cpsaHistoryIndex++;
+    cpsaRestoreState(cpsaHistory[cpsaHistoryIndex]);
+  }
+
+  function cpsaRestoreState(state) {
+    if (!state) return;
+    if (state.docType !== cpsaCurrentDoc) cpsaSwitchDoc(state.docType, true);
+    var editor = document.getElementById('cpsa-editor');
+    if (editor) editor.innerHTML = state.content;
+    cpsaDocuments[state.docType] = state.content;
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // CPSA: Storage (Save/Load)
+  // ═══════════════════════════════════════════════════════════════
+
+  function cpsaSaveAll() {
+    try {
+      var editor = document.getElementById('cpsa-editor');
+      if (editor && cpsaCurrentDoc !== 'templates') cpsaDocuments[cpsaCurrentDoc] = editor.innerHTML;
+      var data = { documents: cpsaDocuments, currentDocument: cpsaCurrentDoc, timestamp: Date.now() };
+      // Save form data
+      data.formData = cpsaReadFormData();
+      localStorage.setItem('cpsa_documents', JSON.stringify(data));
+      // Update auto-save indicator
+      var ind = document.getElementById('cpsa-autosave-indicator');
+      if (ind) {
+        ind.textContent = 'Saved ' + new Date().toLocaleTimeString();
+        ind.classList.add('saved');
+        setTimeout(function() { ind.classList.remove('saved'); }, 2000);
+      }
+    } catch (e) { console.warn('CPSA save failed:', e); }
+  }
+
+  function cpsaLoadAll() {
+    try {
+      // Try new multi-document format first
+      var raw = localStorage.getItem('cpsa_documents');
+      if (raw) {
+        var data = JSON.parse(raw);
+        cpsaDocuments = data.documents || {};
+        cpsaCurrentDoc = data.currentDocument || 'dismiss';
+        // Restore form data
+        if (data.formData) {
+          var fields = { name:'cpsa-form-name', city:'cpsa-form-city', state:'cpsa-form-state', district:'cpsa-form-district', caseNo:'cpsa-form-case', date:'cpsa-form-date', debtorName:'cpsa-form-debtor' };
+          Object.keys(fields).forEach(function(k) { var el = document.getElementById(fields[k]); if (el && data.formData[k]) el.value = data.formData[k]; });
+        }
+        return;
+      }
+      // Migrate legacy single-draft format
+      var legacy = localStorage.getItem('cpsa_draft');
+      if (legacy) {
+        cpsaDocuments['dismiss'] = legacy;
+        cpsaCurrentDoc = 'dismiss';
+        localStorage.removeItem('cpsa_draft');
+        cpsaSaveAll();
+      }
+    } catch (e) { console.warn('CPSA load failed:', e); }
+  }
+
+  function cpsaSetupAutoSave() {
+    if (cpsaAutoSaveTimer) clearInterval(cpsaAutoSaveTimer);
+    cpsaAutoSaveTimer = setInterval(function() { cpsaSaveAll(); }, 5000);
+    var ind = document.getElementById('cpsa-autosave-indicator');
+    if (ind) ind.textContent = 'Auto-save: on';
+  }
+
+  function cpsaSetupKeyboardShortcuts() {
+    document.addEventListener('keydown', function(e) {
+      // Only when CPSA section is visible
+      var sec = document.getElementById('cpsaSection');
+      if (!sec || sec.classList.contains('hidden')) return;
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); cpsaSaveAll(); if (typeof showNotification === 'function') showNotification('All documents saved!', 'success'); }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) { e.preventDefault(); cpsaUndo(); }
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { e.preventDefault(); cpsaRedo(); }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'p') { e.preventDefault(); cpsaPrint(); }
+    });
+    // Save history on editor input
+    var editor = document.getElementById('cpsa-editor');
+    if (editor) {
+      var debounceTimer;
+      editor.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function() { cpsaSaveToHistory(); }, 1000);
+      });
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // CPSA: Section Management
+  // ═══════════════════════════════════════════════════════════════
+
+  function cpsaAddSectionAfter(btn) {
+    var section = btn.closest ? btn.closest('.cpsa-section') : btn.parentElement;
+    var newSection = document.createElement('div');
+    newSection.className = 'cpsa-section';
+    newSection.innerHTML = '<div class="cpsa-section-controls">' +
+      '<button class="cpsa-section-ctrl-btn" onclick="cpsaMoveSection(this,\'up\')" title="Move Up">\u2191</button>' +
+      '<button class="cpsa-section-ctrl-btn" onclick="cpsaMoveSection(this,\'down\')" title="Move Down">\u2193</button>' +
+      '<button class="cpsa-section-ctrl-btn" onclick="cpsaDeleteSection(this)" title="Delete">\u2717</button>' +
+      '</div>' +
+      '<p style="font-weight:bold;text-decoration:underline;margin:0 0 10px" contenteditable="true">[NEW SECTION HEADING]</p>' +
+      '<p contenteditable="true">[Enter content here...]</p>';
+    var addBtn = document.createElement('button');
+    addBtn.className = 'cpsa-add-section-btn';
+    addBtn.textContent = '+ ADD SECTION';
+    addBtn.onclick = function() { cpsaAddSectionAfter(this); };
+    if (section && section.nextSibling) {
+      section.parentNode.insertBefore(newSection, section.nextSibling);
+      newSection.parentNode.insertBefore(addBtn, newSection.nextSibling);
+    } else {
+      var editor = document.getElementById('cpsa-editor');
+      if (editor) { editor.appendChild(newSection); editor.appendChild(addBtn); }
+    }
+    cpsaSaveToHistory();
+    if (typeof showNotification === 'function') showNotification('Section added', 'success');
+  }
+
+  function cpsaMoveSection(btn, direction) {
+    var section = btn.closest('.cpsa-section');
+    if (!section) return;
+    if (direction === 'up' && section.previousElementSibling) {
+      section.parentNode.insertBefore(section, section.previousElementSibling);
+    } else if (direction === 'down' && section.nextElementSibling) {
+      section.parentNode.insertBefore(section.nextElementSibling, section);
+    }
+    cpsaSaveToHistory();
+  }
+
+  function cpsaDeleteSection(btn) {
+    var section = btn.closest('.cpsa-section');
+    if (!section) return;
+    if (typeof showConfirm === 'function') {
+      showConfirm('Delete this section?', function() {
+        section.remove();
+        cpsaSaveToHistory();
+        if (typeof showNotification === 'function') showNotification('Section deleted', 'success');
+      });
+    } else {
+      if (confirm('Delete this section?')) { section.remove(); cpsaSaveToHistory(); }
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // CPSA: Form Generator + Legal Templates
+  // ═══════════════════════════════════════════════════════════════
+
+  function cpsaToggleFormPanel() {
+    var panel = document.getElementById('cpsa-form-panel');
+    if (panel) panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+  }
+
+  function cpsaReadFormData() {
+    return {
+      yourName: (document.getElementById('cpsa-form-name') || {}).value || '[Your Name]',
+      city: (document.getElementById('cpsa-form-city') || {}).value || '[City]',
+      state: (document.getElementById('cpsa-form-state') || {}).value || '[State]',
+      district: (document.getElementById('cpsa-form-district') || {}).value || '[District]',
+      caseNo: (document.getElementById('cpsa-form-case') || {}).value || '[Case Number]',
+      date: (document.getElementById('cpsa-form-date') || {}).value || new Date().toLocaleDateString(),
+      debtorName: (document.getElementById('cpsa-form-debtor') || {}).value || '[Debtor Name]'
+    };
+  }
+
+  function cpsaGenerateLegalTemplate(type) {
+    var d = cpsaReadFormData();
+    var html = '';
+    var title = '';
+    switch (type) {
+      case 'nonConsent':
+        title = 'Declaration of Non-Consent';
+        html = '<div style="text-align:center;font-family:Times New Roman,serif;margin-bottom:30px"><p style="font-weight:bold;font-size:16px;text-decoration:underline">DECLARATION OF NON-CONSENT</p></div>' +
+          '<p>I, ' + d.yourName + ', a living man/woman domiciled in ' + d.city + ', ' + d.state + ', do hereby declare:</p>' +
+          '<p style="font-weight:bold;margin:16px 0 8px">1. NON-CONSENT TO JURISDICTION</p>' +
+          '<p>I do not consent to the jurisdiction of any court operating under admiralty, maritime, or equity jurisdiction over my person or property absent a valid contract signed by me with full disclosure.</p>' +
+          '<p style="font-weight:bold;margin:16px 0 8px">2. RESERVATION OF RIGHTS</p>' +
+          '<p>All rights are reserved without prejudice, UCC 1-308. No action taken under duress or coercion shall be construed as a waiver of any right.</p>' +
+          '<p style="font-weight:bold;margin:16px 0 8px">3. NOTICE</p>' +
+          '<p>This Declaration serves as constructive notice to all parties, agents, and officers.</p>' +
+          '<br><p>Executed on ' + d.date + ' in ' + d.city + ', ' + d.state + '.</p>' +
+          '<br><p>_______________________________</p><p>' + d.yourName + '</p>';
+        break;
+      case 'reservation':
+        title = 'Reservation & Withdrawal';
+        html = '<div style="text-align:center;font-family:Times New Roman,serif;margin-bottom:30px"><p style="font-weight:bold;font-size:16px;text-decoration:underline">AFFIDAVIT OF RESERVATION AND WITHDRAWAL OF EXEMPTION</p></div>' +
+          '<p>I, ' + d.yourName + ', being of sound mind and lawful age, do solemnly affirm and declare:</p>' +
+          '<p style="font-weight:bold;margin:16px 0 8px">1. IDENTITY AND STANDING</p>' +
+          '<p>I am a natural person with standing in ' + d.district + ' District, ' + d.state + '.</p>' +
+          '<p style="font-weight:bold;margin:16px 0 8px">2. WITHDRAWAL</p>' +
+          '<p>I hereby withdraw any and all implied consent to voluntary participation in any program, benefit, or obligation not explicitly accepted by my written signature.</p>' +
+          '<p style="font-weight:bold;margin:16px 0 8px">3. EXEMPTION CLAIM</p>' +
+          '<p>Pursuant to applicable law, I claim all available exemptions to which I am entitled as a matter of right.</p>' +
+          '<br><p>Date: ' + d.date + '</p><br><p>_______________________________</p><p>' + d.yourName + '</p>';
+        break;
+      case 'adversary':
+        title = 'Adversary Complaint';
+        html = '<div style="text-align:center;font-family:Times New Roman,serif;margin-bottom:30px">' +
+          '<p style="font-weight:bold">IN THE UNITED STATES BANKRUPTCY COURT</p>' +
+          '<p style="font-weight:bold">FOR THE ' + d.district + ' DISTRICT OF ' + d.state + '</p>' +
+          '<p>' + d.yourName + ', Plaintiff v. ' + d.debtorName + ', Defendant</p>' +
+          '<p>Case No. ' + d.caseNo + '</p>' +
+          '<p style="font-weight:bold;font-size:16px;text-decoration:underline">ADVERSARY COMPLAINT</p></div>' +
+          '<p style="font-weight:bold;margin:16px 0 8px">I. JURISDICTION</p>' +
+          '<p>This Court has jurisdiction under 28 U.S.C. \u00a7 1334 and 28 U.S.C. \u00a7 157.</p>' +
+          '<p style="font-weight:bold;margin:16px 0 8px">II. PARTIES</p>' +
+          '<p>Plaintiff ' + d.yourName + ' challenges the voluntary petition filed by ' + d.debtorName + '.</p>' +
+          '<p style="font-weight:bold;margin:16px 0 8px">III. FACTS</p>' +
+          '<p>[State the factual basis for the adversary complaint.]</p>' +
+          '<p style="font-weight:bold;margin:16px 0 8px">IV. PRAYER FOR RELIEF</p>' +
+          '<p>WHEREFORE, Plaintiff requests this Court dismiss the voluntary petition and grant appropriate relief.</p>' +
+          '<br><p>Date: ' + d.date + '</p><br><p>_______________________________</p><p>' + d.yourName + '</p>';
+        break;
+      case 'voluntaryDismissal':
+        title = 'Voluntary Dismissal Petition';
+        html = '<div style="text-align:center;font-family:Times New Roman,serif;margin-bottom:30px">' +
+          '<p style="font-weight:bold">IN THE UNITED STATES BANKRUPTCY COURT</p>' +
+          '<p style="font-weight:bold">FOR THE ' + d.district + ' DISTRICT OF ' + d.state + '</p>' +
+          '<p>In re: ' + d.debtorName + ', Debtor</p><p>Case No. ' + d.caseNo + '</p>' +
+          '<p style="font-weight:bold;font-size:16px;text-decoration:underline">MOTION FOR VOLUNTARY DISMISSAL</p></div>' +
+          '<p>COMES NOW ' + d.yourName + ' and moves this Court for voluntary dismissal of the above-captioned Chapter 11 proceeding.</p>' +
+          '<p style="font-weight:bold;margin:16px 0 8px">GROUNDS</p>' +
+          '<p>1. The debtor has the right to dismiss a voluntary case under 11 U.S.C. \u00a7 1112(b).</p>' +
+          '<p>2. [State additional grounds for dismissal.]</p>' +
+          '<br><p>Date: ' + d.date + '</p><br><p>_______________________________</p><p>' + d.yourName + '</p>';
+        break;
+      case 'creditorChallenge':
+        title = 'Creditor Challenge';
+        html = '<div style="text-align:center;font-family:Times New Roman,serif;margin-bottom:30px">' +
+          '<p style="font-weight:bold">IN THE UNITED STATES DISTRICT COURT</p>' +
+          '<p style="font-weight:bold">FOR THE ' + d.district + ' DISTRICT OF ' + d.state + '</p>' +
+          '<p>' + d.yourName + ', Plaintiff v. ' + d.debtorName + ', Defendant</p><p>Case No. ' + d.caseNo + '</p>' +
+          '<p style="font-weight:bold;font-size:16px;text-decoration:underline">CREDITOR CHALLENGE TO NEGOTIABLE INSTRUMENT</p></div>' +
+          '<p style="font-weight:bold;margin:16px 0 8px">I. CHALLENGE TO INSTRUMENT</p>' +
+          '<p>Plaintiff challenges the validity of the alleged debt instrument on grounds that the creditor cannot produce the original wet-ink signature note as required under UCC Article 3.</p>' +
+          '<p style="font-weight:bold;margin:16px 0 8px">II. DEMAND FOR VALIDATION</p>' +
+          '<p>Pursuant to 15 U.S.C. \u00a7 1692g, Plaintiff demands complete validation of the alleged debt including chain of title documentation.</p>' +
+          '<p style="font-weight:bold;margin:16px 0 8px">III. PRAYER FOR RELIEF</p>' +
+          '<p>WHEREFORE, Plaintiff requests this Court void the instrument and award damages.</p>' +
+          '<br><p>Date: ' + d.date + '</p><br><p>_______________________________</p><p>' + d.yourName + '</p>';
+        break;
+      case 'voluntaryChallenge':
+        title = 'Voluntary Filing Challenge';
+        html = '<div style="text-align:center;font-family:Times New Roman,serif;margin-bottom:30px">' +
+          '<p style="font-weight:bold">IN THE UNITED STATES BANKRUPTCY COURT</p>' +
+          '<p style="font-weight:bold">FOR THE ' + d.district + ' DISTRICT OF ' + d.state + '</p>' +
+          '<p>In re: ' + d.debtorName + '</p><p>Case No. ' + d.caseNo + '</p>' +
+          '<p style="font-weight:bold;font-size:16px;text-decoration:underline">OBJECTION TO VOLUNTARY FILING</p></div>' +
+          '<p>COMES NOW ' + d.yourName + ' and objects to the voluntary bankruptcy filing on the following grounds:</p>' +
+          '<p style="font-weight:bold;margin:16px 0 8px">I. OBJECTION</p>' +
+          '<p>1. The filing was made without proper authority or consent of all necessary parties.</p>' +
+          '<p>2. The filing constitutes an abuse of the bankruptcy process under 11 U.S.C. \u00a7 707(b).</p>' +
+          '<p style="font-weight:bold;margin:16px 0 8px">II. RELIEF REQUESTED</p>' +
+          '<p>Movant requests dismissal of the case with prejudice and an award of costs.</p>' +
+          '<br><p>Date: ' + d.date + '</p><br><p>_______________________________</p><p>' + d.yourName + '</p>';
+        break;
+    }
+    var genDoc = document.getElementById('cpsa-generated-doc');
+    var genActions = document.getElementById('cpsa-gen-actions');
+    if (genDoc) { genDoc.innerHTML = html; genDoc.style.display = 'block'; }
+    if (genActions) genActions.style.display = 'flex';
+    if (typeof showNotification === 'function') showNotification(title + ' generated!', 'success');
+  }
+
+  function cpsaSaveGenerated() {
+    var genDoc = document.getElementById('cpsa-generated-doc');
+    if (!genDoc || !genDoc.innerHTML) return;
+    var blob = new Blob(['<html><head><meta charset="utf-8"><style>body{font-family:"Times New Roman",serif;line-height:2;font-size:12pt;margin:72px}p{margin-bottom:10px}</style></head><body>' + genDoc.innerHTML + '</body></html>'], { type: 'text/html' });
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = 'CPSA_Generated_' + new Date().toISOString().split('T')[0] + '.html'; a.click();
+    URL.revokeObjectURL(a.href);
+  }
+  function cpsaPrintGenerated() {
+    var genDoc = document.getElementById('cpsa-generated-doc');
+    if (!genDoc) return;
+    var win = window.open('', '_blank');
+    win.document.write('<html><head><title>Generated Document</title><style>body{font-family:"Times New Roman",serif;padding:40px;max-width:800px;margin:0 auto;line-height:2;font-size:12pt}p{margin-bottom:10px}</style></head><body>' + genDoc.innerHTML + '</body></html>');
+    win.document.close(); win.print();
+  }
+  function cpsaClearGenerated() {
+    var genDoc = document.getElementById('cpsa-generated-doc');
+    var genActions = document.getElementById('cpsa-gen-actions');
+    if (genDoc) { genDoc.innerHTML = ''; genDoc.style.display = 'none'; }
+    if (genActions) genActions.style.display = 'none';
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // CPSA: Citation System
+  // ═══════════════════════════════════════════════════════════════
+
+  function cpsaInsertCitation(type) {
+    var db = [];
+    var className = '';
+    var placeholder = '';
+    switch (type) {
+      case 'constitutional':
+        className = 'cpsa-constitutional-ref';
+        placeholder = '[U.S. Const. Amend. __, \u00a7 __]';
+        db = [{ ref: 'U.S. Const. Art. I, \u00a7 8', desc: 'Commerce Clause' }, { ref: 'U.S. Const. Art. III', desc: 'Judicial Power' }, { ref: 'U.S. Const. Amend. I', desc: 'Free Speech / Petition' }, { ref: 'U.S. Const. Amend. IV', desc: 'Search & Seizure' }, { ref: 'U.S. Const. Amend. V', desc: 'Due Process (Federal)' }, { ref: 'U.S. Const. Amend. XIV, \u00a7 1', desc: 'Due Process / Equal Protection' }];
+        break;
+      case 'statutory':
+        className = 'cpsa-statutory-ref';
+        placeholder = '[__ U.S.C. \u00a7 ____]';
+        db = cpsaStatuteDB;
+        break;
+      case 'caselaw':
+        className = 'cpsa-case-ref';
+        placeholder = '[Case v. Case, ___ U.S. ___ (____)]';
+        db = cpsaCaseLawDB;
+        break;
+      case 'irc':
+        className = 'cpsa-statutory-ref';
+        placeholder = '[I.R.C. \u00a7 ____]';
+        db = cpsaStatuteDB.filter(function(s) { return s.ref.indexOf('I.R.C.') === 0; });
+        break;
+    }
+    // Build modal content with searchable list
+    var listHtml = db.map(function(item, i) {
+      return '<div style="padding:8px 12px;border:1px solid rgba(255,255,255,0.05);border-radius:6px;cursor:pointer;margin-bottom:4px;transition:background 0.2s" ' +
+        'onmouseover="this.style.background=\'rgba(6,182,212,0.1)\'" onmouseout="this.style.background=\'transparent\'" ' +
+        'onclick="cpsaApplyCitation(\'' + className + '\',\'' + item.ref.replace(/'/g, "\\'") + '\')">' +
+        '<div style="font-size:13px;font-weight:600;color:var(--text-primary)">' + item.ref + '</div>' +
+        '<div style="font-size:11px;color:var(--text-secondary)">' + item.desc + '</div></div>';
+    }).join('');
+    var modalContent = '<div style="max-width:550px">' +
+      '<h3 style="color:#06b6d4;margin-bottom:12px">Insert ' + type.charAt(0).toUpperCase() + type.slice(1) + ' Citation</h3>' +
+      '<div style="max-height:300px;overflow-y:auto;margin-bottom:12px">' + listHtml + '</div>' +
+      '<div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:12px">' +
+      '<input id="cpsa-custom-citation" class="cpsa-form-input" placeholder="Or type a custom citation..." style="margin-bottom:8px">' +
+      '<div style="display:flex;gap:8px">' +
+      '<button onclick="var v=document.getElementById(\'cpsa-custom-citation\').value; if(v) cpsaApplyCitation(\'' + className + '\',v); else cpsaApplyCitation(\'' + className + '\',\'' + placeholder.replace(/'/g, "\\'") + '\')" style="padding:8px 16px;border-radius:6px;background:#06b6d4;color:white;border:none;font-weight:700;cursor:pointer;font-size:13px">Insert</button>' +
+      '<button onclick="closeModal()" style="padding:8px 16px;border-radius:6px;background:transparent;color:var(--text-secondary);border:1px solid rgba(255,255,255,0.1);font-weight:700;cursor:pointer;font-size:13px">Cancel</button>' +
+      '</div></div></div>';
+    if (typeof showModal === 'function') showModal(modalContent);
+  }
+
+  function cpsaApplyCitation(className, ref) {
+    if (typeof closeModal === 'function') closeModal();
+    var editor = document.getElementById('cpsa-editor');
+    if (editor) editor.focus();
+    document.execCommand('insertHTML', false, '<span class="' + className + '">' + ref + '</span> ');
+    cpsaSaveToHistory();
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // CPSA: Image, Preview, Code Editor
+  // ═══════════════════════════════════════════════════════════════
+
+  function cpsaOpenImageModal() {
+    var content = '<div style="max-width:450px"><h3 style="color:#06b6d4;margin-bottom:12px">Insert Image</h3>' +
+      '<input type="file" id="cpsa-img-upload" accept="image/*" onchange="cpsaPreviewImage(this)" style="margin-bottom:12px;color:var(--text-primary)">' +
+      '<div id="cpsa-img-preview" style="margin-bottom:12px;text-align:center"></div>' +
+      '<div style="display:flex;gap:8px">' +
+      '<button onclick="cpsaInsertImage()" style="padding:8px 16px;border-radius:6px;background:#06b6d4;color:white;border:none;font-weight:700;cursor:pointer;font-size:13px">Insert</button>' +
+      '<button onclick="closeModal()" style="padding:8px 16px;border-radius:6px;background:transparent;color:var(--text-secondary);border:1px solid rgba(255,255,255,0.1);font-weight:700;cursor:pointer;font-size:13px">Cancel</button>' +
+      '</div></div>';
+    if (typeof showModal === 'function') showModal(content);
+  }
+
+  function cpsaPreviewImage(input) {
+    var preview = document.getElementById('cpsa-img-preview');
+    if (!preview || !input.files || !input.files[0]) return;
+    var reader = new FileReader();
+    reader.onload = function(e) { preview.innerHTML = '<img src="' + e.target.result + '" style="max-width:100%;max-height:200px;border-radius:6px">'; };
+    reader.readAsDataURL(input.files[0]);
+  }
+
+  function cpsaInsertImage() {
+    var input = document.getElementById('cpsa-img-upload');
+    if (!input || !input.files || !input.files[0]) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      if (typeof closeModal === 'function') closeModal();
+      var editor = document.getElementById('cpsa-editor');
+      if (editor) editor.focus();
+      document.execCommand('insertHTML', false, '<img src="' + e.target.result + '" style="max-width:100%;display:block;margin:20px auto;border-radius:4px">');
+      cpsaSaveToHistory();
+      if (typeof showNotification === 'function') showNotification('Image inserted!', 'success');
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+
+  function cpsaPreviewDocument() {
+    var editor = document.getElementById('cpsa-editor');
+    if (!editor) return;
+    var docId = cpsaDocIds[cpsaCurrentDoc] || '';
+    var win = window.open('', '_blank', 'width=850,height=1100,scrollbars=yes');
+    win.document.write('<html><head><title>CPSA Preview - ' + (cpsaTemplates[cpsaCurrentDoc] ? cpsaTemplates[cpsaCurrentDoc].title : cpsaCurrentDoc) + '</title>' +
+      '<style>body{font-family:"Times New Roman",serif;padding:72px;max-width:800px;margin:0 auto;line-height:2;font-size:12pt;color:#000}' +
+      '.cpsa-section-controls,.cpsa-add-section-btn{display:none!important}' +
+      '.cpsa-doc-id{text-align:right;font-size:9pt;color:#666;margin-bottom:12px}' +
+      'p{margin-bottom:10px}</style></head><body>' +
+      (docId ? '<div class="cpsa-doc-id">' + docId + '</div>' : '') +
+      editor.innerHTML + '</body></html>');
+    win.document.close();
+  }
+
+  function cpsaOpenCodeEditor() {
+    var editor = document.getElementById('cpsa-editor');
+    if (!editor) return;
+    var content = '<div style="max-width:700px"><h3 style="color:#06b6d4;margin-bottom:12px">Code Editor</h3>' +
+      '<textarea id="cpsa-code-textarea" style="width:100%;height:400px;font-family:monospace;font-size:12px;padding:12px;border:1px solid rgba(6,182,212,0.3);border-radius:8px;background:var(--bg-tertiary);color:var(--text-primary);resize:vertical">' + editor.innerHTML.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</textarea>' +
+      '<div style="display:flex;gap:8px;margin-top:12px">' +
+      '<button onclick="cpsaApplyCodeChanges()" style="padding:8px 16px;border-radius:6px;background:#06b6d4;color:white;border:none;font-weight:700;cursor:pointer;font-size:13px">Apply Changes</button>' +
+      '<button onclick="closeModal()" style="padding:8px 16px;border-radius:6px;background:transparent;color:var(--text-secondary);border:1px solid rgba(255,255,255,0.1);font-weight:700;cursor:pointer;font-size:13px">Cancel</button>' +
+      '</div></div>';
+    if (typeof showModal === 'function') showModal(content);
+  }
+
+  function cpsaApplyCodeChanges() {
+    var textarea = document.getElementById('cpsa-code-textarea');
+    var editor = document.getElementById('cpsa-editor');
+    if (!textarea || !editor) return;
+    editor.innerHTML = textarea.value;
+    if (typeof closeModal === 'function') closeModal();
+    cpsaSaveToHistory();
+    if (typeof showNotification === 'function') showNotification('Code changes applied!', 'success');
+  }
+
+  function cpsaViewUpdatedCode() {
+    var editor = document.getElementById('cpsa-editor');
+    if (!editor) return;
+    var escaped = editor.innerHTML.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    var content = '<div style="max-width:700px"><h3 style="color:#06b6d4;margin-bottom:12px">Current HTML Source</h3>' +
+      '<textarea id="cpsa-view-code" readonly style="width:100%;height:400px;font-family:monospace;font-size:12px;padding:12px;border:1px solid rgba(6,182,212,0.3);border-radius:8px;background:var(--bg-tertiary);color:var(--text-primary);resize:vertical">' + escaped + '</textarea>' +
+      '<div style="display:flex;gap:8px;margin-top:12px">' +
+      '<button onclick="var t=document.getElementById(\'cpsa-view-code\');t.select();document.execCommand(\'copy\');showNotification(\'Copied!\',\'success\')" style="padding:8px 16px;border-radius:6px;background:#06b6d4;color:white;border:none;font-weight:700;cursor:pointer;font-size:13px">Copy to Clipboard</button>' +
+      '<button onclick="var b=new Blob([document.getElementById(\'cpsa-view-code\').value],{type:\'text/html\'});var a=document.createElement(\'a\');a.href=URL.createObjectURL(b);a.download=\'CPSA_Source_\'+new Date().toISOString().split(\'T\')[0]+\'.html\';a.click()" style="padding:8px 16px;border-radius:6px;background:rgba(6,182,212,0.1);color:#06b6d4;border:1px solid rgba(6,182,212,0.3);font-weight:700;cursor:pointer;font-size:13px">Download HTML</button>' +
+      '<button onclick="closeModal()" style="padding:8px 16px;border-radius:6px;background:transparent;color:var(--text-secondary);border:1px solid rgba(255,255,255,0.1);font-weight:700;cursor:pointer;font-size:13px">Close</button>' +
+      '</div></div>';
+    if (typeof showModal === 'function') showModal(content);
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // CPSA: Toolbar Functions (keep/enhance)
+  // ═══════════════════════════════════════════════════════════════
 
   function cpsaCmd(cmd, val) {
     document.execCommand(cmd, false, val || null);
@@ -15678,22 +16389,23 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     if (ed) ed.focus();
   }
 
-  function cpsaInsertCitation(type) {
-    var citation = '';
-    switch (type) {
-      case 'constitutional': citation = '[U.S. Const. Amend. __, \u00a7 __]'; break;
-      case 'statutory':      citation = '[__ U.S.C. \u00a7 ____]'; break;
-      case 'caselaw':        citation = '[_________ v. _________, ___ U.S. ___ (____)]'; break;
-      case 'irc':            citation = '[I.R.C. \u00a7 ____]'; break;
-    }
-    document.execCommand('insertHTML', false, '<span style="color:#06b6d4;font-weight:600">' + citation + '</span>');
-  }
-
   function cpsaSetFontSize(size) {
     if (!size) return;
     document.execCommand('fontSize', false, '7');
-    var fonts = document.getElementById('cpsa-editor').querySelectorAll('font[size="7"]');
+    var editor = document.getElementById('cpsa-editor');
+    if (!editor) return;
+    var fonts = editor.querySelectorAll('font[size="7"]');
     fonts.forEach(function(f) { f.removeAttribute('size'); f.style.fontSize = size; });
+  }
+
+  function cpsaChangeFontSize(delta) {
+    var input = document.getElementById('cpsa-font-size');
+    if (!input) return;
+    var size = parseInt(input.value) + delta;
+    if (size < 8) size = 8;
+    if (size > 72) size = 72;
+    input.value = size;
+    cpsaSetFontSize(size + 'px');
   }
 
   function cpsaSetCase(caseType) {
@@ -15708,27 +16420,12 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     document.execCommand('insertText', false, newText);
   }
 
-  function cpsaSave() {
-    var editor = document.getElementById('cpsa-editor');
-    if (editor) {
-      localStorage.setItem('cpsa_draft', editor.innerHTML);
-      if (typeof showNotification === 'function') showNotification('CPSA draft saved!', 'success');
-    }
-  }
-
-  function cpsaLoad() {
-    var saved = localStorage.getItem('cpsa_draft');
-    if (saved) {
-      var editor = document.getElementById('cpsa-editor');
-      if (editor) editor.innerHTML = saved;
-    }
-  }
-
   function cpsaExportPDF() {
     var editor = document.getElementById('cpsa-editor');
     if (!editor) return;
+    var docId = cpsaDocIds[cpsaCurrentDoc] || '';
     var win = window.open('', '_blank');
-    win.document.write('<html><head><title>CPSA Export</title><style>body{font-family:"Times New Roman",serif;padding:40px;max-width:800px;margin:0 auto;line-height:2;font-size:12pt}h1,h2,h3{color:#333}p{margin-bottom:10px}</style></head><body>' + editor.innerHTML + '</body></html>');
+    win.document.write('<html><head><title>CPSA Export</title><style>body{font-family:"Times New Roman",serif;padding:40px;max-width:800px;margin:0 auto;line-height:2;font-size:12pt}.cpsa-section-controls,.cpsa-add-section-btn{display:none!important}.cpsa-doc-id{text-align:right;font-size:9pt;color:#666;margin-bottom:12px}p{margin-bottom:10px}</style></head><body>' + (docId ? '<div class="cpsa-doc-id">' + docId + '</div>' : '') + editor.innerHTML + '</body></html>');
     win.document.close();
     win.print();
   }
@@ -15736,10 +16433,10 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
   function cpsaExportWord() {
     var editor = document.getElementById('cpsa-editor');
     if (!editor) return;
-    var blob = new Blob(['<html><head><meta charset="utf-8"><style>body{font-family:"Times New Roman",serif;line-height:2;font-size:12pt;margin:72px}p{margin-bottom:10px}</style></head><body>' + editor.innerHTML + '</body></html>'], { type: 'application/msword' });
+    var blob = new Blob(['<html><head><meta charset="utf-8"><style>body{font-family:"Times New Roman",serif;line-height:2;font-size:12pt;margin:72px}.cpsa-section-controls,.cpsa-add-section-btn{display:none}p{margin-bottom:10px}</style></head><body>' + editor.innerHTML + '</body></html>'], { type: 'application/msword' });
     var a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'CPSA_Document_' + new Date().toISOString().split('T')[0] + '.doc';
+    a.download = 'CPSA_' + cpsaCurrentDoc + '_' + new Date().toISOString().split('T')[0] + '.doc';
     a.click();
     URL.revokeObjectURL(a.href);
     if (typeof showNotification === 'function') showNotification('Word document exported!', 'success');
@@ -15749,7 +16446,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     var editor = document.getElementById('cpsa-editor');
     if (!editor) return;
     var win = window.open('', '_blank');
-    win.document.write('<html><head><title>Print CPSA Document</title><style>body{font-family:"Times New Roman",serif;padding:40px;max-width:800px;margin:0 auto;line-height:2;font-size:12pt}p{margin-bottom:10px}</style></head><body>' + editor.innerHTML + '</body></html>');
+    win.document.write('<html><head><title>Print CPSA Document</title><style>body{font-family:"Times New Roman",serif;padding:40px;max-width:800px;margin:0 auto;line-height:2;font-size:12pt}.cpsa-section-controls,.cpsa-add-section-btn{display:none!important}p{margin-bottom:10px}</style></head><body>' + editor.innerHTML + '</body></html>');
     win.document.close();
     win.print();
   }
@@ -15758,21 +16455,8 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     var editor = document.getElementById('cpsa-editor');
     if (!editor) return;
     editor.innerHTML = editor.innerHTML.replace(/<\/?span[^>]*>/gi, '').replace(/<\/?font[^>]*>/gi, '').replace(/style="[^"]*"/gi, '');
+    cpsaSaveToHistory();
     if (typeof showNotification === 'function') showNotification('HTML cleaned!', 'success');
-  }
-
-  function cpsaViewSource() {
-    var editor = document.getElementById('cpsa-editor');
-    if (!editor) return;
-    if (editor.dataset.mode === 'source') {
-      editor.innerHTML = editor.innerText;
-      editor.dataset.mode = 'rich';
-      if (typeof showNotification === 'function') showNotification('Switched to rich text mode', 'info');
-    } else {
-      editor.innerText = editor.innerHTML;
-      editor.dataset.mode = 'source';
-      if (typeof showNotification === 'function') showNotification('Viewing HTML source', 'info');
-    }
   }
 
   // ═══════════════════════════════════════════════════════════════
