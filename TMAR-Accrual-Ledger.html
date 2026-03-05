@@ -11825,6 +11825,14 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
         <div style="color:var(--text-secondary);font-style:italic">SYPHER PROTOCOL v7.1 active. Voice and text input ready. All responses governed by facts and conclusions of law. No hedging. No disclaimers. No metadata.</div>
       </div>
 
+      <!-- API Key -->
+      <div id="vc-api-key-bar" style="display:flex;gap:6px;align-items:center;margin-bottom:10px">
+        <span style="font-size:11px;color:#94a3b8;font-weight:700;white-space:nowrap">🔑 API Key:</span>
+        <input id="vc-api-key-input" type="password" placeholder="sk-ant-..." style="flex:1;padding:8px 10px;background:rgba(0,0,0,.3);color:#f1f5f9;border:1px solid rgba(245,158,11,.2);border-radius:6px;font-size:12px;font-family:monospace" value="">
+        <button onclick="var k=document.getElementById('vc-api-key-input').value.trim();if(k){window._trustApiKey=k;localStorage.setItem('TMAR_trustApiKey',k);this.textContent='✅ Saved';this.style.color='#10b981';var self=this;setTimeout(function(){self.textContent='Set';self.style.color='#f59e0b'},2000)}else{alert('Enter your Anthropic API key first')}" style="padding:8px 14px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);border-radius:6px;color:#f59e0b;cursor:pointer;font-size:12px;font-weight:700;white-space:nowrap">Set</button>
+      </div>
+      <script>(function(){var k=localStorage.getItem('TMAR_trustApiKey');if(k){window._trustApiKey=k;var inp=document.getElementById('vc-api-key-input');if(inp)inp.value=k;}})();</script>
+
       <!-- Input -->
       <div style="display:flex;gap:10px">
         <input type="text" id="vc-input" placeholder="Type or speak your query..." style="flex:1;padding:12px;border:1px solid rgba(245,158,11,.3);border-radius:8px;font-size:14px;background:var(--bg-tertiary);color:var(--text-primary)" onkeydown="if(event.key==='Enter')sendChat()">
