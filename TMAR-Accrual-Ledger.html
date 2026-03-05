@@ -11025,6 +11025,13 @@
         <div style="font-size:11px;color:#94a3b8;margin-bottom:12px;padding:8px;background:rgba(16,185,129,.06);border-radius:6px;border-left:3px solid #10b981">
           This agent operates as the chief architect on all accounting matters. It produces FACTS AND CONCLUSIONS OF LAW ONLY under GAAP, ASC, IRC, IRS rules, and Treasury procedures. No nuance. No opinion. No presumption.
         </div>
+        <div id="trust-api-key-bar" style="margin-bottom:10px;display:flex;gap:6px;align-items:center">
+          <input id="trust-api-key-input" type="password" placeholder="Anthropic API Key (sk-ant-...)" style="flex:1;padding:6px 10px;background:rgba(0,0,0,.3);color:#f1f5f9;border:1px solid rgba(16,185,129,.2);border-radius:6px;font-size:11px;font-family:monospace" value="">
+          <button onclick="var k=document.getElementById('trust-api-key-input').value.trim();if(k){window._trustApiKey=k;localStorage.setItem('TMAR_trustApiKey',k);this.textContent='✅ Saved';this.style.color='#10b981';setTimeout(function(){document.querySelector('#trust-api-key-bar button').textContent='🔑 Set';document.querySelector('#trust-api-key-bar button').style.color='#94a3b8'},2000)}else{alert('Enter an API key first')}" style="padding:6px 12px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:6px;color:#94a3b8;cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap">🔑 Set</button>
+        </div>
+        <script>
+          (function(){var k=localStorage.getItem('TMAR_trustApiKey');if(k){window._trustApiKey=k;var inp=document.getElementById('trust-api-key-input');if(inp)inp.value=k;}})();
+        </script>
         <textarea id="trust-agent-input" placeholder="Ask any trust accounting, GAAP / ASC / IRC question — journal entries, form placement, asset classification, valuation, event sequencing, or rebuttal of any accounting presumption..." style="width:100%;min-height:90px;background:rgba(0,0,0,.3);color:#f1f5f9;border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:10px;font-size:13px;font-family:'SF Mono','Cascadia Code',monospace;resize:vertical;box-sizing:border-box"></textarea>
         <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
           <button onclick="sendTrustAgentQuery()" style="background:#10b981;color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px">⚖️ Submit to Trust Agent</button>
@@ -11447,9 +11454,18 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     input.value = '';
 
     try {
+      var apiKey = window._trustApiKey || '';
+      if (!apiKey) {
+        throw new Error('api_key missing — set window._trustApiKey in console');
+      }
       var response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
           max_tokens: 4096,
@@ -15005,17 +15021,30 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     addChatMsg('user', q);
     input.value = '';
     // Send to Trust Accounting Agent API
+    var vcApiKey = window._trustApiKey || '';
+    if (!vcApiKey) {
+      addChatMsg('system','API key required. Open browser console and run: window._trustApiKey = "your-anthropic-key"');
+      return;
+    }
     addChatMsg('agent','Processing query via Trust Accounting Agent...');
     fetch('https://api.anthropic.com/v1/messages', {
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': vcApiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
       body:JSON.stringify({
         model:'claude-sonnet-4-20250514',
         max_tokens:4096,
         system:(typeof buildTrustAgentSystemPrompt==='function'?(buildTrustAgentSystemPrompt()+TRUST_AGENT_PROMPT_BODY):'You are the Trust Accounting Agent operating under SYPHER Protocol v7.1. Respond with facts and conclusions of law only. No hedging. No disclaimers. No metadata.'),
         messages:[{role:'user',content:q}]
       })
-    }).then(function(r){return r.json()}).then(function(d){
+    }).then(function(r){
+      if (!r.ok) throw new Error('API ' + r.status);
+      return r.json();
+    }).then(function(d){
       var t=(d.content&&d.content[0]&&d.content[0].text)?d.content[0].text:'No response received.';
       // Strip any remaining tags/metadata
       t=t.replace(/<[^>]*>/g,'').replace(/```[^`]*```/g,'');
