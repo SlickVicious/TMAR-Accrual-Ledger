@@ -607,9 +607,11 @@ function pullSheetData_(ss, sheetName, startRow, headers, options) {
       if (options && options.einColumn === j && val) {
         val = maskEIN_(val);
       }
-      // Convert Date objects to ISO strings
+      // Convert Date objects to ISO strings; coerce others to string
       if (val instanceof Date) {
         val = val.toISOString().slice(0, 10);
+      } else if (val !== null && val !== undefined && val !== '' && typeof val !== 'string') {
+        val = String(val);
       }
       obj[headers[j]] = val;
     }

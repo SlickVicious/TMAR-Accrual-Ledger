@@ -20394,8 +20394,9 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
   };
 
   function _normalizeEntityType(gasType) {
-    if (!gasType) return '';
-    return _gasTypeToEntityType[gasType.toLowerCase().trim()] || gasType.toLowerCase().trim();
+    if (!gasType && gasType !== 0) return '';
+    var s = String(gasType).toLowerCase().trim();
+    return _gasTypeToEntityType[s] || s;
   }
 
   function applyPullAccounts(remoteData) {
