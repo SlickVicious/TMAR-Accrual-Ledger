@@ -10,6 +10,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <style>
     :root {
       --bg-primary: #0D1B2A;
@@ -480,6 +481,11 @@
         <!-- Group 10: Verification Tools -->
         <button onclick="switchMainTab('entityVerifier')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="entityVerifier" style="background:rgba(59,130,246,0.2);border:2px solid rgba(59,130,246,0.6);font-weight:800;color:#3b82f6">
           🔍 Entity Verifier
+        </button>
+        <div class="w-px h-6 bg-gray-600 mx-1 hidden md:block"></div>
+        <!-- Group 11: Data Integration -->
+        <button onclick="switchMainTab('syncCenter')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="syncCenter" style="background:linear-gradient(135deg,rgba(16,185,129,0.2),rgba(6,182,212,0.2));border:2px solid rgba(16,185,129,0.6);font-weight:800;color:#10b981">
+          🔄 Sync Center
         </button>
       </div>
     </nav>
@@ -3187,6 +3193,9 @@
             <button onclick="showAccountModal()" class="bg-green-500 hover:bg-green-600 text-black px-4 py-2 rounded-lg font-semibold text-sm">
               ➕ Add Account
             </button>
+            <button onclick="showCOAImportWizard()" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold text-sm">
+              📥 Import from Sheets
+            </button>
           </div>
         </div>
 
@@ -5267,12 +5276,21 @@
       receivables: [],
       payables: [],
       eliminations: [],
+      syncLog: [],
       settings: {
         trustName: '',
         trustEIN: '',
         trusteeName: '',
         cafNumber: '',
-        activeYear: '2025'
+        activeYear: '2025',
+        jurisdiction: '',
+        court: '',
+        address: '',
+        grantor: '',
+        gasWebAppUrl: '',
+        lastSyncTimestamp: null,
+        googleClientId: '',
+        spreadsheetId: ''
       },
       lastSaved: null
     };
@@ -5288,6 +5306,8 @@
           // Deep-merge filings so new form types (e.g. 1099 series) are preserved
           const merged = { ...defaultAppData, ...parsed };
           merged.filings = { ...defaultAppData.filings, ...(parsed.filings || {}) };
+          merged.settings = { ...defaultAppData.settings, ...(parsed.settings || {}) };
+          if (!merged.syncLog) merged.syncLog = [];
           return merged;
         }
       } catch (e) {
@@ -5709,6 +5729,13 @@
       document.getElementById('modalContainer').innerHTML = '';
     }
 
+    function showWideModal(content) {
+      var container = document.getElementById('modalContainer');
+      container.innerHTML =
+        '<div class="modal-overlay" onclick="if(event.target===this)closeModal()">' +
+        '<div class="modal-content" style="max-width:720px">' + content + '</div></div>';
+    }
+
     function showAlert(message, title = 'Notice') {
       showModal(`
         <h3 class="text-lg font-bold mb-3">${title}</h3>
@@ -5776,6 +5803,7 @@
       if (tabName === 'fdrf') { if (typeof initFDRF === 'function') initFDRF(); }
       if (tabName === 'eeej') { if (typeof initEEEJ === 'function') initEEEJ(); }
       if (tabName === 'entityVerifier') { if (typeof initEntityVerifier === 'function') initEntityVerifier(); }
+      if (tabName === 'syncCenter') { if (typeof initSyncCenter === 'function') initSyncCenter(); }
     }
 
     // Filing Type Selection
@@ -6980,6 +7008,17 @@
 
     function updateEntitiesTable() {
       const tbody = document.getElementById('entitiesTableBody');
+
+      // Auto-repair pulled entities missing UI fields (parentId, ownership, fye, id)
+      (appData.entities || []).forEach(function(e) {
+        if (typeof e.id === 'string' && e.id.startsWith('sync_')) e.id = Date.now() + Math.floor(Math.random() * 10000);
+        if (e.parentId === undefined) e.parentId = null;
+        if (typeof e.ownership !== 'number') e.ownership = parseFloat(e.ownership) || 100;
+        if (!e.fye) e.fye = 12;
+        if (!e.status) e.status = 'Active';
+        if (!e.type) e.type = '';
+      });
+
       if (!appData.entities.length) {
         tbody.innerHTML = '<tr><td colspan="9" class="text-center text-gray-400 py-4">No entities configured.</td></tr>';
         updateEntityStructure();
@@ -7174,6 +7213,450 @@
         saveToStorage(); // Auto-save immediately
       });
     }
+
+    // ══════════════════════════════════════════════════════════════════
+    // COA Import Wizard — Import accounts from any Google Sheet tab or CSV
+    // ══════════════════════════════════════════════════════════════════
+
+    var _coaImportState = {};
+
+    function showCOAImportWizard() {
+      _coaImportState = { mode: null, tabName: null, headers: [], rows: [], preview: [] };
+
+      var html = '<div>' +
+        '<h3 class="text-lg font-bold mb-2" style="color:#8b5cf6">📥 Import Accounts to Chart of Accounts</h3>' +
+        '<p class="text-gray-400 text-sm mb-4">Import accounts from a Google Sheet tab or CSV file into the GAAP Chart of Accounts.</p>' +
+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">' +
+
+        '<div id="coaImportCardLive" onclick="coaImportSelectMode(\'live\')" ' +
+        'style="cursor:pointer;padding:16px;border-radius:10px;border:2px solid rgba(139,92,246,0.3);background:rgba(139,92,246,0.08);transition:all 0.3s">' +
+        '<div style="font-weight:700;font-size:14px;color:#8b5cf6;margin-bottom:4px">🔗 Live Pull from Sheets</div>' +
+        '<div style="font-size:11px;color:var(--text-secondary)">Connect to your Google Sheet and select any tab to import.</div>' +
+        '</div>' +
+
+        '<div id="coaImportCardCSV" onclick="coaImportSelectMode(\'csv\')" ' +
+        'style="cursor:pointer;padding:16px;border-radius:10px;border:2px solid rgba(16,185,129,0.3);background:rgba(16,185,129,0.08);transition:all 0.3s">' +
+        '<div style="font-weight:700;font-size:14px;color:#10b981;margin-bottom:4px">📄 Upload CSV File</div>' +
+        '<div style="font-size:11px;color:var(--text-secondary)">Upload a CSV export of any Sheet tab.</div>' +
+        '</div>' +
+
+        '</div>' +
+
+        '<div id="coaImportModeContent"></div>' +
+
+        '<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">' +
+        '<button onclick="closeModal()" class="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg font-semibold text-sm">Cancel</button>' +
+        '<button id="coaImportNextBtn" onclick="coaImportStep2()" disabled class="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-semibold text-sm opacity-50">Next: Map Columns →</button>' +
+        '</div></div>';
+
+      showWideModal(html);
+    }
+
+    function coaImportSelectMode(mode) {
+      _coaImportState.mode = mode;
+      var liveCard = document.getElementById('coaImportCardLive');
+      var csvCard = document.getElementById('coaImportCardCSV');
+      var content = document.getElementById('coaImportModeContent');
+
+      liveCard.style.borderColor = mode === 'live' ? 'rgba(139,92,246,0.8)' : 'rgba(139,92,246,0.3)';
+      liveCard.style.background = mode === 'live' ? 'rgba(139,92,246,0.15)' : 'rgba(139,92,246,0.08)';
+      csvCard.style.borderColor = mode === 'csv' ? 'rgba(16,185,129,0.8)' : 'rgba(16,185,129,0.3)';
+      csvCard.style.background = mode === 'csv' ? 'rgba(16,185,129,0.15)' : 'rgba(16,185,129,0.08)';
+
+      if (mode === 'live') {
+        content.innerHTML = '<div style="margin-top:8px">' +
+          '<label class="block text-sm font-medium mb-1 text-gray-400">Select Sheet Tab</label>' +
+          '<select id="coaImportTabSelect" onchange="coaImportLoadLiveTab()" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white">' +
+          '<option value="">Loading tabs...</option></select>' +
+          '<div id="coaImportLiveStatus" class="text-xs text-gray-500 mt-1"></div></div>';
+        coaImportFetchTabs();
+      } else {
+        content.innerHTML = '<div style="margin-top:8px">' +
+          '<label class="block text-sm font-medium mb-1 text-gray-400">Upload CSV File</label>' +
+          '<input type="file" id="coaImportCSVFile" accept=".csv,.txt" onchange="coaImportLoadCSV()" ' +
+          'class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white text-sm" />' +
+          '<div id="coaImportCSVStatus" class="text-xs text-gray-500 mt-1"></div></div>';
+      }
+    }
+
+    function coaImportFetchTabs() {
+      var bridge = getSyncBridge();
+      if (!bridge) {
+        var st = document.getElementById('coaImportLiveStatus');
+        if (st) st.innerHTML = '<span style="color:#ef4444">No GAS Web App URL configured. Set it in the Sync Center tab first.</span>';
+        return;
+      }
+      bridge.listSheetTabs().then(function(result) {
+        if (result && result.status === 'ok' && result.tabs) {
+          var sel = document.getElementById('coaImportTabSelect');
+          if (!sel) return;
+          sel.innerHTML = '<option value="">-- Choose a tab --</option>';
+          result.tabs.forEach(function(t) {
+            var opt = document.createElement('option');
+            opt.value = t;
+            opt.textContent = t;
+            sel.appendChild(opt);
+          });
+        } else {
+          var st = document.getElementById('coaImportLiveStatus');
+          if (st) st.innerHTML = '<span style="color:#ef4444">Failed to load tabs: ' + (result && result.message || 'unknown') + '</span>';
+        }
+      }).catch(function(err) {
+        var st = document.getElementById('coaImportLiveStatus');
+        if (st) st.innerHTML = '<span style="color:#ef4444">Connection error: ' + err.message + '</span>';
+      });
+    }
+
+    function coaImportLoadLiveTab() {
+      var sel = document.getElementById('coaImportTabSelect');
+      var tabName = sel ? sel.value : '';
+      if (!tabName) return;
+
+      _coaImportState.tabName = tabName;
+      var st = document.getElementById('coaImportLiveStatus');
+      if (st) st.innerHTML = '<span style="color:#f59e0b">Loading data from "' + tabName + '"...</span>';
+
+      var bridge = getSyncBridge();
+      if (!bridge) return;
+      bridge.pullRawTab(tabName).then(function(result) {
+        if (result && result.status === 'ok') {
+          _coaImportState.headers = result.headers || [];
+          _coaImportState.rows = result.rows || [];
+          if (st) st.innerHTML = '<span style="color:#10b981">Loaded ' + _coaImportState.rows.length + ' rows, ' + _coaImportState.headers.length + ' columns from "' + tabName + '"</span>';
+          var btn = document.getElementById('coaImportNextBtn');
+          if (btn) { btn.disabled = false; btn.classList.remove('opacity-50'); }
+        } else {
+          if (st) st.innerHTML = '<span style="color:#ef4444">Error: ' + (result && result.message || 'unknown') + '</span>';
+        }
+      }).catch(function(err) {
+        if (st) st.innerHTML = '<span style="color:#ef4444">Fetch error: ' + err.message + '</span>';
+      });
+    }
+
+    function coaImportLoadCSV() {
+      var fileInput = document.getElementById('coaImportCSVFile');
+      if (!fileInput || !fileInput.files[0]) return;
+
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        try {
+          var rows = syncParseCSV(ev.target.result);
+          if (rows.length < 2) throw new Error('CSV must have a header row and at least one data row');
+          _coaImportState.headers = rows[0];
+          _coaImportState.rows = rows.slice(1);
+          _coaImportState.tabName = fileInput.files[0].name;
+
+          var st = document.getElementById('coaImportCSVStatus');
+          if (st) st.innerHTML = '<span style="color:#10b981">Parsed ' + _coaImportState.rows.length + ' rows, ' + _coaImportState.headers.length + ' columns</span>';
+          var btn = document.getElementById('coaImportNextBtn');
+          if (btn) { btn.disabled = false; btn.classList.remove('opacity-50'); }
+        } catch (err) {
+          var st = document.getElementById('coaImportCSVStatus');
+          if (st) st.innerHTML = '<span style="color:#ef4444">Parse error: ' + err.message + '</span>';
+        }
+      };
+      reader.readAsText(fileInput.files[0]);
+    }
+
+    function coaImportStep2() {
+      var headers = _coaImportState.headers;
+      if (!headers.length) { showAlert('No headers loaded.', 'Error'); return; }
+
+      var colOptions = '<option value="">-- not mapped --</option>';
+      headers.forEach(function(h, i) {
+        colOptions += '<option value="' + i + '">' + (h || 'Column ' + (i + 1)) + '</option>';
+      });
+
+      // Auto-detect likely column matches
+      var autoMap = {};
+      var patterns = {
+        num: /account.*#|acct.*num|account.*number/i,
+        name: /account.*name|provider|creditor|business.*name|^name$/i,
+        type: /^type$|account.*type|category/i,
+        subtype: /sub.*type/i,
+        formLine: /form.*line|tax.*line|irs/i
+      };
+      headers.forEach(function(h, i) {
+        Object.keys(patterns).forEach(function(field) {
+          if (!autoMap[field] && patterns[field].test(h)) autoMap[field] = String(i);
+        });
+      });
+
+      function selWithAuto(id, field) {
+        return colOptions.replace(
+          'value="' + (autoMap[field] || '') + '">',
+          'value="' + (autoMap[field] || '') + '" selected>'
+        );
+      }
+
+      var typeOpts = ['liability', 'asset', 'equity', 'revenue', 'expense'].map(function(t) {
+        return '<option value="' + t + '">' + t.charAt(0).toUpperCase() + t.slice(1) + '</option>';
+      }).join('');
+
+      var html = '<div>' +
+        '<h3 class="text-lg font-bold mb-2" style="color:#8b5cf6">📥 Step 2: Map Columns</h3>' +
+        '<p class="text-gray-400 text-sm mb-4">Map source columns from "' + (_coaImportState.tabName || 'data') + '" to COA fields. <strong>Account Name</strong> is required.</p>' +
+
+        '<div style="display:grid;grid-template-columns:130px 1fr;gap:8px 12px;align-items:center">' +
+
+        // Account #
+        '<label class="text-sm text-gray-400 font-medium">Account #</label>' +
+        '<div style="display:flex;gap:8px;align-items:center">' +
+        '<select id="coaMapNum" class="flex-1 border border-gray-600 p-2 rounded-lg bg-gray-700 text-white text-sm">' + selWithAuto('coaMapNum', 'num') + '</select>' +
+        '<label class="text-xs text-gray-500 whitespace-nowrap"><input type="checkbox" id="coaMapNumAuto" onchange="document.getElementById(\'coaMapNumAutoWrap\').style.display=this.checked?\'flex\':\'none\'"> Auto-gen</label>' +
+        '</div>' +
+
+        '<div></div>' +
+        '<div id="coaMapNumAutoWrap" style="display:none;gap:8px;align-items:center">' +
+        '<input type="number" id="coaMapNumStart" value="2600" class="border border-gray-600 p-1 rounded bg-gray-700 text-white text-sm" style="width:80px" placeholder="Start" />' +
+        '<input type="number" id="coaMapNumStep" value="10" class="border border-gray-600 p-1 rounded bg-gray-700 text-white text-sm" style="width:60px" placeholder="Step" />' +
+        '<span class="text-xs text-gray-500">start / increment</span>' +
+        '</div>' +
+
+        // Account Name (required)
+        '<label class="text-sm text-gray-400 font-medium">Account Name <span style="color:#ef4444">*</span></label>' +
+        '<select id="coaMapName" class="border border-gray-600 p-2 rounded-lg bg-gray-700 text-white text-sm">' + selWithAuto('coaMapName', 'name') + '</select>' +
+
+        // Type
+        '<label class="text-sm text-gray-400 font-medium">Type</label>' +
+        '<div style="display:flex;gap:8px;align-items:center">' +
+        '<select id="coaMapType" class="flex-1 border border-gray-600 p-2 rounded-lg bg-gray-700 text-white text-sm">' + selWithAuto('coaMapType', 'type') + '</select>' +
+        '<span class="text-xs text-gray-500">or default:</span>' +
+        '<select id="coaMapTypeDefault" class="border border-gray-600 p-1 rounded bg-gray-700 text-white text-sm">' + typeOpts + '</select>' +
+        '</div>' +
+
+        // Subtype
+        '<label class="text-sm text-gray-400 font-medium">Subtype</label>' +
+        '<div style="display:flex;gap:8px;align-items:center">' +
+        '<select id="coaMapSubtype" class="flex-1 border border-gray-600 p-2 rounded-lg bg-gray-700 text-white text-sm">' + colOptions + '</select>' +
+        '<span class="text-xs text-gray-500">or default:</span>' +
+        '<input id="coaMapSubtypeDefault" type="text" placeholder="e.g. current" class="border border-gray-600 p-1 rounded bg-gray-700 text-white text-sm" style="width:90px" />' +
+        '</div>' +
+
+        // Normal Balance
+        '<label class="text-sm text-gray-400 font-medium">Normal Balance</label>' +
+        '<div style="display:flex;gap:8px;align-items:center">' +
+        '<select id="coaMapNormalBal" class="flex-1 border border-gray-600 p-2 rounded-lg bg-gray-700 text-white text-sm">' + colOptions + '</select>' +
+        '<label class="text-xs text-gray-500 whitespace-nowrap"><input type="checkbox" id="coaMapNormalBalAuto" checked> Auto from Type</label>' +
+        '</div>' +
+
+        // Form Line
+        '<label class="text-sm text-gray-400 font-medium">Form Line</label>' +
+        '<div style="display:flex;gap:8px;align-items:center">' +
+        '<select id="coaMapFormLine" class="flex-1 border border-gray-600 p-2 rounded-lg bg-gray-700 text-white text-sm">' + colOptions + '</select>' +
+        '<span class="text-xs text-gray-500">or default:</span>' +
+        '<input id="coaMapFormLineDefault" type="text" placeholder="e.g. SchL-7" class="border border-gray-600 p-1 rounded bg-gray-700 text-white text-sm" style="width:90px" />' +
+        '</div>' +
+
+        '</div>' +
+
+        // Sample preview
+        '<div style="margin-top:12px;font-size:11px;color:var(--text-secondary)">' +
+        '<strong>Sample data (first 3 rows):</strong>' +
+        '<div style="max-height:80px;overflow:auto;background:rgba(0,0,0,0.2);border-radius:6px;padding:6px;margin-top:4px;font-family:monospace;white-space:nowrap">' +
+        _coaImportState.rows.slice(0, 3).map(function(r) { return r.join(' | '); }).join('<br>') +
+        '</div></div>' +
+
+        '<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">' +
+        '<button onclick="showCOAImportWizard()" class="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg font-semibold text-sm">← Back</button>' +
+        '<button onclick="coaImportStep3()" class="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-semibold text-sm">Preview Import →</button>' +
+        '</div></div>';
+
+      showWideModal(html);
+    }
+
+    function coaImportInferNormalBal(type) {
+      var t = (type || '').toLowerCase();
+      if (t === 'asset' || t === 'expense') return 'debit';
+      return 'credit';
+    }
+
+    function coaImportBuildPreview() {
+      var rows = _coaImportState.rows;
+      var nameCol = document.getElementById('coaMapName').value;
+      if (nameCol === '') {
+        showAlert('Account Name column is required. Please map at least that field.', 'Mapping Error');
+        return null;
+      }
+
+      var numCol = document.getElementById('coaMapNum').value;
+      var numAutoGen = document.getElementById('coaMapNumAuto').checked;
+      var numStart = parseInt(document.getElementById('coaMapNumStart').value) || 2600;
+      var numStep = parseInt(document.getElementById('coaMapNumStep').value) || 10;
+      var typeCol = document.getElementById('coaMapType').value;
+      var typeDefault = document.getElementById('coaMapTypeDefault').value || 'liability';
+      var subtypeCol = document.getElementById('coaMapSubtype').value;
+      var subtypeDefault = document.getElementById('coaMapSubtypeDefault').value || '';
+      var normalBalCol = document.getElementById('coaMapNormalBal').value;
+      var normalBalAuto = document.getElementById('coaMapNormalBalAuto').checked;
+      var formLineCol = document.getElementById('coaMapFormLine').value;
+      var formLineDefault = document.getElementById('coaMapFormLineDefault').value || '';
+
+      var existingNums = {};
+      appData.chartOfAccounts.forEach(function(a) { existingNums[a.num] = true; });
+
+      var preview = [];
+      var autoNum = numStart;
+      var seenNames = {};
+
+      rows.forEach(function(row, idx) {
+        var name = (row[parseInt(nameCol)] || '').trim();
+        if (!name) return;
+        if (seenNames[name.toLowerCase()]) return; // skip duplicate source rows
+        seenNames[name.toLowerCase()] = true;
+
+        var num;
+        if (numAutoGen) {
+          num = String(autoNum);
+          autoNum += numStep;
+        } else if (numCol !== '') {
+          num = (row[parseInt(numCol)] || '').trim();
+          if (!num) { num = String(autoNum); autoNum += numStep; }
+        } else {
+          num = String(autoNum);
+          autoNum += numStep;
+        }
+
+        var type = typeCol !== '' ? (row[parseInt(typeCol)] || '').trim().toLowerCase() : typeDefault;
+        // Normalize common variants
+        if (type === 'assets') type = 'asset';
+        else if (type === 'liabilities') type = 'liability';
+        else if (type === 'equities') type = 'equity';
+        else if (type === 'revenues' || type === 'income') type = 'revenue';
+        else if (type === 'expenses') type = 'expense';
+        if (['asset','liability','equity','revenue','expense'].indexOf(type) < 0) type = typeDefault;
+
+        var subtype = subtypeCol !== '' ? (row[parseInt(subtypeCol)] || '').trim() : subtypeDefault;
+
+        var normalBal;
+        if (normalBalAuto) {
+          normalBal = coaImportInferNormalBal(type);
+        } else if (normalBalCol !== '') {
+          normalBal = (row[parseInt(normalBalCol)] || '').trim().toLowerCase();
+          if (normalBal !== 'debit' && normalBal !== 'credit') normalBal = coaImportInferNormalBal(type);
+        } else {
+          normalBal = coaImportInferNormalBal(type);
+        }
+
+        var formLine = formLineCol !== '' ? (row[parseInt(formLineCol)] || '').trim() : formLineDefault;
+
+        preview.push({
+          num: num, name: name, type: type, subtype: subtype,
+          normalBal: normalBal, formLine: formLine,
+          isDuplicate: existingNums[num] || false
+        });
+      });
+
+      return preview;
+    }
+
+    function coaImportStep3() {
+      var preview = coaImportBuildPreview();
+      if (!preview) return;
+      _coaImportState.preview = preview;
+
+      var dupes = preview.filter(function(p) { return p.isDuplicate; });
+      var newItems = preview.filter(function(p) { return !p.isDuplicate; });
+      var typeColors = { asset: 'green', liability: 'red', equity: 'purple', revenue: 'blue', expense: 'amber' };
+
+      var tableRows = preview.map(function(p) {
+        var bg = p.isDuplicate ? 'background:rgba(245,158,11,0.1);' : '';
+        var dupeBadge = p.isDuplicate ? ' <span style="color:#f59e0b;font-size:10px;font-weight:700">⚠ DUP</span>' : '';
+        return '<tr style="' + bg + '">' +
+          '<td class="border border-gray-600 px-3 py-1 font-mono text-sm">' + p.num + dupeBadge + '</td>' +
+          '<td class="border border-gray-600 px-3 py-1 text-sm">' + p.name + '</td>' +
+          '<td class="border border-gray-600 px-3 py-1 text-sm text-' + (typeColors[p.type] || 'gray') + '-400">' + p.type + '</td>' +
+          '<td class="border border-gray-600 px-3 py-1 text-sm text-gray-400">' + (p.subtype || '-') + '</td>' +
+          '<td class="border border-gray-600 px-3 py-1 text-sm">' + p.normalBal + '</td>' +
+          '<td class="border border-gray-600 px-3 py-1 text-sm text-gray-400">' + (p.formLine || '-') + '</td>' +
+          '</tr>';
+      }).join('');
+
+      var html = '<div>' +
+        '<h3 class="text-lg font-bold mb-2" style="color:#8b5cf6">📥 Step 3: Preview Import</h3>' +
+        '<p class="text-gray-400 text-sm mb-2">' + preview.length + ' accounts mapped from "' + (_coaImportState.tabName || 'source') + '"</p>' +
+
+        '<div style="display:flex;gap:8px;margin-bottom:8px">' +
+        '<span class="text-xs px-2 py-1 rounded" style="background:rgba(16,185,129,0.15);color:#10b981">' + newItems.length + ' new</span>' +
+        (dupes.length > 0 ? '<span class="text-xs px-2 py-1 rounded" style="background:rgba(245,158,11,0.15);color:#f59e0b">' + dupes.length + ' duplicates (will be skipped)</span>' : '') +
+        '</div>' +
+
+        (dupes.length > 0 ? '<div style="margin-bottom:8px"><label class="text-xs text-gray-400"><input type="checkbox" id="coaImportUpdateDupes"> Update existing accounts instead of skipping duplicates</label></div>' : '') +
+
+        '<div style="max-height:300px;overflow-y:auto;border:1px solid rgba(255,255,255,0.1);border-radius:8px">' +
+        '<table class="min-w-full border-collapse text-sm">' +
+        '<thead class="sticky top-0"><tr class="bg-gray-700">' +
+        '<th class="border border-gray-600 px-3 py-2 text-left">Acct #</th>' +
+        '<th class="border border-gray-600 px-3 py-2 text-left">Name</th>' +
+        '<th class="border border-gray-600 px-3 py-2 text-left">Type</th>' +
+        '<th class="border border-gray-600 px-3 py-2 text-left">Subtype</th>' +
+        '<th class="border border-gray-600 px-3 py-2 text-left">Normal Bal</th>' +
+        '<th class="border border-gray-600 px-3 py-2 text-left">Form Line</th>' +
+        '</tr></thead><tbody>' + tableRows + '</tbody></table></div>' +
+
+        '<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">' +
+        '<button onclick="coaImportStep2()" class="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg font-semibold text-sm">← Back to Mapping</button>' +
+        '<button onclick="coaImportCommit()" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-black rounded-lg font-semibold text-sm">✅ Import ' + newItems.length + ' Accounts</button>' +
+        '</div></div>';
+
+      showWideModal(html);
+    }
+
+    function coaImportCommit() {
+      var preview = _coaImportState.preview || [];
+      if (!preview.length) { showAlert('No accounts to import.', 'Error'); return; }
+
+      var updateDupesEl = document.getElementById('coaImportUpdateDupes');
+      var shouldUpdate = updateDupesEl ? updateDupesEl.checked : false;
+
+      var added = 0, updated = 0, skipped = 0;
+      var existingByNum = {};
+      appData.chartOfAccounts.forEach(function(a) { existingByNum[a.num] = a; });
+
+      preview.forEach(function(p) {
+        if (p.isDuplicate) {
+          if (shouldUpdate) {
+            var existing = existingByNum[p.num];
+            if (existing) {
+              existing.name = p.name;
+              existing.type = p.type;
+              existing.subtype = p.subtype;
+              existing.normalBal = p.normalBal;
+              existing.formLine = p.formLine;
+              updated++;
+            }
+          } else {
+            skipped++;
+          }
+        } else {
+          appData.chartOfAccounts.push({
+            id: Date.now() + Math.random(),
+            num: p.num, name: p.name, type: p.type,
+            subtype: p.subtype, normalBal: p.normalBal, formLine: p.formLine
+          });
+          added++;
+        }
+      });
+
+      appData.chartOfAccounts.sort(function(a, b) { return a.num.localeCompare(b.num); });
+      closeModal();
+      updateCOATable();
+      saveToStorage();
+
+      addSyncLogEntry('COA Import (' + (_coaImportState.tabName || 'CSV') + ')', 'import', added, 'success');
+
+      var msg = 'Import complete: ' + added + ' added';
+      if (updated > 0) msg += ', ' + updated + ' updated';
+      if (skipped > 0) msg += ', ' + skipped + ' skipped (duplicates)';
+      showAlert(msg, 'COA Import');
+
+      _coaImportState = {};
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // End COA Import Wizard
+    // ══════════════════════════════════════════════════════════════════
 
     let currentFilter = 'all';
     function filterAccounts(type) {
@@ -7680,6 +8163,14 @@
     function updateAPTable() {
       const tbody = document.getElementById('apTableBody');
       let total = 0, current = 0, d3160 = 0, d90 = 0;
+
+      // Auto-repair pulled records missing A/P fields (balance, payments, amount as number)
+      (appData.payables || []).forEach(function(ap) {
+        if (typeof ap.amount !== 'number') ap.amount = parseFloat(ap.amount) || 0;
+        if (typeof ap.balance !== 'number') ap.balance = ap.amount;
+        if (!ap.payments) ap.payments = [];
+        if (!ap.billNum) ap.billNum = ap.id ? 'OBL-' + String(ap.id).slice(-4) : '—';
+      });
 
       if (!appData.payables.length) {
         tbody.innerHTML = '<tr><td colspan="9" class="text-center text-gray-400 py-4">No payables recorded.</td></tr>';
@@ -10524,6 +11015,7 @@
           <button onclick="trustAgentQ('State the complete mandatory citation hierarchy for GAAP accounting authority: Acts of Congress, Supreme Court precedent, FASB ASC, Treasury Regulations, IRS Revenue Procedures, and 26 U.S.C. — with the legal basis for each tier.')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Citation Hierarchy</button>
           <button onclick="trustAgentQ('Explain the income doctrine: Eisner v. Macomber definition, Glenshaw Glass three-part test, the dual character of a financial asset at T1 (income) and T2 (loss), and how both events are documentable and legally recognized.')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Income Doctrine</button>
           <button onclick="trustAgentQ('Explain ASC 805 business combinations: why an acquisition is NOT a purchase, what each event is, when they occur, the distinct accounting treatment for each, and why conflating them constitutes a GAAP violation.')" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">ASC 805 Business Combinations</button>
+          <button onclick="trustAgentQ('Generate a trust administration package')" style="background:rgba(139,92,246,.15);color:#8b5cf6;border:1px solid rgba(139,92,246,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">📦 Trust Document Package</button>
         </div>
       </div>
 
@@ -10893,12 +11385,63 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     if (input) input.value = '';
   }
 
+  function parseDocumentCommand(query) {
+    var q = (query || '').toLowerCase();
+    var hasGenerate = /\b(generate|create|build|prepare|produce|make)\b/.test(q);
+    if (!hasGenerate) return null;
+    var presetMap = {
+      'trust establishment':   'trustEstablishment',
+      'part ii':               'trustEstablishment',
+      'part 2':                'trustEstablishment',
+      'irs notification':      'irsNotification',
+      'part iii':              'irsNotification',
+      'part 3':                'irsNotification',
+      'banking setup':         'bankingSetup',
+      'part iv':               'bankingSetup',
+      'part 4':                'bankingSetup',
+      'full trust':            'fullTrustAdmin',
+      'trust admin':           'fullTrustAdmin',
+      'trust package':         'fullTrustAdmin',
+      'document package':      'fullTrustAdmin',
+      'full package':          'fullTrustAdmin'
+    };
+    var preset = null;
+    Object.keys(presetMap).forEach(function(k) {
+      if (q.indexOf(k) !== -1) preset = presetMap[k];
+    });
+    if (!preset && /\b(package|documents|forms)\b/.test(q)) preset = 'fullTrustAdmin';
+    if (!preset) return null;
+    // Try to extract entity name
+    var entityMatch = q.match(/for\s+(?:the\s+)?(.+?)(?:\s+entity|\s+trust)?$/i);
+    var entityName = entityMatch ? entityMatch[1].trim() : null;
+    return { command: 'package', preset: preset, entity: entityName };
+  }
+
   async function sendTrustAgentQuery() {
     var input = document.getElementById('trust-agent-input');
     var respDiv = document.getElementById('trust-agent-response');
     if (!input || !respDiv) return;
     var question = (input.value || '').trim();
     if (!question) return;
+
+    // Check for document generation commands first
+    var docCmd = parseDocumentCommand(question);
+    if (docCmd) {
+      input.value = '';
+      var presetLabel = FWM_PRESETS[docCmd.preset] ? FWM_PRESETS[docCmd.preset].label : docCmd.preset;
+      var docList = FWM_PRESETS[docCmd.preset] ? FWM_PRESETS[docCmd.preset].docs.map(function(d) {
+        var name = DOC_DISPLAY_NAMES[d.key] || (IRS_FORMS[d.key] ? IRS_FORMS[d.key].title : d.key);
+        return '<li>' + name + (d.copies > 1 ? ' \u00d7' + d.copies : '') + '</li>';
+      }).join('') : '';
+      respDiv.innerHTML = '<div style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:8px;padding:16px">' +
+        '<div style="font-weight:700;color:#8b5cf6;font-size:14px;margin-bottom:8px">\ud83d\udce6 Document Package: ' + presetLabel + '</div>' +
+        '<div style="color:var(--text-primary);font-size:12px;margin-bottom:8px">This package includes:</div>' +
+        '<ul style="color:var(--text-secondary);font-size:12px;margin:0 0 12px 20px">' + docList + '</ul>' +
+        '<button onclick="triggerPackageFromAgent(\'' + docCmd.preset + '\', ' + (docCmd.entity ? '\'' + docCmd.entity.replace(/'/g, "\\'") + '\'' : 'null') + ')" ' +
+        'style="padding:8px 16px;border:1px solid rgba(139,92,246,.5);border-radius:6px;background:rgba(139,92,246,.2);color:#8b5cf6;cursor:pointer;font-weight:700;font-size:12px">' +
+        '\ud83d\udce6 Open Package Builder</button></div>';
+      return;
+    }
 
     respDiv.innerHTML = '<div style="color:#10b981;font-weight:700;display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:16px;height:16px;border:2px solid #10b981;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite"></span>Processing — Trust Accounting Agent...</div>';
     input.value = '';
@@ -11309,9 +11852,35 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
           <option value="trust_resolution">Trust Resolution</option>
           <option value="certificate_of_trust">Certificate of Trust</option>
           <option value="general_legal_memo">General Legal Memo</option>
+          <optgroup label="── IRS Forms (Fillable PDF) ──">
+            <option value="irs_f1040">Form 1040 — Individual Tax Return</option>
+            <option value="irs_f1040sc">Form 1040 Schedule C — Business Income</option>
+            <option value="irs_f1040x">Form 1040-X — Amended Return</option>
+            <option value="irs_f1041">Form 1041 — Estate/Trust Income Tax</option>
+            <option value="irs_f1099a">Form 1099-A — Acquisition of Secured Property</option>
+            <option value="irs_f1099b">Form 1099-B — Proceeds from Broker</option>
+            <option value="irs_f1099c">Form 1099-C — Cancellation of Debt</option>
+            <option value="irs_f1099msc">Form 1099-MISC — Miscellaneous Income</option>
+            <option value="irs_f56f">Form 56-F — Notice of Fiduciary</option>
+            <option value="irs_f8832">Form 8832 — Entity Classification</option>
+            <option value="irs_fss4">Form SS-4 — EIN Application</option>
+            <option value="irs_fw4">Form W-4 — Employee Withholding</option>
+            <option value="irs_fw9">Form W-9 — TIN Request</option>
+            <option value="irs_f2848">Form 2848 — Power of Attorney</option>
+            <option value="irs_f8821">Form 8821 — Tax Info Authorization</option>
+            <option value="irs_f56">Form 56 — Fiduciary Notice</option>
+          </optgroup>
+          <optgroup label="── FWM Trust Administration ──">
+            <option value="fwm_certificate_of_trust">FWM Certificate of Trust (1-Page)</option>
+            <option value="durable_poa">Durable Power of Attorney</option>
+            <option value="non_decedent_notice">Notice of Non-Decedent</option>
+            <option value="witness_affidavit">Witness Affidavit (3-Witness)</option>
+            <option value="certificate_of_service">Certificate of Service</option>
+          </optgroup>
         </select>
         <button onclick="loadDocTemplate()" style="padding:6px 14px;border:1px solid rgba(6,182,212,.4);border-radius:4px;background:rgba(6,182,212,.15);color:#06b6d4;cursor:pointer;font-weight:700;font-size:11px">Load Template</button>
         <button onclick="newBlankDoc()" style="padding:6px 14px;border:1px solid rgba(255,255,255,.15);border-radius:4px;background:var(--bg-tertiary);color:var(--text-secondary);cursor:pointer;font-weight:700;font-size:11px">New Blank</button>
+        <button onclick="showPackageBuilder()" style="padding:6px 14px;border:1px solid rgba(139,92,246,.4);border-radius:4px;background:rgba(139,92,246,.15);color:#8b5cf6;cursor:pointer;font-weight:700;font-size:11px">📦 Package Builder</button>
         <span style="margin-left:auto;font-size:10px;color:var(--text-secondary)" id="doc-autosave-status"></span>
       </div>
 
@@ -11363,6 +11932,83 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
       <div id="doc-editor" contenteditable="true" style="background:#fff;color:#1B2A4A;border:2px solid rgba(6,182,212,.3);border-radius:10px;min-height:600px;padding:40px 60px;font-family:'Times New Roman',serif;font-size:14px;line-height:2;outline:none;overflow-y:auto">
         <div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:24px">DOCUMENT TITLE</div>
         <div>Begin typing or dictating your document here. This editor supports full formatting, fillable fields, PDF and Word export, and printing. All output is governed by the SYPHER Protocol — facts and conclusions of law only, in the presenter's vernacular, without hedging, disclaimers, metadata, tags, or markers.</div>
+      </div>
+
+      <!-- IRS PDF Viewer (hidden by default) -->
+      <div id="doc-pdf-viewer" style="display:none">
+        <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
+          <button onclick="exitPDFViewer()" style="padding:6px 14px;border:1px solid rgba(6,182,212,.4);border-radius:4px;background:rgba(6,182,212,.15);color:#06b6d4;cursor:pointer;font-weight:700;font-size:11px">⬅ Back to Editor</button>
+          <span id="doc-pdf-title" style="font-weight:700;color:var(--text-primary);font-size:14px"></span>
+          <a id="doc-pdf-download" href="#" target="_blank" style="margin-left:auto;padding:6px 14px;border:1px solid rgba(239,68,68,.3);border-radius:4px;background:rgba(239,68,68,.1);color:#ef4444;text-decoration:none;font-weight:700;font-size:11px">⬇ Open in New Tab</a>
+        </div>
+        <iframe id="doc-pdf-frame" style="width:100%;height:700px;border:2px solid rgba(6,182,212,.3);border-radius:10px;background:#fff"></iframe>
+      </div>
+
+      <!-- Package Builder Panel (hidden by default) -->
+      <div id="doc-package-builder" style="display:none">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+          <button onclick="exitPackageBuilder()" style="padding:6px 14px;border:1px solid rgba(6,182,212,.4);border-radius:4px;background:rgba(6,182,212,.15);color:#06b6d4;cursor:pointer;font-weight:700;font-size:11px">⬅ Back to Editor</button>
+          <span style="font-weight:700;color:var(--text-primary);font-size:16px">📦 DOCUMENT PACKAGE BUILDER</span>
+        </div>
+
+        <!-- 1. Entity Selection -->
+        <div style="background:var(--bg-secondary);border:1px solid rgba(139,92,246,.3);border-radius:8px;padding:12px;margin-bottom:12px">
+          <div style="font-weight:700;color:#8b5cf6;font-size:12px;margin-bottom:8px">1. SELECT ENTITY</div>
+          <select id="pkg-entity-select" onchange="updateVariablePreview()" style="width:100%;padding:8px;border:1px solid rgba(139,92,246,.3);border-radius:6px;background:var(--bg-tertiary);color:var(--text-primary);font-size:13px">
+            <option value="">— Select Entity —</option>
+          </select>
+        </div>
+
+        <!-- 2. Package Presets -->
+        <div style="background:var(--bg-secondary);border:1px solid rgba(139,92,246,.3);border-radius:8px;padding:12px;margin-bottom:12px">
+          <div style="font-weight:700;color:#8b5cf6;font-size:12px;margin-bottom:8px">2. FWM PACKAGE PRESETS</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+            <button onclick="selectPackagePreset('trustEstablishment')" class="pkg-preset-btn" style="padding:8px 14px;border:1px solid rgba(16,185,129,.4);border-radius:6px;background:rgba(16,185,129,.1);color:#10b981;cursor:pointer;font-weight:700;font-size:11px">★ Trust Establishment (Part II)</button>
+            <button onclick="selectPackagePreset('irsNotification')" class="pkg-preset-btn" style="padding:8px 14px;border:1px solid rgba(239,68,68,.4);border-radius:6px;background:rgba(239,68,68,.1);color:#ef4444;cursor:pointer;font-weight:700;font-size:11px">★ IRS Notification (Part III)</button>
+            <button onclick="selectPackagePreset('bankingSetup')" class="pkg-preset-btn" style="padding:8px 14px;border:1px solid rgba(59,130,246,.4);border-radius:6px;background:rgba(59,130,246,.1);color:#3b82f6;cursor:pointer;font-weight:700;font-size:11px">★ Banking Setup (Part IV)</button>
+            <button onclick="selectPackagePreset('fullTrustAdmin')" class="pkg-preset-btn" style="padding:8px 14px;border:1px solid rgba(245,158,11,.4);border-radius:6px;background:rgba(245,158,11,.1);color:#f59e0b;cursor:pointer;font-weight:700;font-size:11px">★ Full Trust Admin</button>
+          </div>
+        </div>
+
+        <!-- 3. Custom Selection -->
+        <div style="background:var(--bg-secondary);border:1px solid rgba(139,92,246,.3);border-radius:8px;padding:12px;margin-bottom:12px">
+          <div style="font-weight:700;color:#8b5cf6;font-size:12px;margin-bottom:8px">3. DOCUMENT SELECTION <span style="font-weight:400;color:var(--text-secondary)">(or customize preset)</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px" id="pkg-doc-checklist">
+            <!-- Left column: Legal templates -->
+            <div>
+              <div style="font-weight:700;color:var(--text-secondary);font-size:10px;margin-bottom:6px;text-transform:uppercase">Legal Templates</div>
+              <div id="pkg-legal-list"></div>
+            </div>
+            <!-- Right column: IRS forms -->
+            <div>
+              <div style="font-weight:700;color:var(--text-secondary);font-size:10px;margin-bottom:6px;text-transform:uppercase">IRS Forms (PDF)</div>
+              <div id="pkg-irs-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Variable Preview -->
+        <div style="background:var(--bg-secondary);border:1px solid rgba(139,92,246,.3);border-radius:8px;padding:12px;margin-bottom:12px">
+          <div style="font-weight:700;color:#8b5cf6;font-size:12px;margin-bottom:8px">4. VARIABLE PREVIEW</div>
+          <div id="pkg-variable-preview" style="font-family:monospace;font-size:11px;color:var(--text-secondary);max-height:150px;overflow-y:auto"></div>
+        </div>
+
+        <!-- 5. Actions -->
+        <div style="background:var(--bg-secondary);border:1px solid rgba(139,92,246,.3);border-radius:8px;padding:12px;margin-bottom:12px">
+          <div style="font-weight:700;color:#8b5cf6;font-size:12px;margin-bottom:8px">5. BUILD &amp; EXPORT</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button onclick="buildAndPreviewPackage()" style="padding:8px 16px;border:1px solid rgba(139,92,246,.5);border-radius:6px;background:rgba(139,92,246,.2);color:#8b5cf6;cursor:pointer;font-weight:700;font-size:12px">🔍 Build &amp; Preview</button>
+            <button onclick="exportPackagePDF()" style="padding:8px 16px;border:1px solid rgba(239,68,68,.4);border-radius:6px;background:rgba(239,68,68,.1);color:#ef4444;cursor:pointer;font-weight:700;font-size:12px">📄 Export Combined PDF</button>
+            <button onclick="exportPackageZIP()" style="padding:8px 16px;border:1px solid rgba(16,185,129,.4);border-radius:6px;background:rgba(16,185,129,.1);color:#10b981;cursor:pointer;font-weight:700;font-size:12px">📦 Export ZIP</button>
+            <button onclick="printPackage()" style="padding:8px 16px;border:1px solid rgba(59,130,246,.4);border-radius:6px;background:rgba(59,130,246,.1);color:#3b82f6;cursor:pointer;font-weight:700;font-size:12px">🖨️ Print All</button>
+          </div>
+        </div>
+
+        <!-- 6. Preview Area -->
+        <div id="pkg-preview-area" style="display:none">
+          <div style="font-weight:700;color:#8b5cf6;font-size:12px;margin-bottom:8px">PACKAGE PREVIEW</div>
+          <div id="pkg-preview-content" style="background:#fff;color:#000;border-radius:8px;padding:24px;max-height:600px;overflow-y:auto;font-family:'Times New Roman',serif;font-size:13px;line-height:1.6"></div>
+        </div>
       </div>
     </div>
   </section>
@@ -13871,6 +14517,196 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SYNC CENTER SECTION                                             -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <section id="syncCenterSection" class="form-section hidden">
+    <div style="padding:20px;max-width:1400px;margin:0 auto">
+
+      <!-- Header Banner -->
+      <div style="background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(6,182,212,0.12));border:2px solid rgba(16,185,129,0.4);border-radius:12px;padding:20px;margin-bottom:20px;text-align:center">
+        <div style="font-size:24px;font-weight:900;background:linear-gradient(135deg,#10b981,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px">🔄 SYNC CENTER</div>
+        <div style="font-size:13px;color:var(--text-secondary)">TMAR Accrual Ledger ↔ Google Sheets Master Register</div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;opacity:0.7">3-Tier Integration: CSV Export/Import • GAS Web App Bridge • Direct Sheets API</div>
+      </div>
+
+      <!-- Connection Status Card -->
+      <div id="sync-connection-card" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:16px;margin-bottom:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div id="sync-status-dot" style="width:12px;height:12px;border-radius:50%;background:#6b7280;border:2px solid rgba(255,255,255,0.2)"></div>
+            <div>
+              <div style="font-weight:700;font-size:14px;color:var(--text-primary)">Connection Status</div>
+              <div id="sync-status-text" style="font-size:12px;color:var(--text-secondary)">No GAS Web App URL configured</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <input type="text" id="sync-gas-url" placeholder="GAS Web App URL (https://script.google.com/...)" value="" oninput="onGasUrlChange()" style="width:360px;padding:8px 12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:6px;color:var(--text-primary);font-size:12px;font-family:monospace">
+            <button onclick="testSyncConnection()" id="sync-test-btn" style="background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.5);color:#10b981;padding:8px 16px;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer">🔌 Test Connection</button>
+          </div>
+        </div>
+        <div id="sync-last-sync" style="font-size:11px;color:var(--text-secondary);margin-top:8px;opacity:0.6"></div>
+      </div>
+
+      <!-- Export/Import Panels Grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+
+        <!-- EXPORT PANEL -->
+        <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.25);border-radius:10px;padding:16px">
+          <div style="font-size:16px;font-weight:800;color:#10b981;margin-bottom:12px;display:flex;align-items:center;gap:6px">
+            <span>📤</span> Export to Google Sheets
+          </div>
+          <div style="font-size:11px;color:var(--text-secondary);margin-bottom:14px">Generate CSV files formatted for direct import into the TMAR Google Sheets workbook</div>
+
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button onclick="exportEntitiesToMasterRegisterCSV()" class="sync-export-btn" style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left;width:100%;transition:all 0.2s">
+              <span style="font-size:18px">🏢</span>
+              <div>
+                <div style="font-weight:700;font-size:13px;color:var(--text-primary)">Entities → Master Register</div>
+                <div style="font-size:11px;color:var(--text-secondary)">35-column CSV • EINs masked • Account type mapping</div>
+              </div>
+              <span id="sync-export-entities-count" style="margin-left:auto;font-size:11px;color:var(--accent-cyan);font-weight:700"></span>
+            </button>
+
+            <button onclick="exportLedgerToTransactionCSV()" class="sync-export-btn" style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left;width:100%;transition:all 0.2s">
+              <span style="font-size:18px">📒</span>
+              <div>
+                <div style="font-weight:700;font-size:13px;color:var(--text-primary)">Ledger → Transaction Ledger</div>
+                <div style="font-size:11px;color:var(--text-secondary)">16-column CSV • Signed amounts • Source tagged</div>
+              </div>
+              <span id="sync-export-ledger-count" style="margin-left:auto;font-size:11px;color:var(--accent-cyan);font-weight:700"></span>
+            </button>
+
+            <button onclick="exportJournalToTransactionCSV()" class="sync-export-btn" style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left;width:100%;transition:all 0.2s">
+              <span style="font-size:18px">📋</span>
+              <div>
+                <div style="font-weight:700;font-size:13px;color:var(--text-primary)">Journal Entries → Transaction Ledger</div>
+                <div style="font-size:11px;color:var(--text-secondary)">Expanded line items • Double-entry format</div>
+              </div>
+              <span id="sync-export-journal-count" style="margin-left:auto;font-size:11px;color:var(--accent-cyan);font-weight:700"></span>
+            </button>
+
+            <button onclick="export1099ToFilingChainCSV()" class="sync-export-btn" style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left;width:100%;transition:all 0.2s">
+              <span style="font-size:18px">📄</span>
+              <div>
+                <div style="font-weight:700;font-size:13px;color:var(--text-primary)">1099 Filings → Filing Chain</div>
+                <div style="font-size:11px;color:var(--text-secondary)">15-column CSV • All 1099 series combined</div>
+              </div>
+              <span id="sync-export-1099-count" style="margin-left:auto;font-size:11px;color:var(--accent-cyan);font-weight:700"></span>
+            </button>
+
+            <button onclick="exportPayablesToObligationsCSV()" class="sync-export-btn" style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left;width:100%;transition:all 0.2s">
+              <span style="font-size:18px">💳</span>
+              <div>
+                <div style="font-weight:700;font-size:13px;color:var(--text-primary)">Payables → Household Obligations</div>
+                <div style="font-size:11px;color:var(--text-secondary)">11-column CSV • Due dates • Payment status</div>
+              </div>
+              <span id="sync-export-payables-count" style="margin-left:auto;font-size:11px;color:var(--accent-cyan);font-weight:700"></span>
+            </button>
+          </div>
+        </div>
+
+        <!-- IMPORT PANEL -->
+        <div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.25);border-radius:10px;padding:16px">
+          <div style="font-size:16px;font-weight:800;color:#3b82f6;margin-bottom:12px;display:flex;align-items:center;gap:6px">
+            <span>📥</span> Import from Google Sheets
+          </div>
+          <div style="font-size:11px;color:var(--text-secondary);margin-bottom:14px">Import CSV files exported from the TMAR Google Sheets workbook into the Accrual Ledger</div>
+
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <label class="sync-import-btn" style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left;width:100%;transition:all 0.2s;box-sizing:border-box">
+              <span style="font-size:18px">🏢</span>
+              <div>
+                <div style="font-weight:700;font-size:13px;color:var(--text-primary)">Master Register → 🏢 Entities + COA</div>
+                <div style="font-size:11px;color:var(--text-secondary)">35-column CSV • Conflict detection • Dedup by name</div>
+              </div>
+              <input type="file" accept=".csv" onchange="importMasterRegisterCSV(this)" style="display:none">
+            </label>
+
+            <label class="sync-import-btn" style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left;width:100%;transition:all 0.2s;box-sizing:border-box">
+              <span style="font-size:18px">📒</span>
+              <div>
+                <div style="font-weight:700;font-size:13px;color:var(--text-primary)">Transaction Ledger → 📒 Ledger</div>
+                <div style="font-size:11px;color:var(--text-secondary)">16-column CSV • Hash dedup • Skip duplicates</div>
+              </div>
+              <input type="file" accept=".csv" onchange="importTransactionLedgerCSV(this)" style="display:none">
+            </label>
+
+            <label class="sync-import-btn" style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left;width:100%;transition:all 0.2s;box-sizing:border-box">
+              <span style="font-size:18px">💳</span>
+              <div>
+                <div style="font-weight:700;font-size:13px;color:var(--text-primary)">Household Obligations → 📤 A/P</div>
+                <div style="font-size:11px;color:var(--text-secondary)">11-column CSV • Match by vendor name</div>
+              </div>
+              <input type="file" accept=".csv" onchange="importObligationsCSV(this)" style="display:none">
+            </label>
+
+            <label class="sync-import-btn" style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left;width:100%;transition:all 0.2s;box-sizing:border-box">
+              <span style="font-size:18px">📑</span>
+              <div>
+                <div style="font-weight:700;font-size:13px;color:var(--text-primary)">W-2 & Income → 1040 Filings</div>
+                <div style="font-size:11px;color:var(--text-secondary)">Overwrite income fields from Sheets data</div>
+              </div>
+              <input type="file" accept=".csv" onchange="importW2IncomeCSV(this)" style="display:none">
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- LIVE SYNC PANEL (Tier 2) -->
+      <div id="sync-live-panel" style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.25);border-radius:10px;padding:16px;margin-bottom:20px;opacity:0.5;pointer-events:none" data-tier2-disabled="true">
+        <div style="font-size:16px;font-weight:800;color:#8b5cf6;margin-bottom:4px;display:flex;align-items:center;gap:6px">
+          <span>⚡</span> Live Sync (GAS Web App Bridge)
+        </div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:14px">Requires a deployed GAS Web App URL. Configure above to enable push/pull operations.</div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <!-- Push Section -->
+          <div>
+            <div style="font-weight:700;font-size:12px;color:#10b981;margin-bottom:8px">📤 PUSH (Ledger → Sheets)</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              <button onclick="syncPush('entities')" class="sync-push-btn" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">🏢 Entities</button>
+              <button onclick="syncPush('transactions')" class="sync-push-btn" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📒 Ledger</button>
+              <button onclick="syncPush('payables')" class="sync-push-btn" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📤 A/P</button>
+              <button onclick="syncPush('1099')" class="sync-push-btn" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📑 1099s</button>
+              <button onclick="syncPushAll()" class="sync-push-btn" style="background:rgba(16,185,129,0.25);border:2px solid rgba(16,185,129,0.5);color:#10b981;padding:6px 16px;border-radius:6px;font-size:11px;font-weight:800;cursor:pointer">Push All ▶</button>
+            </div>
+          </div>
+          <!-- Pull Section -->
+          <div>
+            <div style="font-weight:700;font-size:12px;color:#3b82f6;margin-bottom:8px">📥 PULL (Sheets → Ledger)</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              <button onclick="syncPull('accounts')" class="sync-pull-btn" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">🏢 Entities</button>
+              <button onclick="syncPull('transactions')" class="sync-pull-btn" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📒 Ledger</button>
+              <button onclick="syncPull('obligations')" class="sync-pull-btn" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📤 A/P</button>
+              <button onclick="syncPullAll()" class="sync-pull-btn" style="background:rgba(59,130,246,0.25);border:2px solid rgba(59,130,246,0.5);color:#3b82f6;padding:6px 16px;border-radius:6px;font-size:11px;font-weight:800;cursor:pointer">Pull All ▶</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sync Progress Bar -->
+        <div id="sync-progress-wrap" style="display:none;margin-top:12px">
+          <div style="background:rgba(255,255,255,0.08);border-radius:6px;height:6px;overflow:hidden">
+            <div id="sync-progress-bar" style="background:linear-gradient(90deg,#10b981,#06b6d4);height:100%;width:0%;transition:width 0.3s ease;border-radius:6px"></div>
+          </div>
+          <div id="sync-progress-text" style="font-size:11px;color:var(--text-secondary);margin-top:4px">Syncing...</div>
+        </div>
+      </div>
+
+      <!-- SYNC LOG -->
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-size:14px;font-weight:700;color:var(--text-primary)">📝 Sync Log</div>
+          <button onclick="clearSyncLog()" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#ef4444;padding:4px 10px;border-radius:4px;font-size:10px;font-weight:600;cursor:pointer">Clear Log</button>
+        </div>
+        <div id="sync-log-container" style="max-height:300px;overflow-y:auto;font-family:monospace;font-size:11px;color:var(--text-secondary);line-height:1.8">
+          <div style="opacity:0.5;font-style:italic">No sync operations recorded yet. Export or import data to begin.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
   <!-- ALL NEW JAVASCRIPT                                             -->
   <!-- ═══════════════════════════════════════════════════════════════ -->
   <script>
@@ -14479,24 +15315,660 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
       '<div style="margin-bottom:8px;padding-left:28px">B. ____________________________________________________________</div>' +
       '<div style="margin-bottom:16px;padding-left:28px">____________________________________________________________</div>' +
       '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">V. CONCLUSION</div>' +
-      '<div style="margin-bottom:16px;padding-left:28px">____________________________________________________________</div>'
+      '<div style="margin-bottom:16px;padding-left:28px">____________________________________________________________</div>',
+
+    // ── FWM Trust Administration Templates ──
+
+    fwm_certificate_of_trust:
+      '<div style="font-size:11px;margin-bottom:4px">RECORDING PREPARED &amp; REQUESTED BY:</div>' +
+      '<div style="font-size:12px;font-weight:bold;margin-bottom:2px">{{GRANTOR}}</div>' +
+      '<div style="font-size:11px;margin-bottom:2px">In Care of General Post Office</div>' +
+      '<div style="font-size:11px;margin-bottom:2px">General Delivery</div>' +
+      '<div style="font-size:11px;margin-bottom:16px">{{JURISDICTION}}</div>' +
+      '<div style="font-size:11px;margin-bottom:4px">AND AFTER RECORDING MAIL TO:</div>' +
+      '<div style="font-size:12px;font-weight:bold;margin-bottom:2px">{{TRUST_NAME}}</div>' +
+      '<div style="font-size:11px;margin-bottom:2px">c/o {{TRUSTEE}}, Administrator</div>' +
+      '<div style="font-size:11px;margin-bottom:2px">In Care of General Post Office</div>' +
+      '<div style="font-size:11px;margin-bottom:2px">General Delivery</div>' +
+      '<div style="font-size:11px;margin-bottom:24px">{{JURISDICTION}}</div>' +
+      '<div style="text-align:center;font-weight:bold;font-size:18px;margin-bottom:20px">Certificate of Trust</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">This document, the Certificate of Trust (the \u201cCertificate\u201d), is provided solely to demonstrate the existence of a <b>Revocable Living Trust</b> (the \u201cTrust\u201d) for limited transactional purposes. This Certificate complies with applicable state laws and universal principles. It does not waive confidentiality or disclose the full terms, assets, or Beneficiaries of the Trust. All parties relying on this document in good faith are indemnified from liability in accordance with the terms set forth herein.</div>' +
+      '<div style="margin-bottom:8px"><b>1. Trust Name:</b> The Trust is known as <b>{{TRUST_NAME}}</b>.</div>' +
+      '<div style="margin-bottom:8px"><b>2. Trust Effective Date:</b> This Trust was established and became effective on <b>{{DATE}}</b>.</div>' +
+      '<div style="margin-bottom:8px"><b>3. Grantor:</b> The Trust was established by <b>{{GRANTOR}}</b>, residing in <b>{{JURISDICTION}}</b>.</div>' +
+      '<div style="margin-bottom:8px"><b>4. Trustees:</b></div>' +
+      '<div style="margin-bottom:4px;padding-left:28px">\u2022 <b>Primary Trustee</b>: {{TRUSTEE}}</div>' +
+      '<div style="margin-bottom:4px;padding-left:28px">\u2022 <b>Co-Trustee</b> (if applicable): {{CO_TRUSTEE}}</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">\u2022 <b>Successor Trustee</b>: {{SUCCESSOR_TRUSTEE}}</div>' +
+      '<div style="margin-bottom:8px"><b>5. Employer Identification Number (EIN):</b> The Trust is identified for tax purposes by EIN <b>{{EIN}}</b>.</div>' +
+      '<div style="margin-bottom:8px"><b>6. Purpose:</b> The Trust was created to manage and safeguard its assets during the Grantor\u2019s lifetime and to distribute those assets to named Beneficiaries following the Grantor\u2019s passing.</div>' +
+      '<div style="margin-bottom:8px"><b>7. Revocability:</b> This Trust is <b>revocable</b> and may be amended or revoked by the Grantor during their lifetime, provided the Grantor is not incapacitated.</div>' +
+      '<div style="margin-bottom:8px"><b>8. Property:</b> This Certificate does not disclose specific details of the property or assets held by the Trust. All such details are outlined in the confidential Trust Agreement, including Schedule A.</div>' +
+      '<div style="margin-bottom:8px"><b>9. Authority of Trustees:</b> Trustees are authorized to manage, invest, and distribute Trust assets in accordance with the terms and purposes of the Trust, acting as fiduciaries to protect the interests of the Trust and its Beneficiaries.</div>' +
+      '<div style="margin-bottom:8px"><b>10. Indemnity and Reliance:</b> Any individual or institution relying on this Certificate in good faith is indemnified from liability. Such reliance does not require access to the full Trust Agreement or its confidential terms.</div>' +
+      '<div style="margin-bottom:16px"><b>11. Recording and Presentation:</b> This Certificate may be recorded with appropriate authorities or presented to financial institutions to verify the existence of the Trust.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold">Trustee Declaration and Signature:</div>' +
+      '<div style="margin-bottom:16px">I, <b>{{TRUSTEE}}</b>, as the Trustee of the above-referenced Trust, declare that the information in this Certificate is true and accurate to the best of my knowledge.</div>' +
+      '<div style="margin-bottom:4px">____________________________</div>' +
+      '<div style="margin-bottom:4px">Trustee Signature</div>' +
+      '<div style="margin-bottom:20px">Date: {{DATE}}</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold">Notary Public Acknowledgment:</div>' +
+      '<div style="margin-bottom:8px">State of <b>{{JURISDICTION}}</b></div>' +
+      '<div style="margin-bottom:8px">County of ____________________________</div>' +
+      '<div style="margin-bottom:12px">On this date, <b>{{DATE}}</b>, before me, ____________________________, personally appeared <b>{{TRUSTEE}}</b>, who acknowledged the execution of this Certificate of Trust as their voluntary act and deed.</div>' +
+      '<div style="margin-bottom:4px">Notary Public Signature: ____________________________</div>' +
+      '<div style="margin-bottom:4px">My Commission Expires: ____________________________</div>',
+
+    durable_poa:
+      '<div style="text-align:center;font-weight:bold;font-size:18px;margin-bottom:4px">DURABLE POWER OF ATTORNEY</div>' +
+      '<div style="text-align:center;font-size:12px;margin-bottom:24px">Effective Immediately Upon Execution</div>' +
+      '<div style="margin-bottom:12px"><b>KNOW ALL MEN BY THESE PRESENTS:</b></div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I, <b>{{GRANTOR}}</b>, of <b>{{JURISDICTION}}</b>, being of sound mind and body, do hereby appoint <b>{{TRUSTEE}}</b> (the \u201cAgent\u201d or \u201cAttorney-in-Fact\u201d) to act on my behalf in any and all matters as set forth below. This Power of Attorney shall be durable and shall not be affected by my subsequent disability or incapacity.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">ARTICLE I \u2014 GRANT OF AUTHORITY</div>' +
+      '<div style="margin-bottom:8px;text-align:justify">I grant my Agent full power and authority to act on my behalf in the following matters:</div>' +
+      '<div style="margin-bottom:4px;padding-left:28px">A. <b>Financial Transactions</b>: To manage, invest, and transact business with respect to all bank accounts, brokerage accounts, real property, personal property, and any other assets held in my name or in the name of any trust for which I serve as Trustee.</div>' +
+      '<div style="margin-bottom:4px;padding-left:28px">B. <b>Tax Matters</b>: To prepare, sign, and file tax returns; to represent me before the Internal Revenue Service and any state or local taxing authority; and to execute IRS Forms 2848, 8821, 56, and any related filings.</div>' +
+      '<div style="margin-bottom:4px;padding-left:28px">C. <b>Trust Administration</b>: To manage, administer, and transact business on behalf of <b>{{TRUST_NAME}}</b> (EIN: {{EIN}}), including but not limited to opening and managing bank accounts, executing documents, and filing required notices.</div>' +
+      '<div style="margin-bottom:4px;padding-left:28px">D. <b>Legal Proceedings</b>: To commence, prosecute, defend, or settle any legal action or proceeding on my behalf.</div>' +
+      '<div style="margin-bottom:16px;padding-left:28px">E. <b>Government Agencies</b>: To interact with any federal, state, or local government agency on my behalf, including the Social Security Administration, Department of Motor Vehicles, and any court of record.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">ARTICLE II \u2014 DURABILITY</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">This Power of Attorney shall not be affected by my subsequent disability or incapacity, and shall remain in full force and effect until revoked by me in writing.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">ARTICLE III \u2014 THIRD-PARTY RELIANCE</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">Any third party who receives a copy of this document may act under it. Revocation of this Power of Attorney is not effective as to a third party until the third party has actual knowledge of the revocation.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">ARTICLE IV \u2014 GOVERNING LAW</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">This Durable Power of Attorney shall be governed by the laws of the State of <b>{{JURISDICTION}}</b>.</div>' +
+      '<div style="margin-bottom:16px"><b>IN WITNESS WHEREOF</b>, I have executed this Durable Power of Attorney on <b>{{DATE}}</b>.</div>' +
+      '<div style="margin-bottom:4px">____________________________</div>' +
+      '<div style="margin-bottom:4px"><b>{{GRANTOR}}</b>, Principal</div>' +
+      '<div style="margin-bottom:20px">Date: {{DATE}}</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold">Witness 1:</div>' +
+      '<div style="margin-bottom:4px">Signature: ____________________________</div>' +
+      '<div style="margin-bottom:4px">Printed Name: ____________________________</div>' +
+      '<div style="margin-bottom:16px">Date: ____________________________</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold">Witness 2:</div>' +
+      '<div style="margin-bottom:4px">Signature: ____________________________</div>' +
+      '<div style="margin-bottom:4px">Printed Name: ____________________________</div>' +
+      '<div style="margin-bottom:20px">Date: ____________________________</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold">Notary Public Acknowledgment:</div>' +
+      '<div style="margin-bottom:8px">State of <b>{{JURISDICTION}}</b></div>' +
+      '<div style="margin-bottom:8px">County of ____________________________</div>' +
+      '<div style="margin-bottom:12px">On this date, <b>{{DATE}}</b>, before me, ____________________________, personally appeared <b>{{GRANTOR}}</b>, known to me to be the person whose name is subscribed to the within instrument and acknowledged to me that they executed the same in their authorized capacity.</div>' +
+      '<div style="margin-bottom:4px">Notary Public Signature: ____________________________</div>' +
+      '<div style="margin-bottom:4px">My Commission Expires: ____________________________</div>',
+
+    non_decedent_notice:
+      '<div style="text-align:center;font-weight:bold;font-size:18px;margin-bottom:4px">NOTICE OF NON-DECEDENT</div>' +
+      '<div style="text-align:center;font-size:12px;margin-bottom:24px">Declaration of Living Status</div>' +
+      '<div style="margin-bottom:16px;text-align:justify"><b>TO ALL INTERESTED PARTIES, AGENCIES, AND INSTITUTIONS:</b></div>' +
+      '<div style="margin-bottom:12px;text-align:justify">This Notice is hereby given to confirm and declare that the undersigned, <b>{{TRUSTEE}}</b>, is alive, well, and of sound mind as of the date of this Notice. The undersigned is not deceased, incapacitated, or otherwise unable to conduct their affairs.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">I. IDENTITY AND CAPACITY</div>' +
+      '<div style="margin-bottom:4px;padding-left:28px">1. Full Legal Name: <b>{{TRUSTEE}}</b></div>' +
+      '<div style="margin-bottom:4px;padding-left:28px">2. Domicile: <b>{{JURISDICTION}}</b></div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">3. Capacity: Trustee and Administrator of <b>{{TRUST_NAME}}</b> (EIN: {{EIN}})</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">II. DECLARATION</div>' +
+      '<div style="margin-bottom:8px;text-align:justify;padding-left:28px">A. I am a living, breathing man/woman, not a decedent, and I have full capacity to manage my personal and fiduciary affairs.</div>' +
+      '<div style="margin-bottom:8px;text-align:justify;padding-left:28px">B. The <b>{{TRUST_NAME}}</b> is an active, revocable living trust established during my lifetime and remains under my active administration.</div>' +
+      '<div style="margin-bottom:8px;text-align:justify;padding-left:28px">C. No probate, estate administration, or fiduciary succession has been initiated, nor is any warranted at this time.</div>' +
+      '<div style="margin-bottom:16px;text-align:justify;padding-left:28px">D. Any party treating the Trust or the undersigned as a decedent estate is hereby placed on notice that such treatment is unauthorized and without basis in fact or law.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">III. RELIANCE</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">This Notice may be relied upon by any financial institution, government agency, court, or other party. It is provided in conjunction with the Certificate of Trust and other trust administration documents.</div>' +
+      '<div style="margin-bottom:16px"><b>EXECUTED</b> on <b>{{DATE}}</b> in <b>{{JURISDICTION}}</b>.</div>' +
+      '<div style="margin-bottom:4px">____________________________</div>' +
+      '<div style="margin-bottom:4px"><b>{{TRUSTEE}}</b></div>' +
+      '<div style="margin-bottom:20px">Trustee / Administrator</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold">Notary Public Acknowledgment:</div>' +
+      '<div style="margin-bottom:8px">State of <b>{{JURISDICTION}}</b>, County of ____________________________</div>' +
+      '<div style="margin-bottom:12px">On <b>{{DATE}}</b>, before me personally appeared <b>{{TRUSTEE}}</b>, who is personally known to me and who acknowledged the execution of this Notice as their voluntary act.</div>' +
+      '<div style="margin-bottom:4px">Notary Public Signature: ____________________________</div>' +
+      '<div style="margin-bottom:4px">My Commission Expires: ____________________________</div>',
+
+    witness_affidavit:
+      '<div style="text-align:center;font-weight:bold;font-size:18px;margin-bottom:4px">WITNESS AFFIDAVIT</div>' +
+      '<div style="text-align:center;font-size:12px;margin-bottom:24px">Attestation of Trust Execution</div>' +
+      '<div style="margin-bottom:8px">State of <b>{{JURISDICTION}}</b></div>' +
+      '<div style="margin-bottom:16px">County of ____________________________</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">We, the undersigned, being duly sworn, each deposes and says that on <b>{{DATE}}</b>, we witnessed <b>{{TRUSTEE}}</b> (the \u201cGrantor/Trustee\u201d) execute the trust documents related to <b>{{TRUST_NAME}}</b>.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">ATTESTATION</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">1. The Grantor/Trustee appeared to be of sound mind and under no duress, fraud, or undue influence at the time of execution.</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">2. The Grantor/Trustee signed the trust documents voluntarily and in our presence.</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">3. We are over the age of eighteen (18) years and are competent to serve as witnesses.</div>' +
+      '<div style="margin-bottom:16px;padding-left:28px">4. We are not named as Beneficiaries in the Trust and have no financial interest in its terms.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold">Witness 1:</div>' +
+      '<div style="margin-bottom:4px">Signature: ____________________________</div>' +
+      '<div style="margin-bottom:4px">Printed Name: ____________________________</div>' +
+      '<div style="margin-bottom:4px">Address: ____________________________</div>' +
+      '<div style="margin-bottom:16px">Date: ____________________________</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold">Witness 2:</div>' +
+      '<div style="margin-bottom:4px">Signature: ____________________________</div>' +
+      '<div style="margin-bottom:4px">Printed Name: ____________________________</div>' +
+      '<div style="margin-bottom:4px">Address: ____________________________</div>' +
+      '<div style="margin-bottom:16px">Date: ____________________________</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold">Witness 3:</div>' +
+      '<div style="margin-bottom:4px">Signature: ____________________________</div>' +
+      '<div style="margin-bottom:4px">Printed Name: ____________________________</div>' +
+      '<div style="margin-bottom:4px">Address: ____________________________</div>' +
+      '<div style="margin-bottom:20px">Date: ____________________________</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold">Notary Public Acknowledgment:</div>' +
+      '<div style="margin-bottom:8px">State of <b>{{JURISDICTION}}</b>, County of ____________________________</div>' +
+      '<div style="margin-bottom:12px">On <b>{{DATE}}</b>, before me personally appeared the above-named witnesses, who being duly sworn, acknowledged that they witnessed the execution of the trust documents as stated above.</div>' +
+      '<div style="margin-bottom:4px">Notary Public Signature: ____________________________</div>' +
+      '<div style="margin-bottom:4px">My Commission Expires: ____________________________</div>',
+
+    certificate_of_service:
+      '<div style="text-align:center;font-weight:bold;font-size:18px;margin-bottom:4px">CERTIFICATE OF SERVICE</div>' +
+      '<div style="text-align:center;font-size:12px;margin-bottom:24px">Proof of Mailing / Service</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I, <b>{{TRUSTEE}}</b>, as Trustee and Administrator of <b>{{TRUST_NAME}}</b>, do hereby certify under penalty of perjury that the following is true and correct:</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">I. DOCUMENTS SERVED</div>' +
+      '<div style="margin-bottom:4px;padding-left:28px">1. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:4px;padding-left:28px">2. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:4px;padding-left:28px">3. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:16px;padding-left:28px">4. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">II. METHOD OF SERVICE</div>' +
+      '<div style="margin-bottom:4px;padding-left:28px">\u25a1 U.S. Certified Mail, Return Receipt Requested</div>' +
+      '<div style="margin-bottom:4px;padding-left:28px">\u25a1 U.S. First-Class Mail, Postage Prepaid</div>' +
+      '<div style="margin-bottom:4px;padding-left:28px">\u25a1 Personal Delivery / Hand Service</div>' +
+      '<div style="margin-bottom:16px;padding-left:28px">\u25a1 Other: ____________________________</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">III. RECIPIENT(S)</div>' +
+      '<div style="margin-bottom:4px;padding-left:28px">Name: ____________________________</div>' +
+      '<div style="margin-bottom:4px;padding-left:28px">Address: ____________________________</div>' +
+      '<div style="margin-bottom:4px;padding-left:28px">____________________________</div>' +
+      '<div style="margin-bottom:16px;padding-left:28px">Tracking Number: ____________________________</div>' +
+      '<div style="margin-bottom:4px;padding-left:28px">Name: ____________________________</div>' +
+      '<div style="margin-bottom:4px;padding-left:28px">Address: ____________________________</div>' +
+      '<div style="margin-bottom:4px;padding-left:28px">____________________________</div>' +
+      '<div style="margin-bottom:16px;padding-left:28px">Tracking Number: ____________________________</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">IV. DATE OF SERVICE</div>' +
+      '<div style="margin-bottom:16px;padding-left:28px">The above-referenced documents were served on <b>{{DATE}}</b>.</div>' +
+      '<div style="margin-bottom:16px">I declare under penalty of perjury that the foregoing is true and correct.</div>' +
+      '<div style="margin-bottom:16px">Executed on <b>{{DATE}}</b> in <b>{{JURISDICTION}}</b>.</div>' +
+      '<div style="margin-bottom:4px">____________________________</div>' +
+      '<div style="margin-bottom:4px"><b>{{TRUSTEE}}</b></div>' +
+      '<div style="margin-bottom:4px">Trustee / Administrator</div>' +
+      '<div style="margin-bottom:4px"><b>{{TRUST_NAME}}</b></div>'
   };
+
+  // ── Template Variable System ──
+  function buildVariableMap(entity) {
+    var s = appData.settings || {};
+    var e = entity || {};
+    var today = new Date();
+    var months = ['January','February','March','April','May','June',
+                  'July','August','September','October','November','December'];
+    return {
+      '{{PARTY_NAME}}':        e.name || s.trusteeName || '',
+      '{{TRUST_NAME}}':        (e.type === 'Trust' ? e.name : '') || s.trustName || '',
+      '{{ENTITY_NAME}}':       e.name || s.trustName || '',
+      '{{TRUSTEE}}':           e.trustee || s.trusteeName || '',
+      '{{GRANTOR}}':           s.grantor || s.trusteeName || '',
+      '{{CO_TRUSTEE}}':        '____________________________',
+      '{{SUCCESSOR_TRUSTEE}}': '____________________________',
+      '{{EIN}}':               e.ein || s.trustEIN || '',
+      '{{CAF_NUMBER}}':        e.cafNumber || s.cafNumber || '',
+      '{{JURISDICTION}}':      s.jurisdiction || '',
+      '{{COURT}}':             s.court || '',
+      '{{CASE_NUMBER}}':       '',
+      '{{DATE}}':              months[today.getMonth()] + ' ' + today.getDate() + ', ' + today.getFullYear(),
+      '{{ACTIVE_YEAR}}':       s.activeYear || today.getFullYear().toString(),
+      '{{ADDRESS}}':           e.address || s.address || ''
+    };
+  }
+
+  function populateTemplate(key, varMap) {
+    var html = DOC_TEMPLATES[key] || '';
+    if (!html) return '';
+    var keys = Object.keys(varMap);
+    for (var i = 0; i < keys.length; i++) {
+      var token = keys[i];
+      var val = varMap[token] || '';
+      html = html.split(token).join(val);
+    }
+    return html;
+  }
 
   // ── Load Template ──
   function loadDocTemplate() {
     var sel = document.getElementById('doc-template-select');
     var key = sel.value;
     if (!key) { alert('Please select a template first.'); return; }
+    // IRS PDF forms — switch to PDF viewer mode
+    if (key.indexOf('irs_') === 0) {
+      showIRSForm(key);
+      return;
+    }
+    // If returning from PDF viewer, restore editor
+    var pdfViewer = document.getElementById('doc-pdf-viewer');
+    if (pdfViewer && pdfViewer.style.display !== 'none') {
+      exitPDFViewer();
+    }
     var editor = document.getElementById('doc-editor');
-    var html = DOC_TEMPLATES[key] || '';
-    // Replace {{DATE}} with today's formatted date
-    var today = new Date();
-    var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    var dateStr = months[today.getMonth()] + ' ' + today.getDate() + ', ' + today.getFullYear();
-    html = html.replace(/\{\{DATE\}\}/g, dateStr);
+    // Auto-fill all template variables from settings/entity data
+    var varMap = buildVariableMap({});
+    var html = populateTemplate(key, varMap);
+    if (!html) { html = DOC_TEMPLATES[key] || ''; }
     editor.innerHTML = html;
     docSaveSnapshot();
     docAutoSaveNow();
+  }
+
+  // ── IRS Forms Map ──
+  var IRS_FORMS = {
+    irs_f1040:    { file: 'f1040.pdf',    title: 'Form 1040 \u2014 U.S. Individual Income Tax Return' },
+    irs_f1040sc:  { file: 'f1040sc.pdf',  title: 'Form 1040 Schedule C \u2014 Profit or Loss from Business' },
+    irs_f1040x:   { file: 'f1040x.pdf',   title: 'Form 1040-X \u2014 Amended U.S. Individual Income Tax Return' },
+    irs_f1041:    { file: 'f1041.pdf',     title: 'Form 1041 \u2014 U.S. Income Tax Return for Estates and Trusts' },
+    irs_f1099a:   { file: 'f1099a.pdf',    title: 'Form 1099-A \u2014 Acquisition or Abandonment of Secured Property' },
+    irs_f1099b:   { file: 'f1099b.pdf',    title: 'Form 1099-B \u2014 Proceeds from Broker and Barter Exchange' },
+    irs_f1099c:   { file: 'f1099c.pdf',    title: 'Form 1099-C \u2014 Cancellation of Debt' },
+    irs_f1099msc: { file: 'f1099msc.pdf',  title: 'Form 1099-MISC \u2014 Miscellaneous Information' },
+    irs_f56f:     { file: 'f56f.pdf',      title: 'Form 56-F \u2014 Notice Concerning Fiduciary Relationship' },
+    irs_f8832:    { file: 'f8832.pdf',     title: 'Form 8832 \u2014 Entity Classification Election' },
+    irs_fss4:     { file: 'fss4.pdf',      title: 'Form SS-4 \u2014 Application for Employer Identification Number' },
+    irs_fw4:      { file: 'fw4.pdf',       title: 'Form W-4 \u2014 Employee\'s Withholding Certificate' },
+    irs_fw9:      { file: 'fw9.pdf',       title: 'Form W-9 \u2014 Request for Taxpayer Identification Number' },
+    irs_f2848:    { file: 'f2848.pdf',    title: 'Form 2848 \u2014 Power of Attorney and Declaration of Representative' },
+    irs_f8821:    { file: 'f8821.pdf',    title: 'Form 8821 \u2014 Tax Information Authorization' },
+    irs_f56:      { file: 'f56.pdf',      title: 'Form 56 \u2014 Notice Concerning Fiduciary Relationship' }
+  };
+
+  function showIRSForm(key) {
+    var form = IRS_FORMS[key];
+    if (!form) { alert('IRS form not found: ' + key); return; }
+    var url = 'irs-forms/' + form.file;
+    // Hide editor + toolbar, show PDF viewer
+    document.getElementById('doc-toolbar').style.display = 'none';
+    document.getElementById('doc-editor').style.display = 'none';
+    var viewer = document.getElementById('doc-pdf-viewer');
+    viewer.style.display = 'block';
+    document.getElementById('doc-pdf-title').textContent = form.title;
+    document.getElementById('doc-pdf-frame').src = url;
+    document.getElementById('doc-pdf-download').href = url;
+  }
+
+  function exitPDFViewer() {
+    document.getElementById('doc-pdf-viewer').style.display = 'none';
+    document.getElementById('doc-pdf-frame').src = '';
+    document.getElementById('doc-toolbar').style.display = '';
+    document.getElementById('doc-editor').style.display = '';
+    document.getElementById('doc-template-select').value = '';
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // ── PACKAGE BUILDER ──
+  // ══════════════════════════════════════════════════════════════════
+
+  var FWM_PRESETS = {
+    trustEstablishment: {
+      label: 'Trust Establishment (Part II)',
+      docs: [
+        { key: 'fwm_certificate_of_trust', copies: 3 },
+        { key: 'witness_affidavit',        copies: 1 },
+        { key: 'durable_poa',              copies: 1 }
+      ]
+    },
+    irsNotification: {
+      label: 'IRS Notification (Part III)',
+      docs: [
+        { key: 'irs_f2848',              copies: 1 },
+        { key: 'irs_f8821',              copies: 1 },
+        { key: 'irs_f56',                copies: 1 },
+        { key: 'irs_f56f',               copies: 1 },
+        { key: 'non_decedent_notice',    copies: 1 },
+        { key: 'certificate_of_service', copies: 1 }
+      ]
+    },
+    bankingSetup: {
+      label: 'Banking Setup (Part IV)',
+      docs: [
+        { key: 'fwm_certificate_of_trust', copies: 1 },
+        { key: 'trust_resolution',          copies: 1 },
+        { key: 'irs_fw9',                   copies: 1 },
+        { key: 'irs_fss4',                  copies: 1 }
+      ]
+    },
+    fullTrustAdmin: {
+      label: 'Full Trust Administration',
+      docs: [
+        { key: 'fwm_certificate_of_trust', copies: 3 },
+        { key: 'witness_affidavit',         copies: 1 },
+        { key: 'durable_poa',               copies: 1 },
+        { key: 'irs_f2848',                 copies: 1 },
+        { key: 'irs_f8821',                 copies: 1 },
+        { key: 'irs_f56',                   copies: 1 },
+        { key: 'irs_f56f',                  copies: 1 },
+        { key: 'non_decedent_notice',       copies: 1 },
+        { key: 'certificate_of_service',    copies: 1 },
+        { key: 'trust_resolution',          copies: 1 },
+        { key: 'irs_fw9',                   copies: 1 },
+        { key: 'irs_fss4',                  copies: 1 }
+      ]
+    }
+  };
+
+  // Template display names for checklist
+  var DOC_DISPLAY_NAMES = {
+    affidavit:                 'Affidavit',
+    demand_letter:             'Demand Letter',
+    trust_resolution:          'Trust Resolution',
+    certificate_of_trust:      'Certificate of Trust',
+    general_legal_memo:        'General Legal Memo',
+    fwm_certificate_of_trust:  'FWM Certificate of Trust (1-Page)',
+    durable_poa:               'Durable Power of Attorney',
+    non_decedent_notice:       'Notice of Non-Decedent',
+    witness_affidavit:         'Witness Affidavit (3-Witness)',
+    certificate_of_service:    'Certificate of Service'
+  };
+
+  function showPackageBuilder() {
+    document.getElementById('doc-toolbar').style.display = 'none';
+    document.getElementById('doc-editor').style.display = 'none';
+    document.getElementById('doc-pdf-viewer').style.display = 'none';
+    document.getElementById('doc-package-builder').style.display = 'block';
+    renderPackageBuilder();
+  }
+
+  function exitPackageBuilder() {
+    document.getElementById('doc-package-builder').style.display = 'none';
+    document.getElementById('doc-toolbar').style.display = '';
+    document.getElementById('doc-editor').style.display = '';
+    document.getElementById('doc-template-select').value = '';
+  }
+
+  function renderPackageBuilder() {
+    // Populate entity dropdown
+    var sel = document.getElementById('pkg-entity-select');
+    sel.innerHTML = '<option value="">— Select Entity —</option>';
+    (appData.entities || []).forEach(function(e, i) {
+      if (e.name) {
+        var opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = e.name + (e.ein ? ' (EIN: ' + e.ein + ')' : '') + (e.type ? ' [' + e.type + ']' : '');
+        sel.appendChild(opt);
+      }
+    });
+
+    // Populate legal templates checklist
+    var legalList = document.getElementById('pkg-legal-list');
+    legalList.innerHTML = '';
+    Object.keys(DOC_TEMPLATES).forEach(function(key) {
+      var name = DOC_DISPLAY_NAMES[key] || key;
+      var row = '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">' +
+        '<input type="checkbox" id="pkg-chk-' + key + '" data-pkg-key="' + key + '" data-pkg-type="legal" style="accent-color:#8b5cf6">' +
+        '<label for="pkg-chk-' + key + '" style="font-size:11px;color:var(--text-primary);cursor:pointer;flex:1">' + name + '</label>' +
+        '<input type="number" id="pkg-copies-' + key + '" value="1" min="1" max="10" style="width:40px;padding:2px 4px;border:1px solid rgba(255,255,255,.15);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);font-size:11px;text-align:center">' +
+        '</div>';
+      legalList.innerHTML += row;
+    });
+
+    // Populate IRS forms checklist
+    var irsList = document.getElementById('pkg-irs-list');
+    irsList.innerHTML = '';
+    Object.keys(IRS_FORMS).forEach(function(key) {
+      var name = IRS_FORMS[key].title;
+      var row = '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">' +
+        '<input type="checkbox" id="pkg-chk-' + key + '" data-pkg-key="' + key + '" data-pkg-type="irs" style="accent-color:#8b5cf6">' +
+        '<label for="pkg-chk-' + key + '" style="font-size:11px;color:var(--text-primary);cursor:pointer;flex:1">' + name + '</label>' +
+        '<input type="number" id="pkg-copies-' + key + '" value="1" min="1" max="10" style="width:40px;padding:2px 4px;border:1px solid rgba(255,255,255,.15);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);font-size:11px;text-align:center">' +
+        '</div>';
+      irsList.innerHTML += row;
+    });
+
+    updateVariablePreview();
+  }
+
+  function selectPackagePreset(presetName) {
+    var preset = FWM_PRESETS[presetName];
+    if (!preset) return;
+    // Uncheck all first
+    document.querySelectorAll('[data-pkg-key]').forEach(function(cb) {
+      cb.checked = false;
+      var copyInput = document.getElementById('pkg-copies-' + cb.getAttribute('data-pkg-key'));
+      if (copyInput) copyInput.value = 1;
+    });
+    // Check preset docs and set copies
+    preset.docs.forEach(function(d) {
+      var cb = document.getElementById('pkg-chk-' + d.key);
+      if (cb) {
+        cb.checked = true;
+        var copyInput = document.getElementById('pkg-copies-' + d.key);
+        if (copyInput) copyInput.value = d.copies;
+      }
+    });
+    // Flash the preset button
+    document.querySelectorAll('.pkg-preset-btn').forEach(function(b) { b.style.opacity = '0.5'; });
+    setTimeout(function() {
+      document.querySelectorAll('.pkg-preset-btn').forEach(function(b) { b.style.opacity = '1'; });
+    }, 300);
+  }
+
+  function updateVariablePreview() {
+    var sel = document.getElementById('pkg-entity-select');
+    var entity = sel.value !== '' ? appData.entities[parseInt(sel.value)] : {};
+    var varMap = buildVariableMap(entity || {});
+    var previewDiv = document.getElementById('pkg-variable-preview');
+    var html = '';
+    Object.keys(varMap).forEach(function(token) {
+      var val = varMap[token];
+      var color = val && val !== '____________________________' ? '#10b981' : '#ef4444';
+      html += '<div style="margin-bottom:2px"><span style="color:#8b5cf6">' + token + '</span> = <span style="color:' + color + '">' + (val || '<em>empty</em>') + '</span></div>';
+    });
+    previewDiv.innerHTML = html;
+  }
+
+  function getSelectedPackageDocs() {
+    var docs = [];
+    document.querySelectorAll('[data-pkg-key]:checked').forEach(function(cb) {
+      var key = cb.getAttribute('data-pkg-key');
+      var type = cb.getAttribute('data-pkg-type');
+      var copies = parseInt(document.getElementById('pkg-copies-' + key).value) || 1;
+      docs.push({ key: key, type: type, copies: copies });
+    });
+    return docs;
+  }
+
+  function buildAndPreviewPackage() {
+    var docs = getSelectedPackageDocs();
+    if (docs.length === 0) { alert('Please select at least one document.'); return; }
+    var sel = document.getElementById('pkg-entity-select');
+    var entity = sel.value !== '' ? appData.entities[parseInt(sel.value)] : {};
+    var varMap = buildVariableMap(entity || {});
+    var previewArea = document.getElementById('pkg-preview-area');
+    var previewContent = document.getElementById('pkg-preview-content');
+    var allHtml = '';
+    docs.forEach(function(d, idx) {
+      for (var c = 0; c < d.copies; c++) {
+        if (allHtml) {
+          allHtml += '<hr style="border:2px dashed #8b5cf6;margin:32px 0">';
+        }
+        var copyLabel = d.copies > 1 ? ' (Copy ' + (c + 1) + ' of ' + d.copies + ')' : '';
+        if (d.type === 'legal' && DOC_TEMPLATES[d.key]) {
+          var html = populateTemplate(d.key, varMap);
+          allHtml += '<div style="margin-bottom:8px;font-size:10px;color:#8b5cf6;font-weight:700;font-family:sans-serif">' +
+            (DOC_DISPLAY_NAMES[d.key] || d.key) + copyLabel + '</div>';
+          allHtml += html;
+        } else if (d.type === 'irs' && IRS_FORMS[d.key]) {
+          var form = IRS_FORMS[d.key];
+          allHtml += '<div style="background:#f0f0ff;border:2px solid #8b5cf6;border-radius:8px;padding:16px;margin:8px 0">' +
+            '<div style="font-weight:700;font-size:14px;color:#4c1d95;margin-bottom:8px">📋 ' + form.title + copyLabel + '</div>' +
+            '<div style="font-size:12px;color:#555;margin-bottom:8px">IRS Fillable PDF — open separately to fill fields</div>' +
+            '<div style="font-size:11px;color:#333">' +
+            '<b>Entity:</b> ' + (varMap['{{TRUST_NAME}}'] || varMap['{{ENTITY_NAME}}'] || 'N/A') + '<br>' +
+            '<b>EIN:</b> ' + (varMap['{{EIN}}'] || 'N/A') + '<br>' +
+            '<b>Trustee:</b> ' + (varMap['{{TRUSTEE}}'] || 'N/A') + '<br>' +
+            '<b>CAF:</b> ' + (varMap['{{CAF_NUMBER}}'] || 'N/A') +
+            '</div>' +
+            '<div style="margin-top:8px"><a href="irs-forms/' + form.file + '" target="_blank" style="color:#8b5cf6;font-weight:700;font-size:11px">⬇ Open ' + form.file + ' in New Tab</a></div>' +
+            '</div>';
+        }
+      }
+    });
+    previewContent.innerHTML = allHtml;
+    previewArea.style.display = 'block';
+    previewArea.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // ── Package Export Functions ──
+
+  function exportPackagePDF() {
+    var docs = getSelectedPackageDocs();
+    if (docs.length === 0) { alert('Please select at least one document.'); return; }
+    var sel = document.getElementById('pkg-entity-select');
+    var entity = sel.value !== '' ? appData.entities[parseInt(sel.value)] : {};
+    var varMap = buildVariableMap(entity || {});
+    var jsPDF = window.jspdf.jsPDF;
+    var doc = new jsPDF('p', 'mm', 'letter');
+    var pageNum = 0;
+    docs.forEach(function(d) {
+      for (var c = 0; c < d.copies; c++) {
+        if (pageNum > 0) doc.addPage();
+        pageNum++;
+        var yPos = 20;
+        if (d.type === 'legal' && DOC_TEMPLATES[d.key]) {
+          var html = populateTemplate(d.key, varMap);
+          // Strip HTML to text for PDF
+          var tmp = document.createElement('div');
+          tmp.innerHTML = html;
+          var text = tmp.textContent || tmp.innerText || '';
+          var lines = doc.splitTextToSize(text, 170);
+          var title = (DOC_DISPLAY_NAMES[d.key] || d.key).toUpperCase();
+          doc.setFontSize(14);
+          doc.setFont(undefined, 'bold');
+          doc.text(title, 105, yPos, { align: 'center' });
+          yPos += 10;
+          doc.setFontSize(10);
+          doc.setFont(undefined, 'normal');
+          lines.forEach(function(line) {
+            if (yPos > 260) { doc.addPage(); yPos = 20; }
+            doc.text(line, 20, yPos);
+            yPos += 5;
+          });
+        } else if (d.type === 'irs' && IRS_FORMS[d.key]) {
+          doc.setFontSize(14);
+          doc.setFont(undefined, 'bold');
+          doc.text(IRS_FORMS[d.key].title, 105, yPos, { align: 'center' });
+          yPos += 12;
+          doc.setFontSize(10);
+          doc.setFont(undefined, 'normal');
+          doc.text('IRS Fillable PDF — included in ZIP export as separate file', 20, yPos);
+          yPos += 8;
+          doc.text('Entity: ' + (varMap['{{TRUST_NAME}}'] || 'N/A'), 20, yPos); yPos += 6;
+          doc.text('EIN: ' + (varMap['{{EIN}}'] || 'N/A'), 20, yPos); yPos += 6;
+          doc.text('Trustee: ' + (varMap['{{TRUSTEE}}'] || 'N/A'), 20, yPos); yPos += 6;
+          doc.text('CAF: ' + (varMap['{{CAF_NUMBER}}'] || 'N/A'), 20, yPos);
+        }
+      }
+    });
+    var trustName = (varMap['{{TRUST_NAME}}'] || 'Trust').replace(/[^a-zA-Z0-9]/g, '_').substring(0, 30);
+    var dateStr = new Date().toISOString().slice(0, 10);
+    doc.save(trustName + '_Package_' + dateStr + '.pdf');
+  }
+
+  function exportPackageZIP() {
+    var docs = getSelectedPackageDocs();
+    if (docs.length === 0) { alert('Please select at least one document.'); return; }
+    if (typeof JSZip === 'undefined') { alert('JSZip library not loaded. Please check your internet connection.'); return; }
+    var sel = document.getElementById('pkg-entity-select');
+    var entity = sel.value !== '' ? appData.entities[parseInt(sel.value)] : {};
+    var varMap = buildVariableMap(entity || {});
+    var zip = new JSZip();
+    var irsPromises = [];
+
+    docs.forEach(function(d) {
+      if (d.type === 'legal' && DOC_TEMPLATES[d.key]) {
+        var html = populateTemplate(d.key, varMap);
+        var docName = DOC_DISPLAY_NAMES[d.key] || d.key;
+        for (var c = 0; c < d.copies; c++) {
+          var suffix = d.copies > 1 ? '_' + (c + 1) : '';
+          var fileName = docName.replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '_') + suffix + '.doc';
+          var blob = '<html><head><meta charset="utf-8"><style>body{font-family:"Times New Roman",serif;font-size:13px;line-height:1.6;padding:1in;max-width:8.5in;}</style></head><body>' + html + '</body></html>';
+          zip.file('Legal/' + fileName, blob);
+        }
+      } else if (d.type === 'irs' && IRS_FORMS[d.key]) {
+        var form = IRS_FORMS[d.key];
+        for (var c2 = 0; c2 < d.copies; c2++) {
+          (function(formObj, copyIdx, totalCopies) {
+            var p = fetch('irs-forms/' + formObj.file).then(function(r) {
+              if (!r.ok) throw new Error('Failed to fetch ' + formObj.file);
+              return r.blob();
+            }).then(function(b) {
+              var suffix = totalCopies > 1 ? '_' + (copyIdx + 1) : '';
+              zip.file('IRS_Forms/' + formObj.file.replace('.pdf', suffix + '.pdf'), b);
+            }).catch(function(err) {
+              console.warn('Could not add ' + formObj.file + ' to ZIP:', err);
+            });
+            irsPromises.push(p);
+          })(form, c2, d.copies);
+        }
+      }
+    });
+
+    // Add entity context info file
+    var infoText = 'DOCUMENT PACKAGE CONTEXT\n' +
+      '========================\n' +
+      'Generated: ' + varMap['{{DATE}}'] + '\n' +
+      'Trust Name: ' + (varMap['{{TRUST_NAME}}'] || 'N/A') + '\n' +
+      'EIN: ' + (varMap['{{EIN}}'] || 'N/A') + '\n' +
+      'Trustee: ' + (varMap['{{TRUSTEE}}'] || 'N/A') + '\n' +
+      'Grantor: ' + (varMap['{{GRANTOR}}'] || 'N/A') + '\n' +
+      'CAF Number: ' + (varMap['{{CAF_NUMBER}}'] || 'N/A') + '\n' +
+      'Jurisdiction: ' + (varMap['{{JURISDICTION}}'] || 'N/A') + '\n';
+    zip.file('_PACKAGE_INFO.txt', infoText);
+
+    Promise.all(irsPromises).then(function() {
+      return zip.generateAsync({ type: 'blob' });
+    }).then(function(content) {
+      var trustName = (varMap['{{TRUST_NAME}}'] || 'Trust').replace(/[^a-zA-Z0-9]/g, '_').substring(0, 30);
+      var dateStr = new Date().toISOString().slice(0, 10);
+      saveAs(content, trustName + '_Package_' + dateStr + '.zip');
+    });
+  }
+
+  function printPackage() {
+    var docs = getSelectedPackageDocs();
+    if (docs.length === 0) { alert('Please select at least one document.'); return; }
+    var sel = document.getElementById('pkg-entity-select');
+    var entity = sel.value !== '' ? appData.entities[parseInt(sel.value)] : {};
+    var varMap = buildVariableMap(entity || {});
+    var allHtml = '';
+    docs.forEach(function(d) {
+      if (d.type === 'legal' && DOC_TEMPLATES[d.key]) {
+        for (var c = 0; c < d.copies; c++) {
+          var html = populateTemplate(d.key, varMap);
+          if (allHtml) allHtml += '<div style="page-break-before:always"></div>';
+          allHtml += html;
+        }
+      }
+    });
+    if (!allHtml) { alert('No printable legal templates selected. IRS forms must be printed individually.'); return; }
+    var win = window.open('', '_blank');
+    win.document.write('<html><head><title>Document Package</title><style>body{font-family:"Times New Roman",serif;font-size:13px;line-height:1.6;padding:0.75in;} @media print{body{padding:0;}}</style></head><body>' + allHtml + '</body></html>');
+    win.document.close();
+    win.focus();
+    setTimeout(function() { win.print(); }, 500);
+  }
+
+  // ── Trigger Package Builder from Agent ──
+  function triggerPackageFromAgent(presetName, entityName) {
+    // Switch to Document Creator tab
+    var tabs = document.querySelectorAll('.tab-button, [onclick*="showSection"]');
+    tabs.forEach(function(t) {
+      if (t.textContent && t.textContent.indexOf('Document') !== -1) t.click();
+    });
+    setTimeout(function() {
+      showPackageBuilder();
+      if (entityName) {
+        var sel = document.getElementById('pkg-entity-select');
+        for (var i = 0; i < sel.options.length; i++) {
+          if (sel.options[i].textContent.indexOf(entityName) !== -1) {
+            sel.value = sel.options[i].value;
+            updateVariablePreview();
+            break;
+          }
+        }
+      }
+      if (presetName && FWM_PRESETS[presetName]) {
+        selectPackagePreset(presetName);
+      }
+    }, 200);
   }
 
   // ── New Blank Doc ──
@@ -17915,6 +19387,1540 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // SYNC CENTER — Tier 1: Enhanced Import/Export
+  // ═══════════════════════════════════════════════════════════════════
+
+  // ── Utilities (Step 6) ─────────────────────────────────────────────
+
+  function initSyncCenter() {
+    // Populate counts on export cards
+    var ents = appData.entities ? appData.entities.length : 0;
+    var ledg = appData.ledgerEntries ? appData.ledgerEntries.length : 0;
+    var jour = appData.journalEntries ? appData.journalEntries.length : 0;
+    var pays = appData.payables ? appData.payables.length : 0;
+
+    // Count all 1099 filings across series
+    var f1099 = 0;
+    if (appData.filings) {
+      Object.keys(appData.filings).forEach(function(k) {
+        if (k.startsWith('1099')) f1099 += (appData.filings[k] || []).length;
+      });
+    }
+
+    var el;
+    el = document.getElementById('sync-export-entities-count');
+    if (el) el.textContent = ents + ' entities';
+    el = document.getElementById('sync-export-ledger-count');
+    if (el) el.textContent = ledg + ' entries';
+    el = document.getElementById('sync-export-journal-count');
+    if (el) el.textContent = jour + ' entries';
+    el = document.getElementById('sync-export-1099-count');
+    if (el) el.textContent = f1099 + ' filings';
+    el = document.getElementById('sync-export-payables-count');
+    if (el) el.textContent = pays + ' payables';
+
+    // Restore GAS URL from settings
+    var urlInput = document.getElementById('sync-gas-url');
+    if (urlInput && appData.settings && appData.settings.gasWebAppUrl) {
+      urlInput.value = appData.settings.gasWebAppUrl;
+    }
+
+    // Enable/disable Tier 2 panel
+    updateTier2PanelState();
+
+    // Show last sync timestamp
+    if (appData.settings && appData.settings.lastSyncTimestamp) {
+      var el2 = document.getElementById('sync-last-sync');
+      if (el2) el2.textContent = 'Last sync: ' + new Date(appData.settings.lastSyncTimestamp).toLocaleString();
+    }
+
+    // Render sync log
+    renderSyncLog();
+  }
+
+  function onGasUrlChange() {
+    var urlInput = document.getElementById('sync-gas-url');
+    if (urlInput && appData.settings) {
+      appData.settings.gasWebAppUrl = urlInput.value.trim();
+      saveToStorage();
+    }
+    updateTier2PanelState();
+  }
+
+  function updateTier2PanelState() {
+    var panel = document.getElementById('sync-live-panel');
+    if (!panel) return;
+    var url = (appData.settings && appData.settings.gasWebAppUrl) ? appData.settings.gasWebAppUrl.trim() : '';
+    if (url && url.startsWith('https://')) {
+      panel.style.opacity = '1';
+      panel.style.pointerEvents = 'auto';
+      panel.removeAttribute('data-tier2-disabled');
+    } else {
+      panel.style.opacity = '0.5';
+      panel.style.pointerEvents = 'none';
+      panel.setAttribute('data-tier2-disabled', 'true');
+    }
+  }
+
+  function updateSyncStatus(message, isError) {
+    var dot = document.getElementById('sync-status-dot');
+    var text = document.getElementById('sync-status-text');
+    if (dot) dot.style.background = isError ? '#ef4444' : '#10b981';
+    if (text) {
+      text.textContent = message;
+      text.style.color = isError ? '#ef4444' : '#10b981';
+    }
+  }
+
+  function addSyncLogEntry(action, direction, count, status) {
+    if (!appData.syncLog) appData.syncLog = [];
+    var entry = {
+      timestamp: new Date().toISOString(),
+      action: action,
+      direction: direction, // 'export', 'import', 'push', 'pull'
+      count: count,
+      status: status // 'success', 'error', 'warning'
+    };
+    appData.syncLog.unshift(entry);
+    // Keep last 50
+    if (appData.syncLog.length > 50) appData.syncLog = appData.syncLog.slice(0, 50);
+    appData.settings.lastSyncTimestamp = entry.timestamp;
+    saveToStorage();
+    renderSyncLog();
+  }
+
+  function renderSyncLog() {
+    var container = document.getElementById('sync-log-container');
+    if (!container) return;
+    var log = appData.syncLog || [];
+    if (log.length === 0) {
+      container.innerHTML = '<div style="opacity:0.5;font-style:italic">No sync operations recorded yet. Export or import data to begin.</div>';
+      return;
+    }
+    var html = '';
+    log.forEach(function(e) {
+      var icon = e.direction === 'export' || e.direction === 'push' ? '📤' : '📥';
+      var statusColor = e.status === 'success' ? '#10b981' : e.status === 'error' ? '#ef4444' : '#f59e0b';
+      var time = new Date(e.timestamp).toLocaleString();
+      html += '<div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05)">' +
+        '<span style="color:' + statusColor + '">' + icon + '</span> ' +
+        '<span style="color:var(--text-secondary)">[' + time + ']</span> ' +
+        '<span style="color:var(--text-primary);font-weight:600">' + e.action + '</span>' +
+        (e.count !== undefined ? ' <span style="color:var(--accent-cyan)">(' + e.count + ' records)</span>' : '') +
+        ' <span style="color:' + statusColor + ';font-weight:600">' + e.status.toUpperCase() + '</span>' +
+        '</div>';
+    });
+    container.innerHTML = html;
+  }
+
+  function clearSyncLog() {
+    if (!confirm('Clear all sync log entries?')) return;
+    appData.syncLog = [];
+    saveToStorage();
+    renderSyncLog();
+  }
+
+  // CSV helper: properly escape and quote values
+  function syncCSVEscape(val) {
+    if (val === null || val === undefined) return '""';
+    var s = String(val);
+    if (s.indexOf(',') >= 0 || s.indexOf('"') >= 0 || s.indexOf('\n') >= 0) {
+      return '"' + s.replace(/"/g, '""') + '"';
+    }
+    return '"' + s + '"';
+  }
+
+  // CSV helper: download a CSV string as a file
+  function syncDownloadCSV(filename, csvContent) {
+    var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+    if (typeof saveAs === 'function') {
+      saveAs(blob, filename);
+    } else {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  }
+
+  // CSV helper: parse a CSV string into rows (handles quoted fields)
+  function syncParseCSV(csvText) {
+    var rows = [];
+    var lines = csvText.split('\n');
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i].trim();
+      if (!line) continue;
+      // Simple CSV parser that handles quoted fields
+      var cells = [];
+      var inQuote = false;
+      var current = '';
+      for (var j = 0; j < line.length; j++) {
+        var ch = line[j];
+        if (inQuote) {
+          if (ch === '"') {
+            if (j + 1 < line.length && line[j + 1] === '"') {
+              current += '"';
+              j++;
+            } else {
+              inQuote = false;
+            }
+          } else {
+            current += ch;
+          }
+        } else {
+          if (ch === '"') {
+            inQuote = true;
+          } else if (ch === ',') {
+            cells.push(current);
+            current = '';
+          } else {
+            current += ch;
+          }
+        }
+      }
+      cells.push(current);
+      rows.push(cells);
+    }
+    return rows;
+  }
+
+  // Entity type → Account Type mapping for Master Register
+  function mapEntityTypeToAccountType(type) {
+    var map = {
+      'Trust': 'Trust Entity',
+      'LLC': 'LLC',
+      'Corporation': 'Corporation',
+      'Individual': 'Individual',
+      'Employer': 'Employment W-2',
+      'Bank': 'Banking Checking',
+      'Brokerage': 'Investment Brokerage',
+      'Insurance': 'Insurance',
+      'Utility': 'Utility',
+      'Vendor': 'Vendor',
+      'Government': 'Government Agency',
+      'Nonprofit': 'Nonprofit',
+      'Healthcare': 'Healthcare',
+      'Creditor': 'Credit Card',
+      'Student Loan': 'Student Loan',
+      'Fintech': 'Fintech',
+      'Retirement': 'Retirement Account'
+    };
+    return map[type] || type || '';
+  }
+
+  // Simple hash for dedup
+  function syncHash(str) {
+    var hash = 0;
+    for (var i = 0; i < str.length; i++) {
+      var ch = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + ch;
+      hash |= 0;
+    }
+    return hash.toString(36);
+  }
+
+  // Conflict modal for imports
+  function showSyncConflictModal(conflicts, onResolve) {
+    var html = '<div style="max-height:400px;overflow-y:auto">';
+    html += '<div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px">' + conflicts.length + ' conflict(s) detected. Choose which version to keep for each:</div>';
+    conflicts.forEach(function(c, idx) {
+      html += '<div style="background:rgba(255,255,255,0.05);border:1px solid rgba(245,158,11,0.3);border-radius:8px;padding:10px;margin-bottom:8px">' +
+        '<div style="font-weight:700;font-size:13px;color:#f59e0b;margin-bottom:6px">⚠️ ' + (c.name || c.key || 'Record ' + (idx + 1)) + '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px">' +
+        '<label style="display:flex;align-items:flex-start;gap:6px;cursor:pointer;padding:6px;border-radius:4px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3)">' +
+          '<input type="radio" name="conflict_' + idx + '" value="local" checked style="margin-top:2px">' +
+          '<div><div style="font-weight:600;color:#3b82f6">Keep Local</div><div style="color:var(--text-secondary)">' + syncCSVEscape(c.localValue || 'current data').replace(/"/g, '') + '</div></div>' +
+        '</label>' +
+        '<label style="display:flex;align-items:flex-start;gap:6px;cursor:pointer;padding:6px;border-radius:4px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3)">' +
+          '<input type="radio" name="conflict_' + idx + '" value="remote">' +
+          '<div><div style="font-weight:600;color:#10b981">Use Import</div><div style="color:var(--text-secondary)">' + syncCSVEscape(c.remoteValue || 'imported data').replace(/"/g, '') + '</div></div>' +
+        '</label></div></div>';
+    });
+    html += '</div>';
+    html += '<div style="margin-top:12px;text-align:right">' +
+      '<button onclick="resolveSyncConflicts()" style="background:rgba(16,185,129,0.25);border:1px solid rgba(16,185,129,0.5);color:#10b981;padding:8px 20px;border-radius:6px;font-weight:700;cursor:pointer">Apply Resolutions</button>' +
+      '</div>';
+    showModal(html);
+    // Store callback
+    window._syncConflicts = conflicts;
+    window._syncConflictResolve = onResolve;
+  }
+
+  function resolveSyncConflicts() {
+    var conflicts = window._syncConflicts || [];
+    var resolutions = [];
+    conflicts.forEach(function(c, idx) {
+      var radios = document.querySelectorAll('input[name="conflict_' + idx + '"]');
+      var val = 'local';
+      radios.forEach(function(r) { if (r.checked) val = r.value; });
+      resolutions.push({ index: idx, choice: val, conflict: c });
+    });
+    if (typeof window._syncConflictResolve === 'function') {
+      window._syncConflictResolve(resolutions);
+    }
+    closeModal();
+  }
+
+  // ── Export Functions (Step 4) ──────────────────────────────────────
+
+  // Export 1: Entities → Master Register CSV (29 columns)
+  function exportEntitiesToMasterRegisterCSV() {
+    var entities = appData.entities || [];
+    if (entities.length === 0) {
+      showAlert('No entities to export.', 'Warning');
+      return;
+    }
+
+    var headers = [
+      'Row ID', 'Date Added', 'Provider/Creditor', 'Provider EIN',
+      'Account Number', 'Account Type', 'Account Subtype', 'Status',
+      'Open Date', 'Close Date', 'Current Balance', 'Original Balance',
+      'Billing Frequency', 'Next Payment Due', 'Primary User',
+      'Authorized Users', 'Autopay Status', 'Payment Source',
+      'Contract/Terms File', 'Statements Complete', 'Tax Forms on File',
+      'PoP Documents', 'Document Location', 'Last Statement Date',
+      'Last Verified Date', 'Retention Period', 'Notes', 'Tags',
+      'Discovery Status'
+    ];
+
+    var csv = headers.map(syncCSVEscape).join(',') + '\n';
+    var counter = 1;
+
+    entities.forEach(function(e) {
+      var rowId = e.id && e.id.startsWith('MR-') ? e.id : 'MR-' + String(counter).padStart(3, '0');
+      counter++;
+      var row = new Array(29).fill('');
+      row[0] = rowId;
+      row[1] = new Date().toISOString().slice(0, 10);
+      row[2] = e.name || '';
+      row[3] = maskEIN(e.ein); // Always masked
+      row[4] = e.accountNumber || '';
+      row[5] = mapEntityTypeToAccountType(e.type);
+      row[6] = e.subtype || '';
+      row[7] = e.status || 'Active';
+      row[8] = e.openDate || '';
+      row[9] = e.closeDate || '';
+      row[10] = calculateEntityBalance(e.id);
+      row[11] = e.originalBalance || '';
+      row[12] = e.billingFrequency || '';
+      row[13] = e.nextPaymentDue || '';
+      row[14] = e.primaryUser || '';
+      row[15] = e.authorizedUsers || '';
+      row[16] = e.autopayStatus || '';
+      row[17] = e.paymentSource || '';
+      row[18] = '';
+      row[19] = '';
+      row[20] = '';
+      row[21] = '';
+      row[22] = '';
+      row[23] = '';
+      row[24] = '';
+      row[25] = '';
+      row[26] = e.notes || '';
+      row[27] = e.tags || '';
+      row[28] = 'Synced from Ledger';
+
+      csv += row.map(syncCSVEscape).join(',') + '\n';
+    });
+
+    syncDownloadCSV('TMAR_MasterRegister_Export_' + new Date().toISOString().slice(0, 10) + '.csv', csv);
+    addSyncLogEntry('Export Entities → Master Register CSV', 'export', entities.length, 'success');
+    showAlert('Exported ' + entities.length + ' entities to Master Register CSV', 'Success');
+  }
+
+  // Helper: calculate balance for an entity from ledger entries
+  function calculateEntityBalance(entityId) {
+    if (!appData.ledgerEntries) return '';
+    var balance = 0;
+    var found = false;
+    appData.ledgerEntries.forEach(function(e) {
+      if (e.entityId === entityId || e.entity === entityId) {
+        balance += (parseFloat(e.debit) || 0) - (parseFloat(e.credit) || 0);
+        found = true;
+      }
+    });
+    return found ? balance.toFixed(2) : '';
+  }
+
+  // Export 2: Ledger Entries → Transaction Ledger CSV (16 columns)
+  function exportLedgerToTransactionCSV() {
+    var entries = appData.ledgerEntries || [];
+    if (entries.length === 0) {
+      showAlert('No ledger entries to export.', 'Warning');
+      return;
+    }
+
+    var headers = [
+      'Date', 'Party', 'Category', 'Subcategory', 'Vendor',
+      'Description', 'Amount', 'Payment', 'Acct Type', 'Status',
+      'Tax Ded?', 'Biz Use %', 'Due Day', 'Recurring', 'Notes', 'Source'
+    ];
+
+    var csv = headers.map(syncCSVEscape).join(',') + '\n';
+
+    entries.forEach(function(e) {
+      // Convert debit/credit to signed amount
+      var amount = (parseFloat(e.debit) || 0) - (parseFloat(e.credit) || 0);
+      // Lookup entity name for Party
+      var party = e.entity || e.entityId || '';
+      if (party && appData.entities) {
+        var ent = appData.entities.find(function(en) { return en.id === party; });
+        if (ent) party = ent.name || party;
+      }
+
+      var row = [
+        e.date || '',
+        party,
+        e.category || '',
+        e.subcategory || '',
+        e.vendor || '',
+        e.description || '',
+        amount,
+        e.paymentMethod || '',
+        e.accountType || '',
+        e.status || 'Posted',
+        e.taxDeductible || '',
+        e.businessUse || '',
+        e.dueDay || '',
+        e.recurring || '',
+        e.notes || '',
+        'Accrual Ledger'
+      ];
+      csv += row.map(syncCSVEscape).join(',') + '\n';
+    });
+
+    syncDownloadCSV('TMAR_TransactionLedger_Export_' + new Date().toISOString().slice(0, 10) + '.csv', csv);
+    addSyncLogEntry('Export Ledger → Transaction Ledger CSV', 'export', entries.length, 'success');
+    showAlert('Exported ' + entries.length + ' ledger entries to Transaction Ledger CSV', 'Success');
+  }
+
+  // Export 3: Journal Entries → Transaction Ledger CSV (expanded lines)
+  function exportJournalToTransactionCSV() {
+    var journalEntries = appData.journalEntries || [];
+    if (journalEntries.length === 0) {
+      showAlert('No journal entries to export.', 'Warning');
+      return;
+    }
+
+    var headers = [
+      'Date', 'Party', 'Category', 'Subcategory', 'Vendor',
+      'Description', 'Amount', 'Payment', 'Acct Type', 'Status',
+      'Tax Ded?', 'Biz Use %', 'Due Day', 'Recurring', 'Notes', 'Source'
+    ];
+
+    var csv = headers.map(syncCSVEscape).join(',') + '\n';
+    var rowCount = 0;
+
+    journalEntries.forEach(function(je) {
+      var entityName = je.entityId || '';
+      if (entityName && appData.entities) {
+        var ent = appData.entities.find(function(en) { return en.id === entityName; });
+        if (ent) entityName = ent.name || entityName;
+      }
+
+      (je.lines || []).forEach(function(line) {
+        var amount = (parseFloat(line.debit) || 0) - (parseFloat(line.credit) || 0);
+        var row = [
+          je.date || '',
+          entityName,
+          line.accountNum || '',
+          '', // Subcategory
+          '', // Vendor
+          je.description + ' [JE Line: ' + (line.accountNum || '') + ' ' + (line.accountName || '') + ']',
+          amount,
+          '', // Payment
+          '', // Acct Type
+          'Posted',
+          '', '', '', '',
+          'JE #' + (je.id || ''),
+          'Accrual Ledger (Journal)'
+        ];
+        csv += row.map(syncCSVEscape).join(',') + '\n';
+        rowCount++;
+      });
+    });
+
+    syncDownloadCSV('TMAR_JournalToTransactions_Export_' + new Date().toISOString().slice(0, 10) + '.csv', csv);
+    addSyncLogEntry('Export Journal → Transaction Ledger CSV', 'export', rowCount, 'success');
+    showAlert('Exported ' + rowCount + ' journal line items to Transaction Ledger CSV (from ' + journalEntries.length + ' journal entries)', 'Success');
+  }
+
+  // Export 4: 1099 Filings → Filing Chain CSV (15 columns)
+  function export1099ToFilingChainCSV() {
+    var filings = appData.filings || {};
+    var types1099 = ['1099-A', '1099-B', '1099-C', '1099-INT', '1099-DIV', '1099-R', '1099-NEC', '1099-MISC'];
+    var allFilings = [];
+
+    types1099.forEach(function(type) {
+      (filings[type] || []).forEach(function(f) {
+        allFilings.push({ type: type, data: f });
+      });
+    });
+
+    if (allFilings.length === 0) {
+      showAlert('No 1099 filings to export.', 'Warning');
+      return;
+    }
+
+    var headers = [
+      'Asset ID', 'Asset Description', 'Acquisition Date',
+      '1099-A Filed', '1099-A Date', '1099-A Status',
+      '1099-B #1 Filed', '1099-B #1 Date', '1099-B #1 Status',
+      '1099-B #2 Filed', '1099-B #2 Date', '1099-B #2 Status',
+      'Correction Filed', 'Overall Status', 'Notes'
+    ];
+
+    var csv = headers.map(syncCSVEscape).join(',') + '\n';
+
+    allFilings.forEach(function(item, idx) {
+      var f = item.data;
+      var row = new Array(15).fill('');
+      row[0] = f.assetId || f.id || ('1099-' + String(idx + 1).padStart(3, '0'));
+      row[1] = f.assetDescription || f.description || f.payerName || '';
+      row[2] = f.acquisitionDate || f.dateAcquired || '';
+
+      // Map based on 1099 type
+      if (item.type === '1099-A') {
+        row[3] = 'Yes'; row[4] = f.date || f.filingDate || ''; row[5] = f.status || 'Filed';
+      } else if (item.type === '1099-B') {
+        row[6] = 'Yes'; row[7] = f.date || f.filingDate || ''; row[8] = f.status || 'Filed';
+      }
+      row[13] = f.status || 'Pending';
+      row[14] = (f.notes || '') + ' [Source: ' + item.type + ']';
+
+      csv += row.map(syncCSVEscape).join(',') + '\n';
+    });
+
+    syncDownloadCSV('TMAR_1099FilingChain_Export_' + new Date().toISOString().slice(0, 10) + '.csv', csv);
+    addSyncLogEntry('Export 1099 Filings → Filing Chain CSV', 'export', allFilings.length, 'success');
+    showAlert('Exported ' + allFilings.length + ' 1099 filings to Filing Chain CSV', 'Success');
+  }
+
+  // Export 5: Payables → Household Obligations CSV (11 columns)
+  function exportPayablesToObligationsCSV() {
+    var payables = appData.payables || [];
+    if (payables.length === 0) {
+      showAlert('No payables to export.', 'Warning');
+      return;
+    }
+
+    var headers = [
+      'Vendor', 'Category', 'Subcategory', 'Current Monthly', 'Due Day',
+      'Payment Method', 'Responsible Party', 'Status', 'Start Date',
+      'Rate Changes', 'Notes'
+    ];
+
+    var csv = headers.map(syncCSVEscape).join(',') + '\n';
+
+    payables.forEach(function(p) {
+      // Extract day from dueDate if present
+      var dueDay = p.dueDay || '';
+      if (!dueDay && p.dueDate) {
+        var d = new Date(p.dueDate);
+        if (!isNaN(d.getTime())) dueDay = d.getDate();
+      }
+
+      var row = [
+        p.vendor || p.name || '',
+        p.category || '',
+        p.subcategory || '',
+        p.amount || p.monthlyAmount || '',
+        dueDay,
+        p.paymentMethod || '',
+        p.responsibleParty || p.party || '',
+        p.status || 'Active',
+        p.startDate || '',
+        p.rateChanges || '',
+        p.notes || ''
+      ];
+      csv += row.map(syncCSVEscape).join(',') + '\n';
+    });
+
+    syncDownloadCSV('TMAR_HouseholdObligations_Export_' + new Date().toISOString().slice(0, 10) + '.csv', csv);
+    addSyncLogEntry('Export Payables → Household Obligations CSV', 'export', payables.length, 'success');
+    showAlert('Exported ' + payables.length + ' payables to Household Obligations CSV', 'Success');
+  }
+
+  // ── Import Functions (Step 5) ──────────────────────────────────────
+
+  // Import 1: Master Register CSV → Entities + COA
+  function importMasterRegisterCSV(inputEl) {
+    var file = inputEl.files[0];
+    if (!file) return;
+    inputEl.value = ''; // Reset for re-import
+
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      try {
+        var rows = syncParseCSV(ev.target.result);
+        if (rows.length < 2) throw new Error('CSV must have a header row and at least one data row');
+
+        var headers = rows[0];
+        var dataRows = rows.slice(1);
+        var imported = 0;
+        var conflicts = [];
+
+        // Deep clone for rollback
+        var lastGoodState = JSON.parse(JSON.stringify(appData.entities));
+
+        dataRows.forEach(function(row) {
+          if (row.length < 3 || !row[2]) return; // Need at least Provider/Creditor
+
+          var name = (row[2] || '').trim();
+          var ein = (row[3] || '').trim();
+          var acctType = (row[5] || '').trim();
+          var status = (row[7] || 'Active').trim();
+          var primaryUser = (row[14] || '').trim();
+
+          // Check for existing entity by name
+          var existing = appData.entities.find(function(e) {
+            return e.name && e.name.toLowerCase() === name.toLowerCase();
+          });
+
+          if (existing) {
+            // Conflict — record for modal
+            conflicts.push({
+              name: name,
+              key: existing.id,
+              localValue: existing.name + ' (' + (existing.type || 'Unknown') + ', ' + (existing.status || '') + ')',
+              remoteValue: name + ' (' + acctType + ', ' + status + ')',
+              importData: {
+                name: name, ein: ein, type: acctType, status: status, primaryUser: primaryUser,
+                accountNumber: (row[4] || '').trim(),
+                subtype: (row[6] || '').trim(),
+                notes: (row[26] || '').trim()
+              },
+              existingId: existing.id
+            });
+          } else {
+            // New entity
+            var newEntity = {
+              id: 'ent_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+              name: name,
+              type: acctType || 'Unknown',
+              ein: '', // Don't import masked EINs — they're useless
+              status: status,
+              primaryUser: primaryUser,
+              accountNumber: (row[4] || '').trim(),
+              subtype: (row[6] || '').trim(),
+              notes: (row[26] || '').trim(),
+              contact: '',
+              address: ''
+            };
+            appData.entities.push(newEntity);
+            imported++;
+          }
+        });
+
+        if (conflicts.length > 0) {
+          showSyncConflictModal(conflicts, function(resolutions) {
+            resolutions.forEach(function(r) {
+              if (r.choice === 'remote') {
+                var existing = appData.entities.find(function(e) { return e.id === r.conflict.existingId; });
+                if (existing) {
+                  existing.name = r.conflict.importData.name;
+                  existing.type = r.conflict.importData.type;
+                  existing.status = r.conflict.importData.status;
+                  existing.primaryUser = r.conflict.importData.primaryUser;
+                  existing.accountNumber = r.conflict.importData.accountNumber;
+                  existing.subtype = r.conflict.importData.subtype;
+                  existing.notes = r.conflict.importData.notes;
+                  imported++;
+                }
+              }
+            });
+            saveToStorage();
+            addSyncLogEntry('Import Master Register CSV → Entities', 'import', imported, 'success');
+            showAlert('Imported ' + imported + ' entities (' + conflicts.length + ' conflicts resolved)', 'Success');
+          });
+        } else {
+          saveToStorage();
+          addSyncLogEntry('Import Master Register CSV → Entities', 'import', imported, 'success');
+          showAlert('Imported ' + imported + ' new entities from Master Register CSV', 'Success');
+        }
+      } catch (err) {
+        addSyncLogEntry('Import Master Register CSV', 'import', 0, 'error');
+        showAlert('Import failed: ' + err.message, 'Error');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // Import 2: Transaction Ledger CSV → Ledger Entries
+  function importTransactionLedgerCSV(inputEl) {
+    var file = inputEl.files[0];
+    if (!file) return;
+    inputEl.value = '';
+
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      try {
+        var rows = syncParseCSV(ev.target.result);
+        if (rows.length < 2) throw new Error('CSV must have header + data rows');
+
+        var dataRows = rows.slice(1);
+        var imported = 0;
+        var skipped = 0;
+
+        // Build hash set of existing entries for dedup
+        var existingHashes = {};
+        (appData.ledgerEntries || []).forEach(function(e) {
+          var h = syncHash((e.date || '') + (e.description || '') + String(e.debit || e.credit || ''));
+          existingHashes[h] = true;
+        });
+
+        dataRows.forEach(function(row) {
+          if (row.length < 3) return;
+
+          var date = (row[0] || '').trim();
+          var description = (row[5] || '').trim();
+          var amount = parseFloat(row[6]) || 0;
+
+          // Dedup check
+          var h = syncHash(date + description + String(Math.abs(amount)));
+          if (existingHashes[h]) {
+            skipped++;
+            return;
+          }
+
+          var entry = {
+            date: date,
+            description: description,
+            category: (row[2] || '').trim(),
+            debit: amount >= 0 ? Math.abs(amount) : 0,
+            credit: amount < 0 ? Math.abs(amount) : 0,
+            entity: (row[1] || '').trim(),
+            vendor: (row[4] || '').trim(),
+            subcategory: (row[3] || '').trim(),
+            paymentMethod: (row[7] || '').trim(),
+            accountType: (row[8] || '').trim(),
+            status: (row[9] || 'Posted').trim(),
+            taxDeductible: (row[10] || '').trim(),
+            businessUse: (row[11] || '').trim(),
+            dueDay: (row[12] || '').trim(),
+            recurring: (row[13] || '').trim(),
+            notes: (row[14] || '').trim()
+          };
+
+          if (!appData.ledgerEntries) appData.ledgerEntries = [];
+          appData.ledgerEntries.push(entry);
+          existingHashes[h] = true;
+          imported++;
+        });
+
+        saveToStorage();
+        addSyncLogEntry('Import Transaction Ledger CSV → Ledger', 'import', imported, 'success');
+        showAlert('Imported ' + imported + ' transactions (' + skipped + ' duplicates skipped)', 'Success');
+      } catch (err) {
+        addSyncLogEntry('Import Transaction Ledger CSV', 'import', 0, 'error');
+        showAlert('Import failed: ' + err.message, 'Error');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // Import 3: Household Obligations CSV → Payables
+  function importObligationsCSV(inputEl) {
+    var file = inputEl.files[0];
+    if (!file) return;
+    inputEl.value = '';
+
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      try {
+        var rows = syncParseCSV(ev.target.result);
+        if (rows.length < 2) throw new Error('CSV must have header + data rows');
+
+        var dataRows = rows.slice(1);
+        var imported = 0;
+        var updated = 0;
+
+        if (!appData.payables) appData.payables = [];
+
+        dataRows.forEach(function(row) {
+          if (row.length < 1 || !row[0]) return;
+          var vendor = (row[0] || '').trim();
+
+          // Check for existing by vendor name
+          var existing = appData.payables.find(function(p) {
+            return (p.vendor || p.name || '').toLowerCase() === vendor.toLowerCase();
+          });
+
+          if (existing) {
+            // Update existing
+            existing.category = (row[1] || existing.category || '').trim();
+            existing.subcategory = (row[2] || existing.subcategory || '').trim();
+            existing.amount = parseFloat(row[3]) || existing.amount || 0;
+            existing.dueDay = (row[4] || existing.dueDay || '').toString().trim();
+            existing.paymentMethod = (row[5] || existing.paymentMethod || '').trim();
+            existing.responsibleParty = (row[6] || existing.responsibleParty || '').trim();
+            existing.status = (row[7] || existing.status || 'Active').trim();
+            existing.startDate = (row[8] || existing.startDate || '').trim();
+            existing.rateChanges = (row[9] || existing.rateChanges || '').trim();
+            existing.notes = (row[10] || existing.notes || '').trim();
+            updated++;
+          } else {
+            appData.payables.push({
+              id: 'pay_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+              vendor: vendor,
+              name: vendor,
+              category: (row[1] || '').trim(),
+              subcategory: (row[2] || '').trim(),
+              amount: parseFloat(row[3]) || 0,
+              monthlyAmount: parseFloat(row[3]) || 0,
+              dueDay: (row[4] || '').toString().trim(),
+              paymentMethod: (row[5] || '').trim(),
+              responsibleParty: (row[6] || '').trim(),
+              party: (row[6] || '').trim(),
+              status: (row[7] || 'Active').trim(),
+              startDate: (row[8] || '').trim(),
+              rateChanges: (row[9] || '').trim(),
+              notes: (row[10] || '').trim()
+            });
+            imported++;
+          }
+        });
+
+        saveToStorage();
+        addSyncLogEntry('Import Obligations CSV → Payables', 'import', imported + updated, 'success');
+        showAlert('Imported ' + imported + ' new payables, updated ' + updated + ' existing', 'Success');
+      } catch (err) {
+        addSyncLogEntry('Import Obligations CSV', 'import', 0, 'error');
+        showAlert('Import failed: ' + err.message, 'Error');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // Import 4: W-2 & Income CSV → 1040 Filings
+  function importW2IncomeCSV(inputEl) {
+    var file = inputEl.files[0];
+    if (!file) return;
+    inputEl.value = '';
+
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      try {
+        var rows = syncParseCSV(ev.target.result);
+        if (rows.length < 2) throw new Error('CSV must have header + data rows');
+
+        var headers = rows[0].map(function(h) { return h.trim().toLowerCase(); });
+        var dataRows = rows.slice(1);
+
+        if (!appData.filings) appData.filings = {};
+        if (!appData.filings['1040']) appData.filings['1040'] = [];
+
+        var imported = 0;
+        dataRows.forEach(function(row) {
+          var obj = {};
+          headers.forEach(function(h, i) { obj[h] = (row[i] || '').trim(); });
+
+          // Map common W-2 fields
+          var filing = {
+            id: 'w2_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+            employer: obj['employer'] || obj['employer name'] || obj['company'] || '',
+            wages: parseFloat(obj['wages'] || obj['box 1'] || obj['gross wages'] || 0) || 0,
+            fedWithholding: parseFloat(obj['federal withholding'] || obj['box 2'] || obj['fed tax'] || 0) || 0,
+            stateWithholding: parseFloat(obj['state withholding'] || obj['box 17'] || obj['state tax'] || 0) || 0,
+            socialSecurity: parseFloat(obj['social security wages'] || obj['box 3'] || 0) || 0,
+            medicare: parseFloat(obj['medicare wages'] || obj['box 5'] || 0) || 0,
+            ein: obj['ein'] || obj['employer ein'] || '',
+            date: obj['date'] || obj['year'] || '',
+            source: 'Google Sheets Import'
+          };
+
+          appData.filings['1040'].push(filing);
+          imported++;
+        });
+
+        saveToStorage();
+        addSyncLogEntry('Import W-2 & Income CSV → 1040 Filings', 'import', imported, 'success');
+        showAlert('Imported ' + imported + ' W-2/income records', 'Success');
+      } catch (err) {
+        addSyncLogEntry('Import W-2 & Income CSV', 'import', 0, 'error');
+        showAlert('Import failed: ' + err.message, 'Error');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // SyncBridge — Tier 2 client for GAS Web App endpoints
+  // ══════════════════════════════════════════════════════════════════
+
+  function SyncBridge(gasUrl) {
+    this.url = gasUrl;
+    this.timeout = 30000;
+  }
+
+  SyncBridge.prototype.request = function(action, method, body) {
+    var url = this.url + '?action=' + action;
+    var opts = { method: method || 'GET', mode: 'cors' };
+    if (body) {
+      opts.body = JSON.stringify(body);
+      opts.headers = { 'Content-Type': 'text/plain' }; // text/plain avoids CORS preflight
+    }
+    var ctrl = new AbortController();
+    var timer = setTimeout(function() { ctrl.abort(); }, this.timeout);
+    opts.signal = ctrl.signal;
+
+    return fetch(url, opts)
+      .then(function(r) { clearTimeout(timer); return r.json(); })
+      .catch(function(err) { clearTimeout(timer); throw err; });
+  };
+
+  // Pull methods (GET)
+  SyncBridge.prototype.ping = function() { return this.request('ping'); };
+  SyncBridge.prototype.pullAccounts = function() { return this.request('pullAccounts'); };
+  SyncBridge.prototype.pullTransactions = function() { return this.request('pullTransactions'); };
+  SyncBridge.prototype.pullObligations = function() { return this.request('pullObligations'); };
+  SyncBridge.prototype.pull1099 = function() { return this.request('pull1099'); };
+  SyncBridge.prototype.pullValidation = function() { return this.request('pullValidation'); };
+  SyncBridge.prototype.listSheetTabs = function() { return this.request('listSheetTabs'); };
+  SyncBridge.prototype.pullRawTab = function(tabName) {
+    return this.request('pullRawTab&tab=' + encodeURIComponent(tabName));
+  };
+
+  // Push methods (POST)
+  SyncBridge.prototype.pushEntities = function(data) {
+    return this.request('pushEntities', 'POST', { action: 'pushEntities', entities: data });
+  };
+  SyncBridge.prototype.pushTransactions = function(data) {
+    return this.request('pushTransactions', 'POST', { action: 'pushTransactions', entries: data });
+  };
+  SyncBridge.prototype.pushPayables = function(data) {
+    return this.request('pushPayables', 'POST', { action: 'pushPayables', payables: data });
+  };
+  SyncBridge.prototype.push1099 = function(data) {
+    return this.request('push1099', 'POST', { action: 'push1099', filings: data });
+  };
+
+  // ══════════════════════════════════════════════════════════════════
+  // Sync Progress Bar Helpers
+  // ══════════════════════════════════════════════════════════════════
+
+  function showSyncProgress(text, pct) {
+    var wrap = document.getElementById('sync-progress-wrap');
+    var bar = document.getElementById('sync-progress-bar');
+    var label = document.getElementById('sync-progress-text');
+    if (wrap) wrap.style.display = 'block';
+    if (bar) bar.style.width = pct + '%';
+    if (label) label.textContent = text || '';
+  }
+
+  function hideSyncProgress() {
+    var wrap = document.getElementById('sync-progress-wrap');
+    if (wrap) wrap.style.display = 'none';
+    var bar = document.getElementById('sync-progress-bar');
+    if (bar) bar.style.width = '0%';
+  }
+
+  function getSyncBridge() {
+    var url = (appData.settings && appData.settings.gasWebAppUrl) ? appData.settings.gasWebAppUrl.trim() : '';
+    if (!url) {
+      showAlert('No GAS Web App URL configured. Paste the URL in the Connection Card above.', 'Warning');
+      return null;
+    }
+    return new SyncBridge(url);
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // Conflict Detection (Pull)
+  // ══════════════════════════════════════════════════════════════════
+
+  function detectSyncConflicts(localArray, remoteArray, keyField) {
+    var localMap = {};
+    var remoteMap = {};
+    localArray.forEach(function(item) {
+      var key = (item[keyField] || '').toString().toLowerCase().trim();
+      if (key) localMap[key] = item;
+    });
+    remoteArray.forEach(function(item) {
+      var key = (item[keyField] || '').toString().toLowerCase().trim();
+      if (key) remoteMap[key] = item;
+    });
+
+    var added = [], modified = [], deleted = [], unchanged = [];
+
+    // Check remote items vs local
+    Object.keys(remoteMap).forEach(function(key) {
+      if (!localMap[key]) {
+        added.push(remoteMap[key]);
+      } else {
+        var localHash = syncHash(JSON.stringify(localMap[key]));
+        var remoteHash = syncHash(JSON.stringify(remoteMap[key]));
+        if (localHash !== remoteHash) {
+          modified.push({ local: localMap[key], remote: remoteMap[key], key: key });
+        } else {
+          unchanged.push(remoteMap[key]);
+        }
+      }
+    });
+
+    // Check for items in local but not remote
+    Object.keys(localMap).forEach(function(key) {
+      if (!remoteMap[key]) {
+        deleted.push(localMap[key]);
+      }
+    });
+
+    return { added: added, modified: modified, deleted: deleted, unchanged: unchanged };
+  }
+
+  // ── Apply Pull Results ────────────────────────────────────────────
+
+  // Map GAS Master Register accountType → Entity UI type
+  var _gasTypeToEntityType = {
+    'trust entity': 'trust', 'trust': 'trust',
+    'llc': 'llc', 'corporation': 'parent',
+    'individual': 'parent', 'employment w-2': 'parent',
+    'banking checking': 'subsidiary', 'banking savings': 'subsidiary',
+    'credit card': 'subsidiary', 'auto loan': 'subsidiary',
+    'mortgage': 'subsidiary', 'student loan': 'subsidiary',
+    'investment brokerage': 'subsidiary', 'investment retirement': 'subsidiary',
+    'insurance': 'subsidiary', 'insurance auto': 'subsidiary',
+    'insurance life': 'subsidiary', 'insurance health': 'subsidiary',
+    'government agency': 'parent', 'utility': 'subsidiary',
+    'vendor': 'subsidiary', 'subscription': 'subsidiary',
+    'gym membership': 'subsidiary', 'nonprofit': 'nonprofit',
+    'partnership': 'partnership', 'estate': 'estate'
+  };
+
+  function _normalizeEntityType(gasType) {
+    if (!gasType) return '';
+    return _gasTypeToEntityType[gasType.toLowerCase().trim()] || gasType.toLowerCase().trim();
+  }
+
+  function applyPullAccounts(remoteData) {
+    // Normalize remote data field names so conflict detection works
+    var normalized = remoteData.map(function(item) {
+      return {
+        name: item.provider || item.name || '',
+        provider: item.provider || '',
+        accountType: item.accountType || '',
+        accountSubtype: item.accountSubtype || '',
+        accountNumber: item.accountNumber || '',
+        status: item.status || 'Active',
+        primaryUser: item.primaryUser || '',
+        notes: item.notes || ''
+      };
+    });
+
+    var conflicts = detectSyncConflicts(appData.entities || [], normalized, 'name');
+
+    // Auto-apply added items
+    if (conflicts.added.length > 0) {
+      conflicts.added.forEach(function(item) {
+        var entity = {
+          id: Date.now() + Math.floor(Math.random() * 10000),
+          name: item.name || '',
+          ein: '', // EINs come masked from server — don't store masked values
+          type: _normalizeEntityType(item.accountType),
+          parentId: null,
+          ownership: 100,
+          fye: 12,
+          status: item.status || 'Active',
+          primaryUser: item.primaryUser || '',
+          accountNumber: item.accountNumber || '',
+          subtype: item.accountSubtype || '',
+          notes: item.notes || ''
+        };
+        appData.entities.push(entity);
+      });
+    }
+
+    // Modified items → conflict modal
+    if (conflicts.modified.length > 0) {
+      var conflictItems = conflicts.modified.map(function(c) {
+        return {
+          name: c.key,
+          localValue: c.local.name + ' (' + (c.local.status || 'n/a') + ')',
+          remoteValue: (c.remote.name || c.remote.provider) + ' (' + (c.remote.status || 'n/a') + ')',
+          local: c.local,
+          remote: c.remote
+        };
+      });
+      showSyncConflictModal(conflictItems, function(resolved) {
+        resolved.forEach(function(r) {
+          if (r.choice === 'remote') {
+            var idx = appData.entities.findIndex(function(e) { return e.name && e.name.toLowerCase() === r.name.toLowerCase(); });
+            if (idx >= 0) {
+              appData.entities[idx].status = r.remote.status || appData.entities[idx].status;
+              appData.entities[idx].notes = r.remote.notes || appData.entities[idx].notes;
+              appData.entities[idx].type = _normalizeEntityType(r.remote.accountType) || appData.entities[idx].type;
+            }
+          }
+        });
+        saveToStorage();
+        if (typeof updateEntitiesTable === 'function') updateEntitiesTable();
+      });
+    }
+
+    saveToStorage();
+    if (typeof updateEntitiesTable === 'function') updateEntitiesTable();
+    return { added: conflicts.added.length, modified: conflicts.modified.length, deleted: conflicts.deleted.length };
+  }
+
+  function applyPullTransactions(remoteData) {
+    var existingHashes = {};
+    (appData.ledgerEntries || []).forEach(function(entry) {
+      var d = parseFloat(entry.debit) || 0;
+      var c = parseFloat(entry.credit) || 0;
+      var key = (entry.date || '') + '|' + (entry.description || '') + '|' + d + '|' + c;
+      existingHashes[syncHash(key)] = true;
+    });
+
+    var added = 0;
+    remoteData.forEach(function(item) {
+      var debitNum = parseFloat(item.debit) || 0;
+      var creditNum = parseFloat(item.credit) || 0;
+      var key = (item.date || '') + '|' + (item.description || '') + '|' + debitNum + '|' + creditNum;
+      var hash = syncHash(key);
+      if (!existingHashes[hash]) {
+        appData.ledgerEntries.push({
+          id: Date.now() + Math.floor(Math.random() * 10000),
+          date: item.date || '',
+          description: item.description || '',
+          category: item.category || '',
+          account: item.account || '',
+          debit: debitNum,
+          credit: creditNum,
+          method: item.method || '',
+          reference: item.reference || '',
+          vendor: item.vendor || '',
+          notes: (item.notes || '') + ' [Pulled from Sheet]',
+          source: 'Google Sheets'
+        });
+        existingHashes[hash] = true;
+        added++;
+      }
+    });
+
+    saveToStorage();
+    if (typeof loadEntries === 'function') loadEntries();
+    return { added: added, skipped: remoteData.length - added };
+  }
+
+  function applyPullObligations(remoteData) {
+    var existingVendors = {};
+    (appData.payables || []).forEach(function(p, idx) {
+      var key = (p.vendor || p.name || '').toLowerCase().trim();
+      if (key) existingVendors[key] = idx;
+    });
+
+    var added = 0, updated = 0;
+    var now = new Date().toISOString().split('T')[0];
+    remoteData.forEach(function(item) {
+      var vendor = (item.vendor || '').toLowerCase().trim();
+      if (!vendor) return;
+
+      // Parse amount as number — A/P table calls .toFixed(2)
+      var amt = parseFloat(item.monthlyAmount) || 0;
+
+      // Build a due date: use dueDay (1-31) to create a date in current month
+      var dueDate = '';
+      if (item.dueDay) {
+        var dd = parseInt(item.dueDay, 10);
+        if (dd >= 1 && dd <= 31) {
+          var today = new Date();
+          var dueDt = new Date(today.getFullYear(), today.getMonth(), dd);
+          dueDate = dueDt.toISOString().split('T')[0];
+        } else {
+          dueDate = String(item.dueDay);
+        }
+      }
+
+      if (existingVendors[vendor] !== undefined) {
+        // Upsert — update amount/balance as numbers
+        var idx = existingVendors[vendor];
+        if (amt > 0) {
+          appData.payables[idx].amount = amt;
+          appData.payables[idx].balance = amt;
+        }
+        if (item.status) appData.payables[idx].status = item.status;
+        if (dueDate) appData.payables[idx].dueDate = dueDate;
+        updated++;
+      } else {
+        // Build record matching A/P table schema (saveAP shape)
+        var uid = Date.now() + Math.floor(Math.random() * 10000);
+        appData.payables.push({
+          id: uid,
+          entityId: '',
+          billNum: 'OBL-' + String(added + 1).padStart(3, '0'),
+          vendor: item.vendor || '',
+          name: item.vendor || '',
+          date: item.startDate || now,
+          dueDate: dueDate || now,
+          amount: amt,
+          balance: amt,
+          expenseAccount: '',
+          isIntercompany: false,
+          payments: [],
+          category: item.category || '',
+          autopay: item.autopay || '',
+          status: item.status || 'Active',
+          notes: (item.notes || '') + ' [Pulled from Sheet]'
+        });
+        existingVendors[vendor] = appData.payables.length - 1;
+        added++;
+      }
+    });
+
+    saveToStorage();
+    if (typeof updateAPTable === 'function') updateAPTable();
+    return { added: added, updated: updated };
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // Live Sync — Push/Pull Handlers (Phase 2 — Tier 2)
+  // ══════════════════════════════════════════════════════════════════
+
+  // Reverse map: entity UI type → GAS Master Register accountType
+  var _entityTypeToGasType = {
+    'trust': 'Trust Entity', 'llc': 'LLC', 'parent': 'Corporation',
+    'subsidiary': 'Banking Checking', 'estate': 'Estate',
+    'partnership': 'Partnership', 'nonprofit': 'Nonprofit'
+  };
+
+  // Prepare entities for GAS push — translate field names + types
+  function _prepEntitiesForPush(entities) {
+    return entities.map(function(e) {
+      return {
+        name: e.name || '',
+        type: _entityTypeToGasType[e.type] || e.type || '',
+        subtype: e.subtype || '',
+        accountNumber: e.accountNumber || '',
+        status: e.status || 'Active',
+        primaryUser: e.primaryUser || '',
+        notes: e.notes || ''
+      };
+    });
+  }
+
+  // Prepare transactions for GAS push — ensure debit/credit are numbers
+  function _prepTransactionsForPush(entries) {
+    return entries.map(function(t) {
+      return {
+        date: t.date || '',
+        description: t.description || '',
+        category: t.category || '',
+        account: t.account || '',
+        debit: parseFloat(t.debit) || 0,
+        credit: parseFloat(t.credit) || 0,
+        method: t.method || '',
+        reference: t.reference || '',
+        vendor: t.vendor || '',
+        taxDeductible: t.taxDeductible || '',
+        receipt: t.receipt || '',
+        notes: t.notes || ''
+      };
+    });
+  }
+
+  // Prepare payables for GAS push — translate A/P fields to Household Obligations columns
+  function _prepPayablesForPush(payables) {
+    return payables.map(function(p) {
+      // Extract day-of-month from full date if present (GAS col 5 = dueDay)
+      var dueDay = '';
+      if (p.dueDate) {
+        var parts = String(p.dueDate).split('-');
+        if (parts.length === 3) {
+          dueDay = parseInt(parts[2], 10) || p.dueDate;
+        } else {
+          dueDay = p.dueDate;
+        }
+      }
+      return {
+        vendor: p.vendor || p.name || '',
+        category: p.category || p.expenseAccount || '',
+        accountNumber: p.accountNumber || '',
+        monthlyAmount: parseFloat(p.amount) || 0,
+        dueDay: dueDay,
+        autopay: p.autopay || '',
+        status: p.status || 'Active',
+        lastPaid: '',
+        startDate: p.date || '',
+        notes: (p.notes || '').replace(' [Pulled from Sheet]', '')
+      };
+    });
+  }
+
+  function syncPush(type) {
+    var bridge = getSyncBridge();
+    if (!bridge) return;
+
+    var data, method, label;
+    switch (type) {
+      case 'entities':
+        data = _prepEntitiesForPush(appData.entities || []);
+        method = bridge.pushEntities.bind(bridge);
+        label = '🏢 Entities → Master Register';
+        break;
+      case 'transactions':
+        data = _prepTransactionsForPush(appData.ledgerEntries || []);
+        method = bridge.pushTransactions.bind(bridge);
+        label = '📒 Ledger → Transaction Ledger';
+        break;
+      case 'payables':
+        data = _prepPayablesForPush(appData.payables || []);
+        method = bridge.pushPayables.bind(bridge);
+        label = '📤 A/P → Household Obligations';
+        break;
+      case '1099':
+        // Gather all 1099 filings from appData.filings
+        data = [];
+        if (appData.filings) {
+          Object.keys(appData.filings).forEach(function(formType) {
+            (appData.filings[formType] || []).forEach(function(f) {
+              data.push({ type: formType, data: f });
+            });
+          });
+        }
+        method = bridge.push1099.bind(bridge);
+        label = '1099 → Filing Chain';
+        break;
+      default:
+        showAlert('Unknown push type: ' + type, 'Error');
+        return;
+    }
+
+    if (data.length === 0) {
+      showAlert('No ' + type + ' data to push.', 'Info');
+      return;
+    }
+
+    showSyncProgress('Pushing ' + label + '...', 30);
+    updateSyncStatus('Pushing ' + label + '...', false);
+
+    method(data)
+      .then(function(result) {
+        hideSyncProgress();
+        if (result && result.status === 'ok') {
+          var msg = label + ': ' + (result.imported || 0) + ' imported';
+          if (result.updated) msg += ', ' + result.updated + ' updated';
+          if (result.skipped) msg += ', ' + result.skipped + ' skipped';
+          updateSyncStatus(msg, false);
+          addSyncLogEntry(label, 'push', result.imported || 0, 'success');
+          appData.settings.lastSyncTimestamp = new Date().toISOString();
+          saveToStorage();
+        } else {
+          updateSyncStatus('Push failed: ' + (result.message || 'unknown error'), true);
+          addSyncLogEntry(label, 'push', 0, 'error');
+        }
+      })
+      .catch(function(err) {
+        hideSyncProgress();
+        updateSyncStatus('Push failed: ' + err.message, true);
+        addSyncLogEntry(label, 'push', 0, 'error');
+      });
+  }
+
+  function syncPull(type) {
+    var bridge = getSyncBridge();
+    if (!bridge) return;
+
+    var method, applyFn, label;
+    switch (type) {
+      case 'accounts':
+        method = bridge.pullAccounts.bind(bridge);
+        applyFn = applyPullAccounts;
+        label = 'Master Register → 🏢 Entities';
+        break;
+      case 'transactions':
+        method = bridge.pullTransactions.bind(bridge);
+        applyFn = applyPullTransactions;
+        label = 'Transaction Ledger → 📒 Ledger';
+        break;
+      case 'obligations':
+        method = bridge.pullObligations.bind(bridge);
+        applyFn = applyPullObligations;
+        label = 'Household Obligations → 📤 A/P';
+        break;
+      default:
+        showAlert('Unknown pull type: ' + type, 'Error');
+        return;
+    }
+
+    showSyncProgress('Pulling ' + label + '...', 30);
+    updateSyncStatus('Pulling ' + label + '...', false);
+
+    method()
+      .then(function(result) {
+        hideSyncProgress();
+        if (result && result.status === 'ok') {
+          var applyResult = applyFn(result.data || []);
+          var msg = label + ': ' + (applyResult.added || 0) + ' added';
+          if (applyResult.updated) msg += ', ' + applyResult.updated + ' updated';
+          if (applyResult.modified) msg += ', ' + applyResult.modified + ' conflicts';
+          updateSyncStatus(msg, false);
+          addSyncLogEntry(label, 'pull', applyResult.added || 0, 'success');
+          appData.settings.lastSyncTimestamp = new Date().toISOString();
+          saveToStorage();
+        } else {
+          updateSyncStatus('Pull failed: ' + (result.message || 'unknown error'), true);
+          addSyncLogEntry(label, 'pull', 0, 'error');
+        }
+      })
+      .catch(function(err) {
+        hideSyncProgress();
+        updateSyncStatus('Pull failed: ' + err.message, true);
+        addSyncLogEntry(label, 'pull', 0, 'error');
+      });
+  }
+
+  function syncPushAll() {
+    var bridge = getSyncBridge();
+    if (!bridge) return;
+
+    var steps = [
+      { type: 'entities', label: '🏢 Entities', data: _prepEntitiesForPush(appData.entities || []), method: bridge.pushEntities.bind(bridge) },
+      { type: 'transactions', label: '📒 Ledger', data: _prepTransactionsForPush(appData.ledgerEntries || []), method: bridge.pushTransactions.bind(bridge) },
+      { type: 'payables', label: '📤 A/P', data: _prepPayablesForPush(appData.payables || []), method: bridge.pushPayables.bind(bridge) }
+    ];
+
+    // Gather 1099s
+    var all1099 = [];
+    if (appData.filings) {
+      Object.keys(appData.filings).forEach(function(formType) {
+        (appData.filings[formType] || []).forEach(function(f) {
+          all1099.push({ type: formType, data: f });
+        });
+      });
+    }
+    if (all1099.length > 0) {
+      steps.push({ type: '1099', label: '1099 Filings', data: all1099, method: bridge.push1099.bind(bridge) });
+    }
+
+    // Filter out empty datasets
+    steps = steps.filter(function(s) { return s.data.length > 0; });
+    if (steps.length === 0) {
+      showAlert('No data to push.', 'Info');
+      return;
+    }
+
+    var total = steps.length;
+    var current = 0;
+    var results = [];
+
+    function pushNext() {
+      if (current >= steps.length) {
+        hideSyncProgress();
+        var summary = results.map(function(r) { return r.label + ': ' + (r.imported || 0); }).join(', ');
+        updateSyncStatus('Push All complete — ' + summary, false);
+        addSyncLogEntry('Push All (' + total + ' types)', 'push', results.reduce(function(s, r) { return s + (r.imported || 0); }, 0), 'success');
+        appData.settings.lastSyncTimestamp = new Date().toISOString();
+        saveToStorage();
+        return;
+      }
+
+      var step = steps[current];
+      var pct = Math.round(((current + 0.5) / total) * 100);
+      showSyncProgress('Pushing ' + step.label + ' (' + (current + 1) + '/' + total + ')...', pct);
+      updateSyncStatus('Pushing ' + step.label + '...', false);
+
+      step.method(step.data)
+        .then(function(result) {
+          results.push({ label: step.label, imported: result.imported || 0, updated: result.updated || 0 });
+          current++;
+          pushNext();
+        })
+        .catch(function(err) {
+          hideSyncProgress();
+          updateSyncStatus('Push All failed at ' + step.label + ': ' + err.message, true);
+          addSyncLogEntry('Push All (failed at ' + step.label + ')', 'push', 0, 'error');
+        });
+    }
+
+    pushNext();
+  }
+
+  function syncPullAll() {
+    var bridge = getSyncBridge();
+    if (!bridge) return;
+
+    var steps = [
+      { type: 'accounts', label: '🏢 Entities', method: bridge.pullAccounts.bind(bridge), applyFn: applyPullAccounts },
+      { type: 'transactions', label: '📒 Ledger', method: bridge.pullTransactions.bind(bridge), applyFn: applyPullTransactions },
+      { type: 'obligations', label: '📤 A/P', method: bridge.pullObligations.bind(bridge), applyFn: applyPullObligations }
+    ];
+
+    var total = steps.length;
+    var current = 0;
+    var results = [];
+
+    function pullNext() {
+      if (current >= steps.length) {
+        hideSyncProgress();
+        var summary = results.map(function(r) { return r.label + ': ' + (r.added || 0); }).join(', ');
+        updateSyncStatus('Pull All complete — ' + summary, false);
+        addSyncLogEntry('Pull All (' + total + ' types)', 'pull', results.reduce(function(s, r) { return s + (r.added || 0); }, 0), 'success');
+        appData.settings.lastSyncTimestamp = new Date().toISOString();
+        saveToStorage();
+        return;
+      }
+
+      var step = steps[current];
+      var pct = Math.round(((current + 0.5) / total) * 100);
+      showSyncProgress('Pulling ' + step.label + ' (' + (current + 1) + '/' + total + ')...', pct);
+      updateSyncStatus('Pulling ' + step.label + '...', false);
+
+      step.method()
+        .then(function(result) {
+          if (result && result.status === 'ok') {
+            var applyResult = step.applyFn(result.data || []);
+            results.push({ label: step.label, added: applyResult.added || 0, updated: applyResult.updated || 0 });
+          } else {
+            results.push({ label: step.label, added: 0, error: result.message || 'unknown' });
+          }
+          current++;
+          pullNext();
+        })
+        .catch(function(err) {
+          hideSyncProgress();
+          updateSyncStatus('Pull All failed at ' + step.label + ': ' + err.message, true);
+          addSyncLogEntry('Pull All (failed at ' + step.label + ')', 'pull', 0, 'error');
+        });
+    }
+
+    pullNext();
+  }
+
+  function testSyncConnection() {
+    var url = (appData.settings && appData.settings.gasWebAppUrl) ? appData.settings.gasWebAppUrl.trim() : '';
+    if (!url) {
+      updateSyncStatus('No URL configured', true);
+      return;
+    }
+    updateSyncStatus('Testing connection...', false);
+    var bridge = new SyncBridge(url);
+    bridge.ping()
+      .then(function(data) {
+        if (data && data.status === 'ok') {
+          updateSyncStatus('Connected — v' + (data.version || '?') + ', Year: ' + (data.year || '?'), false);
+          addSyncLogEntry('Connection Test', 'push', 0, 'success');
+          var panel = document.getElementById('sync-live-panel');
+          if (panel) {
+            panel.style.opacity = '1';
+            panel.style.pointerEvents = 'auto';
+          }
+          // Store connection info
+          appData.settings.spreadsheetId = data.sheetId || '';
+          saveToStorage();
+        } else {
+          updateSyncStatus('Unexpected response from server', true);
+        }
+      })
+      .catch(function(err) {
+        updateSyncStatus('Connection failed: ' + err.message, true);
+        addSyncLogEntry('Connection Test', 'push', 0, 'error');
+      });
   }
 
   window.addEventListener('resize', resizeParticlesCanvas);

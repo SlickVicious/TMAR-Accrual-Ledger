@@ -1,7 +1,7 @@
 # GAAP Source — Complete Association Chart
 
-**Source**: `TMAR-Accrual-Ledger.html` (~17,500 lines, ~1.2MB)
-**Date**: 2026-03-03
+**Source**: `TMAR-Accrual-Ledger.html` (~19,030 lines, ~1.3MB)
+**Date**: 2026-03-04 (v1.4.0 — Sync Center added)
 **Purpose**: Map every GUI element to its function, document navigation flow, and break down all core/sub/remote functions.
 
 ---
@@ -22,7 +22,7 @@
 
 ## 2. MAIN TAB NAVIGATION (Lines 322-417)
 
-### Tab Buttons (37 total → 36 after removing UK Accounting)
+### Tab Buttons (39 total → 38 after removing UK Accounting)
 
 All buttons call `switchMainTab(tabName)` which:
 1. Removes `.active` from all `.tab-btn` elements
@@ -72,6 +72,8 @@ All buttons call `switchMainTab(tabName)` which:
 | 36 | 🏛️ Federal Damages | `fdrf` | `initFDRF()` (guarded) | Green bold border |
 | 37 | 📓 Tutorial Journal | `eeej` | `initEEEJ()` (guarded) | Yellow bold border |
 | 38 | 🔍 Entity Verifier | `entityVerifier` | `initEntityVerifier()` (guarded) | Blue bold border |
+| | **Group 11: Data Integration** | | | |
+| 39 | 🔄 Sync Center | `syncCenter` | `initSyncCenter()` (guarded) | Green/cyan gradient bold border |
 
 ---
 
@@ -147,8 +149,14 @@ switchMainTab(tabName)
 ├── eeej ────────────→ initEEEJ()
 │                      └── 28-slide tutorial journal, topic nav, progress tracking
 │
-└── entityVerifier ──→ initEntityVerifier()
-                       └── SEC EDGAR verification, EIN cross-ref, detail modal, JSON export
+├── entityVerifier ──→ initEntityVerifier()
+│                      └── SEC EDGAR verification, EIN cross-ref, detail modal, JSON export
+│
+└── syncCenter ─────→ initSyncCenter()
+                       ├── Populates export count badges from appData
+                       ├── Restores GAS URL from appData.settings.gasWebAppUrl
+                       ├── Renders sync log from appData.syncLog
+                       └── Calls updateTier2PanelState() to enable/disable Live Sync panel
 ```
 
 ---
@@ -632,6 +640,56 @@ switchMainTab(tabName)
 | SEC EDGAR EIN | internal | `edgarSearchByEIN(ein)` | Full-text EIN search via `efts.sec.gov/LATEST/search-index` |
 | Verify Entity | internal | `verifyEntity(entity)` | Core engine: ticker → name → EIN search, confidence scoring |
 
+### 4.38 Sync Center Tab (v1.4.0)
+
+#### Connection Status Card
+
+| Element | Handler | Function | Sub-functions |
+|---|---|---|---|
+| GAS URL Input (`#sync-gas-url`) | `oninput` | `onGasUrlChange()` | Saves URL to `appData.settings.gasWebAppUrl`, calls `saveToStorage()`, calls `updateTier2PanelState()` |
+| Test Connection Button | `onclick` | `testSyncConnection()` | `fetch(url+'?action=ping')` → parses JSON → `updateSyncStatus()` (green/red dot + message) |
+| Status Dot (`#sync-status-dot`) | auto | `updateSyncStatus(msg, isError)` | Sets dot color: `#10b981` (green) or `#ef4444` (red) or `#6b7280` (gray default) |
+
+#### Export Panel (5 buttons)
+
+| Button Label | Handler | Function | Key Sub-calls |
+|---|---|---|---|
+| Entities → Master Register CSV | `onclick` | `exportEntitiesToMasterRegisterCSV()` | `maskEIN()`, `mapEntityTypeToAccountType()`, `calculateEntityBalance()`, `syncCSVEscape()`, `syncDownloadCSV()`, `addSyncLogEntry()` |
+| Ledger → Transaction Ledger CSV | `onclick` | `exportLedgerToTransactionCSV()` | Converts debit/credit → signed amount, Source='Accrual Ledger', `syncDownloadCSV()`, `addSyncLogEntry()` |
+| Journal → Transaction Ledger CSV | `onclick` | `exportJournalToTransactionCSV()` | Expands `journalEntries[].lines[]` into separate rows, `syncDownloadCSV()`, `addSyncLogEntry()` |
+| 1099 → Filing Chain CSV | `onclick` | `export1099ToFilingChainCSV()` | Iterates `appData.filings['1099-*']`, maps form fields per type, `syncDownloadCSV()`, `addSyncLogEntry()` |
+| Payables → Obligations CSV | `onclick` | `exportPayablesToObligationsCSV()` | Extracts due day from dueDate, `syncDownloadCSV()`, `addSyncLogEntry()` |
+
+#### Import Panel (4 file inputs)
+
+| Input Label | Handler | Function | Dedup Strategy |
+|---|---|---|---|
+| Import Master Register CSV | `onchange` | `importMasterRegisterCSV(this)` | Match by entity name → `showSyncConflictModal()` for modified, auto-add new |
+| Import Transaction Ledger CSV | `onchange` | `importTransactionLedgerCSV(this)` | `syncHash(date+desc+amount)` → skip exact duplicates |
+| Import Obligations CSV | `onchange` | `importObligationsCSV(this)` | Match by vendor name → upsert (update existing or append new) |
+| Import W-2 Income CSV | `onchange` | `importW2IncomeCSV(this)` | Flexible header mapping → overwrite income fields |
+
+#### Live Sync Panel (Tier 2 — disabled until GAS URL configured)
+
+| Button Label | Handler | Function | Status |
+|---|---|---|---|
+| Push Entities | `onclick` | `syncPush('entities')` | Stub → Phase 2: `SyncBridge.pushEntities()` |
+| Push Transactions | `onclick` | `syncPush('transactions')` | Stub → Phase 2: `SyncBridge.pushTransactions()` |
+| Push Payables | `onclick` | `syncPush('payables')` | Stub → Phase 2: `SyncBridge.pushPayables()` |
+| Push 1099s | `onclick` | `syncPush('1099')` | Stub → Phase 2: `SyncBridge.push1099()` |
+| Push All | `onclick` | `syncPushAll()` | Stub → Phase 2: Sequential push with progress bar |
+| Pull Accounts | `onclick` | `syncPull('accounts')` | Stub → Phase 2: `SyncBridge.pullAccounts()` |
+| Pull Transactions | `onclick` | `syncPull('transactions')` | Stub → Phase 2: `SyncBridge.pullTransactions()` |
+| Pull Obligations | `onclick` | `syncPull('obligations')` | Stub → Phase 2: `SyncBridge.pullObligations()` |
+| Pull All | `onclick` | `syncPullAll()` | Stub → Phase 2: Sequential pull with conflict detection |
+
+#### Sync Log
+
+| Element | Handler | Function | Sub-functions |
+|---|---|---|---|
+| Clear Log Button | `onclick` | `clearSyncLog()` | `showConfirm()` → empties `appData.syncLog`, calls `renderSyncLog()` |
+| Log Container (`#sync-log-container`) | auto | `renderSyncLog()` | Renders last 50 entries with timestamps, status colors, direction icons |
+
 ---
 
 ## 5. CORE FUNCTIONS BREAKDOWN
@@ -713,6 +771,57 @@ switchMainTab(tabName)
 - `SpeechSynthesis` (Web Speech API) — text-to-speech responses
 - `navigator.clipboard.writeText()` — copy to clipboard
 - `window.open()` — print preview
+
+### 5.7 Sync Center (v1.4.0 — 22 functions)
+
+#### Utilities
+
+| Function | Line | Purpose | Called By |
+|---|---|---|---|
+| `initSyncCenter()` | ~18157 | Populates count badges, restores GAS URL, renders sync log, calls `updateTier2PanelState()` | `switchMainTab('syncCenter')` |
+| `onGasUrlChange()` | ~18175 | Saves `gasWebAppUrl` to settings, calls `updateTier2PanelState()` | GAS URL input `oninput` |
+| `updateTier2PanelState()` | ~18184 | Enables/disables Live Sync panel based on URL validity | `onGasUrlChange()`, `initSyncCenter()` |
+| `updateSyncStatus(msg, isError)` | ~18199 | Sets status dot color and text in Connection Card | `testSyncConnection()`, export/import functions |
+| `addSyncLogEntry(action, dir, count, status)` | ~18209 | Prepends to `appData.syncLog[]` (max 50), saves, renders log | All export/import/push/pull functions |
+| `renderSyncLog()` | ~18226 | Renders sync log HTML with timestamps, status colors, direction icons | `addSyncLogEntry()`, `initSyncCenter()` |
+| `clearSyncLog()` | ~18260 | Clears sync log with confirmation dialog | Clear Log button |
+| `syncCSVEscape(val)` | ~18268 | Proper CSV quoting (wraps in quotes if contains comma/quote/newline) | All export functions |
+| `syncDownloadCSV(filename, csv)` | ~18278 | Triggers file download via `saveAs()` or fallback `<a>` click | All export functions |
+| `syncParseCSV(csvText)` | ~18292 | Parses CSV handling quoted fields, commas, escaped quotes | All import functions |
+| `mapEntityTypeToAccountType(type)` | ~18354 | Maps entity types → Master Register Account Types (11 mappings) | `exportEntitiesToMasterRegisterCSV()` |
+| `syncHash(str)` | ~18377 | Simple string hash for dedup (djb2 variant) | `importTransactionLedgerCSV()` |
+| `showSyncConflictModal(conflicts, onResolve)` | ~18388 | Radio buttons (local/remote) per conflicting field | `importMasterRegisterCSV()` |
+| `resolveSyncConflicts()` | ~18420 | Reads radio selections, calls resolution callback | Conflict modal buttons |
+| `calculateEntityBalance(entityId)` | ~18440 | Sums debit-credit from `appData.ledgerEntries` for entity | `exportEntitiesToMasterRegisterCSV()` |
+
+#### Export Functions (5)
+
+| Function | Line | Source Data | Output | Cols |
+|---|---|---|---|---|
+| `exportEntitiesToMasterRegisterCSV()` | ~18405 | `appData.entities[]` | 29-col CSV | Master Register schema |
+| `exportLedgerToTransactionCSV()` | ~18484 | `appData.ledgerEntries[]` | 16-col CSV | Transaction Ledger schema |
+| `exportJournalToTransactionCSV()` | ~18536 | `appData.journalEntries[]` | 16-col CSV (expanded lines) | Transaction Ledger schema |
+| `export1099ToFilingChainCSV()` | ~18587 | `appData.filings['1099-*']` | 15-col CSV | 1099 Filing Chain schema |
+| `exportPayablesToObligationsCSV()` | ~18638 | `appData.payables[]` | 11-col CSV | Household Obligations schema |
+
+#### Import Functions (4)
+
+| Function | Line | Input | Target | Dedup |
+|---|---|---|---|---|
+| `importMasterRegisterCSV(inputEl)` | ~18700 | 29-col CSV file | `appData.entities[]` | Name match → conflict modal |
+| `importTransactionLedgerCSV(inputEl)` | ~18780 | 16-col CSV file | `appData.ledgerEntries[]` | Hash(date+desc+amt) skip |
+| `importObligationsCSV(inputEl)` | ~18840 | 11-col CSV file | `appData.payables[]` | Vendor name upsert |
+| `importW2IncomeCSV(inputEl)` | ~18900 | W-2 CSV file | `appData.filings['1040']` | Header mapping overwrite |
+
+#### Tier 2 Stubs (Phase 2)
+
+| Function | Line | Purpose | Current |
+|---|---|---|---|
+| `syncPush(type)` | ~18985 | Push data to GAS endpoint | `showAlert()` stub |
+| `syncPull(type)` | ~18988 | Pull data from GAS endpoint | `showAlert()` stub |
+| `syncPushAll()` | ~18991 | Sequential push all 4 types | `showAlert()` stub |
+| `syncPullAll()` | ~18994 | Sequential pull all 3 types | `showAlert()` stub |
+| `testSyncConnection()` | ~18999 | Pings GAS `?action=ping` | Functional — calls `fetch()` |
 
 ---
 

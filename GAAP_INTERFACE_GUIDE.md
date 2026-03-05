@@ -1,7 +1,7 @@
 # TMAR Universal Accrual Ledger - User Guide
 
-**Version:** 1.3.0
-**Last Updated:** 2026-03-03
+**Version:** 1.4.0
+**Last Updated:** 2026-03-04
 **Status:** ✅ Deployed and Ready
 
 ---
@@ -20,6 +20,7 @@ The **TMAR Universal Accrual Ledger** is a comprehensive GAAP-compliant accounti
 - 📄 **Tax Forms** - Form 1041, 1040, Schedule C
 - 📉 **Depreciation** - Asset depreciation tracking
 - 🏦 **Reconciliation** - Bank reconciliation tools
+- 🔄 **Sync Center** - Bidirectional data sync with Google Sheets (CSV export/import + Live Sync)
 
 This interface mirrors professional accounting software while integrating seamlessly with your TMAR Master Register Google Sheet.
 
@@ -413,26 +414,28 @@ All data is automatically saved to browser **localStorage**:
 
 ### Google Sheets Sync
 
-**Automatic integration:**
+**Automatic integration (GAS sidebar):**
 - On interface load, accounts are pulled from Master Register
 - Account dropdown populated from Master Register
 - Click **💾 Sync** to push ledger entries to Transaction Ledger sheet
 
+**Sync Center (v1.4.0) — Bidirectional CSV + Live Sync:**
+- **CSV Export**: 5 buttons export entities, ledger, journal, 1099, payables to CSV files
+- **CSV Import**: 4 file inputs import Master Register, transactions, obligations, W-2 data with dedup
+- **Live Sync** (Phase 2): Push/pull via GAS Web App Bridge endpoints
+- See **🔄 Sync Center** tab for full interface
+
 **Data flow:**
 ```
 Google Sheets Master Register
+         ↓ ↑
+   Sync Center (CSV or Live)
+         ↓ ↑
+Accrual Ledger (Entities, Ledger, Payables, 1099)
          ↓
-   (on interface load)
+   (auto-save every 5s)
          ↓
-Chart of Accounts in Interface
-         ↓
-Account Dropdown (Ledger tab)
-         ↓
-User adds ledger entries
-         ↓
-   (click Sync button)
-         ↓
-Transaction Ledger Sheet
+localStorage (TMAR_AccrualLedger_Data)
 ```
 
 ---
@@ -502,6 +505,33 @@ Transaction Ledger Sheet
 4. Click **📖 Ledger** tab to see full transaction history
 5. Click **📋 Chart of Accounts** to see balances by account
 6. Export data for records: Click **📥 Export → JSON**
+
+### Workflow 5: Syncing Data with Google Sheets
+
+**Exporting data from Accrual Ledger → Google Sheets:**
+1. Open **📊 Universal Accrual Ledger**
+2. Click **🔄 Sync Center** tab
+3. In the **CSV Exports** panel, click the appropriate export button:
+   - **Entities → Master Register** (29 columns) for account/entity data
+   - **Ledger → Transaction Ledger** (16 columns) for double-entry transactions
+   - **Payables → Obligations** (11 columns) for household bills
+   - **1099 → Filing Chain** (15 columns) for 1099 filings
+4. CSV file downloads automatically (EINs are masked for security)
+5. In Google Sheets, go to **File → Import** and upload the CSV
+6. Select "Insert new sheet" or "Replace current sheet" as appropriate
+
+**Importing data from Google Sheets → Accrual Ledger:**
+1. In Google Sheets, go to **File → Download → CSV** for the target sheet
+2. In the Accrual Ledger, click **🔄 Sync Center** tab
+3. In the **CSV Imports** panel, click the file input for the data type
+4. Select the downloaded CSV — data imports with dedup/conflict detection
+5. Review the Sync Log at the bottom for import results
+
+**Using the GAS Import Sidebar (alternative):**
+1. In Google Sheets, go to **TMAR Tools → Import → Import from Accrual Ledger...**
+2. Select import type (entities, transactions, payables, 1099s, or full sync)
+3. Paste JSON data or upload a JSON file from the Accrual Ledger
+4. Click **Import** — data is validated and written to the appropriate sheet
 
 ---
 
@@ -606,6 +636,50 @@ The Entity Verifier tab provides automated SEC EDGAR cross-reference verificatio
 - **Rate limiting** — 250ms delay between SEC EDGAR API calls to respect rate limits
 
 **Data sources:** SEC EDGAR (public companies only). Private entities, government agencies, and nonprofits require manual W-9/1099 cross-reference.
+
+### Sync Center (v1.4.0)
+
+The Sync Center tab provides bidirectional data transfer between the Accrual Ledger and the TMAR Google Sheets Master Register. It supports 3 tiers: CSV export/import (offline), GAS Web App Bridge (live), and Direct Sheets API (advanced).
+
+**Connection Setup:**
+1. In Google Sheets, deploy the Apps Script as a Web App (Extensions → Apps Script → Deploy → New Deployment → Web App)
+2. Copy the Web App URL
+3. In the Sync Center tab, paste the URL in the Connection Card input
+4. Click "Test Connection" — the status dot turns green if connected
+
+**CSV Exports (5 functions):**
+
+| Button | What It Does | Output |
+|---|---|---|
+| Entities → Master Register | Exports all entities as a 29-column CSV matching the Master Register schema | `sync_entities_MasterRegister_YYYY-MM-DD.csv` |
+| Ledger → Transaction Ledger | Exports ledger entries as a 16-column CSV (debit/credit → signed amount) | `sync_ledger_TransactionLedger_YYYY-MM-DD.csv` |
+| Journal → Transaction Ledger | Expands multi-line journal entries into individual Transaction Ledger rows | `sync_journal_TransactionLedger_YYYY-MM-DD.csv` |
+| 1099 → Filing Chain | Exports all 1099 filings (1099-A, 1099-B, etc.) as a 15-column CSV | `sync_1099_FilingChain_YYYY-MM-DD.csv` |
+| Payables → Obligations | Exports payables as an 11-column Household Obligations CSV | `sync_payables_Obligations_YYYY-MM-DD.csv` |
+
+**CSV Imports (4 functions):**
+
+| Button | What It Does | Conflict Handling |
+|---|---|---|
+| Import Master Register CSV | Creates entities from Master Register export | Matches by name — shows conflict dialog for modified entities |
+| Import Transaction Ledger CSV | Adds transactions from Transaction Ledger export | Hash-based dedup — skips exact duplicates |
+| Import Obligations CSV | Syncs payables from Household Obligations export | Upserts by vendor name — updates existing, adds new |
+| Import W-2 Income CSV | Imports W-2 employer/income data | Flexible header mapping — overwrites income fields |
+
+**Live Sync (Tier 2 — requires GAS Web App URL):**
+- **Push** — sends data from the Accrual Ledger to Google Sheets (entities, transactions, payables, 1099s)
+- **Pull** — retrieves data from Google Sheets into the Accrual Ledger (accounts, transactions, obligations)
+- **Push All / Pull All** — performs all push/pull operations sequentially with progress bar
+- Live Sync panel is disabled until a valid GAS Web App URL is configured
+
+**Sync Log:**
+- Every export, import, push, and pull operation is logged with a timestamp
+- Last 50 operations are shown in a scrollable log
+- Click "Clear Log" to reset (with confirmation)
+
+**Security:**
+- EINs are **always masked** on export using the `••-•••XXXX` format — full EINs never leave the system
+- Imported EINs from masked CSVs are ignored (the original EIN is already stored locally)
 
 ### Best Practices
 
@@ -843,6 +917,21 @@ To practice with realistic data:
 - ✅ TRCF Route 1: "Import from 1099 Filings" populates gross income + withholding
 - ✅ 1099/1065 Mechanics tab: live filing summary with counts and totals
 - ✅ Income fields replaced on import; withholding added to existing value (preserves W-2)
+
+### v1.4.0 (2026-03-04)
+
+**Sync Center — 3-Tier Data Integration (Phase 1):**
+- ✅ New tab: Sync Center with bidirectional data sync (Group 11: Data Integration)
+- ✅ 5 CSV export functions (entities→29-col, ledger→16-col, journal→16-col, 1099→15-col, payables→11-col)
+- ✅ 4 CSV import functions with conflict detection and dedup (master register, transactions, obligations, W-2)
+- ✅ GAS import sidebar (TMAR Tools > Import > Import from Accrual Ledger)
+- ✅ Sync log with timestamp tracking (last 50 operations)
+- ✅ EIN masking on all exports (••-•••XXXX format)
+- ✅ Live Sync panel (Tier 2 stubs, activated with GAS Web App URL)
+- ✅ Connection card with Test Connection verification
+- ✅ 22 new JavaScript functions (5 export, 4 import, 13 utilities)
+- ✅ 6 new GAS functions (sidebar, router, 4 import handlers)
+- ✅ Tab count: 37 → 38 sections, 38 tab buttons
 
 ### v1.2.0 (2026-03-03)
 

@@ -58,7 +58,8 @@ TMAR Tools
 │   ├── Import CSV Transactions...
 │   ├── Add Account to Master Reg...
 │   ├── Add Obligation Entry...
-│   └── Add Subscription Entry...
+│   ├── Add Subscription Entry...
+│   └── Import from Accrual Ledger...  ← NEW (v3.0)
 │
 ├── Setup & Administration ← NEW!
 │   ├── Refresh Dashboard Formulas
@@ -107,6 +108,27 @@ If you already have the TMAR Tools menu:
 ---
 
 ## Feature Details
+
+### Import from Accrual Ledger (v3.0)
+
+Opens a sidebar for importing data from the TMAR Accrual Ledger HTML app.
+
+**Import Types:**
+| Type | Target Sheet | Description |
+|------|-------------|-------------|
+| Entities | Master Register | Imports accounts/entities (dedup by provider name) |
+| Transactions | Transaction Ledger | Imports ledger entries (Source = 'Accrual Ledger') |
+| Payables | Household Obligations | Imports payables (upsert by vendor name) |
+| 1099 Filings | 1099 Filing Chain | Imports 1099 records (append after row 4) |
+| Full Sync | All above | Auto-detects data type from JSON structure |
+
+**Data Input Methods:**
+1. **Paste JSON** — Copy JSON data from Accrual Ledger export, paste into text area
+2. **Upload File** — Upload a `.json` file exported from the Accrual Ledger
+
+**GAS Functions:** `showLedgerImportDialog()`, `importFromLedger(type, jsonStr)`, `importLedgerEntities()`, `importLedgerTransactions()`, `importLedgerPayables()`, `importLedger1099s()`
+
+---
 
 ### Setup & Administration
 
@@ -175,9 +197,16 @@ If you already have the TMAR Tools menu:
 
 | File | Description |
 |------|-------------|
-| `TMAR/gas/TMAR_Unified_Complete.gs` | **New unified script** (3,188 lines) |
-| `TMAR/gas/Wimberly Unified Master Register — Google Sheets Formatting.md` | Original TMAR Tools (reference only) |
-| `06 Toolkit/Scripts/GAS/Masteraccountregister setup.md` | Original Trust Admin Tools (reference only) |
+| `TMAR/gas/Code.gs` | **Main unified menu script** (3,119 lines) — formatting, menu, year selector, gap scanner, CPA questions, import tools |
+| `TMAR/gas/SyncCenter.gs` | **Sync Center** (1,002 lines) — import sidebar + Web App Bridge (doGet/doPost) |
+| `TMAR/gas/TMARBridge.gs` | Dashboard, Add Account, Financial Summary (342 lines) |
+| `TMAR/gas/CreditReportImport.gs` | Credit report account import |
+| `TMAR/gas/DuplicateAnalyzer.gs` | Duplicate detection and cleanup |
+| `TMAR/gas/ExecuteCleanup.gs` | Cleanup execution functions |
+| `TMAR/gas/GUIFunctions.gs` | GUI helper functions |
+| `TMAR/gas/PopulateValidation.gs` | _Validation sheet population |
+| `TMAR/gas/*.html` | 7 HTML sidebars/dialogs (AddAccount, BillOfExchange, ControlPanel, etc.) |
+| `06 Toolkit/Scripts/GAS/apply_master_register_formatting.gs` | **Source reference file** (4,127 lines, not deployed — use for reference only) |
 | `TMAR/UNIFIED_MENU_README.md` | This documentation file |
 
 ---
@@ -214,6 +243,7 @@ If you already have the TMAR Tools menu:
 |---------|------|---------|
 | 1.0 | Various | Original TMAR Tools + Trust Admin Tools (separate) |
 | 2.0 | 2026-02-28 | **Unified menu system** — All features integrated into single script |
+| 3.0 | 2026-03-04 | **Sync Center integration** — Import from Accrual Ledger sidebar (6 new GAS functions) |
 
 ---
 
@@ -229,11 +259,13 @@ For issues or questions:
 
 ## Technical Notes
 
-- **Total Lines:** 3,188
+- **Total Project Lines:** ~8,700 (across 7 `.gs` files + 7 `.html` files)
+- **Code.gs:** 3,119 lines | **SyncCenter.gs:** 1,002 lines
 - **Menu Items:** 35+ functions
 - **Submenus:** 7
 - **Auto-generated items:** MR-XXX IDs, Q-IDs, timestamps
 - **Sheet compatibility:** Works with TMAR 35-column schema
+- **Web App:** SyncCenter.gs provides `doGet`/`doPost` endpoints for Live Sync
 
 ---
 

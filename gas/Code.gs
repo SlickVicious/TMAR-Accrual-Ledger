@@ -545,7 +545,9 @@ function onOpen() {
       .addSeparator()
       .addItem('Add Account to Master Reg...', 'showAddAccountDialog')
       .addItem('Add Obligation Entry...', 'showAddObligationDialog')
-      .addItem('Add Subscription Entry...', 'showAddSubscriptionDialog'))
+      .addItem('Add Subscription Entry...', 'showAddSubscriptionDialog')
+      .addSeparator()
+      .addItem('Import from Accrual Ledger...', 'showLedgerImportDialog'))
 
 
     .addSubMenu(ui.createMenu('Setup & Administration')
