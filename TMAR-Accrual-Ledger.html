@@ -20919,7 +20919,45 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     var results = [];
 
     function pullNext() {
-      if (current >= steps.l
+      if (current >= steps.length) {
+        hideSyncProgress();
+        var summary = results.map(function(r) { return r.label + ': ' + (r.imported || 0); }).join(', ');
+        updateSyncStatus('Pull All complete — ' + summary, false);
+        addSyncLogEntry('Pull All (' + total + ' types)', 'pull', results.reduce(function(s, r) { return s + (r.imported || 0); }, 0), 'success');
+        appData.settings.lastSyncTimestamp = new Date().toISOString();
+        saveToStorage();
+        return;
+      }
+
+      var step = steps[current];
+      var pct = Math.round(((current + 0.5) / total) * 100);
+      showSyncProgress('Pulling ' + step.label + ' (' + (current + 1) + '/' + total + ')...', pct);
+      updateSyncStatus('Pulling ' + step.label + '...', false);
+
+      step.method()
+        .then(function(data) {
+          if (step.applyFn) step.applyFn(data);
+          results.push({ label: step.label, imported: data.length || 0 });
+          current++;
+          pullNext();
+        })
+        .catch(function(err) {
+          hideSyncProgress();
+          updateSyncStatus('Pull All failed at ' + step.label + ': ' + err.message, true);
+          addSyncLogEntry('Pull All (failed at ' + step.label + ')', 'pull', 0, 'error');
+        });
+    }
+
+    pullNext();
+  }
+
+</script>
+
+</div>
+<div id="autoSaveStatus" style="position: fixed; bottom: 20px; right: 20px; padding: 10px 20px; border-radius: 8px; font-size: 12px; z-index: 9999; transition: opacity 0.3s;"></div>
+
+</body>
+
 <!-- ===== EON AI SIDEBAR ===== -->
 <aside class="sidebar" id="eonSidebar" style="display:none">
   <div style="padding:8px 0 16px;border-bottom:1px solid var(--border-color);margin-bottom:8px">
