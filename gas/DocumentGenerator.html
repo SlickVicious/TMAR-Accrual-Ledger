@@ -5,711 +5,1753 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Legal Document Generator</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%);
-      padding: 20px;
-      min-height: 100vh;
+      padding: 20px; min-height: 100vh;
     }
-
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
+    .container { max-width: 1400px; margin: 0 auto; }
     .header {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-radius: 16px;
-      padding: 30px;
-      margin-bottom: 30px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-      text-align: center;
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+      border-radius: 16px; padding: 30px; margin-bottom: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2); text-align: center;
     }
-
     .header h1 {
-      font-size: 32px;
-      font-weight: 700;
+      font-size: 32px; font-weight: 700;
       background: linear-gradient(135deg, #1e3a8a, #7c3aed);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 10px;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px;
     }
-
-    .header p {
-      color: #64748b;
-      font-size: 16px;
-    }
-
+    .header p { color: #64748b; font-size: 16px; }
     .doc-types-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-      margin-bottom: 30px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px; margin-bottom: 30px;
     }
-
     .doc-type-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-radius: 16px;
-      padding: 25px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-      cursor: pointer;
-      transition: all 0.3s;
-      border: 2px solid transparent;
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+      border-radius: 16px; padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      cursor: pointer; transition: all 0.3s; border: 2px solid transparent;
     }
-
-    .doc-type-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
-      border-color: #7c3aed;
-    }
-
-    .doc-type-card.selected {
-      border-color: #7c3aed;
-      background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(30, 58, 138, 0.1));
-    }
-
-    .doc-icon {
-      font-size: 48px;
-      margin-bottom: 15px;
-      text-align: center;
-    }
-
-    .doc-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: #1e293b;
-      margin-bottom: 8px;
-      text-align: center;
-    }
-
-    .doc-description {
-      font-size: 13px;
-      color: #64748b;
-      line-height: 1.6;
-      text-align: center;
-    }
-
+    .doc-type-card:hover { transform: translateY(-5px); box-shadow: 0 15px 50px rgba(0,0,0,0.3); border-color: #7c3aed; }
+    .doc-type-card.selected { border-color: #7c3aed; background: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(30,58,138,0.1)); }
+    .doc-type-card.card-1099b { border-color: #059669; }
+    .doc-type-card.card-1099b:hover { border-color: #047857; box-shadow: 0 15px 50px rgba(5,150,105,0.3); }
+    .doc-type-card.card-1099b.selected { border-color: #047857; background: linear-gradient(135deg, rgba(5,150,105,0.1), rgba(4,120,87,0.1)); }
+    .doc-type-card.card-1099a { border-color: #d97706; }
+    .doc-type-card.card-1099a:hover { border-color: #b45309; box-shadow: 0 15px 50px rgba(217,119,6,0.3); }
+    .doc-type-card.card-1099a.selected { border-color: #b45309; background: linear-gradient(135deg, rgba(217,119,6,0.1), rgba(180,83,9,0.1)); }
+    .doc-icon { font-size: 48px; margin-bottom: 15px; text-align: center; }
+    .doc-title { font-size: 18px; font-weight: 700; color: #1e293b; margin-bottom: 8px; text-align: center; }
+    .doc-description { font-size: 13px; color: #64748b; line-height: 1.6; text-align: center; }
     .form-section {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-radius: 16px;
-      padding: 30px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-      display: none;
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+      border-radius: 16px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); display: none;
     }
-
-    .form-section.active {
-      display: block;
-      animation: fadeIn 0.3s;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .section-header {
-      margin-bottom: 25px;
-      padding-bottom: 15px;
-      border-bottom: 2px solid #e2e8f0;
-    }
-
-    .section-title {
-      font-size: 22px;
-      font-weight: 700;
-      color: #1e293b;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      margin-bottom: 25px;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .form-label {
-      font-size: 13px;
-      font-weight: 600;
-      color: #475569;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
+    .form-section.active { display: block; animation: fadeIn 0.3s; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .section-header { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #e2e8f0; }
+    .section-title { font-size: 22px; font-weight: 700; color: #1e293b; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 25px; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+    .form-label { font-size: 13px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
+    .form-label .req { color: #dc2626; }
     .form-input, .form-select, .form-textarea {
-      padding: 12px 16px;
-      border: 2px solid #e2e8f0;
-      border-radius: 8px;
-      font-size: 15px;
-      transition: all 0.3s;
-      font-family: inherit;
+      padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px;
+      font-size: 15px; transition: all 0.3s; font-family: inherit;
     }
-
     .form-input:focus, .form-select:focus, .form-textarea:focus {
-      outline: none;
-      border-color: #7c3aed;
-      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+      outline: none; border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
     }
-
-    .form-textarea {
-      resize: vertical;
-      min-height: 120px;
-    }
-
+    .form-input.error { border-color: #dc2626; background: #fff5f5; }
+    .form-input.locked { background: #f8fafc; color: #64748b; cursor: not-allowed; }
+    .field-error { font-size: 11px; color: #dc2626; margin-top: 2px; }
+    .form-textarea { resize: vertical; min-height: 120px; }
     .btn {
-      padding: 14px 32px;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-size: 16px;
+      padding: 14px 32px; border: none; border-radius: 8px;
+      font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 16px;
     }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #1e3a8a, #7c3aed);
-      color: white;
-      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(124, 58, 237, 0.5);
-    }
-
-    .btn-secondary {
-      background: #f1f5f9;
-      color: #475569;
-    }
-
-    .btn-secondary:hover {
-      background: #e2e8f0;
-    }
-
-    .action-buttons {
-      display: flex;
-      gap: 15px;
-      margin-top: 30px;
-      padding-top: 25px;
-      border-top: 2px solid #e2e8f0;
-    }
-
+    .btn-primary { background: linear-gradient(135deg, #1e3a8a, #7c3aed); color: white; box-shadow: 0 4px 12px rgba(124,58,237,0.4); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(124,58,237,0.5); }
+    .btn-green { background: linear-gradient(135deg, #059669, #047857); color: white; box-shadow: 0 4px 12px rgba(5,150,105,0.4); }
+    .btn-green:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(5,150,105,0.5); }
+    .btn-secondary { background: #f1f5f9; color: #475569; }
+    .btn-secondary:hover { background: #e2e8f0; }
+    .btn-sm { padding: 8px 16px; font-size: 13px; }
+    .btn-danger { background: #fee2e2; color: #dc2626; }
+    .btn-danger:hover { background: #fecaca; }
+    .action-buttons { display: flex; gap: 15px; margin-top: 30px; padding-top: 25px; border-top: 2px solid #e2e8f0; flex-wrap: wrap; }
     .preview-section {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-radius: 16px;
-      padding: 40px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-      margin-top: 30px;
-      display: none;
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+      border-radius: 16px; padding: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      margin-top: 30px; display: none;
     }
-
-    .preview-section.active {
-      display: block;
-      animation: fadeIn 0.3s;
-    }
-
+    .preview-section.active { display: block; animation: fadeIn 0.3s; }
     .document-preview {
-      background: white;
-      border: 2px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 40px;
-      min-height: 400px;
-      font-family: 'Georgia', serif;
-      line-height: 1.8;
-      color: #1e293b;
+      background: white; border: 2px solid #e2e8f0; border-radius: 8px;
+      padding: 40px; min-height: 400px; font-family: 'Georgia', serif; line-height: 1.8; color: #1e293b;
     }
+    .doc-header-preview { text-align: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 3px double #1e293b; }
+    .doc-title-preview { font-size: 28px; font-weight: 700; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 2px; }
+    .doc-content-preview { margin-bottom: 30px; }
+    .doc-content-preview p { margin-bottom: 20px; text-align: justify; }
+    .signature-line { border-top: 2px solid #1e293b; width: 300px; margin: 40px 0 10px 0; }
 
-    .doc-header-preview {
-      text-align: center;
-      margin-bottom: 40px;
-      padding-bottom: 20px;
-      border-bottom: 3px double #1e293b;
+    /* ── 1099-B Module ──────────────────────────────────────────── */
+    .subsection {
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;
+      padding: 20px; margin-bottom: 20px;
     }
-
-    .doc-title-preview {
-      font-size: 28px;
-      font-weight: 700;
-      margin-bottom: 15px;
-      text-transform: uppercase;
-      letter-spacing: 2px;
+    .subsection-title {
+      font-size: 14px; font-weight: 700; color: #1e3a8a; text-transform: uppercase;
+      letter-spacing: 0.7px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
     }
-
-    .doc-content-preview {
-      margin-bottom: 30px;
+    .subsection-title .badge {
+      background: #1e3a8a; color: white; font-size: 10px; padding: 2px 8px; border-radius: 20px;
     }
-
-    .doc-content-preview p {
-      margin-bottom: 20px;
-      text-align: justify;
+    .payer-locked-badge {
+      display: inline-flex; align-items: center; gap: 6px; background: #dcfce7;
+      border: 1px solid #86efac; border-radius: 6px; padding: 4px 10px;
+      font-size: 12px; font-weight: 600; color: #166534; margin-bottom: 16px;
     }
-
-    .signature-line {
-      border-top: 2px solid #1e293b;
-      width: 300px;
-      margin: 40px 0 10px 0;
+    .recipient-cards { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+    .recipient-card {
+      background: white; border: 2px solid #e2e8f0; border-radius: 10px; padding: 16px;
+      position: relative; transition: border-color 0.2s;
     }
+    .recipient-card:hover { border-color: #059669; }
+    .recipient-card-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;
+    }
+    .recipient-card-title { font-size: 13px; font-weight: 700; color: #475569; }
+    .recipient-summary {
+      font-size: 12px; color: #64748b; margin-top: 4px;
+      background: #f1f5f9; padding: 4px 10px; border-radius: 4px; font-family: monospace;
+    }
+    .add-recipient-btn {
+      display: flex; align-items: center; gap: 8px; padding: 12px 20px;
+      background: #ecfdf5; border: 2px dashed #6ee7b7; border-radius: 10px;
+      color: #059669; font-weight: 600; font-size: 14px; cursor: pointer;
+      transition: all 0.2s; width: 100%;
+    }
+    .add-recipient-btn:hover { background: #d1fae5; border-color: #34d399; }
+    .recipient-form-modal {
+      background: #f0fdf4; border: 2px solid #6ee7b7; border-radius: 12px; padding: 20px; margin-top: 12px;
+    }
+    .modal-section-label {
+      font-size: 11px; font-weight: 700; color: #059669; text-transform: uppercase;
+      letter-spacing: 0.8px; margin: 14px 0 8px;
+    }
+    .form-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .form-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .form-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .input-sm { padding: 9px 12px; font-size: 14px; }
+    .char-counter { font-size: 10px; color: #94a3b8; text-align: right; }
+    .validation-summary {
+      background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px;
+      padding: 12px 16px; margin-bottom: 16px; display: none;
+    }
+    .validation-summary.visible { display: block; }
+    .validation-summary ul { margin: 6px 0 0 16px; }
+    .validation-summary li { font-size: 13px; color: #dc2626; margin-bottom: 3px; }
+    .csv-preview-box {
+      background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 16px;
+      font-family: 'Courier New', monospace; font-size: 12px; overflow-x: auto;
+      max-height: 200px; overflow-y: auto; white-space: pre;
+    }
+    .row-count-badge {
+      display: inline-flex; align-items: center; gap: 6px; background: #1e3a8a;
+      color: white; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 20px;
+    }
+    .name-type-toggle { display: flex; gap: 8px; }
+    .name-type-btn {
+      flex: 1; padding: 8px; border: 2px solid #e2e8f0; border-radius: 6px;
+      background: white; cursor: pointer; font-size: 13px; font-weight: 600;
+      text-align: center; transition: all 0.2s; color: #64748b;
+    }
+    .name-type-btn.active { border-color: #059669; background: #ecfdf5; color: #059669; }
+    .name-fields-business, .name-fields-individual { display: none; }
+    .name-fields-business.visible, .name-fields-individual.visible { display: block; }
 
     @media print {
-      body {
-        background: white;
-        padding: 0;
-      }
-
-      .header,
-      .doc-types-grid,
-      .form-section,
-      .action-buttons {
-        display: none !important;
-      }
-
-      .preview-section {
-        box-shadow: none;
-        border: none;
-        padding: 0;
-      }
+      body { background: white; padding: 0; }
+      .header, .doc-types-grid, .form-section, .action-buttons { display: none !important; }
+      .preview-section { box-shadow: none; border: none; padding: 0; }
     }
   </style>
 </head>
 <body>
+<div class="container">
 
-  <div class="container">
+  <div class="header">
+    <h1>📄 Legal Document Generator</h1>
+    <p>Create professional legal documents for trust administration and estate planning</p>
+  </div>
 
-    <div class="header">
-      <h1>📄 Legal Document Generator</h1>
-      <p>Create professional legal documents for trust administration and estate planning</p>
+  <div class="doc-types-grid">
+    <div class="doc-type-card" onclick="selectDocType('trust')">
+      <div class="doc-icon">🏛️</div>
+      <div class="doc-title">Trust Instrument</div>
+      <div class="doc-description">Private Family Trust agreements and amendments</div>
+    </div>
+    <div class="doc-type-card" onclick="selectDocType('affidavit')">
+      <div class="doc-icon">✍️</div>
+      <div class="doc-title">Affidavit</div>
+      <div class="doc-description">Sworn statements and declarations under oath</div>
+    </div>
+    <div class="doc-type-card" onclick="selectDocType('notice')">
+      <div class="doc-icon">📧</div>
+      <div class="doc-title">Notice/Letter</div>
+      <div class="doc-description">Legal notices and formal correspondence</div>
+    </div>
+    <div class="doc-type-card" onclick="selectDocType('ucc')">
+      <div class="doc-icon">📋</div>
+      <div class="doc-title">UCC Filing</div>
+      <div class="doc-description">UCC-1 financing statements and filings</div>
+    </div>
+    <div class="doc-type-card" onclick="selectDocType('poa')">
+      <div class="doc-icon">⚖️</div>
+      <div class="doc-title">Power of Attorney</div>
+      <div class="doc-description">Durable and general power of attorney documents</div>
+    </div>
+    <div class="doc-type-card" onclick="selectDocType('will')">
+      <div class="doc-icon">📜</div>
+      <div class="doc-title">Last Will</div>
+      <div class="doc-description">Last Will and Testament documents</div>
+    </div>
+    <div class="doc-type-card card-1099b" onclick="selectDocType('1099b')">
+      <div class="doc-icon">📊</div>
+      <div class="doc-title">1099-B CSV</div>
+      <div class="doc-description">IRS submission-ready CSV — broker &amp; barter exchange proceeds per IRS e-file spec</div>
+    </div>
+    <div class="doc-type-card card-1099a" onclick="selectDocType('1099a')">
+      <div class="doc-icon">🏠</div>
+      <div class="doc-title">1099-A CSV</div>
+      <div class="doc-description">IRS submission-ready CSV — acquisition or abandonment of secured property</div>
+    </div>
+  </div>
+
+  <!-- Trust Instrument Form -->
+  <div id="trustForm" class="form-section">
+    <div class="section-header"><div class="section-title">Private Family Trust Agreement</div></div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Trust Name *</label>
+        <input type="text" class="form-input" id="trustName" placeholder="Wimberly Family Trust">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Jurisdiction *</label>
+        <select class="form-select" id="trustJurisdiction">
+          <option value="North Carolina">North Carolina</option>
+          <option value="South Carolina">South Carolina</option>
+          <option value="Virginia">Virginia</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Effective Date *</label>
+        <input type="date" class="form-input" id="trustDate">
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Grantor Name *</label>
+        <input type="text" class="form-input" id="grantorName" placeholder="Clint Wimberly">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Grantor Address *</label>
+        <input type="text" class="form-input" id="grantorAddress" placeholder="123 Main St, City, State ZIP">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Trustee Name *</label>
+        <input type="text" class="form-input" id="trusteeName" placeholder="Clint Wimberly">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Trust Purpose</label>
+      <textarea class="form-textarea" id="trustPurpose" placeholder="Enter the purpose and goals of this trust..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Beneficiaries (comma separated)</label>
+      <input type="text" class="form-input" id="beneficiaries" placeholder="Syrina Wimberly, Future Children">
+    </div>
+    <div class="action-buttons">
+      <button class="btn btn-primary" onclick="generateDocument('trust')">Generate Trust</button>
+      <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
+    </div>
+  </div>
+
+  <!-- Affidavit Form -->
+  <div id="affidavitForm" class="form-section">
+    <div class="section-header"><div class="section-title">Affidavit</div></div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Affiant Name *</label>
+        <input type="text" class="form-input" id="affiantName" placeholder="Clint Wimberly">
+      </div>
+      <div class="form-group">
+        <label class="form-label">County *</label>
+        <input type="text" class="form-input" id="affidavitCounty" placeholder="Wake County">
+      </div>
+      <div class="form-group">
+        <label class="form-label">State *</label>
+        <input type="text" class="form-input" id="affidavitState" value="North Carolina">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Statement of Facts *</label>
+      <textarea class="form-textarea" id="affidavitStatement" placeholder="I, the undersigned, hereby state under oath that..."></textarea>
+    </div>
+    <div class="action-buttons">
+      <button class="btn btn-primary" onclick="generateDocument('affidavit')">Generate Affidavit</button>
+      <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
+    </div>
+  </div>
+
+  <!-- Notice/Letter Form -->
+  <div id="noticeForm" class="form-section">
+    <div class="section-header"><div class="section-title">Legal Notice / Formal Letter</div></div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">From *</label>
+        <input type="text" class="form-input" id="noticeFrom" placeholder="Your Name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">To *</label>
+        <input type="text" class="form-input" id="noticeTo" placeholder="Recipient Name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Date *</label>
+        <input type="date" class="form-input" id="noticeDate">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Subject *</label>
+      <input type="text" class="form-input" id="noticeSubject" placeholder="RE: Legal Matter">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Body *</label>
+      <textarea class="form-textarea" id="noticeBody" placeholder="Dear [Recipient]..." style="min-height:200px"></textarea>
+    </div>
+    <div class="action-buttons">
+      <button class="btn btn-primary" onclick="generateDocument('notice')">Generate Notice</button>
+      <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       1099-B CSV GENERATOR
+       ═══════════════════════════════════════════════════ -->
+  <div id="form1099b" class="form-section">
+    <div class="section-header">
+      <div class="section-title">📊 IRS 1099-B CSV Generator</div>
+      <div style="font-size:13px;color:#64748b;margin-top:6px">
+        Generates submission-ready CSV per IRS e-file formatting spec (55 columns, Cols A–BC)
+      </div>
     </div>
 
-    <div class="doc-types-grid">
-      <div class="doc-type-card" onclick="selectDocType('trust')">
-        <div class="doc-icon">🏛️</div>
-        <div class="doc-title">Trust Instrument</div>
-        <div class="doc-description">Private Family Trust agreements and amendments</div>
-      </div>
-
-      <div class="doc-type-card" onclick="selectDocType('affidavit')">
-        <div class="doc-icon">✍️</div>
-        <div class="doc-title">Affidavit</div>
-        <div class="doc-description">Sworn statements and declarations under oath</div>
-      </div>
-
-      <div class="doc-type-card" onclick="selectDocType('notice')">
-        <div class="doc-icon">📧</div>
-        <div class="doc-title">Notice/Letter</div>
-        <div class="doc-description">Legal notices and formal correspondence</div>
-      </div>
-
-      <div class="doc-type-card" onclick="selectDocType('ucc')">
-        <div class="doc-icon">📋</div>
-        <div class="doc-title">UCC Filing</div>
-        <div class="doc-description">UCC-1 financing statements and filings</div>
-      </div>
-
-      <div class="doc-type-card" onclick="selectDocType('poa')">
-        <div class="doc-icon">⚖️</div>
-        <div class="doc-title">Power of Attorney</div>
-        <div class="doc-description">Durable and general power of attorney documents</div>
-      </div>
-
-      <div class="doc-type-card" onclick="selectDocType('will')">
-        <div class="doc-icon">📜</div>
-        <div class="doc-title">Last Will</div>
-        <div class="doc-description">Last Will and Testament documents</div>
-      </div>
+    <!-- Validation Summary -->
+    <div class="validation-summary" id="b1099ValidationSummary">
+      <strong style="color:#dc2626">⚠ Please fix the following errors before exporting:</strong>
+      <ul id="b1099ErrorList"></ul>
     </div>
 
-    <!-- Trust Instrument Form -->
-    <div id="trustForm" class="form-section">
-      <div class="section-header">
-        <div class="section-title">Private Family Trust Agreement</div>
+    <!-- ── SECTION 1: PAYER ── -->
+    <div class="subsection">
+      <div class="subsection-title">
+        📤 Payer Information (Cols A–S)
+        <span class="badge">Pre-populated</span>
       </div>
-
-      <div class="form-grid">
+      <div class="payer-locked-badge">✅ Auto-filled from Trust EIN 41-6809588 — edit only if filing under a different payer</div>
+      <div class="form-grid-3">
         <div class="form-group">
-          <label class="form-label">Trust Name *</label>
-          <input type="text" class="form-input" id="trustName" placeholder="Wimberly Family Trust">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Jurisdiction *</label>
-          <select class="form-select" id="trustJurisdiction">
-            <option value="North Carolina">North Carolina</option>
-            <option value="South Carolina">South Carolina</option>
-            <option value="Virginia">Virginia</option>
-            <option value="Other">Other</option>
+          <label class="form-label">Tax Year <span class="req">*</span></label>
+          <select class="form-select input-sm" id="b_taxYear">
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+            <option value="2022">2022</option>
+            <option value="2021">2021</option>
+            <option value="2020">2020</option>
           </select>
         </div>
-
         <div class="form-group">
-          <label class="form-label">Effective Date *</label>
-          <input type="date" class="form-input" id="trustDate">
+          <label class="form-label">Payer TIN Type <span class="req">*</span></label>
+          <select class="form-select input-sm" id="b_payerTINType">
+            <option value="EIN">EIN</option>
+            <option value="SSN">SSN</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Payer TIN <span class="req">*</span></label>
+          <input type="text" class="form-input input-sm" id="b_payerTIN" value="41-6809588" placeholder="XX-XXXXXXX">
         </div>
       </div>
-
-      <div class="form-grid">
+      <div class="form-grid-3">
         <div class="form-group">
-          <label class="form-label">Grantor Name *</label>
-          <input type="text" class="form-input" id="grantorName" placeholder="Clint Wimberly">
+          <label class="form-label">Payer Name Type <span class="req">*</span></label>
+          <select class="form-select input-sm" id="b_payerNameType">
+            <option value="B">B — Business</option>
+            <option value="I">I — Individual</option>
+          </select>
         </div>
-
-        <div class="form-group">
-          <label class="form-label">Grantor Address *</label>
-          <input type="text" class="form-input" id="grantorAddress" placeholder="123 Main St, City, State ZIP">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Trustee Name *</label>
-          <input type="text" class="form-input" id="trusteeName" placeholder="Clint Wimberly">
+        <div class="form-group" style="grid-column:span 2">
+          <label class="form-label">Payer Business Name Line 1 <span class="req">*</span></label>
+          <input type="text" class="form-input input-sm" id="b_payerName1" maxlength="40"
+            value="A Provident Private Creditor Revocable">
+          <div class="char-counter"><span id="b_payerName1Ct">37</span>/40</div>
         </div>
       </div>
-
-      <div class="form-group">
-        <label class="form-label">Trust Purpose</label>
-        <textarea class="form-textarea" id="trustPurpose" placeholder="Enter the purpose and goals of this trust..."></textarea>
+      <div class="form-grid-3">
+        <div class="form-group" style="grid-column:span 2">
+          <label class="form-label">Payer Business Name Line 2</label>
+          <input type="text" class="form-input input-sm" id="b_payerName2" maxlength="40" value="Living Trust">
+          <div class="char-counter"><span id="b_payerName2Ct">12</span>/40</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Country <span class="req">*</span></label>
+          <input type="text" class="form-input input-sm" id="b_payerCountry" value="US" maxlength="2">
+        </div>
       </div>
-
-      <div class="form-group">
-        <label class="form-label">Beneficiaries (comma separated)</label>
-        <input type="text" class="form-input" id="beneficiaries" placeholder="Syrina Wimberly, Future Children">
+      <div class="form-grid-4">
+        <div class="form-group" style="grid-column:span 2">
+          <label class="form-label">Address Line 1 <span class="req">*</span></label>
+          <input type="text" class="form-input input-sm" id="b_payerAddr1" maxlength="35" placeholder="123 Main St">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Address Line 2</label>
+          <input type="text" class="form-input input-sm" id="b_payerAddr2" maxlength="35">
+        </div>
+        <div class="form-group">
+          <label class="form-label">City <span class="req">*</span></label>
+          <input type="text" class="form-input input-sm" id="b_payerCity" maxlength="40" placeholder="Kinston">
+        </div>
       </div>
-
-      <div class="action-buttons">
-        <button class="btn btn-primary" onclick="generateDocument('trust')">Generate Trust</button>
-        <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
+      <div class="form-grid-4">
+        <div class="form-group">
+          <label class="form-label">State <span class="req">*</span></label>
+          <input type="text" class="form-input input-sm" id="b_payerState" maxlength="2" placeholder="NC">
+        </div>
+        <div class="form-group">
+          <label class="form-label">ZIP <span class="req">*</span></label>
+          <input type="text" class="form-input input-sm" id="b_payerZip" maxlength="12" placeholder="28501">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone Type</label>
+          <select class="form-select input-sm" id="b_payerPhoneType">
+            <option value="">— None —</option>
+            <option value="D">D — Domestic</option>
+            <option value="I">I — International</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone</label>
+          <input type="text" class="form-input input-sm" id="b_payerPhone" placeholder="2525551234">
+        </div>
       </div>
     </div>
 
-    <!-- Affidavit Form -->
-    <div id="affidavitForm" class="form-section">
-      <div class="section-header">
-        <div class="section-title">Affidavit</div>
+    <!-- ── SECTION 2: RECIPIENTS ── -->
+    <div class="subsection">
+      <div class="subsection-title">
+        📥 Recipients &amp; Transactions (Cols T–AP)
+        <span class="row-count-badge" id="recipientCountBadge">0 rows</span>
       </div>
 
-      <div class="form-grid">
-        <div class="form-group">
-          <label class="form-label">Affiant Name *</label>
-          <input type="text" class="form-input" id="affiantName" placeholder="Clint Wimberly">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">County *</label>
-          <input type="text" class="form-input" id="affidavitCounty" placeholder="Wake County">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">State *</label>
-          <input type="text" class="form-input" id="affidavitState" value="North Carolina">
+      <div class="recipient-cards" id="recipientCards">
+        <div style="text-align:center;padding:20px;color:#94a3b8;font-size:14px">
+          No recipients yet. Click "Add Recipient / Transaction" below to begin.
         </div>
       </div>
 
-      <div class="form-group">
-        <label class="form-label">Statement of Facts *</label>
-        <textarea class="form-textarea" id="affidavitStatement" placeholder="I, the undersigned, hereby state under oath that..."></textarea>
+      <!-- Add Recipient Form -->
+      <div class="add-recipient-btn" onclick="toggleAddRecipientForm()">
+        <span id="addRecBtnIcon">＋</span>
+        <span id="addRecBtnLabel">Add Recipient / Transaction</span>
       </div>
 
-      <div class="action-buttons">
-        <button class="btn btn-primary" onclick="generateDocument('affidavit')">Generate Affidavit</button>
-        <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
+      <div class="recipient-form-modal" id="recipientFormModal" style="display:none">
+
+        <div class="modal-section-label">Recipient Identity</div>
+        <div class="form-grid-4">
+          <div class="form-group">
+            <label class="form-label">TIN Type</label>
+            <select class="form-select input-sm" id="r_tinType">
+              <option value="">— None —</option>
+              <option value="SSN">SSN</option>
+              <option value="EIN">EIN</option>
+              <option value="ITIN">ITIN</option>
+              <option value="ATIN">ATIN</option>
+              <option value="QI-EIN">QI-EIN</option>
+              <option value="UND">UND</option>
+            </select>
+          </div>
+          <div class="form-group" style="grid-column:span 2">
+            <label class="form-label">TIN / Taxpayer ID</label>
+            <input type="text" class="form-input input-sm" id="r_tin" placeholder="XXX-XX-XXXX or XX-XXXXXXX">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Name Type <span class="req">*</span></label>
+            <div class="name-type-toggle">
+              <div class="name-type-btn active" id="nameTypeBtnI" onclick="setRecNameType('I')">I — Individual</div>
+              <div class="name-type-btn" id="nameTypeBtnB" onclick="setRecNameType('B')">B — Business</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Individual Name Fields -->
+        <div class="name-fields-individual visible" id="nameFieldsIndividual">
+          <div class="form-grid-4">
+            <div class="form-group">
+              <label class="form-label">First Name <span class="req">*</span></label>
+              <input type="text" class="form-input input-sm" id="r_firstName" maxlength="20">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Middle Name</label>
+              <input type="text" class="form-input input-sm" id="r_middleName" maxlength="20">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name <span class="req">*</span></label>
+              <input type="text" class="form-input input-sm" id="r_lastName" maxlength="20">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Suffix</label>
+              <input type="text" class="form-input input-sm" id="r_suffix" maxlength="20">
+            </div>
+          </div>
+        </div>
+
+        <!-- Business Name Fields -->
+        <div class="name-fields-business" id="nameFieldsBusiness">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Business Name Line 1 <span class="req">*</span></label>
+              <input type="text" class="form-input input-sm" id="r_bizName1" maxlength="40">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Business Name Line 2</label>
+              <input type="text" class="form-input input-sm" id="r_bizName2" maxlength="40">
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-section-label">Recipient Address</div>
+        <div class="form-grid-4">
+          <div class="form-group" style="grid-column:span 2">
+            <label class="form-label">Address Line 1 <span class="req">*</span></label>
+            <input type="text" class="form-input input-sm" id="r_addr1" maxlength="35">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Address Line 2</label>
+            <input type="text" class="form-input input-sm" id="r_addr2" maxlength="35">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Country <span class="req">*</span></label>
+            <input type="text" class="form-input input-sm" id="r_country" value="US" maxlength="2">
+          </div>
+        </div>
+        <div class="form-grid-4">
+          <div class="form-group" style="grid-column:span 2">
+            <label class="form-label">City <span class="req">*</span></label>
+            <input type="text" class="form-input input-sm" id="r_city" maxlength="40">
+          </div>
+          <div class="form-group">
+            <label class="form-label">State <span class="req">*</span></label>
+            <input type="text" class="form-input input-sm" id="r_state" maxlength="2" placeholder="NC">
+          </div>
+          <div class="form-group">
+            <label class="form-label">ZIP <span class="req">*</span></label>
+            <input type="text" class="form-input input-sm" id="r_zip" maxlength="12">
+          </div>
+        </div>
+
+        <div class="modal-section-label">Form Details</div>
+        <div class="form-grid-4">
+          <div class="form-group">
+            <label class="form-label">Office Code</label>
+            <input type="text" class="form-input input-sm" id="r_officeCode" maxlength="4" placeholder="1234">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Account Number</label>
+            <input type="text" class="form-input input-sm" id="r_accountNum" maxlength="20">
+          </div>
+          <div class="form-group">
+            <label class="form-label">FATCA Filing</label>
+            <select class="form-select input-sm" id="r_fatca">
+              <option value="N">N — No</option>
+              <option value="Y">Y — Yes</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">2nd TIN Notice</label>
+            <select class="form-select input-sm" id="r_2ndTIN">
+              <option value="N">N — No</option>
+              <option value="Y">Y — Yes</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-grid-3">
+          <div class="form-group">
+            <label class="form-label">1099-B Form Type <span class="req">*</span></label>
+            <select class="form-select input-sm" id="r_formType">
+              <option value="S">S — Stock</option>
+              <option value="R">R — Regulated</option>
+              <option value="B">B — Bartering</option>
+            </select>
+          </div>
+          <div class="form-group" style="grid-column:span 2">
+            <label class="form-label">Box 1a — Description of Property <span class="req">*</span></label>
+            <input type="text" class="form-input input-sm" id="r_box1a" maxlength="100" placeholder="100 sh. XYZ Co.">
+            <div class="char-counter"><span id="r_box1aCt">0</span>/100</div>
+          </div>
+        </div>
+        <div class="form-grid-3">
+          <div class="form-group">
+            <label class="form-label">Box 4 — Federal Tax Withheld ($)</label>
+            <input type="number" class="form-input input-sm" id="r_box4" min="0" step="0.01" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Box 13 — Bartering ($)</label>
+            <input type="number" class="form-input input-sm" id="r_box13" min="0" step="0.01" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label class="form-label">CF/SF States</label>
+            <input type="text" class="form-input input-sm" id="r_cfsf" placeholder='"AL,CA,NC"'>
+          </div>
+        </div>
+
+        <div class="modal-section-label">State Filing (Optional)</div>
+        <div class="form-grid-4" style="margin-bottom:10px">
+          <div class="form-group">
+            <label class="form-label">State 1</label>
+            <input type="text" class="form-input input-sm" id="r_state1" maxlength="2" placeholder="NC">
+          </div>
+          <div class="form-group">
+            <label class="form-label">State 1 Tax Withheld</label>
+            <input type="number" class="form-input input-sm" id="r_s1tax" min="0" step="0.01" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label class="form-label">State 1 Payer # (max 24)</label>
+            <input type="text" class="form-input input-sm" id="r_s1num" maxlength="24">
+          </div>
+          <div class="form-group">
+            <label class="form-label">State 1 Income</label>
+            <input type="number" class="form-input input-sm" id="r_s1income" min="0" step="0.01" placeholder="0.00">
+          </div>
+        </div>
+        <div class="form-grid-4" style="margin-bottom:10px">
+          <div class="form-group">
+            <label class="form-label">State 1 Local Tax</label>
+            <input type="number" class="form-input input-sm" id="r_s1local" min="0" step="0.01" placeholder="0.00">
+          </div>
+          <div class="form-group" style="grid-column:span 3">
+            <label class="form-label">State 1 Special Data (max 60)</label>
+            <input type="text" class="form-input input-sm" id="r_s1special" maxlength="60">
+          </div>
+        </div>
+        <div class="form-grid-4" style="margin-bottom:10px">
+          <div class="form-group">
+            <label class="form-label">State 2</label>
+            <input type="text" class="form-input input-sm" id="r_state2" maxlength="2">
+          </div>
+          <div class="form-group">
+            <label class="form-label">State 2 Tax Withheld</label>
+            <input type="number" class="form-input input-sm" id="r_s2tax" min="0" step="0.01" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label class="form-label">State 2 Payer #</label>
+            <input type="text" class="form-input input-sm" id="r_s2num" maxlength="24">
+          </div>
+          <div class="form-group">
+            <label class="form-label">State 2 Income</label>
+            <input type="number" class="form-input input-sm" id="r_s2income" min="0" step="0.01" placeholder="0.00">
+          </div>
+        </div>
+        <div class="form-grid-4">
+          <div class="form-group">
+            <label class="form-label">State 2 Local Tax</label>
+            <input type="number" class="form-input input-sm" id="r_s2local" min="0" step="0.01" placeholder="0.00">
+          </div>
+          <div class="form-group" style="grid-column:span 3">
+            <label class="form-label">State 2 Special Data</label>
+            <input type="text" class="form-input input-sm" id="r_s2special" maxlength="60">
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:16px">
+          <button class="btn btn-green btn-sm" onclick="saveRecipient()">✓ Save Recipient</button>
+          <button class="btn btn-secondary btn-sm" onclick="toggleAddRecipientForm()">Cancel</button>
+        </div>
       </div>
     </div>
 
-    <!-- Notice/Letter Form -->
-    <div id="noticeForm" class="form-section">
-      <div class="section-header">
-        <div class="section-title">Legal Notice / Formal Letter</div>
-      </div>
-
-      <div class="form-grid">
-        <div class="form-group">
-          <label class="form-label">From *</label>
-          <input type="text" class="form-input" id="noticeFrom" placeholder="Your Name">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">To *</label>
-          <input type="text" class="form-input" id="noticeTo" placeholder="Recipient Name">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Date *</label>
-          <input type="date" class="form-input" id="noticeDate">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Subject *</label>
-        <input type="text" class="form-input" id="noticeSubject" placeholder="RE: Legal Matter">
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Body *</label>
-        <textarea class="form-textarea" id="noticeBody" placeholder="Dear [Recipient]..." style="min-height: 200px;"></textarea>
-      </div>
-
-      <div class="action-buttons">
-        <button class="btn btn-primary" onclick="generateDocument('notice')">Generate Notice</button>
-        <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
-      </div>
+    <!-- ── EXPORT ── -->
+    <div class="action-buttons">
+      <button class="btn btn-green" onclick="export1099BCSV()">⬇ Export CSV</button>
+      <button class="btn btn-secondary" onclick="preview1099BCSV()">👁 Preview CSV</button>
+      <button class="btn btn-secondary" onclick="clearAll1099B()">🗑 Clear All</button>
     </div>
 
-    <!-- Preview Section -->
-    <div id="previewSection" class="preview-section">
-      <div class="section-header">
-        <div class="section-title">Document Preview</div>
-      </div>
-
-      <div class="document-preview" id="documentPreview">
-        <div class="doc-header-preview">
-          <div class="doc-title-preview" id="previewTitle">Document Title</div>
-          <div id="previewSubtitle"></div>
-        </div>
-
-        <div class="doc-content-preview" id="previewContent">
-          <p>Document content will appear here...</p>
-        </div>
-      </div>
-
-      <div class="action-buttons">
-        <button class="btn btn-primary" onclick="printDocument()">Print / Save PDF</button>
-        <button class="btn btn-secondary" onclick="downloadHTML()">Download HTML</button>
-        <button class="btn btn-secondary" onclick="saveToSheets()">Save to Sheets</button>
-        <button class="btn btn-secondary" onclick="closePreview()">Close</button>
-      </div>
+    <!-- CSV Preview -->
+    <div id="csvPreviewContainer" style="display:none;margin-top:20px">
+      <div style="font-size:13px;font-weight:600;color:#475569;margin-bottom:8px">CSV Preview (first 3 data rows):</div>
+      <div class="csv-preview-box" id="csvPreviewBox"></div>
     </div>
 
   </div>
+  <!-- /1099-B Form -->
 
-  <script>
-    let currentDocType = '';
+  <!-- ═══════════════════════════════════════════════════
+       1099-A CSV GENERATOR
+       ═══════════════════════════════════════════════════ -->
+  <div id="form1099a" class="form-section">
+    <div class="section-header">
+      <div class="section-title">🏠 IRS 1099-A CSV Generator</div>
+      <div style="font-size:13px;color:#64748b;margin-top:6px">
+        Generates submission-ready CSV per IRS e-file formatting spec (41 columns) — Acquisition or Abandonment of Secured Property
+      </div>
+    </div>
 
-    // Set today's date
-    function setTodayDate() {
-      const today = new Date().toISOString().split('T')[0];
-      document.querySelectorAll('input[type="date"]').forEach(input => {
-        if (!input.value) input.value = today;
-      });
+    <!-- Validation Summary -->
+    <div class="validation-summary" id="a1099ValidationSummary">
+      <strong style="color:#dc2626">⚠ Please fix the following errors before exporting:</strong>
+      <ul id="a1099ErrorList"></ul>
+    </div>
+
+    <!-- ── SECTION 1: LENDER ── -->
+    <div class="subsection">
+      <div class="subsection-title" style="color:#b45309">
+        📤 Lender Information (Cols A–S)
+        <span class="badge" style="background:#d97706">Pre-populated</span>
+      </div>
+      <div class="payer-locked-badge" style="background:#fef3c7;border-color:#fcd34d;color:#92400e">✅ Auto-filled from Trust EIN 41-6809588 — edit only if filing under a different lender</div>
+      <div class="form-grid-3">
+        <div class="form-group">
+          <label class="form-label">Tax Year <span class="req">*</span></label>
+          <select class="form-select input-sm" id="a_taxYear">
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+            <option value="2022">2022</option>
+            <option value="2021">2021</option>
+            <option value="2020">2020</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Lender TIN Type <span class="req">*</span></label>
+          <select class="form-select input-sm" id="a_lenderTINType">
+            <option value="EIN">EIN</option>
+            <option value="SSN">SSN</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Lender TIN <span class="req">*</span></label>
+          <input type="text" class="form-input input-sm" id="a_lenderTIN" value="41-6809588" placeholder="XX-XXXXXXX">
+        </div>
+      </div>
+      <div class="form-grid-3">
+        <div class="form-group">
+          <label class="form-label">Lender Name Type <span class="req">*</span></label>
+          <select class="form-select input-sm" id="a_lenderNameType">
+            <option value="B">B — Business</option>
+            <option value="I">I — Individual</option>
+          </select>
+        </div>
+        <div class="form-group" style="grid-column:span 2">
+          <label class="form-label">Lender Business Name Line 1 <span class="req">*</span></label>
+          <input type="text" class="form-input input-sm" id="a_lenderName1" maxlength="40"
+            value="A Provident Private Creditor Revocable">
+          <div class="char-counter"><span id="a_lenderName1Ct">37</span>/40</div>
+        </div>
+      </div>
+      <div class="form-grid-3">
+        <div class="form-group" style="grid-column:span 2">
+          <label class="form-label">Lender Business Name Line 2</label>
+          <input type="text" class="form-input input-sm" id="a_lenderName2" maxlength="40" value="Living Trust">
+          <div class="char-counter"><span id="a_lenderName2Ct">12</span>/40</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Country <span class="req">*</span></label>
+          <input type="text" class="form-input input-sm" id="a_lenderCountry" value="US" maxlength="2">
+        </div>
+      </div>
+      <div class="form-grid-4">
+        <div class="form-group" style="grid-column:span 2">
+          <label class="form-label">Address Line 1 <span class="req">*</span></label>
+          <input type="text" class="form-input input-sm" id="a_lenderAddr1" maxlength="35" placeholder="123 Main St">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Address Line 2</label>
+          <input type="text" class="form-input input-sm" id="a_lenderAddr2" maxlength="35">
+        </div>
+        <div class="form-group">
+          <label class="form-label">City <span class="req">*</span></label>
+          <input type="text" class="form-input input-sm" id="a_lenderCity" maxlength="40" placeholder="Kinston">
+        </div>
+      </div>
+      <div class="form-grid-4">
+        <div class="form-group">
+          <label class="form-label">State <span class="req">*</span></label>
+          <input type="text" class="form-input input-sm" id="a_lenderState" maxlength="2" placeholder="NC">
+        </div>
+        <div class="form-group">
+          <label class="form-label">ZIP <span class="req">*</span></label>
+          <input type="text" class="form-input input-sm" id="a_lenderZip" maxlength="12" placeholder="28501">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone Type</label>
+          <select class="form-select input-sm" id="a_lenderPhoneType">
+            <option value="">— None —</option>
+            <option value="D">D — Domestic</option>
+            <option value="I">I — International</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone</label>
+          <input type="text" class="form-input input-sm" id="a_lenderPhone" placeholder="2525551234">
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 2: BORROWERS ── -->
+    <div class="subsection">
+      <div class="subsection-title" style="color:#b45309">
+        📥 Borrowers &amp; Properties
+        <span class="row-count-badge" id="borrowerCountBadge" style="background:#d97706">0 rows</span>
+      </div>
+
+      <div class="recipient-cards" id="borrowerCards">
+        <div style="text-align:center;padding:20px;color:#94a3b8;font-size:14px">
+          No borrowers yet. Click "Add Borrower" below to begin.
+        </div>
+      </div>
+
+      <div class="add-recipient-btn" style="background:#fffbeb;border-color:#fcd34d;color:#d97706" onclick="toggleAddBorrowerForm()">
+        <span id="addBorrBtnIcon">＋</span>
+        <span id="addBorrBtnLabel">Add Borrower / Property</span>
+      </div>
+
+      <div class="recipient-form-modal" id="borrowerFormModal" style="display:none;background:#fffbeb;border-color:#fcd34d">
+
+        <div class="modal-section-label" style="color:#d97706">Borrower Identity</div>
+        <div class="form-grid-4">
+          <div class="form-group">
+            <label class="form-label">TIN Type</label>
+            <select class="form-select input-sm" id="b_tinType">
+              <option value="">— None —</option>
+              <option value="SSN">SSN</option>
+              <option value="EIN">EIN</option>
+              <option value="ITIN">ITIN</option>
+              <option value="ATIN">ATIN</option>
+              <option value="QI-EIN">QI-EIN</option>
+              <option value="UND">UND</option>
+            </select>
+          </div>
+          <div class="form-group" style="grid-column:span 2">
+            <label class="form-label">TIN / Taxpayer ID</label>
+            <input type="text" class="form-input input-sm" id="b_tin" placeholder="XXX-XX-XXXX or XX-XXXXXXX">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Name Type <span class="req">*</span></label>
+            <div class="name-type-toggle">
+              <div class="name-type-btn active" id="borrNameTypeBtnI" onclick="setBorrNameType('I')" style="">I — Individual</div>
+              <div class="name-type-btn" id="borrNameTypeBtnB" onclick="setBorrNameType('B')">B — Business</div>
+            </div>
+          </div>
+        </div>
+        <div class="name-fields-individual visible" id="borrNameFieldsIndividual">
+          <div class="form-grid-4">
+            <div class="form-group"><label class="form-label">First Name <span class="req">*</span></label><input type="text" class="form-input input-sm" id="b_firstName" maxlength="20"></div>
+            <div class="form-group"><label class="form-label">Middle Name</label><input type="text" class="form-input input-sm" id="b_middleName" maxlength="20"></div>
+            <div class="form-group"><label class="form-label">Last Name <span class="req">*</span></label><input type="text" class="form-input input-sm" id="b_lastName" maxlength="20"></div>
+            <div class="form-group"><label class="form-label">Suffix</label><input type="text" class="form-input input-sm" id="b_suffix" maxlength="20"></div>
+          </div>
+        </div>
+        <div class="name-fields-business" id="borrNameFieldsBusiness">
+          <div class="form-grid-2">
+            <div class="form-group"><label class="form-label">Business Name Line 1 <span class="req">*</span></label><input type="text" class="form-input input-sm" id="b_bizName1" maxlength="40"></div>
+            <div class="form-group"><label class="form-label">Business Name Line 2</label><input type="text" class="form-input input-sm" id="b_bizName2" maxlength="40"></div>
+          </div>
+        </div>
+
+        <div class="modal-section-label" style="color:#d97706">Borrower Address</div>
+        <div class="form-grid-4">
+          <div class="form-group" style="grid-column:span 2"><label class="form-label">Address Line 1 <span class="req">*</span></label><input type="text" class="form-input input-sm" id="b_addr1" maxlength="35"></div>
+          <div class="form-group"><label class="form-label">Address Line 2</label><input type="text" class="form-input input-sm" id="b_addr2" maxlength="35"></div>
+          <div class="form-group"><label class="form-label">Country <span class="req">*</span></label><input type="text" class="form-input input-sm" id="b_country" value="US" maxlength="2"></div>
+        </div>
+        <div class="form-grid-4">
+          <div class="form-group" style="grid-column:span 2"><label class="form-label">City <span class="req">*</span></label><input type="text" class="form-input input-sm" id="b_city" maxlength="40"></div>
+          <div class="form-group"><label class="form-label">State <span class="req">*</span></label><input type="text" class="form-input input-sm" id="b_state" maxlength="2" placeholder="NC"></div>
+          <div class="form-group"><label class="form-label">ZIP <span class="req">*</span></label><input type="text" class="form-input input-sm" id="b_zip" maxlength="12"></div>
+        </div>
+
+        <div class="modal-section-label" style="color:#d97706">Form Details</div>
+        <div class="form-grid-4">
+          <div class="form-group"><label class="form-label">Office Code</label><input type="text" class="form-input input-sm" id="b_officeCode" maxlength="4" placeholder="1234"></div>
+          <div class="form-group"><label class="form-label">Account Number</label><input type="text" class="form-input input-sm" id="b_accountNum" maxlength="20"></div>
+        </div>
+
+        <div class="modal-section-label" style="color:#d97706">1099-A Boxes</div>
+        <div class="form-grid-3">
+          <div class="form-group">
+            <label class="form-label">Box 1 — Date of Acquisition/Abandonment <span class="req">*</span></label>
+            <input type="date" class="form-input input-sm" id="b_box1">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Box 2 — Principal Balance Outstanding ($) <span class="req">*</span></label>
+            <input type="number" class="form-input input-sm" id="b_box2" min="0" step="0.01" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Box 4 — Fair Market Value of Property ($)</label>
+            <input type="number" class="form-input input-sm" id="b_box4" min="0" step="0.01" placeholder="0.00">
+          </div>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Box 5 — Borrower Personally Liable for Debt?</label>
+            <select class="form-select input-sm" id="b_box5">
+              <option value="N">N — No</option>
+              <option value="Y">Y — Yes (checked)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Box 6 — Description of Property <span class="req">*</span></label>
+            <input type="text" class="form-input input-sm" id="b_box6" maxlength="100" placeholder="123 Main St, City, State">
+            <div class="char-counter"><span id="b_box6Ct">0</span>/100</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:16px">
+          <button class="btn btn-sm" style="background:linear-gradient(135deg,#d97706,#b45309);color:white" onclick="saveBorrower()">✓ Save Borrower</button>
+          <button class="btn btn-secondary btn-sm" onclick="toggleAddBorrowerForm()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── EXPORT ── -->
+    <div class="action-buttons">
+      <button class="btn btn-sm" style="background:linear-gradient(135deg,#d97706,#b45309);color:white;padding:14px 32px;font-size:16px" onclick="export1099ACSV()">⬇ Export CSV</button>
+      <button class="btn btn-secondary" onclick="preview1099ACSV()">👁 Preview CSV</button>
+      <button class="btn btn-secondary" onclick="clearAll1099A()">🗑 Clear All</button>
+    </div>
+
+    <div id="csvPreviewContainerA" style="display:none;margin-top:20px">
+      <div style="font-size:13px;font-weight:600;color:#475569;margin-bottom:8px">CSV Preview (first 3 data rows):</div>
+      <div class="csv-preview-box" id="csvPreviewBoxA"></div>
+    </div>
+  </div>
+  <!-- /1099-A Form -->
+
+  <!-- Preview Section (other doc types) -->
+  <div id="previewSection" class="preview-section">
+    <div class="section-header"><div class="section-title">Document Preview</div></div>
+    <div class="document-preview" id="documentPreview">
+      <div class="doc-header-preview">
+        <div class="doc-title-preview" id="previewTitle">Document Title</div>
+        <div id="previewSubtitle"></div>
+      </div>
+      <div class="doc-content-preview" id="previewContent">
+        <p>Document content will appear here...</p>
+      </div>
+    </div>
+    <div class="action-buttons">
+      <button class="btn btn-primary" onclick="printDocument()">Print / Save PDF</button>
+      <button class="btn btn-secondary" onclick="downloadHTML()">Download HTML</button>
+      <button class="btn btn-secondary" onclick="saveToSheets()">Save to Sheets</button>
+      <button class="btn btn-secondary" onclick="closePreview()">Close</button>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+  let currentDocType = '';
+  let recipients = [];       // Array of recipient row objects
+  let editingIdx = null;     // Index currently being edited (null = new)
+  let recNameType = 'I';     // Current name type in the add form
+
+  // ─── Routing ────────────────────────────────────────────────────
+  function setTodayDate() {
+    const today = new Date().toISOString().split('T')[0];
+    document.querySelectorAll('input[type="date"]').forEach(i => { if (!i.value) i.value = today; });
+  }
+
+  function selectDocType(type) {
+    currentDocType = type;
+    document.querySelectorAll('.doc-type-card').forEach(c => c.classList.remove('selected'));
+    event.target.closest('.doc-type-card').classList.add('selected');
+    document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+    const map = {
+      trust:'trustForm', affidavit:'affidavitForm', notice:'noticeForm',
+      ucc:'noticeForm', poa:'trustForm', will:'trustForm', '1099b':'form1099b', '1099a':'form1099a'
+    };
+    document.getElementById(map[type]).classList.add('active');
+    if (type !== '1099b') setTodayDate();
+    if (type === '1099b') init1099BCharCounters();
+    if (type === '1099a') init1099ACharCounters();
+    document.getElementById(map[type]).scrollIntoView({ behavior:'smooth' });
+  }
+
+  // ─── 1099-B: Char Counters ──────────────────────────────────────
+  function init1099BCharCounters() {
+    [['b_payerName1','b_payerName1Ct'],['b_payerName2','b_payerName2Ct']].forEach(([id,ctId]) => {
+      const el = document.getElementById(id);
+      const ct = document.getElementById(ctId);
+      if (el && ct) { ct.textContent = el.value.length; el.oninput = () => ct.textContent = el.value.length; }
+    });
+    const box1a = document.getElementById('r_box1a');
+    const box1aCt = document.getElementById('r_box1aCt');
+    if (box1a && box1aCt) box1a.oninput = () => box1aCt.textContent = box1a.value.length;
+  }
+
+  // ─── 1099-B: Name Type Toggle ───────────────────────────────────
+  function setRecNameType(type) {
+    recNameType = type;
+    document.getElementById('nameTypeBtnI').classList.toggle('active', type === 'I');
+    document.getElementById('nameTypeBtnB').classList.toggle('active', type === 'B');
+    document.getElementById('nameFieldsIndividual').classList.toggle('visible', type === 'I');
+    document.getElementById('nameFieldsBusiness').classList.toggle('visible', type === 'B');
+  }
+
+  // ─── 1099-B: Toggle Add Form ────────────────────────────────────
+  function toggleAddRecipientForm() {
+    const modal = document.getElementById('recipientFormModal');
+    const isOpen = modal.style.display !== 'none';
+    if (isOpen) {
+      modal.style.display = 'none';
+      document.getElementById('addRecBtnIcon').textContent = '＋';
+      document.getElementById('addRecBtnLabel').textContent = 'Add Recipient / Transaction';
+      clearRecipientForm();
+      editingIdx = null;
+    } else {
+      modal.style.display = 'block';
+      document.getElementById('addRecBtnIcon').textContent = '✕';
+      document.getElementById('addRecBtnLabel').textContent = 'Cancel';
+      init1099BCharCounters();
+      modal.scrollIntoView({ behavior: 'smooth' });
     }
+  }
 
-    // Select document type
-    function selectDocType(type) {
-      currentDocType = type;
-
-      // Update card styles
-      document.querySelectorAll('.doc-type-card').forEach(card => {
-        card.classList.remove('selected');
-      });
-      event.target.closest('.doc-type-card').classList.add('selected');
-
-      // Hide all forms
-      document.querySelectorAll('.form-section').forEach(section => {
-        section.classList.remove('active');
-      });
-
-      // Show selected form
-      const forms = {
-        'trust': 'trustForm',
-        'affidavit': 'affidavitForm',
-        'notice': 'noticeForm',
-        'ucc': 'noticeForm', // Using notice form as template
-        'poa': 'trustForm', // Using trust form as template
-        'will': 'trustForm' // Using trust form as template
-      };
-
-      document.getElementById(forms[type]).classList.add('active');
-      setTodayDate();
+  // ─── 1099-B: Validate a field ───────────────────────────────────
+  function v1099(val, rules) {
+    const errors = [];
+    if (rules.required && (!val || !val.trim())) { errors.push('Required'); return errors; }
+    if (!val || !val.trim()) return errors; // optional + empty = ok
+    val = val.trim();
+    if (rules.maxLen && val.length > rules.maxLen) errors.push(`Max ${rules.maxLen} chars`);
+    if (rules.exactLen && rules.exactLen.indexOf(val.length) === -1) errors.push(`Must be ${rules.exactLen.join(', ')} chars`);
+    if (rules.enum && rules.enum.indexOf(val.toUpperCase()) === -1) errors.push(`Must be one of: ${rules.enum.join(', ')}`);
+    if (rules.pattern && !rules.pattern.test(val)) errors.push(rules.patternMsg || 'Invalid format');
+    if (rules.noAdjSpaces && /  /.test(val)) errors.push('No adjacent spaces');
+    if (rules.noLeadTrail && (val !== val.trim())) errors.push('No leading/trailing spaces');
+    if (rules.maxAmount) {
+      const n = parseFloat(val);
+      if (isNaN(n) || n < 0) errors.push('Must be >= 0');
+      const dec = val.includes('.') ? val.split('.')[1].length : 0;
+      if (dec > 2) errors.push('Max 2 decimal places');
     }
+    return errors;
+  }
 
-    // Generate document
-    function generateDocument(type) {
-      let content = '';
+  // ─── 1099-B: Collect recipient form values ──────────────────────
+  function collectRecipientForm() {
+    return {
+      tinType:     document.getElementById('r_tinType').value,
+      tin:         document.getElementById('r_tin').value.trim(),
+      nameType:    recNameType,
+      firstName:   document.getElementById('r_firstName').value.trim(),
+      middleName:  document.getElementById('r_middleName').value.trim(),
+      lastName:    document.getElementById('r_lastName').value.trim(),
+      suffix:      document.getElementById('r_suffix').value.trim(),
+      bizName1:    document.getElementById('r_bizName1').value.trim(),
+      bizName2:    document.getElementById('r_bizName2').value.trim(),
+      country:     document.getElementById('r_country').value.trim() || 'US',
+      addr1:       document.getElementById('r_addr1').value.trim(),
+      addr2:       document.getElementById('r_addr2').value.trim(),
+      city:        document.getElementById('r_city').value.trim(),
+      state:       document.getElementById('r_state').value.trim().toUpperCase(),
+      zip:         document.getElementById('r_zip').value.trim(),
+      officeCode:  document.getElementById('r_officeCode').value.trim(),
+      accountNum:  document.getElementById('r_accountNum').value.trim(),
+      fatca:       document.getElementById('r_fatca').value,
+      tin2nd:      document.getElementById('r_2ndTIN').value,
+      formType:    document.getElementById('r_formType').value,
+      box1a:       document.getElementById('r_box1a').value.trim(),
+      box4:        document.getElementById('r_box4').value.trim(),
+      box13:       document.getElementById('r_box13').value.trim(),
+      cfsf:        document.getElementById('r_cfsf').value.trim(),
+      state1:      document.getElementById('r_state1').value.trim().toUpperCase(),
+      s1tax:       document.getElementById('r_s1tax').value.trim(),
+      s1num:       document.getElementById('r_s1num').value.trim(),
+      s1income:    document.getElementById('r_s1income').value.trim(),
+      s1local:     document.getElementById('r_s1local').value.trim(),
+      s1special:   document.getElementById('r_s1special').value.trim(),
+      state2:      document.getElementById('r_state2').value.trim().toUpperCase(),
+      s2tax:       document.getElementById('r_s2tax').value.trim(),
+      s2num:       document.getElementById('r_s2num').value.trim(),
+      s2income:    document.getElementById('r_s2income').value.trim(),
+      s2local:     document.getElementById('r_s2local').value.trim(),
+      s2special:   document.getElementById('r_s2special').value.trim()
+    };
+  }
 
-      if (type === 'trust') {
-        const trustName = document.getElementById('trustName').value;
-        const grantorName = document.getElementById('grantorName').value;
-        const trusteeName = document.getElementById('trusteeName').value;
-        const jurisdiction = document.getElementById('trustJurisdiction').value;
-        const effectiveDate = document.getElementById('trustDate').value;
-        const purpose = document.getElementById('trustPurpose').value;
-        const beneficiaries = document.getElementById('beneficiaries').value;
-
-        document.getElementById('previewTitle').textContent = trustName.toUpperCase() + ' AGREEMENT';
-        document.getElementById('previewSubtitle').textContent = 'Private Family Trust';
-
-        content = `
-          <p><strong>THIS TRUST AGREEMENT</strong> is made and entered into this ${formatDate(effectiveDate)} by and between <strong>${grantorName}</strong> ("Grantor") and <strong>${trusteeName}</strong> ("Trustee"), under the laws of the State of ${jurisdiction}.</p>
-
-          <p><strong>ARTICLE I - CREATION OF TRUST</strong></p>
-          <p>The Grantor hereby transfers and conveys to the Trustee certain property, real and personal, to be held, managed, and distributed by the Trustee in accordance with the terms and conditions set forth in this Agreement.</p>
-
-          <p><strong>ARTICLE II - TRUST PURPOSE</strong></p>
-          <p>${purpose || 'The purpose of this Trust is to hold, manage, and distribute assets for the benefit of the named beneficiaries.'}</p>
-
-          <p><strong>ARTICLE III - BENEFICIARIES</strong></p>
-          <p>The beneficiaries of this Trust shall be: ${beneficiaries || 'As designated by the Grantor'}.</p>
-
-          <p><strong>ARTICLE IV - TRUSTEE POWERS</strong></p>
-          <p>The Trustee shall have all powers necessary to administer this Trust, including but not limited to the power to invest, reinvest, sell, exchange, lease, mortgage, and otherwise deal with trust property as the Trustee deems prudent.</p>
-
-          <p><strong>ARTICLE V - DISTRIBUTION</strong></p>
-          <p>The Trustee shall distribute income and principal to the beneficiaries in accordance with the terms set forth in this Agreement and applicable law.</p>
-
-          <div class="signature-line"></div>
-          <p><strong>Grantor:</strong> ${grantorName}</p>
-
-          <div class="signature-line"></div>
-          <p><strong>Trustee:</strong> ${trusteeName}</p>
-        `;
-      }
-
-      if (type === 'affidavit') {
-        const affiantName = document.getElementById('affiantName').value;
-        const county = document.getElementById('affidavitCounty').value;
-        const state = document.getElementById('affidavitState').value;
-        const statement = document.getElementById('affidavitStatement').value;
-
-        document.getElementById('previewTitle').textContent = 'AFFIDAVIT';
-        document.getElementById('previewSubtitle').textContent = '';
-
-        content = `
-          <p style="text-align: center;"><strong>STATE OF ${state.toUpperCase()}</strong></p>
-          <p style="text-align: center;"><strong>COUNTY OF ${county.toUpperCase()}</strong></p>
-
-          <p>I, <strong>${affiantName}</strong>, being duly sworn, depose and say:</p>
-
-          <p>${statement}</p>
-
-          <p>I declare under penalty of perjury under the laws of the State of ${state} that the foregoing is true and correct.</p>
-
-          <p>Executed this _____ day of _____________, 20____.</p>
-
-          <div class="signature-line"></div>
-          <p><strong>Affiant:</strong> ${affiantName}</p>
-
-          <p style="margin-top: 40px;"><strong>SUBSCRIBED AND SWORN TO</strong> before me this _____ day of _____________, 20____.</p>
-
-          <div class="signature-line"></div>
-          <p><strong>Notary Public</strong></p>
-          <p>My commission expires: ______________</p>
-        `;
-      }
-
-      if (type === 'notice') {
-        const from = document.getElementById('noticeFrom').value;
-        const to = document.getElementById('noticeTo').value;
-        const date = document.getElementById('noticeDate').value;
-        const subject = document.getElementById('noticeSubject').value;
-        const body = document.getElementById('noticeBody').value;
-
-        document.getElementById('previewTitle').textContent = 'FORMAL NOTICE';
-        document.getElementById('previewSubtitle').textContent = formatDate(date);
-
-        content = `
-          <p><strong>${to}</strong></p>
-
-          <p><strong>${subject}</strong></p>
-
-          ${body.split('\n').map(p => `<p>${p}</p>`).join('')}
-
-          <p style="margin-top: 40px;">Sincerely,</p>
-
-          <div class="signature-line"></div>
-          <p><strong>${from}</strong></p>
-        `;
-      }
-
-      document.getElementById('previewContent').innerHTML = content;
-      document.getElementById('previewSection').classList.add('active');
-
-      // Scroll to preview
-      document.getElementById('previewSection').scrollIntoView({ behavior: 'smooth' });
+  // ─── 1099-B: Validate recipient ─────────────────────────────────
+  function validateRecipient(r) {
+    const errors = [];
+    if (r.nameType === 'I') {
+      if (!r.firstName) errors.push('Recipient First Name is required');
+      if (!r.lastName)  errors.push('Recipient Last Name is required');
+    } else {
+      if (!r.bizName1)  errors.push('Recipient Business Name Line 1 is required');
     }
+    if (!r.addr1)   errors.push('Recipient Address Line 1 is required');
+    if (!r.city)    errors.push('Recipient City is required');
+    if (!r.state)   errors.push('Recipient State is required (2-letter)');
+    if (!r.zip)     errors.push('Recipient ZIP is required');
+    if (!r.box1a)   errors.push('Box 1a (Description of property) is required');
+    if (!r.formType) errors.push('1099-B Form Type is required');
+    if (r.tin && r.tinType === 'EIN' && !/^\d{2}-\d{7}$/.test(r.tin))  errors.push('EIN format must be XX-XXXXXXX');
+    if (r.tin && r.tinType === 'SSN' && !/^\d{3}-\d{2}-\d{4}$/.test(r.tin)) errors.push('SSN format must be XXX-XX-XXXX');
+    if (r.state && r.state.length !== 2) errors.push('Recipient State must be 2 letters');
+    if (r.zip && !/^\d{5}$|^\d{9}$|^\d{12}$/.test(r.zip)) errors.push('ZIP must be 5, 9, or 12 digits');
+    if (r.box4 && parseFloat(r.box4) < 0)  errors.push('Box 4 cannot be negative');
+    if (r.box13 && parseFloat(r.box13) < 0) errors.push('Box 13 cannot be negative');
+    if (r.state1 && r.state1.length !== 2) errors.push('State 1 must be 2-letter abbreviation');
+    if (r.state1 && !r.s1tax && !r.s1income) errors.push('State 1: at least one amount required');
+    if (r.officeCode && !/^\d{4}$/.test(r.officeCode)) errors.push('Office Code must be exactly 4 digits');
+    if (r.accountNum && r.tin && r.accountNum === r.tin.replace(/-/g,'')) errors.push('Account Number cannot match TIN');
+    return errors;
+  }
 
-    // Format date
-    function formatDate(dateString) {
-      if (!dateString) return '________';
-      const date = new Date(dateString);
-      const options = { year: 'numeric', month: 'long', day: 'numeric' };
-      return date.toLocaleDateString('en-US', options);
+  // ─── 1099-B: Save recipient row ─────────────────────────────────
+  function saveRecipient() {
+    const r = collectRecipientForm();
+    const errors = validateRecipient(r);
+    if (errors.length) {
+      showRecFormErrors(errors);
+      return;
     }
-
-    // Clear form
-    function clearForm() {
-      document.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(input => {
-        input.value = '';
-      });
-      setTodayDate();
+    if (editingIdx !== null) {
+      recipients[editingIdx] = r;
+      editingIdx = null;
+    } else {
+      recipients.push(r);
     }
+    renderRecipientCards();
+    toggleAddRecipientForm();
+  }
 
-    // Close preview
-    function closePreview() {
-      document.getElementById('previewSection').classList.remove('active');
+  function showRecFormErrors(errors) {
+    const existing = document.getElementById('recFormErrors');
+    if (existing) existing.remove();
+    const div = document.createElement('div');
+    div.id = 'recFormErrors';
+    div.className = 'validation-summary visible';
+    div.innerHTML = '<strong style="color:#dc2626">⚠ Fix these errors:</strong><ul>' +
+      errors.map(e => `<li>${e}</li>`).join('') + '</ul>';
+    document.getElementById('recipientFormModal').prepend(div);
+  }
+
+  // ─── 1099-B: Render recipient summary cards ─────────────────────
+  function renderRecipientCards() {
+    const container = document.getElementById('recipientCards');
+    document.getElementById('recipientCountBadge').textContent = `${recipients.length} row${recipients.length !== 1 ? 's' : ''}`;
+    if (!recipients.length) {
+      container.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;font-size:14px">No recipients yet. Click "Add Recipient / Transaction" below to begin.</div>';
+      return;
     }
+    container.innerHTML = recipients.map((r, i) => {
+      const name = r.nameType === 'I'
+        ? [r.firstName, r.middleName, r.lastName, r.suffix].filter(Boolean).join(' ')
+        : [r.bizName1, r.bizName2].filter(Boolean).join(' / ');
+      const tin = r.tin ? ` · TIN: ${r.tin}` : '';
+      const formTypeLabel = {S:'Stock',R:'Regulated',B:'Bartering'}[r.formType] || r.formType;
+      return `<div class="recipient-card">
+        <div class="recipient-card-header">
+          <div>
+            <div class="recipient-card-title">Row ${i+1} — ${name}${tin}</div>
+            <div class="recipient-summary">Type: ${formTypeLabel} | 1a: ${r.box1a} | Fed Wthhld: $${r.box4 || '0'}</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-secondary btn-sm" onclick="editRecipient(${i})">✏ Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="removeRecipient(${i})">✕</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
 
-    // Print document
-    function printDocument() {
-      window.print();
+  function editRecipient(idx) {
+    const r = recipients[idx];
+    editingIdx = idx;
+    // Populate form
+    setRecNameType(r.nameType);
+    document.getElementById('r_tinType').value = r.tinType;
+    document.getElementById('r_tin').value = r.tin;
+    document.getElementById('r_firstName').value = r.firstName;
+    document.getElementById('r_middleName').value = r.middleName;
+    document.getElementById('r_lastName').value = r.lastName;
+    document.getElementById('r_suffix').value = r.suffix;
+    document.getElementById('r_bizName1').value = r.bizName1;
+    document.getElementById('r_bizName2').value = r.bizName2;
+    document.getElementById('r_country').value = r.country;
+    document.getElementById('r_addr1').value = r.addr1;
+    document.getElementById('r_addr2').value = r.addr2;
+    document.getElementById('r_city').value = r.city;
+    document.getElementById('r_state').value = r.state;
+    document.getElementById('r_zip').value = r.zip;
+    document.getElementById('r_officeCode').value = r.officeCode;
+    document.getElementById('r_accountNum').value = r.accountNum;
+    document.getElementById('r_fatca').value = r.fatca;
+    document.getElementById('r_2ndTIN').value = r.tin2nd;
+    document.getElementById('r_formType').value = r.formType;
+    document.getElementById('r_box1a').value = r.box1a;
+    document.getElementById('r_box4').value = r.box4;
+    document.getElementById('r_box13').value = r.box13;
+    document.getElementById('r_cfsf').value = r.cfsf;
+    document.getElementById('r_state1').value = r.state1;
+    document.getElementById('r_s1tax').value = r.s1tax;
+    document.getElementById('r_s1num').value = r.s1num;
+    document.getElementById('r_s1income').value = r.s1income;
+    document.getElementById('r_s1local').value = r.s1local;
+    document.getElementById('r_s1special').value = r.s1special;
+    document.getElementById('r_state2').value = r.state2;
+    document.getElementById('r_s2tax').value = r.s2tax;
+    document.getElementById('r_s2num').value = r.s2num;
+    document.getElementById('r_s2income').value = r.s2income;
+    document.getElementById('r_s2local').value = r.s2local;
+    document.getElementById('r_s2special').value = r.s2special;
+    const modal = document.getElementById('recipientFormModal');
+    modal.style.display = 'block';
+    document.getElementById('addRecBtnIcon').textContent = '✕';
+    document.getElementById('addRecBtnLabel').textContent = 'Cancel Edit';
+    init1099BCharCounters();
+    modal.scrollIntoView({ behavior:'smooth' });
+  }
+
+  function removeRecipient(idx) {
+    recipients.splice(idx, 1);
+    renderRecipientCards();
+  }
+
+  function clearRecipientForm() {
+    ['r_tinType','r_tin','r_firstName','r_middleName','r_lastName','r_suffix',
+     'r_bizName1','r_bizName2','r_addr1','r_addr2','r_city','r_state','r_zip',
+     'r_officeCode','r_accountNum','r_box1a','r_box4','r_box13','r_cfsf',
+     'r_state1','r_s1tax','r_s1num','r_s1income','r_s1local','r_s1special',
+     'r_state2','r_s2tax','r_s2num','r_s2income','r_s2local','r_s2special'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = id === 'r_country' ? 'US' : '';
+    });
+    document.getElementById('r_fatca').value = 'N';
+    document.getElementById('r_2ndTIN').value = 'N';
+    document.getElementById('r_formType').value = 'S';
+    setRecNameType('I');
+    const errs = document.getElementById('recFormErrors');
+    if (errs) errs.remove();
+  }
+
+  // ─── 1099-B: Build CSV row ───────────────────────────────────────
+  function csvCell(val) {
+    if (val === null || val === undefined) return '';
+    const s = String(val);
+    if (/[,"\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+
+  function build1099BRows() {
+    const taxYear  = document.getElementById('b_taxYear').value;
+    const payerTT  = document.getElementById('b_payerTINType').value;
+    const payerTIN = document.getElementById('b_payerTIN').value.trim();
+    const payerNT  = document.getElementById('b_payerNameType').value;
+    const payerN1  = document.getElementById('b_payerName1').value.trim();
+    const payerN2  = document.getElementById('b_payerName2').value.trim();
+    const payerCou = document.getElementById('b_payerCountry').value.trim() || 'US';
+    const payerA1  = document.getElementById('b_payerAddr1').value.trim();
+    const payerA2  = document.getElementById('b_payerAddr2').value.trim();
+    const payerCit = document.getElementById('b_payerCity').value.trim();
+    const payerSt  = document.getElementById('b_payerState').value.trim().toUpperCase();
+    const payerZip = document.getElementById('b_payerZip').value.trim();
+    const payerPT  = document.getElementById('b_payerPhoneType').value;
+    const payerPh  = document.getElementById('b_payerPhone').value.trim();
+
+    const rows = recipients.map(r => [
+      '1099-B', taxYear,
+      payerTT, payerTIN, payerNT, payerN1, payerN2,
+      '','','','',   // payer first/mid/last/suffix (blank for business)
+      payerCou, payerA1, payerA2, payerCit, payerSt, payerZip, payerPT, payerPh,
+      r.tinType, r.tin, r.nameType,
+      r.nameType === 'B' ? r.bizName1 : '', r.nameType === 'B' ? r.bizName2 : '',
+      r.nameType === 'I' ? r.firstName : '', r.nameType === 'I' ? r.middleName : '',
+      r.nameType === 'I' ? r.lastName : '', r.nameType === 'I' ? r.suffix : '',
+      r.country, r.addr1, r.addr2, r.city, r.state, r.zip,
+      r.officeCode, r.accountNum, r.fatca, r.tin2nd, r.formType, r.box1a,
+      r.box4, r.box13, r.cfsf,
+      r.state1, r.s1tax, r.s1num, r.s1income, r.s1local, r.s1special,
+      r.state2, r.s2tax, r.s2num, r.s2income, r.s2local, r.s2special
+    ].map(csvCell).join(','));
+
+    return rows;
+  }
+
+  // ─── 1099-B: Header row (matches uploaded template exactly) ──────
+  const CSV_HEADER = 'Form Type,Tax Year,Payer TIN Type,Payer Taxpayer ID Number,Payer Name Type,Payer Business or Entity Name Line 1,Payer Business or Entity Name Line 2,Payer First Name,Payer Middle Name,Payer Last Name (Surname),Payer Suffix,Payer Country,Payer Address Line 1,Payer Address Line 2,Payer City/Town,Payer State/Province/Territory,Payer ZIP/Postal Code,Payer Phone Type,Payer Phone,Recipient TIN Type,Recipient Taxpayer ID Number,Recipient Name Type,Recipient Business or Entity Name Line 1,Recipient Business or Entity Name Line 2,Recipient First Name,Recipient Middle Name,Recipient Last Name (Surname),Recipient Suffix,Recipient Country,Recipient Address Line 1,Recipient Address Line 2,Recipient City/Town,Recipient State/Province/Territory,Recipient ZIP/Postal Code,Office Code,Form Account Number,FATCA Filing Requirements,2nd TIN Notice,1099-B Form Type,Box 1a - Description of property,Box 4 - Federal income tax withheld,Box 13 - Bartering,Combined Federal/State Filing,State 1,State 1 - State tax withheld,State 1 - State/Payer state number,State 1 - State income,State 1 - Local income tax withheld,State 1 - Special Data Entries,State 2,State 2 - State tax withheld,State 2 - State/Payer state number,State 2 - State income,State 2 - Local income tax withheld,State 2 - Special Data Entries';
+
+  // ─── 1099-B: Validate payer section ─────────────────────────────
+  function validatePayer() {
+    const errors = [];
+    const tin = document.getElementById('b_payerTIN').value.trim();
+    const tinType = document.getElementById('b_payerTINType').value;
+    const name1 = document.getElementById('b_payerName1').value.trim();
+    const addr1 = document.getElementById('b_payerAddr1').value.trim();
+    const city  = document.getElementById('b_payerCity').value.trim();
+    const state = document.getElementById('b_payerState').value.trim();
+    const zip   = document.getElementById('b_payerZip').value.trim();
+    if (!tin)   errors.push('Payer TIN is required');
+    if (tin && tinType === 'EIN' && !/^\d{2}-\d{7}$/.test(tin)) errors.push('Payer EIN must be XX-XXXXXXX');
+    if (tin && tinType === 'SSN' && !/^\d{3}-\d{2}-\d{4}$/.test(tin)) errors.push('Payer SSN must be XXX-XX-XXXX');
+    if (!name1)  errors.push('Payer Business Name Line 1 is required');
+    if (name1 && name1.length > 40) errors.push('Payer Name Line 1 max 40 chars');
+    if (!addr1)  errors.push('Payer Address Line 1 is required');
+    if (!city)   errors.push('Payer City is required');
+    if (!state)  errors.push('Payer State is required');
+    if (state && state.length !== 2) errors.push('Payer State must be 2-letter abbreviation');
+    if (!zip)    errors.push('Payer ZIP is required');
+    if (zip && !/^\d{5}$|^\d{9}$|^\d{12}$/.test(zip)) errors.push('Payer ZIP must be 5, 9, or 12 digits');
+    return errors;
+  }
+
+  function export1099BCSV() {
+    const payerErrors = validatePayer();
+    if (payerErrors.length) { showSummaryErrors(payerErrors); return; }
+    if (!recipients.length) { showSummaryErrors(['No recipients added. Add at least one recipient/transaction row.']); return; }
+    hideSummaryErrors();
+    const rows = build1099BRows();
+    const csv = CSV_HEADER + '\n' + rows.join('\n') + '\n';
+    const taxYear = document.getElementById('b_taxYear').value;
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `1099-B_${taxYear}_TMAR_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function preview1099BCSV() {
+    const rows = build1099BRows();
+    const preview = [CSV_HEADER, ...rows.slice(0,3)].join('\n');
+    document.getElementById('csvPreviewBox').textContent = preview;
+    document.getElementById('csvPreviewContainer').style.display = 'block';
+    document.getElementById('csvPreviewContainer').scrollIntoView({ behavior:'smooth' });
+  }
+
+  function showSummaryErrors(errors) {
+    const el = document.getElementById('b1099ValidationSummary');
+    const list = document.getElementById('b1099ErrorList');
+    list.innerHTML = errors.map(e => `<li>${e}</li>`).join('');
+    el.classList.add('visible');
+    el.scrollIntoView({ behavior:'smooth' });
+  }
+  function hideSummaryErrors() {
+    document.getElementById('b1099ValidationSummary').classList.remove('visible');
+  }
+
+  function clearAll1099B() {
+    if (recipients.length && !confirm('Clear all recipients and reset the payer form?')) return;
+    recipients = [];
+    renderRecipientCards();
+    document.getElementById('csvPreviewContainer').style.display = 'none';
+    hideSummaryErrors();
+    const modal = document.getElementById('recipientFormModal');
+    if (modal.style.display !== 'none') toggleAddRecipientForm();
+  }
+
+  // ─── Existing doc generation (unchanged) ─────────────────────────
+  function generateDocument(type) {
+    let content = '';
+    if (type === 'trust') {
+      const trustName = document.getElementById('trustName').value;
+      const grantorName = document.getElementById('grantorName').value;
+      const trusteeName = document.getElementById('trusteeName').value;
+      const jurisdiction = document.getElementById('trustJurisdiction').value;
+      const effectiveDate = document.getElementById('trustDate').value;
+      const purpose = document.getElementById('trustPurpose').value;
+      const beneficiaries = document.getElementById('beneficiaries').value;
+      document.getElementById('previewTitle').textContent = trustName.toUpperCase() + ' AGREEMENT';
+      document.getElementById('previewSubtitle').textContent = 'Private Family Trust';
+      content = `<p><strong>THIS TRUST AGREEMENT</strong> is made and entered into this ${formatDate(effectiveDate)} by and between <strong>${grantorName}</strong> ("Grantor") and <strong>${trusteeName}</strong> ("Trustee"), under the laws of the State of ${jurisdiction}.</p>
+        <p><strong>ARTICLE I - CREATION OF TRUST</strong></p>
+        <p>The Grantor hereby transfers and conveys to the Trustee certain property, real and personal, to be held, managed, and distributed by the Trustee in accordance with the terms and conditions set forth in this Agreement.</p>
+        <p><strong>ARTICLE II - TRUST PURPOSE</strong></p>
+        <p>${purpose || 'The purpose of this Trust is to hold, manage, and distribute assets for the benefit of the named beneficiaries.'}</p>
+        <p><strong>ARTICLE III - BENEFICIARIES</strong></p>
+        <p>The beneficiaries of this Trust shall be: ${beneficiaries || 'As designated by the Grantor'}.</p>
+        <p><strong>ARTICLE IV - TRUSTEE POWERS</strong></p>
+        <p>The Trustee shall have all powers necessary to administer this Trust, including but not limited to the power to invest, reinvest, sell, exchange, lease, mortgage, and otherwise deal with trust property.</p>
+        <p><strong>ARTICLE V - DISTRIBUTION</strong></p>
+        <p>The Trustee shall distribute income and principal to the beneficiaries in accordance with the terms set forth in this Agreement and applicable law.</p>
+        <div class="signature-line"></div><p><strong>Grantor:</strong> ${grantorName}</p>
+        <div class="signature-line"></div><p><strong>Trustee:</strong> ${trusteeName}</p>`;
     }
-
-    // Download HTML
-    function downloadHTML() {
-      const content = document.getElementById('documentPreview').innerHTML;
-      const fullHTML = `
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Legal Document</title>
-  <style>
-    body {
-      font-family: Georgia, serif;
-      max-width: 800px;
-      margin: 40px auto;
-      padding: 40px;
-      line-height: 1.8;
+    if (type === 'affidavit') {
+      const affiantName = document.getElementById('affiantName').value;
+      const county = document.getElementById('affidavitCounty').value;
+      const state = document.getElementById('affidavitState').value;
+      const statement = document.getElementById('affidavitStatement').value;
+      document.getElementById('previewTitle').textContent = 'AFFIDAVIT';
+      document.getElementById('previewSubtitle').textContent = '';
+      content = `<p style="text-align:center"><strong>STATE OF ${state.toUpperCase()}</strong></p>
+        <p style="text-align:center"><strong>COUNTY OF ${county.toUpperCase()}</strong></p>
+        <p>I, <strong>${affiantName}</strong>, being duly sworn, depose and say:</p>
+        <p>${statement}</p>
+        <p>I declare under penalty of perjury under the laws of the State of ${state} that the foregoing is true and correct.</p>
+        <p>Executed this _____ day of _____________, 20____.</p>
+        <div class="signature-line"></div><p><strong>Affiant:</strong> ${affiantName}</p>
+        <p style="margin-top:40px"><strong>SUBSCRIBED AND SWORN TO</strong> before me this _____ day of _____________, 20____.</p>
+        <div class="signature-line"></div><p><strong>Notary Public</strong></p>
+        <p>My commission expires: ______________</p>`;
     }
-    .signature-line {
-      border-top: 2px solid black;
-      width: 300px;
-      margin: 40px 0 10px 0;
+    if (type === 'notice') {
+      const from = document.getElementById('noticeFrom').value;
+      const to = document.getElementById('noticeTo').value;
+      const date = document.getElementById('noticeDate').value;
+      const subject = document.getElementById('noticeSubject').value;
+      const body = document.getElementById('noticeBody').value;
+      document.getElementById('previewTitle').textContent = 'FORMAL NOTICE';
+      document.getElementById('previewSubtitle').textContent = formatDate(date);
+      content = `<p><strong>${to}</strong></p><p><strong>${subject}</strong></p>
+        ${body.split('\n').map(p => `<p>${p}</p>`).join('')}
+        <p style="margin-top:40px">Sincerely,</p>
+        <div class="signature-line"></div><p><strong>${from}</strong></p>`;
     }
-  </style>
-</head>
-<body>
-  ${content}
-</body>
-</html>
-      `;
+    document.getElementById('previewContent').innerHTML = content;
+    document.getElementById('previewSection').classList.add('active');
+    document.getElementById('previewSection').scrollIntoView({ behavior:'smooth' });
+  }
 
-      const blob = new Blob([fullHTML], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `legal-document_${new Date().toISOString().split('T')[0]}.html`;
-      a.click();
-      URL.revokeObjectURL(url);
+  function formatDate(ds) {
+    if (!ds) return '________';
+    return new Date(ds).toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+  }
+  function clearForm() {
+    document.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(i => { i.value = ''; });
+    setTodayDate();
+  }
+  function closePreview() { document.getElementById('previewSection').classList.remove('active'); }
+  function printDocument() { window.print(); }
+  function downloadHTML() {
+    const content = document.getElementById('documentPreview').innerHTML;
+    const full = `<!DOCTYPE html><html><head><title>Legal Document</title><style>body{font-family:Georgia,serif;max-width:800px;margin:40px auto;padding:40px;line-height:1.8}.signature-line{border-top:2px solid black;width:300px;margin:40px 0 10px 0}</style></head><body>${content}</body></html>`;
+    const blob = new Blob([full], { type:'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url;
+    a.download = `legal-document_${new Date().toISOString().split('T')[0]}.html`;
+    a.click(); URL.revokeObjectURL(url);
+  }
+  function saveToSheets() {
+    if (typeof google !== 'undefined' && google.script) {
+      google.script.run.withSuccessHandler(() => alert('Saved to Sheet!')).saveDocMetadata({ type: currentDocType, date: new Date().toISOString() });
+    } else { alert('Save to Sheets: available when running inside Google Apps Script.'); }
+  }
+
+  // ═══ 1099-A Module ═══════════════════════════════════════════════════════
+  let borrowers = [];
+  let editingBorrIdx = null;
+  let borrNameType = 'I';
+
+  const A_CSV_HEADER = 'Form Type,Tax Year,Lender TIN Type,Lender Taxpayer ID Number,Lender Name Type,Lender Business or Entity Name Line 1,Lender Business or Entity Name Line 2,Lender First Name,Lender Middle Name,Lender Last Name (Surname),Lender Suffix,Lender Country,Lender Address Line 1,Lender Address Line 2,Lender City/Town,Lender State/Province/Territory,Lender ZIP/Postal Code,Lender Phone Type,Lender Phone,Borrower TIN Type,Borrower Taxpayer ID Number,Borrower Name Type,Borrower Business or Entity Name Line 1,Borrower Business or Entity Name Line 2,Borrower First Name,Borrower Middle Name,Borrower Last Name (Surname),Borrower Suffix,Borrower Country,Borrower Address Line 1,Borrower Address Line 2,Borrower City/Town,Borrower State/Province/Territory,Borrower ZIP/Postal Code,Office Code,Form Account Number,Box 1 - Date of lender\'s acquisition or knowledge of abandonment,Box 2 - Balance of principal outstanding,Box 4 - Fair market value of property,"Box 5 - If checked, the borrower was personally liable for repayment of the debt",Box 6 - Description of property';
+
+  function init1099ACharCounters() {
+    [['a_lenderName1','a_lenderName1Ct'],['a_lenderName2','a_lenderName2Ct']].forEach(([id,ctId]) => {
+      const el = document.getElementById(id);
+      const ct = document.getElementById(ctId);
+      if (el && ct) { ct.textContent = el.value.length; el.oninput = () => ct.textContent = el.value.length; }
+    });
+    const b6 = document.getElementById('b_box6');
+    const b6ct = document.getElementById('b_box6Ct');
+    if (b6 && b6ct) b6.oninput = () => b6ct.textContent = b6.value.length;
+  }
+
+  function setBorrNameType(type) {
+    borrNameType = type;
+    document.getElementById('borrNameTypeBtnI').classList.toggle('active', type === 'I');
+    document.getElementById('borrNameTypeBtnB').classList.toggle('active', type === 'B');
+    document.getElementById('borrNameFieldsIndividual').classList.toggle('visible', type === 'I');
+    document.getElementById('borrNameFieldsBusiness').classList.toggle('visible', type === 'B');
+  }
+
+  function toggleAddBorrowerForm() {
+    const modal = document.getElementById('borrowerFormModal');
+    const isOpen = modal.style.display !== 'none';
+    if (isOpen) {
+      modal.style.display = 'none';
+      document.getElementById('addBorrBtnIcon').textContent = '＋';
+      document.getElementById('addBorrBtnLabel').textContent = 'Add Borrower / Property';
+      clearBorrowerForm();
+      editingBorrIdx = null;
+    } else {
+      modal.style.display = 'block';
+      document.getElementById('addBorrBtnIcon').textContent = '✕';
+      document.getElementById('addBorrBtnLabel').textContent = 'Cancel';
+      init1099ACharCounters();
+      modal.scrollIntoView({ behavior: 'smooth' });
     }
+  }
 
-    // Save to Sheets
-    function saveToSheets() {
-      alert('Document metadata will be saved to your Google Sheet. Feature coming soon!');
-      // Future: Send document data to Google Sheets via google.script.run
+  function collectBorrowerForm() {
+    return {
+      tinType:    document.getElementById('b_tinType').value,
+      tin:        document.getElementById('b_tin').value.trim(),
+      nameType:   borrNameType,
+      firstName:  document.getElementById('b_firstName').value.trim(),
+      middleName: document.getElementById('b_middleName').value.trim(),
+      lastName:   document.getElementById('b_lastName').value.trim(),
+      suffix:     document.getElementById('b_suffix').value.trim(),
+      bizName1:   document.getElementById('b_bizName1').value.trim(),
+      bizName2:   document.getElementById('b_bizName2').value.trim(),
+      country:    document.getElementById('b_country').value.trim() || 'US',
+      addr1:      document.getElementById('b_addr1').value.trim(),
+      addr2:      document.getElementById('b_addr2').value.trim(),
+      city:       document.getElementById('b_city').value.trim(),
+      state:      document.getElementById('b_state').value.trim().toUpperCase(),
+      zip:        document.getElementById('b_zip').value.trim(),
+      officeCode: document.getElementById('b_officeCode').value.trim(),
+      accountNum: document.getElementById('b_accountNum').value.trim(),
+      box1:       document.getElementById('b_box1').value.trim(),
+      box2:       document.getElementById('b_box2').value.trim(),
+      box4:       document.getElementById('b_box4').value.trim(),
+      box5:       document.getElementById('b_box5').value,
+      box6:       document.getElementById('b_box6').value.trim()
+    };
+  }
+
+  function validateBorrower(b) {
+    const errors = [];
+    if (b.nameType === 'I') {
+      if (!b.firstName) errors.push('Borrower First Name is required');
+      if (!b.lastName)  errors.push('Borrower Last Name is required');
+    } else {
+      if (!b.bizName1)  errors.push('Borrower Business Name Line 1 is required');
     }
+    if (!b.addr1)  errors.push('Borrower Address Line 1 is required');
+    if (!b.city)   errors.push('Borrower City is required');
+    if (!b.state)  errors.push('Borrower State is required (2-letter)');
+    if (!b.zip)    errors.push('Borrower ZIP is required');
+    if (!b.box1)   errors.push('Box 1 (Date of acquisition/abandonment) is required');
+    if (!b.box2)   errors.push('Box 2 (Principal balance) is required');
+    if (!b.box6)   errors.push('Box 6 (Description of property) is required');
+    if (b.tin && b.tinType === 'EIN' && !/^\d{2}-\d{7}$/.test(b.tin))   errors.push('EIN format must be XX-XXXXXXX');
+    if (b.tin && b.tinType === 'SSN' && !/^\d{3}-\d{2}-\d{4}$/.test(b.tin)) errors.push('SSN format must be XXX-XX-XXXX');
+    if (b.state && b.state.length !== 2) errors.push('Borrower State must be 2 letters');
+    if (b.zip && !/^\d{5}$|^\d{9}$|^\d{12}$/.test(b.zip)) errors.push('ZIP must be 5, 9, or 12 digits');
+    if (b.box2 && parseFloat(b.box2) < 0) errors.push('Box 2 cannot be negative');
+    if (b.box4 && parseFloat(b.box4) < 0) errors.push('Box 4 cannot be negative');
+    return errors;
+  }
 
-    // Initialize
-    window.addEventListener('DOMContentLoaded', setTodayDate);
-  </script>
+  function saveBorrower() {
+    const b = collectBorrowerForm();
+    const errors = validateBorrower(b);
+    const errEl = document.getElementById('borrowerFormModal').querySelector('.borrFormErrors');
+    if (errEl) errEl.remove();
+    if (errors.length) {
+      const div = document.createElement('div');
+      div.className = 'validation-summary visible borrFormErrors';
+      div.innerHTML = '<strong style="color:#dc2626">⚠ Fix errors:</strong><ul>' + errors.map(e => `<li>${e}</li>`).join('') + '</ul>';
+      document.getElementById('borrowerFormModal').prepend(div);
+      div.scrollIntoView({ behavior:'smooth' });
+      return;
+    }
+    if (editingBorrIdx !== null) {
+      borrowers[editingBorrIdx] = b;
+      editingBorrIdx = null;
+    } else {
+      borrowers.push(b);
+    }
+    renderBorrowerCards();
+    toggleAddBorrowerForm();
+  }
 
+  function renderBorrowerCards() {
+    const container = document.getElementById('borrowerCards');
+    const badge = document.getElementById('borrowerCountBadge');
+    badge.textContent = `${borrowers.length} row${borrowers.length !== 1 ? 's' : ''}`;
+    if (!borrowers.length) {
+      container.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;font-size:14px">No borrowers yet. Click "Add Borrower" below to begin.</div>';
+      return;
+    }
+    container.innerHTML = borrowers.map((b, i) => {
+      const name = b.nameType === 'I'
+        ? [b.firstName, b.middleName, b.lastName, b.suffix].filter(Boolean).join(' ')
+        : [b.bizName1, b.bizName2].filter(Boolean).join(' / ');
+      const tin = b.tin ? ` · TIN: ${b.tin}` : '';
+      const box1fmt = b.box1 ? new Date(b.box1 + 'T00:00:00').toLocaleDateString('en-US') : '—';
+      return `<div class="recipient-card">
+        <div class="recipient-card-header">
+          <div>
+            <div class="recipient-card-title">Row ${i+1} — ${name}${tin}</div>
+            <div class="recipient-summary">Box 1: ${box1fmt} | Box 2: ${b.box2 || '0'} | Box 6: ${b.box6.substring(0,40)}</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-secondary btn-sm" onclick="editBorrower(${i})">&#9998; Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="removeBorrower(${i})">&#10005;</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function editBorrower(idx) {
+    const b = borrowers[idx];
+    editingBorrIdx = idx;
+    setBorrNameType(b.nameType);
+    document.getElementById('b_tinType').value = b.tinType;
+    document.getElementById('b_tin').value = b.tin;
+    document.getElementById('b_firstName').value = b.firstName;
+    document.getElementById('b_middleName').value = b.middleName;
+    document.getElementById('b_lastName').value = b.lastName;
+    document.getElementById('b_suffix').value = b.suffix;
+    document.getElementById('b_bizName1').value = b.bizName1;
+    document.getElementById('b_bizName2').value = b.bizName2;
+    document.getElementById('b_country').value = b.country;
+    document.getElementById('b_addr1').value = b.addr1;
+    document.getElementById('b_addr2').value = b.addr2;
+    document.getElementById('b_city').value = b.city;
+    document.getElementById('b_state').value = b.state;
+    document.getElementById('b_zip').value = b.zip;
+    document.getElementById('b_officeCode').value = b.officeCode;
+    document.getElementById('b_accountNum').value = b.accountNum;
+    document.getElementById('b_box1').value = b.box1;
+    document.getElementById('b_box2').value = b.box2;
+    document.getElementById('b_box4').value = b.box4;
+    document.getElementById('b_box5').value = b.box5;
+    document.getElementById('b_box6').value = b.box6;
+    const modal = document.getElementById('borrowerFormModal');
+    modal.style.display = 'block';
+    document.getElementById('addBorrBtnIcon').textContent = '✕';
+    document.getElementById('addBorrBtnLabel').textContent = 'Cancel Edit';
+    init1099ACharCounters();
+    modal.scrollIntoView({ behavior:'smooth' });
+  }
+
+  function removeBorrower(idx) {
+    borrowers.splice(idx, 1);
+    renderBorrowerCards();
+  }
+
+  function clearBorrowerForm() {
+    ['b_tinType','b_tin','b_firstName','b_middleName','b_lastName','b_suffix',
+     'b_bizName1','b_bizName2','b_addr1','b_addr2','b_city','b_state','b_zip',
+     'b_officeCode','b_accountNum','b_box1','b_box2','b_box4','b_box6'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = id === 'b_country' ? 'US' : '';
+    });
+    document.getElementById('b_box5').value = 'N';
+    setBorrNameType('I');
+    const errEl = document.getElementById('borrowerFormModal');
+    if (errEl) { const e = errEl.querySelector('.borrFormErrors'); if (e) e.remove(); }
+  }
+
+  function validateLender() {
+    const errors = [];
+    const tin   = document.getElementById('a_lenderTIN').value.trim();
+    const tinTy = document.getElementById('a_lenderTINType').value;
+    const name1 = document.getElementById('a_lenderName1').value.trim();
+    const addr1 = document.getElementById('a_lenderAddr1').value.trim();
+    const city  = document.getElementById('a_lenderCity').value.trim();
+    const state = document.getElementById('a_lenderState').value.trim();
+    const zip   = document.getElementById('a_lenderZip').value.trim();
+    if (!tin)   errors.push('Lender TIN is required');
+    if (tin && tinTy === 'EIN' && !/^\d{2}-\d{7}$/.test(tin))  errors.push('Lender EIN must be XX-XXXXXXX');
+    if (tin && tinTy === 'SSN' && !/^\d{3}-\d{2}-\d{4}$/.test(tin)) errors.push('Lender SSN must be XXX-XX-XXXX');
+    if (!name1)  errors.push('Lender Name Line 1 is required');
+    if (!addr1)  errors.push('Lender Address Line 1 is required');
+    if (!city)   errors.push('Lender City is required');
+    if (!state)  errors.push('Lender State is required');
+    if (state && state.length !== 2) errors.push('Lender State must be 2-letter abbreviation');
+    if (!zip)    errors.push('Lender ZIP is required');
+    if (zip && !/^\d{5}$|^\d{9}$|^\d{12}$/.test(zip)) errors.push('Lender ZIP must be 5, 9, or 12 digits');
+    return errors;
+  }
+
+  function build1099ARows() {
+    const taxYear   = document.getElementById('a_taxYear').value;
+    const lTINType  = document.getElementById('a_lenderTINType').value;
+    const lTIN      = document.getElementById('a_lenderTIN').value.trim();
+    const lNameType = document.getElementById('a_lenderNameType').value;
+    const lName1    = document.getElementById('a_lenderName1').value.trim();
+    const lName2    = document.getElementById('a_lenderName2').value.trim();
+    const lCountry  = document.getElementById('a_lenderCountry').value.trim() || 'US';
+    const lAddr1    = document.getElementById('a_lenderAddr1').value.trim();
+    const lAddr2    = document.getElementById('a_lenderAddr2').value.trim();
+    const lCity     = document.getElementById('a_lenderCity').value.trim();
+    const lState    = document.getElementById('a_lenderState').value.trim().toUpperCase();
+    const lZip      = document.getElementById('a_lenderZip').value.trim();
+    const lPhType   = document.getElementById('a_lenderPhoneType').value;
+    const lPhone    = document.getElementById('a_lenderPhone').value.trim();
+
+    return borrowers.map(b => [
+      '1099-A', taxYear,
+      lTINType, lTIN, lNameType, lName1, lName2,
+      '','','','',   // lender first/mid/last/suffix
+      lCountry, lAddr1, lAddr2, lCity, lState, lZip, lPhType, lPhone,
+      b.tinType, b.tin, b.nameType,
+      b.nameType === 'B' ? b.bizName1 : '', b.nameType === 'B' ? b.bizName2 : '',
+      b.nameType === 'I' ? b.firstName : '', b.nameType === 'I' ? b.middleName : '',
+      b.nameType === 'I' ? b.lastName : '', b.nameType === 'I' ? b.suffix : '',
+      b.country, b.addr1, b.addr2, b.city, b.state, b.zip,
+      b.officeCode, b.accountNum,
+      b.box1, b.box2, b.box4, b.box5, b.box6
+    ].map(csvCell).join(','));
+  }
+
+  function export1099ACSV() {
+    const lenderErrors = validateLender();
+    if (lenderErrors.length) { showSummaryErrorsA(lenderErrors); return; }
+    if (!borrowers.length) { showSummaryErrorsA(['No borrowers added. Add at least one borrower row.']); return; }
+    hideSummaryErrorsA();
+    const rows = build1099ARows();
+    const csv = A_CSV_HEADER + '\n' + rows.join('\n') + '\n';
+    const taxYear = document.getElementById('a_taxYear').value;
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `1099-A_${taxYear}_TMAR_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function preview1099ACSV() {
+    const rows = build1099ARows();
+    const preview = [A_CSV_HEADER, ...rows.slice(0,3)].join('\n');
+    document.getElementById('csvPreviewBoxA').textContent = preview;
+    document.getElementById('csvPreviewContainerA').style.display = 'block';
+    document.getElementById('csvPreviewContainerA').scrollIntoView({ behavior:'smooth' });
+  }
+
+  function showSummaryErrorsA(errors) {
+    const el = document.getElementById('a1099ValidationSummary');
+    const list = document.getElementById('a1099ErrorList');
+    list.innerHTML = errors.map(e => `<li>${e}</li>`).join('');
+    el.classList.add('visible');
+    el.scrollIntoView({ behavior:'smooth' });
+  }
+  function hideSummaryErrorsA() {
+    document.getElementById('a1099ValidationSummary').classList.remove('visible');
+  }
+
+  function clearAll1099A() {
+    if (borrowers.length && !confirm('Clear all borrowers and reset the lender form?')) return;
+    borrowers = [];
+    renderBorrowerCards();
+    document.getElementById('csvPreviewContainerA').style.display = 'none';
+    hideSummaryErrorsA();
+    const modal = document.getElementById('borrowerFormModal');
+    if (modal.style.display !== 'none') toggleAddBorrowerForm();
+  }
+
+  window.addEventListener('DOMContentLoaded', () => { setTodayDate(); init1099BCharCounters(); });
+</script>
 </body>
 </html>

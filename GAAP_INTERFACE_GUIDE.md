@@ -1,7 +1,7 @@
 # TMAR Universal Accrual Ledger - User Guide
 
-**Version:** 1.0.0
-**Last Updated:** 2026-02-28
+**Version:** 1.4.0
+**Last Updated:** 2026-03-04
 **Status:** ✅ Deployed and Ready
 
 ---
@@ -20,6 +20,7 @@ The **TMAR Universal Accrual Ledger** is a comprehensive GAAP-compliant accounti
 - 📄 **Tax Forms** - Form 1041, 1040, Schedule C
 - 📉 **Depreciation** - Asset depreciation tracking
 - 🏦 **Reconciliation** - Bank reconciliation tools
+- 🔄 **Sync Center** - Bidirectional data sync with Google Sheets (CSV export/import + Live Sync)
 
 This interface mirrors professional accounting software while integrating seamlessly with your TMAR Master Register Google Sheet.
 
@@ -325,6 +326,23 @@ When you open the interface, it automatically loads accounts from your Master Re
 
 ---
 
+### 13-17. RedressRight Source Libraries (Group 9)
+
+Five reference tools integrated from `redressright.me` as dedicated tabs:
+
+| # | Tab | Purpose | Key Features |
+|---|---|---|---|
+| 13 | ⚖️ Constitutional Challenges (CPSA) | Full WYSIWYG legal document editor | 15 document type tabs, multi-document persistence, undo/redo (20 states), auto-save (5s), section management, form generator (7 fields), 6 legal template generators, citation databases (14 statutes, 20 cases), image insert, code editor, preview mode, font 8-72pt, keyboard shortcuts (Ctrl+S/Z/Y/P), PDF/Word export |
+| 14 | 💰 Tax Refund Calculator (TRCF) | Calculate tax refunds via two routes | 7 sub-tabs, Route 1/Route 2 calculators, 2024 brackets, interest calculator, 1099 import, 8 form cards in Form Guidance |
+| 15 | 📊 NOL Classification (CCSN) | Net Operating Loss asset classification | 72-slide presentation, prev/next navigation, table of contents |
+| 16 | 🏛️ Federal Damages (FDRF) | Federal damages framework reference | 4-part accordion layout, text-to-speech read-aloud |
+| 17 | 📓 Tutorial Journal (EEEJ) | Educational tutorial journal | 28 slides, topic navigation, progress tracking |
+| 18 | 🔍 Entity Verifier | SEC EDGAR & EIN cross-reference verification | Live entity verification, confidence scoring, detail modal, JSON export |
+
+**How to access:** Click any tab in the "RedressRight Source Libraries" or "Verification Tools" groups at the right end of the tab bar.
+
+---
+
 ## 🔧 Header Actions
 
 ### Theme Toggle (🌓)
@@ -396,26 +414,28 @@ All data is automatically saved to browser **localStorage**:
 
 ### Google Sheets Sync
 
-**Automatic integration:**
+**Automatic integration (GAS sidebar):**
 - On interface load, accounts are pulled from Master Register
 - Account dropdown populated from Master Register
 - Click **💾 Sync** to push ledger entries to Transaction Ledger sheet
 
+**Sync Center (v1.4.0) — Bidirectional CSV + Live Sync:**
+- **CSV Export**: 5 buttons export entities, ledger, journal, 1099, payables to CSV files
+- **CSV Import**: 4 file inputs import Master Register, transactions, obligations, W-2 data with dedup
+- **Live Sync** (Phase 2): Push/pull via GAS Web App Bridge endpoints
+- See **🔄 Sync Center** tab for full interface
+
 **Data flow:**
 ```
 Google Sheets Master Register
+         ↓ ↑
+   Sync Center (CSV or Live)
+         ↓ ↑
+Accrual Ledger (Entities, Ledger, Payables, 1099)
          ↓
-   (on interface load)
+   (auto-save every 5s)
          ↓
-Chart of Accounts in Interface
-         ↓
-Account Dropdown (Ledger tab)
-         ↓
-User adds ledger entries
-         ↓
-   (click Sync button)
-         ↓
-Transaction Ledger Sheet
+localStorage (TMAR_AccrualLedger_Data)
 ```
 
 ---
@@ -485,6 +505,33 @@ Transaction Ledger Sheet
 4. Click **📖 Ledger** tab to see full transaction history
 5. Click **📋 Chart of Accounts** to see balances by account
 6. Export data for records: Click **📥 Export → JSON**
+
+### Workflow 5: Syncing Data with Google Sheets
+
+**Exporting data from Accrual Ledger → Google Sheets:**
+1. Open **📊 Universal Accrual Ledger**
+2. Click **🔄 Sync Center** tab
+3. In the **CSV Exports** panel, click the appropriate export button:
+   - **Entities → Master Register** (29 columns) for account/entity data
+   - **Ledger → Transaction Ledger** (16 columns) for double-entry transactions
+   - **Payables → Obligations** (11 columns) for household bills
+   - **1099 → Filing Chain** (15 columns) for 1099 filings
+4. CSV file downloads automatically (EINs are masked for security)
+5. In Google Sheets, go to **File → Import** and upload the CSV
+6. Select "Insert new sheet" or "Replace current sheet" as appropriate
+
+**Importing data from Google Sheets → Accrual Ledger:**
+1. In Google Sheets, go to **File → Download → CSV** for the target sheet
+2. In the Accrual Ledger, click **🔄 Sync Center** tab
+3. In the **CSV Imports** panel, click the file input for the data type
+4. Select the downloaded CSV — data imports with dedup/conflict detection
+5. Review the Sync Log at the bottom for import results
+
+**Using the GAS Import Sidebar (alternative):**
+1. In Google Sheets, go to **TMAR Tools → Import → Import from Accrual Ledger...**
+2. Select import type (entities, transactions, payables, 1099s, or full sync)
+3. Paste JSON data or upload a JSON file from the Accrual Ledger
+4. Click **Import** — data is validated and written to the appropriate sheet
 
 ---
 
@@ -567,12 +614,80 @@ While auto-save runs every 5 seconds, you can also:
 - Apps Script authorization prompt: Review permissions → Allow
 - Only accesses TMAR spreadsheet, no other files
 
+### PII Masking (v1.1.1)
+
+- **Trust Name**: Defaults to `[Trust Entity Name]` placeholder; only shows real name after user enters it via Entities tab
+- **EIN**: Always masked in UI and AI prompts — shows only last 4 digits (e.g., `••-•••9588`)
+- **Source code**: No hardcoded PII — default entity/settings data ships with empty fields
+- **AI System Prompt**: Built dynamically at runtime via `buildTrustAgentSystemPrompt()` using current settings
+
+### Entity Verifier (v1.2.0)
+
+The Entity Verifier tab provides automated SEC EDGAR cross-reference verification for all entities in the system.
+
+**Features:**
+- **Live data** — reads entities directly from `appData.entities` (no hardcoded accounts)
+- **SEC EDGAR verification** — ticker lookup, company name search, CIK submission details
+- **EIN cross-reference** — full-text EIN search in 10-K/10-Q/8-K filings via `efts.sec.gov`
+- **Confidence scoring** — HIGH (EIN confirmed via EDGAR), MEDIUM (SEC match, no EIN), LOW (private entity with context), UNVERIFIED
+- **Detail modal** — click any row to see TMAR record, SEC EDGAR data, recent filings, verification notes, and recommended verification steps
+- **EIN masking** — all EINs displayed as `••-•••XXXX` using the existing `maskEIN()` utility; exported JSON also uses masked EINs
+- **JSON export** — download verification results as a timestamped JSON file for audit trails
+- **Rate limiting** — 250ms delay between SEC EDGAR API calls to respect rate limits
+
+**Data sources:** SEC EDGAR (public companies only). Private entities, government agencies, and nonprofits require manual W-9/1099 cross-reference.
+
+### Sync Center (v1.4.0)
+
+The Sync Center tab provides bidirectional data transfer between the Accrual Ledger and the TMAR Google Sheets Master Register. It supports 3 tiers: CSV export/import (offline), GAS Web App Bridge (live), and Direct Sheets API (advanced).
+
+**Connection Setup:**
+1. In Google Sheets, deploy the Apps Script as a Web App (Extensions → Apps Script → Deploy → New Deployment → Web App)
+2. Copy the Web App URL
+3. In the Sync Center tab, paste the URL in the Connection Card input
+4. Click "Test Connection" — the status dot turns green if connected
+
+**CSV Exports (5 functions):**
+
+| Button | What It Does | Output |
+|---|---|---|
+| Entities → Master Register | Exports all entities as a 29-column CSV matching the Master Register schema | `sync_entities_MasterRegister_YYYY-MM-DD.csv` |
+| Ledger → Transaction Ledger | Exports ledger entries as a 16-column CSV (debit/credit → signed amount) | `sync_ledger_TransactionLedger_YYYY-MM-DD.csv` |
+| Journal → Transaction Ledger | Expands multi-line journal entries into individual Transaction Ledger rows | `sync_journal_TransactionLedger_YYYY-MM-DD.csv` |
+| 1099 → Filing Chain | Exports all 1099 filings (1099-A, 1099-B, etc.) as a 15-column CSV | `sync_1099_FilingChain_YYYY-MM-DD.csv` |
+| Payables → Obligations | Exports payables as an 11-column Household Obligations CSV | `sync_payables_Obligations_YYYY-MM-DD.csv` |
+
+**CSV Imports (4 functions):**
+
+| Button | What It Does | Conflict Handling |
+|---|---|---|
+| Import Master Register CSV | Creates entities from Master Register export | Matches by name — shows conflict dialog for modified entities |
+| Import Transaction Ledger CSV | Adds transactions from Transaction Ledger export | Hash-based dedup — skips exact duplicates |
+| Import Obligations CSV | Syncs payables from Household Obligations export | Upserts by vendor name — updates existing, adds new |
+| Import W-2 Income CSV | Imports W-2 employer/income data | Flexible header mapping — overwrites income fields |
+
+**Live Sync (Tier 2 — requires GAS Web App URL):**
+- **Push** — sends data from the Accrual Ledger to Google Sheets (entities, transactions, payables, 1099s)
+- **Pull** — retrieves data from Google Sheets into the Accrual Ledger (accounts, transactions, obligations)
+- **Push All / Pull All** — performs all push/pull operations sequentially with progress bar
+- Live Sync panel is disabled until a valid GAS Web App URL is configured
+
+**Sync Log:**
+- Every export, import, push, and pull operation is logged with a timestamp
+- Last 50 operations are shown in a scrollable log
+- Click "Clear Log" to reset (with confirmation)
+
+**Security:**
+- EINs are **always masked** on export using the `••-•••XXXX` format — full EINs never leave the system
+- Imported EINs from masked CSVs are ignored (the original EIN is already stored locally)
+
 ### Best Practices
 
 1. **Regular backups** - Export JSON weekly
 2. **Sync frequently** - Click Sync button after important entries
 3. **Private browsing caution** - localStorage clears when you close browser
 4. **Multi-device note** - Data is per-browser, not synced across devices (until Google Sheets sync)
+5. **Sharing safely** - The HTML file contains no PII by default; safe to share with peers for testing
 
 ---
 
@@ -758,7 +873,89 @@ To practice with realistic data:
 - ✅ Glass-morphism design with backdrop blur
 - ✅ Responsive layout (desktop, tablet, mobile)
 
-**Coming Soon (v1.1):**
+### v1.1.0 (2026-03-03)
+
+**RedressRight Source Libraries (5 new tabs):**
+- ✅ Constitutional Challenges (CPSA) — 12 legal document templates with rich text editor
+- ✅ Tax Refund Calculator (TRCF) — Route 1/Route 2 calculators with 2024 brackets
+- ✅ NOL Classification (CCSN) — 72-slide asset classification reference
+- ✅ Federal Damages (FDRF) — 4-part framework with text-to-speech
+- ✅ Tutorial Journal (EEEJ) — 28-slide educational journal with progress tracking
+
+**Bug Fixes:**
+- ✅ Fixed Document Creator autosave overwriting in-memory drafts on tab re-entry
+- ✅ Fixed duplicate autosave intervals accumulating on tab switches
+
+### v1.3.0 (2026-03-03)
+
+**Constitutional Challenges (CPSA) — Full Feature Parity with redressright.me/CPSA.html:**
+- ✅ 15 document type tabs (dismiss, summary, habeas, mandamus, certiorari, declaratory, tro, dueprocess, equalprotection, standing, civil, quowarranto, prohibition, rehearing, templates)
+- ✅ Multi-document persistence — all 15 documents stored independently in `cpsa_documents` localStorage
+- ✅ Undo/Redo system — 20-state history with Ctrl+Z/Ctrl+Y keyboard shortcuts
+- ✅ Auto-save — 5-second interval with green indicator flash
+- ✅ Section management — hover-reveal controls for move up/down/delete, add section button
+- ✅ Form generator — 7-field collapsible panel (Name, City, State, District, Case#, Date, Debtor)
+- ✅ 6 Legal Template generators — Declaration of Non-Consent, Reservation & Withdrawal, Adversary Complaint, Voluntary Dismissal, Creditor Challenge, Voluntary Challenge
+- ✅ Enhanced citations — modal-based with searchable databases (14 statutes, 20 landmark cases)
+- ✅ Color-coded citation spans — constitutional (amber), statutory (green), case law (blue), IRC (purple)
+- ✅ Image insertion — file upload modal with preview, Base64 encode + insert at cursor
+- ✅ Font size range expanded — 8pt to 72pt with +/- buttons and direct input
+- ✅ Code editor modal — edit raw HTML with Apply/Cancel
+- ✅ View code modal — read-only with Copy + Download buttons
+- ✅ Document preview — clean new window without UI controls
+- ✅ Document ID auto-generation — format: `CPSA-{ABBREV}-{YEAR}-{RANDOM3}`
+- ✅ Keyboard shortcuts — Ctrl+S (save), Ctrl+Z (undo), Ctrl+Y (redo), Ctrl+P (print)
+- ✅ Legacy migration — auto-migrates old `cpsa_draft` key to new `cpsa_documents` format
+- ✅ 3 new document templates: Writ of Certiorari, Declaration of Standing, Civil Rights Complaint (42 U.S.C. § 1983)
+
+### v1.2.1 (2026-03-03)
+
+**1099 Series Cross-Module Integration:**
+- ✅ 8 new form cards (1099-A through 1099-MISC) in TRCF Form Guidance
+- ✅ Shared `aggregate1099Data()` function sums all 1099 filings into tax categories
+- ✅ Tax Estimator: "Import from 1099 Filings" button with preview modal
+- ✅ TRCF Route 1: "Import from 1099 Filings" populates gross income + withholding
+- ✅ 1099/1065 Mechanics tab: live filing summary with counts and totals
+- ✅ Income fields replaced on import; withholding added to existing value (preserves W-2)
+
+### v1.4.0 (2026-03-04)
+
+**Sync Center — 3-Tier Data Integration (Phase 1):**
+- ✅ New tab: Sync Center with bidirectional data sync (Group 11: Data Integration)
+- ✅ 5 CSV export functions (entities→29-col, ledger→16-col, journal→16-col, 1099→15-col, payables→11-col)
+- ✅ 4 CSV import functions with conflict detection and dedup (master register, transactions, obligations, W-2)
+- ✅ GAS import sidebar (TMAR Tools > Import > Import from Accrual Ledger)
+- ✅ Sync log with timestamp tracking (last 50 operations)
+- ✅ EIN masking on all exports (••-•••XXXX format)
+- ✅ Live Sync panel (Tier 2 stubs, activated with GAS Web App URL)
+- ✅ Connection card with Test Connection verification
+- ✅ 22 new JavaScript functions (5 export, 4 import, 13 utilities)
+- ✅ 6 new GAS functions (sidebar, router, 4 import handlers)
+- ✅ Tab count: 37 → 38 sections, 38 tab buttons
+
+### v1.2.0 (2026-03-03)
+
+**New Feature — Entity Verifier Tab:**
+- ✅ New tab: Entity Verifier with SEC EDGAR & EIN cross-reference verification
+- ✅ Reads live entities from `appData.entities` (no hardcoded PII)
+- ✅ SEC EDGAR verification: ticker lookup, name search, CIK submissions, full-text EIN search
+- ✅ Confidence scoring: HIGH / MEDIUM / LOW / UNVERIFIED
+- ✅ Detail modal: TMAR record, SEC data, recent filings, recommended verification steps
+- ✅ Summary dashboard with clickable filter cards and search
+- ✅ JSON export for verification audit trail (EINs masked in export)
+- ✅ 250ms rate limiting between SEC EDGAR API calls
+- ✅ Tab count: 36 → 37 sections, 37 tab buttons
+
+### v1.1.1 (2026-03-03)
+
+**Security — PII Masking:**
+- ✅ Trust name defaults to `[Trust Entity Name]` placeholder (no hardcoded PII)
+- ✅ EIN masked to last 4 digits everywhere: header, AI prompt (`••-•••9588`)
+- ✅ Default entity/settings data ships empty — user populates via Entities tab
+- ✅ AI system prompt rebuilt dynamically at runtime via `buildTrustAgentSystemPrompt()`
+- ✅ New utilities: `maskEIN()`, `updateHeaderSubtitle()`, `buildTrustAgentSystemPrompt()`
+
+**Coming Soon (v1.2):**
 - Journal entries with multi-line support
 - Accounts Receivable aging
 - Accounts Payable tracking
