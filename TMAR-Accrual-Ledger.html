@@ -305,28 +305,582 @@
     .eeej-topic-btn:hover { background: rgba(250,204,21,0.08); }
     .eeej-topic-btn.active { background: rgba(250,204,21,0.15); color: #fbbf24; border-color: rgba(250,204,21,0.5); }
   
-/* ===== EON AI STYLES ===== */
-.sidebar { width: 240px; min-width: 240px; background: var(--bg-secondary); border-right: 1px solid var(--border-color); padding: 12px; overflow-y: auto; position: fixed; left: 0; top: 0; height: 100vh; z-index: 100; }
-.sidebar-title { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; margin: 14px 0 6px 8px; letter-spacing: 1px; font-weight: 700; }
-.side-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border-radius: 8px; border: none; background: transparent; color: var(--text-secondary); cursor: pointer; font-size: 13px; text-align: left; transition: all .2s; margin-bottom: 2px; }
-.side-btn:hover { background: rgba(16, 185, 129, 0.1); color: var(--text-primary); transform: translateX(4px); }
-.side-btn.active { background: rgba(16, 185, 129, 0.1); color: var(--accent-green); border: 1px solid rgba(16,185,129,.25); }
-.page { display: none; }
-.page.active { display: block; animation: fadeIn .3s; }
-.chat-wrap { display: flex; flex-direction: column; height: calc(100vh - 142px); }
-.chat-msgs { flex: 1; overflow-y: auto; padding: 20px; }
-.chat-input-area { padding: 14px 20px; background: rgba(27, 42, 74, 0.8); border-top: 1px solid var(--border-color); display: flex; gap: 10px; align-items: flex-end; }
-.chat-input { flex: 1; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 12px; padding: 10px 14px; color: var(--text-primary); font-size: 13px; resize: none; min-height: 44px; font-family: inherit; }
-.msg { display: flex; gap: 12px; margin-bottom: 16px; }
-.msg-avatar { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-.msg-body { flex: 1; background: rgba(27, 42, 74, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px; max-width: 80%; }
-.agents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
-.agent-card { background: rgba(27, 42, 74, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 18px; cursor: pointer; transition: all .3s; }
-.agent-card:hover { border-color: var(--accent-green); transform: translateY(-3px); }
-.eeon-tab { padding: 7px 14px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; background: var(--bg-tertiary); color: var(--text-primary); }
-.eeon-tab.active { background: var(--accent-green); color: #000; font-weight: 600; }
-.irs-form-wrap { font-family: Arial, sans-serif; font-size: 10px; }
-.irs-header { display: flex; justify-content: space-between; padding: 8px; border: 1px solid #000; }
+/* ===== COMPLETE EON AI CSS ===== */
+
+/* Sidebar Styles */
+.sidebar {
+  width: 240px;
+  min-width: 240px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  padding: 12px;
+  overflow-y: auto;
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  z-index: 100;
+}
+
+.sidebar-title {
+  font-size: 10px;
+  color: var(--text2);
+  text-transform: uppercase;
+  margin: 14px 0 6px 8px;
+  letter-spacing: 1px;
+  font-weight: 700;
+}
+
+.side-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  font-size: 13px;
+  text-align: left;
+  transition: all .2s;
+  margin-bottom: 2px;
+}
+
+.side-btn:hover {
+  background: var(--accent-glow);
+  color: var(--text);
+  transform: translateX(4px);
+}
+
+.side-btn.active {
+  background: var(--accent-glow);
+  color: var(--accent);
+  border: 1px solid rgba(0,212,255,.25);
+}
+
+.pages-container {
+  margin-left: 240px;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.page {
+  display: none;
+}
+
+.page.active {
+  display: block;
+  animation: fadeIn .3s;
+}
+
+/* CSS Variables for Dark Theme */
+[data-theme="dark"], body[data-theme="dark"], .eon-sidebar[data-theme="dark"] {
+  --bg: #0a0f2c;
+  --bg2: #060d24;
+  --bg3: #111b40;
+  --accent: #00d4ff;
+  --accent-glow: rgba(0,212,255,.18);
+  --legal: #f5a623;
+  --text: #ffffff;
+  --text2: #8ca0c8;
+  --ok: #00c48c;
+  --err: #ff4c6a;
+  --border: #1a3a8f;
+  --glass: rgba(6,13,36,.88);
+  --glass-border: rgba(0,212,255,.1);
+  --input-bg: #111b40;
+  --irs-bg: #1a1e2a;
+  --irs-border: #6080c0;
+  --irs-shade: #1e2535;
+  --irs-shade2: #22293a;
+  --gold: #c4830a;
+  --goldL: #e8a020;
+}
+
+/* CSS Variables for Light Theme */
+[data-theme="light"], body[data-theme="light"], .eon-sidebar[data-theme="light"] {
+  --bg: #e8edf8;
+  --bg2: #ffffff;
+  --bg3: #d4dcf0;
+  --accent: #0068b8;
+  --accent-glow: rgba(0,104,184,.12);
+  --legal: #b5770e;
+  --text: #0a0f2c;
+  --text2: #3a4a72;
+  --ok: #007a5e;
+  --err: #c0143a;
+  --border: #a0b0d8;
+  --glass: rgba(255,255,255,.92);
+  --glass-border: rgba(0,104,184,.15);
+  --input-bg: #f2f5fc;
+  --irs-bg: #ffffff;
+  --irs-border: #000000;
+  --irs-shade: #d8d0c4;
+  --irs-shade2: #e8e0d4;
+  --gold: #8b5e00;
+  --goldL: #c4830a;
+}
+
+/* Card Components */
+.card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.card-head {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--glass-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+/* Stats Grid */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.stat {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.stat-label {
+  color: var(--text2);
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.stat-val {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* Agents Grid */
+.agents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.agent-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 18px;
+  transition: all .3s;
+  cursor: pointer;
+}
+
+.agent-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,212,255,.15);
+}
+
+.agent-card.legal {
+  border-color: var(--legal);
+}
+
+.agent-card.legal:hover {
+  box-shadow: 0 8px 24px rgba(245,158,11,.15);
+}
+
+.agent-card h3 {
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.agent-card p {
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.agent-card .badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.badge-ok {
+  background: rgba(16,185,129,.15);
+  color: var(--ok);
+}
+
+.badge-err {
+  background: rgba(239,68,68,.15);
+  color: var(--err);
+}
+
+.badge-warn {
+  background: rgba(245,158,11,.15);
+  color: var(--legal);
+}
+
+/* Chat Interface */
+.chat-wrap {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 142px);
+}
+
+.chat-msgs {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  scroll-behavior: smooth;
+}
+
+.msg {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  animation: fadeIn .3s;
+}
+
+.msg-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.msg.user .msg-avatar {
+  background: var(--bg3);
+}
+
+.msg.agent .msg-avatar {
+  background: linear-gradient(135deg, var(--accent), #cc44bb);
+}
+
+.msg.legal .msg-avatar {
+  background: linear-gradient(135deg, var(--legal), #e83050);
+}
+
+.msg-body {
+  flex: 1;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 14px;
+  max-width: 80%;
+}
+
+.msg-sender {
+  font-weight: 600;
+  font-size: 12px;
+  margin-bottom: 3px;
+  color: var(--accent);
+}
+
+.msg-text {
+  font-size: 13px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.chat-input-area {
+  padding: 14px 20px;
+  background: var(--glass);
+  border-top: 1px solid var(--glass-border);
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.chat-input {
+  flex: 1;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  color: var(--text);
+  font-size: 13px;
+  resize: none;
+  min-height: 44px;
+  max-height: 150px;
+  font-family: inherit;
+}
+
+.chat-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.chat-send {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: none;
+  background: var(--accent);
+  color: #000;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* IRS Forms Styling */
+.irs-form-wrap {
+  background: var(--irs-bg);
+  border: 2px solid var(--irs-border);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.irs-header {
+  background: var(--irs-shade);
+  border-bottom: 2px solid var(--irs-border);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  padding: 6px 8px 4px;
+}
+
+.irs-form-num {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--irs-border);
+  line-height: 1;
+}
+
+.irs-form-subtitle {
+  font-size: 8.5px;
+  line-height: 1.4;
+  color: var(--irs-border);
+}
+
+.irs-omb {
+  text-align: right;
+  font-size: 8px;
+  color: var(--irs-border);
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.irs-section-header {
+  background: var(--irs-shade);
+  border: 1px solid var(--irs-border);
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  color: var(--irs-border);
+  margin: 0;
+}
+
+.irs-row {
+  display: grid;
+  align-items: stretch;
+  border-bottom: 1px solid var(--irs-border);
+}
+
+.irs-row.two-col {
+  grid-template-columns: 32px 1fr auto;
+}
+
+.irs-row.three-col {
+  grid-template-columns: 32px 1fr 120px 120px;
+}
+
+.irs-row.four-col {
+  grid-template-columns: 32px 1fr 110px 110px 100px;
+}
+
+.irs-cell {
+  padding: 2px 6px;
+  font-size: 9px;
+  border-right: 1px solid var(--irs-border);
+  display: flex;
+  align-items: center;
+  color: var(--irs-border);
+}
+
+.irs-cell:last-child {
+  border-right: none;
+}
+
+.irs-cell.num {
+  justify-content: center;
+  font-weight: 700;
+  background: var(--irs-shade2);
+  font-size: 8.5px;
+  min-width: 28px;
+}
+
+.irs-cell.shaded {
+  background: var(--irs-shade2);
+}
+
+.irs-cell.label {
+  font-size: 8.5px;
+  line-height: 1.3;
+}
+
+.irs-cell.amount {
+  justify-content: flex-end;
+}
+
+.irs-field-inline {
+  border: none;
+  border-bottom: 2px solid var(--irs-border);
+  background: rgba(255,210,80,0.20);
+  font-size: 10px;
+  padding: 1px 4px;
+  color: var(--text);
+  width: 100%;
+  border-radius: 2px;
+  transition: background .2s;
+}
+
+.irs-field-inline:focus {
+  outline: none;
+  background: rgba(196,131,10,.13);
+  border-bottom-color: var(--goldL);
+}
+
+.irs-amount-field {
+  border: none;
+  border-bottom: 2px solid var(--irs-border);
+  background: rgba(255,210,80,0.25);
+  font-size: 10px;
+  text-align: right;
+  width: 100%;
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--text);
+  padding: 1px 2px;
+  border-radius: 2px;
+  transition: background .2s;
+}
+
+.irs-amount-field:focus {
+  outline: none;
+  background: rgba(196,131,10,.15);
+  border-bottom-color: var(--goldL);
+}
+
+/* Form Tabs */
+.eeon-tab {
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 10px;
+  background: var(--bg3);
+  color: var(--text2);
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.eeon-tab.active {
+  background: #8b5e00;
+  color: #fff;
+  border-color: #8b5e00;
+}
+
+.eeon-tab:hover:not(.active) {
+  border-color: var(--accent);
+}
+
+.eeon-panel {
+  width: 100%;
+}
+
+/* Buttons */
+.btn {
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  background: var(--bg3);
+  color: var(--text);
+  transition: all .2s;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #000;
+  font-weight: 600;
+}
+
+/* Input Fields */
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+
+.setting-row:last-child {
+  border-bottom: none;
+}
+
+.setting-row input,
+.setting-row select {
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: var(--text);
+  font-size: 13px;
+  flex: 1;
+  max-width: 340px;
+}
+
+.setting-row input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+}
 
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -21008,7 +21562,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
 </aside>
 
 <!-- Toggle Button (always visible) -->
-<button onclick="toggleEonSidebar()" style="position:fixed;bottom:20px;right:20px;z-index:1000;background:var(--accent-green);color:#000;border:none;padding:14px 18px;border-radius:50%;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.3);font-size:18px" title="Toggle AI Agent Sidebar">
+<button onclick="toggleEonSidebar()" style="position:fixed;bottom:90px;right:20px;z-index:999;background:var(--accent-green);color:#000;border:none;padding:14px 18px;border-radius:50%;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.3);font-size:18px" title="Toggle AI Agent Sidebar">
   🤖
 </button>
 
