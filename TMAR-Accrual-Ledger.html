@@ -304,7 +304,32 @@
     .eeej-topic-btn { padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid rgba(250,204,21,0.2); background: transparent; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; }
     .eeej-topic-btn:hover { background: rgba(250,204,21,0.08); }
     .eeej-topic-btn.active { background: rgba(250,204,21,0.15); color: #fbbf24; border-color: rgba(250,204,21,0.5); }
+  
+/* ===== EON AI STYLES ===== */
+.sidebar { width: 240px; min-width: 240px; background: var(--bg-secondary); border-right: 1px solid var(--border-color); padding: 12px; overflow-y: auto; position: fixed; left: 0; top: 0; height: 100vh; z-index: 100; }
+.sidebar-title { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; margin: 14px 0 6px 8px; letter-spacing: 1px; font-weight: 700; }
+.side-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border-radius: 8px; border: none; background: transparent; color: var(--text-secondary); cursor: pointer; font-size: 13px; text-align: left; transition: all .2s; margin-bottom: 2px; }
+.side-btn:hover { background: rgba(16, 185, 129, 0.1); color: var(--text-primary); transform: translateX(4px); }
+.side-btn.active { background: rgba(16, 185, 129, 0.1); color: var(--accent-green); border: 1px solid rgba(16,185,129,.25); }
+.page { display: none; }
+.page.active { display: block; animation: fadeIn .3s; }
+.chat-wrap { display: flex; flex-direction: column; height: calc(100vh - 142px); }
+.chat-msgs { flex: 1; overflow-y: auto; padding: 20px; }
+.chat-input-area { padding: 14px 20px; background: rgba(27, 42, 74, 0.8); border-top: 1px solid var(--border-color); display: flex; gap: 10px; align-items: flex-end; }
+.chat-input { flex: 1; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 12px; padding: 10px 14px; color: var(--text-primary); font-size: 13px; resize: none; min-height: 44px; font-family: inherit; }
+.msg { display: flex; gap: 12px; margin-bottom: 16px; }
+.msg-avatar { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.msg-body { flex: 1; background: rgba(27, 42, 74, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px; max-width: 80%; }
+.agents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.agent-card { background: rgba(27, 42, 74, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 18px; cursor: pointer; transition: all .3s; }
+.agent-card:hover { border-color: var(--accent-green); transform: translateY(-3px); }
+.eeon-tab { padding: 7px 14px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; background: var(--bg-tertiary); color: var(--text-primary); }
+.eeon-tab.active { background: var(--accent-green); color: #000; font-weight: 600; }
+.irs-form-wrap { font-family: Arial, sans-serif; font-size: 10px; }
+.irs-header { display: flex; justify-content: space-between; padding: 8px; border: 1px solid #000; }
+
   </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body class="p-0">
 
@@ -20894,7 +20919,840 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     var results = [];
 
     function pullNext() {
-      if (current >= steps.length) {
+      if (current >= steps.l
+<!-- ===== EON AI SIDEBAR ===== -->
+<aside class="sidebar" id="eonSidebar" style="display:none">
+  <div style="padding:8px 0 16px;border-bottom:1px solid var(--border-color);margin-bottom:8px">
+    <div style="font-size:18px;font-weight:700;color:var(--accent-green)">🏛️ E2ZERO AGENT</div>
+    <div style="font-size:11px;color:var(--text-secondary)">TMAR + AI Platform</div>
+  </div>
+
+  <div class="sidebar-title">MAIN</div>
+  <button class="side-btn active" onclick="goEonPage(this,'dashboard')"><i class="fas fa-chart-bar" style="width:18px"></i> Dashboard</button>
+  <button class="side-btn" onclick="goEonPage(this,'chat')"><i class="fas fa-comments" style="width:18px"></i> Chat</button>
+  <button class="side-btn" onclick="goEonPage(this,'noi')"><i class="fas fa-bolt" style="width:18px"></i> NOI Ask</button>
+
+  <div class="sidebar-title">AGENTS</div>
+  <button class="side-btn" onclick="goEonPage(this,'agents')"><i class="fas fa-robot" style="width:18px"></i> Agents</button>
+  <button class="side-btn" onclick="goEonPage(this,'create')"><i class="fas fa-plus-circle" style="width:18px"></i> Create Agent</button>
+
+  <div class="sidebar-title">LEGAL</div>
+  <button class="side-btn" onclick="goEonPage(this,'dream_team')" style="border-left:3px solid #ffd700"><i class="fas fa-landmark" style="width:18px;color:#ffd700"></i> The Dream Team</button>
+  <button class="side-btn" onclick="goEonPage(this,'legal')"><i class="fas fa-gavel" style="width:18px"></i> Legal Expert</button>
+  <button class="side-btn" onclick="goEonPage(this,'tax')"><i class="fas fa-calculator" style="width:18px"></i> Tax Expert</button>
+  <button class="side-btn" onclick="goEonPage(this,'taxforms')" style="border-left:3px solid #22c55e"><i class="fas fa-file-invoice-dollar" style="width:18px;color:#22c55e"></i> Tax Forms (1120/Year)</button>
+  <button class="side-btn" onclick="goEonPage(this,'arbitration')"><i class="fas fa-scale-balanced" style="width:18px"></i> Arbitration</button>
+
+  <div class="sidebar-title">TOOLS</div>
+  <button class="side-btn" onclick="goEonPage(this,'research')"><i class="fas fa-microscope" style="width:18px"></i> Research HUB</button>
+  <button class="side-btn" onclick="goEonPage(this,'search')"><i class="fas fa-search" style="width:18px"></i> Search</button>
+  <button class="side-btn" onclick="goEonPage(this,'docs')"><i class="fas fa-folder-open" style="width:18px"></i> Documents</button>
+  <button class="side-btn" onclick="goEonPage(this,'voice')"><i class="fas fa-microphone" style="width:18px"></i> Voice Center</button>
+  <button class="side-btn" onclick="goEonPage(this,'analytics')"><i class="fas fa-chart-pie" style="width:18px"></i> Analytics</button>
+  <button class="side-btn" onclick="goEonPage(this,'calendar')"><i class="fas fa-calendar-alt" style="width:18px"></i> Calendar</button>
+  <button class="side-btn" onclick="goEonPage(this,'vault')"><i class="fas fa-lock" style="width:18px"></i> Passwords</button>
+
+  <div class="sidebar-title">SPECIALISTS</div>
+  <button class="side-btn" onclick="goEonPage(this,'corporation')"><i class="fas fa-building" style="width:18px"></i> Corporation</button>
+  <button class="side-btn" onclick="goEonPage(this,'trust')"><i class="fas fa-shield-halved" style="width:18px"></i> Trust</button>
+  <button class="side-btn" onclick="goEonPage(this,'accounting')"><i class="fas fa-book" style="width:18px"></i> Accounting</button>
+
+  <div class="sidebar-title">SYSTEM</div>
+  <button class="side-btn" onclick="goEonPage(this,'settings')"><i class="fas fa-key" style="width:18px"></i> API Keys</button>
+  <button class="side-btn" onclick="goEonPage(this,'preferences')"><i class="fas fa-sliders" style="width:18px"></i> Preferences</button>
+  <button class="side-btn" onclick="goEonPage(this,'history')"><i class="fas fa-clock-rotate-left" style="width:18px"></i> History</button>
+  <button class="side-btn" onclick="goEonPage(this,'howto')"><i class="fas fa-question-circle" style="width:18px"></i> How-To</button>
+  <button class="side-btn" onclick="goEonPage(this,'backup')"><i class="fas fa-database" style="width:18px"></i> Backup</button>
+
+  <button class="side-btn" onclick="toggleEonSidebar()" style="margin-top:20px;border:1px solid var(--accent-green);color:var(--accent-green)">
+    <i class="fas fa-times"></i> Close Sidebar
+  </button>
+</aside>
+
+<!-- Toggle Button (always visible) -->
+<button onclick="toggleEonSidebar()" style="position:fixed;bottom:20px;right:20px;z-index:1000;background:var(--accent-green);color:#000;border:none;padding:14px 18px;border-radius:50%;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.3);font-size:18px" title="Toggle AI Agent Sidebar">
+  🤖
+</button>
+
+<!-- EON AI PAGES CONTAINER -->
+<div id="eonPagesContainer" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg-primary);z-index:99;padding-left:240px;overflow-y:auto">
+
+  <!-- EON: ACCOUNTING -->
+  <div class="page" id="page-accounting">
+<div class="card" style="border-color:#f59e0b">
+<div class="card-head" style="color:#f59e0b"> Ledger &amp; Accounting Expert</div>
+<div class="card-body">
+<p style="color:var(--text2);font-size:13px;margin-bottom:14px">GAAP double-entry bookkeeping, journal entries, financial statements, A/R, A/P, payroll, depreciation, tax filing prep, payment orders.</p>
+<textarea id="acctInput" rows="4" placeholder="Describe your accounting question..." style="width:100%;padding:10px;background:var(--input-bg);border:1px solid #f59e0b;border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px"></textarea>
+<button class="btn" style="background:#f59e0b;color:#000;font-weight:600" onclick="askAgent('accounting',document.getElementById('acctInput').value)"> Analyze</button>
+<div id="accountingResult" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
+</div>
+</div>
+</div>
+
+
+  <!-- EON: AGENTS -->
+  <div class="page" id="page-agents">
+<div class="agents-grid" id="agentsGrid"></div>
+</div>
+
+
+  <!-- EON: ANALYTICS -->
+  <div class="page" id="page-analytics">
+<div class="stat-grid">
+<div class="stat"><div class="stat-label">Total Queries</div><div class="stat-val" id="anQueries">0</div></div>
+<div class="stat"><div class="stat-label">Legal Queries</div><div class="stat-val" id="anLegal">0</div></div>
+<div class="stat"><div class="stat-label">Agents Used</div><div class="stat-val" id="anAgentsUsed">0</div></div>
+<div class="stat"><div class="stat-label">SYPHER Active</div><div class="stat-val" style="color:var(--ok)"> </div></div>
+<div class="stat"><div class="stat-label">Sessions</div><div class="stat-val" id="anSessions">0</div></div>
+<div class="stat"><div class="stat-label">Memory Topics</div><div class="stat-val" id="anMemory">0</div></div>
+</div>
+<div class="card"><div class="card-head"> Agent Usage Distribution</div>
+<div class="card-body" id="analyticsUsage" style="font-size:13px">Loading...</div></div>
+<div class="card"><div class="card-head"> Recent Activity</div>
+<div class="card-body" id="analyticsLog" style="max-height:400px;overflow-y:auto;font-size:12px">No activity yet.</div></div>
+</div>
+
+
+  <!-- EON: ARBITRATION -->
+  <div class="page" id="page-arbitration">
+<div class="card" style="border-color:var(--accent)">
+<div class="card-head" style="color:var(--accent)"> Arbitration Specialist</div>
+<div class="card-body">
+<textarea id="arbInput" rows="4" placeholder="Describe your arbitration matter..." style="width:100%;padding:10px;background:var(--input-bg);border:1px solid var(--accent);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px"></textarea>
+<button class="btn btn-primary" onclick="askAgent('arbitration',document.getElementById('arbInput').value)"> Analyze</button>
+<div id="arbitrationResult" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
+</div>
+</div>
+</div>
+
+
+  <!-- EON: BACKUP -->
+  <div class="page" id="page-backup">
+<div class="card">
+<div class="card-head"> Backup &amp; Restore</div>
+<div class="card-body">
+<p style="font-size:12px;color:var(--text2);margin-bottom:14px">Export all data (chats, agents, keys, preferences, documents, calendar, vault) as a backup file. Restore anytime.</p>
+<div style="display:flex;gap:10px;flex-wrap:wrap">
+<button class="btn btn-primary" onclick="exportBackup()"> Export Backup</button>
+<button class="btn" onclick="document.getElementById('restoreFile').click()"> Restore</button>
+<input type="file" id="restoreFile" accept=".json" style="display:none" onchange="importBackup(this)">
+<button class="btn" onclick="exportAllHistory()"> Export Chats (.txt)</button>
+<button class="btn" style="color:var(--err)" onclick="if(confirm('ERASE ALL local data? Cannot be undone.'))\localStorage.clear();location.reload()\"> Factory Reset</button>
+</div>
+<div id="backupStatus" style="margin-top:12px;font-size:12px"></div>
+</div>
+</div>
+</div>
+
+
+  <!-- EON: CALENDAR -->
+  <div class="page" id="page-calendar">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+<div class="card">
+<div class="card-head"> Add Event / Reminder</div>
+<div class="card-body">
+<input id="calTitle" placeholder="Event title" style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;margin-bottom:8px">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+<input id="calDate" type="date" style="padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
+<input id="calTime" type="time" style="padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
+</div>
+<select id="calType" style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;margin-bottom:8px">
+<option value="event">Event</option><option value="reminder">Reminder</option><option value="deadline">Legal Deadline</option><option value="filing">Filing Date</option><option value="court">Court Date</option>
+</select>
+<textarea id="calNotes" rows="2" placeholder="Notes..." style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;resize:vertical;font-family:inherit;margin-bottom:8px"></textarea>
+<button class="btn btn-primary" onclick="addCalEvent()"> Add Event</button>
+</div>
+</div>
+<div class="card"><div class="card-head">Upcoming Events</div>
+<div class="card-body" id="calList" style="max-height:500px;overflow-y:auto;font-size:13px">No events.</div></div>
+</div>
+</div>
+
+
+  <!-- EON: CHAT -->
+  <div class="page" id="page-chat">
+<div class="chat-wrap">
+<div class="chat-msgs" id="chatMsgs"></div>
+<!-- FILE ATTACHMENTS -->
+<div id="filePreview" style="padding:0 20px;display:none;flex-wrap:wrap;gap:4px"></div>
+<!-- ACTIONS BAR -->
+<div style="padding:6px 20px;display:flex;gap:6px;flex-wrap:wrap;align-items:center" id="chatActions">
+<button class="btn btn-sm" onclick="exportChat()"> Export</button>
+<button class="btn btn-sm" onclick="shareChat()"> Share</button>
+<select id="chatProvider" style="padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:12px" title="Select provider"></select>
+</div>
+<!-- FIRM SELECTOR -->
+<div id="firmSelectorRow" style="padding:8px 20px 4px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--border);">
+<span style="font-size:10px;color:var(--text2);font-family:'IBM Plex Mono',monospace;letter-spacing:.5px;white-space:nowrap;">SELECT FIRM:</span>
+<div id="firmChips" style="display:flex;gap:5px;flex-wrap:wrap;"></div>
+</div>
+<!-- INPUT AREA -->
+<div class="chat-input-area">
+<label class="voice-btn mic" id="micBtn" onclick="toggleMic()" title="Voice Input (Speech-to-Text)"> </label>
+<label for="fileUpload" class="voice-btn" style="background:var(--bg3);color:var(--text2);cursor:pointer" title="Upload Document"> </label>
+<input type="file" id="fileUpload" multiple accept=".txt,.pdf,.doc,.docx,.csv,.json,.html,.md,.rtf,.xml,.log" style="display:none" onchange="handleFileUpload(this)">
+<textarea class="chat-input" id="chatInput" placeholder="Type your message... (Enter to send, Shift+Enter for new line)" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey)\event.preventDefault();sendChat()\"></textarea>
+<button class="chat-send" onclick="sendChat()"> </button>
+</div>
+</div>
+</div>
+
+
+  <!-- EON: CORPORATION -->
+  <div class="page" id="page-corporation">
+<div class="card" style="border-color:#6366f1">
+<div class="card-head" style="color:#6366f1"> Corporation &amp; Business Entity Specialist</div>
+<div class="card-body">
+<p style="color:var(--text2);font-size:13px;margin-bottom:14px">Corporate formation, governance, SPV management, consolidated organizations, religious corporations, tax elections, and arbitration clause integration.</p>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+<span class="badge badge-ok">Corporate Formation</span><span class="badge badge-ok">Governance</span><span class="badge badge-ok">SPV</span><span class="badge badge-ok">Tax Compliance</span><span class="badge badge-ok">Religious Corp</span>
+</div>
+<textarea id="corpInput" rows="4" placeholder="Describe your corporate/business entity question..." style="width:100%;padding:10px;background:var(--input-bg);border:1px solid #6366f1;border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px"></textarea>
+<button class="btn" style="background:#6366f1;color:#fff;font-weight:600" onclick="askAgent('corporation',document.getElementById('corpInput').value)"> Analyze</button>
+<div id="corporationResult" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
+</div>
+</div>
+</div>
+
+
+  <!-- EON: CREATE -->
+  <div class="page" id="page-create">
+<div class="card">
+<div class="card-head"> Create New Agent</div>
+<div class="card-body">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+<div><label style="font-size:11px;color:var(--text2)">Agent ID (lowercase, no spaces)</label><input id="caId" placeholder="e.g. real_estate" style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;color:var(--text)"></div>
+<div><label style="font-size:11px;color:var(--text2)">Display Name</label><input id="caName" placeholder="e.g. Real Estate Expert" style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;color:var(--text)"></div>
+</div>
+<div style="margin-bottom:12px"><label style="font-size:11px;color:var(--text2)">Role / Specialization</label><input id="caRole" placeholder="e.g. Real Estate Law & Property Analysis" style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;color:var(--text)"></div>
+<div style="margin-bottom:12px"><label style="font-size:11px;color:var(--text2)">Description</label><input id="caDesc" placeholder="What does this agent specialize in?" style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;color:var(--text)"></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+<div><label style="font-size:11px;color:var(--text2)">Routing Keywords (comma-separated)</label><input id="caKeywords" placeholder="e.g. deed, title, escrow, closing" style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;color:var(--text)"></div>
+<div><label style="font-size:11px;color:var(--text2)">Capabilities (comma-separated)</label><input id="caCaps" placeholder="e.g. Title Analysis, Deed Prep" style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;color:var(--text)"></div>
+</div>
+<div style="margin-bottom:12px"><label style="font-size:11px;color:var(--text2)">System Prompt (agent instructions)</label><textarea id="caPrompt" rows="6" placeholder="You are a specialist in [topic]. Your expertise includes..." style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:inherit;font-size:13px;resize:vertical"></textarea></div>
+<div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="createAgent()"> Create Agent</button><span id="caStatus" style="font-size:12px;align-self:center"></span></div>
+</div>
+</div>
+</div>
+
+
+  <!-- EON: DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+<div class="stat-grid">
+<div class="stat"><div class="stat-label">Messages</div><div class="stat-val" id="sMsgs">0</div></div>
+<div class="stat"><div class="stat-label">Active Agents</div><div class="stat-val" id="sAgents">10</div></div>
+<div class="stat"><div class="stat-label">API Keys Set</div><div class="stat-val" id="sKeys">0</div></div>
+<div class="stat"><div class="stat-label">Provider</div><div class="stat-val" id="sProvider" style="font-size:16px">-</div></div>
+</div>
+<div class="card">
+<div class="card-head">LLM Provider Status</div>
+<div class="card-body" id="llmStatus">Configure your API keys in <b>API Keys</b> to get started.</div>
+</div>
+<div class="card">
+<div class="card-head">Quick Start</div>
+<div class="card-body" style="font-size:13px;line-height:1.8;color:var(--text2)">
+1. Go to <b>API Keys</b> - select <b>Ollama (Local)</b> for free local AI, or enter a cloud provider key<br>
+2. Go to <b>Preferences</b> to set your name, state, and vernacular<br>
+3. Go to <b>Chat</b> and ask your question - the system routes to the right agent<br>
+4. Upload documents directly into chat for agent analysis<br>
+5. Use for voice input and to hear responses read aloud
+</div>
+</div>
+</div>
+
+
+  <!-- EON: DOCS -->
+  <div class="page" id="page-docs">
+<div class="card">
+<div class="card-head"> Document Manager <button class="btn btn-sm" onclick="document.getElementById('docUpload').click()"> Upload</button></div>
+<input type="file" id="docUpload" multiple accept=".txt,.md,.json,.csv,.html,.pdf,.doc,.docx,.rtf" style="display:none" onchange="uploadDocs(this)">
+<div class="card-body">
+<input id="docSearch" placeholder="Search documents..." style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;margin-bottom:12px" oninput="renderDocs()">
+<div id="docsList" style="max-height:500px;overflow-y:auto"></div>
+</div>
+</div>
+</div>
+
+
+  <!-- EON: DREAM_TEAM -->
+  <div class="page" id="page-dream_team">
+<div class="card" style="border-color:#ffd700">
+<div class="card-head" style="color:#ffd700;display:flex;justify-content:space-between;align-items:center">
+<span> The Dream Team - 600 Attorneys</span>
+<div style="display:flex;gap:6px">
+<button class="btn" style="padding:4px 10px;font-size:11px;background:var(--bg3);color:var(--text2)" onclick="dtNewChat()"> New Chat</button>
+<button class="btn" style="padding:4px 10px;font-size:11px;background:var(--bg3);color:var(--text2)" onclick="dtClearHistory()"> Clear All</button>
+</div>
+</div>
+<div class="card-body" style="padding:0">
+<p style="color:var(--text2);font-size:12px;padding:12px 14px 8px">Facts and conclusions of law only - Congressional Record, Congressional Acts, Statutes at Large as codification, Supreme Court of the United States precedent.</p>
+<!-- Chat sessions list -->
+<div id="dtSessionList" style="padding:0 14px 8px;max-height:80px;overflow-y:auto;font-size:11px"></div>
+<!-- Chat messages -->
+<div id="dtChatMsgs" style="max-height:460px;overflow-y:auto;padding:8px 14px;border-top:1px solid rgba(255,215,0,.15);border-bottom:1px solid rgba(255,215,0,.15);min-height:80px"></div>
+<!-- File preview -->
+<div id="dtFilePreview" style="display:none;flex-wrap:wrap;gap:4px;padding:6px 14px"></div>
+<!-- Input area -->
+<div style="display:flex;gap:6px;padding:10px 14px;align-items:flex-end">
+<textarea id="dtInput" rows="2" placeholder="State the matter - 600 attorneys standing by..." style="flex:1;padding:8px;background:var(--input-bg);border:1px solid #ffd700;border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical" onkeydown="if(event.key==='Enter'&&!event.shiftKey)\event.preventDefault();dtSend()\"></textarea>
+<div style="display:flex;flex-direction:column;gap:4px">
+<button class="btn" style="background:#ffd700;color:#000;font-weight:700;padding:8px 14px" onclick="dtSend()"> </button>
+<label for="dtFileUpload" class="btn" style="padding:4px 10px;font-size:11px;cursor:pointer;text-align:center;background:var(--bg3);color:var(--text2)"> </label>
+<input type="file" id="dtFileUpload" multiple accept=".txt,.pdf,.doc,.docx,.csv,.json,.html,.md,.rtf,.xml,.log" style="display:none" onchange="dtHandleFiles(this)">
+<button class="btn" style="padding:4px 10px;font-size:11px;background:var(--bg3);color:var(--text2)" onclick="toggleMic()"> </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+  <!-- EON: HISTORY -->
+  <div class="page" id="page-history">
+<div class="card">
+<div class="card-head" style="flex-wrap:wrap;gap:8px">Conversation History
+<div style="display:flex;gap:6px"><input id="histSearch" placeholder="Search..." style="padding:5px 10px;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;width:180px" oninput="renderHistory()"><button class="btn btn-sm" onclick="exportAllHistory()"> Export All</button></div>
+</div>
+<div class="card-body" id="historyList" style="max-height:600px;overflow-y:auto;font-size:13px">No history yet.</div>
+</div>
+</div>
+
+
+  <!-- EON: HOWTO -->
+  <div class="page" id="page-howto">
+<div class="card">
+<div class="card-head"> How-To Guide - The Firm</div>
+<div class="card-body" style="font-size:13px;line-height:1.8;color:var(--text2)">
+<h4 style="color:var(--accent);margin-bottom:8px">Getting Started</h4>
+<p><b>1.</b> Go to <b>API Keys</b> select <b>Ollama (Local)</b> for free local AI, or enter a cloud provider key (DeepSeek, OpenAI, Claude, xAI, etc.)</p>
+<p><b>2.</b> Go to <b>Chat</b> type your question - auto-routes to the right specialist</p>
+<p><b>3.</b> Use for voice input. Use on any message to hear it spoken.</p>
+<p><b>4.</b> Click in chat to upload documents for agent analysis.</p>
+<h4 style="color:var(--accent);margin:16px 0 8px">The Firm - Agent Roster</h4>
+<p><b>Legal Expert</b> - Constitutional, Commercial, Criminal, Civil. Presumption Killer. 42 years of practice.</p>
+<p><b>Tax Expert</b> - Federal tax, NOLs, assets, IRS defense. Revenue Acts + Statutes at Large.</p>
+<p><b>Arbitration</b> - Federal Arbitration Act 1925, 43 Stat. 883. Contract review, award issuance.</p>
+<p><b>Corporation</b> - Formation, governance, SPVs, religious corps, consolidation, tax elections.</p>
+<p><b>Trust</b> - C.L.O.C.E.S.T., Mega Trust Constitution, constitutional property as trust res.</p>
+<p><b>Accounting</b> - GAAP double-entry, journal entries, financials, tax prep, payment orders.</p>
+<p><b>Code Expert</b> - Full-stack: HTML/CSS/JS, Python, databases, API integration.</p>
+<p><b>Research</b> - Deep analysis with source verification and cross-referencing.</p>
+<h4 style="color:var(--accent);margin:16px 0 8px">SYPHER Protocol v7.1</h4>
+<p>Immutable enforcement: Congressional Acts Statutes at Large Supreme Court U.S. Code (parentheses only). No hedging. No disclaimers. No sovereign citizen language. Zero speculation.</p>
+<h4 style="color:var(--accent);margin:16px 0 8px">Security</h4>
+<p>All data stored in browser localStorage. Keys sent only to their own API. Password vault: AES-256-GCM + PBKDF2 (600,000 iterations).</p>
+</div>
+</div>
+</div>
+
+
+  <!-- EON: LEGAL -->
+  <div class="page" id="page-legal">
+<div class="card" style="border-color:var(--legal)">
+<div class="card-head" style="color:var(--legal)"> Presumption Killer - Legal Expert</div>
+<div class="card-body">
+<p style="color:var(--text2);font-size:13px;margin-bottom:14px">Powered by THE EEON FOUNDATION's 42-year legal methodology. Every answer supported by facts and conclusions of law.</p>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+<span class="badge badge-warn">Constitutional</span><span class="badge badge-warn">Commercial/UCC</span>
+<span class="badge badge-warn">Criminal</span><span class="badge badge-warn">Civil</span>
+<span class="badge badge-warn">Securities</span><span class="badge badge-warn">Bankruptcy</span>
+<span class="badge badge-warn">Trust Law</span><span class="badge badge-warn">Foreclosure</span>
+</div>
+<textarea id="legalInput" rows="4" placeholder="Describe your legal question..." style="width:100%;padding:10px;background:var(--input-bg);border:1px solid var(--legal);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px"></textarea>
+<button class="btn" style="background:var(--legal);color:#000;font-weight:600" onclick="askAgent('legal',document.getElementById('legalInput').value)"> Analyze</button>
+<div id="legalResult" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
+</div>
+</div>
+</div>
+
+
+  <!-- EON: NOI -->
+  <div class="page" id="page-noi">
+<div class="card">
+<div class="card-head"> Noi Ask - Send to Multiple Agents</div>
+<div class="card-body">
+<textarea id="noiInput" placeholder="Type your question - it will be sent to all selected agents simultaneously..." style="width:100%;min-height:80px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-size:13px;resize:vertical;font-family:inherit"></textarea>
+<div style="margin:10px 0;display:flex;gap:6px;flex-wrap:wrap" id="noiAgentToggles"></div>
+<button class="btn btn-primary" onclick="noiAsk()"> Ask All Selected</button>
+</div>
+</div>
+<div id="noiResults" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px;margin-top:16px"></div>
+</div>
+
+
+  <!-- EON: PREFERENCES -->
+  <div class="page" id="page-preferences">
+<div class="card">
+<div class="card-head"> User Preferences</div>
+<div class="card-body">
+<div style="font-size:12px;color:var(--text2);margin-bottom:12px">These preferences personalize all agent responses. Stored in your browser.</div>
+<div class="setting-row"><span>Your Name</span><input id="prefName" placeholder="Enter your name"></div>
+<div class="setting-row"><span>State Involved</span><input id="prefState" placeholder="e.g. California"></div>
+<div class="setting-row"><span>Preferred Vernacular</span>
+<select id="prefVernacular" style="max-width:340px;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:13px">
+<option value="conversational">Conversational</option>
+<option value="formal-legal" selected>Formal Legal</option>
+<option value="scholarly">Scholarly</option>
+<option value="direct">Direct</option>
+</select>
+</div>
+<div style="margin-top:14px"><button class="btn btn-primary" onclick="savePrefs()"> Save Preferences</button> <span id="prefStatus" style="font-size:12px"></span></div>
+</div>
+</div>
+<div class="card">
+<div class="card-head"> Memory</div>
+<div class="card-body">
+<div style="font-size:12px;color:var(--text2);margin-bottom:10px">The agent learns from your conversations. Topics discussed, preferences expressed, and patterns observed are stored locally.</div>
+<div id="memoryDisplay" style="font-size:13px;line-height:1.7;color:var(--text2)"></div>
+<div style="margin-top:12px"><button class="btn btn-sm" onclick="clearMemory()"> Clear Memory</button></div>
+</div>
+</div>
+</div>
+
+
+  <!-- EON: RESEARCH -->
+  <div class="page" id="page-research">
+<div class="card">
+<div class="card-head"> Research HUB - Deep Analysis Engine</div>
+<div class="card-body">
+<p style="color:var(--text2);font-size:12px;margin-bottom:12px">The Research Analyst agent provides deep analysis with source verification and cross-referencing.</p>
+<textarea id="researchInput" rows="3" placeholder="Enter research topic or question..." style="width:100%;padding:10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px"></textarea>
+<div style="display:flex;gap:8px;margin-bottom:12px">
+<select id="researchDepth" style="padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px">
+<option value="standard">Standard</option><option value="deep">Deep Research</option><option value="legal">Legal (with citations)</option>
+</select>
+<button class="btn btn-primary" onclick="doResearch()"> Research</button>
+</div>
+<div id="researchResult" style="font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
+</div>
+</div>
+<div class="card"><div class="card-head"> Research History</div>
+<div class="card-body" id="researchHistory" style="max-height:300px;overflow-y:auto;font-size:12px">No research conducted yet.</div>
+</div>
+
+
+  <!-- EON: SEARCH -->
+  <div class="page" id="page-search">
+<div class="card">
+<div class="card-head"> Search Engine</div>
+<div class="card-body">
+<div style="display:flex;gap:8px;margin-bottom:12px">
+<input id="searchInput" placeholder="Search query..." style="flex:1;padding:10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px" onkeydown="if(event.key==='Enter')doSearch()">
+<button class="btn btn-primary" onclick="doSearch()"> Search</button>
+</div>
+<div id="searchResults" style="font-size:13px;line-height:1.7;white-space:pre-wrap"></div>
+</div>
+</div>
+</div>
+
+
+  <!-- EON: SETTINGS -->
+  <div class="page" id="page-settings">
+<div class="card">
+<div class="card-head"> API Keys</div>
+<div class="card-body">
+<div style="font-size:12px;color:var(--text2);margin-bottom:12px">Keys are stored in YOUR browser only (localStorage). They never leave your computer. Green dot = key configured.</div>
+<div style="margin-bottom:10px;font-weight:600;font-size:13px;color:var(--accent)">Active Provider</div>
+<div class="setting-row"><span>Active LLM</span><select id="setActiveProvider" style="max-width:340px;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:13px"></select></div>
+<div style="margin:18px 0 10px;font-weight:600;font-size:13px;color:var(--accent)"> Provider API Keys</div>
+<!-- MEM0 PERSISTENT MEMORY -- openclaw-2026.3.2 -->
+<div style="border:1px solid rgba(99,179,237,.4);border-radius:8px;padding:12px;margin-bottom:12px;background:rgba(99,179,237,.06)">
+<div style="font-weight:700;font-size:13px;color:#00e68a;margin-bottom:4px"> GCMemory - Persistent Agent Memory</div>
+<div style="font-size:11px;color:var(--text2);margin-bottom:8px">Memory is stored in this browser's IndexedDB engine. <b style="color:#00e68a">No additional API key required.</b> The Claude/provider key above is the only key needed. Agents recall prior legal, financial, and case-specific exchanges across sessions automatically.</div>
+<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:rgba(0,230,138,.07);border:1px solid rgba(0,230,138,.25);border-radius:8px;margin-bottom:8px">
+<span style="color:#00e68a;font-size:16px"> </span>
+<span style="font-size:12px;color:#00e68a;font-weight:600">ACTIVE - Memory engine online. No key gate.</span>
+</div>
+<button class="btn btn-sm" style="margin-top:2px;font-size:11px" onclick="mem0ClearAll()"> Clear All Memories</button>
+</div>
+<div class="setting-row"><span>OpenAI <span class="key-dot off" id="kdOpenai"></span></span><input type="password" id="keyOpenai" placeholder="sk-..."></div>
+<div class="setting-row"><span>DeepSeek <span class="key-dot off" id="kdDeepseek"></span></span><input type="password" id="keyDeepseek" placeholder="sk-..."></div>
+<div class="setting-row"><span>Z.AI (GLM) <span class="key-dot off" id="kdZai"></span></span><input type="password" id="keyZai" placeholder="..."></div>
+<div class="setting-row"><span>Kimi / Moonshot <span class="key-dot off" id="kdKimi"></span></span><input type="password" id="keyKimi" placeholder="sk-..."></div>
+<div class="setting-row"><span>Claude / Anthropic <span class="key-dot off" id="kdClaude"></span></span><input type="password" id="keyClaude" placeholder="sk-ant-..."></div>
+<div class="setting-row"><span>MiniMax <span class="key-dot off" id="kdMinimax"></span></span><input type="password" id="keyMinimax" placeholder="..."></div>
+<div class="setting-row"><span>Ernie / Baidu <span class="key-dot off" id="kdErnie"></span></span><input type="password" id="keyErnie" placeholder="..."></div>
+<div class="setting-row"><span>xAI (Grok) <span class="key-dot off" id="kdXai"></span></span><input type="password" id="keyXai" placeholder="xai-..."></div>
+<div style="margin:18px 0 10px;font-weight:600;font-size:13px;color:var(--accent)"> Ollama (Local + OpenClaw Web Search)</div>
+<div style="font-size:11px;color:var(--text2);margin-bottom:8px">Ollama runs models locally - no API key needed for inference. Install: <code style="background:var(--bg2);padding:2px 6px;border-radius:4px">irm https://ollama.com/install.ps1 | iex</code></div>
+<div class="setting-row"><span>Ollama URL</span><input id="keyOllamaUrl" placeholder="http://127.0.0.1:11434" value="http://127.0.0.1:11434"></div>
+<div class="setting-row"><span>Ollama Model</span>
+<select id="keyOllamaModel" style="max-width:200px;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:12px">
+<option value="qwen3:8b">qwen3:8b (recommended)</option>
+<option value="qwen3:4b">qwen3:4b (light)</option>
+<option value="qwen3:14b">qwen3:14b</option>
+<option value="qwen3:32b">qwen3:32b</option>
+<option value="llama4:8b">llama4:8b</option>
+<option value="llama3.1">llama3.1 (legacy)</option>
+<option value="llama3.2">llama3.2</option>
+<option value="deepseek-v3.2-exp:7b">deepseek-v3.2-exp:7b</option>
+<option value="gemma3:12b">gemma3:12b</option>
+<option value="mistral-small3.2">mistral-small3.2</option>
+<option value="gpt-oss">gpt-oss</option>
+<option value="glm-5">glm-5</option>
+<option value="kimi-k2.5">kimi-k2.5</option>
+<option value="minimax-m2.5">minimax-m2.5</option>
+</select>
+<input id="keyOllamaModelCustom" placeholder="or type custom..." style="max-width:160px;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:12px">
+<button class="btn btn-sm" onclick="refreshOllamaModels()" title="Detect installed models"> </button>
+</div>
+<div style="margin:10px 0 6px;font-size:12px;font-weight:600;color:var(--accent)"> Ollama Web Search API (OpenClaw)</div>
+<div style="font-size:11px;color:var(--text2);margin-bottom:6px">Free: 100 searches/day. Get key at <a href="\*HYPERLINK "https://ollama.com/"https://ollama.com" target="_blank" style="color:var(--accent)">ollama.com</a> Account API Keys</div>
+<div class="setting-row"><span>Ollama API Key <span class="key-dot off" id="kdOllamaApi"></span></span><input type="password" id="keyOllamaApiKey" placeholder="Enter Ollama API key for web search..."></div>
+<div class="setting-row"><span>Web Search</span><label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><input type="checkbox" id="keyOllamaWebSearch" checked> Use Ollama native web search when API key is set</label></div>
+<div style="margin:18px 0 10px;font-weight:600;font-size:13px;color:var(--accent)"> Custom Provider</div>
+<div class="setting-row"><span>Custom Name</span><input id="keyCustomName" placeholder="My Provider"></div>
+<div class="setting-row"><span>Custom URL</span><input id="keyCustomUrl" placeholder="https://api.example.com/v1/chat/completions"></div>
+<div class="setting-row"><span>Custom Key <span class="key-dot off" id="kdCustom"></span></span><input type="password" id="keyCustom" placeholder="..."></div>
+<div class="setting-row"><span>Custom Model</span><input id="keyCustomModel" placeholder="model-name"></div>
+<div style="margin:18px 0 10px;font-weight:600;font-size:13px;color:var(--accent)"> Channel Tokens</div>
+<div class="setting-row"><span>Telegram Bot Token</span><input type="password" id="keyTelegram" placeholder="123456:ABC-DEF..."></div>
+<div class="setting-row"><span>Discord Bot Token</span><input type="password" id="keyDiscord" placeholder="..."></div>
+<div style="margin-top:16px;display:flex;gap:8px;align-items:center">
+<button class="btn btn-primary" onclick="saveKeys()"> Save All Keys</button>
+<button class="btn" onclick="testConnection()"> Test Connection</button>
+<span id="keyStatus" style="font-size:12px"></span>
+</div>
+</div>
+</div>
+</div>
+
+
+  <!-- EON: TAX -->
+  <div class="page" id="page-tax">
+<div class="card" style="border-color:#22c55e">
+<div class="card-head" style="color:#22c55e"> Tax & Financial Expert</div>
+<div class="card-body">
+<textarea id="taxInput" rows="4" placeholder="Describe your tax or financial question..." style="width:100%;padding:10px;background:var(--input-bg);border:1px solid #22c55e;border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px"></textarea>
+<button class="btn" style="background:#22c55e;color:#000;font-weight:600" onclick="askAgent('tax',document.getElementById('taxInput').value)"> Analyze</button>
+<div id="taxResult" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
+</div>
+</div>
+</div>
+
+
+  <!-- EON: TAXFORMS -->
+  <div class="page" id="page-taxforms" style="overflow-y:auto;padding:20px;">
+<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px;">
+<button class="eeon-tab active" onclick="eeonTab('form1120',this)">Form 1120</button>
+<button class="eeon-tab" onclick="eeonTab('form990',this)">Form 990</button>
+<button class="eeon-tab" onclick="eeonTab('form990ez',this)">Form 990-EZ</button>
+<button class="eeon-tab" onclick="eeonTab('form1120w',this)">Form 1120-W</button>
+<button class="eeon-tab" onclick="eeonTab('form1041',this)">Form 1041+Sched G</button>
+<button class="eeon-tab" onclick="eeonTab('form3800',this)">Form 3800</button>
+<button class="eeon-tab" onclick="eeonTab('form1065',this)">Form 1065</button>
+<button class="eeon-tab" onclick="eeonTab('formk1',this)">Schedule K-1</button>
+<button class="eeon-tab" onclick="eeonTab('form1041es',this)">Form 1041-ES</button>
+<button class="eeon-tab" onclick="eeonTab('formsched_c',this)">Schedule C</button>
+<button class="eeon-tab" onclick="eeonTab('agent',this)">&#129302; Agent</button>
+</div>
+<div id="agent-sync-status" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;border-radius:8px;padding:7px 14px;font-size:11px;font-family:'IBM Plex Mono',monospace;background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.2);color:#60a5fa;"><span class="sync-msg"> No GAAP ledger connected - open GAAP.html in the same browser and click " PUSH TO AGENT"</span><button onclick="populateAllForms()" style="background:#10b981;color:#000;border:none;padding:3px 11px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;margin-left:auto;"> SYNC FROM GAAP</button><button onclick="generateJournalFromForms()" style="background:#f59e0b;color:#000;border:none;padding:3px 11px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;"> PUSH BACK TO GAAP</button></div>
+<div id="eeon-panel-form990" class="eeon-panel" style="display:none;">
+<div class="section-title">Form 990</div>
+<div class="section-sub">Return of Organization Exempt From Income Tax \'b7 Auto-populated from Ledger</div>
+<div class="year-select-bar">
+<span style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">TAX YEAR:</span>
+<select class="app-select" style="width:80px;font-size:11px;padding:4px 6px;" onchange="document.getElementById('global-year').value=this.value;onYearChange();">
+<option>2016</option><option>2017</option><option>2018</option><option>2019</option>
+<option>2020</option><option>2021</option><option>2022</option><option>2023</option>
+<option value="2024" selected>2024</option><option>2025</option><option>2026</option>
+</select>
+<button class="app-btn primary" onclick="populateAllForms()"> Sync from Ledger</button>
+<button class="app-btn secondary" onclick="printForm('form990')"> Print Form</button>
+</div>
+<div class="irs-form-wrap" id="form990">
+<!-- HEADER -->
+<div class="irs-header">
+<div>
+<div class="irs-form-num">Form <b>990</b></div>
+<div class="irs-form-subtitle">Department of the Treasury<br/>Internal Revenue Service</div>
+</div>
+<div class="irs-omb">
+OMB No. 1545-0047<br/>
+<b>20<input class="irs-field-inline" id="f990-year" value="24" style="width:22px;text-align:center;font-size:14px;font-weight:700;"/></b><br/>
+</div>
+</div>
+<div class="irs-title-bar">
+<div class="irs-main-title">Return of Organization Exempt From Income Tax</div>
+<div class="irs-sub">Under section 501(c), 527, or 4947(a)(1) of the Internal Revenue Code (except private foundations)<br/>
+Do not enter social security numbers on this form as it may be made public.<br/>
+Go to <i>www.irs.gov/Form990</i> for instructions and the latest information.</div>
+</div>
+<!-- ORG INFO -->
+<div style="border-bottom:1px solid var(--irs-border);padding:4px 8px;background:var(--irs-shade2);
+display:grid;grid-template-columns:1fr auto;gap:8px;">
+<div>
+<div style="font-size:8.5px;color:var(--irs-border);font-weight:700;">A For the <span id="f990-taxyear">2024</span> calendar year, or tax year beginning _______, 20__, and ending _______, 20__</div>
+<div style="display:grid;grid-template-columns:auto 1fr;gap:6px;margin-top:4px;align-items:center;">
+<span style="font-size:8.5px;font-weight:700;color:var(--irs-border);">B Check if applicable:</span>
+<div style="font-size:8.5px;color:var(--irs-border);display:flex;gap:12px;">
+<label><input type="checkbox" style="width:10px;height:10px;"> Address change</label>
+<label><input type="checkbox" style="width:10px;height:10px;"> Name change</label>
+<label><input type="checkbox" style="width:10px;height:10px;"> Initial return</label>
+<label><input type="checkbox" style="width:10px;height:10px;"> Final return/terminated</label>
+<label><input type="checkbox" style="width:10px;height:10px;"> Amended return</label>
+<label><input type="checkbox" style="width:10px;height:10px;"> Application pending</label>
+</div>
+</div>
+</div>
+<div style="font-size:8.5px;color:var(--irs-border);">
+<b>D Employer identification number</b><br/>
+<input class="irs-field-inline" style="width:100px;" placeholder="XX-XXXXXXX"/>
+</div>
+</div>
+<div style="border-bottom:1px solid var(--irs-border);padding:4px 8px;background:var(--irs-shade2);
+display:grid;grid-template-columns:1fr auto;gap:8px;">
+<div>
+<div style="display:grid;grid-template-columns:20px 1fr;gap:4px;align-items:center;">
+<span style="font-size:8.5px;font-weight:700;color:var(--irs-border);">C</span>
+<div>
+<div style="font-size:8.5px;color:var(--irs-border);">Name of organization</div>
+<input class="irs-field-inline" value="EEON FOUNDATION" style="width:100%;font-size:11px;font-weight:700;"/>
+<div style="font-size:8.5px;color:var(--irs-border);margin-top:3px;">Doing business as</div>
+<input class="irs-field-inline" style="width:100%;"/>
+<div style="font-size:8.5px;color:var(--irs-border);margin-top:3px;">Number and street (or P.O. box if mail not delivered to street address)</div>
+<input class="irs-field-inline" style="width:100%;"/>
+<div style="font-size:8.5px;color:var(--irs-border);margin-top:3px;">City or town, state or province, country, and ZIP or foreign postal code</div>
+<input class="irs-field-inline" style="width:100%;"/>
+</div>
+</div>
+</div>
+<div style="font-size:8.5px;color:var(--irs-border);min-width:160px;">
+<b>E</b> Telephone number<br/>
+<input class="irs-field-inline" style="width:130px;"/><br/><br/>
+<b>F</b> Name and address of principal officer<br/>
+<input class="irs-field-inline" style="width:130px;"/><br/>
+<input class="irs-field-inline" style="width:130px;"/><br/><br/>
+<b>G</b> Gross receipts $ <input class="irs-amount-field" id="f990-grossrec" style="width:80px;"/>
+</div>
+</div>
+<div style="border-bottom:1px solid var(--irs-border);padding:4px 8px;background:var(--irs-shade2);
+display:flex;gap:16px;font-size:8.5px;color:var(--irs-border);">
+<span><b>H(a)</b> Is this a group return for subordinates? <input type="checkbox"> Yes <input type="checkbox"> No</span>
+<span><b>H(b)</b> Are all subordinates included? <input type="checkbox"> Yes <input type="checkbox"> No</span>
+<span><b>I</b> Tax-exempt status:
+<input type="checkbox" checked> 501(c)(3)
+<input type="checkbox"> 501(c)( ) (insert no.)
+<input type="checkbox"> 4947(a)(1)
+<input type="checkbox"> 527</span>
+</div>
+<!-- PART I -->
+<div class="irs-section-header">Part I Summary</div>
+<div class="irs-row two-col"><div class="irs-cell num">1</div>
+<div class="irs-cell label" style="flex:1">Briefly describe the organization's mission or most significant activities:<br/>
+<input class="irs-text-field" style="width:100%;" value="Assisting neighbors to create, obtain, maintain, document and reconcile financial records - Matthew 7 and love of neighbor (IRC \'a7501(c)(3) charitable/religious mission)"/>
+</div>
+</div>
+<div class="irs-row two-col"><div class="irs-cell num">2</div>
+<div class="irs-cell label" style="flex:1">Check this box <input type="checkbox"> if the organization discontinued its operations or disposed of more than 25% of its net assets.</div>
+</div>
+<div class="irs-row three-col">
+<div class="irs-cell num">3</div>
+<div class="irs-cell label">Number of voting members of the governing body (Part VI, line 1a)</div>
+<div class="irs-cell amount" style="grid-column:3/5;"><input class="irs-amount-field" style="width:60px;" placeholder="0"/></div>
+</div>
+<div class="irs-row three-col">
+<div class="irs-cell num">4</div>
+<div class="irs-cell label">Number of independent voting members of the governing body (Part VI, line 1b)</div>
+<div class="irs-cell amount" style="grid-column:3/5;"><input class="irs-amount-field" style="width:60px;" placeholder="0"/></div>
+</div>
+<div class="irs-row three-col">
+<div class="irs-cell num">5</div>
+<div class="irs-cell label">Total number of individuals employed in calendar year (Part V, line 2a)</div>
+<div class="irs-cell amount" style="grid-column:3/5;"><input class="irs-amount-field" style="width:60px;" placeholder="0"/></div>
+</div>
+<!-- Revenue section -->
+<div class="irs-section-header">Revenue</div>
+<div class="irs-row three-col">
+<div class="irs-cell num">1</div>
+<div class="irs-cell label">Contributions, gifts, grants, and similar amounts received</div>
+<div class="irs-cell shaded"></div>
+<div class="irs-cell amount"><input class="irs-amount-field" id="f990-line1" placeholder="0.00"/></div>
+</div>
+<div class="irs-row three-col">
+<div class="irs-cell num">2</div>
+<div class="irs-cell label">Program service revenue including government fees and contracts</div>
+<div class="irs-cell shaded"></div>
+<div class="irs-cell amount"><input class="irs-amount-field" id="f990-line2" placeholder="0.00"/></div>
+</div>
+<div class="irs-row three-col">
+<div class="irs-cell num">3</div>
+<div class="irs-cell label">Investment income (Part VIII, column (A), lines 3, 4, and 7d)</div>
+<div class="irs-cell shaded"></div>
+<div class="irs-cell amount"><input class="irs-amount-field" id="f990-line3" placeholder="0.00"/></div>
+</div>
+<div class="irs-row three-col">
+<div class="irs-cell num">4</div>
+<div class="irs-cell label">Other revenue (Part VIII, column (A), line 12)</div>
+<div class="irs-cell shaded"></div>
+<div class="irs-cell amount"><input class="irs-amount-field" id="f990-line4" placeholder="0.00"/></div>
+</div>
+<div class="irs-row three-col">
+<div class="irs-cell num">5</div>
+<div class="irs-cell label">Financial asset recognition / property interest income (accrual method)</div>
+<div class="irs-cell shaded"></div>
+<div class="irs-cell amount"><input class="irs-amount-field" id="f990-line5" placeholder="0.00"/></div>
+</div>
+<div class="irs-row three-col" style="background:var(--irs-shade2)">
+<div class="irs-cell num" style="font-weight:700;">12</div>
+<div class="irs-cell label" style="font-weight:700;">Total revenue - add lines 1\'9611 (must equal Part VIII, column (A), line 12)</div>
+<div class="irs-cell shaded"></div>
+<div class="irs-cell amount"><input class="irs-amount-field" id="f990-totalrev" style="font-weight:700;" placeholder="0.00"/></div>
+</div>
+<!-- Expenses -->
+<div class="irs-section-header">Expenses</div>
+<div class="irs-row three-col">
+<div class="irs-cell num">13</div>
+<div class="irs-cell label">Grants and other assistance to domestic organizations (Part IX, col. (A), line 1)</div>
+<div class="irs-cell shaded"></div>
+<div class="irs-cell amount"><input class="irs-amount-field" id="f990-line13" placeholder="0.00"/></div>
+</div>
+<div class="irs-row three-col">
+<div class="irs-cell num">14</div>
+<div class="irs-cell label">Benefits paid to or for members</div>
+<div class="irs-cell shaded"></div>
+<div class="irs-cell amount"><input class="irs-amount-field" placeholder="0.00"/></div>
+</div>
+<div class="irs-row three-col">
+<div class="irs-cell num">15</div>
+<div class="irs-cell label">Salaries, other compensation, employee benefits (Part IX, col. (A), lines 5\'9610)</div>
+<div class="irs-cell shaded"></div>
+<div class="irs-cell amount"><input class="irs-amount-field" placeholder="0.00"/></div>
+</div>
+<div class="irs-row three-col">
+<div class="irs-cell num">17</div>
+<div class="irs-cell label">Other expenses (Part IX, column (A), lines 11a\'9611d, 11f\'9624e)</div>
+<div class="irs-cell shaded"></div>
+<div class="irs-cell amount"><input class="irs-amount-field" id="f990-line17" placeholder="0.00"/></div>
+</div>
+<div class="irs-row three-col" style="background:var(--irs-shade2)">
+<div class="irs-cell num" style="font-weight:700;">18</div>
+<div class="irs-cell label" style="font-weight:700;">Total expenses - add lines 13\'9617 (must equal Part IX, col. (A), line 25)</div>
+<div class="irs-cell shaded"></div>
+<div class="irs-cell amount"><input class="irs-amount-field" id="f990-totalexp" style="font-weight:700;" placeholder="0.00"/></div>
+</div>
+<div class="irs-row three-col" style="background:var(--irs-shade2)">
+<div class="irs-cell num" style="font-weight:700;">19</div>
+<div class="irs-cell label" style="font-weight:700;">Revenue less expenses - subtract line 18 from line 12</div>
+<div class="irs-cell shaded"></div>
+<div class="irs-cell amount"><input class="irs-amount-field" id="f990-netinc" style="font-weight:700;" placeholder="0.00"/></div>
+</div>
+<!-- Balance Sheet summary -->
+<div class="irs-section-header">Net Assets or Fund Balances (Part X)</div>
+<div class="irs-row three-col">
+<div class="irs-cell num">20</div>
+<div class="irs-cell label">Total assets (Part X, line 16)</div>
+<div class="irs-cell shaded"></div>
+<div class="irs-cell amount"><input class="irs-amount-field" id="f990-totassets" placeholder="0.00"/></div>
+</div>
+<div class="irs-row three-col">
+<div class="irs-cell num">21</div>
+<div class="irs-cell label">Total liabilities (Part X, line 26)</div>
+<div class="irs-cell shaded"></div>
+<div class="irs-cell amount"><input class="irs-amount-field" id="f990-totliab" placeholder="0.00"/></div>
+</div>
+<div class="irs-row three-col" style="background:var(--irs-shade2)">
+<div class="irs-cell num" style="font-weight:700;">22</div>
+<div class="irs-cell label" style="font-weight:700;">Net assets or fund balances (subtract line 21 from line 20)</div>
+<div class="irs-cell shaded"></div>
+<div class="irs-cell amount"><input class="irs-amount-field" id="f990-netassets" style="font-weight:700;" placeholder="0.00"/></div>
+</div>
+<!-- Signature -->
+<div class="irs-section-header">Sign Here - Under penalties of perjury, I declare that I have examined this return\'85</div>
+<div class="irs-sign-row">
+<div><div class="irs-sign-field">Signature of officer ___________________________________________</div>
+<div class="irs-sign-field">Date ________________</div></div>
+<div><div class="irs-sign-field">Type or print name and title</div>
+<input class="irs-field-inline" placeholder="Name / Title"/></div>
+</div>
+
+
+  <!-- EON: TRUST -->
+  <div class="page" id="page-trust">
+<div class="card" style="border-color:#a855f7">
+<div class="card-head" style="color:#a855f7"> Common-Law Trust Specialist - C.L.O.C.E.S.T.</div>
+<div class="card-body">
+<p style="color:var(--text2);font-size:13px;margin-bottom:14px">Common-law trusts, Mega Trust Constitution, constitutional property interests as trust res, spendthrift provisions, trust-based arbitration.</p>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+<span class="badge" style="background:rgba(168,85,247,.15);color:#a855f7">C.L.O.C.E.S.T.</span><span class="badge" style="background:rgba(168,85,247,.15);color:#a855f7">Mega Trust</span><span class="badge" style="background:rgba(168,85,247,.15);color:#a855f7">Trust Res</span><span class="badge" style="background:rgba(168,85,247,.15);color:#a855f7">Spendthrift</span>
+</div>
+<textarea id="trustInput" rows="4" placeholder="Describe your trust question..." style="width:100%;padding:10px;background:var(--input-bg);border:1px solid #a855f7;border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px"></textarea>
+<button class="btn" style="background:#a855f7;color:#fff;font-weight:600" onclick="askAgent('trust',document.getElementById('trustInput').value)"> Analyze</button>
+<div id="trustResult" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
+</div>
+</div>
+</div>
+
+
+  <!-- EON: VAULT -->
+  <div class="page" id="page-vault">
+<div class="card">
+<div class="card-head"> Encrypted Password Vault <span class="badge badge-ok" style="font-size:10px">AES-256-GCM</span></div>
+<div class="card-body">
+<p style="font-size:12px;color:var(--text2);margin-bottom:12px">Passwords encrypted locally using AES-256-GCM + PBKDF2 (600K iterations). Nothing transmitted.</p>
+<div id="vaultLocked">
+<div style="display:flex;gap:8px"><input id="vaultMaster" type="password" placeholder="Master password..." style="flex:1;padding:10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text)" onkeydown="if(event.key==='Enter')unlockVault()"><button class="btn btn-primary" onclick="unlockVault()"> Unlock</button></div>
+</div>
+<div id="vaultUnlocked" style="display:none">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+<input id="vSite" placeholder="Site / App" style="padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px">
+<input id="vUser" placeholder="Username" style="padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px">
+</div>
+<div style="display:flex;gap:8px;margin-bottom:8px">
+<input id="vPass" type="password" placeholder="Password" style="flex:1;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px">
+<button class="btn btn-sm" onclick="genPW()"> </button>
+<button class="btn btn-primary btn-sm" onclick="addVaultEntry()"> Save</button>
+</div>
+<input id="vSearch" placeholder="Search vault..." style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;margin-bottom:8px" oninput="renderVault()">
+<div id="vaultTable" style="font-size:12px"></div>
+</div>
+</div>
+</div>
+</div>
+
+
+  <!-- EON: VOICE -->
+  <div class="page" id="page-voice">
+<div class="card">
+<div class="card-head"> Voice Control Center</div>
+<div class="card-body">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+<div>
+<h4 style="margin-bottom:10px;color:var(--accent)">Speech-to-Text</h4>
+<p style="font-size:12px;color:var(--text2);margin-bottom:12px">Click the mic to dictate. Works in Chrome/Edge.</p>
+<div style="text-align:center;padding:20px">
+<label class="voice-btn mic" id="voiceMicBtn" onclick="toggleVoiceMic()" style="width:80px;height:80px;font-size:36px;display:inline-flex"> </label>
+<p id="voiceStatus" style="margin-top:10px;color:var(--text2);font-size:12px">Click to start</p>
+</div>
+<textarea id="voiceOutput" rows="5" placeholder="Recognized speech appears here..." style="width:100%;padding:10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;resize:vertical;font-family:inherit"></textarea>
+<div style="display:flex;gap:6px;margin-top:8px">
+<button class="btn btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('voiceOutput').value)"> Copy</button>
+<button class="btn btn-sm" onclick="document.getElementById('voiceOutput').value=''"> Clear</button>
+<button class="btn btn-sm btn-primary" onclick="document.getElementById('chatInput').value=document.getElementById('voiceOutput').value;goPage(null,'chat')"> To Chat</button>
+</div>
+</div>
+<div>
+<h4 style="margin-bottom:10px;color:var(--accent)">Text-to-Speech</h4>
+<textarea id="ttsInput" rows="4" placeholder="Enter text to speak..." style="width:100%;padding:10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;resize:vertical;font-family:inherit;margin-bottom:10px"></textarea>
+<div style="margin-bottom:8px"><label style="font-size:12px;color:var(--text2)">Voice:</label><select id="ttsVoiceSelect" style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;margin-top:4px"></select></div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
+<div><label style="font-size:11px;color:var(--text2)">Speed</label><input type="range" id="ttsRate" min="0.5" max="2" step="0.1" value="1" style="width:100%"></div>
+<div><label style="font-size:11px;color:var(--text2)">Pitch</label><input type="range" id="ttsPitch" min="0" max="2" step="0.1" value="1" style="width:100%"></div>
+<div><label style="font-size:11px;color:var(--text2)">Volume</label><input type="range" id="ttsVol" min="0" max="1" step="0.1" value="1" style="width:100%"></div>
+</div>
+<div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="speakTTS()"> Speak</button><button class="btn" onclick="speechSynthesis.cancel()"> Stop</button></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+</div>
+
+ength) {
         hideSyncProgress();
         var summary = results.map(function(r) { return r.label + ': ' + (r.added || 0); }).join(', ');
         updateSyncStatus('Pull All complete — ' + summary, false);
@@ -20965,6 +21823,198 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
   </script>
 
   <script src="shared-toolbar.js"></script>
+<script>
+// ========== EON AI JAVASCRIPT FUNCTIONS ==========
+
+// Toggle sidebar visibility
+function toggleEonSidebar() {
+  const sidebar = document.getElementById('eonSidebar');
+  const container = document.getElementById('eonPagesContainer');
+  const isVisible = sidebar.style.display !== 'none';
+  
+  if (isVisible) {
+    sidebar.style.display = 'none';
+    container.style.display = 'none';
+    document.body.style.paddingLeft = '0';
+  } else {
+    sidebar.style.display = 'block';
+    container.style.display = 'block';
+    document.body.style.paddingLeft = '240px';
+  }
+}
+
+// Navigate between EoN AI pages
+function goEonPage(btn, page) {
+  // Hide all pages
+  const container = document.getElementById('eonPagesContainer');
+  const pages = container.querySelectorAll('.page');
+  pages.forEach(p => p.classList.remove('active'));
+  
+  // Remove active from all buttons
+  const buttons = document.querySelectorAll('.side-btn');
+  buttons.forEach(b => b.classList.remove('active'));
+  
+  // Show target page
+  const target = container.querySelector('#page-' + page);
+  if (target) {
+    target.classList.add('active');
+  }
+  
+  // Activate button
+  if (btn) {
+    btn.classList.add('active');
+  }
+  
+  // Initialize page if needed
+  initEonPage(page);
+}
+
+// Initialize page-specific content
+function initEonPage(page) {
+  if (page === 'agents') {
+    renderAgents();
+  } else if (page === 'dashboard') {
+    updateDashboard();
+  } else if (page === 'chat') {
+    initChat();
+  } else if (page === 'taxforms') {
+    initTaxForms();
+  }
+}
+
+// Render agents grid
+function renderAgents() {
+  const grid = document.getElementById('agentsGrid');
+  if (!grid) return;
+  
+  const agents = [
+    {id: 'dream_team', name: 'The Dream Team', role: '600-Attorney Legal Team', icon: '🏛️', color: '#ffd700'},
+    {id: 'legal', name: 'Legal Expert', role: 'Presumption Killer', icon: '⚖️', color: '#f5a623'},
+    {id: 'tax', name: 'Tax Expert', role: 'Tax & Financial', icon: '🧮', color: '#f5a623'},
+    {id: 'accounting', name: 'Accounting', role: 'GAAP & Trust Accounting', icon: '📊', color: '#10b981'},
+    {id: 'corporation', name: 'Corporation', role: 'Corporate Structure', icon: '🏢', color: '#4a7fbf'},
+    {id: 'trust', name: 'Trust', role: 'Trust Law & Fiduciary Duty', icon: '🛡️', color: '#4a7fbf'},
+    {id: 'research', name: 'Research', role: 'Legal Research', icon: '🔬', color: '#8b5cf6'},
+    {id: 'arbitration', name: 'Arbitration', role: 'Arbitration Law', icon: '⚖️', color: '#f5a623'}
+  ];
+  
+  grid.innerHTML = agents.map(a => `
+    <div class="agent-card" onclick="goEonPage(null, '${a.id}')" style="border-color: ${a.color}">
+      <div style="font-size:32px;margin-bottom:10px">${a.icon}</div>
+      <div style="font-weight:700;font-size:15px;margin-bottom:4px">${a.name}</div>
+      <div style="font-size:12px;color:var(--text-secondary)">${a.role}</div>
+    </div>
+  `).join('');
+}
+
+// Update dashboard stats
+function updateDashboard() {
+  // Placeholder - in full version this would show real stats
+  console.log('Dashboard updated');
+}
+
+// Initialize chat
+function initChat() {
+  console.log('Chat initialized');
+}
+
+// Initialize tax forms
+function initTaxForms() {
+  console.log('Tax forms initialized');
+}
+
+// Send chat message
+function sendChat() {
+  const input = document.getElementById('chatInput');
+  if (!input) return;
+  
+  const msg = input.value.trim();
+  if (!msg) return;
+  
+  addChatMsg('user', msg);
+  input.value = '';
+  
+  // Simulate AI response
+  setTimeout(() => {
+    addChatMsg('agent', 'I understand your question. How can I assist you further?');
+  }, 500);
+}
+
+// Add chat message
+function addChatMsg(type, text) {
+  const msgs = document.getElementById('chatMsgs');
+  if (!msgs) return;
+  
+  const div = document.createElement('div');
+  div.className = 'msg';
+  div.innerHTML = `
+    <div class="msg-avatar" style="background:${type === 'user' ? 'var(--bg-tertiary)' : 'linear-gradient(135deg, var(--accent-green), #cc44bb)'}">${type === 'user' ? '👤' : '🤖'}</div>
+    <div class="msg-body">
+      <div style="font-weight:600;font-size:12px;margin-bottom:3px;color:var(--accent-green)">${type === 'user' ? 'You' : 'AI Agent'}</div>
+      <div style="font-size:13px;line-height:1.7">${text}</div>
+    </div>
+  `;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+// Dream Team functions
+function dtNewChat() {
+  const msgs = document.getElementById('dtChatMsgs');
+  if (msgs) msgs.innerHTML = '';
+}
+
+function dtClearHistory() {
+  dtNewChat();
+}
+
+function dtSend() {
+  const input = document.getElementById('dtInput');
+  if (!input) return;
+  
+  const msg = input.value.trim();
+  if (!msg) return;
+  
+  const msgs = document.getElementById('dtChatMsgs');
+  if (msgs) {
+    msgs.innerHTML += `<div style="margin-bottom:12px"><strong>You:</strong> ${msg}</div>`;
+    msgs.innerHTML += `<div style="margin-bottom:12px;color:var(--accent-green)"><strong>Dream Team:</strong> We have reviewed your matter. Our analysis is being prepared...</div>`;
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+  input.value = '';
+}
+
+// Tax forms
+function eeonTab(formId, btn) {
+  // Hide all panels
+  document.querySelectorAll('.eeon-panel').forEach(p => p.style.display = 'none');
+  // Remove active from all tabs
+  document.querySelectorAll('.eeon-tab').forEach(t => t.classList.remove('active'));
+  // Show selected panel
+  const panel = document.getElementById('eeon-panel-' + formId);
+  if (panel) panel.style.display = 'block';
+  // Activate tab
+  if (btn) btn.classList.add('active');
+}
+
+// Placeholder functions
+function exportChat() { alert('Chat export functionality'); }
+function shareChat() { alert('Chat share functionality'); }
+function toggleMic() { alert('Voice input functionality'); }
+function handleFileUpload() { alert('File upload functionality'); }
+function dtHandleFiles() { alert('Dream Team file upload'); }
+function populateAllForms() { alert('Sync from GAAP ledger'); }
+function generateJournalFromForms() { alert('Push back to GAAP'); }
+function onYearChange() { console.log('Year changed'); }
+function printForm(formId) { window.print(); }
+function askAgent(agentId, question) { console.log('Ask agent:', agentId, question); }
+function noiAsk() { alert('NOI Ask - Send to multiple agents'); }
+function createAgent() { alert('Create custom agent'); }
+
+console.log('✓ EoN AI JavaScript loaded');
+</script>
+
+
 </body>
 
 </html>
