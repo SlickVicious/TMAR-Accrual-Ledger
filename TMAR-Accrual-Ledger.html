@@ -21683,7 +21683,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
 <div class="card-body">
 <p style="color:var(--text2);font-size:13px;margin-bottom:14px">GAAP double-entry bookkeeping, journal entries, financial statements, A/R, A/P, payroll, depreciation, tax filing prep, payment orders.</p>
 <textarea id="acctInput" rows="4" placeholder="Describe your accounting question..." style="width:100%;padding:10px;background:var(--input-bg);border:1px solid #f59e0b;border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px"></textarea>
-<button class="btn btn-primary" style="background:#f59e0b;color:#000;font-weight:700;padding:12px 24px;font-size:14px;border:2px solid #fbbf24;box-shadow:0 2px 8px rgba(245,158,11,0.3)" onclick="askAgent('accounting',document.getElementById('acctInput').value)">⚡ Analyze</button>
+<button class="btn btn-primary" style="background:#f59e0b;color:#000;font-weight:700;padding:12px 24px;font-size:14px;border:2px solid #fbbf24;box-shadow:0 2px 8px rgba(245,158,11,0.3)" onclick="askAgentSafe('accounting','acctInput')">⚡ Analyze</button>
 <div id="accountingResult" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
 </div>
 </div>
@@ -21719,7 +21719,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
 <div class="card-head" style="color:var(--accent)"> Arbitration Specialist</div>
 <div class="card-body">
 <textarea id="arbInput" rows="4" placeholder="Describe your arbitration matter..." style="width:100%;padding:10px;background:var(--input-bg);border:1px solid var(--accent);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px"></textarea>
-<button class="btn btn-primary" style="background:#ef4444;color:#fff;font-weight:700;padding:12px 24px;font-size:14px;border:2px solid #f87171;box-shadow:0 2px 8px rgba(239,68,68,0.3)" onclick="askAgent('arbitration',document.getElementById('arbInput').value)">⚡ Analyze</button>
+<button class="btn btn-primary" style="background:#ef4444;color:#fff;font-weight:700;padding:12px 24px;font-size:14px;border:2px solid #f87171;box-shadow:0 2px 8px rgba(239,68,68,0.3)" onclick="askAgentSafe('arbitration','arbInput')">⚡ Analyze</button>
 <div id="arbitrationResult" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
 </div>
 </div>
@@ -21808,7 +21808,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
 <span class="badge badge-ok">Corporate Formation</span><span class="badge badge-ok">Governance</span><span class="badge badge-ok">SPV</span><span class="badge badge-ok">Tax Compliance</span><span class="badge badge-ok">Religious Corp</span>
 </div>
 <textarea id="corpInput" rows="4" placeholder="Describe your corporate/business entity question..." style="width:100%;padding:10px;background:var(--input-bg);border:1px solid #6366f1;border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px"></textarea>
-<button class="btn btn-primary" style="background:#6366f1;color:#fff;font-weight:700;padding:12px 24px;font-size:14px;border:2px solid #818cf8;box-shadow:0 2px 8px rgba(99,102,241,0.3)" onclick="askAgent('corporation',document.getElementById('corpInput').value)">⚡ Analyze</button>
+<button class="btn btn-primary" style="background:#6366f1;color:#fff;font-weight:700;padding:12px 24px;font-size:14px;border:2px solid #818cf8;box-shadow:0 2px 8px rgba(99,102,241,0.3)" onclick="askAgentSafe('corporation','corpInput')">⚡ Analyze</button>
 <div id="corporationResult" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
 </div>
 </div>
@@ -21960,7 +21960,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
 <span class="badge badge-warn">Trust Law</span><span class="badge badge-warn">Foreclosure</span>
 </div>
 <textarea id="legalInput" rows="4" placeholder="Describe your legal question..." style="width:100%;padding:10px;background:var(--input-bg);border:1px solid var(--legal);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px"></textarea>
-<button class="btn btn-primary" style="background:#ffc107;color:#000;font-weight:700;padding:12px 24px;font-size:14px;border:2px solid #ffdb4d;box-shadow:0 2px 8px rgba(255,193,7,0.3)" onclick="askAgent('legal',document.getElementById('legalInput').value)">⚡ Analyze</button>
+<button class="btn btn-primary" style="background:#ffc107;color:#000;font-weight:700;padding:12px 24px;font-size:14px;border:2px solid #ffdb4d;box-shadow:0 2px 8px rgba(255,193,7,0.3)" onclick="askAgentSafe('legal','legalInput')">⚡ Analyze</button>
 <div id="legalResult" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
 </div>
 </div>
@@ -22126,7 +22126,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
 <div class="card-head" style="color:#22c55e"> Tax & Financial Expert</div>
 <div class="card-body">
 <textarea id="taxInput" rows="4" placeholder="Describe your tax or financial question..." style="width:100%;padding:10px;background:var(--input-bg);border:1px solid #22c55e;border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px"></textarea>
-<button class="btn btn-primary" style="background:#22c55e;color:#000;font-weight:700;padding:12px 24px;font-size:14px;border:2px solid #4ade80;box-shadow:0 2px 8px rgba(34,197,94,0.3)" onclick="askAgent('tax',document.getElementById('taxInput').value)">⚡ Analyze</button>
+<button class="btn btn-primary" style="background:#22c55e;color:#000;font-weight:700;padding:12px 24px;font-size:14px;border:2px solid #4ade80;box-shadow:0 2px 8px rgba(34,197,94,0.3)" onclick="askAgentSafe('tax','taxInput')">⚡ Analyze</button>
 <div id="taxResult" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
 </div>
 </div>
@@ -24983,7 +24983,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
 <span class="badge" style="background:rgba(168,85,247,.15);color:#a855f7">C.L.O.C.E.S.T.</span><span class="badge" style="background:rgba(168,85,247,.15);color:#a855f7">Mega Trust</span><span class="badge" style="background:rgba(168,85,247,.15);color:#a855f7">Trust Res</span><span class="badge" style="background:rgba(168,85,247,.15);color:#a855f7">Spendthrift</span>
 </div>
 <textarea id="trustInput" rows="4" placeholder="Describe your trust question..." style="width:100%;padding:10px;background:var(--input-bg);border:1px solid #a855f7;border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px"></textarea>
-<button class="btn btn-primary" style="background:#a855f7;color:#fff;font-weight:700;padding:12px 24px;font-size:14px;border:2px solid #c084fc;box-shadow:0 2px 8px rgba(168,85,247,0.3)" onclick="askAgent('trust',document.getElementById('trustInput').value)">⚡ Analyze</button>
+<button class="btn btn-primary" style="background:#a855f7;color:#fff;font-weight:700;padding:12px 24px;font-size:14px;border:2px solid #c084fc;box-shadow:0 2px 8px rgba(168,85,247,0.3)" onclick="askAgentSafe('trust','trustInput')">⚡ Analyze</button>
 <div id="trustResult" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
 </div>
 </div>
@@ -25368,5 +25368,29 @@ console.log('✓ EoN AI JavaScript loaded');
 
 
 </body>
+
+
+// Wrapper for better error handling in onclick
+window.askAgentSafe = function(agentId, inputId) {
+  console.log("🔍 askAgentSafe called:", agentId, inputId);
+  try {
+    var input = document.getElementById(inputId);
+    if (!input) {
+      alert("Error: Input field not found: " + inputId);
+      return;
+    }
+    var question = input.value;
+    askAgent(agentId, question).catch(function(err) {
+      console.error("❌ askAgent error:", err);
+      alert("Error: " + err.message);
+    });
+  } catch (err) {
+    console.error("❌ askAgentSafe error:", err);
+    alert("Critical error: " + err.message);
+  }
+};
+
+console.log("✅ askAgent setup complete");
+console.log("✅ All agent IDs:", ["legal", "tax", "accounting", "trust", "arbitration", "corporation"]);
 
 </html>
