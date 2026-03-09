@@ -4,7 +4,7 @@
 
 - **LDG_Vault_Audit_Report.md** — Full vault health audit with findings and recommendations
 
-## Skills (7 Total)
+## Skills (8 Total)
 
 | #   | Skill                                                                                                                                                                                                       | Directory                           | Triggers                                                             |
 | --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- | -------------------------------------------------------------------- |
@@ -15,6 +15,7 @@
 | 5   | **Vault Navigation & Search**— Connection Hub management, Obsidian search operators, 10+ ready-to-use Dataview queries, graph view strategies, troubleshooting guide                                        | `vault-navigation/SKILL.md`         | find in vault, search, connection hub, dataview query                |
 | 6   | **Template System Management**— Consolidation plan for the 4 fragmented locations, Templater syntax reference, folder-template mapping procedures, QuickAdd configuration recipes                           | `template-management/SKILL.md`      | create template, Templater, folder mapping, QuickAdd                 |
 | 7   | **TMAR Infographic Generator (Excalidraw)**— Visual documentation system using Excalidraw MCP connector. Dark-mode infographics for GUI overview, menu trees, data architecture, navigation flows, 13-tab workbook maps, and gap scanner pipelines | `tmar-infographic-generator.md`     | TMAR diagram, infographic, GUI visual, menu tree, data flow          |
+| 8   | **YAML Frontmatter Auto-Fixer v2**— Detects and repairs broken YAML from clipboard AND sidebar paste. v2 adds: heading prefix removal, concatenated field splitting, long description → block scalar, collapsed array expansion. Single-file fixer + batch vault scanner | `yaml-frontmatter-fixer.md`         | YAML broken, fix frontmatter, sidebar paste, Properties not showing |
 
 ## Installation
 
