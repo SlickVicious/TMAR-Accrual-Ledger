@@ -25671,16 +25671,6 @@ if (document.readyState === 'loading') {
   loadSavedKeys();
 }
 
-function noiAsk() { alert('NOI Ask - Send to multiple agents'); }
-function createAgent() { alert('Create custom agent'); }
-
-console.log('✓ EoN AI JavaScript loaded');
-</script>
-
-
-</body>
-
-
 // Wrapper for better error handling in onclick
 window.askAgentSafe = function(agentId, inputId) {
   console.log("🔍 askAgentSafe called:", agentId, inputId);
@@ -25688,9 +25678,14 @@ window.askAgentSafe = function(agentId, inputId) {
     var input = document.getElementById(inputId);
     if (!input) {
       alert("Error: Input field not found: " + inputId);
+      console.error('Input not found:', inputId);
       return;
     }
     var question = input.value;
+    if (!question || question.trim() === '') {
+      alert("Please enter a question first");
+      return;
+    }
     askAgent(agentId, question).catch(function(err) {
       console.error("❌ askAgent error:", err);
       alert("Error: " + err.message);
@@ -25701,7 +25696,181 @@ window.askAgentSafe = function(agentId, inputId) {
   }
 };
 
-console.log("✅ askAgent setup complete");
-console.log("✅ All agent IDs:", ["legal", "tax", "accounting", "trust", "arbitration", "corporation"]);
+// Research HUB function
+async function doResearch() {
+  console.log('🔬 Starting research...');
+
+  var input = document.getElementById('researchInput');
+  var depth = document.getElementById('researchDepth');
+  var resultDiv = document.getElementById('researchResult');
+  var historyDiv = document.getElementById('researchHistory');
+
+  if (!input || !resultDiv) {
+    console.error('Research elements not found');
+    return;
+  }
+
+  var question = input.value;
+  if (!question || question.trim() === '') {
+    resultDiv.innerHTML = '<div style="padding:12px;background:var(--err);color:#fff;border-radius:6px">⚠️ Please enter a research question first.</div>';
+    return;
+  }
+
+  var researchDepthValue = depth ? depth.value : 'standard';
+
+  // Show loading
+  resultDiv.innerHTML = '<div style="padding:12px;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;color:var(--text2)">🔬 Conducting ' + researchDepthValue + ' research...</div>';
+
+  try {
+    var apiKey = window._trustApiKey || localStorage.getItem('eeon_key_claude') || '';
+    if (!apiKey) {
+      throw new Error('API key missing — please configure your API key in Settings');
+    }
+
+    // Build system prompt based on depth
+    var systemPrompt = '';
+    if (researchDepthValue === 'legal') {
+      systemPrompt = 'You are a Research Analyst specializing in legal research. Provide comprehensive analysis with specific citations to case law, statutes, regulations, and legal authority. Include proper Bluebook citations. Structure your response with: 1) Issue, 2) Applicable Law with Citations, 3) Analysis, 4) Conclusion.';
+    } else if (researchDepthValue === 'deep') {
+      systemPrompt = 'You are a Research Analyst conducting deep investigation. Provide thorough analysis with multiple sources, cross-references, and verification. Include specific citations, data sources, and references. Structure with: 1) Overview, 2) Key Findings with Sources, 3) Supporting Evidence, 4) Analysis, 5) Conclusions.';
+    } else {
+      systemPrompt = 'You are a Research Analyst providing fact-based analysis. Cite sources and provide clear, structured findings.';
+    }
+
+    var response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 8192,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: question }]
+      })
+    });
+
+    if (!response.ok) {
+      var errData = await response.json().catch(() => ({}));
+      throw new Error('API ' + response.status + (errData.error ? ': ' + errData.error.message : ''));
+    }
+
+    var data = await response.json();
+    var answer = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : JSON.stringify(data);
+
+    // Format result
+    var formatted = answer
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/\n\n/g, '<br><br>')
+      .replace(/\n/g, '<br>');
+
+    resultDiv.innerHTML =
+      '<div style="color:#63b3ed;font-weight:700;font-size:14px;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:8px">🔬 RESEARCH RESULTS — ' + researchDepthValue.toUpperCase() + '</div>' +
+      '<div style="font-size:13px;line-height:1.8;color:var(--text);white-space:pre-wrap">' + formatted + '</div>' +
+      '<div style="margin-top:12px;font-size:11px;color:var(--text2);border-top:1px solid rgba(255,255,255,.06);padding-top:8px;font-style:italic">Research Depth: ' + researchDepthValue + ' • Deep Analysis Engine</div>';
+
+    // Add to history
+    var timestamp = new Date().toLocaleString();
+    var historyEntry = '<div style="padding:8px;background:rgba(99,179,237,.06);border:1px solid rgba(99,179,237,.2);border-radius:6px;margin-bottom:8px"><div style="font-weight:600;font-size:11px;color:#63b3ed">' + timestamp + ' — ' + researchDepthValue.toUpperCase() + '</div><div style="font-size:11px;color:var(--text2);margin-top:4px">' + question.substring(0, 100) + (question.length > 100 ? '...' : '') + '</div></div>';
+
+    if (historyDiv.innerHTML === 'No research conducted yet.') {
+      historyDiv.innerHTML = historyEntry;
+    } else {
+      historyDiv.innerHTML = historyEntry + historyDiv.innerHTML;
+    }
+
+  } catch (err) {
+    var msg = err.message || String(err);
+    if (msg.includes('401') || msg.includes('authentication') || msg.includes('api_key') || msg.includes('API key missing')) {
+      resultDiv.innerHTML = '<div style="color:#f59e0b;font-size:13px;padding:12px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:6px"><strong>⚠️ API Key Required</strong><br><br>Please configure your API key in Settings to use Research HUB.</div>';
+    } else {
+      resultDiv.innerHTML = '<div style="color:#ef4444;padding:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px">⚠ Error: ' + msg.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</div>';
+    }
+  }
+}
+
+// Search Engine function
+async function doSearch() {
+  console.log('🔍 Starting search...');
+
+  var input = document.getElementById('searchInput');
+  var resultDiv = document.getElementById('searchResults');
+
+  if (!input || !resultDiv) {
+    console.error('Search elements not found');
+    return;
+  }
+
+  var query = input.value;
+  if (!query || query.trim() === '') {
+    resultDiv.innerHTML = '<div style="padding:12px;background:var(--err);color:#fff;border-radius:6px">⚠️ Please enter a search query first.</div>';
+    return;
+  }
+
+  resultDiv.innerHTML = '<div style="padding:12px;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;color:var(--text2)">🔍 Searching...</div>';
+
+  try {
+    var apiKey = window._trustApiKey || localStorage.getItem('eeon_key_claude') || '';
+    if (!apiKey) {
+      throw new Error('API key missing — please configure your API key in Settings');
+    }
+
+    var response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4096,
+        system: 'You are a Search Assistant. Provide relevant information and resources for the search query. Include key facts, explanations, and references where applicable.',
+        messages: [{ role: 'user', content: 'Search query: ' + query }]
+      })
+    });
+
+    if (!response.ok) {
+      var errData = await response.json().catch(() => ({}));
+      throw new Error('API ' + response.status + (errData.error ? ': ' + errData.error.message : ''));
+    }
+
+    var data = await response.json();
+    var answer = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : JSON.stringify(data);
+
+    var formatted = answer
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/\n\n/g, '<br><br>')
+      .replace(/\n/g, '<br>');
+
+    resultDiv.innerHTML =
+      '<div style="color:#22c55e;font-weight:700;font-size:14px;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:8px">🔍 SEARCH RESULTS</div>' +
+      '<div style="font-size:13px;line-height:1.8;color:var(--text);white-space:pre-wrap">' + formatted + '</div>';
+
+  } catch (err) {
+    var msg = err.message || String(err);
+    if (msg.includes('401') || msg.includes('authentication') || msg.includes('api_key') || msg.includes('API key missing')) {
+      resultDiv.innerHTML = '<div style="color:#f59e0b;font-size:13px;padding:12px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:6px"><strong>⚠️ API Key Required</strong><br><br>Please configure your API key in Settings to use Search.</div>';
+    } else {
+      resultDiv.innerHTML = '<div style="color:#ef4444;padding:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px">⚠ Error: ' + msg.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</div>';
+    }
+  }
+}
+
+function noiAsk() { alert('NOI Ask - Send to multiple agents'); }
+function createAgent() { alert('Create custom agent'); }
+
+console.log('✓ EoN AI JavaScript loaded');
+console.log("✅ askAgentSafe loaded");
+console.log("✅ doResearch loaded");
+console.log("✅ doSearch loaded");
+</script>
+
+
+</body>
 
 </html>
