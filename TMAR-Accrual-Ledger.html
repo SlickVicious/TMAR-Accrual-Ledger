@@ -25360,6 +25360,317 @@ async function askAgent(agentId, question) {
     }
   }
 }
+
+// Save all API keys to localStorage
+function saveKeys() {
+  console.log('💾 Saving API keys...');
+
+  try {
+    // Map of field IDs to localStorage keys
+    var keyMappings = {
+      'keyOpenai': 'eeon_key_openai',
+      'keyDeepseek': 'eeon_key_deepseek',
+      'keyZai': 'eeon_key_zai',
+      'keyKimi': 'eeon_key_kimi',
+      'keyClaude': 'eeon_key_claude',
+      'keyMinimax': 'eeon_key_minimax',
+      'keyErnie': 'eeon_key_ernie',
+      'keyXai': 'eeon_key_xai',
+      'keyOllamaUrl': 'eeon_ollama_url',
+      'keyOllamaModel': 'eeon_ollama_model',
+      'keyOllamaModelCustom': 'eeon_ollama_model_custom',
+      'keyOllamaApiKey': 'eeon_ollama_api_key',
+      'keyOllamaWebSearch': 'eeon_ollama_web_search',
+      'keyCustomName': 'eeon_custom_name',
+      'keyCustomUrl': 'eeon_custom_url',
+      'keyCustom': 'eeon_key_custom',
+      'keyCustomModel': 'eeon_custom_model',
+      'keyTelegram': 'eeon_key_telegram',
+      'keyDiscord': 'eeon_key_discord',
+      'setActiveProvider': 'eeon_active_provider'
+    };
+
+    var savedCount = 0;
+
+    // Save each key
+    for (var fieldId in keyMappings) {
+      var elem = document.getElementById(fieldId);
+      if (elem) {
+        var value = '';
+        if (elem.type === 'checkbox') {
+          value = elem.checked ? 'true' : 'false';
+        } else {
+          value = elem.value || '';
+        }
+        localStorage.setItem(keyMappings[fieldId], value);
+        if (value && value !== 'false') savedCount++;
+      }
+    }
+
+    // Sync Claude key with legacy _trustApiKey
+    var claudeKey = document.getElementById('keyClaude');
+    if (claudeKey && claudeKey.value) {
+      window._trustApiKey = claudeKey.value;
+      localStorage.setItem('_trustApiKey', claudeKey.value);
+    }
+
+    // Update key-dot indicators
+    updateKeyDots();
+
+    // Show success message
+    var statusSpan = document.getElementById('keyStatus');
+    if (statusSpan) {
+      statusSpan.innerHTML = '<span style="color:#22c55e">✓ Saved ' + savedCount + ' keys successfully</span>';
+      setTimeout(function() {
+        statusSpan.innerHTML = '';
+      }, 3000);
+    }
+
+    console.log('✅ Saved', savedCount, 'API keys');
+
+  } catch (err) {
+    console.error('❌ Error saving keys:', err);
+    var statusSpan = document.getElementById('keyStatus');
+    if (statusSpan) {
+      statusSpan.innerHTML = '<span style="color:#ef4444">⚠ Error: ' + err.message + '</span>';
+    }
+  }
+}
+
+// Update key-dot indicators (green = key exists)
+function updateKeyDots() {
+  var dotMappings = {
+    'kdOpenai': 'eeon_key_openai',
+    'kdDeepseek': 'eeon_key_deepseek',
+    'kdZai': 'eeon_key_zai',
+    'kdKimi': 'eeon_key_kimi',
+    'kdClaude': 'eeon_key_claude',
+    'kdMinimax': 'eeon_key_minimax',
+    'kdErnie': 'eeon_key_ernie',
+    'kdXai': 'eeon_key_xai',
+    'kdOllamaApi': 'eeon_ollama_api_key',
+    'kdCustom': 'eeon_key_custom'
+  };
+
+  for (var dotId in dotMappings) {
+    var dot = document.getElementById(dotId);
+    var value = localStorage.getItem(dotMappings[dotId]);
+    if (dot) {
+      if (value && value.trim() !== '') {
+        dot.classList.remove('off');
+        dot.classList.add('on');
+      } else {
+        dot.classList.remove('on');
+        dot.classList.add('off');
+      }
+    }
+  }
+}
+
+// Test API connection with active provider
+async function testConnection() {
+  console.log('🔌 Testing connection...');
+
+  var statusSpan = document.getElementById('keyStatus');
+  if (statusSpan) {
+    statusSpan.innerHTML = '<span style="color:#ffc107">⏳ Testing connection...</span>';
+  }
+
+  try {
+    var activeProvider = document.getElementById('setActiveProvider');
+    var provider = activeProvider ? activeProvider.value : 'claude';
+
+    console.log('Testing provider:', provider);
+
+    // Get API key for active provider
+    var apiKey = '';
+    var testEndpoint = '';
+    var testBody = {};
+    var testHeaders = {};
+
+    if (provider === 'claude' || provider === 'anthropic') {
+      apiKey = localStorage.getItem('eeon_key_claude') || window._trustApiKey || '';
+      testEndpoint = 'https://api.anthropic.com/v1/messages';
+      testHeaders = {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      };
+      testBody = {
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 10,
+        messages: [{ role: 'user', content: 'test' }]
+      };
+    } else if (provider === 'openai') {
+      apiKey = localStorage.getItem('eeon_key_openai') || '';
+      testEndpoint = 'https://api.openai.com/v1/chat/completions';
+      testHeaders = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + apiKey
+      };
+      testBody = {
+        model: 'gpt-4o-mini',
+        max_tokens: 10,
+        messages: [{ role: 'user', content: 'test' }]
+      };
+    } else if (provider === 'deepseek') {
+      apiKey = localStorage.getItem('eeon_key_deepseek') || '';
+      testEndpoint = 'https://api.deepseek.com/v1/chat/completions';
+      testHeaders = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + apiKey
+      };
+      testBody = {
+        model: 'deepseek-chat',
+        max_tokens: 10,
+        messages: [{ role: 'user', content: 'test' }]
+      };
+    } else if (provider === 'xai' || provider === 'grok') {
+      apiKey = localStorage.getItem('eeon_key_xai') || '';
+      testEndpoint = 'https://api.x.ai/v1/chat/completions';
+      testHeaders = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + apiKey
+      };
+      testBody = {
+        model: 'grok-2-1212',
+        max_tokens: 10,
+        messages: [{ role: 'user', content: 'test' }]
+      };
+    } else {
+      throw new Error('Provider ' + provider + ' not yet supported for testing');
+    }
+
+    if (!apiKey) {
+      throw new Error('No API key found for ' + provider);
+    }
+
+    // Make test API call
+    var response = await fetch(testEndpoint, {
+      method: 'POST',
+      headers: testHeaders,
+      body: JSON.stringify(testBody)
+    });
+
+    if (!response.ok) {
+      var errData = await response.json().catch(() => ({}));
+      throw new Error('API ' + response.status + (errData.error ? ': ' + (errData.error.message || errData.error.type) : ''));
+    }
+
+    var data = await response.json();
+    console.log('✅ Connection test successful:', data);
+
+    if (statusSpan) {
+      statusSpan.innerHTML = '<span style="color:#22c55e">✓ Connected successfully to ' + provider.toUpperCase() + '</span>';
+      setTimeout(function() {
+        statusSpan.innerHTML = '';
+      }, 4000);
+    }
+
+  } catch (err) {
+    console.error('❌ Connection test failed:', err);
+    var msg = err.message || String(err);
+    if (statusSpan) {
+      statusSpan.innerHTML = '<span style="color:#ef4444">⚠ ' + msg + '</span>';
+    }
+  }
+}
+
+// Load saved keys on page load
+function loadSavedKeys() {
+  console.log('📂 Loading saved keys...');
+
+  var keyMappings = {
+    'keyOpenai': 'eeon_key_openai',
+    'keyDeepseek': 'eeon_key_deepseek',
+    'keyZai': 'eeon_key_zai',
+    'keyKimi': 'eeon_key_kimi',
+    'keyClaude': 'eeon_key_claude',
+    'keyMinimax': 'eeon_key_minimax',
+    'keyErnie': 'eeon_key_ernie',
+    'keyXai': 'eeon_key_xai',
+    'keyOllamaUrl': 'eeon_ollama_url',
+    'keyOllamaModel': 'eeon_ollama_model',
+    'keyOllamaModelCustom': 'eeon_ollama_model_custom',
+    'keyOllamaApiKey': 'eeon_ollama_api_key',
+    'keyOllamaWebSearch': 'eeon_ollama_web_search',
+    'keyCustomName': 'eeon_custom_name',
+    'keyCustomUrl': 'eeon_custom_url',
+    'keyCustom': 'eeon_key_custom',
+    'keyCustomModel': 'eeon_custom_model',
+    'keyTelegram': 'eeon_key_telegram',
+    'keyDiscord': 'eeon_key_discord',
+    'setActiveProvider': 'eeon_active_provider'
+  };
+
+  // Load each key from localStorage
+  for (var fieldId in keyMappings) {
+    var elem = document.getElementById(fieldId);
+    var value = localStorage.getItem(keyMappings[fieldId]);
+    if (elem && value) {
+      if (elem.type === 'checkbox') {
+        elem.checked = (value === 'true');
+      } else {
+        elem.value = value;
+      }
+    }
+  }
+
+  // Sync legacy _trustApiKey
+  var legacyKey = localStorage.getItem('_trustApiKey');
+  if (legacyKey) {
+    window._trustApiKey = legacyKey;
+    var claudeInput = document.getElementById('keyClaude');
+    if (claudeInput && !claudeInput.value) {
+      claudeInput.value = legacyKey;
+      localStorage.setItem('eeon_key_claude', legacyKey);
+    }
+  }
+
+  // Populate provider dropdown
+  var providerSelect = document.getElementById('setActiveProvider');
+  if (providerSelect && providerSelect.options.length === 0) {
+    var providers = [
+      { value: 'claude', label: 'Claude / Anthropic' },
+      { value: 'openai', label: 'OpenAI (GPT-4)' },
+      { value: 'deepseek', label: 'DeepSeek' },
+      { value: 'xai', label: 'xAI (Grok)' },
+      { value: 'zai', label: 'Z.AI (GLM)' },
+      { value: 'kimi', label: 'Kimi / Moonshot' },
+      { value: 'minimax', label: 'MiniMax' },
+      { value: 'ernie', label: 'Ernie / Baidu' },
+      { value: 'ollama', label: 'Ollama (Local)' },
+      { value: 'custom', label: 'Custom Provider' }
+    ];
+
+    for (var i = 0; i < providers.length; i++) {
+      var option = document.createElement('option');
+      option.value = providers[i].value;
+      option.textContent = providers[i].label;
+      providerSelect.appendChild(option);
+    }
+
+    // Set saved provider
+    var savedProvider = localStorage.getItem('eeon_active_provider');
+    if (savedProvider) {
+      providerSelect.value = savedProvider;
+    }
+  }
+
+  // Update key dots
+  updateKeyDots();
+
+  console.log('✅ Keys loaded');
+}
+
+// Call loadSavedKeys when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', loadSavedKeys);
+} else {
+  loadSavedKeys();
+}
+
 function noiAsk() { alert('NOI Ask - Send to multiple agents'); }
 function createAgent() { alert('Create custom agent'); }
 
