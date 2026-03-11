@@ -1173,6 +1173,20 @@
         <button onclick="switchMainTab('syncCenter')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="syncCenter" style="background:linear-gradient(135deg,rgba(16,185,129,0.2),rgba(6,182,212,0.2));border:2px solid rgba(16,185,129,0.6);font-weight:800;color:#10b981">
           🔄 Sync Center
         </button>
+        <div class="w-px h-6 bg-gray-600 mx-1 hidden md:block"></div>
+        <!-- Group 12: PDKB Tools -->
+        <button onclick="switchMainTab('transcriptTransformer')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="transcriptTransformer" style="background:rgba(16,185,129,0.2);border:2px solid rgba(16,185,129,0.6);font-weight:800;color:#10b981">
+          📝 Transcript
+        </button>
+        <button onclick="switchMainTab('etymologyAnalyzer')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="etymologyAnalyzer" style="background:rgba(168,85,247,0.2);border:2px solid rgba(168,85,247,0.6);font-weight:800;color:#a855f7">
+          📖 Etymology
+        </button>
+        <button onclick="switchMainTab('pdfMdConverter')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="pdfMdConverter" style="background:rgba(59,130,246,0.2);border:2px solid rgba(59,130,246,0.6);font-weight:800;color:#3b82f6">
+          🔄 PDF/MD
+        </button>
+        <button onclick="switchMainTab('multiStatePoa')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="multiStatePoa" style="background:rgba(245,158,11,0.2);border:2px solid rgba(245,158,11,0.6);font-weight:800;color:#f59e0b">
+          ⚖️ POA/DBA
+        </button>
       </div>
     </nav>
 
@@ -6490,6 +6504,8 @@
       if (tabName === 'eeej') { if (typeof initEEEJ === 'function') initEEEJ(); }
       if (tabName === 'entityVerifier') { if (typeof initEntityVerifier === 'function') initEntityVerifier(); }
       if (tabName === 'syncCenter') { if (typeof initSyncCenter === 'function') initSyncCenter(); }
+      if (tabName === 'etymologyAnalyzer') { if (typeof initEtymologyAnalyzer === 'function') initEtymologyAnalyzer(); }
+      if (tabName === 'multiStatePoa') { if (typeof initMultiStatePoa === 'function') initMultiStatePoa(); }
     }
 
     // Filing Type Selection
@@ -15413,6 +15429,304 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
         </div>
       </div>
 
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- TRANSCRIPT TRANSFORMER SECTION                                  -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <section id="transcriptTransformerSection" class="form-section hidden">
+    <div style="padding:20px;max-width:1400px;margin:0 auto">
+      <div style="background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(6,182,212,0.12));border:2px solid rgba(16,185,129,0.4);border-radius:12px;padding:20px;margin-bottom:20px;text-align:center">
+        <div style="font-size:24px;font-weight:900;background:linear-gradient(135deg,#10b981,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px">📝 TRANSCRIPT TRANSFORMER v2.0.0</div>
+        <div style="font-size:13px;color:var(--text-secondary)">AI-Powered Transcript → Structured README.md</div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;opacity:0.7">Supports auto/full/chunked processing modes • YAML frontmatter • Timestamp preservation</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <!-- Input Panel -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="font-weight:700;font-size:14px;color:var(--text-primary)">Input</div>
+            <span id="tt-char-count" style="font-family:monospace;font-size:11px;color:var(--text-secondary)">0 chars</span>
+          </div>
+
+          <!-- Stats Banner -->
+          <div id="tt-stats-banner" style="display:none;border-radius:8px;padding:10px;margin-bottom:10px;font-size:12px"></div>
+
+          <!-- Processing Mode -->
+          <div style="display:flex;gap:6px;margin-bottom:10px">
+            <button onclick="ttSetMode('auto')" id="tt-mode-auto" style="flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid #10b981;background:#10b981;color:white">Auto</button>
+            <button onclick="ttSetMode('full')" id="tt-mode-full" style="flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#9ca3af">Full (12K)</button>
+            <button onclick="ttSetMode('chunked')" id="tt-mode-chunked" style="flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#9ca3af">Chunked</button>
+          </div>
+
+          <input type="url" id="tt-source-url" placeholder="Source URL (optional, for YAML metadata)" style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text-primary);font-size:13px;margin-bottom:10px;box-sizing:border-box" />
+
+          <textarea id="tt-input" placeholder="Paste transcript here...&#10;&#10;Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height:200px;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text-primary);font-size:13px;resize:vertical;font-family:monospace;box-sizing:border-box" oninput="ttHandleInput(this)"></textarea>
+
+          <!-- Error Details -->
+          <div id="tt-error" style="display:none;border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.05);border-radius:8px;padding:12px;margin-top:10px;font-size:12px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+              <span style="font-weight:700;color:#f87171">Error Details</span>
+              <button onclick="ttTransform()" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#9ca3af;cursor:pointer;font-size:11px">↻ Retry</button>
+            </div>
+            <div id="tt-error-content" style="font-family:monospace;font-size:11px;color:#fca5a5;background:rgba(239,68,68,0.1);padding:8px;border-radius:6px;max-height:100px;overflow:auto"></div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button onclick="ttTransform()" id="tt-transform-btn" style="flex:1;padding:10px;border-radius:8px;border:none;background:#10b981;color:white;font-weight:700;cursor:pointer;font-size:13px">⚡ Transform</button>
+            <button onclick="ttClearAll()" style="padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#9ca3af;cursor:pointer" title="Clear all">🗑️</button>
+          </div>
+        </div>
+
+        <!-- Output Panel -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="font-weight:700;font-size:14px;color:var(--text-primary)">Output</div>
+            <div id="tt-output-actions" style="display:none;gap:6px">
+              <button onclick="ttCopyOutput()" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(16,185,129,0.4);background:rgba(16,185,129,0.1);color:#10b981;cursor:pointer;font-size:11px;font-weight:600">📋 Copy</button>
+              <button onclick="ttSelectOutput()" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#9ca3af;cursor:pointer;font-size:11px">Select</button>
+              <button onclick="ttDownloadOutput()" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(59,130,246,0.4);background:rgba(59,130,246,0.1);color:#3b82f6;cursor:pointer;font-size:11px;font-weight:600">⬇ .md</button>
+            </div>
+          </div>
+          <div id="tt-output-panel" style="min-height:400px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:rgba(0,0,0,0.2);padding:16px;overflow:auto;max-height:600px">
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:rgba(255,255,255,0.3)">
+              <div style="font-size:32px;margin-bottom:8px;opacity:0.3">📝</div>
+              <p>Paste transcript and click Transform</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- ETYMOLOGY ANALYZER SECTION                                      -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <section id="etymologyAnalyzerSection" class="form-section hidden">
+    <div style="padding:20px;max-width:1400px;margin:0 auto">
+      <div style="background:linear-gradient(135deg,rgba(168,85,247,0.12),rgba(139,92,246,0.12));border:2px solid rgba(168,85,247,0.4);border-radius:12px;padding:20px;margin-bottom:20px;text-align:center">
+        <div style="font-size:24px;font-weight:900;background:linear-gradient(135deg,#a855f7,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px">📖 ETYMOLOGY ANALYZER v1.3.0</div>
+        <div style="font-size:13px;color:var(--text-secondary)">Multi-Dictionary Bracket Chain Analysis</div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;opacity:0.7">Black's Law 4th • Random House • Oxford English • Modern Legal</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <!-- Input Panel -->
+        <div>
+          <div style="font-weight:700;font-size:14px;color:var(--text-primary);margin-bottom:10px">Etymology Input</div>
+
+          <textarea id="etym-input" placeholder="Enter legal terms separated by commas...&#10;e.g., jurat, affiant, notary" style="width:100%;min-height:80px;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text-primary);font-size:13px;resize:vertical;box-sizing:border-box"></textarea>
+
+          <!-- Quick Load -->
+          <div style="margin-top:10px">
+            <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px">Quick Load:</div>
+            <div style="display:flex;flex-wrap:wrap;gap:4px" id="etym-quick-load"></div>
+          </div>
+
+          <!-- Dictionary Selection -->
+          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;margin-top:10px">
+            <div style="font-size:12px;font-weight:700;color:#a855f7;margin-bottom:8px">Dictionary Sources</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+              <label id="etym-dict-blacks4th" style="display:flex;align-items:flex-start;gap:6px;cursor:pointer;padding:8px;border-radius:8px;border:1px solid rgba(168,85,247,0.3);background:rgba(168,85,247,0.1)">
+                <input type="checkbox" checked onchange="etymToggleDict('blacks4th')" style="accent-color:#a855f7;margin-top:2px" />
+                <div><div style="font-size:12px;font-weight:600">Black's Law 4th</div><div style="font-size:10px;color:var(--text-secondary)">Legal definitions</div></div>
+              </label>
+              <label id="etym-dict-randomHouse" style="display:flex;align-items:flex-start;gap:6px;cursor:pointer;padding:8px;border-radius:8px;border:1px solid rgba(168,85,247,0.3);background:rgba(168,85,247,0.1)">
+                <input type="checkbox" checked onchange="etymToggleDict('randomHouse')" style="accent-color:#a855f7;margin-top:2px" />
+                <div><div style="font-size:12px;font-weight:600">Random House</div><div style="font-size:10px;color:var(--text-secondary)">Bracket etymology</div></div>
+              </label>
+              <label id="etym-dict-oxford" style="display:flex;align-items:flex-start;gap:6px;cursor:pointer;padding:8px;border-radius:8px;border:1px solid rgba(168,85,247,0.3);background:rgba(168,85,247,0.1)">
+                <input type="checkbox" checked onchange="etymToggleDict('oxford')" style="accent-color:#a855f7;margin-top:2px" />
+                <div><div style="font-size:12px;font-weight:600">Oxford English</div><div style="font-size:10px;color:var(--text-secondary)">Historical usage</div></div>
+              </label>
+              <label id="etym-dict-modern" style="display:flex;align-items:flex-start;gap:6px;cursor:pointer;padding:8px;border-radius:8px;border:1px solid rgba(168,85,247,0.3);background:rgba(168,85,247,0.1)">
+                <input type="checkbox" checked onchange="etymToggleDict('modern')" style="accent-color:#a855f7;margin-top:2px" />
+                <div><div style="font-size:12px;font-weight:600">Modern Legal</div><div style="font-size:10px;color:var(--text-secondary)">2024 definitions</div></div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Chain Depth -->
+          <div style="margin-top:10px">
+            <div style="font-size:12px;font-weight:600;margin-bottom:6px">Bracket Chain Depth: <span id="etym-depth-val" style="font-weight:800;color:#a855f7">3</span></div>
+            <input type="range" id="etym-depth" min="1" max="5" value="3" oninput="document.getElementById('etym-depth-val').textContent=this.value" style="width:100%;accent-color:#a855f7" />
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-secondary);margin-top:2px">
+              <span>1 Surface</span><span>3 Standard</span><span>5 Deep Root</span>
+            </div>
+          </div>
+
+          <!-- Symbol Guide (Collapsible) -->
+          <details style="margin-top:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;overflow:hidden">
+            <summary style="padding:10px;cursor:pointer;font-size:12px;font-weight:600;color:#fbbf24">ℹ️ Etymology Symbols Reference</summary>
+            <div id="etym-symbols" style="padding:8px 12px;display:grid;grid-template-columns:1fr 1fr;gap:2px 16px;font-size:11px;max-height:180px;overflow-y:auto"></div>
+          </details>
+
+          <!-- Action Buttons -->
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button onclick="etymAnalyze()" id="etym-analyze-btn" style="flex:1;padding:10px;border-radius:8px;border:none;background:#a855f7;color:white;font-weight:700;cursor:pointer;font-size:13px">⚡ Analyze Etymology</button>
+            <button onclick="etymClearAll()" style="padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#9ca3af;cursor:pointer" title="Clear all">🗑️</button>
+          </div>
+        </div>
+
+        <!-- Output Panel -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="font-weight:700;font-size:14px;color:var(--text-primary)">Analysis Output</div>
+            <div id="etym-output-actions" style="display:none;gap:6px">
+              <button onclick="etymCopyOutput()" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(16,185,129,0.4);background:rgba(16,185,129,0.1);color:#10b981;cursor:pointer;font-size:11px;font-weight:600">📋 Copy</button>
+              <button onclick="etymDownloadOutput()" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(59,130,246,0.4);background:rgba(59,130,246,0.1);color:#3b82f6;cursor:pointer;font-size:11px;font-weight:600">⬇ .md</button>
+            </div>
+          </div>
+          <div id="etym-output-panel" style="min-height:500px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:rgba(0,0,0,0.2);padding:16px;overflow:auto;max-height:600px">
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:rgba(255,255,255,0.3)">
+              <div style="font-size:32px;margin-bottom:8px;opacity:0.3">📖</div>
+              <p>Enter legal terms and click Analyze</p>
+              <p style="font-size:11px;margin-top:6px">Reveals hidden meanings through bracket chain analysis</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- PDF/MARKDOWN CONVERTER SECTION                                  -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <section id="pdfMdConverterSection" class="form-section hidden">
+    <div style="padding:20px;max-width:1400px;margin:0 auto">
+      <div style="background:linear-gradient(135deg,rgba(59,130,246,0.12),rgba(99,102,241,0.12));border:2px solid rgba(59,130,246,0.4);border-radius:12px;padding:20px;margin-bottom:20px;text-align:center">
+        <div style="font-size:24px;font-weight:900;background:linear-gradient(135deg,#3b82f6,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px">🔄 PDF / MARKDOWN CONVERTER</div>
+        <div style="font-size:13px;color:var(--text-secondary)">Bidirectional Local Conversion — No Server Required</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <!-- Input Panel -->
+        <div>
+          <div style="font-weight:700;font-size:14px;color:var(--text-primary);margin-bottom:10px">PDF / Markdown Converter</div>
+
+          <!-- Direction Toggle -->
+          <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px">
+            <span id="pmc-label-pdf" style="padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;background:#3b82f6;color:white">PDF → Markdown</span>
+            <button onclick="pmcSwitchType()" style="padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#9ca3af;cursor:pointer;font-size:12px" title="Switch direction">⇄</button>
+            <span id="pmc-label-md" style="padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(255,255,255,0.1);color:#6b7280">Markdown → PDF</span>
+          </div>
+
+          <!-- Upload Zone -->
+          <div style="border:2px dashed rgba(255,255,255,0.15);border-radius:12px;padding:32px;text-align:center;cursor:pointer;margin-bottom:14px" onclick="document.getElementById('pmc-file-input').click()">
+            <input type="file" id="pmc-file-input" accept=".pdf" onchange="pmcFileChange(this)" style="display:none" />
+            <div style="font-size:32px;margin-bottom:8px;opacity:0.4">⬆</div>
+            <div id="pmc-upload-label" style="color:rgba(255,255,255,0.4);font-size:13px">Click to upload PDF file</div>
+            <div id="pmc-file-selected" style="display:none;margin-top:8px;padding:6px 12px;background:rgba(59,130,246,0.1);color:#60a5fa;border-radius:6px;font-size:12px;display:inline-block"></div>
+          </div>
+
+          <!-- Error -->
+          <div id="pmc-error" style="display:none;border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.05);border-radius:8px;padding:12px;margin-bottom:10px;font-size:12px">
+            <div style="font-weight:700;color:#f87171;font-size:12px;margin-bottom:4px">Conversion Error</div>
+            <div id="pmc-error-msg" style="color:#fca5a5;font-size:11px"></div>
+            <div style="color:var(--text-secondary);font-size:10px;margin-top:4px;opacity:0.7">Works best with text-based PDFs. Image-based or encrypted PDFs may not convert.</div>
+          </div>
+
+          <button onclick="pmcConvert()" id="pmc-convert-btn" style="width:100%;padding:10px;border-radius:8px;border:none;background:#3b82f6;color:white;font-weight:700;cursor:pointer;font-size:13px;margin-bottom:10px">⇄ Convert File</button>
+
+          <!-- Info -->
+          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;font-size:11px;color:var(--text-secondary);line-height:1.6">
+            <div style="font-weight:700;color:var(--text-primary);margin-bottom:6px">Notes:</div>
+            <p>&#8226; <strong>PDF to Markdown:</strong> Works with text-based PDFs. Image/scanned PDFs won't convert.</p>
+            <p>&#8226; <strong>Markdown to PDF:</strong> Creates basic formatted PDF from markdown content.</p>
+            <p>&#8226; Complex formatting, images, and tables may not preserve perfectly.</p>
+            <p>&#8226; All processing happens in your browser — files are never uploaded to a server.</p>
+          </div>
+        </div>
+
+        <!-- Output Panel -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="font-weight:700;font-size:14px;color:var(--text-primary)">Output Preview</div>
+            <div id="pmc-output-actions" style="display:none;gap:6px">
+              <button onclick="pmcCopyOutput()" id="pmc-copy-btn" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(16,185,129,0.4);background:rgba(16,185,129,0.1);color:#10b981;cursor:pointer;font-size:11px;font-weight:600">📋 Copy</button>
+              <button onclick="pmcDownloadOutput()" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(59,130,246,0.4);background:rgba(59,130,246,0.1);color:#3b82f6;cursor:pointer;font-size:11px;font-weight:600">⬇ Download</button>
+            </div>
+          </div>
+          <div id="pmc-output-panel" style="min-height:400px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:rgba(0,0,0,0.2);padding:16px;overflow:auto;max-height:600px">
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:rgba(255,255,255,0.3)">
+              <div style="font-size:32px;margin-bottom:8px;opacity:0.3">📄</div>
+              <p>Upload and convert a file to see output here</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- MULTISTATE POA / DBA SECTION                                    -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <section id="multiStatePoaSection" class="form-section hidden">
+    <div style="padding:20px;max-width:1400px;margin:0 auto">
+      <div style="background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(234,88,12,0.12));border:2px solid rgba(245,158,11,0.4);border-radius:12px;padding:20px;margin-bottom:20px;text-align:center">
+        <div style="font-size:24px;font-weight:900;background:linear-gradient(135deg,#f59e0b,#ea580c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px">⚖️ MULTISTATE POA & 6-DBA SYSTEM v2.0</div>
+        <div style="font-size:13px;color:var(--text-secondary)">NC/VA Durable Power of Attorney + Trust DBA Filing System</div>
+      </div>
+
+      <div style="display:flex;gap:20px">
+        <!-- Sidebar -->
+        <div style="width:280px;flex-shrink:0">
+          <div style="font-weight:700;font-size:14px;color:var(--text-primary);margin-bottom:10px">⚖️ MultiState POA</div>
+
+          <!-- Mode Toggle -->
+          <div style="display:flex;gap:6px;margin-bottom:10px">
+            <button onclick="poaSetMode('poa')" id="poa-mode-poa" style="flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid #3b82f6;background:#3b82f6;color:white">POA Docs</button>
+            <button onclick="poaSetMode('dba')" id="poa-mode-dba" style="flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#9ca3af">6-DBA System</button>
+          </div>
+
+          <!-- State Toggle (POA mode) -->
+          <div id="poa-state-toggle" style="display:flex;gap:6px;margin-bottom:10px">
+            <button onclick="poaSetState('NC')" id="poa-state-NC" style="flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid #10b981;background:#10b981;color:white">NC</button>
+            <button onclick="poaSetState('VA')" id="poa-state-VA" style="flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#9ca3af">VA</button>
+          </div>
+
+          <!-- Form Fields Container -->
+          <div id="poa-form-container" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;max-height:500px;overflow-y:auto">
+            <!-- Dynamically populated by JS -->
+          </div>
+
+          <!-- Download Button -->
+          <div style="position:relative;margin-top:10px">
+            <button onclick="poaToggleMenu()" id="poa-download-btn" style="width:100%;padding:10px;border-radius:8px;border:none;background:#10b981;color:white;font-weight:700;cursor:pointer;font-size:13px">⬇ Create Document ▾</button>
+            <div id="poa-download-menu" style="display:none;position:absolute;bottom:100%;left:0;width:100%;margin-bottom:6px;background:rgba(51,65,85,1);border:1px solid rgba(255,255,255,0.15);border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.4);z-index:50;overflow:hidden">
+              <div style="padding:8px 12px;background:rgba(71,85,105,1);font-size:10px;font-weight:700;color:#cbd5e1">SELECT FORMAT</div>
+              <button onclick="poaDownload('md','text/markdown')" style="width:100%;padding:10px 12px;text-align:left;border:none;background:transparent;color:var(--text-primary);cursor:pointer;font-size:12px;display:flex;justify-content:space-between" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+                <span>Markdown (.md)</span><span style="font-size:10px;color:var(--text-secondary)">For Obsidian</span>
+              </button>
+              <button onclick="poaDownload('doc','application/msword')" style="width:100%;padding:10px 12px;text-align:left;border:none;background:transparent;color:var(--text-primary);cursor:pointer;font-size:12px;display:flex;justify-content:space-between;border-top:1px solid rgba(255,255,255,0.1)" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+                <span>Word (.doc)</span><span style="font-size:10px;color:var(--text-secondary)">For printing</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Content -->
+        <div style="flex:1">
+          <!-- Sub-tabs -->
+          <div id="poa-subtabs" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;overflow:hidden;margin-bottom:14px">
+            <div id="poa-subtab-bar" style="display:flex;border-bottom:1px solid rgba(255,255,255,0.1);overflow-x:auto">
+              <!-- Dynamically populated by JS -->
+            </div>
+          </div>
+
+          <!-- Document Preview -->
+          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.1)">
+              <div id="poa-doc-title" style="font-weight:700;font-size:13px"></div>
+              <span id="poa-doc-badge" style="padding:4px 8px;border-radius:6px;font-size:10px;font-weight:700"></span>
+            </div>
+            <pre id="poa-preview" style="white-space:pre-wrap;font-family:monospace;font-size:11px;background:rgba(0,0,0,0.3);padding:14px;border-radius:8px;border:1px solid rgba(255,255,255,0.05);max-height:500px;overflow:auto;color:#cbd5e1;user-select:text"></pre>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -26138,6 +26452,772 @@ console.log("✅ askAgentSafe loaded");
 console.log("✅ doResearch loaded");
 console.log("✅ doSearch loaded");
 console.log("✅ All missing functions implemented (17 functions)");
+
+// ═══════════════════════════════════════════════════════════════
+// PDKB TOOLS — SHARED UTILITIES
+// ═══════════════════════════════════════════════════════════════
+
+function pdkbCopyToClipboard(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    return navigator.clipboard.writeText(text).then(function(){ return true; }).catch(function(){ return pdkbCopyFallback(text); });
+  }
+  return Promise.resolve(pdkbCopyFallback(text));
+}
+function pdkbCopyFallback(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try { var ok = document.execCommand('copy'); document.body.removeChild(ta); return ok; }
+  catch(e) { document.body.removeChild(ta); return false; }
+}
+function pdkbDownloadFile(content, filename, mimeType) {
+  mimeType = mimeType || 'text/markdown';
+  var blob = new Blob([content], { type: mimeType });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+function pdkbSelectAll(elementId) {
+  var el = document.getElementById(elementId);
+  if (el && window.getSelection) {
+    var range = document.createRange();
+    range.selectNodeContents(el);
+    var sel = window.getSelection();
+    sel.removeAllRanges(); sel.addRange(range);
+  }
+}
+function pdkbCallAnthropic(prompt, options) {
+  options = options || {};
+  var apiKey = window._trustApiKey || '';
+  if (!apiKey) {
+    return Promise.resolve({ success: false, error: { type: 'no_api_key', message: 'API key not set. Set window._trustApiKey or use Settings > API Keys.' } });
+  }
+  var model = options.model || 'claude-sonnet-4-20250514';
+  var maxTokens = options.maxTokens || 12000;
+  var timeout = options.timeout || 120000;
+  var controller = new AbortController();
+  var timer = setTimeout(function(){ controller.abort(); }, timeout);
+  return fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({ model: model, max_tokens: maxTokens, messages: [{ role: 'user', content: prompt }] }),
+    signal: controller.signal
+  })
+  .then(function(resp) {
+    clearTimeout(timer);
+    if (!resp.ok) {
+      return resp.text().then(function(body) {
+        return { success: false, error: { type: 'api_error', status: resp.status, statusText: resp.statusText, message: body } };
+      });
+    }
+    return resp.json().then(function(data) {
+      var text = data.content && data.content[0] ? data.content[0].text : '';
+      return { success: true, result: text };
+    });
+  })
+  .catch(function(err) {
+    clearTimeout(timer);
+    if (err.name === 'AbortError') {
+      return { success: false, error: { type: 'timeout', message: 'Request timed out after ' + (timeout/1000) + 's' } };
+    }
+    return { success: false, error: { type: 'network_error', message: err.message } };
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TRANSCRIPT TRANSFORMER
+// ═══════════════════════════════════════════════════════════════
+
+var ttState = { mode: 'auto', output: '', stats: null };
+
+function ttSetMode(mode) {
+  ttState.mode = mode;
+  ['auto','full','chunked'].forEach(function(m) {
+    var btn = document.getElementById('tt-mode-' + m);
+    if (m === mode) { btn.style.background = '#10b981'; btn.style.color = 'white'; btn.style.borderColor = '#10b981'; }
+    else { btn.style.background = 'transparent'; btn.style.color = '#9ca3af'; btn.style.borderColor = 'rgba(255,255,255,0.15)'; }
+  });
+}
+
+function ttAnalyzeTranscript(text) {
+  var charCount = text.length;
+  var wordCount = text.split(/\s+/).filter(function(w){ return w; }).length;
+  var timestampPattern = /\b(\d{1,2}):(\d{2})(?::(\d{2}))?\b/g;
+  var timestamps = []; var m;
+  while ((m = timestampPattern.exec(text)) !== null) timestamps.push(m);
+  var estimatedMinutes = 0;
+  if (timestamps.length > 0) {
+    var last = timestamps[timestamps.length - 1];
+    var hours = last[3] ? parseInt(last[1]) : 0;
+    var mins = last[3] ? parseInt(last[2]) : parseInt(last[1]);
+    estimatedMinutes = hours * 60 + mins;
+  }
+  if (estimatedMinutes === 0) estimatedMinutes = Math.round(wordCount / 150);
+  var isLong = estimatedMinutes > 180 || charCount > 80000;
+  var isVeryLong = estimatedMinutes > 360 || charCount > 150000;
+  return {
+    charCount: charCount, wordCount: wordCount, estimatedMinutes: estimatedMinutes,
+    estimatedHours: (estimatedMinutes / 60).toFixed(1),
+    isLong: isLong, isVeryLong: isVeryLong,
+    recommendChunking: isLong,
+    timestampCount: timestamps.length
+  };
+}
+
+function ttHandleInput(el) {
+  document.getElementById('tt-char-count').textContent = el.value.length.toLocaleString() + ' chars';
+  var banner = document.getElementById('tt-stats-banner');
+  if (el.value.length > 1000) {
+    var stats = ttAnalyzeTranscript(el.value);
+    ttState.stats = stats;
+    banner.style.display = 'block';
+    if (stats.isVeryLong) { banner.style.border = '1px solid rgba(239,68,68,0.3)'; banner.style.background = 'rgba(239,68,68,0.05)'; }
+    else if (stats.isLong) { banner.style.border = '1px solid rgba(245,158,11,0.3)'; banner.style.background = 'rgba(245,158,11,0.05)'; }
+    else { banner.style.border = '1px solid rgba(16,185,129,0.3)'; banner.style.background = 'rgba(16,185,129,0.05)'; }
+    var label = stats.isVeryLong ? 'Very Long (~' + stats.estimatedHours + ' hrs)' : stats.isLong ? 'Long (~' + stats.estimatedHours + ' hrs)' : 'Standard (~' + stats.estimatedHours + ' hrs)';
+    banner.innerHTML = '<strong>' + label + '</strong><br><span style="font-size:10px;opacity:0.7">' + stats.wordCount.toLocaleString() + ' words &bull; ' + stats.charCount.toLocaleString() + ' chars' + (stats.timestampCount > 0 ? ' &bull; ' + stats.timestampCount + ' timestamps' : '') + '</span>';
+  } else { banner.style.display = 'none'; ttState.stats = null; }
+}
+
+function ttChunkTranscript(text, maxChunkSize) {
+  maxChunkSize = maxChunkSize || 40000;
+  var chunks = [];
+  var speakerPattern = /(?=Speaker \d+\s*[•·]\s*\d{1,2}:\d{2})/gi;
+  var segments = text.split(speakerPattern).filter(function(s){ return s.trim(); });
+  var current = '', idx = 1;
+  for (var i = 0; i < segments.length; i++) {
+    if ((current + segments[i]).length > maxChunkSize && current.length > 0) {
+      chunks.push({ index: idx, content: current.trim(), charCount: current.length }); idx++; current = segments[i];
+    } else { current += segments[i]; }
+  }
+  if (current.trim()) chunks.push({ index: idx, content: current.trim(), charCount: current.length });
+  return chunks;
+}
+
+function ttBuildPrompt(content, sourceUrl, isChunk, chunkInfo) {
+  var dateCreated = new Date().toISOString().split('T')[0];
+  var chunkNote = isChunk ? '\n\n**NOTE**: This is PART ' + chunkInfo.index + ' of ' + chunkInfo.total + ' of a longer transcript.\n' : '';
+  return 'Transform this transcript into a COMPREHENSIVE README.md that merges both actionable guidance AND educational context.' + chunkNote + '\n\n## CRITICAL: YAML FRONTMATTER FORMAT\n\nYour response MUST start with raw YAML frontmatter. Do NOT wrap it in code blocks or backticks.\n\nStart your response EXACTLY like this:\n---\ndate_created: ' + dateCreated + '\nsource_url: ' + (sourceUrl || 'Not specified') + '\npurpose: [Extract the main purpose in 1-2 sentences]\ntransformation_mode: comprehensive' + (isChunk ? '\nchunk: ' + chunkInfo.index + ' of ' + chunkInfo.total : '') + '\nartifact_version: v2.0.0\ngenerator: Transcript Transformer\ntags: [relevant, topic, tags]\n---\n\nThen continue with the markdown content.\n\n## DOCUMENT STRUCTURE\n\n### Section Pattern for Each Major Topic:\n1. Header with emoji + timestamp range -> **[MM:SS-MM:SS]**\n2. Brief explanatory paragraph (2-3 sentences of context)\n3. Actionable checklist items with individual timestamps\n4. Key quote or critical point highlighted\n5. Transition to next section\n\n### Required Sections (in order):\nA. Overview with purpose statement\nB. Key Timestamps Reference\nC. Prerequisites as checklist items\nD. Warnings/Outdated Methods\nE. Core Content Sections\nF. Step-by-Step Protocols with timestamps AND explanations\nG. Common Misconceptions\nH. Glossary of specialized terms\nI. Next Steps checklist\n\n### Formatting Rules:\n- Checklists: - [ ] **[MM:SS]** Action item with context\n- Blockquotes for key statements\n- Tables for comparisons\n- Casual speech -> Professional tone\n- Every timestamp appears somewhere\n- No information from transcript is lost\n\n---\n\nTRANSCRIPT TO TRANSFORM:\n' + content + '\n\nREMEMBER: Start with raw YAML frontmatter (three dashes, properties, three dashes) - NO code block wrapper.';
+}
+
+async function ttTransform() {
+  var input = document.getElementById('tt-input').value;
+  var sourceUrl = document.getElementById('tt-source-url').value;
+  if (!input.trim()) return alert('Paste a transcript first');
+  var apiKey = window._trustApiKey || '';
+  if (!apiKey) return alert('API key required. Set via Settings or run: window._trustApiKey = "your-key"');
+
+  var btn = document.getElementById('tt-transform-btn');
+  btn.disabled = true; btn.textContent = '⏳ Processing...';
+  document.getElementById('tt-error').style.display = 'none';
+
+  var stats = ttAnalyzeTranscript(input);
+  var shouldChunk = ttState.mode === 'chunked' || (ttState.mode === 'auto' && stats.recommendChunking);
+
+  try {
+    if (shouldChunk) {
+      var chunks = ttChunkTranscript(input);
+      btn.textContent = '⏳ Processing ' + chunks.length + ' chunks...';
+      var combinedOutput = '';
+      for (var i = 0; i < chunks.length; i++) {
+        btn.textContent = '⏳ Chunk ' + (i+1) + '/' + chunks.length + '...';
+        var chunkInfo = { index: i + 1, total: chunks.length };
+        var prompt = ttBuildPrompt(chunks[i].content, sourceUrl, true, chunkInfo);
+        var result = await pdkbCallAnthropic(prompt);
+        if (!result.success) {
+          ttShowError(result.error, 'Failed on chunk ' + (i+1) + ' of ' + chunks.length);
+          btn.disabled = false; btn.textContent = '⚡ Transform'; return;
+        }
+        if (i === 0) { combinedOutput = result.result; }
+        else { var withoutFM = result.result.replace(/^---[\s\S]*?---\n*/m, ''); combinedOutput += '\n\n---\n\n## Part ' + (i+1) + '\n\n' + withoutFM; }
+      }
+      ttState.output = combinedOutput;
+    } else {
+      var prompt = ttBuildPrompt(input, sourceUrl);
+      var result = await pdkbCallAnthropic(prompt);
+      if (!result.success) { ttShowError(result.error); btn.disabled = false; btn.textContent = '⚡ Transform'; return; }
+      ttState.output = result.result;
+    }
+    ttRenderOutput();
+  } catch(err) { ttShowError({ type: 'unexpected_error', message: err.message }); }
+  btn.disabled = false; btn.textContent = '⚡ Transform';
+}
+
+function ttShowError(error, context) {
+  var el = document.getElementById('tt-error'); el.style.display = 'block';
+  var html = '<p><strong>Type:</strong> ' + (error.type||'unknown') + '</p>';
+  if (error.status) html += '<p><strong>Status:</strong> ' + error.status + ' ' + (error.statusText||'') + '</p>';
+  if (error.message) html += '<p><strong>Message:</strong> ' + error.message.substring(0,200) + '</p>';
+  if (context) html += '<p><strong>Context:</strong> ' + context + '</p>';
+  document.getElementById('tt-error-content').innerHTML = html;
+}
+
+function ttRenderOutput() {
+  var panel = document.getElementById('tt-output-panel');
+  if (ttState.output) {
+    panel.innerHTML = '<pre id="tt-output-pre" style="white-space:pre-wrap;font-size:12px;color:#e2e8f0;user-select:text">' + ttState.output.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</pre>';
+    document.getElementById('tt-output-actions').style.display = 'flex';
+  }
+}
+
+function ttCopyOutput() { pdkbCopyToClipboard(ttState.output).then(function(ok) { alert(ok ? 'Copied!' : 'Copy failed'); }); }
+function ttSelectOutput() { pdkbSelectAll('tt-output-pre'); }
+function ttDownloadOutput() { pdkbDownloadFile(ttState.output, 'README_' + new Date().toISOString().split('T')[0] + '.md'); }
+function ttClearAll() {
+  document.getElementById('tt-input').value = '';
+  document.getElementById('tt-source-url').value = '';
+  document.getElementById('tt-char-count').textContent = '0 chars';
+  document.getElementById('tt-stats-banner').style.display = 'none';
+  document.getElementById('tt-error').style.display = 'none';
+  document.getElementById('tt-output-actions').style.display = 'none';
+  document.getElementById('tt-output-panel').innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:rgba(255,255,255,0.3)"><div style="font-size:32px;margin-bottom:8px;opacity:0.3">📝</div><p>Paste transcript and click Transform</p></div>';
+  ttState.output = ''; ttState.stats = null;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ETYMOLOGY ANALYZER
+// ═══════════════════════════════════════════════════════════════
+
+var etymState = { output: '', dicts: { blacks4th: true, randomHouse: true, oxford: true, modern: true } };
+
+var ETYMOLOGY_SYMBOLS = {
+  '<': 'derived from', 'e.g.': 'for example', 'i.e.': 'that is to say',
+  'c.f.': 'compared to', 'c.': 'circa (around/about)',
+  'ptp.': 'past participle', 'pp.': 'past participle',
+  'n.': 'noun', 'v.': 'verb', 'adj.': 'adjective',
+  'OHG': 'Old High German', 'MHG': 'Middle High German',
+  'MF': 'Middle French', 'AF': 'Anglo-French',
+  'L.': 'Latin', 'LL': 'Lower Latin', 'ML': 'Medieval Latin', 'VL': 'Vulgar Latin',
+  'G.': 'German', 'OE': 'Old English', 'ME': 'Middle English',
+  'OF': 'Old French', 'ONF': 'Old North French',
+  'GK.': 'Greek', 'LGk': 'Late Greek', 'SNS': 'Sanskrit',
+  'AR.': 'Arabic', 'HEB': 'Hebrew',
+  'AE': 'American English', 'BE': 'British English', 'SCT': 'Scottish',
+  'PIE': 'Proto-Indo-European', 'IE': 'Indo-European'
+};
+
+var ETYM_SAMPLES = [
+  'jurat, affiant, notary',
+  'cestui que trust, corpus, res',
+  'tort, contract, malfeasance',
+  'person, individual, citizen',
+  'attorney, advocate, counsel'
+];
+
+function initEtymologyAnalyzer() {
+  // Populate symbol guide
+  var symbolsEl = document.getElementById('etym-symbols');
+  if (symbolsEl && !symbolsEl.children.length) {
+    var html = '';
+    for (var sym in ETYMOLOGY_SYMBOLS) {
+      html += '<div style="display:flex;gap:4px"><span style="font-family:monospace;font-weight:700;min-width:36px;color:#fbbf24">' + sym + '</span><span style="color:var(--text-secondary)">= ' + ETYMOLOGY_SYMBOLS[sym] + '</span></div>';
+    }
+    symbolsEl.innerHTML = html;
+  }
+  // Populate quick load
+  var qlEl = document.getElementById('etym-quick-load');
+  if (qlEl && !qlEl.children.length) {
+    ETYM_SAMPLES.forEach(function(sample) {
+      var btn = document.createElement('button');
+      btn.textContent = sample.split(',')[0] + '...';
+      btn.style.cssText = 'font-size:10px;padding:4px 8px;background:rgba(168,85,247,0.2);color:#a855f7;border:none;border-radius:4px;cursor:pointer';
+      btn.onmouseover = function(){ this.style.background='rgba(168,85,247,0.3)'; };
+      btn.onmouseout = function(){ this.style.background='rgba(168,85,247,0.2)'; };
+      btn.onclick = function(){ document.getElementById('etym-input').value = sample; };
+      qlEl.appendChild(btn);
+    });
+  }
+}
+
+function etymToggleDict(key) {
+  etymState.dicts[key] = !etymState.dicts[key];
+  var label = document.getElementById('etym-dict-' + key);
+  if (etymState.dicts[key]) {
+    label.style.border = '1px solid rgba(168,85,247,0.3)'; label.style.background = 'rgba(168,85,247,0.1)';
+  } else {
+    label.style.border = '1px solid rgba(255,255,255,0.1)'; label.style.background = 'rgba(255,255,255,0.03)';
+  }
+}
+
+function etymBuildPrompt(content, dictionaries, chainDepth) {
+  var terms = content.split(',').map(function(t){ return t.trim(); }).filter(function(t){ return t; });
+  var sources = [];
+  for (var k in dictionaries) { if (dictionaries[k]) sources.push(k); }
+  var dateCreated = new Date().toISOString().split('T')[0];
+  return 'You are an expert etymologist specializing in legal and biblical terminology with deep knowledge of Black\'s Law Dictionary (4th Edition), Random House College Dictionary (1973-1978) bracket etymology system, Oxford English Dictionary, and Strong\'s Exhaustive Concordance.\n\nCRITICAL MISSION: Start with YAML FRONTMATTER, then follow the bracket etymology chain method to reveal hidden meanings and contradictions between root definitions and modern usage.\n\n## YAML FRONTMATTER (MUST BE FIRST):\n---\ndate_created: ' + dateCreated + '\nanalysis_type: etymology\nterms_analyzed: [' + terms.join(', ') + ']\ndictionaries_used: [' + sources.join(', ') + ']\nbracket_chain_depth: ' + chainDepth + '\nartifact_version: v1.3.0\ngenerator: Legal Etymology Analyzer\npurpose: Comprehensive etymological analysis with multi-dictionary bracket chain following\ntags: [etymology, legal-terms, dictionary-research, Black\'s-Law, linguistics]\n---\n\nTerms to analyze: ' + terms.join(', ') + '\nDictionary sources: ' + sources.join(', ') + '\nBracket chain depth: ' + chainDepth + ' levels\n\nFor EACH term, provide:\n\n## [TERM IN UPPERCASE]\n\n**Modern Pronunciation**: /IPA notation/\n**Word Class**: [noun/verb/adjective/etc.]\n\n### MULTI-DICTIONARY ANALYSIS\n\n#### Black\'s Law Dictionary (4th Edition)\n**Legal Definition**: [Complete definition]\n**Usage Context**: [How used in legal proceedings]\n**Related Legal Terms**: [Other terms referenced]\n\n#### Random House Dictionary - BRACKET ETYMOLOGY\n**Main Definition**: [Primary definition]\n**BRACKETED ETYMOLOGY**: [Copy exact bracket contents]\n**Parsed Symbols**: [Explain each abbreviation]\n\n**BRACKET CHAIN** (Follow ' + chainDepth + ' levels deep):\n```\n[TERM]\n├─ [First bracket reference] → meaning → [its brackets if any]\n│   └─ [Second level] → meaning → [its brackets]\n│       └─ [Third level] → meaning → [root origin]\n├─ [Alternative etymology path if exists]\n└─ [Proto-Indo-European or oldest root]\n```\n\n#### Oxford English Dictionary\n**First Recorded Use**: [Year and context]\n**Historical Definitions Timeline**: [Earliest → Modern]\n**Semantic Shift**: [How meaning changed]\n\n#### Modern Legal Definition (2024)\n**Current Meaning**: [Contemporary usage]\n**Statutory References**: [If commonly referenced]\n\n### CRITICAL FINDINGS\n**Root Etymology**: [Oldest fundamental meaning]\n**Hidden Meaning**: [What bracket chain reveals]\n**CONTRADICTION ALERT**: [Root meaning vs modern usage differences]\n\n### COMPARATIVE TABLE\n| Source | Era/Year | Definition | Semantic Focus |\n|--------|----------|------------|----------------|\n| PIE/Root | Ancient | [root meaning] | [emphasis] |\n| Latin/Greek | Classical | [classical meaning] | [evolution] |\n| Black\'s 4th | 1951 | [legal definition] | [legal focus] |\n| Modern | 2024 | [current usage] | [current focus] |\n\n### WORD FAMILY\n**Same Root Family**: Related words from same root\n**Compound Terms**: Terms using this word\n\n### ETYMOLOGY REVELATION\n[2-3 sentences on the most significant discovery about the term\'s true meaning]\n\n---\n\nTERMS TO ANALYZE:\n' + content + '\n\nBegin with YAML frontmatter. For each term, extract every bracketed reference, follow chains ' + chainDepth + ' levels deep, and flag all contradictions.';
+}
+
+async function etymAnalyze() {
+  var input = document.getElementById('etym-input').value;
+  if (!input.trim()) return alert('Enter legal terms to analyze');
+  var apiKey = window._trustApiKey || '';
+  if (!apiKey) return alert('API key required. Set via Settings or run: window._trustApiKey = "your-key"');
+
+  var btn = document.getElementById('etym-analyze-btn');
+  btn.disabled = true; btn.textContent = '⏳ Analyzing...';
+  var depth = parseInt(document.getElementById('etym-depth').value);
+
+  try {
+    var prompt = etymBuildPrompt(input, etymState.dicts, depth);
+    var result = await pdkbCallAnthropic(prompt);
+    if (!result.success) {
+      alert('Analysis failed: ' + (result.error.message || 'Unknown error'));
+      btn.disabled = false; btn.textContent = '⚡ Analyze Etymology'; return;
+    }
+    etymState.output = result.result;
+    etymRenderOutput();
+  } catch(err) { alert('Error: ' + err.message); }
+  btn.disabled = false; btn.textContent = '⚡ Analyze Etymology';
+}
+
+function etymRenderOutput() {
+  var panel = document.getElementById('etym-output-panel');
+  if (etymState.output) {
+    panel.innerHTML = '<pre id="etym-output-pre" style="white-space:pre-wrap;font-size:12px;color:#e2e8f0;user-select:text">' + etymState.output.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</pre>';
+    document.getElementById('etym-output-actions').style.display = 'flex';
+  }
+}
+
+function etymCopyOutput() { pdkbCopyToClipboard(etymState.output).then(function(ok) { alert(ok ? 'Copied!' : 'Copy failed'); }); }
+function etymDownloadOutput() {
+  var terms = document.getElementById('etym-input').value.split(',')[0].trim().replace(/\s+/g, '_');
+  pdkbDownloadFile(etymState.output, 'etymology_' + terms + '_' + new Date().toISOString().split('T')[0] + '.md');
+}
+function etymClearAll() {
+  document.getElementById('etym-input').value = '';
+  etymState.output = '';
+  document.getElementById('etym-output-actions').style.display = 'none';
+  document.getElementById('etym-output-panel').innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:rgba(255,255,255,0.3)"><div style="font-size:32px;margin-bottom:8px;opacity:0.3">📖</div><p>Enter legal terms and click Analyze</p><p style="font-size:11px;margin-top:6px">Reveals hidden meanings through bracket chain analysis</p></div>';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PDF / MARKDOWN CONVERTER
+// ═══════════════════════════════════════════════════════════════
+
+var pmcState = { type: 'pdf-to-md', file: null, output: '' };
+
+function pmcSwitchType() {
+  pmcState.type = pmcState.type === 'pdf-to-md' ? 'md-to-pdf' : 'pdf-to-md';
+  pmcState.file = null; pmcState.output = '';
+  var labelPdf = document.getElementById('pmc-label-pdf');
+  var labelMd = document.getElementById('pmc-label-md');
+  var fileInput = document.getElementById('pmc-file-input');
+  if (pmcState.type === 'pdf-to-md') {
+    labelPdf.style.background = '#3b82f6'; labelPdf.style.color = 'white';
+    labelMd.style.background = 'rgba(255,255,255,0.1)'; labelMd.style.color = '#6b7280';
+    fileInput.accept = '.pdf';
+    document.getElementById('pmc-upload-label').textContent = 'Click to upload PDF file';
+  } else {
+    labelMd.style.background = '#3b82f6'; labelMd.style.color = 'white';
+    labelPdf.style.background = 'rgba(255,255,255,0.1)'; labelPdf.style.color = '#6b7280';
+    fileInput.accept = '.md,.markdown,.txt';
+    document.getElementById('pmc-upload-label').textContent = 'Click to upload Markdown file';
+  }
+  document.getElementById('pmc-file-selected').style.display = 'none';
+  document.getElementById('pmc-error').style.display = 'none';
+  document.getElementById('pmc-output-actions').style.display = 'none';
+  document.getElementById('pmc-output-panel').innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:rgba(255,255,255,0.3)"><div style="font-size:32px;margin-bottom:8px;opacity:0.3">📄</div><p>Upload and convert a file to see output here</p></div>';
+}
+
+function pmcFileChange(input) {
+  var f = input.files[0];
+  if (f) {
+    pmcState.file = f; pmcState.output = '';
+    var sel = document.getElementById('pmc-file-selected');
+    sel.textContent = 'Selected: ' + f.name;
+    sel.style.display = 'inline-block';
+    document.getElementById('pmc-error').style.display = 'none';
+  }
+}
+
+function pmcExtractTextFromPDF(file) {
+  return file.arrayBuffer().then(function(arrayBuffer) {
+    var uint8Array = new Uint8Array(arrayBuffer);
+    var text = '';
+    for (var i = 0; i < uint8Array.length; i++) text += String.fromCharCode(uint8Array[i]);
+    var textContentRegex = /BT\s*(.*?)\s*ET/gs;
+    var tjRegex = /\((.*?)\)\s*Tj/g;
+    var tJRegex = /\[(.*?)\]\s*TJ/g;
+    var extractedText = '';
+    var match;
+    while ((match = textContentRegex.exec(text)) !== null) {
+      var block = match[1];
+      var tjMatch;
+      while ((tjMatch = tjRegex.exec(block)) !== null) {
+        try { extractedText += decodeURIComponent(escape(tjMatch[1])) + ' '; }
+        catch(e) { extractedText += tjMatch[1] + ' '; }
+      }
+      var tJMatch;
+      while ((tJMatch = tJRegex.exec(block)) !== null) {
+        var arrayContent = tJMatch[1];
+        var stringMatches = arrayContent.match(/\((.*?)\)/g);
+        if (stringMatches) {
+          stringMatches.forEach(function(str) {
+            try { extractedText += decodeURIComponent(escape(str.replace(/[()]/g, ''))) + ' '; }
+            catch(e) { extractedText += str.replace(/[()]/g, '') + ' '; }
+          });
+        }
+      }
+      extractedText += '\n';
+    }
+    if (!extractedText.trim()) throw new Error('No text content found in PDF. The PDF might be image-based or encrypted.');
+    extractedText = extractedText.replace(/\s+/g, ' ').replace(/\n\s*\n/g, '\n\n').trim();
+    var markdown = '# ' + (file.name.replace('.pdf', '') || 'Document') + '\n\n';
+    var paragraphs = extractedText.split(/\n\n+/);
+    paragraphs.forEach(function(para) {
+      var trimmed = para.trim();
+      if (!trimmed) return;
+      if (trimmed.length < 60 && (trimmed === trimmed.toUpperCase() || /^\d+\./.test(trimmed))) markdown += '## ' + trimmed + '\n\n';
+      else if (/^[-\u2022]\s/.test(trimmed)) markdown += trimmed + '\n';
+      else if (/^\d+\.\s/.test(trimmed)) markdown += trimmed + '\n';
+      else markdown += trimmed + '\n\n';
+    });
+    return markdown;
+  });
+}
+
+function pmcConvertMarkdownToPDF(content) {
+  var lines = content.split('\n');
+  var pdfContent = '%PDF-1.4\n';
+  pdfContent += '1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n';
+  pdfContent += '2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n';
+  var textContent = 'BT\n/F1 12 Tf\n50 750 Td\n';
+  var yPos = 750;
+  lines.forEach(function(line) {
+    if (line.trim()) {
+      var cleanLine = line.replace(/[()\\]/g, '').substring(0, 80);
+      textContent += '(' + cleanLine + ') Tj\n0 -15 Td\n';
+      yPos -= 15;
+      if (yPos < 50) { yPos = 750; textContent += '0 800 Td\n'; }
+    }
+  });
+  textContent += 'ET\n';
+  var contentLength = textContent.length;
+  pdfContent += '3 0 obj\n<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 4 0 R /MediaBox [0 0 612 792] >>\nendobj\n';
+  pdfContent += '4 0 obj\n<< /Length ' + contentLength + ' >>\nstream\n' + textContent + 'endstream\nendobj\n';
+  pdfContent += 'xref\n0 5\n0000000000 65535 f\n0000000009 00000 n\n0000000056 00000 n\n0000000115 00000 n\n0000000300 00000 n\n';
+  pdfContent += 'trailer\n<< /Size 5 /Root 1 0 R >>\nstartxref\n';
+  pdfContent += (pdfContent.length + 9) + '\n%%EOF';
+  return pdfContent;
+}
+
+async function pmcConvert() {
+  if (!pmcState.file) return alert('Please select a file first');
+  var btn = document.getElementById('pmc-convert-btn');
+  btn.disabled = true; btn.textContent = '⏳ Converting...';
+  document.getElementById('pmc-error').style.display = 'none';
+
+  try {
+    if (pmcState.type === 'pdf-to-md') {
+      var markdown = await pmcExtractTextFromPDF(pmcState.file);
+      pmcState.output = markdown;
+      pmcRenderOutput();
+    } else {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var pdfContent = pmcConvertMarkdownToPDF(e.target.result);
+        pmcState.output = pdfContent;
+        pmcRenderOutput();
+      };
+      reader.readAsText(pmcState.file);
+    }
+  } catch(err) {
+    document.getElementById('pmc-error').style.display = 'block';
+    document.getElementById('pmc-error-msg').textContent = err.message;
+  }
+  btn.disabled = false; btn.textContent = '⇄ Convert File';
+}
+
+function pmcRenderOutput() {
+  var panel = document.getElementById('pmc-output-panel');
+  if (pmcState.type === 'pdf-to-md') {
+    panel.innerHTML = '<pre id="pmc-output-pre" style="white-space:pre-wrap;font-size:12px;color:#e2e8f0;user-select:text">' + pmcState.output.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</pre>';
+    document.getElementById('pmc-output-actions').style.display = 'flex';
+    var copyBtn = document.getElementById('pmc-copy-btn');
+    if (copyBtn) copyBtn.style.display = 'inline-block';
+  } else {
+    panel.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:#10b981"><div style="font-size:40px;margin-bottom:8px">✓</div><p style="font-weight:700">PDF Generated Successfully!</p><p style="font-size:12px;color:var(--text-secondary);margin-top:8px">Click Download to save your PDF</p><p style="font-size:10px;color:var(--text-secondary);margin-top:6px">Size: ' + (pmcState.output.length / 1024).toFixed(2) + ' KB</p></div>';
+    document.getElementById('pmc-output-actions').style.display = 'flex';
+    var copyBtn = document.getElementById('pmc-copy-btn');
+    if (copyBtn) copyBtn.style.display = 'none';
+  }
+}
+
+function pmcCopyOutput() { pdkbCopyToClipboard(pmcState.output).then(function(ok) { alert(ok ? 'Copied!' : 'Copy failed'); }); }
+function pmcDownloadOutput() {
+  var ext = pmcState.type === 'pdf-to-md' ? '.md' : '.pdf';
+  var mime = pmcState.type === 'pdf-to-md' ? 'text/markdown' : 'application/pdf';
+  var name = pmcState.file ? pmcState.file.name.replace(/\.[^.]+$/, ext) : 'converted' + ext;
+  pdkbDownloadFile(pmcState.output, name, mime);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MULTISTATE POA & 6-DBA SYSTEM
+// ═══════════════════════════════════════════════════════════════
+
+var POA_NC_COUNTIES = ["Alamance","Alexander","Alleghany","Anson","Ashe","Avery","Beaufort","Bertie","Bladen","Brunswick","Buncombe","Burke","Cabarrus","Caldwell","Camden","Carteret","Caswell","Catawba","Chatham","Cherokee","Chowan","Clay","Cleveland","Columbus","Craven","Cumberland","Currituck","Dare","Davidson","Davie","Duplin","Durham","Edgecombe","Forsyth","Franklin","Gaston","Gates","Graham","Granville","Greene","Guilford","Halifax","Harnett","Haywood","Henderson","Hertford","Hoke","Hyde","Iredell","Jackson","Johnston","Jones","Lee","Lenoir","Lincoln","Macon","Madison","Martin","McDowell","Mecklenburg","Mitchell","Montgomery","Moore","Nash","New Hanover","Northampton","Onslow","Orange","Pamlico","Pasquotank","Pender","Perquimans","Person","Pitt","Polk","Randolph","Richmond","Robeson","Rockingham","Rowan","Rutherford","Sampson","Scotland","Stanly","Stokes","Surry","Swain","Transylvania","Tyrrell","Union","Vance","Wake","Warren","Washington","Watauga","Wayne","Wilkes","Wilson","Yadkin","Yancey"];
+var POA_VA_COUNTIES = ["Accomack","Albemarle","Alexandria","Alleghany","Amelia","Amherst","Appomattox","Arlington","Augusta","Bath","Bedford","Bland","Botetourt","Bristol","Brunswick","Buchanan","Buckingham","Campbell","Caroline","Carroll","Charles City","Charlotte","Charlottesville","Chesapeake","Chesterfield","Clarke","Colonial Heights","Craig","Culpeper","Cumberland","Danville","Dickenson","Dinwiddie","Fairfax","Falls Church","Fauquier","Floyd","Fluvanna","Franklin","Frederick","Fredericksburg","Giles","Gloucester","Goochland","Grayson","Greene","Greensville","Halifax","Hampton","Hanover","Harrisonburg","Henrico","Henry","Highland","Hopewell","Isle of Wight","James City","King George","King William","Lancaster","Lee","Loudoun","Louisa","Lynchburg","Madison","Manassas","Martinsville","Mecklenburg","Middlesex","Montgomery","Nelson","New Kent","Newport News","Norfolk","Northampton","Norton","Orange","Page","Patrick","Petersburg","Pittsylvania","Portsmouth","Powhatan","Prince Edward","Prince George","Prince William","Pulaski","Radford","Rappahannock","Richmond","Roanoke","Rockbridge","Rockingham","Salem","Scott","Shenandoah","Smyth","Southampton","Spotsylvania","Stafford","Staunton","Suffolk","Surry","Sussex","Tazewell","Virginia Beach","Warren","Washington","Waynesboro","Westmoreland","Williamsburg","Winchester","Wise","Wythe","York"];
+
+var POA_DBA_LIST = [
+  { id: 'dba1', name: 'DBA #1', desc: 'Trust DBA Personal Name', priority: 'HIGH' },
+  { id: 'dba2', name: 'DBA #2', desc: 'Trust DBA Estate Name', priority: 'MEDIUM' },
+  { id: 'dba3', name: 'DBA #3', desc: 'Trust DBA Business Name', priority: 'HIGH' },
+  { id: 'dba4', name: 'DBA #4', desc: 'Trust DBA Enterprises', priority: 'CRITICAL' },
+  { id: 'dba5', name: 'DBA #5', desc: 'Enterprises DBA Personal', priority: 'CRITICAL' },
+  { id: 'dba6', name: 'DBA #6', desc: 'Enterprises DBA Business', priority: 'HIGH' }
+];
+
+var POA_TABS = [
+  { id: 'poa', label: 'Durable POA' },
+  { id: 'cert', label: 'Agent Cert' },
+  { id: 'affidavit', label: 'Affidavit' },
+  { id: 'revocation', label: 'Revocation' }
+];
+
+var poaState = {
+  mode: 'poa', currentState: 'NC', activeTab: 'poa', activeDBA: 'dba1', menuOpen: false,
+  form: { principal_name:'', principal_address:'', principal_county:'', agent_name:'', agent_address:'', agent_phone:'', successor_name:'', successor_address:'', execution_date:'', notary_county:'', witness1_name:'', witness1_address:'', witness2_name:'', witness2_address:'', transaction_desc:'', third_party:'', poa_id:'', recording_info:'' },
+  dba: { trust_name:'', trustee_title:'', foreign_trustee:'', co_trustee:'', first_name:'', middle_name:'', last_name:'', birthdate:'', business_name:'', business_date:'', foreign_addr:'', domestic_addr:'', filing_county:'', trust_date:'', trust_ein:'' }
+};
+
+var POA_SEP = '\u2550'.repeat(75);
+
+function poaVal(k, fb) { return poaState.form[k] || fb || '[_______________]'; }
+function poaDval(k, fb) { return poaState.dba[k] || fb || '[[_______________]]'; }
+
+function poaSetMode(mode) {
+  poaState.mode = mode;
+  var btnPoa = document.getElementById('poa-mode-poa');
+  var btnDba = document.getElementById('poa-mode-dba');
+  var stateToggle = document.getElementById('poa-state-toggle');
+  if (mode === 'poa') {
+    btnPoa.style.background = '#3b82f6'; btnPoa.style.color = 'white'; btnPoa.style.borderColor = '#3b82f6';
+    btnDba.style.background = 'transparent'; btnDba.style.color = '#9ca3af'; btnDba.style.borderColor = 'rgba(255,255,255,0.15)';
+    stateToggle.style.display = 'flex';
+  } else {
+    btnDba.style.background = '#a855f7'; btnDba.style.color = 'white'; btnDba.style.borderColor = '#a855f7';
+    btnPoa.style.background = 'transparent'; btnPoa.style.color = '#9ca3af'; btnPoa.style.borderColor = 'rgba(255,255,255,0.15)';
+    stateToggle.style.display = 'none';
+  }
+  poaRenderForm(); poaRenderSubtabs(); poaRenderPreview();
+}
+
+function poaSetState(st) {
+  poaState.currentState = st;
+  var btnNC = document.getElementById('poa-state-NC');
+  var btnVA = document.getElementById('poa-state-VA');
+  if (st === 'NC') {
+    btnNC.style.background = '#10b981'; btnNC.style.color = 'white'; btnNC.style.borderColor = '#10b981';
+    btnVA.style.background = 'transparent'; btnVA.style.color = '#9ca3af'; btnVA.style.borderColor = 'rgba(255,255,255,0.15)';
+  } else {
+    btnVA.style.background = '#10b981'; btnVA.style.color = 'white'; btnVA.style.borderColor = '#10b981';
+    btnNC.style.background = 'transparent'; btnNC.style.color = '#9ca3af'; btnNC.style.borderColor = 'rgba(255,255,255,0.15)';
+  }
+  poaRenderForm(); poaRenderPreview();
+}
+
+function poaSetTab(tabId) { poaState.activeTab = tabId; poaRenderSubtabs(); poaRenderForm(); poaRenderPreview(); }
+function poaSetDBA(dbaId) { poaState.activeDBA = dbaId; poaRenderSubtabs(); poaRenderPreview(); }
+
+function poaMakeInput(placeholder, key, isForm) {
+  var val = isForm ? (poaState.form[key]||'') : (poaState.dba[key]||'');
+  return '<input placeholder="' + placeholder + '" value="' + val.replace(/"/g,'&quot;') + '" oninput="poaUpdateField(\'' + key + '\',' + isForm + ',this.value)" style="width:100%;padding:6px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text-primary);font-size:12px;box-sizing:border-box" />';
+}
+
+function poaMakeSelect(placeholder, key, options) {
+  var val = poaState.form[key]||'';
+  var html = '<select onchange="poaUpdateField(\'' + key + '\',true,this.value)" style="width:100%;padding:6px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text-primary);font-size:12px;box-sizing:border-box">';
+  html += '<option value="">' + placeholder + '</option>';
+  options.forEach(function(c) { html += '<option value="' + c + '"' + (val===c?' selected':'') + '>' + c + '</option>'; });
+  html += '</select>';
+  return html;
+}
+
+function poaUpdateField(key, isForm, value) {
+  if (isForm) poaState.form[key] = value;
+  else poaState.dba[key] = value;
+  poaRenderPreview();
+}
+
+function poaRenderForm() {
+  var container = document.getElementById('poa-form-container');
+  var counties = poaState.currentState === 'NC' ? POA_NC_COUNTIES : POA_VA_COUNTIES;
+  var html = '';
+  if (poaState.mode === 'poa') {
+    html += '<div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:6px">PRINCIPAL</div>';
+    html += poaMakeInput('Name','principal_name',true);
+    html += '<div style="height:6px"></div>' + poaMakeInput('Address','principal_address',true);
+    html += '<div style="height:6px"></div>' + poaMakeSelect('County...','principal_county',counties);
+    html += '<div style="height:10px"></div><div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:6px">AGENT</div>';
+    html += poaMakeInput('Name','agent_name',true);
+    html += '<div style="height:6px"></div>' + poaMakeInput('Address','agent_address',true);
+    html += '<div style="height:6px"></div>' + poaMakeInput('Phone','agent_phone',true);
+    html += '<div style="height:10px"></div><div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:6px">SUCCESSOR</div>';
+    html += poaMakeInput('Name','successor_name',true);
+    html += '<div style="height:6px"></div>' + poaMakeInput('Address','successor_address',true);
+    html += '<div style="height:10px"></div><div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:6px">WITNESSES</div>';
+    html += poaMakeInput('Witness 1 Name','witness1_name',true);
+    html += '<div style="height:6px"></div>' + poaMakeInput('Witness 1 Address','witness1_address',true);
+    html += '<div style="height:6px"></div>' + poaMakeInput('Witness 2 Name','witness2_name',true);
+    html += '<div style="height:6px"></div>' + poaMakeInput('Witness 2 Address','witness2_address',true);
+    html += '<div style="height:10px"></div><div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:6px">EXECUTION</div>';
+    html += poaMakeInput('Date','execution_date',true);
+    html += '<div style="height:6px"></div>' + poaMakeSelect('Notary County...','notary_county',counties);
+    if (poaState.activeTab === 'affidavit') {
+      html += '<div style="height:10px"></div><div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:6px">AFFIDAVIT</div>';
+      html += poaMakeInput('Third Party','third_party',true);
+      html += '<div style="height:6px"></div>' + poaMakeInput('Transaction','transaction_desc',true);
+    }
+    if (poaState.activeTab === 'revocation') {
+      html += '<div style="height:10px"></div><div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:6px">REVOCATION</div>';
+      html += poaMakeInput('POA Document ID','poa_id',true);
+      html += '<div style="height:6px"></div>' + poaMakeInput('Recording Info','recording_info',true);
+    }
+  } else {
+    html += '<div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:6px">TRUST</div>';
+    html += poaMakeInput('Trust Name','trust_name',false);
+    html += '<div style="height:6px"></div>' + poaMakeInput('Trust EIN (98-)','trust_ein',false);
+    html += '<div style="height:6px"></div>' + poaMakeInput('Trust Date','trust_date',false);
+    html += '<div style="height:10px"></div><div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:6px">TRUSTEES</div>';
+    html += poaMakeInput('Foreign Trustee','foreign_trustee',false);
+    html += '<div style="height:6px"></div>' + poaMakeInput('Trustee Title','trustee_title',false);
+    html += '<div style="height:6px"></div>' + poaMakeInput('Co-Trustee','co_trustee',false);
+    html += '<div style="height:10px"></div><div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:6px">YOUR NAME</div>';
+    html += poaMakeInput('First','first_name',false);
+    html += '<div style="height:6px"></div>' + poaMakeInput('Middle','middle_name',false);
+    html += '<div style="height:6px"></div>' + poaMakeInput('Last','last_name',false);
+    html += '<div style="height:6px"></div>' + poaMakeInput('Birthdate','birthdate',false);
+    html += '<div style="height:10px"></div><div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:6px">BUSINESS (DBA 3 & 6)</div>';
+    html += poaMakeInput('Business Name','business_name',false);
+    html += '<div style="height:6px"></div>' + poaMakeInput('Formation Date','business_date',false);
+    html += '<div style="height:10px"></div><div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:6px">ADDRESSES</div>';
+    html += poaMakeInput('Foreign Address','foreign_addr',false);
+    html += '<div style="height:6px"></div>' + poaMakeInput('Domestic Address','domestic_addr',false);
+    html += '<div style="height:6px"></div>' + poaMakeInput('Filing County','filing_county',false);
+  }
+  container.innerHTML = html;
+}
+
+function poaRenderSubtabs() {
+  var bar = document.getElementById('poa-subtab-bar');
+  var html = '';
+  if (poaState.mode === 'poa') {
+    POA_TABS.forEach(function(t) {
+      var active = poaState.activeTab === t.id;
+      html += '<button onclick="poaSetTab(\'' + t.id + '\')" style="padding:10px 14px;font-size:12px;font-weight:600;white-space:nowrap;cursor:pointer;border:none;background:transparent;transition:all 0.2s;' + (active ? 'color:#10b981;border-bottom:2px solid #10b981;background:rgba(71,85,105,0.3)' : 'color:var(--text-secondary)') + '">' + t.label + '</button>';
+    });
+  } else {
+    POA_DBA_LIST.forEach(function(d) {
+      var active = poaState.activeDBA === d.id;
+      var pColor = d.priority === 'CRITICAL' ? 'background:rgba(239,68,68,0.2);color:#f87171' : d.priority === 'HIGH' ? 'background:rgba(245,158,11,0.2);color:#fbbf24' : 'background:rgba(100,116,139,0.3);color:#94a3b8';
+      html += '<button onclick="poaSetDBA(\'' + d.id + '\')" style="padding:8px 10px;font-size:10px;font-weight:600;white-space:nowrap;cursor:pointer;border:none;background:transparent;transition:all 0.2s;' + (active ? 'color:#a855f7;border-bottom:2px solid #a855f7;background:rgba(71,85,105,0.3)' : 'color:var(--text-secondary)') + '">' + d.name + ' <span style="margin-left:2px;padding:1px 4px;border-radius:3px;font-size:9px;' + pColor + '">' + d.priority + '</span></button>';
+    });
+  }
+  bar.innerHTML = html;
+}
+
+function poaGetStateName() { return poaState.currentState === 'NC' ? 'North Carolina' : 'Virginia'; }
+function poaGetGovLaw() { return poaState.currentState === 'NC' ? 'N.C.G.S. Chapter 32C' : 'Va. Code \u00A7 64.2-1600 et seq.'; }
+
+function poaGenPOA() {
+  var sn = poaGetStateName(), gl = poaGetGovLaw(), wr = poaState.currentState === 'VA';
+  return '                           DURABLE POWER OF ATTORNEY\n                              State of ' + sn + '\n                    Pursuant to ' + gl + '\n\n' + POA_SEP + '\n\n                                    ARTICLE I\n                              DESIGNATION OF AGENT\n\n     I, ' + poaVal('principal_name') + ', of ' + poaVal('principal_address') + ', County of \n' + poaVal('principal_county') + ', State of ' + sn + ', hereby designate:\n\n                    PRIMARY AGENT (ATTORNEY-IN-FACT)\n\n     Name:    ' + poaVal('agent_name') + '\n     Address: ' + poaVal('agent_address') + '\n     Phone:   ' + poaVal('agent_phone') + '\n\nas my Agent (Attorney-in-Fact) to act for me in any lawful way.\n\n' + POA_SEP + '\n\n                                   ARTICLE II\n                          GRANT OF GENERAL AUTHORITY\n\n     I grant my Agent authority to act on my behalf with respect to:\n\n     [X] Real Property              [X] Banks and Financial Institutions\n     [X] Tangible Personal Property [X] Operation of Entity or Business\n     [X] Stocks and Bonds           [X] Insurance and Annuities\n     [X] Estates, Trusts            [X] Claims and Litigation\n     [X] Personal Maintenance       [X] Government Benefits\n     [X] Retirement Plans           [X] Taxes\n     [X] All of the Above Subjects\n\n' + POA_SEP + '\n\n                                   ARTICLE III\n                              SUCCESSOR AGENT\n\n     If ' + poaVal('agent_name') + ' is unable or unwilling to serve, I designate:\n\n     Name:    ' + poaVal('successor_name') + '\n     Address: ' + poaVal('successor_address') + '\n\n' + POA_SEP + '\n\n                              DURABILITY PROVISION\n\n     THIS POWER OF ATTORNEY SHALL NOT BE AFFECTED BY MY SUBSEQUENT \nDISABILITY OR INCAPACITY.\n\n' + POA_SEP + '\n\n                              SIGNATURE OF PRINCIPAL\n\n     IN WITNESS WHEREOF, I have signed this Power of Attorney on ' + poaVal('execution_date') + '.\n\n\n                              _________________________________________\n                              ' + poaVal('principal_name') + ', Principal\n\n' + POA_SEP + '\n\n                             WITNESS ATTESTATION\n              ' + (wr ? '(REQUIRED - VA Law)' : '(RECOMMENDED - NC Law)') + '\n\nWitness 1:\nSignature: _________________________________________\nPrinted Name: ' + poaVal('witness1_name') + '\nAddress: ' + poaVal('witness1_address') + '\n\nWitness 2:\nSignature: _________________________________________\nPrinted Name: ' + poaVal('witness2_name') + '\nAddress: ' + poaVal('witness2_address') + '\n\n' + POA_SEP + '\n\n                              NOTARY ACKNOWLEDGMENT\n\nSTATE OF ' + sn.toUpperCase() + '\nCOUNTY OF ' + poaVal('notary_county') + '\n\n     I, the undersigned Notary Public, certify that ' + poaVal('principal_name') + ' \npersonally appeared before me and acknowledged the due execution of this instrument.\n\n\n                              _________________________________________\n                              Notary Public\n\nMy Commission Expires: _________________________________________\n\n                                    [SEAL]\n\n' + POA_SEP + '\n                                END OF DOCUMENT';
+}
+
+function poaGenCert() {
+  var sn = poaGetStateName();
+  return '                    AGENT\'S CERTIFICATION AND ACCEPTANCE\n                           UNDER POWER OF ATTORNEY\n                           State of ' + sn + '\n\n' + POA_SEP + '\n\n     I, ' + poaVal('agent_name') + ', certify under penalty of perjury that:\n\n     1. I am the Agent designated in a Power of Attorney executed by \n        ' + poaVal('principal_name') + ' (the "Principal") on ' + poaVal('execution_date') + '.\n     2. The Power of Attorney is genuine and currently valid.\n     3. The Power of Attorney has not been revoked or terminated.\n     4. To the best of my knowledge, the Principal is alive.\n     5. I hereby ACCEPT appointment as Agent.\n\n' + POA_SEP + '\n\n                    ACKNOWLEDGMENT OF DUTIES\n\n     I acknowledge that as Agent I must:\n     (a) Act in good faith;\n     (b) Act only within the scope of authority granted;\n     (c) Act loyally for the Principal\'s benefit;\n     (d) Avoid conflicts of interest;\n     (e) Act with care, competence, and diligence;\n     (f) Keep records of all transactions.\n\n' + POA_SEP + '\n\n     Executed this ' + poaVal('execution_date') + '.\n\n\n                              _________________________________________\n                              ' + poaVal('agent_name') + ', Agent/Attorney-in-Fact\n\n' + POA_SEP + '\n\n                              NOTARY ACKNOWLEDGMENT\n\nSTATE OF ' + sn.toUpperCase() + '\nCOUNTY OF ' + poaVal('notary_county') + '\n\n                              _________________________________________\n                              Notary Public\n\nMy Commission Expires: _________________________________________\n                                    [SEAL]';
+}
+
+function poaGenAffidavit() {
+  var sn = poaGetStateName();
+  return '                       AFFIDAVIT OF ATTORNEY-IN-FACT\n                           State of ' + sn + '\n\n' + POA_SEP + '\n\nSTATE OF ' + sn.toUpperCase() + '\nCOUNTY OF ' + poaVal('notary_county') + '\n\n     I, ' + poaVal('agent_name') + ', being first duly sworn, depose and state:\n\n' + POA_SEP + '\n\n                          1. IDENTIFICATION\n\n     My name is ' + poaVal('agent_name') + '.\n     My address is ' + poaVal('agent_address') + '.\n     I am over eighteen (18) years of age and competent to testify.\n\n' + POA_SEP + '\n\n                      2. APPOINTMENT AS AGENT\n\n     I have been duly appointed as Agent by ' + poaVal('principal_name') + ' \n(the "Principal"), whose address is ' + poaVal('principal_address') + '.\n     My appointment is pursuant to a Durable Power of Attorney \nexecuted on ' + poaVal('execution_date') + '.\n\n' + POA_SEP + '\n\n                    3. VALIDITY CERTIFICATION\n\n     I certify under oath that:\n     - The Power of Attorney is genuine and duly executed;\n     - The Power of Attorney is currently valid and not revoked;\n     - To the best of my knowledge, the Principal is alive.\n\n' + POA_SEP + '\n\n                   4. TRANSACTION AUTHORIZATION\n\n     This Affidavit is executed in connection with:\n     ' + poaVal('transaction_desc', '[DESCRIBE TRANSACTION]') + '\n     This Affidavit is provided to ' + poaVal('third_party', '[THIRD PARTY]') + '.\n\n' + POA_SEP + '\n\n     Signed and sworn to this ' + poaVal('execution_date') + '.\n\n                              _________________________________________\n                              ' + poaVal('agent_name') + ', Agent and Attorney-in-Fact\n\n' + POA_SEP + '\n\n                                   JURAT\n\n     I, the undersigned Notary Public, certify that ' + poaVal('agent_name') + ' \npersonally appeared before me, and being duly sworn, stated that the \nfacts in the foregoing Affidavit are true.\n\n                              _________________________________________\n                              Notary Public\nMy Commission Expires: _________________________________________\n                                    [SEAL]';
+}
+
+function poaGenRevocation() {
+  var sn = poaGetStateName();
+  return '                     REVOCATION OF POWER OF ATTORNEY\n                           State of ' + sn + '\n\n' + POA_SEP + '\n\n     I, ' + poaVal('principal_name') + ', of ' + poaVal('principal_address') + ', \nCounty of ' + poaVal('principal_county') + ', State of ' + sn + ', \nhereby REVOKE the Power of Attorney described herein.\n\n' + POA_SEP + '\n\n     Date of Execution:  ' + poaVal('execution_date') + '\n     Document ID:        ' + poaVal('poa_id', '[DOCUMENT ID]') + '\n     Recording Info:     ' + poaVal('recording_info', '[Book ___ Page ___]') + '\n\n     AGENT AFFECTED:\n     Name:    ' + poaVal('agent_name') + '\n     Address: ' + poaVal('agent_address') + '\n\n' + POA_SEP + '\n\n     ALL powers and authorities granted to ' + poaVal('agent_name') + ' are hereby \nTERMINATED, effective immediately.\n\n     TO: ' + poaVal('agent_name') + '\n     You are directed to:\n     (a) CEASE all actions on my behalf;\n     (b) RETURN all documents and property;\n     (c) PROVIDE a complete accounting;\n     (d) NOTIFY all third parties.\n\n' + POA_SEP + '\n\n     IN WITNESS WHEREOF, I have executed this Revocation on ' + poaVal('execution_date') + '.\n\n                              _________________________________________\n                              ' + poaVal('principal_name') + ', Principal\n\n' + POA_SEP + '\n\n                              NOTARY ACKNOWLEDGMENT\n\nSTATE OF ' + sn.toUpperCase() + '\nCOUNTY OF ' + poaVal('notary_county') + '\n\n                              _________________________________________\n                              Notary Public\nMy Commission Expires: _________________________________________\n                                    [SEAL]';
+}
+
+function poaGenDBA() {
+  var fullName = poaDval('last_name','LAST') + ', ' + poaDval('first_name','FIRST') + ' ' + poaDval('middle_name','MIDDLE');
+  var trustName = poaDval('trust_name','TRUST_NAME');
+  var configs = {
+    dba1: { title: 'DBA #1: Trust DBA Personal Name', biz: trustName + ' EXPRESS TRUST', dbaName: trustName + ' EXPRESS TRUST doing business as ' + fullName, purpose: 'For Federal/State Taxes in SSN Name' },
+    dba2: { title: 'DBA #2: Trust DBA Estate Name', biz: trustName + ' EXPRESS TRUST', dbaName: trustName + ' EXPRESS TRUST doing business as ' + fullName + ' ESTATE', purpose: 'For Taxes in Estate Name' },
+    dba3: { title: 'DBA #3: Trust DBA Business Name', biz: trustName + ' EXPRESS TRUST', dbaName: trustName + ' EXPRESS TRUST doing business as ' + poaDval('business_name','[BUSINESS]'), purpose: 'For LLC/Corporation Taxes' },
+    dba4: { title: 'DBA #4: Trust DBA Enterprises', biz: trustName + ' EXPRESS TRUST', dbaName: trustName + ' EXPRESS TRUST doing business as TRUST ENTERPRISES', purpose: 'For Trust Banking Fiduciary Account' },
+    dba5: { title: 'DBA #5: Enterprises DBA Personal', biz: trustName + ' ENTERPRISES', dbaName: trustName + ' ENTERPRISES doing business as ' + fullName, purpose: 'For W-2 Employment Deposits (REVERSE)' },
+    dba6: { title: 'DBA #6: Enterprises DBA Business', biz: trustName + ' ENTERPRISES', dbaName: trustName + ' ENTERPRISES doing business as ' + poaDval('business_name','[BUSINESS]'), purpose: 'For Business Revenue Deposits (REVERSE)' }
+  };
+  var c = configs[poaState.activeDBA];
+  return '# ' + c.title + '\n## ' + c.purpose + '\n\n' + POA_SEP + '\n\n  **' + c.biz + '**\n  Foreign Trustee: ' + poaDval('trustee_title') + '\n\n' + POA_SEP + '\n\n## FILING INFORMATION\n\n**Business Name**: ' + c.biz + '\n**DBA Name**: ' + c.dbaName + '\n**Purpose**: ' + c.purpose + '\n\n**Trust EIN**: ' + poaDval('trust_ein') + '\n**Filing County**: ' + poaDval('filing_county') + '\n**Foreign Address**: ' + poaDval('foreign_addr') + '\n**Domestic Address**: ' + poaDval('domestic_addr') + '\n\n' + POA_SEP;
+}
+
+function poaGetContent() {
+  if (poaState.mode === 'dba') return poaGenDBA();
+  var gens = { poa: poaGenPOA, cert: poaGenCert, affidavit: poaGenAffidavit, revocation: poaGenRevocation };
+  return gens[poaState.activeTab]();
+}
+
+function poaRenderPreview() {
+  var preview = document.getElementById('poa-preview');
+  preview.textContent = poaGetContent();
+  // Title
+  var title = document.getElementById('poa-doc-title');
+  if (poaState.mode === 'poa') {
+    var t = POA_TABS.find(function(t){ return t.id === poaState.activeTab; });
+    title.textContent = t ? t.label : '';
+  } else {
+    var d = POA_DBA_LIST.find(function(d){ return d.id === poaState.activeDBA; });
+    title.textContent = d ? d.desc : '';
+  }
+  // Badge
+  var badge = document.getElementById('poa-doc-badge');
+  if (poaState.mode === 'poa') {
+    badge.textContent = poaState.currentState + ' \u2022 ' + poaGetGovLaw();
+    badge.style.background = poaState.currentState === 'VA' ? 'rgba(239,68,68,0.2)' : 'rgba(59,130,246,0.2)';
+    badge.style.color = poaState.currentState === 'VA' ? '#f87171' : '#60a5fa';
+  } else {
+    badge.textContent = 'TRUST';
+    badge.style.background = 'rgba(168,85,247,0.2)'; badge.style.color = '#a855f7';
+  }
+}
+
+function poaToggleMenu() {
+  poaState.menuOpen = !poaState.menuOpen;
+  document.getElementById('poa-download-menu').style.display = poaState.menuOpen ? 'block' : 'none';
+}
+
+function poaDownload(ext, mime) {
+  var content = poaGetContent();
+  var label = poaState.mode === 'poa' ? poaState.currentState + '_' + poaState.activeTab : 'DBA_' + poaState.activeDBA;
+  pdkbDownloadFile(content, label + '_' + new Date().toISOString().split('T')[0] + '.' + ext, mime);
+  poaState.menuOpen = false;
+  document.getElementById('poa-download-menu').style.display = 'none';
+}
+
+function initMultiStatePoa() {
+  poaRenderForm(); poaRenderSubtabs(); poaRenderPreview();
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('#poa-download-btn') && !e.target.closest('#poa-download-menu')) {
+      poaState.menuOpen = false;
+      var menu = document.getElementById('poa-download-menu');
+      if (menu) menu.style.display = 'none';
+    }
+  });
+}
+
+console.log("✅ PDKB Tools loaded (Transcript Transformer, Etymology Analyzer, PDF/MD Converter, MultiState POA)");
 </script>
 
 
