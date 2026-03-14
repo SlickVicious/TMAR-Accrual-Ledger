@@ -28726,16 +28726,18 @@ function ev2InitEntityVerifier() {
   <button class="side-btn" onclick="goEonPage(this,'trust')"><i class="fas fa-shield-halved" style="width:18px"></i> Trust</button>
   <button class="side-btn" onclick="goEonPage(this,'accounting')"><i class="fas fa-book" style="width:18px"></i> Accounting</button>
 
+  <div class="sidebar-title">AUTONOMOUS</div>
+  <button class="side-btn" onclick="goEonPage(this,'taskplanner')" style="border-left:3px solid #06b6d4"><i class="fas fa-brain" style="width:18px;color:#06b6d4"></i> Task Planner</button>
+  <button class="side-btn" onclick="goEonPage(this,'apitools')"><i class="fas fa-plug" style="width:18px"></i> API Integrations</button>
+  <button class="side-btn" onclick="goEonPage(this,'codebuilder')"><i class="fas fa-code" style="width:18px"></i> Code Builder</button>
+  <button class="side-btn" onclick="goEonPage(this,'apiscout')"><i class="fas fa-radar" style="width:18px"></i> API Scout</button>
+
   <div class="sidebar-title">SYSTEM</div>
   <button class="side-btn" onclick="goEonPage(this,'settings')"><i class="fas fa-key" style="width:18px"></i> API Keys</button>
   <button class="side-btn" onclick="goEonPage(this,'preferences')"><i class="fas fa-sliders" style="width:18px"></i> Preferences</button>
   <button class="side-btn" onclick="goEonPage(this,'history')"><i class="fas fa-clock-rotate-left" style="width:18px"></i> History</button>
   <button class="side-btn" onclick="goEonPage(this,'howto')"><i class="fas fa-question-circle" style="width:18px"></i> How-To</button>
   <button class="side-btn" onclick="goEonPage(this,'backup')"><i class="fas fa-database" style="width:18px"></i> Backup</button>
-  <button class="side-btn" onclick="goEonPage(this,'taskplanner')" style="border-left:3px solid #06b6d4"><i class="fas fa-brain" style="width:18px;color:#06b6d4"></i> Task Planner</button>
-  <button class="side-btn" onclick="goEonPage(this,'apitools')"><i class="fas fa-plug" style="width:18px"></i> API Integrations</button>
-  <button class="side-btn" onclick="goEonPage(this,'codebuilder')"><i class="fas fa-code" style="width:18px"></i> Code Builder</button>
-  <button class="side-btn" onclick="goEonPage(this,'apiscout')"><i class="fas fa-radar" style="width:18px"></i> API Scout</button>
 
   <button class="side-btn" onclick="toggleEonSidebar()" style="margin-top:20px;border:1px solid var(--accent-green);color:var(--accent-green)">
     <i class="fas fa-times"></i> Close Sidebar
@@ -28752,15 +28754,31 @@ function ev2InitEntityVerifier() {
 
   <!-- EON: ACCOUNTING -->
   <div class="page" id="page-accounting">
-<div class="card" style="border-color:#f59e0b">
-<div class="card-head" style="color:#f59e0b"> Ledger &amp; Accounting Expert</div>
-<div class="card-body">
-<p style="color:var(--text2);font-size:13px;margin-bottom:14px">GAAP double-entry bookkeeping, journal entries, financial statements, A/R, A/P, payroll, depreciation, tax filing prep, payment orders.</p>
-<textarea id="acctInput" rows="4" placeholder="Describe your accounting question..." style="width:100%;padding:10px;background:var(--input-bg);border:1px solid #f59e0b;border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px"></textarea>
-<button class="btn btn-primary" style="background:#f59e0b;color:#000;font-weight:700;padding:12px 24px;font-size:14px;border:2px solid #fbbf24;box-shadow:0 2px 8px rgba(245,158,11,0.3)" onclick="askAgentSafe('accounting','acctInput')">⚡ Analyze</button>
-<div id="accountingResult" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
+<div style="display:flex;height:100%">
+  <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
+    <button onclick="AP.newConv('accounting')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
+    <div id="ap_sl_accounting" style="display:flex;flex-direction:column;gap:4px"></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-color,rgba(255,255,255,.1));flex-wrap:wrap;gap:6px">
+      <span style="font-weight:700;font-size:14px;color:#f59e0b">📒 Ledger &amp; Accounting Expert</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="AP.toggleSTT('accounting')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🎤 Speak</button>
+        <button onclick="AP.speakLast('accounting')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔊 Listen</button>
+        <button onclick="AP.printConv('accounting')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🖨️ Print</button>
+        <button onclick="AP.exportPDF('accounting')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
+        <button onclick="AP.exportWord('accounting')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
+        <button onclick="AP.shareLink('accounting')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+      </div>
+    </div>
+    <div id="ap_msgs_accounting" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
+      <textarea id="ap_in_accounting" placeholder="Ask your accounting question — GAAP, journal entries, financials, payment orders..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #f59e0b;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('accounting');}"></textarea>
+      <button onclick="AP.send('accounting')" style="padding:10px 20px;background:#f59e0b;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+    </div>
+  </div>
 </div>
-</div>
+<div id="accountingResult" style="display:none"></div>
 </div>
 
 
@@ -28789,14 +28807,31 @@ function ev2InitEntityVerifier() {
 
   <!-- EON: ARBITRATION -->
   <div class="page" id="page-arbitration">
-<div class="card" style="border-color:var(--accent)">
-<div class="card-head" style="color:var(--accent)"> Arbitration Specialist</div>
-<div class="card-body">
-<textarea id="arbInput" rows="4" placeholder="Describe your arbitration matter..." style="width:100%;padding:10px;background:var(--input-bg);border:1px solid var(--accent);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px"></textarea>
-<button class="btn btn-primary" style="background:#ef4444;color:#fff;font-weight:700;padding:12px 24px;font-size:14px;border:2px solid #f87171;box-shadow:0 2px 8px rgba(239,68,68,0.3)" onclick="askAgentSafe('arbitration','arbInput')">⚡ Analyze</button>
-<div id="arbitrationResult" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
+<div style="display:flex;height:100%">
+  <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
+    <button onclick="AP.newConv('arbitration')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
+    <div id="ap_sl_arbitration" style="display:flex;flex-direction:column;gap:4px"></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-color,rgba(255,255,255,.1));flex-wrap:wrap;gap:6px">
+      <span style="font-weight:700;font-size:14px;color:#14b8a6">⚖️ Arbitration Specialist</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="AP.toggleSTT('arbitration')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🎤 Speak</button>
+        <button onclick="AP.speakLast('arbitration')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔊 Listen</button>
+        <button onclick="AP.printConv('arbitration')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🖨️ Print</button>
+        <button onclick="AP.exportPDF('arbitration')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
+        <button onclick="AP.exportWord('arbitration')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
+        <button onclick="AP.shareLink('arbitration')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+      </div>
+    </div>
+    <div id="ap_msgs_arbitration" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
+      <textarea id="ap_in_arbitration" placeholder="Describe your arbitration matter — Federal Arbitration Act 1925, contract review, award issuance..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #14b8a6;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('arbitration');}"></textarea>
+      <button onclick="AP.send('arbitration')" style="padding:10px 20px;background:#14b8a6;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+    </div>
+  </div>
 </div>
-</div>
+<div id="arbitrationResult" style="display:none"></div>
 </div>
 
 
@@ -29040,18 +29075,31 @@ function ev2InitEntityVerifier() {
 
   <!-- EON: CORPORATION -->
   <div class="page" id="page-corporation">
-<div class="card" style="border-color:#6366f1">
-<div class="card-head" style="color:#6366f1"> Corporation &amp; Business Entity Specialist</div>
-<div class="card-body">
-<p style="color:var(--text2);font-size:13px;margin-bottom:14px">Corporate formation, governance, SPV management, consolidated organizations, religious corporations, tax elections, and arbitration clause integration.</p>
-<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
-<span class="badge badge-ok">Corporate Formation</span><span class="badge badge-ok">Governance</span><span class="badge badge-ok">SPV</span><span class="badge badge-ok">Tax Compliance</span><span class="badge badge-ok">Religious Corp</span>
+<div style="display:flex;height:100%">
+  <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
+    <button onclick="AP.newConv('corporation')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
+    <div id="ap_sl_corporation" style="display:flex;flex-direction:column;gap:4px"></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-color,rgba(255,255,255,.1));flex-wrap:wrap;gap:6px">
+      <span style="font-weight:700;font-size:14px;color:#6366f1">🏢 Corporation &amp; Business Entity Specialist</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="AP.toggleSTT('corporation')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🎤 Speak</button>
+        <button onclick="AP.speakLast('corporation')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔊 Listen</button>
+        <button onclick="AP.printConv('corporation')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🖨️ Print</button>
+        <button onclick="AP.exportPDF('corporation')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
+        <button onclick="AP.exportWord('corporation')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
+        <button onclick="AP.shareLink('corporation')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+      </div>
+    </div>
+    <div id="ap_msgs_corporation" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
+      <textarea id="ap_in_corporation" placeholder="Ask your corporate or business entity question — formation, governance, SPV, religious corp, tax elections..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #6366f1;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('corporation');}"></textarea>
+      <button onclick="AP.send('corporation')" style="padding:10px 20px;background:#6366f1;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+    </div>
+  </div>
 </div>
-<textarea id="corpInput" rows="4" placeholder="Describe your corporate/business entity question..." style="width:100%;padding:10px;background:var(--input-bg);border:1px solid #6366f1;border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px"></textarea>
-<button class="btn btn-primary" style="background:#6366f1;color:#fff;font-weight:700;padding:12px 24px;font-size:14px;border:2px solid #818cf8;box-shadow:0 2px 8px rgba(99,102,241,0.3)" onclick="askAgentSafe('corporation','corpInput')">⚡ Analyze</button>
-<div id="corporationResult" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
-</div>
-</div>
+<div id="corporationResult" style="display:none"></div>
 </div>
 
 
@@ -29118,11 +29166,17 @@ function ev2InitEntityVerifier() {
   <!-- EON: DREAM_TEAM -->
   <div class="page" id="page-dream_team">
 <div class="card" style="border-color:#ffd700">
-<div class="card-head" style="color:#ffd700;display:flex;justify-content:space-between;align-items:center">
-<span> The Dream Team - 600 Attorneys</span>
-<div style="display:flex;gap:6px">
-<button class="btn" style="padding:4px 10px;font-size:11px;background:var(--bg3);color:var(--text2)" onclick="dtNewChat()"> New Chat</button>
-<button class="btn" style="padding:4px 10px;font-size:11px;background:var(--bg3);color:var(--text2)" onclick="dtClearHistory()"> Clear All</button>
+<div class="card-head" style="color:#ffd700;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+<span>🏛️ The Dream Team — 600 Attorneys</span>
+<div style="display:flex;gap:5px;flex-wrap:wrap">
+<button class="btn" style="padding:4px 10px;font-size:11px;background:var(--bg3);color:var(--text2)" onclick="dtNewChat()">＋ New Chat</button>
+<button style="padding:4px 10px;font-size:11px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:5px;color:var(--text2);cursor:pointer" onclick="toggleMic()">🎤 Speak</button>
+<button style="padding:4px 10px;font-size:11px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:5px;color:var(--text2);cursor:pointer" onclick="(function(){var m=document.getElementById('dtChatMsgs');var msgs=m?m.querySelectorAll('div.ai-msg,div[class*=ai]'):[],last='';for(var i=msgs.length-1;i>=0;i--){if(msgs[i].innerText){last=msgs[i].innerText;break;}}if(!last){var all=m?m.querySelectorAll('div'):[];for(var j=all.length-1;j>=0;j--){if(all[j].style&&all[j].style.background&&all[j].style.background.includes('255,255,255')){last=all[j].innerText;break;}}}if(last&&'speechSynthesis'in window){speechSynthesis.cancel();speechSynthesis.speak(new SpeechSynthesisUtterance(last));}else{alert('No agent response to read.');}})()">🔊 Listen</button>
+<button style="padding:4px 10px;font-size:11px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:5px;color:var(--text2);cursor:pointer" onclick="(function(){var m=document.getElementById('dtChatMsgs');if(!m)return;var w=window.open('','_blank');w.document.write('<html><head><title>Dream Team</title><style>body{font-family:Arial;padding:30px;font-size:12pt}</style></head><body><h2>The Dream Team — 600 Attorneys</h2>'+m.innerHTML+'</body></html>');w.print();})()">🖨️ Print</button>
+<button style="padding:4px 10px;font-size:11px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:5px;color:var(--text2);cursor:pointer" onclick="(function(){var m=document.getElementById('dtChatMsgs');if(!m)return;var w=window.open('','_blank');w.document.write('<html><head><title>Dream Team</title><style>body{font-family:Arial;padding:30px;font-size:12pt}</style></head><body><h2>The Dream Team — 600 Attorneys</h2>'+m.innerHTML+'</body></html>');w.print();})()">📄 PDF</button>
+<button style="padding:4px 10px;font-size:11px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:5px;color:var(--text2);cursor:pointer" onclick="(function(){var m=document.getElementById('dtChatMsgs');if(!m)return;var b=new Blob([m.innerText],{type:'application/msword'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='DreamTeam.doc';a.click();})()">📝 Word</button>
+<button style="padding:4px 10px;font-size:11px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:5px;color:var(--text2);cursor:pointer" onclick="(function(){var u=window.location.href.split('#')[0]+'#dream_team';if(navigator.clipboard)navigator.clipboard.writeText(u).then(function(){alert('Link copied!');});else prompt('Copy:',u);})()">🔗 Share</button>
+<button class="btn" style="padding:4px 10px;font-size:11px;background:var(--bg3);color:var(--text2)" onclick="dtClearHistory()">🗑️ Clear</button>
 </div>
 </div>
 <div class="card-body" style="padding:0">
@@ -29189,21 +29243,31 @@ function ev2InitEntityVerifier() {
 
   <!-- EON: LEGAL -->
   <div class="page" id="page-legal">
-<div class="card" style="border-color:var(--legal)">
-<div class="card-head" style="color:var(--legal)"> Presumption Killer - Legal Expert</div>
-<div class="card-body">
-<p style="color:var(--text2);font-size:13px;margin-bottom:14px">Powered by THE EEON FOUNDATION's 42-year legal methodology. Every answer supported by facts and conclusions of law.</p>
-<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
-<span class="badge badge-warn">Constitutional</span><span class="badge badge-warn">Commercial/UCC</span>
-<span class="badge badge-warn">Criminal</span><span class="badge badge-warn">Civil</span>
-<span class="badge badge-warn">Securities</span><span class="badge badge-warn">Bankruptcy</span>
-<span class="badge badge-warn">Trust Law</span><span class="badge badge-warn">Foreclosure</span>
+<div style="display:flex;height:100%">
+  <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
+    <button onclick="AP.newConv('legal')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
+    <div id="ap_sl_legal" style="display:flex;flex-direction:column;gap:4px"></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-color,rgba(255,255,255,.1));flex-wrap:wrap;gap:6px">
+      <span style="font-weight:700;font-size:14px;color:#ffc107">⚖️ Legal Expert — Presumption Killer</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="AP.toggleSTT('legal')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🎤 Speak</button>
+        <button onclick="AP.speakLast('legal')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔊 Listen</button>
+        <button onclick="AP.printConv('legal')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🖨️ Print</button>
+        <button onclick="AP.exportPDF('legal')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
+        <button onclick="AP.exportWord('legal')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
+        <button onclick="AP.shareLink('legal')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+      </div>
+    </div>
+    <div id="ap_msgs_legal" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
+      <textarea id="ap_in_legal" placeholder="Ask your legal question — full conversation remembered..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #ffc107;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('legal');}"></textarea>
+      <button onclick="AP.send('legal')" style="padding:10px 20px;background:#ffc107;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+    </div>
+  </div>
 </div>
-<textarea id="legalInput" rows="4" placeholder="Describe your legal question..." style="width:100%;padding:10px;background:var(--input-bg);border:1px solid var(--legal);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px"></textarea>
-<button class="btn btn-primary" style="background:#ffc107;color:#000;font-weight:700;padding:12px 24px;font-size:14px;border:2px solid #ffdb4d;box-shadow:0 2px 8px rgba(255,193,7,0.3)" onclick="askAgentSafe('legal','legalInput')">⚡ Analyze</button>
-<div id="legalResult" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
-</div>
-</div>
+<div id="legalResult" style="display:none"></div>
 </div>
 
 
@@ -29253,23 +29317,32 @@ function ev2InitEntityVerifier() {
 
   <!-- EON: RESEARCH -->
   <div class="page" id="page-research">
-<div class="card">
-<div class="card-head"> Research HUB - Deep Analysis Engine</div>
-<div class="card-body">
-<p style="color:var(--text2);font-size:12px;margin-bottom:12px">The Research Analyst agent provides deep analysis with source verification and cross-referencing.</p>
-<textarea id="researchInput" rows="3" placeholder="Enter research topic or question..." style="width:100%;padding:10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px"></textarea>
-<div style="display:flex;gap:8px;margin-bottom:12px">
-<select id="researchDepth" style="padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px">
-<option value="standard">Standard</option><option value="deep">Deep Research</option><option value="legal">Legal (with citations)</option>
-</select>
-<button class="btn btn-primary" onclick="doResearch()"> Research</button>
+<div style="display:flex;height:100%">
+  <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
+    <button onclick="AP.newConv('research')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
+    <div id="ap_sl_research" style="display:flex;flex-direction:column;gap:4px"></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-color,rgba(255,255,255,.1));flex-wrap:wrap;gap:6px">
+      <span style="font-weight:700;font-size:14px;color:#8b5cf6">📊 Research HUB — Deep Analysis Engine</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="AP.toggleSTT('research')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🎤 Speak</button>
+        <button onclick="AP.speakLast('research')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔊 Listen</button>
+        <button onclick="AP.printConv('research')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🖨️ Print</button>
+        <button onclick="AP.exportPDF('research')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
+        <button onclick="AP.exportWord('research')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
+        <button onclick="AP.shareLink('research')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+      </div>
+    </div>
+    <div id="ap_msgs_research" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
+      <textarea id="ap_in_research" placeholder="Enter research topic — deep analysis with source verification and cross-referencing..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #8b5cf6;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('research');}"></textarea>
+      <button onclick="AP.send('research')" style="padding:10px 20px;background:#8b5cf6;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+    </div>
+  </div>
 </div>
-<div id="researchResult" style="font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
-</div>
-</div>
-<div class="card"><div class="card-head"> Research History</div>
-<div class="card-body" id="researchHistory" style="max-height:300px;overflow-y:auto;font-size:12px">No research conducted yet.</div>
-</div>
+<div id="researchResult" style="display:none"></div>
+<div id="researchHistory" style="display:none"></div>
 </div>
 
 
@@ -29362,14 +29435,31 @@ function ev2InitEntityVerifier() {
 
   <!-- EON: TAX -->
   <div class="page" id="page-tax">
-<div class="card" style="border-color:#22c55e">
-<div class="card-head" style="color:#22c55e"> Tax & Financial Expert</div>
-<div class="card-body">
-<textarea id="taxInput" rows="4" placeholder="Describe your tax or financial question..." style="width:100%;padding:10px;background:var(--input-bg);border:1px solid #22c55e;border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px"></textarea>
-<button class="btn btn-primary" style="background:#22c55e;color:#000;font-weight:700;padding:12px 24px;font-size:14px;border:2px solid #4ade80;box-shadow:0 2px 8px rgba(34,197,94,0.3)" onclick="askAgentSafe('tax','taxInput')">⚡ Analyze</button>
-<div id="taxResult" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
+<div style="display:flex;height:100%">
+  <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
+    <button onclick="AP.newConv('tax')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
+    <div id="ap_sl_tax" style="display:flex;flex-direction:column;gap:4px"></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-color,rgba(255,255,255,.1));flex-wrap:wrap;gap:6px">
+      <span style="font-weight:700;font-size:14px;color:#22c55e">🧾 Tax &amp; Financial Expert</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="AP.toggleSTT('tax')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🎤 Speak</button>
+        <button onclick="AP.speakLast('tax')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔊 Listen</button>
+        <button onclick="AP.printConv('tax')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🖨️ Print</button>
+        <button onclick="AP.exportPDF('tax')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
+        <button onclick="AP.exportWord('tax')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
+        <button onclick="AP.shareLink('tax')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+      </div>
+    </div>
+    <div id="ap_msgs_tax" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
+      <textarea id="ap_in_tax" placeholder="Ask your tax or financial question — federal tax, NOLs, IRS defense, Revenue Acts, Statutes at Large..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #22c55e;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('tax');}"></textarea>
+      <button onclick="AP.send('tax')" style="padding:10px 20px;background:#22c55e;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+    </div>
+  </div>
 </div>
-</div>
+<div id="taxResult" style="display:none"></div>
 </div>
 
 
@@ -32215,18 +32305,31 @@ function ev2InitEntityVerifier() {
 
   <!-- EON: TRUST -->
   <div class="page" id="page-trust">
-<div class="card" style="border-color:#a855f7">
-<div class="card-head" style="color:#a855f7"> Common-Law Trust Specialist - C.L.O.C.E.S.T.</div>
-<div class="card-body">
-<p style="color:var(--text2);font-size:13px;margin-bottom:14px">Common-law trusts, Mega Trust Constitution, constitutional property interests as trust res, spendthrift provisions, trust-based arbitration.</p>
-<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
-<span class="badge" style="background:rgba(168,85,247,.15);color:#a855f7">C.L.O.C.E.S.T.</span><span class="badge" style="background:rgba(168,85,247,.15);color:#a855f7">Mega Trust</span><span class="badge" style="background:rgba(168,85,247,.15);color:#a855f7">Trust Res</span><span class="badge" style="background:rgba(168,85,247,.15);color:#a855f7">Spendthrift</span>
+<div style="display:flex;height:100%">
+  <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
+    <button onclick="AP.newConv('trust')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
+    <div id="ap_sl_trust" style="display:flex;flex-direction:column;gap:4px"></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-color,rgba(255,255,255,.1));flex-wrap:wrap;gap:6px">
+      <span style="font-weight:700;font-size:14px;color:#a855f7">🔐 Common-Law Trust Specialist — C.L.O.C.E.S.T.</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="AP.toggleSTT('trust')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🎤 Speak</button>
+        <button onclick="AP.speakLast('trust')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔊 Listen</button>
+        <button onclick="AP.printConv('trust')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🖨️ Print</button>
+        <button onclick="AP.exportPDF('trust')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
+        <button onclick="AP.exportWord('trust')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
+        <button onclick="AP.shareLink('trust')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+      </div>
+    </div>
+    <div id="ap_msgs_trust" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
+      <textarea id="ap_in_trust" placeholder="Ask your trust question — C.L.O.C.E.S.T., Mega Trust Constitution, trust res, spendthrift provisions..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #a855f7;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('trust');}"></textarea>
+      <button onclick="AP.send('trust')" style="padding:10px 20px;background:#a855f7;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+    </div>
+  </div>
 </div>
-<textarea id="trustInput" rows="4" placeholder="Describe your trust question..." style="width:100%;padding:10px;background:var(--input-bg);border:1px solid #a855f7;border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px"></textarea>
-<button class="btn btn-primary" style="background:#a855f7;color:#fff;font-weight:700;padding:12px 24px;font-size:14px;border:2px solid #c084fc;box-shadow:0 2px 8px rgba(168,85,247,0.3)" onclick="askAgentSafe('trust','trustInput')">⚡ Analyze</button>
-<div id="trustResult" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
-</div>
-</div>
+<div id="trustResult" style="display:none"></div>
 </div>
 
 
@@ -34475,6 +34578,276 @@ function mainScoutClear() {
 }
 
 console.log('✅ GAAPCLAW extension loaded: CPA Firms, Settings & API, IRS Form Generator, API Scout');
+
+// ── AP (Agent Portal) — Persistent Conversation Object ───────────────────────
+const AP = {
+  _convs: {},
+  _stt: null,
+  _sttPage: null,
+
+  _load: function(page) {
+    if (!this._convs[page]) {
+      var raw = localStorage.getItem('ap_conv_' + page);
+      this._convs[page] = raw ? JSON.parse(raw) : { current: null, sessions: {} };
+    }
+    return this._convs[page];
+  },
+
+  _save: function(page) {
+    localStorage.setItem('ap_conv_' + page, JSON.stringify(this._convs[page]));
+  },
+
+  _renderSL: function(page) {
+    var data = this._convs[page] || this._load(page);
+    var sl = document.getElementById('ap_sl_' + page);
+    if (!sl) return;
+    var sessions = Object.keys(data.sessions).sort().reverse();
+    sl.innerHTML = sessions.map(function(id) {
+      var s = data.sessions[id];
+      var active = data.current === id;
+      return '<button onclick="AP.loadConv(\'' + page + '\',\'' + id + '\')" style="width:100%;padding:6px 8px;background:' + (active ? 'rgba(0,229,255,.15)' : 'transparent') + ';border:1px solid ' + (active ? 'rgba(0,229,255,.4)' : 'transparent') + ';border-radius:5px;color:var(--text,#e2e8f0);font-size:11px;cursor:pointer;text-align:left;overflow:hidden;white-space:nowrap;text-overflow:ellipsis" title="' + (s.title || id) + '">' + (s.title || id) + '</button>';
+    }).join('');
+  },
+
+  _renderMsgs: function(page) {
+    var data = this._convs[page] || this._load(page);
+    var msgs = document.getElementById('ap_msgs_' + page);
+    if (!msgs) return;
+    if (!data.current || !data.sessions[data.current] || data.sessions[data.current].messages.length === 0) {
+      msgs.innerHTML = '<div style="margin:auto;text-align:center;color:var(--text2,#94a3b8);font-size:13px;padding:40px"><div style="font-size:40px;margin-bottom:12px">💬</div>Start a conversation or select one from the left.</div>';
+      return;
+    }
+    var session = data.sessions[data.current];
+    msgs.innerHTML = session.messages.map(function(m) {
+      var isUser = m.role === 'user';
+      return '<div style="max-width:85%;align-self:' + (isUser ? 'flex-end' : 'flex-start') + ';padding:10px 14px;border-radius:10px;background:' + (isUser ? 'rgba(0,229,255,.1)' : 'rgba(255,255,255,.05)') + ';border:1px solid ' + (isUser ? 'rgba(0,229,255,.25)' : 'rgba(255,255,255,.1)') + ';font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word"><div style="font-size:10px;color:var(--text2,#94a3b8);margin-bottom:4px">' + (isUser ? 'You' : 'Agent') + '</div>' + m.content + '</div>';
+    }).join('');
+    msgs.scrollTop = msgs.scrollHeight;
+  },
+
+  newConv: function(page) {
+    var data = this._load(page);
+    var id = 'conv_' + Date.now();
+    data.sessions[id] = { title: 'New Chat ' + new Date().toLocaleTimeString(), messages: [], created: Date.now() };
+    data.current = id;
+    this._save(page);
+    this._renderSL(page);
+    this._renderMsgs(page);
+    var inp = document.getElementById('ap_in_' + page);
+    if (inp) inp.focus();
+  },
+
+  loadConv: function(page, id) {
+    var data = this._load(page);
+    data.current = id;
+    this._save(page);
+    this._renderSL(page);
+    this._renderMsgs(page);
+  },
+
+  send: function(page) {
+    var inp = document.getElementById('ap_in_' + page);
+    if (!inp) return;
+    var text = inp.value.trim();
+    if (!text) return;
+    var data = this._load(page);
+    if (!data.current || !data.sessions[data.current]) {
+      this.newConv(page);
+      data = this._load(page);
+    }
+    data.sessions[data.current].messages.push({ role: 'user', content: text });
+    if (data.sessions[data.current].messages.length === 1) {
+      data.sessions[data.current].title = text.substring(0, 40) + (text.length > 40 ? '…' : '');
+    }
+    inp.value = '';
+    this._save(page);
+    this._renderSL(page);
+    this._renderMsgs(page);
+
+    var self = this;
+    var convId = data.current;
+
+    // Build hidden input element for askAgentSafe
+    var fakeId = '__ap_fake_' + page;
+    var fakeEl = document.getElementById(fakeId);
+    if (!fakeEl) {
+      fakeEl = document.createElement('input');
+      fakeEl.id = fakeId;
+      fakeEl.type = 'hidden';
+      document.body.appendChild(fakeEl);
+    }
+    fakeEl.value = text;
+
+    // Find or create a hidden result div to capture the agent response
+    var resultId = page + 'Result';
+    var resultEl = document.getElementById(resultId);
+    if (!resultEl) {
+      resultEl = document.createElement('div');
+      resultEl.id = resultId;
+      resultEl.style.display = 'none';
+      document.body.appendChild(resultEl);
+    }
+
+    // Show thinking indicator
+    var thinkId = 'ap_think_' + page + '_' + Date.now();
+    var msgsEl = document.getElementById('ap_msgs_' + page);
+    if (msgsEl) {
+      var thinkEl = document.createElement('div');
+      thinkEl.id = thinkId;
+      thinkEl.style.cssText = 'align-self:flex-start;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);font-size:13px;color:var(--text2,#94a3b8);font-style:italic';
+      thinkEl.textContent = '⏳ Agent is thinking...';
+      msgsEl.appendChild(thinkEl);
+      msgsEl.scrollTop = msgsEl.scrollHeight;
+    }
+
+    var prevContent = resultEl.innerHTML;
+    var obs = new MutationObserver(function(mutations) {
+      var newContent = resultEl.innerHTML;
+      if (newContent && newContent !== prevContent && newContent.trim() !== '') {
+        obs.disconnect();
+        // Remove thinking indicator
+        var te = document.getElementById(thinkId);
+        if (te) te.remove();
+        // Save response
+        var d2 = self._load(page);
+        if (d2.sessions[convId]) {
+          d2.sessions[convId].messages.push({ role: 'assistant', content: resultEl.innerText || resultEl.textContent || newContent });
+          self._save(page);
+          self._renderSL(page);
+          self._renderMsgs(page);
+        }
+        // Reset result div
+        resultEl.innerHTML = '';
+      }
+    });
+    obs.observe(resultEl, { childList: true, subtree: true, characterData: true });
+
+    // Call the existing agent function
+    if (typeof askAgentSafe === 'function') {
+      askAgentSafe(page, fakeId);
+    } else {
+      obs.disconnect();
+      var te2 = document.getElementById(thinkId);
+      if (te2) te2.remove();
+      var d3 = self._load(page);
+      if (d3.sessions[convId]) {
+        d3.sessions[convId].messages.push({ role: 'assistant', content: '⚠️ Agent function unavailable. Configure your API key in API Keys → Settings.' });
+        self._save(page);
+        self._renderSL(page);
+        self._renderMsgs(page);
+      }
+    }
+  },
+
+  speakLast: function(page) {
+    var data = this._load(page);
+    if (!data.current || !data.sessions[data.current]) return;
+    var msgs = data.sessions[data.current].messages;
+    var last = null;
+    for (var i = msgs.length - 1; i >= 0; i--) {
+      if (msgs[i].role === 'assistant') { last = msgs[i].content; break; }
+    }
+    if (!last) { alert('No agent response to read aloud.'); return; }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(last);
+      window.speechSynthesis.speak(u);
+    } else {
+      alert('Text-to-speech not supported in this browser.');
+    }
+  },
+
+  toggleSTT: function(page) {
+    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      alert('Speech recognition not supported in this browser. Try Chrome.');
+      return;
+    }
+    if (this._stt && this._sttPage === page) {
+      this._stt.stop();
+      this._stt = null;
+      this._sttPage = null;
+      return;
+    }
+    if (this._stt) { this._stt.stop(); }
+    var SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    var rec = new SpeechRec();
+    rec.lang = 'en-US';
+    rec.continuous = true;
+    rec.interimResults = true;
+    var self = this;
+    rec.onresult = function(e) {
+      var transcript = '';
+      for (var i = e.resultIndex; i < e.results.length; i++) {
+        transcript += e.results[i][0].transcript;
+      }
+      var inp = document.getElementById('ap_in_' + page);
+      if (inp) inp.value = transcript;
+    };
+    rec.onend = function() { self._stt = null; self._sttPage = null; };
+    rec.onerror = function() { self._stt = null; self._sttPage = null; };
+    rec.start();
+    this._stt = rec;
+    this._sttPage = page;
+  },
+
+  printConv: function(page) {
+    var data = this._load(page);
+    if (!data.current || !data.sessions[data.current]) { alert('No conversation to print.'); return; }
+    var session = data.sessions[data.current];
+    var html = '<html><head><title>' + (session.title || page) + '</title><style>body{font-family:Arial,sans-serif;padding:30px;font-size:12pt;color:#000}h2{color:#1a1a2e}.msg{margin:12px 0;padding:10px 14px;border-radius:6px;font-size:11pt}.user{background:#e8f4fd;text-align:right}.assistant{background:#f5f5f5}</style></head><body><h2>' + (session.title || page + ' — Conversation') + '</h2>' + session.messages.map(function(m) { return '<div class="msg ' + m.role + '"><b>' + (m.role === 'user' ? 'You' : 'Agent') + ':</b><br>' + m.content.replace(/\n/g, '<br>') + '</div>'; }).join('') + '</body></html>';
+    var w = window.open('', '_blank');
+    w.document.write(html);
+    w.document.close();
+    w.print();
+  },
+
+  exportPDF: function(page) { this.printConv(page); },
+
+  exportWord: function(page) {
+    var data = this._load(page);
+    if (!data.current || !data.sessions[data.current]) { alert('No conversation to export.'); return; }
+    var session = data.sessions[data.current];
+    var text = (session.title || page + ' Conversation') + '\n\n' + session.messages.map(function(m) { return (m.role === 'user' ? 'YOU:\n' : 'AGENT:\n') + m.content; }).join('\n\n---\n\n');
+    var blob = new Blob([text], { type: 'application/msword' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (session.title || page).replace(/[^a-z0-9]/gi, '_') + '.doc';
+    a.click();
+  },
+
+  shareLink: function(page) {
+    var url = window.location.href.split('#')[0] + '#' + page;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function() { alert('Link copied to clipboard!'); });
+    } else {
+      prompt('Copy this link:', url);
+    }
+  },
+
+  init: function(page) {
+    var data = this._load(page);
+    if (Object.keys(data.sessions).length === 0) {
+      var id = 'conv_' + Date.now();
+      data.sessions[id] = { title: 'Welcome', messages: [], created: Date.now() };
+      data.current = id;
+      this._save(page);
+    } else if (!data.current) {
+      data.current = Object.keys(data.sessions).sort().reverse()[0];
+      this._save(page);
+    }
+    this._renderSL(page);
+    this._renderMsgs(page);
+  }
+};
+
+// Initialize all AP agent pages on load
+document.addEventListener('DOMContentLoaded', function() {
+  ['legal','tax','arbitration','corporation','trust','accounting','research'].forEach(function(p) {
+    AP.init(p);
+  });
+});
+
+console.log('✅ AP Agent Portal object loaded — 7 persistent conversation agents ready');
 </script>
 
 <footer style="text-align:center;padding:18px 20px;margin-top:40px;font-size:11px;color:var(--text-secondary);border-top:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.3);letter-spacing:.5px">
