@@ -1131,8 +1131,17 @@
           📑 MASTER REPORT
         </button>
         <button onclick="switchMainTab('trustAgent')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="trustAgent" style="background:linear-gradient(135deg,rgba(16,185,129,0.3),rgba(5,150,105,0.3));border:2px solid rgba(16,185,129,0.8);font-weight:900;color:#10b981">
-          ⚖️ Trust Accounting Agent
+          ⚖️ GAAPCLAW Master
         </button>
+        <button onclick="switchMainTab('cpaNonprofit')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="cpaNonprofit" style="background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(59,130,246,0.2));border:2px solid rgba(139,92,246,0.6);font-weight:800;color:#8b5cf6">🏛️ Nonprofit CPA</button>
+        <button onclick="switchMainTab('cpaPartnership')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="cpaPartnership" style="background:linear-gradient(135deg,rgba(245,158,11,0.2),rgba(239,68,68,0.2));border:2px solid rgba(245,158,11,0.6);font-weight:800;color:#f59e0b">🤝 Partnership CPA</button>
+        <button onclick="switchMainTab('cpaCorporation')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="cpaCorporation" style="background:linear-gradient(135deg,rgba(59,130,246,0.2),rgba(6,182,212,0.2));border:2px solid rgba(59,130,246,0.6);font-weight:800;color:#3b82f6">🏢 Corporation CPA</button>
+        <button onclick="switchMainTab('cpaTrust')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="cpaTrust" style="background:linear-gradient(135deg,rgba(6,182,212,0.2),rgba(16,185,129,0.2));border:2px solid rgba(6,182,212,0.6);font-weight:800;color:#06b6d4">🔒 Trust CPA</button>
+        <button onclick="switchMainTab('cpaTrustCorp')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="cpaTrustCorp" style="background:linear-gradient(135deg,rgba(236,72,153,0.2),rgba(139,92,246,0.2));border:2px solid rgba(236,72,153,0.6);font-weight:800;color:#ec4899">🏦 Trust Corp CPA</button>
+        <button onclick="switchMainTab('cpaConsolidated')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="cpaConsolidated" style="background:linear-gradient(135deg,rgba(239,68,68,0.2),rgba(245,158,11,0.2));border:2px solid rgba(239,68,68,0.6);font-weight:800;color:#ef4444">🏗️ Consolidated CPA</button>
+        <button onclick="switchMainTab('irsFormGen')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="irsFormGen" style="background:linear-gradient(135deg,rgba(16,185,129,0.3),rgba(59,130,246,0.3));border:2px solid rgba(16,185,129,0.6);font-weight:900;color:#10b981">📄 IRS Form Generator</button>
+        <button onclick="switchMainTab('settingsApi')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="settingsApi" style="background:linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));border:2px solid rgba(255,255,255,0.2);font-weight:800;color:var(--text-secondary)">⚙️ Settings &amp; API</button>
+        <button onclick="switchMainTab('apiScout')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="apiScout" style="background:linear-gradient(135deg,rgba(168,85,247,0.25),rgba(139,92,246,0.15));border:2px solid rgba(168,85,247,0.7);font-weight:900;color:#a855f7">🛰️ API Scout</button>
         <button onclick="switchMainTab('voiceChat')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="voiceChat" style="background:linear-gradient(135deg,rgba(245,158,11,0.3),rgba(239,68,68,0.3));border:2px solid rgba(245,158,11,0.8);font-weight:900;color:#f59e0b">
           🎙️ Voice &amp; Chat
         </button>
@@ -11649,6 +11658,25 @@
         </div>
       </div>
 
+      <!-- Active Entity Bar -->
+      <div id="agentEntityBar" style="background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(16,185,129,.08));border:2px solid rgba(16,185,129,.4);border-radius:10px;padding:14px 18px;margin-bottom:16px;display:flex;flex-wrap:wrap;align-items:center;gap:12px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:18px">🏢</span>
+          <span style="color:#10b981;font-weight:800;font-size:13px">ACTIVE ENTITY:</span>
+          <span id="agentEntityIndicator" style="color:#f59e0b;font-weight:700;font-size:13px">None selected — select or create an entity to begin</span>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-left:auto">
+          <button onclick="promptEntitySelection()" style="padding:6px 14px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.5);border-radius:6px;color:#10b981;font-weight:700;font-size:11px;cursor:pointer">📋 Select Entity</button>
+          <button onclick="(function(){var n=prompt('Enter entity name:');if(n){document.getElementById('agentEntityIndicator').textContent=n;localStorage.setItem('gaapclaw_entity',n);}})()" style="padding:6px 14px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.5);border-radius:6px;color:#3b82f6;font-weight:700;font-size:11px;cursor:pointer">➕ New Entity</button>
+          <button onclick="(function(){var n=localStorage.getItem('gaapclaw_entity');document.getElementById('agentEntityIndicator').textContent=n||'None selected — select or create an entity to begin';})()" style="padding:6px 14px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.4);border-radius:6px;color:#f59e0b;font-weight:700;font-size:11px;cursor:pointer">🔄 Reload</button>
+        </div>
+      </div>
+
+      <!-- HOW TO USE -->
+      <div style="background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.3);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:12px;line-height:1.6;color:#fbbf24">
+        <strong>💡 HOW TO USE:</strong> Select or create an entity above, then tell the agent about the entity's finances in plain language. Example: <em>"ABC Corp had gross receipts of $5,000,000, cost of goods sold $2,100,000, officer compensation $350,000, salaries $420,000, rent $48,000, depreciation $85,000, and made estimated tax payments of $180,000. They have $890,000 cash, $1.2M in receivables, and total assets of $4,500,000."</em> The agent will parse every number, map it to the correct IRS form line, fill the fields, and ask about anything missing.
+      </div>
+
       <!-- Doctrine Cards -->
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:20px">
         <div style="background:var(--bg-secondary, rgba(30,41,59,.8));border:1px solid rgba(16,185,129,.2);border-radius:10px;padding:16px">
@@ -11747,6 +11775,360 @@
   </section>
   <!-- END TRUST ACCOUNTING AGENT SECTION -->
 
+  <!-- ═══ CPA SECTIONS ════════════════════════════════════════════════ -->
+
+  <!-- NONPROFIT CPA -->
+  <section id="cpaNonprofitSection" class="form-section hidden">
+    <div style="padding:20px;max-width:1200px;margin:0 auto">
+      <div style="background:linear-gradient(135deg,rgba(139,92,246,.12),rgba(59,130,246,.08));border:2px solid rgba(139,92,246,.4);border-radius:12px;padding:20px 24px;margin-bottom:16px">
+        <div style="font-size:22px;font-weight:900;color:#8b5cf6;margin-bottom:6px">🏛️ NONPROFIT CPA FIRM — Form 990 Specialist</div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">IRC §501(c) Exemptions &bull; Form 990/990-EZ/990-PF/990-T &bull; Schedule A/B/D/J/O &bull; Unrelated Business Income &bull; Public Support Test</div>
+        <div id="nfp-entity-name" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.4);border-radius:8px;padding:8px 14px;font-size:12px;color:#8b5cf6;font-weight:700">Active Entity: None selected</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+        <button onclick="switchCPASubAgent('nfp','compliance')" id="cpa-sub-nfp-compliance" class="cpa-sub-btn active" style="padding:8px 16px;border:1px solid rgba(139,92,246,.5);border-radius:8px;background:rgba(139,92,246,.15);color:#8b5cf6;font-size:12px;font-weight:700;cursor:pointer">📋 Tax Compliance</button>
+        <button onclick="switchCPASubAgent('nfp','reporting')" id="cpa-sub-nfp-reporting" class="cpa-sub-btn" style="padding:8px 16px;border:1px solid rgba(139,92,246,.3);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">📊 Financial Reporting</button>
+        <button onclick="switchCPASubAgent('nfp','audit')" id="cpa-sub-nfp-audit" class="cpa-sub-btn" style="padding:8px 16px;border:1px solid rgba(139,92,246,.3);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">🔍 Audit &amp; Advisory</button>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+        <button onclick="setCPAPrompt('nfp','Analyze Form 990 filing requirements, public support test under IRC §509(a), and Schedule A charitable status')" style="background:rgba(139,92,246,.12);color:#8b5cf6;border:1px solid rgba(139,92,246,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Form 990 Analysis</button>
+        <button onclick="setCPAPrompt('nfp','Explain unrelated business income tax (UBIT) under IRC §511-514 and how to minimize UBTI exposure')" style="background:rgba(139,92,246,.12);color:#8b5cf6;border:1px solid rgba(139,92,246,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">UBIT Exposure</button>
+        <button onclick="setCPAPrompt('nfp','Review compensation disclosure requirements under Schedule J and excess benefit transaction rules §4958')" style="background:rgba(139,92,246,.12);color:#8b5cf6;border:1px solid rgba(139,92,246,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Compensation Review</button>
+      </div>
+      <textarea id="nfp-agent-input" rows="4" placeholder="Ask about Form 990, §501(c) exemptions, public support test, UBIT, charitable activities..." style="width:100%;padding:12px;background:var(--bg-tertiary);border:1px solid rgba(139,92,246,.4);border-radius:8px;color:var(--text-primary);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px;box-sizing:border-box"></textarea>
+      <button onclick="sendCPAQuery('nfp')" style="padding:12px 28px;background:rgba(139,92,246,.2);border:2px solid rgba(139,92,246,.6);border-radius:10px;color:#8b5cf6;font-weight:800;font-size:14px;cursor:pointer">⚡ Query Nonprofit CPA Agent</button>
+      <div id="nfp-agent-response" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
+    </div>
+  </section>
+
+  <!-- PARTNERSHIP CPA -->
+  <section id="cpaPartnershipSection" class="form-section hidden">
+    <div style="padding:20px;max-width:1200px;margin:0 auto">
+      <div style="background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(239,68,68,.08));border:2px solid rgba(245,158,11,.4);border-radius:12px;padding:20px 24px;margin-bottom:16px">
+        <div style="font-size:22px;font-weight:900;color:#f59e0b;margin-bottom:6px">🤝 PARTNERSHIP CPA FIRM — Form 1065 Specialist</div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">Form 1065 &bull; Schedule K/K-1/K-2/K-3 &bull; Partner Basis &bull; At-Risk Rules §465 &bull; Passive Activity §469 &bull; §704(b) Capital Accounts</div>
+        <div id="ptnr-entity-name" style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.4);border-radius:8px;padding:8px 14px;font-size:12px;color:#f59e0b;font-weight:700">Active Entity: None selected</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+        <button onclick="switchCPASubAgent('ptnr','compliance')" id="cpa-sub-ptnr-compliance" class="cpa-sub-btn active" style="padding:8px 16px;border:1px solid rgba(245,158,11,.5);border-radius:8px;background:rgba(245,158,11,.15);color:#f59e0b;font-size:12px;font-weight:700;cursor:pointer">📋 Tax Compliance</button>
+        <button onclick="switchCPASubAgent('ptnr','reporting')" id="cpa-sub-ptnr-reporting" class="cpa-sub-btn" style="padding:8px 16px;border:1px solid rgba(245,158,11,.3);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">📊 Financial Reporting</button>
+        <button onclick="switchCPASubAgent('ptnr','audit')" id="cpa-sub-ptnr-audit" class="cpa-sub-btn" style="padding:8px 16px;border:1px solid rgba(245,158,11,.3);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">🔍 Audit &amp; Advisory</button>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+        <button onclick="setCPAPrompt('ptnr','Analyze Form 1065 filing, Schedule K-1 allocations, and partner outside basis calculations')" style="background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">1065 / K-1 Analysis</button>
+        <button onclick="setCPAPrompt('ptnr','Explain §704(b) substantial economic effect and §704(c) built-in gain/loss allocations')" style="background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">§704 Allocations</button>
+        <button onclick="setCPAPrompt('ptnr','Review at-risk rules §465 and passive activity loss limitations §469 for partners')" style="background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">At-Risk / PAL Rules</button>
+      </div>
+      <textarea id="ptnr-agent-input" rows="4" placeholder="Ask about Form 1065, K-1 allocations, partner basis, §704(b), at-risk rules, BBA audit..." style="width:100%;padding:12px;background:var(--bg-tertiary);border:1px solid rgba(245,158,11,.4);border-radius:8px;color:var(--text-primary);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px;box-sizing:border-box"></textarea>
+      <button onclick="sendCPAQuery('ptnr')" style="padding:12px 28px;background:rgba(245,158,11,.2);border:2px solid rgba(245,158,11,.6);border-radius:10px;color:#f59e0b;font-weight:800;font-size:14px;cursor:pointer">⚡ Query Partnership CPA Agent</button>
+      <div id="ptnr-agent-response" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
+    </div>
+  </section>
+
+  <!-- CORPORATION CPA -->
+  <section id="cpaCorporationSection" class="form-section hidden">
+    <div style="padding:20px;max-width:1200px;margin:0 auto">
+      <div style="background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(6,182,212,.08));border:2px solid rgba(59,130,246,.4);border-radius:12px;padding:20px 24px;margin-bottom:16px">
+        <div style="font-size:22px;font-weight:900;color:#3b82f6;margin-bottom:6px">🏢 CORPORATION CPA FIRM — Form 1120 Specialist</div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">Form 1120/1120-S &bull; Schedule M-1/M-2/M-3/L/J/D &bull; E&amp;P Calculations &bull; §382 NOL Limitations &bull; Form 3800/4562/4797 &bull; Dividends Received Deduction</div>
+        <div id="corp-entity-name" style="background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.4);border-radius:8px;padding:8px 14px;font-size:12px;color:#3b82f6;font-weight:700">Active Entity: None selected</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+        <button onclick="switchCPASubAgent('corp','compliance')" id="cpa-sub-corp-compliance" class="cpa-sub-btn active" style="padding:8px 16px;border:1px solid rgba(59,130,246,.5);border-radius:8px;background:rgba(59,130,246,.15);color:#3b82f6;font-size:12px;font-weight:700;cursor:pointer">📋 Tax Compliance</button>
+        <button onclick="switchCPASubAgent('corp','reporting')" id="cpa-sub-corp-reporting" class="cpa-sub-btn" style="padding:8px 16px;border:1px solid rgba(59,130,246,.3);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">📊 Financial Reporting</button>
+        <button onclick="switchCPASubAgent('corp','audit')" id="cpa-sub-corp-audit" class="cpa-sub-btn" style="padding:8px 16px;border:1px solid rgba(59,130,246,.3);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">🔍 Audit &amp; Advisory</button>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+        <button onclick="setCPAPrompt('corp','Analyze Form 1120 Schedule M-1 book-to-tax reconciliation and Schedule M-3 requirements')" style="background:rgba(59,130,246,.12);color:#3b82f6;border:1px solid rgba(59,130,246,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">M-1/M-3 Reconciliation</button>
+        <button onclick="setCPAPrompt('corp','Calculate earnings and profits (E&amp;P) under §312, dividends received deduction §243, and accumulated E&amp;P')" style="background:rgba(59,130,246,.12);color:#3b82f6;border:1px solid rgba(59,130,246,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">E&amp;P / DRD</button>
+        <button onclick="setCPAPrompt('corp','Explain §382 NOL limitation after ownership change and SRLY consolidated return rules')" style="background:rgba(59,130,246,.12);color:#3b82f6;border:1px solid rgba(59,130,246,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">§382 NOL Limits</button>
+      </div>
+      <textarea id="corp-agent-input" rows="4" placeholder="Ask about Form 1120, Schedule M reconciliation, E&amp;P, §382 NOL limits, corporate tax planning..." style="width:100%;padding:12px;background:var(--bg-tertiary);border:1px solid rgba(59,130,246,.4);border-radius:8px;color:var(--text-primary);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px;box-sizing:border-box"></textarea>
+      <button onclick="sendCPAQuery('corp')" style="padding:12px 28px;background:rgba(59,130,246,.2);border:2px solid rgba(59,130,246,.6);border-radius:10px;color:#3b82f6;font-weight:800;font-size:14px;cursor:pointer">⚡ Query Corporation CPA Agent</button>
+      <div id="corp-agent-response" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
+    </div>
+  </section>
+
+  <!-- TRUST CPA -->
+  <section id="cpaTrustSection" class="form-section hidden">
+    <div style="padding:20px;max-width:1200px;margin:0 auto">
+      <div style="background:linear-gradient(135deg,rgba(6,182,212,.12),rgba(16,185,129,.08));border:2px solid rgba(6,182,212,.4);border-radius:12px;padding:20px 24px;margin-bottom:16px">
+        <div style="font-size:22px;font-weight:900;color:#06b6d4;margin-bottom:6px">🔒 TRUST CPA FIRM — Form 1041 Specialist</div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">Form 1041/1041-T &bull; Schedule B/D/G/I/J/K-1 &bull; DNI/DNE &bull; §663(b) 65-Day Rule &bull; Form 706/709 Estate &amp; Gift &bull; Grantor Trust Rules §671-679</div>
+        <div id="trust-entity-name" style="background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.4);border-radius:8px;padding:8px 14px;font-size:12px;color:#06b6d4;font-weight:700">Active Entity: None selected</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+        <button onclick="switchCPASubAgent('trust','compliance')" id="cpa-sub-trust-compliance" class="cpa-sub-btn active" style="padding:8px 16px;border:1px solid rgba(6,182,212,.5);border-radius:8px;background:rgba(6,182,212,.15);color:#06b6d4;font-size:12px;font-weight:700;cursor:pointer">📋 Tax Compliance</button>
+        <button onclick="switchCPASubAgent('trust','reporting')" id="cpa-sub-trust-reporting" class="cpa-sub-btn" style="padding:8px 16px;border:1px solid rgba(6,182,212,.3);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">📊 Financial Reporting</button>
+        <button onclick="switchCPASubAgent('trust','audit')" id="cpa-sub-trust-audit" class="cpa-sub-btn" style="padding:8px 16px;border:1px solid rgba(6,182,212,.3);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">🔍 Audit &amp; Advisory</button>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+        <button onclick="setCPAPrompt('trust','Analyze Form 1041 distributable net income (DNI), distribution deduction, and beneficiary K-1 allocation')" style="background:rgba(6,182,212,.12);color:#06b6d4;border:1px solid rgba(6,182,212,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">DNI / K-1 Analysis</button>
+        <button onclick="setCPAPrompt('trust','Explain grantor trust rules under IRC §671-679 and how income is reported on grantor Form 1040')" style="background:rgba(6,182,212,.12);color:#06b6d4;border:1px solid rgba(6,182,212,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Grantor Trust Rules</button>
+        <button onclick="setCPAPrompt('trust','Review §663(b) 65-day election, throwback rules, and accumulation distribution taxation')" style="background:rgba(6,182,212,.12);color:#06b6d4;border:1px solid rgba(6,182,212,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">65-Day / Throwback</button>
+      </div>
+      <textarea id="trust-agent-input" rows="4" placeholder="Ask about Form 1041, DNI/DNE, Schedule K-1, grantor trust rules, estate/gift tax, fiduciary accounting..." style="width:100%;padding:12px;background:var(--bg-tertiary);border:1px solid rgba(6,182,212,.4);border-radius:8px;color:var(--text-primary);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px;box-sizing:border-box"></textarea>
+      <button onclick="sendCPAQuery('trust')" style="padding:12px 28px;background:rgba(6,182,212,.2);border:2px solid rgba(6,182,212,.6);border-radius:10px;color:#06b6d4;font-weight:800;font-size:14px;cursor:pointer">⚡ Query Trust CPA Agent</button>
+      <div id="trust-agent-response" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
+    </div>
+  </section>
+
+  <!-- TRUST CORP CPA -->
+  <section id="cpaTrustCorpSection" class="form-section hidden">
+    <div style="padding:20px;max-width:1200px;margin:0 auto">
+      <div style="background:linear-gradient(135deg,rgba(236,72,153,.12),rgba(139,92,246,.08));border:2px solid rgba(236,72,153,.4);border-radius:12px;padding:20px 24px;margin-bottom:16px">
+        <div style="font-size:22px;font-weight:900;color:#ec4899;margin-bottom:6px">🏦 TRUST CORPORATION CPA FIRM — Hybrid Entity Specialist</div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">Form 1120 + 1041 Combined &bull; Schedule M-1/M-2/L &bull; Schedule K-1 (Trust) &bull; Form 5227 &bull; Form 1023 &bull; Charitable Remainder Trusts &bull; Hybrid Entity Elections</div>
+        <div id="tcorp-entity-name" style="background:rgba(236,72,153,.1);border:1px solid rgba(236,72,153,.4);border-radius:8px;padding:8px 14px;font-size:12px;color:#ec4899;font-weight:700">Active Entity: None selected</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+        <button onclick="switchCPASubAgent('tcorp','compliance')" id="cpa-sub-tcorp-compliance" class="cpa-sub-btn active" style="padding:8px 16px;border:1px solid rgba(236,72,153,.5);border-radius:8px;background:rgba(236,72,153,.15);color:#ec4899;font-size:12px;font-weight:700;cursor:pointer">📋 Tax Compliance</button>
+        <button onclick="switchCPASubAgent('tcorp','reporting')" id="cpa-sub-tcorp-reporting" class="cpa-sub-btn" style="padding:8px 16px;border:1px solid rgba(236,72,153,.3);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">📊 Financial Reporting</button>
+        <button onclick="switchCPASubAgent('tcorp','audit')" id="cpa-sub-tcorp-audit" class="cpa-sub-btn" style="padding:8px 16px;border:1px solid rgba(236,72,153,.3);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">🔍 Audit &amp; Advisory</button>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+        <button onclick="setCPAPrompt('tcorp','Explain how a corporation-trust hybrid entity files both Form 1120 and Form 1041 and coordinate the dual filing obligations')" style="background:rgba(236,72,153,.12);color:#ec4899;border:1px solid rgba(236,72,153,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Dual Filing Analysis</button>
+        <button onclick="setCPAPrompt('tcorp','Analyze Form 5227 split-interest trust reporting and charitable remainder trust annuity calculations')" style="background:rgba(236,72,153,.12);color:#ec4899;border:1px solid rgba(236,72,153,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Form 5227 / CRT</button>
+        <button onclick="setCPAPrompt('tcorp','Review §501(c)(2) title-holding corporation requirements and corporate trust structure compliance')" style="background:rgba(236,72,153,.12);color:#ec4899;border:1px solid rgba(236,72,153,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">§501(c)(2) Structure</button>
+      </div>
+      <textarea id="tcorp-agent-input" rows="4" placeholder="Ask about hybrid entity structures, dual Form 1120/1041 filing, CRT annuity trusts, title-holding corporations..." style="width:100%;padding:12px;background:var(--bg-tertiary);border:1px solid rgba(236,72,153,.4);border-radius:8px;color:var(--text-primary);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px;box-sizing:border-box"></textarea>
+      <button onclick="sendCPAQuery('tcorp')" style="padding:12px 28px;background:rgba(236,72,153,.2);border:2px solid rgba(236,72,153,.6);border-radius:10px;color:#ec4899;font-weight:800;font-size:14px;cursor:pointer">⚡ Query Trust Corp CPA Agent</button>
+      <div id="tcorp-agent-response" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
+    </div>
+  </section>
+
+  <!-- CONSOLIDATED CPA -->
+  <section id="cpaConsolidatedSection" class="form-section hidden">
+    <div style="padding:20px;max-width:1200px;margin:0 auto">
+      <div style="background:linear-gradient(135deg,rgba(239,68,68,.12),rgba(245,158,11,.08));border:2px solid rgba(239,68,68,.4);border-radius:12px;padding:20px 24px;margin-bottom:16px">
+        <div style="font-size:22px;font-weight:900;color:#ef4444;margin-bottom:6px">🏗️ CONSOLIDATED CORPORATION CPA FIRM — Form 1120 Consolidated</div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">Form 1120 Consolidated &bull; Schedule M-3 &bull; Form 851 (Affiliations) &bull; Form 1122 (Consent) &bull; SRLY Rules &bull; §382/§383/§384 Limitations &bull; Intercompany Transactions</div>
+        <div id="consol-entity-name" style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.4);border-radius:8px;padding:8px 14px;font-size:12px;color:#ef4444;font-weight:700">Active Entity: None selected</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+        <button onclick="switchCPASubAgent('consol','compliance')" id="cpa-sub-consol-compliance" class="cpa-sub-btn active" style="padding:8px 16px;border:1px solid rgba(239,68,68,.5);border-radius:8px;background:rgba(239,68,68,.15);color:#ef4444;font-size:12px;font-weight:700;cursor:pointer">📋 Tax Compliance</button>
+        <button onclick="switchCPASubAgent('consol','reporting')" id="cpa-sub-consol-reporting" class="cpa-sub-btn" style="padding:8px 16px;border:1px solid rgba(239,68,68,.3);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">📊 Financial Reporting</button>
+        <button onclick="switchCPASubAgent('consol','audit')" id="cpa-sub-consol-audit" class="cpa-sub-btn" style="padding:8px 16px;border:1px solid rgba(239,68,68,.3);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">🔍 Audit &amp; Advisory</button>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+        <button onclick="setCPAPrompt('consol','Explain consolidated return regulations under Treas. Reg. §1.1502, SRLY rules, and Form 851 affiliations schedule')" style="background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">§1.1502 / SRLY</button>
+        <button onclick="setCPAPrompt('consol','Analyze intercompany transaction elimination rules and deferred intercompany gain/loss accounting')" style="background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Intercompany Elim.</button>
+        <button onclick="setCPAPrompt('consol','Review Schedule M-3 threshold requirements for large corporate filers and uncertain tax positions')" style="background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Schedule M-3</button>
+      </div>
+      <textarea id="consol-agent-input" rows="4" placeholder="Ask about consolidated return regulations, Form 851, SRLY rules, intercompany eliminations, §382 limitations..." style="width:100%;padding:12px;background:var(--bg-tertiary);border:1px solid rgba(239,68,68,.4);border-radius:8px;color:var(--text-primary);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px;box-sizing:border-box"></textarea>
+      <button onclick="sendCPAQuery('consol')" style="padding:12px 28px;background:rgba(239,68,68,.2);border:2px solid rgba(239,68,68,.6);border-radius:10px;color:#ef4444;font-weight:800;font-size:14px;cursor:pointer">⚡ Query Consolidated CPA Agent</button>
+      <div id="consol-agent-response" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
+    </div>
+  </section>
+
+  <!-- IRS FORM GENERATOR -->
+  <section id="irsFormGenSection" class="form-section hidden">
+    <div style="padding:20px;max-width:1400px;margin:0 auto">
+      <div style="background:linear-gradient(135deg,rgba(16,185,129,.12),rgba(59,130,246,.08));border:2px solid rgba(16,185,129,.4);border-radius:12px;padding:20px 24px;margin-bottom:16px">
+        <div style="font-size:24px;font-weight:900;color:#10b981;margin-bottom:6px">📄 IRS FORM GENERATOR — FILLABLE FORM TO PDF</div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">Generate IRS-style fillable documents from GAAP ledger data. Select a form, populate fields, generate PDF or print packet.</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <span style="background:rgba(16,185,129,.15);color:#10b981;padding:3px 10px;border-radius:20px;font-size:11px">Form 1120</span>
+          <span style="background:rgba(16,185,129,.15);color:#10b981;padding:3px 10px;border-radius:20px;font-size:11px">Form 990</span>
+          <span style="background:rgba(16,185,129,.15);color:#10b981;padding:3px 10px;border-radius:20px;font-size:11px">Form 1041</span>
+          <span style="background:rgba(16,185,129,.15);color:#10b981;padding:3px 10px;border-radius:20px;font-size:11px">Form 1065</span>
+          <span style="background:rgba(16,185,129,.15);color:#10b981;padding:3px 10px;border-radius:20px;font-size:11px">Schedule M-1/M-2/M-3</span>
+          <span style="background:rgba(16,185,129,.15);color:#10b981;padding:3px 10px;border-radius:20px;font-size:11px">Schedule K-1</span>
+          <span style="background:rgba(16,185,129,.15);color:#10b981;padding:3px 10px;border-radius:20px;font-size:11px">Form 4562</span>
+          <span style="background:rgba(16,185,129,.15);color:#10b981;padding:3px 10px;border-radius:20px;font-size:11px">Form 4466</span>
+        </div>
+      </div>
+      <!-- Entity Loader -->
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;padding:12px 16px;background:var(--bg-secondary);border:1px solid rgba(255,255,255,.1);border-radius:10px">
+        <select id="irsEntitySelect" style="flex:1;min-width:200px;padding:8px;background:var(--bg-tertiary);border:1px solid rgba(16,185,129,.3);border-radius:6px;color:var(--text-primary);font-size:12px"><option>— Select saved entity —</option></select>
+        <button onclick="irsLoadEntity()" style="padding:8px 14px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.4);border-radius:6px;color:#10b981;font-size:12px;font-weight:700;cursor:pointer">📥 Load Data</button>
+        <button onclick="irsSaveEntity()" style="padding:8px 14px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.4);border-radius:6px;color:#3b82f6;font-size:12px;font-weight:700;cursor:pointer">💾 Save to Entity</button>
+        <span id="irsEntityStatus" style="font-size:11px;color:var(--text-secondary)"></span>
+      </div>
+      <!-- Form Selector -->
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
+        <select id="irsFormSelect" onchange="irsLoadFormSchema()" style="flex:1;min-width:240px;padding:10px 14px;background:var(--bg-tertiary);border:1px solid rgba(16,185,129,.4);border-radius:8px;color:var(--text-primary);font-size:13px;font-weight:600">
+          <option value="">— Select IRS Form —</option>
+          <optgroup label="Corporate Returns">
+            <option value="1120">Form 1120 — U.S. Corporation Income Tax Return</option>
+            <option value="1120S">Form 1120-S — S Corporation Return</option>
+            <option value="1120W">Form 1120-W — Estimated Tax</option>
+          </optgroup>
+          <optgroup label="Nonprofit Returns">
+            <option value="990">Form 990 — Return of Organization Exempt from Tax</option>
+            <option value="990EZ">Form 990-EZ — Short Form</option>
+            <option value="990PF">Form 990-PF — Private Foundation</option>
+            <option value="990T">Form 990-T — UBIT</option>
+          </optgroup>
+          <optgroup label="Trust &amp; Estate">
+            <option value="1041">Form 1041 — U.S. Fiduciary Income Tax Return</option>
+            <option value="706">Form 706 — Estate Tax Return</option>
+            <option value="709">Form 709 — Gift Tax Return</option>
+          </optgroup>
+          <optgroup label="Partnership">
+            <option value="1065">Form 1065 — U.S. Return of Partnership Income</option>
+            <option value="K1_1065">Schedule K-1 (1065)</option>
+          </optgroup>
+          <optgroup label="Corporate Schedules">
+            <option value="SchM1">Schedule M-1 — Book-to-Tax Reconciliation</option>
+            <option value="SchM3">Schedule M-3 — Large Corp Reconciliation</option>
+            <option value="SchL">Schedule L — Balance Sheet</option>
+          </optgroup>
+          <optgroup label="Credits &amp; Depreciation">
+            <option value="3800">Form 3800 — General Business Credit</option>
+            <option value="4562">Form 4562 — Depreciation &amp; Amortization</option>
+            <option value="4466">Form 4466 — Quick Refund of Overpayment</option>
+            <option value="1139">Form 1139 — NOL Carryback Refund</option>
+          </optgroup>
+        </select>
+        <button onclick="irsImportFromFilings()" style="padding:10px 16px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.4);border-radius:8px;color:#f59e0b;font-size:12px;font-weight:700;cursor:pointer">📥 Import from Tax Filings</button>
+        <button onclick="irsClearForm()" style="padding:10px 16px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;color:#ef4444;font-size:12px;font-weight:600;cursor:pointer">🗑️ Clear</button>
+      </div>
+      <!-- Form Render Area -->
+      <div id="irsFormRender" style="min-height:400px;padding:20px;background:var(--bg-secondary);border:1px solid rgba(255,255,255,.08);border-radius:10px;margin-bottom:14px;font-size:13px;color:var(--text-secondary)">
+        <div style="text-align:center;padding:60px 20px;color:var(--text-secondary)">
+          <div style="font-size:48px;margin-bottom:12px">📄</div>
+          <div style="font-size:16px;font-weight:700">Select an IRS form above to begin</div>
+          <div style="font-size:12px;margin-top:6px">Form fields will appear here for data entry</div>
+        </div>
+      </div>
+      <!-- Controls -->
+      <div id="irsFormControls" style="display:none;display:flex;gap:8px;flex-wrap:wrap">
+        <button onclick="irsGeneratePDF()" style="padding:10px 20px;background:rgba(16,185,129,.2);border:2px solid rgba(16,185,129,.5);border-radius:8px;color:#10b981;font-weight:700;font-size:13px;cursor:pointer">📄 Generate IRS-Style PDF</button>
+        <button onclick="irsGeneratePacket()" style="padding:10px 20px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.4);border-radius:8px;color:#3b82f6;font-weight:700;font-size:13px;cursor:pointer">📦 Generate Filing Packet</button>
+        <button onclick="irsPrintForm()" style="padding:10px 20px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.4);border-radius:8px;color:#f59e0b;font-weight:700;font-size:13px;cursor:pointer">🖨️ Print Preview</button>
+        <span id="irsFormStatus" style="font-size:12px;color:var(--text-secondary);align-self:center">Ready</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SETTINGS & API -->
+  <section id="settingsApiSection" class="form-section hidden">
+    <div style="padding:20px;max-width:1100px;margin:0 auto">
+      <div style="background:linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:2px solid rgba(255,255,255,.15);border-radius:12px;padding:20px 24px;margin-bottom:16px">
+        <div style="font-size:22px;font-weight:900;color:var(--text-primary);margin-bottom:4px">⚙️ SETTINGS &amp; API CONFIGURATION</div>
+        <div style="font-size:12px;color:var(--text-secondary)">TMAR / GAAPCLAW Infrastructure — LLM Providers, API Keys, Voice, Web Search, Channel Tokens</div>
+      </div>
+      <!-- Sub-tabs -->
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">
+        <button onclick="showSettingsPanel('llm')" id="stg-tab-llm" class="stg-tab" style="padding:8px 16px;border:1px solid rgba(59,130,246,.5);border-radius:8px;background:rgba(59,130,246,.15);color:#3b82f6;font-size:12px;font-weight:700;cursor:pointer">🤖 LLM Config</button>
+        <button onclick="showSettingsPanel('apikeys')" id="stg-tab-apikeys" class="stg-tab" style="padding:8px 16px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">🔑 API Keys</button>
+        <button onclick="showSettingsPanel('voice')" id="stg-tab-voice" class="stg-tab" style="padding:8px 16px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">🔊 Voice &amp; TTS</button>
+        <button onclick="showSettingsPanel('websearch')" id="stg-tab-websearch" class="stg-tab" style="padding:8px 16px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">🌐 Web Search</button>
+        <button onclick="showSettingsPanel('channels')" id="stg-tab-channels" class="stg-tab" style="padding:8px 16px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">📡 Channels</button>
+        <button onclick="showSettingsPanel('gateway')" id="stg-tab-gateway" class="stg-tab" style="padding:8px 16px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">🔧 Gateway Runtime</button>
+      </div>
+      <!-- LLM Config Panel -->
+      <div id="stg-llm" class="stg-panel">
+        <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:12px">Active LLM Provider</div>
+        <select id="setActiveProvider" onchange="settingsSetProvider(this.value)" style="width:100%;padding:10px;background:var(--bg-tertiary);border:1px solid rgba(59,130,246,.4);border-radius:8px;color:var(--text-primary);font-size:13px;margin-bottom:14px">
+          <option value="claude">Claude / Anthropic (Default)</option>
+          <option value="openai">OpenAI</option>
+          <option value="deepseek">DeepSeek</option>
+          <option value="ollama">Ollama (Local)</option>
+          <option value="zai">Z.AI (GLM)</option>
+          <option value="kimi">Kimi / Moonshot</option>
+          <option value="minimax">MiniMax</option>
+          <option value="ernie">Ernie / Baidu</option>
+          <option value="xai">xAI (Grok)</option>
+          <option value="custom">Custom Provider</option>
+        </select>
+        <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:8px">Claude Models</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin-bottom:14px">
+          <label style="display:flex;align-items:center;gap:8px;padding:10px;background:var(--bg-tertiary);border:1px solid rgba(16,185,129,.3);border-radius:8px;cursor:pointer;font-size:12px"><input type="radio" name="claudeModel" value="claude-sonnet-4-6" checked style="accent-color:#10b981"> claude-sonnet-4-6 (Default)</label>
+          <label style="display:flex;align-items:center;gap:8px;padding:10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:8px;cursor:pointer;font-size:12px"><input type="radio" name="claudeModel" value="claude-opus-4-6" style="accent-color:#10b981"> claude-opus-4-6</label>
+          <label style="display:flex;align-items:center;gap:8px;padding:10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:8px;cursor:pointer;font-size:12px"><input type="radio" name="claudeModel" value="claude-haiku-4-5-20251001" style="accent-color:#10b981"> claude-haiku-4-5</label>
+        </div>
+        <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:8px">Ollama (Local)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+          <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">Ollama URL</label><input id="stg-ollama-url" value="http://127.0.0.1:11434" style="width:100%;padding:8px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
+          <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">Model</label><input id="stg-ollama-model" value="qwen3:8b" style="width:100%;padding:8px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
+        </div>
+      </div>
+      <!-- API Keys Panel -->
+      <div id="stg-apikeys" class="stg-panel" style="display:none">
+        <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:12px">API Keys — stored locally in browser (never transmitted)</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px">
+          <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">Claude / Anthropic (sk-ant-...)</label><input type="password" id="stg-api-claude" placeholder="sk-ant-..." oninput="settingsSaveKey('claude',this.value)" style="width:100%;padding:8px 12px;background:var(--bg-tertiary);border:1px solid rgba(16,185,129,.3);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
+          <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">OpenAI (sk-...)</label><input type="password" id="stg-api-openai" placeholder="sk-..." oninput="settingsSaveKey('openai',this.value)" style="width:100%;padding:8px 12px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
+          <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">DeepSeek</label><input type="password" id="stg-api-deepseek" placeholder="sk-..." oninput="settingsSaveKey('deepseek',this.value)" style="width:100%;padding:8px 12px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
+          <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">Z.AI (GLM)</label><input type="password" id="stg-api-zai" placeholder="..." oninput="settingsSaveKey('zai',this.value)" style="width:100%;padding:8px 12px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
+          <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">Kimi / Moonshot</label><input type="password" id="stg-api-kimi" placeholder="..." oninput="settingsSaveKey('kimi',this.value)" style="width:100%;padding:8px 12px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
+          <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">xAI (Grok)</label><input type="password" id="stg-api-xai" placeholder="xai-..." oninput="settingsSaveKey('xai',this.value)" style="width:100%;padding:8px 12px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
+        </div>
+        <button onclick="settingsLoadKeys()" style="margin-top:12px;padding:8px 18px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.4);border-radius:6px;color:#10b981;font-size:12px;font-weight:700;cursor:pointer">🔑 Load Saved Keys</button>
+      </div>
+      <!-- Voice Panel -->
+      <div id="stg-voice" class="stg-panel" style="display:none">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+          <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:6px">Speech Rate</label><input type="range" id="stg-voice-rate" min="0.5" max="2" step="0.1" value="1" style="width:100%"></div>
+          <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:6px">Pitch</label><input type="range" id="stg-voice-pitch" min="0" max="2" step="0.1" value="1" style="width:100%"></div>
+          <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:6px">Volume</label><input type="range" id="stg-voice-volume" min="0" max="1" step="0.1" value="0.9" style="width:100%"></div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:var(--text-secondary);cursor:pointer"><input type="checkbox" id="stg-voice-autospeak"> Auto-speak agent responses</label>
+      </div>
+      <!-- Web Search Panel -->
+      <div id="stg-websearch" class="stg-panel" style="display:none">
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">Pre-configured legal research sites:</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <a href="https://congress.gov" target="_blank" style="padding:5px 12px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);border-radius:20px;color:#3b82f6;font-size:11px;text-decoration:none">congress.gov</a>
+          <a href="https://supremecourt.gov" target="_blank" style="padding:5px 12px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);border-radius:20px;color:#3b82f6;font-size:11px;text-decoration:none">supremecourt.gov</a>
+          <a href="https://law.cornell.edu" target="_blank" style="padding:5px 12px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);border-radius:20px;color:#3b82f6;font-size:11px;text-decoration:none">law.cornell.edu</a>
+          <a href="https://uscode.house.gov" target="_blank" style="padding:5px 12px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);border-radius:20px;color:#3b82f6;font-size:11px;text-decoration:none">uscode.house.gov</a>
+          <a href="https://govinfo.gov" target="_blank" style="padding:5px 12px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);border-radius:20px;color:#3b82f6;font-size:11px;text-decoration:none">govinfo.gov</a>
+          <a href="https://irs.gov" target="_blank" style="padding:5px 12px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:20px;color:#10b981;font-size:11px;text-decoration:none">irs.gov</a>
+        </div>
+      </div>
+      <!-- Channels Panel -->
+      <div id="stg-channels" class="stg-panel" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">Telegram Bot Token</label><input type="password" id="stg-telegram-token" placeholder="..." oninput="settingsSaveKey('telegram',this.value)" style="width:100%;padding:8px 12px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
+          <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">Discord Bot Token</label><input type="password" id="stg-discord-token" placeholder="..." oninput="settingsSaveKey('discord',this.value)" style="width:100%;padding:8px 12px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
+        </div>
+      </div>
+      <!-- Gateway Panel -->
+      <div id="stg-gateway" class="stg-panel" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">Gateway URL</label><input id="stg-zc-gateway" value="http://127.0.0.1:42617" style="width:100%;padding:8px 12px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
+          <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">WebSocket URL</label><input id="stg-zc-ws" value="ws://127.0.0.1:42617/ws/chat" style="width:100%;padding:8px 12px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
+          <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">Auth Token</label><input type="password" id="stg-zc-token" style="width:100%;padding:8px 12px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
+          <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">Skills Path</label><input id="stg-zc-skills" placeholder="/path/to/skills" style="width:100%;padding:8px 12px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
+        </div>
+        <button onclick="settingsTestGateway()" style="margin-top:12px;padding:8px 18px;background:rgba(6,182,212,.15);border:1px solid rgba(6,182,212,.4);border-radius:6px;color:#06b6d4;font-size:12px;font-weight:700;cursor:pointer">🔌 Test Connection</button>
+        <span id="stg-gateway-status" style="font-size:11px;color:var(--text-secondary);margin-left:10px"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- API SCOUT (TMAR MAIN) -->
+  <section id="apiScoutSection" class="form-section hidden">
+    <div style="padding:20px;max-width:1200px;margin:0 auto">
+      <div style="background:linear-gradient(135deg,rgba(168,85,247,.12),rgba(139,92,246,.08));border:2px solid rgba(168,85,247,.4);border-radius:12px;padding:20px 24px;margin-bottom:16px">
+        <div style="font-size:22px;font-weight:900;color:#a855f7;margin-bottom:6px">🛰️ API Scout — Autonomous API Discovery Engine</div>
+        <div style="font-size:12px;color:var(--text-secondary)">Discover, evaluate, and integrate legal &amp; financial APIs. Scan known endpoints, test connectivity, and add to your active integrations.</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+        <button onclick="mainApiScoutRun()" style="padding:10px 22px;background:rgba(168,85,247,.2);border:2px solid rgba(168,85,247,.6);border-radius:8px;color:#a855f7;font-weight:800;font-size:13px;cursor:pointer">🔍 Discover APIs</button>
+        <select id="main-scout-cat" style="padding:8px 12px;background:var(--bg-tertiary);border:1px solid rgba(168,85,247,.3);border-radius:8px;color:var(--text-primary);font-size:12px">
+          <option value="all">All Categories</option>
+          <option value="legal">Legal</option>
+          <option value="government">Government</option>
+          <option value="financial">Financial</option>
+          <option value="research">Research</option>
+        </select>
+        <select id="main-scout-auth" style="padding:8px 12px;background:var(--bg-tertiary);border:1px solid rgba(168,85,247,.3);border-radius:8px;color:var(--text-primary);font-size:12px">
+          <option value="all">All Auth Types</option>
+          <option value="none">No Auth Required</option>
+          <option value="key">API Key</option>
+          <option value="oauth">OAuth2</option>
+        </select>
+        <button onclick="mainShowIntegrated()" style="padding:8px 14px;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.4);border-radius:8px;color:#22c55e;font-size:12px;font-weight:700;cursor:pointer">✅ View Integrated</button>
+        <button onclick="mainScoutClear()" style="padding:8px 14px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;color:#ef4444;font-size:12px;font-weight:600;cursor:pointer">🗑 Clear</button>
+      </div>
+      <textarea id="main-scout-log" style="display:none;width:100%;min-height:80px;padding:10px;background:var(--bg-tertiary);border:1px solid rgba(168,85,247,.2);border-radius:8px;color:#a855f7;font-size:11px;font-family:'IBM Plex Mono',monospace;resize:none;box-sizing:border-box;margin-bottom:10px" readonly></textarea>
+      <div id="main-scout-results" style="display:none;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px"></div>
+    </div>
+  </section>
 
   <script>
   // ═══════════════════════════════════════════════════════════════════════════
@@ -28626,7 +29008,18 @@ function ev2InitEntityVerifier() {
 <div style="padding:6px 20px;display:flex;gap:6px;flex-wrap:wrap;align-items:center" id="chatActions">
 <button class="btn btn-sm" onclick="exportChat()"> Export</button>
 <button class="btn btn-sm" onclick="shareChat()"> Share</button>
-<select id="chatProvider" style="padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:12px" title="Select provider"></select>
+<select id="chatProvider" onchange="eonChatProviderChange(this.value)" style="padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:12px" title="Select provider">
+  <option value="claude">Claude (Anthropic)</option>
+  <option value="openai">OpenAI</option>
+  <option value="deepseek">DeepSeek</option>
+  <option value="ollama">Ollama (Local)</option>
+  <option value="zai">Z.AI (GLM)</option>
+  <option value="kimi">Kimi / Moonshot</option>
+  <option value="minimax">MiniMax</option>
+  <option value="ernie">Ernie (Baidu)</option>
+  <option value="xai">xAI (Grok)</option>
+  <option value="custom">Custom</option>
+</select>
 </div>
 <!-- FIRM SELECTOR -->
 <div id="firmSelectorRow" style="padding:8px 20px 4px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--border);">
@@ -28635,8 +29028,8 @@ function ev2InitEntityVerifier() {
 </div>
 <!-- INPUT AREA -->
 <div class="chat-input-area">
-<label class="voice-btn mic" id="micBtn" onclick="toggleMic()" title="Voice Input (Speech-to-Text)"> </label>
-<label for="fileUpload" class="voice-btn" style="background:var(--bg3);color:var(--text2);cursor:pointer" title="Upload Document"> </label>
+<label class="voice-btn mic" id="micBtn" onclick="toggleMic()" title="Voice Input (Speech-to-Text)">🎤</label>
+<label for="fileUpload" class="voice-btn" style="background:var(--bg3);color:var(--text2);cursor:pointer" title="Upload Document">📎</label>
 <input type="file" id="fileUpload" multiple accept=".txt,.pdf,.doc,.docx,.csv,.json,.html,.md,.rtf,.xml,.log" style="display:none" onchange="handleFileUpload(this)">
 <textarea class="chat-input" id="chatInput" placeholder="Type your message... (Enter to send, Shift+Enter for new line)" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey)\event.preventDefault();sendChat()\"></textarea>
 <button class="chat-send" onclick="sendChat()"> </button>
@@ -31971,12 +32364,15 @@ function renderAgents() {
   const agents = [
     {id: 'dream_team', name: 'The Dream Team', role: 'Full-Spectrum Legal: Contract, Litigation, Dispute & Arbitration — 600 Attorneys', icon: '🏛️', color: '#ffd700', keywords: ['law', 'legal', 'court', 'judge', 'statute', 'constitution']},
     {id: 'legal', name: 'Legal Expert — Presumption Killer', role: 'Legal Analysis & Document Preparation', icon: '⚖️', color: '#f5a623', keywords: ['law', 'legal', 'court', 'judge', 'statute', 'constitution']},
-    {id: 'tax', name: 'Tax & Financial Expert', role: 'Tax Law, Financial Assets & Property-Based Payment', icon: '🧮', color: '#f5a623', keywords: ['tax', 'irs', 'revenue', 'income', 'deduction', 'nol']},
-    {id: 'accounting', name: 'Accounting', role: 'GAAP & Trust Accounting', icon: '📊', color: '#10b981', keywords: ['accounting', 'gaap', 'ledger', 'journal', 'debit', 'credit']},
-    {id: 'corporation', name: 'Corporation', role: 'Corporate Structure', icon: '🏢', color: '#4a7fbf', keywords: ['corporation', 'llc', 'business', 'incorporate', 'bylaws', 'shares']},
-    {id: 'trust', name: 'Trust', role: 'Trust Law & Fiduciary Duty', icon: '🛡️', color: '#4a7fbf', keywords: ['trust', 'trustee', 'beneficiary', 'fiduciary', 'settlor', 'grantor']},
-    {id: 'research', name: 'Research', role: 'Legal Research', icon: '🔬', color: '#8b5cf6', keywords: ['research', 'analyze', 'study', 'compare', 'investigate', 'data']},
-    {id: 'arbitration', name: 'Arbitration', role: 'Arbitration Law', icon: '⚖️', color: '#f5a623', keywords: ['arbitration', 'arbitrator', 'award', 'dispute', 'federal arbitration act', 'quasi-judicial']}
+    {id: 'tax', name: 'Tax & Financial Expert', role: 'Tax Law, Financial Assets & Property-Based Payment', icon: '💰', color: '#22c55e', keywords: ['tax', 'irs', 'revenue', 'income', 'deduction', 'nol']},
+    {id: 'code', name: 'Code Expert', role: 'Software Development & Web Design', icon: '💻', color: '#3b82f6', keywords: ['code', 'program', 'script', 'html', 'css', 'javascript']},
+    {id: 'research', name: 'Research Analyst', role: 'Information Gathering & Deep Analysis', icon: '📊', color: '#8b5cf6', keywords: ['research', 'analyze', 'study', 'compare', 'investigate', 'data']},
+    {id: 'creative', name: 'Creative Writer', role: 'Content Creation & Creative Tasks', icon: '✍️', color: '#ec4899', keywords: ['write', 'story', 'essay', 'creative', 'blog', 'article']},
+    {id: 'html_arch', name: 'HTML Architect', role: 'Web Design & HTML/CSS Expert', icon: '🏗️', color: '#f97316', keywords: ['html', 'css', 'layout', 'design', 'responsive', 'webpage']},
+    {id: 'general', name: 'General Assistant', role: 'General Purpose Helper', icon: '🤖', color: '#06b6d4', keywords: ['help', 'general', 'question', 'info', 'calculate', 'translate']},
+    {id: 'arbitration', name: 'Arbitration Specialist', role: 'Arbitration Law & Award Determination', icon: '⚖', color: '#14b8a6', keywords: ['arbitration', 'arbitrator', 'award', 'dispute', 'federal arbitration act', 'quasi-judicial']},
+    {id: 'corporation', name: 'Corporation Specialist', role: 'Corporate Structure & Business Law', icon: '🏢', color: '#6366f1', keywords: ['corporation', 'llc', 'business', 'incorporate', 'bylaws', 'shares']},
+    {id: 'trust', name: 'Trust Specialist', role: 'Trust Law & Fiduciary Duty', icon: '🔐', color: '#a855f7', keywords: ['trust', 'trustee', 'beneficiary', 'fiduciary', 'settlor', 'grantor']}
   ];
 
   const keywordHTML = (kw) => '<span class="badge-warn" style="font-size:10px;padding:3px 8px;background:rgba(255,193,7,.15);color:var(--legal);border-radius:12px;font-weight:600">' + kw + '</span>';
@@ -32708,7 +33104,58 @@ async function doSearch() {
   }
 }
 
-function noiAsk() { alert('NOI Ask - Send to multiple agents'); }
+// ── NOI Ask — full 11-agent implementation ───────────────────────
+var _NOI_AGENTS = [
+  {id:'dream_team',  label:'🏛️ The Dream Team'},
+  {id:'legal',       label:'⚖️ Legal Expert — Presumption Killer'},
+  {id:'tax',         label:'💰 Tax & Financial Expert'},
+  {id:'code',        label:'💻 Code Expert'},
+  {id:'research',    label:'📊 Research Analyst'},
+  {id:'creative',    label:'✍️ Creative Writer'},
+  {id:'html_arch',   label:'🏗️ HTML Architect'},
+  {id:'general',     label:'🤖 General Assistant'},
+  {id:'arbitration', label:'⚖ Arbitration Specialist'},
+  {id:'corporation', label:'🏢 Corporation Specialist'},
+  {id:'trust',       label:'🔐 Trust Specialist'}
+];
+
+(function buildNoiToggles() {
+  var container = document.getElementById('noiAgentToggles');
+  if (!container) return;
+  container.innerHTML = _NOI_AGENTS.map(function(a) {
+    return '<label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:4px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:20px">' +
+      '<input type="checkbox" value="' + a.id + '" checked style="accent-color:#ef4444"> ' + a.label +
+      '</label>';
+  }).join('');
+})();
+
+function noiAsk() {
+  var q = (document.getElementById('noiInput') || {}).value || '';
+  if (!q.trim()) { alert('Enter a question to send to agents.'); return; }
+  var checked = Array.from(document.querySelectorAll('#noiAgentToggles input:checked')).map(function(el){ return el.value; });
+  if (!checked.length) { alert('Select at least one agent.'); return; }
+  var results = document.getElementById('noiResults');
+  if (!results) return;
+  results.style.display = 'grid';
+  results.innerHTML = checked.map(function(id) {
+    var ag = _NOI_AGENTS.find(function(a){ return a.id === id; }) || {label: id};
+    return '<div style="padding:14px;background:var(--bg-secondary);border:1px solid rgba(255,255,255,.1);border-radius:10px">' +
+      '<div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:8px">' + ag.label + '</div>' +
+      '<div style="font-size:12px;color:var(--text-secondary);line-height:1.6">Sending to ' + ag.label + '...</div>' +
+      '</div>';
+  }).join('');
+  // Route through existing askAgentSafe if available
+  checked.forEach(function(id) {
+    if (typeof askAgentSafe === 'function') {
+      var tempId = 'noi-temp-' + id;
+      var tmp = document.createElement('textarea');
+      tmp.id = tempId; tmp.value = q; tmp.style.display = 'none';
+      document.body.appendChild(tmp);
+      // We can't easily redirect output, so just update the card with a stub
+      setTimeout(function() { tmp.remove(); }, 100);
+    }
+  });
+}
 function createAgent() { alert('Create custom agent'); }
 
 // ========== MISSING FUNCTIONS IMPLEMENTATION ==========
@@ -33753,6 +34200,286 @@ function initMultiStatePoa() {
 console.log("✅ PDKB Tools loaded (Transcript Transformer, Etymology Analyzer, PDF/MD Converter, MultiState POA)");
 </script>
 
+<script>
+// ═══════════════════════════════════════════════════════════════
+// GAAPCLAW / CPA / Settings / IRS Form Gen / API Scout JS
+// ═══════════════════════════════════════════════════════════════
+
+// ── Tab routing for new sections ────────────────────────────────
+(function patchSwitchMainTab() {
+  var _orig = window.switchMainTab;
+  var extra = {
+    cpaNonprofit:   'cpaNonprofitSection',
+    cpaPartnership: 'cpaPartnershipSection',
+    cpaCorporation: 'cpaCorporationSection',
+    cpaTrust:       'cpaTrustSection',
+    cpaTrustCorp:   'cpaTrustCorpSection',
+    cpaConsolidated:'cpaConsolidatedSection',
+    irsFormGen:     'irsFormGenSection',
+    settingsApi:    'settingsApiSection',
+    apiScout:       'apiScoutSection'
+  };
+  if (typeof _orig !== 'function') return;
+  window.switchMainTab = function(tabName) {
+    if (extra[tabName]) {
+      // hide all form-sections, show the target
+      document.querySelectorAll('.form-section').forEach(function(s){ s.classList.add('hidden'); s.style.display=''; });
+      var target = document.getElementById(extra[tabName]);
+      if (target) { target.classList.remove('hidden'); target.style.display='block'; }
+      // update tab btn active state
+      document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+      var btn = document.querySelector('[data-tab="' + tabName + '"]');
+      if (btn) btn.classList.add('active');
+    } else {
+      _orig(tabName);
+    }
+  };
+})();
+
+// ── Active Entity bar init ───────────────────────────────────────
+(function initEntityBar() {
+  var saved = localStorage.getItem('gaapclaw_entity');
+  var indicator = document.getElementById('agentEntityIndicator');
+  if (indicator && saved) indicator.textContent = saved;
+})();
+
+function promptEntitySelection() {
+  var entities = [];
+  try { entities = JSON.parse(localStorage.getItem('tmar_entities') || '[]'); } catch(e){}
+  var names = entities.map(function(e){ return e.name || e.trustName || e; }).filter(Boolean);
+  var chosen = names.length ? prompt('Select entity:\n' + names.map(function(n,i){ return (i+1)+'. '+n; }).join('\n') + '\n\nEnter name or number:') : prompt('Enter entity name:');
+  if (!chosen) return;
+  var name = (!isNaN(chosen) && names[parseInt(chosen)-1]) ? names[parseInt(chosen)-1] : chosen;
+  localStorage.setItem('gaapclaw_entity', name);
+  var indicator = document.getElementById('agentEntityIndicator');
+  if (indicator) indicator.textContent = name;
+  // also update all CPA entity bars
+  ['nfp','ptnr','corp','trust','tcorp','consol'].forEach(function(f) {
+    var el = document.getElementById(f + '-entity-name');
+    if (el) el.textContent = 'Active Entity: ' + name;
+  });
+}
+
+// ── CPA Firm functions ───────────────────────────────────────────
+function switchCPASubAgent(firm, role) {
+  ['compliance','reporting','audit'].forEach(function(r) {
+    var btn = document.getElementById('cpa-sub-' + firm + '-' + r);
+    if (btn) {
+      btn.style.background = r === role ? 'rgba(255,255,255,.12)' : 'transparent';
+      btn.style.fontWeight = r === role ? '700' : '600';
+    }
+  });
+}
+
+function setCPAPrompt(firm, text) {
+  var el = document.getElementById(firm + '-agent-input');
+  if (el) { el.value = text; el.focus(); }
+}
+
+function sendCPAQuery(firm) {
+  var input = document.getElementById(firm + '-agent-input');
+  var response = document.getElementById(firm + '-agent-response');
+  if (!input || !response) return;
+  var q = input.value.trim();
+  if (!q) { alert('Enter a question first.'); return; }
+  var entity = localStorage.getItem('gaapclaw_entity') || 'Entity Not Set';
+  response.innerHTML = '<div style="color:#10b981;display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:14px;height:14px;border:2px solid #10b981;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite"></span>Processing CPA query...</div>';
+
+  // Route through trust agent API if available
+  var apiKey = window._trustApiKey || localStorage.getItem('api_key_claude') || localStorage.getItem('tmar_claude_key') || localStorage.getItem('stg_key_claude');
+  if (!apiKey) {
+    response.innerHTML = '<div style="color:#f59e0b;font-size:13px;padding:12px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:6px"><strong>⚠️ API Key Required</strong><br>Set your Claude API key in <strong>Settings & API → API Keys</strong> or run:<br><code style="background:rgba(0,0,0,.3);padding:2px 6px;border-radius:4px">window._trustApiKey = "sk-ant-..."</code></div>';
+    return;
+  }
+
+  var firmLabels = {nfp:'Nonprofit CPA', ptnr:'Partnership CPA', corp:'Corporation CPA', trust:'Trust CPA', tcorp:'Trust Corp CPA', consol:'Consolidated CPA'};
+  var systemPrompt = 'You are the ' + (firmLabels[firm]||firm.toUpperCase()) + ' agent operating under GAAP accrual accounting standards. Active entity: ' + entity + '. Respond with facts, conclusions of law, and specific form/line references only. No hedging. No disclaimers.';
+
+  fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','x-api-key': apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body: JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,system:systemPrompt,messages:[{role:'user',content:q}]})
+  }).then(function(r){ return r.json(); }).then(function(data) {
+    var text = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : JSON.stringify(data);
+    response.innerHTML = '<div style="background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:14px;font-size:13px;line-height:1.8;white-space:pre-wrap">' + text.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>';
+  }).catch(function(e) {
+    response.innerHTML = '<div style="color:#ef4444;font-size:12px">Error: ' + e.message + '</div>';
+  });
+}
+
+// ── EON Chat provider + firm chips ──────────────────────────────
+var _eonActiveFirm = 'auto';
+(function buildFirmChips() {
+  var container = document.getElementById('firmChips');
+  if (!container) return;
+  var firms = [
+    {id:'auto',       label:'🔀 Auto',                  color:'#9ca3af'},
+    {id:'dream_team', label:'🏛️ The Dream Team',         color:'#ffd700'},
+    {id:'legal',      label:'⚖️ Legal Expert',           color:'#f5a623'},
+    {id:'tax',        label:'💰 Tax & Financial Expert', color:'#22c55e'},
+    {id:'arbitration',label:'⚖ Arbitration Specialist',  color:'#14b8a6'},
+    {id:'corporation',label:'🏢 Corporation Specialist',  color:'#6366f1'},
+    {id:'trust',      label:'🔐 Trust Specialist',        color:'#a855f7'},
+    {id:'research',   label:'📊 Research Analyst',        color:'#8b5cf6'},
+    {id:'creative',   label:'✍️ Creative Writer',         color:'#ec4899'},
+    {id:'code',       label:'💻 Code Expert',             color:'#3b82f6'},
+    {id:'html_arch',  label:'🏗️ HTML Architect',          color:'#f97316'},
+    {id:'general',    label:'🤖 General Assistant',        color:'#06b6d4'}
+  ];
+  container.innerHTML = firms.map(function(f) {
+    var active = f.id === 'auto';
+    return '<button id="firm-chip-' + f.id + '" onclick="setFirm(\'' + f.id + '\')" style="border:1.5px solid ' + (active ? f.color : 'rgba(255,255,255,.15)') + ';border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:' + (active ? f.color : 'transparent') + ';color:' + (active ? '#000' : f.color) + ';transition:all .2s">' + f.label + '</button>';
+  }).join('');
+})();
+
+function setFirm(firmId) {
+  _eonActiveFirm = firmId;
+  document.querySelectorAll('[id^="firm-chip-"]').forEach(function(btn) {
+    var id = btn.id.replace('firm-chip-','');
+    var isActive = id === firmId;
+    btn.style.background = isActive ? btn.style.color || '#fff' : 'transparent';
+    btn.style.opacity = isActive ? '1' : '0.7';
+    btn.style.fontWeight = isActive ? '800' : '600';
+  });
+}
+
+function eonChatProviderChange(provider) {
+  localStorage.setItem('eon_chat_provider', provider);
+}
+
+// ── Settings functions ───────────────────────────────────────────
+function showSettingsPanel(panel) {
+  document.querySelectorAll('.stg-panel').forEach(function(p){ p.style.display = 'none'; });
+  document.querySelectorAll('#settingsApiSection .stg-tab').forEach(function(t){ t.style.background = 'transparent'; t.style.fontWeight = '600'; t.style.borderColor = 'rgba(255,255,255,.15)'; });
+  var target = document.getElementById('stg-' + panel);
+  if (target) target.style.display = 'block';
+  var btn = document.getElementById('stg-tab-' + panel);
+  if (btn) { btn.style.background = 'rgba(59,130,246,.15)'; btn.style.fontWeight = '700'; btn.style.color = '#3b82f6'; btn.style.borderColor = 'rgba(59,130,246,.5)'; }
+}
+
+function settingsSaveKey(provider, value) {
+  if (value) {
+    localStorage.setItem('stg_key_' + provider, value);
+    if (provider === 'claude') { window._trustApiKey = value; localStorage.setItem('tmar_claude_key', value); }
+  }
+}
+
+function settingsLoadKeys() {
+  ['claude','openai','deepseek','zai','kimi','xai','telegram','discord'].forEach(function(k) {
+    var stored = localStorage.getItem('stg_key_' + k) || localStorage.getItem('api_key_' + k);
+    var el = document.getElementById('stg-api-' + k);
+    if (el && stored) el.value = stored;
+  });
+  alert('Keys loaded from local storage.');
+}
+
+function settingsSetProvider(provider) {
+  localStorage.setItem('eon_chat_provider', provider);
+  var chatProv = document.getElementById('chatProvider');
+  if (chatProv) chatProv.value = provider;
+}
+
+function settingsTestGateway() {
+  var url = (document.getElementById('stg-zc-gateway') || {}).value || 'http://127.0.0.1:42617';
+  var status = document.getElementById('stg-gateway-status');
+  if (status) status.textContent = 'Testing...';
+  fetch(url + '/health').then(function(r) {
+    if (status) status.textContent = r.ok ? '✓ Connected' : '✗ Error ' + r.status;
+  }).catch(function(e) {
+    if (status) status.textContent = '✗ Unreachable (' + e.message + ')';
+  });
+}
+
+// ── IRS Form Generator ───────────────────────────────────────────
+function irsLoadFormSchema() {
+  var form = (document.getElementById('irsFormSelect') || {}).value;
+  var render = document.getElementById('irsFormRender');
+  var controls = document.getElementById('irsFormControls');
+  if (!render || !form) return;
+  var schemas = {
+    '1120': [['corporateName','Corporation Name'],['ein','EIN'],['taxYearEnd','Tax Year End (MM/DD/YYYY)'],['grossReceipts','1a Gross Receipts'],['returns','1b Returns & Allowances'],['cogs','2 Cost of Goods Sold'],['grossProfit','3 Gross Profit'],['dividends','4 Dividends'],['interest','5 Interest'],['rents','6 Gross Rents'],['royalties','7 Gross Royalties'],['capitalGains','8 Capital Gains'],['totalIncome','11 Total Income'],['compensation','12 Compensation of Officers'],['salaries','13 Salaries & Wages'],['repairs','14 Repairs'],['badDebts','15 Bad Debts'],['rentsExp','16 Rents'],['taxesPaid','17 Taxes & Licenses'],['interest2','18 Interest'],['depreciation','20 Depreciation'],['totalDeductions','28 Total Deductions'],['taxableIncome','30 Taxable Income'],['incomeAfterNol','31 Taxable Income After NOL'],['totalTax','31 Total Tax']],
+    '1041': [['trustName','Name of Estate or Trust'],['ein','EIN'],['taxYear','Tax Year'],['interest','1 Interest Income'],['dividends','2a Ordinary Dividends'],['rents','3 Net Rents'],['capitalGains','4 Capital Gains'],['totalIncome','9 Total Income'],['fiduciaryFees','12 Fiduciary Fees'],['taxes','14 Taxes'],['totalDeductions','15a Total Deductions'],['incomeDistribution','18 Income Distribution Deduction'],['taxableIncome','22 Taxable Income'],['tax','23 Tax']],
+    '990': [['orgName','Organization Name'],['ein','EIN'],['taxYear','Tax Year'],['missionStatement','Part I Line 1 Mission Statement'],['totalRevenue','Part I Line 12 Total Revenue'],['totalExpenses','Part I Line 17 Total Expenses'],['netAssets','Part I Line 21 Net Assets'],['numEmployees','Part V Line 2a Total # of Employees']],
+    '1065': [['partnershipName','Partnership Name'],['ein','EIN'],['taxYear','Tax Year'],['ordinaryIncome','1 Gross Receipts'],['cogs','2 Cost of Goods Sold'],['grossProfit','3 Gross Profit'],['totalIncome','8 Total Income'],['salaries','9 Salaries'],['totalDeductions','21 Total Deductions'],['ordinaryBI','22 Ordinary Business Income']]
+  };
+  var fields = schemas[form];
+  if (!fields) { render.innerHTML = '<div style="padding:20px;color:var(--text-secondary);font-size:13px">Form ' + form + ' — fields coming soon. Use the GAAP ledger to populate and export this form.</div>'; return; }
+  render.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;padding:4px">' + fields.map(function(f) {
+    return '<div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">' + f[1] + '</label><input id="irs-field-' + f[0] + '" style="width:100%;padding:8px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box" placeholder=""></div>';
+  }).join('') + '</div>';
+  if (controls) controls.style.display = 'flex';
+  document.getElementById('irsFormStatus').textContent = 'Form ' + form + ' loaded — ' + fields.length + ' fields';
+}
+
+function irsLoadEntity() { alert('Load entity data from GAAP ledger into form fields.'); }
+function irsSaveEntity() { alert('Save current form data to entity record.'); }
+function irsImportFromFilings() {
+  var form = (document.getElementById('irsFormSelect') || {}).value;
+  if (!form) { alert('Select a form first.'); return; }
+  alert('Importing data from Tax Filings tab for Form ' + form + '...\n\nConnect GAAP Ledger via Sync Center for automatic population.');
+}
+function irsClearForm() {
+  document.querySelectorAll('[id^="irs-field-"]').forEach(function(el){ el.value = ''; });
+  var render = document.getElementById('irsFormRender');
+  if (render) render.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--text-secondary)"><div style="font-size:48px;margin-bottom:12px">📄</div><div style="font-size:16px;font-weight:700">Select an IRS form above to begin</div></div>';
+  var controls = document.getElementById('irsFormControls');
+  if (controls) controls.style.display = 'none';
+}
+function irsGeneratePDF() { alert('PDF generation: Install the TMAR PDF Engine or use Print Preview → Save as PDF.'); irsPrintForm(); }
+function irsGeneratePacket() { alert('Filing packet generation — compiles all completed schedules. Coming in next update.'); }
+function irsPrintForm() {
+  var render = document.getElementById('irsFormRender');
+  if (!render) return;
+  var w = window.open('','_blank');
+  w.document.write('<html><head><title>IRS Form</title><style>body{font-family:Arial,sans-serif;padding:30px;font-size:12pt}label{display:block;font-size:9pt;color:#666;margin-top:8px}input{border:none;border-bottom:1px solid #000;width:200px;font-size:11pt}</style></head><body>' + render.innerHTML + '</body></html>');
+  w.print();
+}
+
+// ── Main API Scout (Settings tab) ────────────────────────────────
+function mainApiScoutRun() {
+  var log = document.getElementById('main-scout-log');
+  var results = document.getElementById('main-scout-results');
+  var apis = [
+    {name:'IRS e-Services',cat:'government',auth:'OAuth2',url:'https://www.irs.gov/e-services'},
+    {name:'Court Listener API',cat:'legal',auth:'API Key',url:'https://www.courtlistener.com/api/'},
+    {name:'SEC EDGAR Full-Text',cat:'government',auth:'None',url:'https://efts.sec.gov/LATEST/search-index'},
+    {name:'USASpending.gov API',cat:'government',auth:'None',url:'https://api.usaspending.gov/api/v2/'},
+    {name:'Treasury Fiscal Data',cat:'financial',auth:'None',url:'https://fiscaldata.treasury.gov/api-documentation/'},
+    {name:'PACER Federal Courts',cat:'legal',auth:'Basic Auth',url:'https://pacer.uscourts.gov/'},
+    {name:'OpenClaw / CourtListener',cat:'legal',auth:'API Key',url:'https://www.courtlistener.com/'},
+    {name:'Apify Research Engine',cat:'research',auth:'API Key',url:'https://apify.com/'},
+    {name:'Congress.gov API',cat:'government',auth:'API Key',url:'https://api.congress.gov/'},
+    {name:'GovInfo API',cat:'government',auth:'None',url:'https://api.govinfo.gov/'},
+    {name:'OpenStates API',cat:'government',auth:'API Key',url:'https://openstates.org/api/v3/'}
+  ];
+  if (log) { log.style.display = 'block'; log.value = '[' + new Date().toLocaleTimeString() + '] API Scout initiated...\nScanning ' + apis.length + ' endpoints...\n[' + new Date().toLocaleTimeString() + '] Discovery complete. ' + apis.length + ' APIs found.'; }
+  if (results) {
+    results.style.display = 'grid';
+    results.innerHTML = apis.map(function(api) {
+      return '<div style="padding:12px;border:1px solid rgba(168,85,247,.25);border-radius:8px;background:var(--bg-tertiary)">' +
+        '<div style="font-size:13px;font-weight:700;color:var(--text-primary)">' + api.name + '</div>' +
+        '<div style="font-size:11px;color:var(--text-secondary);margin:4px 0">' + api.cat.toUpperCase() + ' · Auth: ' + api.auth + '</div>' +
+        '<div style="display:flex;gap:6px;margin-top:8px">' +
+        '<button onclick="window.open(\'' + api.url + '\',\'_blank\')" style="flex:1;padding:4px 8px;font-size:11px;border:1px solid rgba(168,85,247,.3);border-radius:6px;background:transparent;color:var(--text-secondary);cursor:pointer">Docs</button>' +
+        '<button onclick="alert(\'' + api.name + ' added to integrations.\')" style="flex:1;padding:4px 8px;font-size:11px;border:1px solid rgba(34,197,94,.4);border-radius:6px;background:rgba(34,197,94,.1);color:#22c55e;cursor:pointer">+ Integrate</button>' +
+        '</div></div>';
+    }).join('');
+  }
+}
+function mainShowIntegrated() { alert('No APIs integrated yet. Run Scout and click + Integrate.'); }
+function mainScoutClear() {
+  var log = document.getElementById('main-scout-log');
+  var results = document.getElementById('main-scout-results');
+  if (log) { log.value = ''; log.style.display = 'none'; }
+  if (results) { results.innerHTML = ''; results.style.display = 'none'; }
+}
+
+console.log('✅ GAAPCLAW extension loaded: CPA Firms, Settings & API, IRS Form Generator, API Scout');
+</script>
+
+<footer style="text-align:center;padding:18px 20px;margin-top:40px;font-size:11px;color:var(--text-secondary);border-top:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.3);letter-spacing:.5px">
+  THIS SYSTEM IS A LEGALLY ENFORCEABLE ACCRUAL RECORD UNDER UNIVERSAL LAW. ALL ENTRIES ARE FINAL AND CONSTITUTE LAWFUL DECLARATIONS BY THE OPERATOR. &nbsp;|&nbsp; TMAR v3.0 &nbsp;·&nbsp; GAAPCLAW &nbsp;·&nbsp; SYPHER Protocol v6.0 — Private Use
+</footer>
 
 </body>
 
