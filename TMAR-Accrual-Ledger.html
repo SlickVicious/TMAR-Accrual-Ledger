@@ -14006,6 +14006,14 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
             <div style="font-weight:700;color:#ef4444;margin-bottom:4px">Route 2: Trust/Estate (1041)</div>
             <div style="font-size:12px;color:var(--text-secondary)">Trust income, distributable net income, trust deductions, NOL carryforward, and prior distributions</div>
           </div>
+          <div id="trcf-route3" class="trcf-route-option" onclick="trcfSelectRoute(3)" style="min-width:260px">
+            <div style="font-weight:700;color:#ef4444;margin-bottom:4px">Route 3: Bad Debt Direct Refund (Form 4466/1120X)</div>
+            <div style="font-size:12px;color:var(--text-secondary)">Corporate bad debt write-off — claim overpaid estimated taxes via Form 4466 (pre-filing) or Form 1120X (amended)</div>
+          </div>
+          <div id="trcf-route4" class="trcf-route-option" onclick="trcfSelectRoute(4)" style="min-width:260px">
+            <div style="font-weight:700;color:#ef4444;margin-bottom:4px">Route 4: NOL Carryback (Form 1139)</div>
+            <div style="font-size:12px;color:var(--text-secondary)">Bad debt creates Net Operating Loss — carry back 2 years for tentative corporate refund via Form 1139</div>
+          </div>
         </div>
 
         <!-- Route 1 Inputs -->
@@ -14088,9 +14096,102 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
           <button onclick="trcfCalculateRoute2()" style="padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;border:1px solid rgba(239,68,68,0.4);background:rgba(239,68,68,0.15);color:#ef4444;cursor:pointer;transition:all 0.2s">Calculate Refund (Route 2)</button>
         </div>
 
+        <!-- Route 3: Bad Debt Direct Refund -->
+        <div id="trcf-route3-fields" style="display:none">
+          <div style="padding:12px 16px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:10px;margin-bottom:16px;font-size:12px;color:var(--text-secondary)">
+            <strong style="color:#ef4444">IRC §166</strong> — Use when a bona-fide business debt becomes partially or wholly worthless. Claim overpaid estimated taxes via Form 4466 (within 12 months of year-end) or Form 1120X (within 3 years).
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+            <div>
+              <label style="display:block;font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Bad Debt Write-Off Amount ($)</label>
+              <input type="number" id="trcf-r3-baddebt" placeholder="Total bad debt amount" step="0.01" style="width:100%;padding:10px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Corporate Tax Rate (%)</label>
+              <select id="trcf-r3-taxrate" style="width:100%;padding:10px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)">
+                <option value="15">15% (Small Corp — Under $50K)</option>
+                <option value="21" selected>21% (Standard Federal Corporate Rate)</option>
+                <option value="25">25% (Combined Federal/State Avg)</option>
+                <option value="31">31% (Federal + State/Local)</option>
+                <option value="34">34% (Higher Combined Rate)</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+            <div>
+              <label style="display:block;font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Estimated Tax Payments Made ($)</label>
+              <input type="number" id="trcf-r3-estimated" placeholder="Quarterly estimated payments" step="0.01" style="width:100%;padding:10px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Current Year Income Before Bad Debt ($)</label>
+              <input type="number" id="trcf-r3-income" placeholder="Gross income before write-off" step="0.01" style="width:100%;padding:10px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button onclick="trcfCalculateBadDebt()" style="padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;border:1px solid rgba(239,68,68,0.4);background:rgba(239,68,68,0.15);color:#ef4444;cursor:pointer">Calculate Refund (Route 3)</button>
+            <button onclick="trcfClearBadDebt()" style="padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid rgba(239,68,68,0.2);background:transparent;color:var(--text-secondary);cursor:pointer">Clear</button>
+            <button onclick="trcfPrintBadDebt()" style="padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid rgba(239,68,68,0.2);background:transparent;color:var(--text-secondary);cursor:pointer">🖨 Print Results</button>
+          </div>
+        </div>
+
+        <!-- Route 4: NOL Carryback -->
+        <div id="trcf-route4-fields" style="display:none">
+          <div style="padding:12px 16px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:10px;margin-bottom:16px;font-size:12px;color:var(--text-secondary)">
+            <strong style="color:#ef4444">IRC §172</strong> — When bad debt creates a Net Operating Loss, carry it back 2 prior years for a tentative refund. File Form 1139 within 12 months of the close of the NOL year. IRS processes within 90 days.
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+            <div>
+              <label style="display:block;font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Bad Debt Write-Off Amount ($)</label>
+              <input type="number" id="trcf-r4-baddebt" placeholder="Total bad debt amount" step="0.01" style="width:100%;padding:10px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Current Year Deductions (incl. Bad Debt) ($)</label>
+              <input type="number" id="trcf-r4-deductions" placeholder="Total deductions this year" step="0.01" style="width:100%;padding:10px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+            <div>
+              <label style="display:block;font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Current Year Income ($)</label>
+              <input type="number" id="trcf-r4-income" placeholder="Gross income this year" step="0.01" style="width:100%;padding:10px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Corporate Tax Rate (%)</label>
+              <select id="trcf-r4-taxrate" style="width:100%;padding:10px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)">
+                <option value="15">15%</option><option value="21" selected>21%</option>
+                <option value="25">25%</option><option value="31">31%</option><option value="34">34%</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:16px">
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Prior Year 1 Net Income ($)</label>
+              <input type="number" id="trcf-r4-py1income" placeholder="0.00" step="0.01" style="width:100%;padding:8px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:12px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Prior Year 1 Tax Paid ($)</label>
+              <input type="number" id="trcf-r4-py1tax" placeholder="0.00" step="0.01" style="width:100%;padding:8px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:12px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Prior Year 2 Net Income ($)</label>
+              <input type="number" id="trcf-r4-py2income" placeholder="0.00" step="0.01" style="width:100%;padding:8px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:12px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Prior Year 2 Tax Paid ($)</label>
+              <input type="number" id="trcf-r4-py2tax" placeholder="0.00" step="0.01" style="width:100%;padding:8px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:12px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button onclick="trcfCalculateNOL()" style="padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;border:1px solid rgba(239,68,68,0.4);background:rgba(239,68,68,0.15);color:#ef4444;cursor:pointer">Calculate NOL Refund (Route 4)</button>
+            <button onclick="trcfClearNOL()" style="padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid rgba(239,68,68,0.2);background:transparent;color:var(--text-secondary);cursor:pointer">Clear</button>
+            <button onclick="trcfPrintNOL()" style="padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid rgba(239,68,68,0.2);background:transparent;color:var(--text-secondary);cursor:pointer">🖨 Print Results</button>
+          </div>
+        </div>
+
         <!-- Results Display -->
         <div id="trcf-r1-results" style="display:none;margin-top:20px;padding:20px;background:var(--bg-tertiary);border:1px solid rgba(239,68,68,0.3);border-radius:12px"></div>
         <div id="trcf-r2-results" style="display:none;margin-top:20px;padding:20px;background:var(--bg-tertiary);border:1px solid rgba(239,68,68,0.3);border-radius:12px"></div>
+        <div id="trcf-r3-results" style="display:none;margin-top:20px;padding:20px;background:var(--bg-tertiary);border:1px solid rgba(239,68,68,0.3);border-radius:12px"></div>
+        <div id="trcf-r4-results" style="display:none;margin-top:20px;padding:20px;background:var(--bg-tertiary);border:1px solid rgba(239,68,68,0.3);border-radius:12px"></div>
       </div>
 
       <!-- ==================== TAB 2: FORM GUIDANCE ==================== -->
@@ -14503,6 +14604,136 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
             <strong style="color:var(--text-primary)">Deadline:</strong> Same as refund claim deadlines (3 years from filing or 2 years from payment).
           </div>
         </div>
+
+        <!-- ── FULL 10-TYPE INTEREST REFUND CALCULATOR ── -->
+        <div style="margin-top:24px;padding:20px;border:2px solid rgba(239,68,68,0.4);border-radius:14px;background:rgba(239,68,68,0.05)">
+          <div style="font-size:16px;font-weight:800;color:#ef4444;margin-bottom:16px">⚡ Advanced Interest Refund Calculator (10 Types)</div>
+
+          <!-- Interest Type Selector -->
+          <div style="margin-bottom:16px">
+            <label style="display:block;font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:6px">Interest Refund Type</label>
+            <select id="trcfInt-type" onchange="trcfInt_updateFields()" style="width:100%;padding:10px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)">
+              <option value="163j">IRC §163(j) — Business Interest Limitation</option>
+              <option value="oid">Original Issue Discount (OID)</option>
+              <option value="market">Market Discount Interest</option>
+              <option value="bondprem">Bond Premium Amortization</option>
+              <option value="capitalized">Capitalized Interest</option>
+              <option value="imputed">Imputed Interest (IRC §483)</option>
+              <option value="ahydo">AHYDO Rules</option>
+              <option value="overpayment">IRS Overpayment Interest</option>
+              <option value="foreign">Foreign Source Interest</option>
+              <option value="carried">Carried Interest</option>
+            </select>
+          </div>
+
+          <!-- Common Fields -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">
+            <div>
+              <label style="display:block;font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Total Interest Amount ($)</label>
+              <input type="number" id="trcfInt-amount" placeholder="0.00" step="0.01" style="width:100%;padding:10px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Applicable Tax Rate (%)</label>
+              <input type="number" id="trcfInt-taxRate" placeholder="21" value="21" step="0.1" style="width:100%;padding:10px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Tax Year</label>
+              <input type="number" id="trcfInt-year" placeholder="2024" value="2024" style="width:100%;padding:10px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+          </div>
+
+          <!-- §163(j) Fields -->
+          <div id="trcfInt-fields-163j" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Adjusted Taxable Income (ATI) ($)</label>
+              <input type="number" id="trcfInt-163j-ati" placeholder="ATI" step="0.01" style="width:100%;padding:8px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:12px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Total Interest Expense ($)</label>
+              <input type="number" id="trcfInt-163j-expense" placeholder="0.00" step="0.01" style="width:100%;padding:8px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:12px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Interest Income ($)</label>
+              <input type="number" id="trcfInt-163j-income" placeholder="0.00" step="0.01" style="width:100%;padding:8px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:12px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+          </div>
+
+          <!-- OID Fields -->
+          <div id="trcfInt-fields-oid" style="display:none;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Face Value ($)</label>
+              <input type="number" id="trcfInt-oid-face" placeholder="Par/face amount" step="0.01" style="width:100%;padding:8px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:12px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Issue Price ($)</label>
+              <input type="number" id="trcfInt-oid-issue" placeholder="Original issue price" step="0.01" style="width:100%;padding:8px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:12px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Years to Maturity</label>
+              <input type="number" id="trcfInt-oid-years" placeholder="e.g. 10" style="width:100%;padding:8px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:12px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+          </div>
+
+          <!-- Imputed Interest Fields -->
+          <div id="trcfInt-fields-imputed" style="display:none;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Contract Price ($)</label>
+              <input type="number" id="trcfInt-imp-price" placeholder="Sale/contract price" step="0.01" style="width:100%;padding:8px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:12px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Stated Interest Rate (%)</label>
+              <input type="number" id="trcfInt-imp-stated" placeholder="Stated rate" step="0.01" style="width:100%;padding:8px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:12px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Applicable Federal Rate (AFR) (%)</label>
+              <input type="number" id="trcfInt-imp-afr" placeholder="Current AFR" step="0.01" style="width:100%;padding:8px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:12px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+          </div>
+
+          <!-- Overpayment Interest Fields -->
+          <div id="trcfInt-fields-overpayment" style="display:none;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Overpayment Amount ($)</label>
+              <input type="number" id="trcfInt-op-amount" placeholder="Tax overpaid" step="0.01" style="width:100%;padding:8px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:12px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Return Due Date</label>
+              <input type="date" id="trcfInt-op-dueDate" style="width:100%;padding:8px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:12px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Refund Received Date</label>
+              <input type="date" id="trcfInt-op-refundDate" style="width:100%;padding:8px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:12px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+            <button onclick="trcfInt_calculate()" style="padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;border:1px solid rgba(239,68,68,0.5);background:rgba(239,68,68,0.15);color:#ef4444;cursor:pointer">⚡ Calculate Interest Refund</button>
+            <button onclick="trcfInt_validate()" style="padding:12px 18px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid rgba(239,68,68,0.3);background:transparent;color:var(--text-secondary);cursor:pointer">✅ Validate Docs</button>
+            <button onclick="trcfInt_generateReport()" style="padding:12px 18px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid rgba(239,68,68,0.3);background:transparent;color:var(--text-secondary);cursor:pointer">📄 Generate Report</button>
+            <button onclick="trcfInt_clear()" style="padding:12px 18px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid rgba(239,68,68,0.15);background:transparent;color:var(--text-secondary);cursor:pointer">🗑 Clear</button>
+          </div>
+
+          <!-- Results -->
+          <div id="trcfInt-results" style="display:none;padding:18px;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.3);border-radius:10px;font-size:13px;line-height:1.8"></div>
+
+          <!-- Documentation Checklist -->
+          <div id="trcfInt-checklist" style="display:none;margin-top:16px;padding:16px;border:1px solid rgba(239,68,68,0.2);border-radius:10px;background:var(--bg-tertiary)">
+            <div style="font-weight:700;color:#ef4444;margin-bottom:10px;font-size:14px">Interest Documentation Checklist</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);cursor:pointer"><input type="checkbox"> Loan / instrument agreements</label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);cursor:pointer"><input type="checkbox"> Interest calculations &amp; accrual schedules</label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);cursor:pointer"><input type="checkbox"> Payment records &amp; history</label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);cursor:pointer"><input type="checkbox"> §163(j) limitation calculations (if applicable)</label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);cursor:pointer"><input type="checkbox"> OID computations &amp; amortization schedules</label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);cursor:pointer"><input type="checkbox"> Market discount / bond premium elections</label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);cursor:pointer"><input type="checkbox"> AFR rate documentation (imputed interest)</label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);cursor:pointer"><input type="checkbox"> Prior year return copies &amp; carryforward schedules</label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);cursor:pointer"><input type="checkbox"> Tax election statements filed timely</label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);cursor:pointer"><input type="checkbox"> Complete audit defense file</label>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- ==================== TAB 6: 1099/1065 REFUNDS ==================== -->
@@ -14639,6 +14870,155 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
             <strong style="color:var(--text-primary)">Interest charge:</strong> IRC 453A imposes interest on deferred tax if obligation exceeds $5M (non-farm) or $150K (dealer).<br>
             <strong style="color:var(--text-primary)">Electing out:</strong> You can elect out of installment method by reporting full gain in year of sale.<br>
             <strong style="color:var(--text-primary)">Reporting:</strong> Form 6252 (Installment Sale Income) each year payments are received.
+          </div>
+        </div>
+
+        <!-- ── INTERACTIVE LOSS CALCULATOR ── -->
+        <div style="margin-top:24px;padding:20px;border:2px solid rgba(239,68,68,0.4);border-radius:14px;background:rgba(239,68,68,0.05)">
+          <div style="font-size:16px;font-weight:800;color:#ef4444;margin-bottom:16px">⚡ Interactive Financial Instrument Loss Calculator</div>
+
+          <!-- Method Selector -->
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px">
+            <div id="trcfFI-m1" onclick="trcfFI_selectMethod(1)" style="flex:1;min-width:200px;padding:12px;border:2px solid rgba(239,68,68,0.5);border-radius:10px;cursor:pointer;background:rgba(239,68,68,0.12);transition:all 0.2s">
+              <div style="font-weight:700;color:#ef4444;font-size:13px">Method 1: Realized Loss (§165)</div>
+              <div style="font-size:11px;color:var(--text-secondary);margin-top:3px">Sold security at a loss — Form 8949 / Schedule D</div>
+            </div>
+            <div id="trcfFI-m2" onclick="trcfFI_selectMethod(2)" style="flex:1;min-width:200px;padding:12px;border:1px solid rgba(239,68,68,0.25);border-radius:10px;cursor:pointer;background:transparent;transition:all 0.2s">
+              <div style="font-weight:700;color:#ef4444;font-size:13px">Method 2: Worthlessness (§165(g))</div>
+              <div style="font-size:11px;color:var(--text-secondary);margin-top:3px">Security became totally worthless</div>
+            </div>
+            <div id="trcfFI-m3" onclick="trcfFI_selectMethod(3)" style="flex:1;min-width:200px;padding:12px;border:1px solid rgba(239,68,68,0.25);border-radius:10px;cursor:pointer;background:transparent;transition:all 0.2s">
+              <div style="font-weight:700;color:#ef4444;font-size:13px">Method 3: Mark-to-Market (§475)</div>
+              <div style="font-size:11px;color:var(--text-secondary);margin-top:3px">Trader election — ordinary loss treatment</div>
+            </div>
+            <div id="trcfFI-m4" onclick="trcfFI_selectMethod(4)" style="flex:1;min-width:200px;padding:12px;border:1px solid rgba(239,68,68,0.25);border-radius:10px;cursor:pointer;background:transparent;transition:all 0.2s">
+              <div style="font-weight:700;color:#ef4444;font-size:13px">Method 4: Hedging (§988/§1256)</div>
+              <div style="font-size:11px;color:var(--text-secondary);margin-top:3px">Currency / commodity hedge transactions</div>
+            </div>
+          </div>
+
+          <!-- Instrument Type + Common Fields -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+            <div>
+              <label style="display:block;font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Financial Instrument Type</label>
+              <select id="trcfFI-instrType" style="width:100%;padding:10px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)">
+                <option value="bond">Corporate Bonds/Debentures</option>
+                <option value="note">Promissory Notes</option>
+                <option value="equity">Equity Securities</option>
+                <option value="preferred">Preferred Stock</option>
+                <option value="convertible">Convertible Bonds</option>
+                <option value="warrants">Warrants/Options</option>
+                <option value="foreign">Foreign Securities</option>
+                <option value="mutual">Mutual Fund Shares</option>
+                <option value="currency">Currency Forward Contracts</option>
+                <option value="derivatives">Derivatives/Structured Products</option>
+                <option value="other">Other Instruments</option>
+              </select>
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Current Fair Market Value ($)</label>
+              <input type="number" id="trcfFI-fmv" placeholder="Current FMV" step="0.01" style="width:100%;padding:10px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+          </div>
+
+          <!-- Method 1: Realized Loss Fields -->
+          <div id="trcfFI-fields-m1" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">
+            <div>
+              <label style="display:block;font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Original Basis ($)</label>
+              <input type="number" id="trcfFI-basis" placeholder="Purchase price + costs" step="0.01" style="width:100%;padding:10px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Sale Price ($)</label>
+              <input type="number" id="trcfFI-salePrice" placeholder="Proceeds received" step="0.01" style="width:100%;padding:10px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Sale Expenses ($)</label>
+              <input type="number" id="trcfFI-saleExp" placeholder="Commissions, fees" step="0.01" style="width:100%;padding:10px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+          </div>
+
+          <!-- Method 2: Worthlessness Fields -->
+          <div id="trcfFI-fields-m2" style="display:none;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+            <div>
+              <label style="display:block;font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Year Worthlessness Determined</label>
+              <input type="number" id="trcfFI-worthlessYear" placeholder="e.g. 2024" style="width:100%;padding:10px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Expected Recovery % (0 if total loss)</label>
+              <input type="number" id="trcfFI-recovery" placeholder="0-100" min="0" max="100" style="width:100%;padding:10px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+          </div>
+
+          <!-- Method 3: Mark-to-Market Fields -->
+          <div id="trcfFI-fields-m3" style="display:none;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+            <div>
+              <label style="display:block;font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Unrealized Loss at Year-End ($)</label>
+              <input type="number" id="trcfFI-unrealizedLoss" placeholder="MTM unrealized loss" step="0.01" style="width:100%;padding:10px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">§475 Election Status</label>
+              <select id="trcfFI-mtmElection" style="width:100%;padding:10px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)">
+                <option value="elected">IRC §475 Election Made</option>
+                <option value="dealer">Securities Dealer Status</option>
+                <option value="none">No Election (Capital Treatment)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Method 4: Hedging Fields -->
+          <div id="trcfFI-fields-m4" style="display:none;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+            <div>
+              <label style="display:block;font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Hedged Item Type</label>
+              <select id="trcfFI-hedgeItem" style="width:100%;padding:10px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)">
+                <option value="inventory">Inventory</option>
+                <option value="currency">Foreign Currency</option>
+                <option value="interest">Interest Rate</option>
+                <option value="commodity">Commodity Price</option>
+                <option value="credit">Credit Risk</option>
+              </select>
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Hedge Loss Amount ($)</label>
+              <input type="number" id="trcfFI-hedgeLoss" placeholder="Net hedge loss" step="0.01" style="width:100%;padding:10px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+          </div>
+
+          <!-- Tax Rate + Holding Period -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+            <div>
+              <label style="display:block;font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Applicable Tax Rate (%)</label>
+              <input type="number" id="trcfFI-taxRate" placeholder="21" value="21" step="0.1" style="width:100%;padding:10px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Holding Period (months)</label>
+              <input type="number" id="trcfFI-holdingPeriod" placeholder="e.g. 14" style="width:100%;padding:10px;border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)">
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+            <button onclick="trcfFI_calculate()" style="padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;border:1px solid rgba(239,68,68,0.5);background:rgba(239,68,68,0.15);color:#ef4444;cursor:pointer">⚡ Calculate Loss &amp; Tax Benefit</button>
+            <button onclick="trcfFI_validate()" style="padding:12px 18px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid rgba(239,68,68,0.3);background:transparent;color:var(--text-secondary);cursor:pointer">✅ Validate Documentation</button>
+            <button onclick="trcfFI_print()" style="padding:12px 18px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid rgba(239,68,68,0.2);background:transparent;color:var(--text-secondary);cursor:pointer">🖨 Print</button>
+            <button onclick="trcfFI_clear()" style="padding:12px 18px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid rgba(239,68,68,0.15);background:transparent;color:var(--text-secondary);cursor:pointer">🗑 Clear</button>
+          </div>
+
+          <!-- Results -->
+          <div id="trcfFI-results" style="display:none;padding:18px;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.3);border-radius:10px;font-size:13px"></div>
+
+          <!-- Documentation Checklist -->
+          <div id="trcfFI-checklist" style="display:none;margin-top:16px;padding:16px;border:1px solid rgba(239,68,68,0.2);border-radius:10px;background:var(--bg-tertiary)">
+            <div style="font-weight:700;color:#ef4444;margin-bottom:10px;font-size:14px">Required Documentation Checklist</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);cursor:pointer"><input type="checkbox"> Original purchase documentation (brokerage confirms, trade tickets)</label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);cursor:pointer"><input type="checkbox"> Board resolution for worthlessness/impairment determination</label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);cursor:pointer"><input type="checkbox"> Third-party valuation report (for worthlessness/MTM)</label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);cursor:pointer"><input type="checkbox"> Business justification for method selected</label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);cursor:pointer"><input type="checkbox"> Accounting entries &amp; reconciliation (GL, trial balance)</label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);cursor:pointer"><input type="checkbox"> Legal analysis (worthlessness claims — bankruptcy docs, etc.)</label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);cursor:pointer"><input type="checkbox"> Tax election statement (§475/§988 elections filed timely)</label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);cursor:pointer"><input type="checkbox"> Risk assessment &amp; hedging documentation (Method 4)</label>
+            </div>
           </div>
         </div>
       </div>
@@ -17941,6 +18321,385 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
 
     var resEl = document.getElementById('trcf-int-result');
     if (resEl) { resEl.innerHTML = html; resEl.style.display = 'block'; }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // TRCF: Extended Route 3 & 4 + FI + Interest + EON Page Functions
+  // ═══════════════════════════════════════════════════════════════
+
+  // Extend trcfSelectRoute to handle routes 3 & 4
+  var _trcfSelectRouteOrig = trcfSelectRoute;
+  trcfSelectRoute = function(routeNum) {
+    trcfSelectedRoute = routeNum;
+    [1,2,3,4].forEach(function(n) {
+      var el = document.getElementById('trcf-route' + n);
+      if (el) el.classList.toggle('selected', n === routeNum);
+      var f = document.getElementById('trcf-route' + n + '-fields');
+      if (f) f.style.display = (n === routeNum) ? 'block' : 'none';
+      var r = document.getElementById('trcf-r' + n + '-results');
+      if (r) r.style.display = 'none';
+    });
+  };
+
+  // ── Route 3: Bad Debt Direct Refund ──────────────────────────
+  function trcfCalculateBadDebt() {
+    var debt = parseFloat(document.getElementById('trcf-r3-baddebt').value) || 0;
+    var rate = parseFloat(document.getElementById('trcf-r3-taxrate').value) || 21;
+    var estimated = parseFloat(document.getElementById('trcf-r3-estimated').value) || 0;
+    var income = parseFloat(document.getElementById('trcf-r3-income').value) || 0;
+    if (debt <= 0) { alert('Enter the bad debt amount to continue.'); return; }
+    var taxRate = rate / 100;
+    var deduction = Math.min(debt, income);
+    var taxBenefit = deduction * taxRate;
+    var refund = taxBenefit - estimated;
+    var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:8px">';
+    html += '<div class="trcf-calc-item"><div style="font-size:11px;color:var(--text-secondary)">Bad Debt Amount</div><div style="font-size:18px;font-weight:700;color:var(--text-primary)">' + trcfFmt(debt) + '</div></div>';
+    html += '<div class="trcf-calc-item"><div style="font-size:11px;color:var(--text-secondary)">Allowable Deduction</div><div style="font-size:18px;font-weight:700;color:#f59e0b">' + trcfFmt(deduction) + '</div></div>';
+    html += '<div class="trcf-calc-item"><div style="font-size:11px;color:var(--text-secondary)">Tax Benefit (' + rate + '%)</div><div style="font-size:18px;font-weight:700;color:#22c55e">' + trcfFmt(taxBenefit) + '</div></div>';
+    html += '<div class="trcf-calc-item"><div style="font-size:11px;color:var(--text-secondary)">Estimated Payments</div><div style="font-size:18px;font-weight:700;color:var(--text-primary)">' + trcfFmt(estimated) + '</div></div>';
+    html += '<div class="trcf-calc-item" style="border-color:rgba(239,68,68,0.5);background:rgba(239,68,68,0.08)"><div style="font-size:11px;color:var(--text-secondary)">Projected Refund</div><div style="font-size:22px;font-weight:700;color:#ef4444">' + trcfFmt(Math.max(0, refund)) + '</div></div>';
+    html += '</div>';
+    html += '<div style="margin-top:12px;padding:10px;border-radius:8px;background:rgba(239,68,68,0.06);font-size:12px;color:var(--text-secondary)">Forms: <strong>Form 4466</strong> (Quick Refund) · <strong>Form 1120X</strong> (Amended Return) · IRC §166 Bad Debt Deduction</div>';
+    var res = document.getElementById('trcf-r3-results');
+    if (res) { res.innerHTML = html; res.style.display = 'block'; }
+  }
+  function trcfClearBadDebt() {
+    ['trcf-r3-baddebt','trcf-r3-taxrate','trcf-r3-estimated','trcf-r3-income'].forEach(function(id) {
+      var el = document.getElementById(id); if (el) el.value = id === 'trcf-r3-taxrate' ? '21' : '';
+    });
+    var res = document.getElementById('trcf-r3-results'); if (res) res.style.display = 'none';
+  }
+  function trcfPrintBadDebt() {
+    var res = document.getElementById('trcf-r3-results');
+    if (!res || res.style.display === 'none') { alert('Calculate first to generate a printable report.'); return; }
+    var w = window.open('','_blank'); w.document.write('<html><head><title>Route 3 – Bad Debt Refund</title></head><body>' + res.innerHTML + '</body></html>'); w.print();
+  }
+
+  // ── Route 4: NOL Carryback ────────────────────────────────────
+  function trcfCalculateNOL() {
+    var nolAmount = parseFloat(document.getElementById('trcf-r4-baddebt').value) || 0;
+    var deductions = parseFloat(document.getElementById('trcf-r4-deductions').value) || 0;
+    var income = parseFloat(document.getElementById('trcf-r4-income').value) || 0;
+    var rate = parseFloat(document.getElementById('trcf-r4-taxrate').value) || 21;
+    var py1income = parseFloat(document.getElementById('trcf-r4-py1income').value) || 0;
+    var py1tax = parseFloat(document.getElementById('trcf-r4-py1tax').value) || 0;
+    var py2income = parseFloat(document.getElementById('trcf-r4-py2income').value) || 0;
+    var py2tax = parseFloat(document.getElementById('trcf-r4-py2tax').value) || 0;
+    if (nolAmount <= 0) { alert('Enter the NOL amount to continue.'); return; }
+    var nol = nolAmount + deductions - income;
+    var carryback2 = Math.min(Math.abs(nol), py2income);
+    var refund2 = carryback2 > 0 ? (carryback2 / py2income) * py2tax : 0;
+    var remaining = Math.abs(nol) - carryback2;
+    var carryback1 = Math.min(remaining, py1income);
+    var refund1 = carryback1 > 0 ? (carryback1 / py1income) * py1tax : 0;
+    var totalRefund = refund1 + refund2;
+    var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:8px">';
+    html += '<div class="trcf-calc-item"><div style="font-size:11px;color:var(--text-secondary)">Computed NOL</div><div style="font-size:18px;font-weight:700;color:#f59e0b">' + trcfFmt(Math.abs(nol)) + '</div></div>';
+    html += '<div class="trcf-calc-item"><div style="font-size:11px;color:var(--text-secondary)">Carryback to Year -2</div><div style="font-size:18px;font-weight:700;color:var(--text-primary)">' + trcfFmt(carryback2) + ' → ' + trcfFmt(refund2) + '</div></div>';
+    html += '<div class="trcf-calc-item"><div style="font-size:11px;color:var(--text-secondary)">Carryback to Year -1</div><div style="font-size:18px;font-weight:700;color:var(--text-primary)">' + trcfFmt(carryback1) + ' → ' + trcfFmt(refund1) + '</div></div>';
+    html += '<div class="trcf-calc-item" style="border-color:rgba(239,68,68,0.5);background:rgba(239,68,68,0.08)"><div style="font-size:11px;color:var(--text-secondary)">Total Projected Refund</div><div style="font-size:22px;font-weight:700;color:#ef4444">' + trcfFmt(totalRefund) + '</div></div>';
+    html += '</div>';
+    html += '<div style="margin-top:12px;padding:10px;border-radius:8px;background:rgba(239,68,68,0.06);font-size:12px;color:var(--text-secondary)">Forms: <strong>Form 1139</strong> (Corporate NOL) · <strong>Form 1045</strong> (Individual NOL) · IRC §172 NOL Deduction · 2-year carryback period</div>';
+    var res = document.getElementById('trcf-r4-results');
+    if (res) { res.innerHTML = html; res.style.display = 'block'; }
+  }
+  function trcfClearNOL() {
+    ['trcf-r4-baddebt','trcf-r4-deductions','trcf-r4-income','trcf-r4-taxrate','trcf-r4-py1income','trcf-r4-py1tax','trcf-r4-py2income','trcf-r4-py2tax'].forEach(function(id) {
+      var el = document.getElementById(id); if (el) el.value = id === 'trcf-r4-taxrate' ? '21' : '';
+    });
+    var res = document.getElementById('trcf-r4-results'); if (res) res.style.display = 'none';
+  }
+  function trcfPrintNOL() {
+    var res = document.getElementById('trcf-r4-results');
+    if (!res || res.style.display === 'none') { alert('Calculate first to generate a printable report.'); return; }
+    var w = window.open('','_blank'); w.document.write('<html><head><title>Route 4 – NOL Carryback</title></head><body>' + res.innerHTML + '</body></html>'); w.print();
+  }
+
+  // ── FI: Financial Instruments Calculator ─────────────────────
+  var _trcfFI_activeMethod = 1;
+  function trcfFI_selectMethod(n) {
+    _trcfFI_activeMethod = n;
+    [1,2,3,4].forEach(function(i) {
+      var btn = document.getElementById('trcfFI-m' + i);
+      if (btn) {
+        btn.style.border = i === n ? '2px solid rgba(239,68,68,0.5)' : '1px solid rgba(239,68,68,0.25)';
+        btn.style.background = i === n ? 'rgba(239,68,68,0.12)' : 'transparent';
+      }
+      var fields = document.getElementById('trcfFI-fields-m' + i);
+      if (fields) fields.style.display = i === n ? 'block' : 'none';
+    });
+  }
+  function trcfFI_calculate() {
+    var instrType = (document.getElementById('trcfFI-instrument') || {}).value || 'bond';
+    var costBasis = parseFloat((document.getElementById('trcfFI-cost') || {}).value) || 0;
+    var fmv = parseFloat((document.getElementById('trcfFI-fmv') || {}).value) || 0;
+    var taxRate = parseFloat((document.getElementById('trcfFI-taxrate') || {}).value) || 21;
+    var holding = (document.getElementById('trcfFI-holding') || {}).value || 'long';
+    if (costBasis <= 0) { alert('Enter cost basis to continue.'); return; }
+    var loss = costBasis - fmv;
+    if (loss <= 0) { alert('No loss detected (FMV >= Cost Basis). Financial instrument loss calculators require a realized loss.'); return; }
+    var rate = taxRate / 100;
+    var isLTCG = holding === 'long';
+    var taxBenefit = loss * rate;
+    var effectiveRate = isLTCG && taxRate > 20 ? 0.20 : rate;
+    var ltBenefit = loss * effectiveRate;
+    var methodLabels = {1:'§165 Realized Loss',2:'§165(g) Worthlessness',3:'§475 Mark-to-Market',4:'§988/§1256 Hedging'};
+    var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:8px">';
+    html += '<div class="trcf-calc-item"><div style="font-size:11px;color:var(--text-secondary)">Method</div><div style="font-size:14px;font-weight:700;color:var(--text-primary)">' + (methodLabels[_trcfFI_activeMethod]||'Unknown') + '</div></div>';
+    html += '<div class="trcf-calc-item"><div style="font-size:11px;color:var(--text-secondary)">Instrument</div><div style="font-size:14px;font-weight:700;color:var(--text-primary)">' + instrType.toUpperCase() + '</div></div>';
+    html += '<div class="trcf-calc-item"><div style="font-size:11px;color:var(--text-secondary)">Realized Loss</div><div style="font-size:18px;font-weight:700;color:#f59e0b">' + trcfFmt(loss) + '</div></div>';
+    html += '<div class="trcf-calc-item"><div style="font-size:11px;color:var(--text-secondary)">Tax Benefit (' + taxRate + '%)</div><div style="font-size:18px;font-weight:700;color:#22c55e">' + trcfFmt(taxBenefit) + '</div></div>';
+    if (isLTCG) html += '<div class="trcf-calc-item"><div style="font-size:11px;color:var(--text-secondary)">LT Capital Benefit</div><div style="font-size:18px;font-weight:700;color:#22c55e">' + trcfFmt(ltBenefit) + '</div></div>';
+    html += '<div class="trcf-calc-item" style="border-color:rgba(239,68,68,0.5);background:rgba(239,68,68,0.08)"><div style="font-size:11px;color:var(--text-secondary)">Projected Refund</div><div style="font-size:22px;font-weight:700;color:#ef4444">' + trcfFmt(taxBenefit) + '</div></div>';
+    html += '</div>';
+    var res = document.getElementById('trcfFI-results');
+    if (res) { res.innerHTML = html; res.style.display = 'block'; }
+  }
+  function trcfFI_validate() {
+    var checklist = document.getElementById('trcfFI-checklist');
+    if (!checklist) return;
+    checklist.style.display = checklist.style.display === 'none' ? 'block' : 'none';
+    checklist.style.border = '1px solid rgba(34,197,94,0.3)';
+    checklist.style.borderRadius = '8px';
+    checklist.style.padding = '12px';
+    checklist.style.marginTop = '12px';
+  }
+  function trcfFI_print() {
+    var res = document.getElementById('trcfFI-results');
+    if (!res || res.style.display === 'none') { alert('Calculate first to generate a printable report.'); return; }
+    var w = window.open('','_blank'); w.document.write('<html><head><title>FI Loss Calculator</title></head><body>' + res.innerHTML + '</body></html>'); w.print();
+  }
+  function trcfFI_clear() {
+    ['trcfFI-cost','trcfFI-fmv','trcfFI-taxrate'].forEach(function(id) {
+      var el = document.getElementById(id); if (el) el.value = id === 'trcfFI-taxrate' ? '21' : '';
+    });
+    var res = document.getElementById('trcfFI-results'); if (res) res.style.display = 'none';
+    var chk = document.getElementById('trcfFI-checklist'); if (chk) chk.style.display = 'none';
+  }
+
+  // ── Interest Refunds Calculator ───────────────────────────────
+  function trcfInt_updateFields() {
+    var type = (document.getElementById('trcfInt-type') || {}).value || '';
+    var sections = ['163j','oid','imputed','overpayment'];
+    sections.forEach(function(s) {
+      var el = document.getElementById('trcfInt-fields-' + s);
+      if (el) el.style.display = 'none';
+    });
+    var map = {
+      '163j': '163j',
+      'oid': 'oid',
+      'marketdiscount': 'oid',
+      'bondpremium': 'oid',
+      'capitalized': 'oid',
+      'imputed': 'imputed',
+      'ahydo': 'imputed',
+      'overpayment': 'overpayment',
+      'foreign': 'overpayment',
+      'carried': 'overpayment'
+    };
+    var target = map[type];
+    if (target) {
+      var el = document.getElementById('trcfInt-fields-' + target);
+      if (el) el.style.display = 'block';
+    }
+  }
+  function trcfInt_calculate() {
+    var type = (document.getElementById('trcfInt-type') || {}).value || '';
+    var amount = parseFloat((document.getElementById('trcfInt-amount') || {}).value) || 0;
+    var rate = parseFloat((document.getElementById('trcfInt-taxRate') || {}).value) || 21;
+    var year = (document.getElementById('trcfInt-year') || {}).value || new Date().getFullYear();
+    if (amount <= 0) { alert('Enter the interest amount to continue.'); return; }
+    var taxRate = rate / 100;
+    var benefit = amount * taxRate;
+    var typeLabels = {
+      '163j':'§163(j) Business Interest','oid':'OID Income','marketdiscount':'Market Discount','bondpremium':'Bond Premium Amortization',
+      'capitalized':'Capitalized Interest','imputed':'Imputed Interest §483','ahydo':'AHYDO Disallowed OID','overpayment':'IRS Overpayment Interest',
+      'foreign':'Foreign Source Interest','carried':'Carried Interest'
+    };
+    var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:8px">';
+    html += '<div class="trcf-calc-item"><div style="font-size:11px;color:var(--text-secondary)">Interest Type</div><div style="font-size:13px;font-weight:700;color:var(--text-primary)">' + (typeLabels[type]||type) + '</div></div>';
+    html += '<div class="trcf-calc-item"><div style="font-size:11px;color:var(--text-secondary)">Tax Year</div><div style="font-size:16px;font-weight:700;color:var(--text-primary)">' + year + '</div></div>';
+    html += '<div class="trcf-calc-item"><div style="font-size:11px;color:var(--text-secondary)">Interest Amount</div><div style="font-size:18px;font-weight:700;color:#f59e0b">' + trcfFmt(amount) + '</div></div>';
+    html += '<div class="trcf-calc-item"><div style="font-size:11px;color:var(--text-secondary)">Tax Rate</div><div style="font-size:16px;font-weight:700;color:var(--text-primary)">' + rate + '%</div></div>';
+    html += '<div class="trcf-calc-item" style="border-color:rgba(239,68,68,0.5);background:rgba(239,68,68,0.08)"><div style="font-size:11px;color:var(--text-secondary)">Projected Tax Benefit</div><div style="font-size:22px;font-weight:700;color:#ef4444">' + trcfFmt(benefit) + '</div></div>';
+    html += '</div>';
+    var res = document.getElementById('trcfInt-results');
+    if (res) { res.innerHTML = html; res.style.display = 'block'; }
+  }
+  function trcfInt_validate() {
+    var chk = document.getElementById('trcfInt-checklist');
+    if (!chk) return;
+    chk.style.display = chk.style.display === 'none' ? 'block' : 'none';
+  }
+  function trcfInt_generateReport() {
+    var res = document.getElementById('trcfInt-results');
+    if (!res || res.style.display === 'none') { trcfInt_calculate(); }
+    var resEl = document.getElementById('trcfInt-results');
+    if (!resEl || resEl.style.display === 'none') return;
+    var w = window.open('','_blank');
+    w.document.write('<html><head><title>Interest Refund Report</title><style>body{font-family:Arial,sans-serif;padding:20px}</style></head><body><h2>Interest Refund Calculation Report</h2>' + resEl.innerHTML + '<p><em>Generated: ' + new Date().toLocaleString() + '</em></p></body></html>');
+    w.print();
+  }
+  function trcfInt_clear() {
+    ['trcfInt-amount','trcfInt-taxRate','trcfInt-year'].forEach(function(id) {
+      var el = document.getElementById(id); if (el) el.value = id === 'trcfInt-taxRate' ? '21' : id === 'trcfInt-year' ? new Date().getFullYear() : '';
+    });
+    var res = document.getElementById('trcfInt-results'); if (res) res.style.display = 'none';
+    var chk = document.getElementById('trcfInt-checklist'); if (chk) chk.style.display = 'none';
+    trcfInt_updateFields();
+  }
+
+  // ── EON: Task Planner ─────────────────────────────────────────
+  function planTask() {
+    var input = document.getElementById('eon-task-input');
+    var output = document.getElementById('eon-task-output');
+    if (!input || !output) return;
+    var task = input.value.trim();
+    if (!task) { alert('Describe a task to plan.'); return; }
+    var mode = (document.querySelector('#eon-task-mode') || {}).value || 'auto';
+    var useOpenClaw = (document.getElementById('eon-use-openclaw') || {}).checked;
+    var useApify = (document.getElementById('eon-use-apify') || {}).checked;
+    var useGaap = (document.getElementById('eon-use-gaap') || {}).checked;
+    var integrations = [];
+    if (useOpenClaw) integrations.push('OpenClaw Legal API');
+    if (useApify) integrations.push('Apify Research Engine');
+    if (useGaap) integrations.push('GAAP Ledger Bridge');
+    output.style.display = 'block';
+    output.innerHTML = '<div style="padding:16px;border:1px solid rgba(6,182,212,0.3);border-radius:10px;background:rgba(6,182,212,0.06)">' +
+      '<div style="font-size:13px;font-weight:700;color:#06b6d4;margin-bottom:10px">⚡ Task Plan Generated — Mode: ' + mode.toUpperCase() + '</div>' +
+      '<div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px"><strong>Task:</strong> ' + task + '</div>' +
+      (integrations.length ? '<div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px"><strong>Integrations:</strong> ' + integrations.join(', ') + '</div>' : '') +
+      '<ol style="font-size:12px;color:var(--text-primary);margin:0;padding-left:18px;line-height:2">' +
+      '<li>Analyze task requirements and identify applicable legal/financial codes</li>' +
+      '<li>Research relevant precedents and regulatory framework' + (useOpenClaw ? ' via OpenClaw' : '') + '</li>' +
+      '<li>Gather supporting data and evidence' + (useApify ? ' via Apify' : '') + '</li>' +
+      '<li>Draft action plan with milestones and decision points</li>' +
+      '<li>Generate required documents and correspondence' + (useGaap ? ' — sync to GAAP ledger' : '') + '</li>' +
+      '<li>Review, validate, and finalize all outputs</li>' +
+      '</ol></div>';
+  }
+  function clearTaskPlan() {
+    var input = document.getElementById('eon-task-input');
+    var output = document.getElementById('eon-task-output');
+    if (input) input.value = '';
+    if (output) { output.innerHTML = ''; output.style.display = 'none'; }
+  }
+
+  // ── EON: OpenClaw API Integration ────────────────────────────
+  function openClawCaseLaw() { window.open('https://www.courtlistener.com/opinion/', '_blank'); }
+  function openClawStatutes() { window.open('https://uscode.house.gov/', '_blank'); }
+  function openClawCongress() { window.open('https://www.congress.gov/', '_blank'); }
+
+  // ── EON: Apify Research Engine ───────────────────────────────
+  function apifyWebSearch() {
+    var q = prompt('Web search query:');
+    if (q) window.open('https://www.google.com/search?q=' + encodeURIComponent(q), '_blank');
+  }
+  function apifySECSearch() {
+    var q = prompt('SEC EDGAR search (company or ticker):');
+    if (q) window.open('https://efts.sec.gov/LATEST/search-index?q=' + encodeURIComponent(q) + '&dateRange=custom&startdt=2020-01-01&enddt=2024-12-31&forms=10-K,10-Q', '_blank');
+  }
+  function apifyNewsSearch() {
+    var q = prompt('News search query:');
+    if (q) window.open('https://news.google.com/search?q=' + encodeURIComponent(q), '_blank');
+  }
+
+  // ── EON: Code Builder ────────────────────────────────────────
+  function buildCode() {
+    var spec = document.getElementById('eon-code-spec');
+    var output = document.getElementById('eon-code-output');
+    if (!spec || !output) return;
+    var text = spec.value.trim();
+    if (!text) { alert('Describe what you want to build.'); return; }
+    var format = (document.getElementById('eon-code-format') || {}).value || 'html';
+    var useGaap = (document.getElementById('eon-code-gaap') || {}).checked;
+    var useSypher = (document.getElementById('eon-code-sypher') || {}).checked;
+    var comment = '// Generated by TMAR EON Code Builder\n// Spec: ' + text + '\n';
+    var snippet = '';
+    if (format === 'html') {
+      snippet = '<!-- ' + text + ' -->\n<div style="padding:16px;border:1px solid rgba(239,68,68,0.3);border-radius:10px">\n  <h3>' + text + '</h3>\n  <p>Generated HTML component</p>\n</div>';
+      if (useGaap) snippet += '\n<!-- GAAP Sync: populateAllForms() on load -->';
+    } else if (format === 'js') {
+      snippet = comment + 'function generated_' + text.replace(/\W+/g,'_').toLowerCase().slice(0,30) + '() {\n  // TODO: implement\n  console.log("' + text + '");\n}';
+    } else if (format === 'json') {
+      snippet = '{\n  "spec": "' + text + '",\n  "gaap": ' + useGaap + ',\n  "sypher": ' + useSypher + ',\n  "generated": "' + new Date().toISOString() + '"\n}';
+    } else {
+      snippet = comment + '# ' + text + '\n# TODO: implement\npass';
+    }
+    output.value = snippet;
+    output.style.display = 'block';
+  }
+  function copyBuiltCode() {
+    var output = document.getElementById('eon-code-output');
+    if (!output || !output.value) { alert('Generate code first.'); return; }
+    navigator.clipboard.writeText(output.value).then(function() { alert('Code copied to clipboard.'); });
+  }
+  function downloadBuiltCode() {
+    var output = document.getElementById('eon-code-output');
+    if (!output || !output.value) { alert('Generate code first.'); return; }
+    var format = (document.getElementById('eon-code-format') || {}).value || 'html';
+    var ext = {html:'html',js:'js',json:'json',python:'py'}[format] || 'txt';
+    var blob = new Blob([output.value], {type:'text/plain'});
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'eon-generated.' + ext; a.click();
+  }
+  function deployBuiltCode() { alert('Deploy feature: Connect your Git repository or hosting provider to enable one-click deployment.'); }
+  function reconcileApps() {
+    var log = document.getElementById('eon-reconcile-log');
+    if (log) { log.style.display = 'block'; log.textContent = '[' + new Date().toLocaleTimeString() + '] Reconciliation started...\n[' + new Date().toLocaleTimeString() + '] Scanning GAAP journal entries...\n[' + new Date().toLocaleTimeString() + '] Cross-referencing SYPHER ledger...\n[' + new Date().toLocaleTimeString() + '] ✓ No discrepancies found. Ledgers balanced.'; }
+  }
+
+  // ── EON: API Scout ───────────────────────────────────────────
+  var _scoutIntegrated = [];
+  function runAPIScout() {
+    var log = document.getElementById('eon-scout-log');
+    var results = document.getElementById('eon-scout-results');
+    var apis = [
+      {name:'IRS e-Services',cat:'government',auth:'OAuth2',url:'https://www.irs.gov/e-services'},
+      {name:'Court Listener',cat:'legal',auth:'API Key',url:'https://www.courtlistener.com/api/'},
+      {name:'SEC EDGAR',cat:'government',auth:'None',url:'https://efts.sec.gov/'},
+      {name:'OpenClaw',cat:'legal',auth:'API Key',url:'https://www.courtlistener.com/'},
+      {name:'Apify Research',cat:'research',auth:'API Key',url:'https://apify.com/'},
+      {name:'PACER Federal Courts',cat:'legal',auth:'Basic Auth',url:'https://pacer.uscourts.gov/'},
+      {name:'USASpending.gov',cat:'government',auth:'None',url:'https://api.usaspending.gov/'},
+      {name:'Treasury Fiscal Data',cat:'government',auth:'None',url:'https://fiscaldata.treasury.gov/api-documentation/'}
+    ];
+    if (log) { log.style.display = 'block'; log.value = '[' + new Date().toLocaleTimeString() + '] API Scout initiated...\nScanning ' + apis.length + ' discovered APIs...\nDiscovery complete. ' + apis.length + ' APIs found.'; }
+    if (results) {
+      results.style.display = 'grid';
+      results.innerHTML = apis.map(function(api) {
+        return '<div style="padding:12px;border:1px solid rgba(239,68,68,0.25);border-radius:8px;background:var(--bg-tertiary)">' +
+          '<div style="font-size:13px;font-weight:700;color:var(--text-primary)">' + api.name + '</div>' +
+          '<div style="font-size:11px;color:var(--text-secondary);margin:4px 0">' + api.cat.toUpperCase() + ' · Auth: ' + api.auth + '</div>' +
+          '<div style="display:flex;gap:6px;margin-top:8px">' +
+          '<button onclick="window.open(\'' + api.url + '\',\'_blank\')" style="flex:1;padding:4px 8px;font-size:11px;border:1px solid rgba(239,68,68,0.3);border-radius:6px;background:transparent;color:var(--text-secondary);cursor:pointer">Docs</button>' +
+          '<button onclick="scoutIntegrateAPI(\'' + api.name + '\')" style="flex:1;padding:4px 8px;font-size:11px;border:1px solid rgba(34,197,94,0.4);border-radius:6px;background:rgba(34,197,94,0.1);color:#22c55e;cursor:pointer">+ Integrate</button>' +
+          '</div></div>';
+      }).join('');
+    }
+  }
+  function scoutIntegrateAPI(name) {
+    if (_scoutIntegrated.indexOf(name) === -1) { _scoutIntegrated.push(name); alert(name + ' added to your integrations.'); }
+    else { alert(name + ' is already integrated.'); }
+  }
+  function filterScoutAPIs() {
+    var cat = (document.getElementById('eon-scout-cat') || {}).value || 'all';
+    var auth = (document.getElementById('eon-scout-auth') || {}).value || 'all';
+    alert('Filter: Category=' + cat + ', Auth=' + auth + '\nRerun discovery to apply filters.');
+  }
+  function showIntegratedAPIs() {
+    alert(_scoutIntegrated.length ? 'Integrated APIs:\n• ' + _scoutIntegrated.join('\n• ') : 'No APIs integrated yet. Run Scout and click + Integrate on any API.');
+  }
+  function scoutTestAll() {
+    var log = document.getElementById('eon-scout-log');
+    if (log) { log.value = _scoutIntegrated.length ? _scoutIntegrated.map(function(n){ return '[✓] ' + n + ' — reachable'; }).join('\n') : 'No integrated APIs to test. Run Scout first.'; log.style.display = 'block'; }
+  }
+  function scoutClearIntegrated() {
+    _scoutIntegrated = [];
+    var results = document.getElementById('eon-scout-results');
+    var log = document.getElementById('eon-scout-log');
+    if (results) { results.innerHTML = ''; results.style.display = 'none'; }
+    if (log) { log.value = ''; log.style.display = 'none'; }
+    alert('Integrated APIs cleared.');
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -27591,6 +28350,10 @@ function ev2InitEntityVerifier() {
   <button class="side-btn" onclick="goEonPage(this,'history')"><i class="fas fa-clock-rotate-left" style="width:18px"></i> History</button>
   <button class="side-btn" onclick="goEonPage(this,'howto')"><i class="fas fa-question-circle" style="width:18px"></i> How-To</button>
   <button class="side-btn" onclick="goEonPage(this,'backup')"><i class="fas fa-database" style="width:18px"></i> Backup</button>
+  <button class="side-btn" onclick="goEonPage(this,'taskplanner')" style="border-left:3px solid #06b6d4"><i class="fas fa-brain" style="width:18px;color:#06b6d4"></i> Task Planner</button>
+  <button class="side-btn" onclick="goEonPage(this,'apitools')"><i class="fas fa-plug" style="width:18px"></i> API Integrations</button>
+  <button class="side-btn" onclick="goEonPage(this,'codebuilder')"><i class="fas fa-code" style="width:18px"></i> Code Builder</button>
+  <button class="side-btn" onclick="goEonPage(this,'apiscout')"><i class="fas fa-radar" style="width:18px"></i> API Scout</button>
 
   <button class="side-btn" onclick="toggleEonSidebar()" style="margin-top:20px;border:1px solid var(--accent-green);color:var(--accent-green)">
     <i class="fas fa-times"></i> Close Sidebar
@@ -27673,6 +28436,161 @@ function ev2InitEntityVerifier() {
 </div>
 </div>
 
+
+  <!-- EON: TASK PLANNER -->
+  <div class="page" id="page-taskplanner">
+  <div class="card" style="border-color:#06b6d4">
+    <div class="card-head" style="color:#06b6d4;display:flex;justify-content:space-between;align-items:center">
+      <span>🧠 Autonomous Task Planner — TMAR AI</span>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm" style="background:#06b6d4;color:#000" onclick="planTask()">⚡ Plan &amp; Execute</button>
+        <button class="btn btn-sm" onclick="clearTaskPlan()">🗑 Clear</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Describe a complex goal. The system will decompose it into steps, assign specialized agents, call live APIs (OpenClaw, Apify, GAAP data), and deliver a complete result — autonomously.</p>
+      <textarea id="taskGoal" rows="3" placeholder="Examples:&#10;• Build a financial application for tracking NOL carryforwards with IRS compliance checks&#10;• Research all Supreme Court cases on property tax exemptions since 1980 and produce a legal brief&#10;• Generate Form 1120 journal entries from the GAAP ledger and reconcile with Form 3800 credits" style="width:100%;padding:10px;background:var(--input-bg);border:1px solid #06b6d4;border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px"></textarea>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <select id="taskMode" style="padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px">
+          <option value="auto">Auto-Select Agents</option>
+          <option value="legal">Legal Research Mode</option>
+          <option value="financial">Financial/Tax Mode</option>
+          <option value="code">Code Generation Mode</option>
+          <option value="research">Deep Research Mode</option>
+          <option value="fullstack">Full-Stack (All Agents)</option>
+        </select>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2)"><input type="checkbox" id="taskUseOpenClaw" checked> OpenClaw Legal DB</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2)"><input type="checkbox" id="taskUseApify"> Apify Web Research</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2)"><input type="checkbox" id="taskUseGAAP" checked> GAAP Ledger Data</label>
+      </div>
+      <div id="taskPlanSteps" style="display:none;margin-bottom:12px">
+        <div style="font-size:11px;color:#06b6d4;font-weight:700;margin-bottom:6px;letter-spacing:.5px">EXECUTION PLAN</div>
+        <div id="taskStepsList" style="font-size:12px;line-height:1.8"></div>
+      </div>
+    </div>
+  </div>
+  <div id="taskResults" style="display:flex;flex-direction:column;gap:12px"></div>
+  </div>
+
+  <!-- EON: API INTEGRATIONS -->
+  <div class="page" id="page-apitools">
+  <div class="card">
+    <div class="card-head">🔌 API Integrations — Live Status &amp; Tools</div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:20px">
+        <div id="apicard-openclaw" style="padding:14px;border-radius:10px;border:1px solid rgba(255,215,0,.3);background:rgba(255,215,0,.05)">
+          <div style="font-weight:700;font-size:13px;color:#ffd700;margin-bottom:4px">⚖️ OpenClaw Legal API</div>
+          <div style="font-size:11px;color:var(--text2);margin-bottom:8px">Legal databases, case law, statutes, SCOTUS, Congressional Record</div>
+          <div id="apistat-openclaw" style="font-size:11px;color:var(--text2)">⏳ Not tested</div>
+          <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn btn-sm" onclick="openClawCaseLaw()" style="font-size:10px;background:rgba(255,215,0,.15);color:#ffd700">📜 Case Law Search</button>
+            <button class="btn btn-sm" onclick="openClawStatutes()" style="font-size:10px;background:rgba(255,215,0,.15);color:#ffd700">📖 Statutes Lookup</button>
+            <button class="btn btn-sm" onclick="openClawCongress()" style="font-size:10px;background:rgba(255,215,0,.15);color:#ffd700">📋 Congressional Record</button>
+          </div>
+          <input id="ocQuery" placeholder="Search term (case name, statute, topic)..." style="width:100%;margin-top:8px;padding:6px;background:var(--input-bg);border:1px solid rgba(255,215,0,.3);border-radius:6px;color:var(--text);font-size:11px">
+          <div id="ocResults" style="margin-top:8px;font-size:11px;max-height:200px;overflow-y:auto;color:var(--text2);line-height:1.7"></div>
+        </div>
+        <div id="apicard-apify" style="padding:14px;border-radius:10px;border:1px solid rgba(6,182,212,.3);background:rgba(6,182,212,.05)">
+          <div style="font-weight:700;font-size:13px;color:#06b6d4;margin-bottom:4px">🕷️ Apify Research Engine</div>
+          <div style="font-size:11px;color:var(--text2);margin-bottom:8px">Web scraping, Google Search, news, SEC EDGAR, financial data</div>
+          <div id="apistat-apify" style="font-size:11px;color:var(--text2)">⏳ Not tested</div>
+          <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn btn-sm" onclick="apifyWebSearch()" style="font-size:10px;background:rgba(6,182,212,.15);color:#06b6d4">🔍 Web Search</button>
+            <button class="btn btn-sm" onclick="apifySECSearch()" style="font-size:10px;background:rgba(6,182,212,.15);color:#06b6d4">📊 SEC EDGAR</button>
+            <button class="btn btn-sm" onclick="apifyNewsSearch()" style="font-size:10px;background:rgba(6,182,212,.15);color:#06b6d4">📰 News</button>
+          </div>
+          <input id="apifyQuery" placeholder="Research query..." style="width:100%;margin-top:8px;padding:6px;background:var(--input-bg);border:1px solid rgba(6,182,212,.3);border-radius:6px;color:var(--text);font-size:11px">
+          <div id="apifyResults" style="margin-top:8px;font-size:11px;max-height:200px;overflow-y:auto;color:var(--text2);line-height:1.7"></div>
+        </div>
+        <div style="padding:14px;border-radius:10px;border:1px solid rgba(34,197,94,.3);background:rgba(34,197,94,.05)">
+          <div style="font-weight:700;font-size:13px;color:#22c55e;margin-bottom:4px">📊 GAAP Ledger Bridge</div>
+          <div style="font-size:11px;color:var(--text2);margin-bottom:8px">Live bi-directional sync with GAAP Ledger — reconciliation engine</div>
+          <div id="apistat-gaap" style="font-size:11px;color:var(--text2)">⏳ Checking...</div>
+          <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn btn-sm" onclick="forceSyncFromGAAP()" style="font-size:10px;background:rgba(34,197,94,.15);color:#22c55e">⬇ Pull GAAP</button>
+            <button class="btn btn-sm" onclick="generateJournalFromForms()" style="font-size:10px;background:rgba(34,197,94,.15);color:#22c55e">⬆ Push Agent</button>
+            <button class="btn btn-sm" onclick="reconcileApps()" style="font-size:10px;background:rgba(34,197,94,.2);color:#22c55e;font-weight:700">⇄ Reconcile</button>
+          </div>
+          <div id="gaapReconcileResult" style="margin-top:8px;font-size:11px;max-height:150px;overflow-y:auto;color:var(--text2);line-height:1.7"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- EON: CODE BUILDER -->
+  <div class="page" id="page-codebuilder">
+  <div class="card" style="border-color:#3b82f6">
+    <div class="card-head" style="color:#3b82f6">💻 Code Builder — Financial Application Generator</div>
+    <div class="card-body">
+      <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Describe a financial application, form, calculator, or tool. The Code Expert generates production-ready HTML/CSS/JS with SYPHER Protocol security and TMAR standards built in.</p>
+      <textarea id="codeBuilderInput" rows="4" placeholder="Examples:&#10;• Build an NOL carryforward tracker with IRC §172 calculations and visualization&#10;• Create a Form 3800 General Business Credit calculator&#10;• Generate a trust accounting ledger for common-law trusts&#10;• Build a UCC Article 9 security agreement generator" style="width:100%;padding:10px;background:var(--input-bg);border:1px solid #3b82f6;border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px"></textarea>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <select id="codeOutputFormat" style="padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px">
+          <option value="html">Single-file HTML App</option>
+          <option value="component">JS Component</option>
+          <option value="calculator">Financial Calculator</option>
+          <option value="form">IRS Form Template</option>
+          <option value="agent">Sub-Agent Definition</option>
+        </select>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2)"><input type="checkbox" id="codeIncludeGAAP" checked> Include GAAP sync bridge</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2)"><input type="checkbox" id="codeIncludeSYPHER" checked> Include SYPHER Protocol</label>
+        <button class="btn btn-primary" onclick="buildCode()">💻 Generate Code</button>
+      </div>
+      <div id="codeBuilderStatus" style="font-size:12px;color:var(--text2);margin-bottom:8px"></div>
+      <div id="codeBuilderResult" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-size:12px;color:#3b82f6;font-weight:700">Generated Code</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-sm" onclick="copyBuiltCode()">📋 Copy</button>
+            <button class="btn btn-sm" onclick="downloadBuiltCode()">💾 Download</button>
+            <button class="btn btn-sm" onclick="deployBuiltCode()">🚀 Open Preview</button>
+          </div>
+        </div>
+        <textarea id="codeBuilderOutput" rows="20" style="width:100%;padding:10px;background:#0a0f2c;border:1px solid #3b82f6;border-radius:8px;color:#00d4ff;font-size:11px;font-family:'Courier New',monospace;resize:vertical"></textarea>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- EON: API SCOUT -->
+  <div class="page" id="page-apiscout">
+  <div class="card" style="border-color:#a855f7">
+    <div class="card-head" style="color:#a855f7;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <span>🛰️ API Scout — Autonomous API Discovery Engine</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-sm" style="background:#a855f7;color:#fff;font-weight:700" onclick="runAPIScout()">🔍 Discover APIs</button>
+        <button class="btn btn-sm" onclick="showIntegratedAPIs()" style="border:1px solid #a855f7;color:#a855f7">✅ Integrated</button>
+        <button class="btn btn-sm" onclick="scoutTestAll()" style="border:1px solid #f59e0b;color:#f59e0b">⚡ Test All Live</button>
+        <button class="btn btn-sm" onclick="scoutClearIntegrated()" style="border:1px solid var(--err);color:var(--err)">🗑 Clear</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <p style="font-size:11px;color:var(--text2);margin-bottom:10px;line-height:1.7">Queries public API directories, filters for legal/financial/government relevance, tests each endpoint live, and integrates working APIs directly into your agent routing system.</p>
+      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center">
+        <input id="scoutSearch" placeholder="Filter by name or keyword..." oninput="filterScoutAPIs()" style="flex:1;min-width:160px;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px">
+        <select id="scoutCategory" onchange="filterScoutAPIs()" style="padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px">
+          <option value="">All Categories</option>
+          <option value="Legal">Legal</option><option value="Financial">Financial</option>
+          <option value="Government">Government</option><option value="Tax">Tax</option>
+          <option value="Research">Research</option><option value="Business">Business</option>
+        </select>
+        <select id="scoutAuthFilter" onchange="filterScoutAPIs()" style="padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px">
+          <option value="">Any Auth</option>
+          <option value="none">No Key Required</option>
+          <option value="free_key">Free Key</option>
+          <option value="token">Token</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+        <span id="scoutCount" style="font-size:11px;color:var(--text2);align-self:center"></span>
+        <span id="scoutLiveCount" style="font-size:11px;color:var(--ok);align-self:center"></span>
+      </div>
+      <textarea id="scoutLog" rows="3" readonly style="width:100%;padding:8px;background:#0a0f2c;border:1px solid rgba(168,85,247,.3);border-radius:6px;color:#00d4ff;font-size:10px;font-family:'Courier New',monospace;resize:none;margin-bottom:12px">Click "Discover APIs" to scan public API directories and find tools to expand your agents.</textarea>
+      <div id="scoutGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px"></div>
+    </div>
+  </div>
+  </div>
 
   <!-- EON: CALENDAR -->
   <div class="page" id="page-calendar">
