@@ -1,9 +1,9 @@
 # TMAR - Trust Master Account Register
 
 **Complete Interactive Web Application + Google Sheets Integration**
-**Version:** 2.0
-**Last Updated:** March 9, 2026
-**Status:** ✅ Production Ready - 100% Function Coverage
+**Version:** 3.0
+**Last Updated:** March 14, 2026
+**Status:** ✅ Production Ready — GAAPCLAW Full Parity
 
 ---
 
@@ -298,6 +298,24 @@ clasp open
 
 ## 📈 Version History
 
+### v3.0 (March 14, 2026) — GAAPCLAW Full Parity + Engine Ports
+- ✅ **GCMemory IndexedDB engine** — Full persistent agent memory (replaces localStorage stub)
+  - `add()`, `addPdf()`, `search()` with keyword-overlap scoring, `clearAll()`, `count()`
+  - 60+ legal/financial importance keywords; auto-prune at 500 records
+- ✅ **MEM0 (GAAP_MEM0)** — Drop-in proxy routing all calls to GCMemory; always enabled, no key gate
+- ✅ **OpenClawRuntime SYPHER-7.8-HARDLOCK** — 3-phase boot: guarded registration → delete methods → `Object.freeze()`; 5 agents + 9 skills sealed; rogue injection blocked + logged
+- ✅ **HARD_LOCK enforcement layer** — Frozen object: sanitizeOutput (strips markdown), validatePrompt, stripDisclaimers, processOutput; integrity self-test at load
+- ✅ **Streaming architecture (callLLMStream v7.1)** — Multi-provider SSE/NDJSON streaming: Ollama, Anthropic, OpenAI-compatible bearer, Ernie non-streaming fallback; 15-min AbortController
+- ✅ **Token Budget Guard** — PROVIDER_LIMITS for 14 providers; `truncateToTokenBudget()` preserves questions, truncates docs first
+- ✅ **resolveProvider()** — Reads `eeon_*` localStorage keys; cascading fallback to Claude
+- ✅ **askAgent() refactored** — Full streaming with live cursor, MEM0 context injection, IndexedDB save on completion
+- ✅ **API Scout v2** — 22 curated APIs, search/category/auth filters, ⚡ Test All Live with per-card status dots, ⬇ Integrate All
+- ✅ **`#gc-v3-bar` footer status bar** — Fixed bottom: Rev/Exp/Net/Assets/Tax/BALANCED/entries/Mem + 5 panel buttons
+- ✅ **AP pattern** — All 7 specialist pages rebuilt with left sidebar + 6-button action bar (Speak/Listen/Print/PDF/Word/Share) + localStorage conversation persistence
+- ✅ **AUTONOMOUS sidebar section** — Task Planner, API Integrations, Code Builder, API Scout properly separated from SYSTEM
+- ✅ **uploadIRSTemplate()** — PDF template upload with FileReader + localStorage
+- ✅ **Settings expanded** — Appearance tab, LLM provider grid buttons, GCMemory block, OpenClaw + Apify sections
+
 ### v2.0 (March 9, 2026)
 - ✅ Implemented all 17 custom functions
 - ✅ Created 17 reference cards
@@ -363,6 +381,6 @@ All Rights Reserved
 
 ---
 
-**Last Updated:** March 9, 2026
-**Status:** ✅ Production Ready
+**Last Updated:** March 14, 2026
+**Status:** ✅ Production Ready — GAAPCLAW Full Parity
 **Coverage:** 100%
