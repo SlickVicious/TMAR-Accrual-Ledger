@@ -396,7 +396,7 @@
   --input-border: #3366cc;
   --input-border-focus: #00e5ff;
   --irs-bg: #1a1e2a;
-  --irs-border: #7090d0;
+  --irs-border: #8ab0e0;
   --irs-shade: #1e2535;
   --irs-shade2: #22293a;
   --gold: #ffc107;
@@ -28974,6 +28974,7 @@ function ev2InitEntityVerifier() {
   <button class="side-btn" onclick="goEonPage(this,'legal')"><i class="fas fa-gavel" style="width:18px"></i> Legal Expert</button>
   <button class="side-btn" onclick="goEonPage(this,'tax')"><i class="fas fa-calculator" style="width:18px"></i> Tax Expert</button>
   <button class="side-btn" onclick="goEonPage(this,'taxforms')" style="border-left:3px solid #22c55e"><i class="fas fa-file-invoice-dollar" style="width:18px;color:#22c55e"></i> Tax Forms (1120/Year)</button>
+  <button class="side-btn" onclick="goEonPage(this,'taxestimator')" style="border-left:3px solid #f87171"><i class="fas fa-calculator" style="width:18px;color:#f87171"></i> Tax Estimator</button>
   <button class="side-btn" onclick="goEonPage(this,'arbitration')"><i class="fas fa-scale-balanced" style="width:18px"></i> Arbitration</button>
 
   <div class="sidebar-title">TOOLS</div>
@@ -32571,6 +32572,177 @@ function ev2InitEntityVerifier() {
   </div>
   </div>
 
+  <!-- EON: TAX ESTIMATOR -->
+  <div class="page" id="page-taxestimator" style="overflow-y:auto;padding:20px;">
+  <div style="max-width:960px;margin:0 auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+      <div>
+        <div style="font-size:18px;font-weight:800;color:#f87171">🧮 Year-Round Tax Estimator</div>
+        <div style="font-size:11px;color:var(--text2,#94a3b8);margin-top:2px">Estimate federal tax liability — individual, SE, or business · 2024 brackets</div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button onclick="calcEonTaxEst()" style="padding:7px 16px;background:#f87171;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">🔄 Calculate</button>
+        <button onclick="clearEonTaxEst()" style="padding:7px 16px;background:rgba(255,255,255,.06);color:#94a3b8;border:1px solid rgba(255,255,255,.1);border-radius:6px;font-size:12px;cursor:pointer">Clear</button>
+        <button onclick="printEonTaxEst()" style="padding:7px 16px;background:rgba(255,255,255,.06);color:#94a3b8;border:1px solid rgba(255,255,255,.1);border-radius:6px;font-size:12px;cursor:pointer">🖨️ Print</button>
+      </div>
+    </div>
+    <!-- Sub-tabs -->
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;padding:4px;background:rgba(255,255,255,.04);border-radius:8px;border:1px solid rgba(255,255,255,.08)">
+      <button id="eon-est-tab-income" onclick="eonEstTab('income')" style="padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;background:#f87171;color:#fff;border:none">📊 Income Estimator</button>
+      <button id="eon-est-tab-baddebt" onclick="eonEstTab('baddebt')" style="padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:#f87171;border:1px solid rgba(248,113,113,.3)">💰 Bad Debt Refund</button>
+      <button id="eon-est-tab-loss" onclick="eonEstTab('loss')" style="padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:#f87171;border:1px solid rgba(248,113,113,.3)">📉 Loss Calculator</button>
+      <button id="eon-est-tab-interest" onclick="eonEstTab('interest')" style="padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:#f87171;border:1px solid rgba(248,113,113,.3)">🏦 Interest Refund</button>
+    </div>
+
+    <!-- Panel: Income Estimator -->
+    <div id="eon-est-panel-income">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <!-- Left: Inputs -->
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:14px">
+          <div style="font-size:12px;font-weight:700;color:#22c55e;margin-bottom:10px">💰 Income Sources</div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:12px">
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">W-2 Wages (Total YTD)</label><input type="number" id="eon-tw2" step="0.01" oninput="calcEonTaxEst()" placeholder="0.00" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px;box-sizing:border-box"/></div>
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">Self-Employment Income (Net)</label><input type="number" id="eon-tse" step="0.01" oninput="calcEonTaxEst()" placeholder="0.00" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px;box-sizing:border-box"/></div>
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">Investment / Dividend Income</label><input type="number" id="eon-tinv" step="0.01" oninput="calcEonTaxEst()" placeholder="0.00" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px;box-sizing:border-box"/></div>
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">Capital Gains (Short-Term)</label><input type="number" id="eon-tcap" step="0.01" oninput="calcEonTaxEst()" placeholder="0.00" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px;box-sizing:border-box"/></div>
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">Rental Income (Net)</label><input type="number" id="eon-trent" step="0.01" oninput="calcEonTaxEst()" placeholder="0.00" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px;box-sizing:border-box"/></div>
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">Other Income</label><input type="number" id="eon-tother" step="0.01" oninput="calcEonTaxEst()" placeholder="0.00" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px;box-sizing:border-box"/></div>
+          </div>
+        </div>
+        <div style="border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:14px">
+          <div style="font-size:12px;font-weight:700;color:#60a5fa;margin-bottom:10px">📉 Deductions &amp; Credits</div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:12px">
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">Filing Status</label>
+            <select id="eon-tfile" onchange="calcEonTaxEst()" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px">
+              <option value="single">Single ($14,600 std.)</option>
+              <option value="mfj">Married Filing Jointly ($29,200 std.)</option>
+              <option value="hoh">Head of Household ($21,900 std.)</option>
+            </select></div>
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">Deduction Method</label>
+            <select id="eon-tdeduct" onchange="eonToggleItemized();calcEonTaxEst()" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px">
+              <option value="standard">Standard Deduction</option>
+              <option value="itemized">Itemized</option>
+            </select></div>
+            <div id="eon-itemized-row" style="display:none"><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">Total Itemized Deductions</label><input type="number" id="eon-titem" step="0.01" oninput="calcEonTaxEst()" placeholder="0.00" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px;box-sizing:border-box"/></div>
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">Total Tax Credits (Child, Education, etc.)</label><input type="number" id="eon-tcred" step="0.01" oninput="calcEonTaxEst()" placeholder="0.00" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px;box-sizing:border-box"/></div>
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">Fed Tax Already Withheld (W-2 Box 2)</label><input type="number" id="eon-twheld" step="0.01" oninput="calcEonTaxEst()" placeholder="0.00" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px;box-sizing:border-box"/></div>
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">Estimated Quarterly Payments Made</label><input type="number" id="eon-tqpay" step="0.01" oninput="calcEonTaxEst()" placeholder="0.00" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px;box-sizing:border-box"/></div>
+          </div>
+        </div>
+      </div>
+      <!-- Right: Results -->
+      <div style="border:1px solid rgba(248,113,113,.3);border-radius:10px;padding:16px;background:rgba(248,113,113,.04);align-self:start">
+        <div style="font-size:14px;font-weight:700;color:#f87171;margin-bottom:12px">📋 Estimated Tax Summary</div>
+        <div style="display:flex;flex-direction:column;gap:2px;font-size:12px" id="eon-est-results">
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.08)"><span style="color:#94a3b8">Total Gross Income</span><span style="font-family:monospace;color:#e2e8f0" id="eon-r-gross">$0.00</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.08)"><span style="color:#94a3b8">Adjusted Gross Income</span><span style="font-family:monospace;color:#60a5fa" id="eon-r-agi">$0.00</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.08)"><span style="color:#94a3b8">Deductions</span><span style="font-family:monospace;color:#f87171" id="eon-r-ded">($0.00)</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.08);font-weight:600"><span>Taxable Income</span><span style="font-family:monospace;color:#e2e8f0" id="eon-r-taxinc">$0.00</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.08)"><span style="color:#94a3b8">Effective Tax Rate</span><span style="font-family:monospace;color:#fbbf24" id="eon-r-rate">0.0%</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.08)"><span style="color:#94a3b8">Federal Income Tax</span><span style="font-family:monospace;color:#fbbf24" id="eon-r-fedtax">$0.00</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.08)"><span style="color:#94a3b8">Self-Employment Tax (15.3%)</span><span style="font-family:monospace;color:#fbbf24" id="eon-r-setax">$0.00</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.08)"><span style="color:#94a3b8">Tax Credits Applied</span><span style="font-family:monospace;color:#22c55e" id="eon-r-cred">-$0.00</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.08);font-weight:600"><span>Total Tax Liability</span><span style="font-family:monospace;color:#f87171" id="eon-r-total">$0.00</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.08)"><span style="color:#94a3b8">Less: Tax Already Paid</span><span style="font-family:monospace;color:#22c55e" id="eon-r-paid">-$0.00</span></div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid rgba(248,113,113,.5);font-weight:700;font-size:14px">
+            <span id="eon-r-label" style="color:#22c55e">ESTIMATED REFUND</span>
+            <span style="font-family:monospace" id="eon-r-amount" style="color:#4ade80">$0.00</span>
+          </div>
+        </div>
+        <!-- Bracket Breakdown -->
+        <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)">
+          <div style="font-size:10px;font-weight:700;color:#94a3b8;margin-bottom:6px;letter-spacing:.05em">TAX BRACKET BREAKDOWN</div>
+          <div id="eon-r-brackets" style="font-size:10px;font-family:monospace;color:#94a3b8;line-height:1.8"></div>
+        </div>
+        <div style="margin-top:10px;font-size:9px;color:#64748b">* 2024 tax brackets. Estimates only — not legal or tax advice.</div>
+      </div>
+    </div>
+    </div><!-- /income panel -->
+
+    <!-- Panel: Bad Debt Refund -->
+    <div id="eon-est-panel-baddebt" style="display:none">
+      <div style="border:1px solid rgba(248,113,113,.3);border-radius:10px;padding:20px;background:rgba(248,113,113,.04)">
+        <div style="font-size:14px;font-weight:700;color:#f87171;margin-bottom:12px">💰 Bad Debt Refund Calculator — IRC §166</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div style="display:flex;flex-direction:column;gap:10px;font-size:12px">
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">Original Debt Amount</label><input type="number" id="eon-bd-orig" step="0.01" oninput="calcEonBadDebt()" placeholder="0.00" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px;box-sizing:border-box"/></div>
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">Amount Recovered</label><input type="number" id="eon-bd-rec" step="0.01" oninput="calcEonBadDebt()" placeholder="0.00" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px;box-sizing:border-box"/></div>
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">Your Tax Rate (%)</label><input type="number" id="eon-bd-rate" step="0.1" oninput="calcEonBadDebt()" placeholder="22" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px;box-sizing:border-box"/></div>
+            <div style="font-size:10px;color:#94a3b8;padding:8px;background:rgba(0,0,0,.2);border-radius:6px;border-left:3px solid rgba(248,113,113,.5)">IRC §166 allows a deduction for wholly or partially worthless business or non-business debts. The net bad debt loss reduces taxable income, generating a refund equal to the loss × tax rate.</div>
+          </div>
+          <div style="border:1px solid rgba(248,113,113,.2);border-radius:8px;padding:14px;background:rgba(248,113,113,.03)">
+            <div style="font-size:12px;font-weight:700;color:#f87171;margin-bottom:10px">Results</div>
+            <div style="display:flex;flex-direction:column;gap:6px;font-size:12px">
+              <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:#94a3b8">Net Bad Debt Loss</span><span style="font-family:monospace;color:#e2e8f0" id="eon-bd-netloss">$0.00</span></div>
+              <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:#94a3b8">Deduction Value</span><span style="font-family:monospace;color:#fbbf24" id="eon-bd-deduct">$0.00</span></div>
+              <div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:700;font-size:13px"><span style="color:#22c55e">Estimated Refund</span><span style="font-family:monospace;color:#22c55e" id="eon-bd-refund">$0.00</span></div>
+              <div style="font-size:10px;color:#94a3b8;margin-top:4px">Report on Schedule D / Form 8949 or directly on Schedule C (business debts). Use Form 1045 for carryback.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel: Loss Calculator -->
+    <div id="eon-est-panel-loss" style="display:none">
+      <div style="border:1px solid rgba(248,113,113,.3);border-radius:10px;padding:20px;background:rgba(248,113,113,.04)">
+        <div style="font-size:14px;font-weight:700;color:#f87171;margin-bottom:12px">📉 Net Operating Loss Calculator — IRC §172</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div style="display:flex;flex-direction:column;gap:10px;font-size:12px">
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">Total Business Income</label><input type="number" id="eon-nol-inc" step="0.01" oninput="calcEonNOL()" placeholder="0.00" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px;box-sizing:border-box"/></div>
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">Total Business Deductions</label><input type="number" id="eon-nol-ded" step="0.01" oninput="calcEonNOL()" placeholder="0.00" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px;box-sizing:border-box"/></div>
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">Prior Year Tax Rate (%)</label><input type="number" id="eon-nol-rate" step="0.1" oninput="calcEonNOL()" placeholder="21" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px;box-sizing:border-box"/></div>
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">Carry Type</label>
+            <select id="eon-nol-carry" onchange="calcEonNOL()" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px">
+              <option value="forward">Carryforward (indefinite — TCJA 2017)</option>
+              <option value="back">Carryback (farming — 2 years)</option>
+            </select></div>
+            <div style="font-size:10px;color:#94a3b8;padding:8px;background:rgba(0,0,0,.2);border-radius:6px;border-left:3px solid rgba(248,113,113,.5)">IRC §172(b)(1)(A)(ii): NOL carryforwards are indefinite under TCJA (post-2017), limited to 80% of taxable income per year. NOLs are financial assets with dollar-for-dollar monetary value.</div>
+          </div>
+          <div style="border:1px solid rgba(248,113,113,.2);border-radius:8px;padding:14px;background:rgba(248,113,113,.03)">
+            <div style="font-size:12px;font-weight:700;color:#f87171;margin-bottom:10px">NOL Analysis</div>
+            <div style="display:flex;flex-direction:column;gap:6px;font-size:12px">
+              <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:#94a3b8">Net Operating Loss</span><span style="font-family:monospace;color:#e2e8f0" id="eon-nol-amount">$0.00</span></div>
+              <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:#94a3b8">80% Limitation / Year</span><span style="font-family:monospace;color:#fbbf24" id="eon-nol-limit">$0.00</span></div>
+              <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:#94a3b8">Tax Asset Value</span><span style="font-family:monospace;color:#22c55e" id="eon-nol-assetval">$0.00</span></div>
+              <div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:700;font-size:13px"><span style="color:#22c55e">Estimated Refund / Reduction</span><span style="font-family:monospace;color:#22c55e" id="eon-nol-refund">$0.00</span></div>
+              <div style="font-size:10px;color:#94a3b8;margin-top:4px">Report on Form 1120 Line 29a / Form 1040 Schedule A. File Form 1045 for carryback election.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel: Interest Refund -->
+    <div id="eon-est-panel-interest" style="display:none">
+      <div style="border:1px solid rgba(248,113,113,.3);border-radius:10px;padding:20px;background:rgba(248,113,113,.04)">
+        <div style="font-size:14px;font-weight:700;color:#f87171;margin-bottom:12px">🏦 IRS Interest Refund Calculator — IRC §6611 / §6621</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div style="display:flex;flex-direction:column;gap:10px;font-size:12px">
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">Overpayment Amount</label><input type="number" id="eon-int-overpay" step="0.01" oninput="calcEonInterest()" placeholder="0.00" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px;box-sizing:border-box"/></div>
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">Date Paid (or Tax Year End)</label><input type="date" id="eon-int-datepaid" oninput="calcEonInterest()" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px;box-sizing:border-box"/></div>
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">Date Refund Issued (or Today)</label><input type="date" id="eon-int-daterefund" oninput="calcEonInterest()" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px;box-sizing:border-box"/></div>
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">IRS Interest Rate (% / year)</label><input type="number" id="eon-int-rate" step="0.1" oninput="calcEonInterest()" placeholder="8" value="8" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px;box-sizing:border-box"/></div>
+            <div style="font-size:10px;color:#94a3b8;padding:8px;background:rgba(0,0,0,.2);border-radius:6px;border-left:3px solid rgba(248,113,113,.5)">IRC §6611: IRS SHALL pay interest on overpayments from the date of overpayment at the §6621 rate (federal short-term rate + 3%). Current rate: 8% (Q4 2024).</div>
+          </div>
+          <div style="border:1px solid rgba(248,113,113,.2);border-radius:8px;padding:14px;background:rgba(248,113,113,.03)">
+            <div style="font-size:12px;font-weight:700;color:#f87171;margin-bottom:10px">Interest Calculation</div>
+            <div style="display:flex;flex-direction:column;gap:6px;font-size:12px">
+              <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:#94a3b8">Days Outstanding</span><span style="font-family:monospace;color:#e2e8f0" id="eon-int-days">0</span></div>
+              <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:#94a3b8">Daily Interest Rate</span><span style="font-family:monospace;color:#fbbf24" id="eon-int-daily">0.0000%</span></div>
+              <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:#94a3b8">Accrued Interest</span><span style="font-family:monospace;color:#fbbf24" id="eon-int-accrued">$0.00</span></div>
+              <div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:700;font-size:13px"><span style="color:#22c55e">Total Refund + Interest</span><span style="font-family:monospace;color:#22c55e" id="eon-int-total">$0.00</span></div>
+              <div style="font-size:10px;color:#94a3b8;margin-top:4px">IRS is mandated to pay this interest. Claim by filing Form 843 or noting on your original return. IRC §6402 SHALL refund.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  </div>
+
   <!-- EON: TRUST -->
   <div class="page" id="page-trust">
 <div style="display:flex;height:100%">
@@ -32973,7 +33145,30 @@ function dtHandleFiles() { alert('Dream Team file upload'); }
 function populateAllForms() { alert('Sync from GAAP ledger'); }
 function generateJournalFromForms() { alert('Push back to GAAP'); }
 function onYearChange() { console.log('Year changed'); }
-function printForm(formId) { window.print(); }
+function printForm(formId) {
+  var formEl = document.getElementById(formId);
+  if (!formEl) { window.print(); return; }
+  // Collect all stylesheet rules
+  var css = '';
+  try {
+    Array.from(document.styleSheets).forEach(function(ss) {
+      try { Array.from(ss.cssRules || []).forEach(function(r) { css += r.cssText + '\n'; }); } catch(e) {}
+    });
+  } catch(e) {}
+  var win = window.open('', '_blank', 'width=960,height=780');
+  if (!win) { alert('Allow pop-ups to print this form.'); return; }
+  win.document.write(
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>IRS Form Print</title>' +
+    '<style>' + css +
+    '@media print{body{margin:0!important;background:#fff!important;}.irs-form-wrap{max-width:100%!important;border:none!important;box-shadow:none!important;}}</style>' +
+    '</head><body style="margin:16px;background:#fff">' +
+    formEl.outerHTML +
+    '</body></html>'
+  );
+  win.document.close();
+  win.focus();
+  setTimeout(function() { win.print(); }, 400);
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // HARD_LOCK — Immutable Enforcement Layer (output sanitizer + prompt validator)
@@ -33873,24 +34068,48 @@ function sendQuick(message) {
 
 // EoN sidebar chat send function
 function eeonSendChat() {
-  console.log('💬 eeonSendChat called');
   var input = document.getElementById('chat-input');
-  if (!input) {
-    console.error('chat-input not found');
-    return;
-  }
+  if (!input) return;
   var message = input.value.trim();
-  if (!message) {
-    alert('Please enter a message');
+  if (!message) { input.focus(); return; }
+  var msgs = document.getElementById('chat-messages');
+  if (!msgs) return;
+
+  // Append user message
+  var userDiv = document.createElement('div');
+  userDiv.className = 'chat-msg user';
+  userDiv.innerHTML = '<div class="agent-label">YOU</div>' + message.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  msgs.appendChild(userDiv);
+  input.value = '';
+  msgs.scrollTop = msgs.scrollHeight;
+
+  // Append agent placeholder
+  var agentDiv = document.createElement('div');
+  agentDiv.className = 'chat-msg agent';
+  agentDiv.innerHTML = '<div class="agent-label">EEON ACCOUNTING AGENT</div><span style="color:#94a3b8">⏳ Thinking<span class="streaming-cursor"></span></span>';
+  msgs.appendChild(agentDiv);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  if (typeof callLLMStream !== 'function') {
+    agentDiv.innerHTML = '<div class="agent-label">EEON ACCOUNTING AGENT</div><span style="color:#ef4444">⚠️ No API key configured. Go to Settings → API Keys.</span>';
     return;
   }
-  // Call the main sendChat function
-  if (typeof sendChat === 'function') {
-    sendChat();
-  } else {
-    console.error('sendChat function not found');
-    alert('Chat function not available');
-  }
+  var agentSys = (typeof getSystemPrompt === 'function') ? getSystemPrompt('accounting') : '';
+  var rawBuf = '';
+  callLLMStream(agentSys, message, [], function(tok) {
+    rawBuf += tok;
+    agentDiv.innerHTML = '<div class="agent-label">EEON ACCOUNTING AGENT</div>' +
+      rawBuf.replace(/</g,'&lt;').replace(/>/g,'&gt;') +
+      '<span class="streaming-cursor"></span>';
+    msgs.scrollTop = msgs.scrollHeight;
+  }).then(function(final) {
+    agentDiv.innerHTML = '<div class="agent-label">EEON ACCOUNTING AGENT</div>' +
+      (final || rawBuf).replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    msgs.scrollTop = msgs.scrollHeight;
+    if (typeof MEM0 !== 'undefined') MEM0.add(message, final || rawBuf, 'accounting').catch(function(){});
+  }).catch(function(e) {
+    agentDiv.innerHTML = '<div class="agent-label">EEON ACCOUNTING AGENT</div><span style="color:#ef4444">Error: ' + String(e).replace(/</g,'&lt;') + '</span>';
+  });
 }
 
 // Export all history
@@ -35073,6 +35292,154 @@ function initMultiStatePoa() {
 }
 
 console.log("✅ PDKB Tools loaded (Transcript Transformer, Etymology Analyzer, PDF/MD Converter, MultiState POA)");
+
+// ═══════════════════════════════════════════════════════════════════════════
+// EON TAX ESTIMATOR — standalone functions for page-taxestimator
+// ═══════════════════════════════════════════════════════════════════════════
+function eonEstTab(name) {
+  var panels = ['income','baddebt','loss','interest'];
+  panels.forEach(function(p) {
+    var el = document.getElementById('eon-est-panel-' + p);
+    var btn = document.getElementById('eon-est-tab-' + p);
+    if (el) el.style.display = (p === name) ? 'block' : 'none';
+    if (btn) {
+      if (p === name) { btn.style.background = '#f87171'; btn.style.color = '#fff'; btn.style.border = 'none'; }
+      else { btn.style.background = 'transparent'; btn.style.color = '#f87171'; btn.style.border = '1px solid rgba(248,113,113,.3)'; }
+    }
+  });
+}
+
+function eonToggleItemized() {
+  var sel = document.getElementById('eon-tdeduct');
+  var row = document.getElementById('eon-itemized-row');
+  if (sel && row) row.style.display = sel.value === 'itemized' ? 'block' : 'none';
+}
+
+function _fmt(n) { return '$' + Math.abs(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+function _v(id) { var el = document.getElementById(id); return el ? (parseFloat(el.value) || 0) : 0; }
+function _set(id, val) { var el = document.getElementById(id); if (el) el.textContent = val; }
+
+function calcEonTaxEst() {
+  var w2 = _v('eon-tw2'), se = _v('eon-tse'), inv = _v('eon-tinv'), cap = _v('eon-tcap'),
+      rent = _v('eon-trent'), other = _v('eon-tother');
+  var gross = w2 + se + inv + cap + rent + other;
+  var seDeduct = se * 0.5 * 0.153;  // SE tax deduction (half of SE tax)
+  var agi = gross - seDeduct;
+  var filing = (document.getElementById('eon-tfile') || {value:'single'}).value;
+  var stdDed = {single:14600, mfj:29200, hoh:21900}[filing] || 14600;
+  var useItemized = (document.getElementById('eon-tdeduct') || {value:'standard'}).value === 'itemized';
+  var itemized = _v('eon-titem');
+  var deduction = useItemized ? Math.max(itemized, stdDed) : stdDed;
+  var taxableIncome = Math.max(0, agi - deduction);
+
+  // 2024 Federal Tax Brackets (Single — MFJ doubled, HOH adjusted)
+  var brackets = {
+    single:   [[11600,0.10],[47150,0.12],[100525,0.22],[191950,0.24],[243725,0.32],[609350,0.35],[Infinity,0.37]],
+    mfj:      [[23200,0.10],[94300,0.12],[201050,0.22],[383900,0.24],[487450,0.32],[731200,0.35],[Infinity,0.37]],
+    hoh:      [[16550,0.10],[63100,0.12],[100500,0.22],[191950,0.24],[243700,0.32],[609350,0.35],[Infinity,0.37]]
+  };
+  var bkts = brackets[filing] || brackets.single;
+  var fedTax = 0, prev = 0, bktHtml = '', remaining = taxableIncome;
+  bkts.forEach(function(b) {
+    if (remaining <= 0) return;
+    var bracketSize = Math.min(remaining, b[0] - prev);
+    var tax = bracketSize * b[1];
+    if (bracketSize > 0) bktHtml += b[1]*100 + '% bracket: ' + _fmt(bracketSize) + ' → ' + _fmt(tax) + '\n';
+    fedTax += tax;
+    prev = b[0];
+    remaining -= bracketSize;
+  });
+
+  var seTax = se > 0 ? se * 0.153 : 0;
+  var credits = _v('eon-tcred');
+  var totalTax = Math.max(0, fedTax + seTax - credits);
+  var paid = _v('eon-twheld') + _v('eon-tqpay');
+  var balance = totalTax - paid;
+  var rate = gross > 0 ? (totalTax / gross * 100) : 0;
+
+  _set('eon-r-gross', _fmt(gross));
+  _set('eon-r-agi', _fmt(agi));
+  _set('eon-r-ded', '(' + _fmt(deduction) + ')');
+  _set('eon-r-taxinc', _fmt(taxableIncome));
+  _set('eon-r-rate', rate.toFixed(1) + '%');
+  _set('eon-r-fedtax', _fmt(fedTax));
+  _set('eon-r-setax', _fmt(seTax));
+  _set('eon-r-cred', '-' + _fmt(credits));
+  _set('eon-r-total', _fmt(totalTax));
+  _set('eon-r-paid', '-' + _fmt(paid));
+
+  var lbl = document.getElementById('eon-r-label');
+  var amt = document.getElementById('eon-r-amount');
+  if (balance <= 0) {
+    if (lbl) { lbl.textContent = 'ESTIMATED REFUND'; lbl.style.color = '#22c55e'; }
+    if (amt) { amt.textContent = _fmt(-balance); amt.style.color = '#4ade80'; }
+  } else {
+    if (lbl) { lbl.textContent = 'ESTIMATED AMOUNT OWED'; lbl.style.color = '#f87171'; }
+    if (amt) { amt.textContent = _fmt(balance); amt.style.color = '#f87171'; }
+  }
+  var bEl = document.getElementById('eon-r-brackets');
+  if (bEl) bEl.textContent = bktHtml || 'Enter income to see bracket breakdown.';
+}
+
+function clearEonTaxEst() {
+  ['eon-tw2','eon-tse','eon-tinv','eon-tcap','eon-trent','eon-tother',
+   'eon-tcred','eon-twheld','eon-tqpay','eon-titem'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+  calcEonTaxEst();
+}
+
+function printEonTaxEst() {
+  var results = document.getElementById('eon-est-results');
+  var brackets = document.getElementById('eon-r-brackets');
+  var win = window.open('', '_blank', 'width=700,height=600');
+  if (!win) { alert('Allow pop-ups to print.'); return; }
+  win.document.write('<html><head><title>Tax Estimate</title><style>body{font-family:sans-serif;margin:24px;background:#fff;color:#111}h2{margin:0 0 16px}table{width:100%;border-collapse:collapse}td{padding:6px 8px;border-bottom:1px solid #ddd}td:last-child{text-align:right;font-family:monospace}.total{font-weight:700;font-size:16px;border-top:2px solid #f87171}pre{font-size:11px;background:#f5f5f5;padding:10px;border-radius:4px}</style></head><body>');
+  win.document.write('<h2>🧮 Tax Estimator — 2024</h2>');
+  var rows = results ? results.querySelectorAll('[style*="flex"]') : [];
+  win.document.write('<table>');
+  rows.forEach(function(r) { var cells = r.querySelectorAll('span'); if (cells.length === 2) win.document.write('<tr><td>' + cells[0].textContent + '</td><td>' + cells[1].textContent + '</td></tr>'); });
+  win.document.write('</table>');
+  if (brackets && brackets.textContent.trim()) win.document.write('<h3>Bracket Breakdown</h3><pre>' + brackets.textContent + '</pre>');
+  win.document.write('<p style="font-size:10px;color:#888">* Estimates based on 2024 tax brackets. Not legal or tax advice.</p></body></html>');
+  win.document.close(); win.focus(); setTimeout(function(){ win.print(); }, 300);
+}
+
+function calcEonBadDebt() {
+  var orig = _v('eon-bd-orig'), rec = _v('eon-bd-rec'), rate = _v('eon-bd-rate') / 100;
+  var net = Math.max(0, orig - rec);
+  var refund = net * rate;
+  _set('eon-bd-netloss', _fmt(net));
+  _set('eon-bd-deduct', _fmt(net));
+  _set('eon-bd-refund', _fmt(refund));
+}
+
+function calcEonNOL() {
+  var inc = _v('eon-nol-inc'), ded = _v('eon-nol-ded'), rate = _v('eon-nol-rate') / 100;
+  var nol = Math.max(0, ded - inc);
+  var limit = nol * 0.8;
+  var assetVal = nol * rate;
+  var refund = limit * rate;
+  _set('eon-nol-amount', _fmt(nol));
+  _set('eon-nol-limit', _fmt(limit));
+  _set('eon-nol-assetval', _fmt(assetVal));
+  _set('eon-nol-refund', _fmt(refund));
+}
+
+function calcEonInterest() {
+  var overpay = _v('eon-int-overpay');
+  var d1 = document.getElementById('eon-int-datepaid');
+  var d2 = document.getElementById('eon-int-daterefund');
+  var rate = _v('eon-int-rate') / 100;
+  if (!d1 || !d2 || !d1.value || !d2.value) return;
+  var days = Math.max(0, Math.round((new Date(d2.value) - new Date(d1.value)) / 86400000));
+  var daily = rate / 365;
+  var accrued = overpay * daily * days;
+  _set('eon-int-days', days);
+  _set('eon-int-daily', (daily * 100).toFixed(6) + '%');
+  _set('eon-int-accrued', _fmt(accrued));
+  _set('eon-int-total', _fmt(overpay + accrued));
+}
 </script>
 
 <script>
