@@ -240,6 +240,71 @@ Created `NOI_Agent_Browser.bat` and `NOI_Agent_Browser_Harden.ps1`:
 
 ---
 
+## Session 4 — CPA Firm Full Parity (2026-03-14)
+
+### Gap: All 6 CPA Tabs Broken vs. GAAP.html
+
+Reviewed original `redressright.me/GAAP.html` via Playwright. All 6 CPA tabs (Nonprofit, Partnership, Corporation, Trust, Trust Corp, Consolidated) had the following gaps vs. original:
+
+| Issue | Old TMAR | Fixed |
+|---|---|---|
+| Sub-tab onclick values | `'compliance'` (matched no element) | `'tax'` / `'reporting'` / `'audit'` |
+| Sub-tab selector strategy | ID-based (`cpa-sub-{firm}-compliance`) | Class-based (`.cpa-sub-{firm}`) |
+| Quick prompt actions | `setCPAPrompt()` — filled only, didn't send | `cpaQuery()` — fills + sends immediately |
+| Quick prompt count | 3 prompts, short labels | 4 prompts, full verbatim query text from original |
+| Agent label div | Missing | `{firm}-agent-label` div with `AGENT N — [FIRM] [ROLE]` |
+| Entity bar | Missing | Inline `🏢 Entity: [name] [Select]` bar per section |
+| Submit button | Outline-style generic text | Filled color-matched `🏛️ Submit to [Firm]` |
+| Clear button | Missing | `clearCPAChat(firm)` clears response + textarea |
+| Response area default | Empty | Firm ready message on load |
+| `sendCPAQuery` routing | Hardcoded Anthropic direct fetch, wrong key names | Routes through `callLLMStream` (multi-provider streaming) |
+| System prompt | Generic one-liner, no sub-agent awareness | `buildCPASystemPrompt(firm, subAgent)` per-agent prompts |
+| Entity detection | Static fallback to 'Entity Not Set' | Calls `promptEntitySelection()` if entity unset |
+| Memory integration | None | `MEM0.search()` before call, `MEM0.add()` after |
+| Entity type chips in header | Missing | Colored pill badges (e.g., §501(c)(3), Form 1065) |
+| IRC references in subtitle | Missing | Full IRC section references per firm |
+
+### `CPA_AGENT_CONFIGS` — Full Data Object
+
+Central config object with all 6 firms × 3 sub-agents, each with:
+- `name`, `icon`, `color`
+- `subAgents.tax.label`, `.focus`
+- `subAgents.reporting.label`, `.focus`
+- `subAgents.audit.label`, `.focus`
+
+Focus descriptions are verbatim from original GAAP.html — covering complete form lists, IRC sections, ASC standards, and regulatory frameworks per agent.
+
+### New/Rewritten Functions
+
+```javascript
+var CPA_AGENT_CONFIGS = { nfp, ptnr, corp, trust, tcorp, consol }  // 6 firms × 3 agents
+var activeSubAgents = { nfp:'tax', ptnr:'tax', ... }                // active sub-agent state
+
+switchCPASubAgent(firm, subAgent)   // class-based button activation + label update
+cpaQuery(firm, question)            // set textarea + call sendCPAQuery
+clearCPAChat(firm)                  // clear response + textarea
+buildCPASystemPrompt(firm, subAgent)// per-agent system prompt (HARD_LOCK compatible)
+async sendCPAQuery(firm)            // streaming via callLLMStream, entity detection, MEM0
+```
+
+### Parity Status Post-Session 4
+
+| Feature | Status |
+|---|---|
+| Nonprofit CPA (3 sub-agents + 4 quick prompts) | ✅ Complete |
+| Partnership CPA (3 sub-agents + 4 quick prompts) | ✅ Complete |
+| Corporation CPA (3 sub-agents + 4 quick prompts) | ✅ Complete |
+| Trust CPA (3 sub-agents + 4 quick prompts) | ✅ Complete |
+| Trust Corporation CPA (3 sub-agents + 4 quick prompts) | ✅ Complete |
+| Consolidated CPA (3 sub-agents + 4 quick prompts) | ✅ Complete |
+| Sub-agent switching (class-based) | ✅ Complete |
+| Entity detection → promptEntitySelection() | ✅ Complete |
+| Multi-provider streaming via callLLMStream | ✅ Complete |
+| MEM0 memory integration | ✅ Complete |
+| HARD_LOCK.validatePrompt compatibility | ✅ Complete |
+
+---
+
 ## Commits
 
 | Hash | Description |
@@ -247,7 +312,8 @@ Created `NOI_Agent_Browser.bat` and `NOI_Agent_Browser_Harden.ps1`:
 | `589a73b` | API Scout v2, footer bar, stubs |
 | `9d5a4fe` | GCMemory, OpenClawRuntime, Streaming engines |
 | *(pending)* | NOI Launcher, parity gap closure (modals, trust prompt, Ollama web search) |
+| *(pending)* | CPA Firm full parity — HTML rebuild + JS engine replacement |
 
 ---
 
-*Updated: 2026-03-14 | TMAR v3.0 | Full parity achieved*
+*Updated: 2026-03-14 | TMAR v3.0 | CPA parity complete*

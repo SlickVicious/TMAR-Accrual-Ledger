@@ -11778,146 +11778,267 @@
   <!-- ═══ CPA SECTIONS ════════════════════════════════════════════════ -->
 
   <!-- NONPROFIT CPA -->
+  <!-- NONPROFIT CPA -->
   <section id="cpaNonprofitSection" class="form-section hidden">
     <div style="padding:20px;max-width:1200px;margin:0 auto">
-      <div style="background:linear-gradient(135deg,rgba(139,92,246,.12),rgba(59,130,246,.08));border:2px solid rgba(139,92,246,.4);border-radius:12px;padding:20px 24px;margin-bottom:16px">
-        <div style="font-size:22px;font-weight:900;color:#8b5cf6;margin-bottom:6px">🏛️ NONPROFIT CPA FIRM — Form 990 Specialist</div>
-        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">IRC §501(c) Exemptions &bull; Form 990/990-EZ/990-PF/990-T &bull; Schedule A/B/D/J/O &bull; Unrelated Business Income &bull; Public Support Test</div>
-        <div id="nfp-entity-name" style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.4);border-radius:8px;padding:8px 14px;font-size:12px;color:#8b5cf6;font-weight:700">Active Entity: None selected</div>
+      <div style="background:linear-gradient(135deg,rgba(139,92,246,.12),rgba(59,130,246,.08));border:2px solid rgba(139,92,246,.4);border-radius:12px;padding:20px 24px;margin-bottom:20px">
+        <div style="font-size:22px;font-weight:800;color:#8b5cf6;margin-bottom:6px">🏛️ NONPROFIT CPA FIRM — Form 990 Specialist</div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px">3 Independent Agents — Tax-Exempt Organizations — 26 U.S.C. §501(c)(3) — GAAP for NFP (ASC 958)</div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:12px">Forms: 990, 990-EZ, 990-PF, 990-T, Schedule A, B, C, D, F, G, J, O</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <span style="background:rgba(139,92,246,.15);color:#8b5cf6;padding:3px 10px;border-radius:20px;font-size:11px">ASC 958 NFP</span>
+          <span style="background:rgba(139,92,246,.15);color:#8b5cf6;padding:3px 10px;border-radius:20px;font-size:11px">§501(c)(3)</span>
+          <span style="background:rgba(139,92,246,.15);color:#8b5cf6;padding:3px 10px;border-radius:20px;font-size:11px">UBIT §511-514</span>
+          <span style="background:rgba(139,92,246,.15);color:#8b5cf6;padding:3px 10px;border-radius:20px;font-size:11px">Form 990</span>
+          <span style="background:rgba(139,92,246,.15);color:#8b5cf6;padding:3px 10px;border-radius:20px;font-size:11px">Functional Expenses</span>
+          <span style="background:rgba(139,92,246,.15);color:#8b5cf6;padding:3px 10px;border-radius:20px;font-size:11px">Net Assets Classification</span>
+        </div>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
-        <button onclick="switchCPASubAgent('nfp','compliance')" id="cpa-sub-nfp-compliance" class="cpa-sub-btn active" style="padding:8px 16px;border:1px solid rgba(139,92,246,.5);border-radius:8px;background:rgba(139,92,246,.15);color:#8b5cf6;font-size:12px;font-weight:700;cursor:pointer">📋 Tax Compliance</button>
-        <button onclick="switchCPASubAgent('nfp','reporting')" id="cpa-sub-nfp-reporting" class="cpa-sub-btn" style="padding:8px 16px;border:1px solid rgba(139,92,246,.3);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">📊 Financial Reporting</button>
-        <button onclick="switchCPASubAgent('nfp','audit')" id="cpa-sub-nfp-audit" class="cpa-sub-btn" style="padding:8px 16px;border:1px solid rgba(139,92,246,.3);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">🔍 Audit &amp; Advisory</button>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+        <button onclick="switchCPASubAgent('nfp','tax')" class="cpa-sub-nfp active" style="padding:10px 18px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(139,92,246,.5);background:rgba(139,92,246,.2);color:#8b5cf6;cursor:pointer">Agent 1: Tax Compliance</button>
+        <button onclick="switchCPASubAgent('nfp','reporting')" class="cpa-sub-nfp" style="padding:10px 18px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(139,92,246,.2);background:transparent;color:var(--text-secondary);cursor:pointer">Agent 2: Financial Reporting</button>
+        <button onclick="switchCPASubAgent('nfp','audit')" class="cpa-sub-nfp" style="padding:10px 18px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(139,92,246,.2);background:transparent;color:var(--text-secondary);cursor:pointer">Agent 3: Audit &amp; Advisory</button>
       </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
-        <button onclick="setCPAPrompt('nfp','Analyze Form 990 filing requirements, public support test under IRC §509(a), and Schedule A charitable status')" style="background:rgba(139,92,246,.12);color:#8b5cf6;border:1px solid rgba(139,92,246,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Form 990 Analysis</button>
-        <button onclick="setCPAPrompt('nfp','Explain unrelated business income tax (UBIT) under IRC §511-514 and how to minimize UBTI exposure')" style="background:rgba(139,92,246,.12);color:#8b5cf6;border:1px solid rgba(139,92,246,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">UBIT Exposure</button>
-        <button onclick="setCPAPrompt('nfp','Review compensation disclosure requirements under Schedule J and excess benefit transaction rules §4958')" style="background:rgba(139,92,246,.12);color:#8b5cf6;border:1px solid rgba(139,92,246,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Compensation Review</button>
+      <div style="background:var(--bg-secondary);border:1px solid rgba(139,92,246,.2);border-radius:10px;padding:16px">
+        <div id="nfp-agent-label" style="font-size:11px;font-weight:700;color:#8b5cf6;margin-bottom:8px">AGENT 1 — NONPROFIT TAX COMPLIANCE</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+          <button onclick="cpaQuery('nfp','Produce the complete Form 990 filing requirements for a 501(c)(3) organization including all mandatory schedules, line-by-line placement, and controlling IRC sections')" style="background:rgba(139,92,246,.12);color:#8b5cf6;border:1px solid rgba(139,92,246,.3);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px">Form 990 Complete Filing</button>
+          <button onclick="cpaQuery('nfp','Explain UBIT under IRC §511-514 with journal entries for unrelated business taxable income, Form 990-T filing, and accrual method treatment')" style="background:rgba(139,92,246,.12);color:#8b5cf6;border:1px solid rgba(139,92,246,.3);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px">UBIT §511-514</button>
+          <button onclick="cpaQuery('nfp','Explain ASC 958-605 revenue recognition for contributions including conditional vs unconditional promises to give, donor restrictions, and net asset classification with journal entries')" style="background:rgba(139,92,246,.12);color:#8b5cf6;border:1px solid rgba(139,92,246,.3);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px">ASC 958 Revenue</button>
+          <button onclick="cpaQuery('nfp','Produce Schedule A public charity status test calculations, Schedule B contributor disclosure rules, and Schedule J officer compensation reporting with controlling authorities')" style="background:rgba(139,92,246,.12);color:#8b5cf6;border:1px solid rgba(139,92,246,.3);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px">Schedules A/B/J</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:6px 12px;background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.2);border-radius:6px;font-size:11px">
+          <span style="color:#10b981;font-weight:700">🏢 Entity:</span>
+          <span id="nfp-entity-name" style="color:#f59e0b;font-weight:600">None — type entity name in query or select</span>
+          <button onclick="promptEntitySelection()" style="margin-left:auto;padding:2px 8px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:4px;color:#10b981;font-size:10px;cursor:pointer;font-weight:600">Select</button>
+        </div>
+        <textarea id="nfp-agent-input" placeholder="Ask the Nonprofit CPA Firm any question about 501(c)(3) accounting, Form 990 filing, UBIT, net asset classification, functional expense allocation, or nonprofit GAAP compliance..." style="width:100%;min-height:80px;background:rgba(0,0,0,.3);color:#f1f5f9;border:1px solid rgba(139,92,246,.3);border-radius:8px;padding:10px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button onclick="sendCPAQuery('nfp')" style="background:#8b5cf6;color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px">🏛️ Submit to Nonprofit CPA</button>
+          <button onclick="clearCPAChat('nfp')" style="background:rgba(255,255,255,.08);color:#94a3b8;border:1px solid rgba(255,255,255,.1);padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">Clear</button>
+        </div>
+        <div id="nfp-agent-response" style="margin-top:16px;min-height:40px;font-size:13px;color:#94a3b8;line-height:1.7">Nonprofit CPA Firm ready. Ask any question about tax-exempt organization accounting, Form 990, schedules, UBIT, or ASC 958 compliance.</div>
       </div>
-      <textarea id="nfp-agent-input" rows="4" placeholder="Ask about Form 990, §501(c) exemptions, public support test, UBIT, charitable activities..." style="width:100%;padding:12px;background:var(--bg-tertiary);border:1px solid rgba(139,92,246,.4);border-radius:8px;color:var(--text-primary);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px;box-sizing:border-box"></textarea>
-      <button onclick="sendCPAQuery('nfp')" style="padding:12px 28px;background:rgba(139,92,246,.2);border:2px solid rgba(139,92,246,.6);border-radius:10px;color:#8b5cf6;font-weight:800;font-size:14px;cursor:pointer">⚡ Query Nonprofit CPA Agent</button>
-      <div id="nfp-agent-response" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
     </div>
   </section>
 
   <!-- PARTNERSHIP CPA -->
   <section id="cpaPartnershipSection" class="form-section hidden">
     <div style="padding:20px;max-width:1200px;margin:0 auto">
-      <div style="background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(239,68,68,.08));border:2px solid rgba(245,158,11,.4);border-radius:12px;padding:20px 24px;margin-bottom:16px">
-        <div style="font-size:22px;font-weight:900;color:#f59e0b;margin-bottom:6px">🤝 PARTNERSHIP CPA FIRM — Form 1065 Specialist</div>
-        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">Form 1065 &bull; Schedule K/K-1/K-2/K-3 &bull; Partner Basis &bull; At-Risk Rules §465 &bull; Passive Activity §469 &bull; §704(b) Capital Accounts</div>
-        <div id="ptnr-entity-name" style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.4);border-radius:8px;padding:8px 14px;font-size:12px;color:#f59e0b;font-weight:700">Active Entity: None selected</div>
+      <div style="background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(239,68,68,.08));border:2px solid rgba(245,158,11,.4);border-radius:12px;padding:20px 24px;margin-bottom:20px">
+        <div style="font-size:22px;font-weight:800;color:#f59e0b;margin-bottom:6px">🤝 PARTNERSHIP CPA FIRM — Form 1065 Specialist</div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px">3 Independent Agents — Subchapter K — 26 U.S.C. §§701-777 — Partnership Allocations</div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:12px">Forms: 1065, Schedule K, K-1, K-2, K-3, Schedule M-1, M-2, L, Schedule B, D</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <span style="background:rgba(245,158,11,.15);color:#f59e0b;padding:3px 10px;border-radius:20px;font-size:11px">Subchapter K</span>
+          <span style="background:rgba(245,158,11,.15);color:#f59e0b;padding:3px 10px;border-radius:20px;font-size:11px">§704(b) Allocations</span>
+          <span style="background:rgba(245,158,11,.15);color:#f59e0b;padding:3px 10px;border-radius:20px;font-size:11px">§754 Elections</span>
+          <span style="background:rgba(245,158,11,.15);color:#f59e0b;padding:3px 10px;border-radius:20px;font-size:11px">Capital Account Maintenance</span>
+          <span style="background:rgba(245,158,11,.15);color:#f59e0b;padding:3px 10px;border-radius:20px;font-size:11px">Schedule K-1</span>
+          <span style="background:rgba(245,158,11,.15);color:#f59e0b;padding:3px 10px;border-radius:20px;font-size:11px">Guaranteed Payments §707(c)</span>
+        </div>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
-        <button onclick="switchCPASubAgent('ptnr','compliance')" id="cpa-sub-ptnr-compliance" class="cpa-sub-btn active" style="padding:8px 16px;border:1px solid rgba(245,158,11,.5);border-radius:8px;background:rgba(245,158,11,.15);color:#f59e0b;font-size:12px;font-weight:700;cursor:pointer">📋 Tax Compliance</button>
-        <button onclick="switchCPASubAgent('ptnr','reporting')" id="cpa-sub-ptnr-reporting" class="cpa-sub-btn" style="padding:8px 16px;border:1px solid rgba(245,158,11,.3);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">📊 Financial Reporting</button>
-        <button onclick="switchCPASubAgent('ptnr','audit')" id="cpa-sub-ptnr-audit" class="cpa-sub-btn" style="padding:8px 16px;border:1px solid rgba(245,158,11,.3);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">🔍 Audit &amp; Advisory</button>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+        <button onclick="switchCPASubAgent('ptnr','tax')" class="cpa-sub-ptnr active" style="padding:10px 18px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(245,158,11,.5);background:rgba(245,158,11,.2);color:#f59e0b;cursor:pointer">Agent 1: Tax Compliance</button>
+        <button onclick="switchCPASubAgent('ptnr','reporting')" class="cpa-sub-ptnr" style="padding:10px 18px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(245,158,11,.2);background:transparent;color:var(--text-secondary);cursor:pointer">Agent 2: Financial Reporting</button>
+        <button onclick="switchCPASubAgent('ptnr','audit')" class="cpa-sub-ptnr" style="padding:10px 18px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(245,158,11,.2);background:transparent;color:var(--text-secondary);cursor:pointer">Agent 3: Audit &amp; Advisory</button>
       </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
-        <button onclick="setCPAPrompt('ptnr','Analyze Form 1065 filing, Schedule K-1 allocations, and partner outside basis calculations')" style="background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">1065 / K-1 Analysis</button>
-        <button onclick="setCPAPrompt('ptnr','Explain §704(b) substantial economic effect and §704(c) built-in gain/loss allocations')" style="background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">§704 Allocations</button>
-        <button onclick="setCPAPrompt('ptnr','Review at-risk rules §465 and passive activity loss limitations §469 for partners')" style="background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">At-Risk / PAL Rules</button>
+      <div style="background:var(--bg-secondary);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:16px">
+        <div id="ptnr-agent-label" style="font-size:11px;font-weight:700;color:#f59e0b;margin-bottom:8px">AGENT 1 — PARTNERSHIP TAX COMPLIANCE</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+          <button onclick="cpaQuery('ptnr','Produce the complete Form 1065 filing with all schedules, partner capital account maintenance under §704(b), and Schedule K-1 allocations with controlling authorities')" style="background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.3);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px">Form 1065 Complete</button>
+          <button onclick="cpaQuery('ptnr','Explain §704(b) substantial economic effect test, the alternate test, capital account maintenance rules, and produce journal entries for partnership allocations')" style="background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.3);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px">§704(b) Allocations</button>
+          <button onclick="cpaQuery('ptnr','Explain §754 basis adjustments including §743(b) transfers and §734(b) distributions with complete journal entries and form placement')" style="background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.3);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px">§754 Election</button>
+          <button onclick="cpaQuery('ptnr','Produce guaranteed payment treatment under §707(c) with journal entries, Schedule K-1 placement, and self-employment tax implications')" style="background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.3);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px">Guaranteed Payments</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:6px 12px;background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.2);border-radius:6px;font-size:11px">
+          <span style="color:#10b981;font-weight:700">🏢 Entity:</span>
+          <span id="ptnr-entity-name" style="color:#f59e0b;font-weight:600">None — type entity name in query or select</span>
+          <button onclick="promptEntitySelection()" style="margin-left:auto;padding:2px 8px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:4px;color:#10b981;font-size:10px;cursor:pointer;font-weight:600">Select</button>
+        </div>
+        <textarea id="ptnr-agent-input" placeholder="Ask the Partnership CPA Firm any question about Form 1065, Subchapter K, partner allocations, capital accounts, guaranteed payments, or partnership GAAP compliance..." style="width:100%;min-height:80px;background:rgba(0,0,0,.3);color:#f1f5f9;border:1px solid rgba(245,158,11,.3);border-radius:8px;padding:10px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button onclick="sendCPAQuery('ptnr')" style="background:#f59e0b;color:#000;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px">🤝 Submit to Partnership CPA</button>
+          <button onclick="clearCPAChat('ptnr')" style="background:rgba(255,255,255,.08);color:#94a3b8;border:1px solid rgba(255,255,255,.1);padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">Clear</button>
+        </div>
+        <div id="ptnr-agent-response" style="margin-top:16px;min-height:40px;font-size:13px;color:#94a3b8;line-height:1.7">Partnership CPA Firm ready. Ask any question about Form 1065, Subchapter K, partner allocations, K-1 preparation, or partnership accounting.</div>
       </div>
-      <textarea id="ptnr-agent-input" rows="4" placeholder="Ask about Form 1065, K-1 allocations, partner basis, §704(b), at-risk rules, BBA audit..." style="width:100%;padding:12px;background:var(--bg-tertiary);border:1px solid rgba(245,158,11,.4);border-radius:8px;color:var(--text-primary);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px;box-sizing:border-box"></textarea>
-      <button onclick="sendCPAQuery('ptnr')" style="padding:12px 28px;background:rgba(245,158,11,.2);border:2px solid rgba(245,158,11,.6);border-radius:10px;color:#f59e0b;font-weight:800;font-size:14px;cursor:pointer">⚡ Query Partnership CPA Agent</button>
-      <div id="ptnr-agent-response" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
     </div>
   </section>
 
   <!-- CORPORATION CPA -->
   <section id="cpaCorporationSection" class="form-section hidden">
     <div style="padding:20px;max-width:1200px;margin:0 auto">
-      <div style="background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(6,182,212,.08));border:2px solid rgba(59,130,246,.4);border-radius:12px;padding:20px 24px;margin-bottom:16px">
-        <div style="font-size:22px;font-weight:900;color:#3b82f6;margin-bottom:6px">🏢 CORPORATION CPA FIRM — Form 1120 Specialist</div>
-        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">Form 1120/1120-S &bull; Schedule M-1/M-2/M-3/L/J/D &bull; E&amp;P Calculations &bull; §382 NOL Limitations &bull; Form 3800/4562/4797 &bull; Dividends Received Deduction</div>
-        <div id="corp-entity-name" style="background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.4);border-radius:8px;padding:8px 14px;font-size:12px;color:#3b82f6;font-weight:700">Active Entity: None selected</div>
+      <div style="background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(6,182,212,.08));border:2px solid rgba(59,130,246,.4);border-radius:12px;padding:20px 24px;margin-bottom:20px">
+        <div style="font-size:22px;font-weight:800;color:#3b82f6;margin-bottom:6px">🏢 CORPORATION CPA FIRM — Form 1120 Specialist</div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px">3 Independent Agents — Subchapter C — 26 U.S.C. §§301-385 — Corporate Tax &amp; GAAP</div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:12px">Forms: 1120, 1120-S, Schedule M-1, M-2, M-3, L, Schedule J, D, Form 3800, 4562, 4797</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <span style="background:rgba(59,130,246,.15);color:#3b82f6;padding:3px 10px;border-radius:20px;font-size:11px">Subchapter C</span>
+          <span style="background:rgba(59,130,246,.15);color:#3b82f6;padding:3px 10px;border-radius:20px;font-size:11px">§11 Corporate Tax</span>
+          <span style="background:rgba(59,130,246,.15);color:#3b82f6;padding:3px 10px;border-radius:20px;font-size:11px">§243 DRD</span>
+          <span style="background:rgba(59,130,246,.15);color:#3b82f6;padding:3px 10px;border-radius:20px;font-size:11px">Form 1120 / 1120-S</span>
+          <span style="background:rgba(59,130,246,.15);color:#3b82f6;padding:3px 10px;border-radius:20px;font-size:11px">Schedule M-1/M-2/M-3</span>
+          <span style="background:rgba(59,130,246,.15);color:#3b82f6;padding:3px 10px;border-radius:20px;font-size:11px">E&amp;P §312</span>
+        </div>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
-        <button onclick="switchCPASubAgent('corp','compliance')" id="cpa-sub-corp-compliance" class="cpa-sub-btn active" style="padding:8px 16px;border:1px solid rgba(59,130,246,.5);border-radius:8px;background:rgba(59,130,246,.15);color:#3b82f6;font-size:12px;font-weight:700;cursor:pointer">📋 Tax Compliance</button>
-        <button onclick="switchCPASubAgent('corp','reporting')" id="cpa-sub-corp-reporting" class="cpa-sub-btn" style="padding:8px 16px;border:1px solid rgba(59,130,246,.3);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">📊 Financial Reporting</button>
-        <button onclick="switchCPASubAgent('corp','audit')" id="cpa-sub-corp-audit" class="cpa-sub-btn" style="padding:8px 16px;border:1px solid rgba(59,130,246,.3);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">🔍 Audit &amp; Advisory</button>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+        <button onclick="switchCPASubAgent('corp','tax')" class="cpa-sub-corp active" style="padding:10px 18px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(59,130,246,.5);background:rgba(59,130,246,.2);color:#3b82f6;cursor:pointer">Agent 1: Tax Compliance</button>
+        <button onclick="switchCPASubAgent('corp','reporting')" class="cpa-sub-corp" style="padding:10px 18px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(59,130,246,.2);background:transparent;color:var(--text-secondary);cursor:pointer">Agent 2: Financial Reporting</button>
+        <button onclick="switchCPASubAgent('corp','audit')" class="cpa-sub-corp" style="padding:10px 18px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(59,130,246,.2);background:transparent;color:var(--text-secondary);cursor:pointer">Agent 3: Audit &amp; Advisory</button>
       </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
-        <button onclick="setCPAPrompt('corp','Analyze Form 1120 Schedule M-1 book-to-tax reconciliation and Schedule M-3 requirements')" style="background:rgba(59,130,246,.12);color:#3b82f6;border:1px solid rgba(59,130,246,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">M-1/M-3 Reconciliation</button>
-        <button onclick="setCPAPrompt('corp','Calculate earnings and profits (E&amp;P) under §312, dividends received deduction §243, and accumulated E&amp;P')" style="background:rgba(59,130,246,.12);color:#3b82f6;border:1px solid rgba(59,130,246,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">E&amp;P / DRD</button>
-        <button onclick="setCPAPrompt('corp','Explain §382 NOL limitation after ownership change and SRLY consolidated return rules')" style="background:rgba(59,130,246,.12);color:#3b82f6;border:1px solid rgba(59,130,246,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">§382 NOL Limits</button>
+      <div style="background:var(--bg-secondary);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:16px">
+        <div id="corp-agent-label" style="font-size:11px;font-weight:700;color:#3b82f6;margin-bottom:8px">AGENT 1 — CORPORATE TAX COMPLIANCE</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+          <button onclick="cpaQuery('corp','Produce the complete Form 1120 filing with all schedules including M-1, M-2, M-3, Schedule L, Schedule J, with line-by-line placement and controlling IRC sections')" style="background:rgba(59,130,246,.12);color:#3b82f6;border:1px solid rgba(59,130,246,.3);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px">Form 1120 Complete</button>
+          <button onclick="cpaQuery('corp','Explain the book-tax differences on Schedule M-1 and M-3 with specific permanent and temporary difference examples, journal entries, and controlling authority')" style="background:rgba(59,130,246,.12);color:#3b82f6;border:1px solid rgba(59,130,246,.3);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px">Book-Tax Differences</button>
+          <button onclick="cpaQuery('corp','Explain E&amp;P computation under §312, accumulated E&amp;P vs current E&amp;P, dividend treatment under §301, and the complete journal entries with form placement')" style="background:rgba(59,130,246,.12);color:#3b82f6;border:1px solid rgba(59,130,246,.3);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px">E&amp;P §312</button>
+          <button onclick="cpaQuery('corp','Produce the complete Form 3800 general business credit calculation, credit carryback and carryforward under §39, and all journal entries with Schedule J placement')" style="background:rgba(59,130,246,.12);color:#3b82f6;border:1px solid rgba(59,130,246,.3);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px">Form 3800 Credits</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:6px 12px;background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.2);border-radius:6px;font-size:11px">
+          <span style="color:#10b981;font-weight:700">🏢 Entity:</span>
+          <span id="corp-entity-name" style="color:#f59e0b;font-weight:600">None — type entity name in query or select</span>
+          <button onclick="promptEntitySelection()" style="margin-left:auto;padding:2px 8px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:4px;color:#10b981;font-size:10px;cursor:pointer;font-weight:600">Select</button>
+        </div>
+        <textarea id="corp-agent-input" placeholder="Ask the Corporation CPA Firm any question about Form 1120, Subchapter C, E&amp;P, corporate distributions, book-tax differences, or corporate GAAP compliance..." style="width:100%;min-height:80px;background:rgba(0,0,0,.3);color:#f1f5f9;border:1px solid rgba(59,130,246,.3);border-radius:8px;padding:10px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button onclick="sendCPAQuery('corp')" style="background:#3b82f6;color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px">🏢 Submit to Corporation CPA</button>
+          <button onclick="clearCPAChat('corp')" style="background:rgba(255,255,255,.08);color:#94a3b8;border:1px solid rgba(255,255,255,.1);padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">Clear</button>
+        </div>
+        <div id="corp-agent-response" style="margin-top:16px;min-height:40px;font-size:13px;color:#94a3b8;line-height:1.7">Corporation CPA Firm ready. Ask any question about Form 1120, corporate taxation, E&amp;P, distributions, or Subchapter C compliance.</div>
       </div>
-      <textarea id="corp-agent-input" rows="4" placeholder="Ask about Form 1120, Schedule M reconciliation, E&amp;P, §382 NOL limits, corporate tax planning..." style="width:100%;padding:12px;background:var(--bg-tertiary);border:1px solid rgba(59,130,246,.4);border-radius:8px;color:var(--text-primary);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px;box-sizing:border-box"></textarea>
-      <button onclick="sendCPAQuery('corp')" style="padding:12px 28px;background:rgba(59,130,246,.2);border:2px solid rgba(59,130,246,.6);border-radius:10px;color:#3b82f6;font-weight:800;font-size:14px;cursor:pointer">⚡ Query Corporation CPA Agent</button>
-      <div id="corp-agent-response" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
     </div>
   </section>
 
   <!-- TRUST CPA -->
   <section id="cpaTrustSection" class="form-section hidden">
     <div style="padding:20px;max-width:1200px;margin:0 auto">
-      <div style="background:linear-gradient(135deg,rgba(6,182,212,.12),rgba(16,185,129,.08));border:2px solid rgba(6,182,212,.4);border-radius:12px;padding:20px 24px;margin-bottom:16px">
-        <div style="font-size:22px;font-weight:900;color:#06b6d4;margin-bottom:6px">🔒 TRUST CPA FIRM — Form 1041 Specialist</div>
-        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">Form 1041/1041-T &bull; Schedule B/D/G/I/J/K-1 &bull; DNI/DNE &bull; §663(b) 65-Day Rule &bull; Form 706/709 Estate &amp; Gift &bull; Grantor Trust Rules §671-679</div>
-        <div id="trust-entity-name" style="background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.4);border-radius:8px;padding:8px 14px;font-size:12px;color:#06b6d4;font-weight:700">Active Entity: None selected</div>
+      <div style="background:linear-gradient(135deg,rgba(6,182,212,.12),rgba(16,185,129,.08));border:2px solid rgba(6,182,212,.4);border-radius:12px;padding:20px 24px;margin-bottom:20px">
+        <div style="font-size:22px;font-weight:800;color:#06b6d4;margin-bottom:6px">🔒 TRUST CPA FIRM — Form 1041 Specialist</div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px">3 Independent Agents — Subchapter J — 26 U.S.C. §§641-692 — Estates &amp; Trusts</div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:12px">Forms: 1041, Schedule B, D, G, I, J, K-1, Form 706, Form 709</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <span style="background:rgba(6,182,212,.15);color:#06b6d4;padding:3px 10px;border-radius:20px;font-size:11px">Subchapter J</span>
+          <span style="background:rgba(6,182,212,.15);color:#06b6d4;padding:3px 10px;border-radius:20px;font-size:11px">§651/§661 DNI</span>
+          <span style="background:rgba(6,182,212,.15);color:#06b6d4;padding:3px 10px;border-radius:20px;font-size:11px">§663 Distributions</span>
+          <span style="background:rgba(6,182,212,.15);color:#06b6d4;padding:3px 10px;border-radius:20px;font-size:11px">Schedule K-1</span>
+          <span style="background:rgba(6,182,212,.15);color:#06b6d4;padding:3px 10px;border-radius:20px;font-size:11px">Grantor Trust §671-679</span>
+          <span style="background:rgba(6,182,212,.15);color:#06b6d4;padding:3px 10px;border-radius:20px;font-size:11px">Fiduciary Accounting</span>
+        </div>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
-        <button onclick="switchCPASubAgent('trust','compliance')" id="cpa-sub-trust-compliance" class="cpa-sub-btn active" style="padding:8px 16px;border:1px solid rgba(6,182,212,.5);border-radius:8px;background:rgba(6,182,212,.15);color:#06b6d4;font-size:12px;font-weight:700;cursor:pointer">📋 Tax Compliance</button>
-        <button onclick="switchCPASubAgent('trust','reporting')" id="cpa-sub-trust-reporting" class="cpa-sub-btn" style="padding:8px 16px;border:1px solid rgba(6,182,212,.3);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">📊 Financial Reporting</button>
-        <button onclick="switchCPASubAgent('trust','audit')" id="cpa-sub-trust-audit" class="cpa-sub-btn" style="padding:8px 16px;border:1px solid rgba(6,182,212,.3);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">🔍 Audit &amp; Advisory</button>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+        <button onclick="switchCPASubAgent('trust','tax')" class="cpa-sub-trust active" style="padding:10px 18px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(6,182,212,.5);background:rgba(6,182,212,.2);color:#06b6d4;cursor:pointer">Agent 1: Tax Compliance</button>
+        <button onclick="switchCPASubAgent('trust','reporting')" class="cpa-sub-trust" style="padding:10px 18px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(6,182,212,.2);background:transparent;color:var(--text-secondary);cursor:pointer">Agent 2: Financial Reporting</button>
+        <button onclick="switchCPASubAgent('trust','audit')" class="cpa-sub-trust" style="padding:10px 18px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(6,182,212,.2);background:transparent;color:var(--text-secondary);cursor:pointer">Agent 3: Audit &amp; Advisory</button>
       </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
-        <button onclick="setCPAPrompt('trust','Analyze Form 1041 distributable net income (DNI), distribution deduction, and beneficiary K-1 allocation')" style="background:rgba(6,182,212,.12);color:#06b6d4;border:1px solid rgba(6,182,212,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">DNI / K-1 Analysis</button>
-        <button onclick="setCPAPrompt('trust','Explain grantor trust rules under IRC §671-679 and how income is reported on grantor Form 1040')" style="background:rgba(6,182,212,.12);color:#06b6d4;border:1px solid rgba(6,182,212,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Grantor Trust Rules</button>
-        <button onclick="setCPAPrompt('trust','Review §663(b) 65-day election, throwback rules, and accumulation distribution taxation')" style="background:rgba(6,182,212,.12);color:#06b6d4;border:1px solid rgba(6,182,212,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">65-Day / Throwback</button>
+      <div style="background:var(--bg-secondary);border:1px solid rgba(6,182,212,.2);border-radius:10px;padding:16px">
+        <div id="trust-agent-label" style="font-size:11px;font-weight:700;color:#06b6d4;margin-bottom:8px">AGENT 1 — TRUST TAX COMPLIANCE</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+          <button onclick="cpaQuery('trust','Produce the complete Form 1041 filing with all schedules including Schedule B, D, G, I, J, K-1 with line-by-line placement and controlling IRC sections under Subchapter J')" style="background:rgba(6,182,212,.12);color:#06b6d4;border:1px solid rgba(6,182,212,.3);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px">Form 1041 Complete</button>
+          <button onclick="cpaQuery('trust','Explain Distributable Net Income under §643, the distribution deduction under §661, and beneficiary reporting on Schedule K-1 with complete journal entries')" style="background:rgba(6,182,212,.12);color:#06b6d4;border:1px solid rgba(6,182,212,.3);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px">DNI §643</button>
+          <button onclick="cpaQuery('trust','Explain grantor trust rules under §§671-679, the reporting requirements, and why the grantor is treated as owner for income tax purposes with form placement')" style="background:rgba(6,182,212,.12);color:#06b6d4;border:1px solid rgba(6,182,212,.3);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px">Grantor Trust Rules</button>
+          <button onclick="cpaQuery('trust','Explain fiduciary accounting income vs taxable income, the Uniform Principal and Income Act, and trust accounting with journal entries under GAAP')" style="background:rgba(6,182,212,.12);color:#06b6d4;border:1px solid rgba(6,182,212,.3);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px">Fiduciary Accounting</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:6px 12px;background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.2);border-radius:6px;font-size:11px">
+          <span style="color:#10b981;font-weight:700">🏢 Entity:</span>
+          <span id="trust-entity-name" style="color:#f59e0b;font-weight:600">None — type entity name in query or select</span>
+          <button onclick="promptEntitySelection()" style="margin-left:auto;padding:2px 8px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:4px;color:#10b981;font-size:10px;cursor:pointer;font-weight:600">Select</button>
+        </div>
+        <textarea id="trust-agent-input" placeholder="Ask the Trust CPA Firm any question about Form 1041, Subchapter J, DNI, grantor trusts, fiduciary accounting, or estate/trust GAAP compliance..." style="width:100%;min-height:80px;background:rgba(0,0,0,.3);color:#f1f5f9;border:1px solid rgba(6,182,212,.3);border-radius:8px;padding:10px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button onclick="sendCPAQuery('trust')" style="background:#06b6d4;color:#000;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px">🔒 Submit to Trust CPA</button>
+          <button onclick="clearCPAChat('trust')" style="background:rgba(255,255,255,.08);color:#94a3b8;border:1px solid rgba(255,255,255,.1);padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">Clear</button>
+        </div>
+        <div id="trust-agent-response" style="margin-top:16px;min-height:40px;font-size:13px;color:#94a3b8;line-height:1.7">Trust CPA Firm ready. Ask any question about Form 1041, Subchapter J, DNI, distributions, grantor trusts, or fiduciary accounting.</div>
       </div>
-      <textarea id="trust-agent-input" rows="4" placeholder="Ask about Form 1041, DNI/DNE, Schedule K-1, grantor trust rules, estate/gift tax, fiduciary accounting..." style="width:100%;padding:12px;background:var(--bg-tertiary);border:1px solid rgba(6,182,212,.4);border-radius:8px;color:var(--text-primary);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px;box-sizing:border-box"></textarea>
-      <button onclick="sendCPAQuery('trust')" style="padding:12px 28px;background:rgba(6,182,212,.2);border:2px solid rgba(6,182,212,.6);border-radius:10px;color:#06b6d4;font-weight:800;font-size:14px;cursor:pointer">⚡ Query Trust CPA Agent</button>
-      <div id="trust-agent-response" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
     </div>
   </section>
 
   <!-- TRUST CORP CPA -->
   <section id="cpaTrustCorpSection" class="form-section hidden">
     <div style="padding:20px;max-width:1200px;margin:0 auto">
-      <div style="background:linear-gradient(135deg,rgba(236,72,153,.12),rgba(139,92,246,.08));border:2px solid rgba(236,72,153,.4);border-radius:12px;padding:20px 24px;margin-bottom:16px">
-        <div style="font-size:22px;font-weight:900;color:#ec4899;margin-bottom:6px">🏦 TRUST CORPORATION CPA FIRM — Hybrid Entity Specialist</div>
-        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">Form 1120 + 1041 Combined &bull; Schedule M-1/M-2/L &bull; Schedule K-1 (Trust) &bull; Form 5227 &bull; Form 1023 &bull; Charitable Remainder Trusts &bull; Hybrid Entity Elections</div>
-        <div id="tcorp-entity-name" style="background:rgba(236,72,153,.1);border:1px solid rgba(236,72,153,.4);border-radius:8px;padding:8px 14px;font-size:12px;color:#ec4899;font-weight:700">Active Entity: None selected</div>
+      <div style="background:linear-gradient(135deg,rgba(236,72,153,.12),rgba(139,92,246,.08));border:2px solid rgba(236,72,153,.4);border-radius:12px;padding:20px 24px;margin-bottom:20px">
+        <div style="font-size:22px;font-weight:800;color:#ec4899;margin-bottom:6px">🏦 TRUST CORPORATION CPA FIRM — Hybrid Entity Specialist</div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px">3 Independent Agents — Corporate Trust Structures — Subchapter C + Subchapter J Intersect</div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:12px">Forms: 1120, 1041, Schedule M-1, M-2, L, K-1, Form 5227, Form 1023, Trust Indenture</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <span style="background:rgba(236,72,153,.15);color:#ec4899;padding:3px 10px;border-radius:20px;font-size:11px">Corporate Trustee</span>
+          <span style="background:rgba(236,72,153,.15);color:#ec4899;padding:3px 10px;border-radius:20px;font-size:11px">§301.7701-4 Trusts</span>
+          <span style="background:rgba(236,72,153,.15);color:#ec4899;padding:3px 10px;border-radius:20px;font-size:11px">Business Trust</span>
+          <span style="background:rgba(236,72,153,.15);color:#ec4899;padding:3px 10px;border-radius:20px;font-size:11px">REIT §856-860</span>
+          <span style="background:rgba(236,72,153,.15);color:#ec4899;padding:3px 10px;border-radius:20px;font-size:11px">RIC §851-855</span>
+          <span style="background:rgba(236,72,153,.15);color:#ec4899;padding:3px 10px;border-radius:20px;font-size:11px">Trust Indenture Act</span>
+        </div>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
-        <button onclick="switchCPASubAgent('tcorp','compliance')" id="cpa-sub-tcorp-compliance" class="cpa-sub-btn active" style="padding:8px 16px;border:1px solid rgba(236,72,153,.5);border-radius:8px;background:rgba(236,72,153,.15);color:#ec4899;font-size:12px;font-weight:700;cursor:pointer">📋 Tax Compliance</button>
-        <button onclick="switchCPASubAgent('tcorp','reporting')" id="cpa-sub-tcorp-reporting" class="cpa-sub-btn" style="padding:8px 16px;border:1px solid rgba(236,72,153,.3);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">📊 Financial Reporting</button>
-        <button onclick="switchCPASubAgent('tcorp','audit')" id="cpa-sub-tcorp-audit" class="cpa-sub-btn" style="padding:8px 16px;border:1px solid rgba(236,72,153,.3);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">🔍 Audit &amp; Advisory</button>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+        <button onclick="switchCPASubAgent('tcorp','tax')" class="cpa-sub-tcorp active" style="padding:10px 18px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(236,72,153,.5);background:rgba(236,72,153,.2);color:#ec4899;cursor:pointer">Agent 1: Tax Compliance</button>
+        <button onclick="switchCPASubAgent('tcorp','reporting')" class="cpa-sub-tcorp" style="padding:10px 18px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(236,72,153,.2);background:transparent;color:var(--text-secondary);cursor:pointer">Agent 2: Financial Reporting</button>
+        <button onclick="switchCPASubAgent('tcorp','audit')" class="cpa-sub-tcorp" style="padding:10px 18px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(236,72,153,.2);background:transparent;color:var(--text-secondary);cursor:pointer">Agent 3: Audit &amp; Advisory</button>
       </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
-        <button onclick="setCPAPrompt('tcorp','Explain how a corporation-trust hybrid entity files both Form 1120 and Form 1041 and coordinate the dual filing obligations')" style="background:rgba(236,72,153,.12);color:#ec4899;border:1px solid rgba(236,72,153,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Dual Filing Analysis</button>
-        <button onclick="setCPAPrompt('tcorp','Analyze Form 5227 split-interest trust reporting and charitable remainder trust annuity calculations')" style="background:rgba(236,72,153,.12);color:#ec4899;border:1px solid rgba(236,72,153,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Form 5227 / CRT</button>
-        <button onclick="setCPAPrompt('tcorp','Review §501(c)(2) title-holding corporation requirements and corporate trust structure compliance')" style="background:rgba(236,72,153,.12);color:#ec4899;border:1px solid rgba(236,72,153,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">§501(c)(2) Structure</button>
+      <div style="background:var(--bg-secondary);border:1px solid rgba(236,72,153,.2);border-radius:10px;padding:16px">
+        <div id="tcorp-agent-label" style="font-size:11px;font-weight:700;color:#ec4899;margin-bottom:8px">AGENT 1 — TRUST CORPORATION TAX COMPLIANCE</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+          <button onclick="cpaQuery('tcorp','Explain the entity classification of a trust corporation under Treas. Reg. §301.7701-4, the check-the-box regulations, business trust classification, and filing requirements with form placement')" style="background:rgba(236,72,153,.12);color:#ec4899;border:1px solid rgba(236,72,153,.3);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px">Entity Classification</button>
+          <button onclick="cpaQuery('tcorp','Produce the complete REIT qualification requirements under §856, the 95% distribution requirement, asset and income tests, and Form 1120-REIT filing with journal entries')" style="background:rgba(236,72,153,.12);color:#ec4899;border:1px solid rgba(236,72,153,.3);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px">REIT §856</button>
+          <button onclick="cpaQuery('tcorp','Explain the corporate trustee fiduciary duty, the Trust Indenture Act of 1939, and the intersection of corporate governance with trust administration under GAAP')" style="background:rgba(236,72,153,.12);color:#ec4899;border:1px solid rgba(236,72,153,.3);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px">Trust Indenture Act</button>
+          <button onclick="cpaQuery('tcorp','Produce dual reporting for a trust corporation filing both Form 1120 and Form 1041 components with reconciliation journal entries and controlling authorities')" style="background:rgba(236,72,153,.12);color:#ec4899;border:1px solid rgba(236,72,153,.3);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px">Dual Filing</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:6px 12px;background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.2);border-radius:6px;font-size:11px">
+          <span style="color:#10b981;font-weight:700">🏢 Entity:</span>
+          <span id="tcorp-entity-name" style="color:#f59e0b;font-weight:600">None — type entity name in query or select</span>
+          <button onclick="promptEntitySelection()" style="margin-left:auto;padding:2px 8px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:4px;color:#10b981;font-size:10px;cursor:pointer;font-weight:600">Select</button>
+        </div>
+        <textarea id="tcorp-agent-input" placeholder="Ask the Trust Corporation CPA Firm any question about corporate trust structures, REIT/RIC compliance, entity classification, trust indenture, or hybrid entity GAAP compliance..." style="width:100%;min-height:80px;background:rgba(0,0,0,.3);color:#f1f5f9;border:1px solid rgba(236,72,153,.3);border-radius:8px;padding:10px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button onclick="sendCPAQuery('tcorp')" style="background:#ec4899;color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px">🏦 Submit to Trust Corp CPA</button>
+          <button onclick="clearCPAChat('tcorp')" style="background:rgba(255,255,255,.08);color:#94a3b8;border:1px solid rgba(255,255,255,.1);padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">Clear</button>
+        </div>
+        <div id="tcorp-agent-response" style="margin-top:16px;min-height:40px;font-size:13px;color:#94a3b8;line-height:1.7">Trust Corporation CPA Firm ready. Ask any question about corporate trust structures, REIT/RIC compliance, entity classification, or hybrid entity accounting.</div>
       </div>
-      <textarea id="tcorp-agent-input" rows="4" placeholder="Ask about hybrid entity structures, dual Form 1120/1041 filing, CRT annuity trusts, title-holding corporations..." style="width:100%;padding:12px;background:var(--bg-tertiary);border:1px solid rgba(236,72,153,.4);border-radius:8px;color:var(--text-primary);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px;box-sizing:border-box"></textarea>
-      <button onclick="sendCPAQuery('tcorp')" style="padding:12px 28px;background:rgba(236,72,153,.2);border:2px solid rgba(236,72,153,.6);border-radius:10px;color:#ec4899;font-weight:800;font-size:14px;cursor:pointer">⚡ Query Trust Corp CPA Agent</button>
-      <div id="tcorp-agent-response" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
     </div>
   </section>
 
   <!-- CONSOLIDATED CPA -->
   <section id="cpaConsolidatedSection" class="form-section hidden">
     <div style="padding:20px;max-width:1200px;margin:0 auto">
-      <div style="background:linear-gradient(135deg,rgba(239,68,68,.12),rgba(245,158,11,.08));border:2px solid rgba(239,68,68,.4);border-radius:12px;padding:20px 24px;margin-bottom:16px">
-        <div style="font-size:22px;font-weight:900;color:#ef4444;margin-bottom:6px">🏗️ CONSOLIDATED CORPORATION CPA FIRM — Form 1120 Consolidated</div>
-        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">Form 1120 Consolidated &bull; Schedule M-3 &bull; Form 851 (Affiliations) &bull; Form 1122 (Consent) &bull; SRLY Rules &bull; §382/§383/§384 Limitations &bull; Intercompany Transactions</div>
-        <div id="consol-entity-name" style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.4);border-radius:8px;padding:8px 14px;font-size:12px;color:#ef4444;font-weight:700">Active Entity: None selected</div>
+      <div style="background:linear-gradient(135deg,rgba(239,68,68,.12),rgba(245,158,11,.08));border:2px solid rgba(239,68,68,.4);border-radius:12px;padding:20px 24px;margin-bottom:20px">
+        <div style="font-size:22px;font-weight:800;color:#ef4444;margin-bottom:6px">🏗️ CONSOLIDATED CORPORATION CPA FIRM — Form 1120 Consolidated Specialist</div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px">3 Independent Agents — Treas. Reg. §1.1502 — Consolidated Returns — Intercompany Eliminations</div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:12px">Forms: 1120 (Consolidated), Schedule M-3, Form 851, Form 1122, Intercompany Schedules</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <span style="background:rgba(239,68,68,.15);color:#ef4444;padding:3px 10px;border-radius:20px;font-size:11px">§1501 Consolidated Returns</span>
+          <span style="background:rgba(239,68,68,.15);color:#ef4444;padding:3px 10px;border-radius:20px;font-size:11px">Reg. §1.1502</span>
+          <span style="background:rgba(239,68,68,.15);color:#ef4444;padding:3px 10px;border-radius:20px;font-size:11px">Intercompany Eliminations</span>
+          <span style="background:rgba(239,68,68,.15);color:#ef4444;padding:3px 10px;border-radius:20px;font-size:11px">ASC 810 Consolidation</span>
+          <span style="background:rgba(239,68,68,.15);color:#ef4444;padding:3px 10px;border-radius:20px;font-size:11px">SRLY Rules</span>
+          <span style="background:rgba(239,68,68,.15);color:#ef4444;padding:3px 10px;border-radius:20px;font-size:11px">Form 851 Affiliations</span>
+        </div>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
-        <button onclick="switchCPASubAgent('consol','compliance')" id="cpa-sub-consol-compliance" class="cpa-sub-btn active" style="padding:8px 16px;border:1px solid rgba(239,68,68,.5);border-radius:8px;background:rgba(239,68,68,.15);color:#ef4444;font-size:12px;font-weight:700;cursor:pointer">📋 Tax Compliance</button>
-        <button onclick="switchCPASubAgent('consol','reporting')" id="cpa-sub-consol-reporting" class="cpa-sub-btn" style="padding:8px 16px;border:1px solid rgba(239,68,68,.3);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">📊 Financial Reporting</button>
-        <button onclick="switchCPASubAgent('consol','audit')" id="cpa-sub-consol-audit" class="cpa-sub-btn" style="padding:8px 16px;border:1px solid rgba(239,68,68,.3);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer">🔍 Audit &amp; Advisory</button>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+        <button onclick="switchCPASubAgent('consol','tax')" class="cpa-sub-consol active" style="padding:10px 18px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(239,68,68,.5);background:rgba(239,68,68,.2);color:#ef4444;cursor:pointer">Agent 1: Tax Compliance</button>
+        <button onclick="switchCPASubAgent('consol','reporting')" class="cpa-sub-consol" style="padding:10px 18px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(239,68,68,.2);background:transparent;color:var(--text-secondary);cursor:pointer">Agent 2: Financial Reporting</button>
+        <button onclick="switchCPASubAgent('consol','audit')" class="cpa-sub-consol" style="padding:10px 18px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(239,68,68,.2);background:transparent;color:var(--text-secondary);cursor:pointer">Agent 3: Audit &amp; Advisory</button>
       </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
-        <button onclick="setCPAPrompt('consol','Explain consolidated return regulations under Treas. Reg. §1.1502, SRLY rules, and Form 851 affiliations schedule')" style="background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">§1.1502 / SRLY</button>
-        <button onclick="setCPAPrompt('consol','Analyze intercompany transaction elimination rules and deferred intercompany gain/loss accounting')" style="background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Intercompany Elim.</button>
-        <button onclick="setCPAPrompt('consol','Review Schedule M-3 threshold requirements for large corporate filers and uncertain tax positions')" style="background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">Schedule M-3</button>
+      <div style="background:var(--bg-secondary);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:16px">
+        <div id="consol-agent-label" style="font-size:11px;font-weight:700;color:#ef4444;margin-bottom:8px">AGENT 1 — CONSOLIDATED RETURN TAX COMPLIANCE</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+          <button onclick="cpaQuery('consol','Produce the complete consolidated Form 1120 filing requirements including Form 851, Form 1122, intercompany eliminations, and the affiliated group structure under §1504')" style="background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.3);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px">Consolidated 1120</button>
+          <button onclick="cpaQuery('consol','Explain intercompany transaction rules under Treas. Reg. §1.1502-13 with matching and acceleration rules, elimination journal entries, and form placement')" style="background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.3);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px">Intercompany §1.1502-13</button>
+          <button onclick="cpaQuery('consol','Explain SRLY rules for consolidated NOL usage under Treas. Reg. §1.1502-21, the SRLY limitation, and the overlap rule with journal entries')" style="background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.3);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px">SRLY Rules</button>
+          <button onclick="cpaQuery('consol','Produce the ASC 810 consolidation requirements under GAAP including variable interest entities, noncontrolling interests, and elimination entries with complete journal entries')" style="background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.3);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px">ASC 810 Consolidation</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:6px 12px;background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.2);border-radius:6px;font-size:11px">
+          <span style="color:#10b981;font-weight:700">🏢 Entity:</span>
+          <span id="consol-entity-name" style="color:#f59e0b;font-weight:600">None — type entity name in query or select</span>
+          <button onclick="promptEntitySelection()" style="margin-left:auto;padding:2px 8px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:4px;color:#10b981;font-size:10px;cursor:pointer;font-weight:600">Select</button>
+        </div>
+        <textarea id="consol-agent-input" placeholder="Ask the Consolidated Corporation CPA Firm any question about consolidated returns, intercompany eliminations, SRLY rules, ASC 810, or affiliated group compliance..." style="width:100%;min-height:80px;background:rgba(0,0,0,.3);color:#f1f5f9;border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:10px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button onclick="sendCPAQuery('consol')" style="background:#ef4444;color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px">🏗️ Submit to Consolidated CPA</button>
+          <button onclick="clearCPAChat('consol')" style="background:rgba(255,255,255,.08);color:#94a3b8;border:1px solid rgba(255,255,255,.1);padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">Clear</button>
+        </div>
+        <div id="consol-agent-response" style="margin-top:16px;min-height:40px;font-size:13px;color:#94a3b8;line-height:1.7">Consolidated Corporation CPA Firm ready. Ask any question about consolidated returns, intercompany eliminations, SRLY rules, or ASC 810 consolidation.</div>
       </div>
-      <textarea id="consol-agent-input" rows="4" placeholder="Ask about consolidated return regulations, Form 851, SRLY rules, intercompany eliminations, §382 limitations..." style="width:100%;padding:12px;background:var(--bg-tertiary);border:1px solid rgba(239,68,68,.4);border-radius:8px;color:var(--text-primary);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:10px;box-sizing:border-box"></textarea>
-      <button onclick="sendCPAQuery('consol')" style="padding:12px 28px;background:rgba(239,68,68,.2);border:2px solid rgba(239,68,68,.6);border-radius:10px;color:#ef4444;font-weight:800;font-size:14px;cursor:pointer">⚡ Query Consolidated CPA Agent</button>
-      <div id="consol-agent-response" style="margin-top:14px;font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
     </div>
   </section>
 
@@ -34893,50 +35014,193 @@ function promptEntitySelection() {
 }
 
 // ── CPA Firm functions ───────────────────────────────────────────
-function switchCPASubAgent(firm, role) {
-  ['compliance','reporting','audit'].forEach(function(r) {
-    var btn = document.getElementById('cpa-sub-' + firm + '-' + r);
-    if (btn) {
-      btn.style.background = r === role ? 'rgba(255,255,255,.12)' : 'transparent';
-      btn.style.fontWeight = r === role ? '700' : '600';
+var CPA_AGENT_CONFIGS = {
+  nfp: {
+    name: 'Nonprofit CPA Firm', icon: '🏛️', color: '#8b5cf6',
+    subAgents: {
+      tax: {
+        label: 'AGENT 1 — NONPROFIT TAX COMPLIANCE',
+        focus: 'Form 990 series (990, 990-EZ, 990-PF, 990-T) filing requirements, tax-exempt status maintenance under §501(c)(3), Unrelated Business Income Tax (UBIT) under §511-514, Schedule A (public support test), Schedule B (contributor disclosure), Schedule C (political activities), Schedule D (financial statements), Schedule F (foreign activities), Schedule G (fundraising), Schedule J (compensation), Schedule O (supplemental info), Form 8868 extensions, state charitable registration compliance, intermediate sanctions §4958, excess benefit transactions, private foundation excise taxes §4940-4945, and IRS Form 1023/1024 exemption applications.'
+      },
+      reporting: {
+        label: 'AGENT 2 — NONPROFIT FINANCIAL REPORTING',
+        focus: 'ASC 958 (Not-for-Profit Entities) net asset classification (without donor restrictions / with donor restrictions), ASC 842 lease accounting for nonprofits, ASC 606 revenue recognition for contributions vs. exchange transactions, endowment fund accounting under UPMIFA, functional expense allocation (program/management/fundraising), in-kind contribution valuation, split-interest agreements (charitable remainder trusts, pooled income funds), agency transactions, pass-through grants, FASB ASU 2016-14 and 2018-08 implementation, and comparative financial statement presentation.'
+      },
+      audit: {
+        label: 'AGENT 3 — NONPROFIT AUDIT & ADVISORY',
+        focus: 'Single Audit requirements under Uniform Guidance 2 CFR Part 200, Schedule of Expenditures of Federal Awards (SEFA), major program determination, Type A/B program thresholds, compliance supplement testing, audit findings and corrective action plans, Yellow Book (GAGAS) independence standards, board governance best practices, conflict of interest policies, whistleblower protection, document retention, executive compensation reasonableness, fundraising cost ratios, Form 990 governance questions, and IRS compliance check questionnaires.'
+      }
     }
-  });
-}
-
-function setCPAPrompt(firm, text) {
-  var el = document.getElementById(firm + '-agent-input');
-  if (el) { el.value = text; el.focus(); }
-}
-
-function sendCPAQuery(firm) {
-  var input = document.getElementById(firm + '-agent-input');
-  var response = document.getElementById(firm + '-agent-response');
-  if (!input || !response) return;
-  var q = input.value.trim();
-  if (!q) { alert('Enter a question first.'); return; }
-  var entity = localStorage.getItem('gaapclaw_entity') || 'Entity Not Set';
-  response.innerHTML = '<div style="color:#10b981;display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:14px;height:14px;border:2px solid #10b981;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite"></span>Processing CPA query...</div>';
-
-  // Route through trust agent API if available
-  var apiKey = window._trustApiKey || localStorage.getItem('api_key_claude') || localStorage.getItem('tmar_claude_key') || localStorage.getItem('stg_key_claude');
-  if (!apiKey) {
-    response.innerHTML = '<div style="color:#f59e0b;font-size:13px;padding:12px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:6px"><strong>⚠️ API Key Required</strong><br>Set your Claude API key in <strong>Settings & API → API Keys</strong> or run:<br><code style="background:rgba(0,0,0,.3);padding:2px 6px;border-radius:4px">window._trustApiKey = "sk-ant-..."</code></div>';
-    return;
+  },
+  ptnr: {
+    name: 'Partnership CPA Firm', icon: '🤝', color: '#f59e0b',
+    subAgents: {
+      tax: {
+        label: 'AGENT 1 — PARTNERSHIP TAX COMPLIANCE',
+        focus: 'Form 1065 partnership return preparation, Schedule K and K-1 allocations, §704(b) substantial economic effect rules, §704(c) built-in gain/loss allocations, §752 liability allocation rules (recourse vs. nonrecourse), §754 election and inside basis adjustments, §743(b) and §734(b) basis adjustments, §751 hot assets (unrealized receivables, substantially appreciated inventory), §736 payments to retiring partners, §708 termination rules, guaranteed payments vs. distributive shares, §469 passive activity rules for partners, self-employment tax on partnership income, §199A qualified business income deduction, and §1061 capital interest rules.'
+      },
+      reporting: {
+        label: 'AGENT 2 — PARTNERSHIP FINANCIAL REPORTING',
+        focus: 'ASC 323 equity method accounting for partnership interests, partnership capital account maintenance (tax basis vs. GAAP basis vs. §704(b) book basis), guaranteed payment accruals, distribution waterfall accounting, carried interest accounting, management fee offsets, GP/LP allocation journal entries, consolidation of variable interest entities (VIEs) under ASC 810, investment company accounting under ASC 946, fair value measurement of partnership interests under ASC 820, and financial statement disclosure requirements for partnerships and joint ventures.'
+      },
+      audit: {
+        label: 'AGENT 3 — PARTNERSHIP AUDIT & ADVISORY',
+        focus: 'BBA centralized partnership audit rules (§6221-6241), partnership representative designation, imputed underpayment calculations, push-out elections, statute of limitations for partnership items, tax shelter registration and list maintenance requirements, §6662 accuracy-related penalties for partnerships, economic substance doctrine, check-the-box elections for entity classification, state composite returns, withholding on foreign partners (§1446), FIRPTA withholding on partnership real property interests, and qualified opportunity zone fund compliance.'
+      }
+    }
+  },
+  corp: {
+    name: 'Corporation CPA Firm', icon: '🏢', color: '#3b82f6',
+    subAgents: {
+      tax: {
+        label: 'AGENT 1 — CORPORATION TAX COMPLIANCE',
+        focus: 'Form 1120 C-corporation return preparation, §11 graduated tax rates (flat 21% post-TCJA), §243 dividends received deduction, §172 net operating loss carryforward/carryback rules, §382 NOL limitations following ownership changes, §383 credit limitations, §384 built-in gain limitations, §351 tax-free incorporations, §368 corporate reorganizations (Types A through G), §338 elections for deemed asset acquisitions, §336/337 liquidation rules, §311 distribution of appreciated property, §301-302 dividend vs. redemption characterization, AMT for corporations post-Inflation Reduction Act, §163(j) business interest limitation, §174 R&E expenditure capitalization, and §250 FDII/GILTI deductions.'
+      },
+      reporting: {
+        label: 'AGENT 2 — CORPORATION FINANCIAL REPORTING',
+        focus: 'ASC 740 income tax accounting (current and deferred taxes), valuation allowances, uncertain tax positions (FIN 48/ASC 740-10), intraperiod tax allocation, ASC 805 business combinations, purchase price allocation, goodwill impairment testing (ASC 350), ASC 606 revenue recognition (5-step model), ASC 842 lease accounting, ASC 815 derivatives and hedging, ASC 820 fair value hierarchy, EPS calculation (basic and diluted) under ASC 260, segment reporting under ASC 280, interim financial reporting under ASC 270, and SEC reporting requirements (10-K, 10-Q, 8-K) for public companies.'
+      },
+      audit: {
+        label: 'AGENT 3 — CORPORATION AUDIT & ADVISORY',
+        focus: 'PCAOB auditing standards for public companies, AS 2201 internal control over financial reporting (SOX 404), material weakness and significant deficiency identification, audit committee communications, management representation letters, related party transactions under ASC 850, going concern evaluation under ASC 205-40, subsequent events under ASC 855, contingencies and litigation reserves under ASC 450, restructuring charges under ASC 420, stock-based compensation under ASC 718, and executive compensation disclosure (CD&A, proxy statement).'
+      }
+    }
+  },
+  trust: {
+    name: 'Trust CPA Firm', icon: '🔒', color: '#06b6d4',
+    subAgents: {
+      tax: {
+        label: 'AGENT 1 — TRUST TAX COMPLIANCE',
+        focus: 'Form 1041 fiduciary income tax return preparation, distributable net income (DNI) calculation, §643 definitions, §651-652 simple trust distribution deduction, §661-662 complex trust distribution deduction, §663 special rules (65-day election, separate share rule), §664 charitable remainder trusts (CRT), §642(c) charitable deduction for trusts, grantor trust rules §671-679, §2036-2038 estate inclusion rules, §2041 general power of appointment, §2501-2524 gift tax rules, generation-skipping transfer tax (§2601-2664), Form 706 estate tax return, Form 709 gift tax return, Form 5227 split-interest trust return, and §1014 step-up in basis at death.'
+      },
+      reporting: {
+        label: 'AGENT 2 — TRUST FINANCIAL REPORTING',
+        focus: 'GASB vs. FASB standards for trust accounting, principal and income allocation under the Uniform Principal and Income Act (UPIA), trustee accounting standards (total return unitrust elections), Schedule K-1 (Form 1041) preparation for trust beneficiaries, fiduciary accounting income vs. taxable income reconciliation, trust accounting for community property states, charitable lead trust (CLT) annuity/unitrust calculations, pooled income fund accounting, CRUT/CRAT actuarial calculations, trust investment accounting under the Prudent Investor Act, and beneficiary reporting requirements.'
+      },
+      audit: {
+        label: 'AGENT 3 — TRUST AUDIT & ADVISORY',
+        focus: 'Trustee fiduciary duty standards (loyalty, prudence, impartiality), trust administration compliance, Uniform Trust Code (UTC) requirements, trust modification and decanting, trust protector powers, directed trust structures, dynasty trust planning, asset protection trust compliance, foreign trust reporting (Forms 3520, 3520-A), FBAR filing for trusts with foreign accounts, FATCA compliance for trusts, state trust taxation nexus rules, trust situs planning, and IRS Form 56 fiduciary relationship notification requirements.'
+      }
+    }
+  },
+  tcorp: {
+    name: 'Trust Corporation CPA Firm', icon: '🏦', color: '#ec4899',
+    subAgents: {
+      tax: {
+        label: 'AGENT 1 — TRUST CORPORATION TAX COMPLIANCE',
+        focus: 'Entity classification under Treas. Reg. §301.7701-4 (business trust vs. ordinary trust), check-the-box regulations for trust corporations, dual filing requirements (Form 1120 corporate return + Form 1041 fiduciary return), §856 REIT qualification requirements (income tests, asset tests, distribution requirements), Form 1120-REIT preparation, §860 REMIC compliance, §882 taxation of foreign corporations engaged in U.S. trade or business, branch profits tax §884, §1441-1442 withholding on payments to foreign corporations, transfer pricing §482, Base Erosion and Anti-Abuse Tax (BEAT) §59A, and §965 transition tax on deferred foreign income.'
+      },
+      reporting: {
+        label: 'AGENT 2 — TRUST CORPORATION FINANCIAL REPORTING',
+        focus: 'Consolidated financial statements for trust corporations under ASC 810, variable interest entity (VIE) consolidation analysis, REIT financial statement presentation (FFO, AFFO calculations), trust corporation balance sheet (trust assets vs. corporate assets segregation), corporate trustee fee revenue recognition, fiduciary vs. corporate accounting segregation, subsidiary trust accounting, intercompany elimination entries, noncontrolling interest presentation under ASC 810, investment company accounting for trust subsidiaries under ASC 946, and SEC reporting requirements for publicly traded trust corporations (Form 10-K, Form 10-Q).'
+      },
+      audit: {
+        label: 'AGENT 3 — TRUST CORPORATION AUDIT & ADVISORY',
+        focus: 'Corporate trustee fiduciary duty under the Trust Indenture Act of 1939, intersection of corporate governance with trust administration, Sarbanes-Oxley compliance for trust corporations, OCC (Office of the Comptroller of the Currency) trust examination standards, state banking department trust company regulations, dual regulatory compliance (SEC + state trust authorities), related party transaction disclosure for corporate trustees, conflict of interest management between corporate and fiduciary roles, AICPA Statement on Standards for Trust Services (SOC reports), and investment management compliance under the Investment Advisers Act of 1940.'
+      }
+    }
+  },
+  consol: {
+    name: 'Consolidated Corporation CPA Firm', icon: '🏗️', color: '#ef4444',
+    subAgents: {
+      tax: {
+        label: 'AGENT 1 — CONSOLIDATED TAX COMPLIANCE',
+        focus: 'Form 1120 consolidated return regulations (Treas. Reg. §1.1502), affiliated group definition §1504, eligibility to file consolidated return, intercompany transaction rules (§1.1502-13), excess loss accounts (§1.1502-19), investment adjustments (§1.1502-32), loss disallowance rules, §382 consolidated return NOL limitations, separate return limitation year (SRLY) rules, built-in gain/loss (BIGL/BILL) netting, §1.1502-47 life-nonlife consolidation, state combined/unitary return filing, apportionment factor manipulation rules, Finnigan vs. Joyce rule elections, and transfer pricing compliance for intragroup transactions.'
+      },
+      reporting: {
+        label: 'AGENT 2 — CONSOLIDATED FINANCIAL REPORTING',
+        focus: 'ASC 810 consolidation of subsidiaries and VIEs, control assessment (voting interest model vs. VIE model), noncontrolling interest measurement and presentation, push-down accounting under ASC 805-50, intercompany profit elimination entries, subsidiary investment elimination, consolidated statement of cash flows (indirect method), segment reporting under ASC 280 (operating segments, reportable segments, entity-wide disclosures), goodwill allocation to reporting units, impairment testing cascade, foreign currency translation under ASC 830 (functional currency determination, CTA, remeasurement), and equity method investments under ASC 323.'
+      },
+      audit: {
+        label: 'AGENT 3 — CONSOLIDATED AUDIT & ADVISORY',
+        focus: 'Group audit standards under AS 2101 and ISA 600, component auditor coordination, significant vs. non-significant component determination, consolidated audit risk assessment, intercompany transaction audit procedures, transfer pricing documentation (§6662 penalty protection), country-by-country reporting (CbCR) under BEPS Action 13, Form 8975 preparation, SOX 302/906 certification requirements for consolidated entities, management override of controls testing, related party transactions in consolidated groups under ASC 850, and going concern evaluation for consolidated entities under ASC 205-40.'
+      }
+    }
   }
+};
 
-  var firmLabels = {nfp:'Nonprofit CPA', ptnr:'Partnership CPA', corp:'Corporation CPA', trust:'Trust CPA', tcorp:'Trust Corp CPA', consol:'Consolidated CPA'};
-  var systemPrompt = 'You are the ' + (firmLabels[firm]||firm.toUpperCase()) + ' agent operating under GAAP accrual accounting standards. Active entity: ' + entity + '. Respond with facts, conclusions of law, and specific form/line references only. No hedging. No disclaimers.';
+var activeSubAgents = { nfp: 'tax', ptnr: 'tax', corp: 'tax', trust: 'tax', tcorp: 'tax', consol: 'tax' };
 
-  fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json','x-api-key': apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body: JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,system:systemPrompt,messages:[{role:'user',content:q}]})
-  }).then(function(r){ return r.json(); }).then(function(data) {
-    var text = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : JSON.stringify(data);
-    response.innerHTML = '<div style="background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:14px;font-size:13px;line-height:1.8;white-space:pre-wrap">' + text.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>';
-  }).catch(function(e) {
-    response.innerHTML = '<div style="color:#ef4444;font-size:12px">Error: ' + e.message + '</div>';
+function switchCPASubAgent(firm, subAgent) {
+  activeSubAgents[firm] = subAgent;
+  var cfg = CPA_AGENT_CONFIGS[firm];
+  if (!cfg) return;
+  document.querySelectorAll('.cpa-sub-' + firm).forEach(function(btn) {
+    btn.style.background = 'transparent';
+    btn.style.borderColor = 'rgba(255,255,255,.15)';
+    btn.style.color = 'var(--text-secondary)';
+    btn.style.fontWeight = '600';
   });
+  var btns = document.querySelectorAll('.cpa-sub-' + firm);
+  var idx = subAgent === 'tax' ? 0 : subAgent === 'reporting' ? 1 : 2;
+  if (btns[idx]) {
+    btns[idx].style.background = cfg.color + '33';
+    btns[idx].style.borderColor = cfg.color + '80';
+    btns[idx].style.color = cfg.color;
+    btns[idx].style.fontWeight = '700';
+  }
+  var labelEl = document.getElementById(firm + '-agent-label');
+  if (labelEl) labelEl.textContent = cfg.subAgents[subAgent].label;
+}
+
+function cpaQuery(firm, question) {
+  var input = document.getElementById(firm + '-agent-input');
+  if (input) { input.value = question; sendCPAQuery(firm); }
+}
+
+function clearCPAChat(firm) {
+  var resp = document.getElementById(firm + '-agent-response');
+  var cfg = CPA_AGENT_CONFIGS[firm];
+  if (resp) resp.innerHTML = (cfg ? cfg.name : firm) + ' ready. Submit a question to begin.';
+  var input = document.getElementById(firm + '-agent-input');
+  if (input) input.value = '';
+}
+
+function buildCPASystemPrompt(firm, subAgent) {
+  var cfg = CPA_AGENT_CONFIGS[firm];
+  if (!cfg) return '';
+  var sub = cfg.subAgents[subAgent] || cfg.subAgents.tax;
+  var entity = localStorage.getItem('gaapclaw_entity') || 'Entity Not Set';
+  return 'You are the ' + sub.label + ' for ' + cfg.name + '.\n' +
+    'Active Entity: ' + entity + '\n\n' +
+    'Your focus area: ' + sub.focus + '\n\n' +
+    'Respond with facts, conclusions of law, and specific form/line references. ' +
+    'Include journal entries where applicable. Cite controlling authorities. No hedging. No disclaimers.';
+}
+
+async function sendCPAQuery(firm) {
+  var input = document.getElementById(firm + '-agent-input');
+  var respDiv = document.getElementById(firm + '-agent-response');
+  if (!input || !respDiv) return;
+  var q = (input.value || '').trim();
+  if (!q) return;
+  var entity = localStorage.getItem('gaapclaw_entity');
+  if (!entity) { if (typeof promptEntitySelection === 'function') promptEntitySelection(); return; }
+  var cfg = CPA_AGENT_CONFIGS[firm];
+  if (!cfg) return;
+  var subAgent = activeSubAgents[firm] || 'tax';
+  var sub = cfg.subAgents[subAgent];
+  var color = cfg.color;
+  respDiv.innerHTML = '<div style="color:' + color + ';display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:14px;height:14px;border:2px solid ' + color + ';border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite"></span>' + sub.label + ' processing...</div>';
+  var systemPrompt = buildCPASystemPrompt(firm, subAgent);
+  var rawBuf = '';
+  try {
+    var memories = (typeof MEM0 !== 'undefined') ? await MEM0.search(q, 3) : [];
+    var finalText = await callLLMStream(systemPrompt, q, memories, function(tok) {
+      rawBuf += tok;
+      respDiv.innerHTML =
+        '<div style="color:' + color + ';font-size:11px;font-weight:700;letter-spacing:.05em;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid ' + color + '44">' + sub.label + ' — RESPONSE</div>' +
+        '<div style="font-size:13px;line-height:1.8;white-space:pre-wrap">' + rawBuf.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>' +
+        '<span class="streaming-cursor" style="display:inline-block;width:2px;height:14px;background:' + color + ';animation:blink 1s step-end infinite;vertical-align:text-bottom"></span>';
+    });
+    if (typeof MEM0 !== 'undefined') await MEM0.add(q, finalText, firm + '_' + subAgent);
+    input.value = '';
+    respDiv.innerHTML =
+      '<div style="color:' + color + ';font-size:11px;font-weight:700;letter-spacing:.05em;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid ' + color + '44">' + sub.label + ' — RESPONSE</div>' +
+      '<div style="font-size:13px;line-height:1.8;white-space:pre-wrap">' + finalText.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>';
+  } catch(e) {
+    respDiv.innerHTML = '<div style="color:#ef4444;font-size:12px;padding:12px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:6px">Error: ' + String(e).replace(/</g,'&lt;') + '</div>';
+  }
 }
 
 // ── EON Chat provider + firm chips ──────────────────────────────
