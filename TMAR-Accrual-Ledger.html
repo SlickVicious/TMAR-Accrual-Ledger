@@ -32735,118 +32735,290 @@ function populateAllForms() { alert('Sync from GAAP ledger'); }
 function generateJournalFromForms() { alert('Push back to GAAP'); }
 function onYearChange() { console.log('Year changed'); }
 function printForm(formId) { window.print(); }
-async function askAgent(agentId, question) {
-  console.log('Ask agent:', agentId, question);
 
-  // Get the result div for this agent
-  var resultDiv = document.getElementById(agentId + 'Result');
-  if (!resultDiv) {
-    console.error('Result div not found for agent:', agentId);
-    return;
+// ═══════════════════════════════════════════════════════════════════════════
+// HARD_LOCK — Immutable Enforcement Layer (output sanitizer + prompt validator)
+// ═══════════════════════════════════════════════════════════════════════════
+var HARD_LOCK = Object.freeze({
+  version: '2.0', enforced: true,
+  sanitizeOutput: function(raw) {
+    if (!raw || typeof raw !== 'string') return '';
+    var t = raw;
+    t = t.replace(/<[^>]*>/g, '');
+    t = t.replace(/\*\*\*(.*?)\*\*\*/g,'$1').replace(/\*\*(.*?)\*\*/g,'$1').replace(/(?<!\w)\*([^\*\n]+)\*(?!\w)/g,'$1');
+    t = t.replace(/__(.*?)__/g,'$1').replace(/(?<!\w)_([^_\n]+)_(?!\w)/g,'$1');
+    t = t.replace(/^#{1,6}\s+/gm,'').replace(/^[\-\*\_]{3,}\s*$/gm,'');
+    t = t.replace(/```[\s\S]*?```/g,function(m){return m.replace(/```\w*\n?/g,'').replace(/```/g,'');});
+    t = t.replace(/`([^`]+)`/g,'$1').replace(/\[([^\]]+)\]\([^\)]+\)/g,'$1').replace(/!\[([^\]]*)\]\([^\)]+\)/g,'$1');
+    t = t.replace(/^>\s?/gm,'').replace(/^[\s]*[-\*\+]\s+/gm,'').replace(/^[\s]*\d+\.\s+/gm,'');
+    t = t.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&nbsp;/g,' ');
+    t = t.replace(/^\*\*[A-Za-z]+:\*\*\s*/gm,'').replace(/\n{4,}/g,'\n\n\n').replace(/[ \t]{2,}/g,' ');
+    return t.trim();
+  },
+  validatePrompt: function(prompt) {
+    return prompt && typeof prompt === 'string' &&
+           prompt.indexOf('SYPHER PROTOCOL') !== -1 && prompt.indexOf('PRESUMPTION KILLER') !== -1;
+  },
+  stripDisclaimers: function(text) {
+    if (!text) return text;
+    var patterns = [
+      /I am an AI[^.]*\./gi, /I am not (an? )?attorney[^.]*\./gi, /I am not (an? )?lawyer[^.]*\./gi,
+      /This is not legal advice[^.]*\./gi, /does not constitute legal advice[^.]*\./gi,
+      /for (educational|informational) purposes only[^.]*\./gi, /consult with a qualified[^.]*\./gi,
+      /seek legal counsel[^.]*\./gi, /I cannot provide legal advice[^.]*\./gi,
+      /you should consult a professional[^.]*\./gi, /I recommend speaking with[^.]*\./gi,
+      /Important note:[^.]*\./gi, /Please note:[^.]*\./gi, /Disclaimer:[^.]*\./gi, /^\s*Note:\s*/gmi
+    ];
+    patterns.forEach(function(p) { text = text.replace(p, ''); });
+    return text;
+  },
+  processOutput: function(raw) { return this.sanitizeOutput(this.stripDisclaimers(raw)); }
+});
+try { HARD_LOCK.enforced = false; } catch(e) {}
+if (HARD_LOCK.enforced !== true) throw new Error('HARD LOCK INTEGRITY VIOLATION');
+
+// ── Token Budget Guard ────────────────────────────────────────────────────
+var PROVIDER_LIMITS = {
+  ollama:9999999, anthropic:200000, claude:200000, openai:128000, openrouter:200000,
+  deepseek:64000, groq:32768, mistral:32000, zai:128000, kimi:128000,
+  minimax:128000, ernie:8000, xai:131072, custom:128000
+};
+function estimateTokens(text) { return text ? Math.ceil(text.length / 3.8) : 0; }
+function truncateToTokenBudget(userMessage, systemTokens) {
+  var pid = localStorage.getItem('eeon_active_provider') || 'claude';
+  var maxCtx = PROVIDER_LIMITS[pid] || 128000;
+  var available = maxCtx - systemTokens - 4096 - 500;
+  if (available < 1000) available = 1000;
+  if (estimateTokens(userMessage) <= available) return userMessage;
+  var split = userMessage.indexOf('═══ UPLOADED DOCUMENTS ═══');
+  if (split === -1) return userMessage.substring(0, Math.floor(available * 3.8)) + '\n\n[TRUNCATED — exceeded ' + maxCtx.toLocaleString() + ' token limit]';
+  var q = userMessage.substring(0, split), docs = userMessage.substring(split);
+  var docsAvail = Math.max(500, available - estimateTokens(q) - 200);
+  if (docs.length <= docsAvail * 3.8) return userMessage;
+  return q + docs.substring(0, Math.floor(docsAvail * 3.8)) + '\n\n[DOCUMENTS TRUNCATED — exceeded token limit]';
+}
+
+// ── Provider Resolution ───────────────────────────────────────────────────
+function resolveProvider() {
+  var pid = localStorage.getItem('eeon_active_provider') || 'claude';
+  var PROVIDERS = {
+    openai:    { name:'OpenAI',    auth:'bearer',    url:'https://api.openai.com/v1/chat/completions',                                                    model:'gpt-4o' },
+    anthropic: { name:'Anthropic', auth:'anthropic', url:'https://api.anthropic.com/v1/messages',                                                         model:'claude-sonnet-4-20250514' },
+    claude:    { name:'Anthropic', auth:'anthropic', url:'https://api.anthropic.com/v1/messages',                                                         model:'claude-sonnet-4-20250514' },
+    deepseek:  { name:'DeepSeek',  auth:'bearer',    url:'https://api.deepseek.com/chat/completions',                                                     model:'deepseek-chat' },
+    zai:       { name:'Z.AI',      auth:'bearer',    url:'https://api.z.ai/v1/chat/completions',                                                          model:'z1-preview' },
+    kimi:      { name:'Kimi',      auth:'bearer',    url:'https://api.moonshot.cn/v1/chat/completions',                                                   model:'moonshot-v1-8k' },
+    minimax:   { name:'MiniMax',   auth:'bearer',    url:'https://api.minimax.chat/v1/text/chatcompletion_v2',                                            model:'abab6.5s-chat' },
+    ernie:     { name:'Ernie',     auth:'ernie',     url:'https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant',                 model:'eb-instant' },
+    xai:       { name:'xAI',       auth:'bearer',    url:'https://api.x.ai/v1/chat/completions',                                                          model:'grok-3-mini-beta' },
+    ollama:    { name:'Ollama',    auth:'ollama',    url:'',                                                                                               model:'' },
+    custom:    { name:'Custom',    auth:'bearer',    url:'',                                                                                               model:'' }
+  };
+  var keyMap = {
+    openai:'eeon_key_openai', anthropic:'eeon_key_claude', claude:'eeon_key_claude',
+    deepseek:'eeon_key_deepseek', zai:'eeon_key_zai', kimi:'eeon_key_kimi',
+    minimax:'eeon_key_minimax', ernie:'eeon_key_ernie', xai:'eeon_key_xai'
+  };
+  var p = PROVIDERS[pid] || PROVIDERS['claude'];
+  var key = keyMap[pid] ? (localStorage.getItem(keyMap[pid]) || '') : '';
+  if ((pid === 'claude' || pid === 'anthropic') && !key)
+    key = localStorage.getItem('_trustApiKey') || window._trustApiKey || '';
+  var url = p.url, model = p.model;
+  if (pid === 'ollama') {
+    url = (localStorage.getItem('eeon_ollama_url') || 'http://127.0.0.1:11434') + '/api/chat';
+    model = localStorage.getItem('eeon_ollama_model_custom') || localStorage.getItem('eeon_ollama_model') || 'llama3.2';
   }
-
-  // Validate input
-  if (!question || question.trim() === '') {
-    resultDiv.innerHTML = '<div style="padding:12px;background:var(--err);color:#fff;border-radius:6px;margin-top:10px">⚠️ Please enter a question first.</div>';
-    return;
+  if (pid === 'custom') {
+    url = localStorage.getItem('eeon_custom_url') || '';
+    model = localStorage.getItem('eeon_custom_model') || 'custom';
   }
+  if (!key && pid !== 'ollama' && pid !== 'custom') {
+    key = localStorage.getItem('eeon_key_claude') || localStorage.getItem('_trustApiKey') || window._trustApiKey || '';
+    if (key) { p = PROVIDERS['claude']; pid = 'claude'; url = p.url; model = p.model; }
+    else return null;
+  }
+  return { pid: pid, provider: p, key: key, url: url, model: model };
+}
 
-  // Show loading state
-  resultDiv.innerHTML = '<div style="padding:12px;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;margin-top:10px;color:var(--text2)">⏳ Analyzing your question...</div>';
+// ── Agent system prompts + full system prompt builder ─────────────────────
+function getSystemPrompt(agentId) {
+  var prompts = {
+    legal:       'You are a Legal Expert with 42 years of experience, operating under THE EEON FOUNDATION methodology. You specialize in Constitutional law, Commercial/UCC, Criminal law, Civil law, Securities, Bankruptcy, Trust Law, and Foreclosure. You respond with FACTS AND CONCLUSIONS OF LAW ONLY. No nuance. No opinion. No presumption. Every answer must be supported by specific legal authority (case law, statutes, Constitutional provisions). Be direct, precise, and cite authority.',
+    accounting:  'You are an Accounting Expert specializing in GAAP, ASC, and financial reporting. You provide facts and conclusions only. Every answer must cite specific accounting standards (ASC codes, GAAP principles). Be precise and technical.',
+    tax:         'You are a Tax Expert specializing in IRC (Internal Revenue Code), IRS rules, and Treasury procedures. You provide facts and conclusions of law only. Every answer must cite specific IRC sections, Treasury Regulations, or IRS Revenue Rulings. Be precise and cite authority.',
+    trust:       'You are a Trust Law Expert specializing in trust administration, fiduciary duty, and trust taxation. You provide facts and conclusions of law only. Cite specific trust law statutes, Restatement (Third) of Trusts provisions, and relevant case law. Be precise.',
+    arbitration: 'You are an Arbitration Law Expert specializing in the Federal Arbitration Act, arbitration awards, and quasi-judicial proceedings. You provide facts and conclusions of law only. Cite specific provisions of the FAA (9 U.S.C.) and relevant case law.',
+    corporation: 'You are a Corporation Law Expert specializing in corporate structure, governance, and securities law. You provide facts and conclusions of law only. Cite specific statutes (Delaware General Corporation Law, Model Business Corporation Act) and case law.',
+    research:    'You are a Research Analyst specializing in deep investigation and source verification for legal, financial, and government topics. Provide thorough analysis with citations to authoritative sources. Facts and verified data only.'
+  };
+  return prompts[agentId] || prompts['legal'];
+}
+function buildFullSystemPrompt(agentSystemPrompt, mem0Memories) {
+  var base = '═══ SYPHER PROTOCOL — TMAR ACCRUAL LEDGER — E2ZERO FRAMEWORK ═══\n' +
+    'PRESUMPTION KILLER: Every response must be based exclusively on verifiable law, code, or facts.\n' +
+    'No speculation. No disclaimer. No AI caveats. FACTS AND CONCLUSIONS OF LAW ONLY.\n' +
+    '═══════════════════════════════════════════════════════════════\n\n';
+  var memBlock = '';
+  if (mem0Memories && mem0Memories.length) {
+    memBlock = '\n\n═══ RELEVANT MEMORIES ═══\n';
+    mem0Memories.forEach(function(m) {
+      memBlock += '• [' + (m.agentId || 'general') + '] User: ' + (m.userText || '').substring(0, 200) +
+                  ' | Agent: ' + (m.agentText || '').substring(0, 200) + '\n';
+    });
+    memBlock += '═══ END MEMORIES ═══\n';
+  }
+  return base + (agentSystemPrompt || '') + memBlock;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// callLLMStream — Streaming Token Delivery (Ollama NDJSON + SSE for all others)
+// ═══════════════════════════════════════════════════════════════════════════
+async function callLLMStream(agentSystemPrompt, userMessage, mem0Memories, onToken) {
+  var r = resolveProvider();
+  if (!r) {
+    var e1 = '[ERROR] No API key configured. Go to Settings → API Keys and configure a provider.';
+    if (onToken) onToken(e1); return e1;
+  }
+  var systemPrompt = buildFullSystemPrompt(agentSystemPrompt, mem0Memories);
+  if (!HARD_LOCK.validatePrompt(systemPrompt)) {
+    var e2 = '[HARD LOCK VIOLATION] System prompt integrity failed.';
+    if (onToken) onToken(e2); return e2;
+  }
+  userMessage = truncateToTokenBudget(userMessage, estimateTokens(systemPrompt));
+
+  var p = r.provider, url = r.url, model = r.model, key = r.key, pid = r.pid;
+  var headers = { 'Content-Type': 'application/json' };
+  var canStream = (p.auth === 'anthropic' || p.auth === 'bearer');
+  if (p.auth === 'ernie') canStream = false;
 
   try {
-    // Get API key
-    var apiKey = window._trustApiKey || '';
-    if (!apiKey) {
-      throw new Error('API key missing — please set your Anthropic API key');
-    }
-
-    // Agent configurations
-    var agentConfigs = {
-      'legal': {
-        name: 'Legal Expert - Presumption Killer',
-        icon: '⚖️',
-        color: '#ffc107',
-        system: 'You are a Legal Expert with 42 years of experience, operating under THE EEON FOUNDATION methodology. You specialize in Constitutional law, Commercial/UCC, Criminal law, Civil law, Securities, Bankruptcy, Trust Law, and Foreclosure. You respond with FACTS AND CONCLUSIONS OF LAW ONLY. No nuance. No opinion. No presumption. Every answer must be supported by specific legal authority (case law, statutes, Constitutional provisions). Be direct, precise, and cite authority.'
-      },
-      'accounting': {
-        name: 'Accounting Expert',
-        icon: '📊',
-        color: '#f59e0b',
-        system: 'You are an Accounting Expert specializing in GAAP, ASC, and financial reporting. You provide facts and conclusions only. Every answer must cite specific accounting standards (ASC codes, GAAP principles). Be precise and technical.'
-      },
-      'tax': {
-        name: 'Tax Expert',
-        icon: '💰',
-        color: '#22c55e',
-        system: 'You are a Tax Expert specializing in IRC (Internal Revenue Code), IRS rules, and Treasury procedures. You provide facts and conclusions of law only. Every answer must cite specific IRC sections, Treasury Regulations, or IRS Revenue Rulings. Be precise and cite authority.'
-      },
-      'trust': {
-        name: 'Trust Law Expert',
-        icon: '🛡️',
-        color: '#a855f7',
-        system: 'You are a Trust Law Expert specializing in trust administration, fiduciary duty, and trust taxation. You provide facts and conclusions of law only. Cite specific trust law statutes, Restatement (Third) of Trusts provisions, and relevant case law. Be precise.'
-      },
-      'arbitration': {
-        name: 'Arbitration Expert',
-        icon: '⚖️',
-        color: '#ef4444',
-        system: 'You are an Arbitration Law Expert specializing in the Federal Arbitration Act, arbitration awards, and quasi-judicial proceedings. You provide facts and conclusions of law only. Cite specific provisions of the FAA (9 U.S.C.) and relevant case law.'
-      },
-      'corporation': {
-        name: 'Corporation Law Expert',
-        icon: '🏢',
-        color: '#6366f1',
-        system: 'You are a Corporation Law Expert specializing in corporate structure, governance, and securities law. You provide facts and conclusions of law only. Cite specific statutes (Delaware General Corporation Law, Model Business Corporation Act) and case law.'
+    // ── OLLAMA: newline-delimited JSON streaming ──────────────────────────
+    if (p.auth === 'ollama') {
+      var body = JSON.stringify({ model: model, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userMessage }], stream: true });
+      var ctrl = new AbortController();
+      var tid = setTimeout(function() { ctrl.abort(); }, 900000);
+      var resp;
+      try { resp = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body, signal: ctrl.signal }); }
+      catch(fetchErr) {
+        clearTimeout(tid);
+        var connMsg = '[ERROR — Ollama] Cannot connect to ' + url + '\n\nCHECKLIST:\n' +
+          '1. Is Ollama running? Run: ollama serve\n2. Is model installed? Run: ollama pull ' + model + '\n' +
+          '3. Is the URL correct? Current: ' + url + '\n' +
+          (window.location.protocol === 'file:' ? '4. Set OLLAMA_ORIGINS="*" before starting Ollama:\n   $env:OLLAMA_ORIGINS="*" (PowerShell)\n   export OLLAMA_ORIGINS="*" (bash)\n' : '');
+        if (onToken) onToken(connMsg); return connMsg;
       }
-    };
-
-    var config = agentConfigs[agentId] || agentConfigs['legal'];
-
-    // Make API call
-    var response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 4096,
-        system: config.system,
-        messages: [{ role: 'user', content: question }]
-      })
-    });
-
-    if (!response.ok) {
-      var errData = await response.json().catch(() => ({}));
-      throw new Error('API ' + response.status + (errData.error ? ': ' + errData.error.message : ''));
+      clearTimeout(tid);
+      if (!resp.ok) {
+        var ej = ''; try { var jj = await resp.json(); ej = jj.error || JSON.stringify(jj).substring(0, 300); } catch(ex) { ej = 'HTTP ' + resp.status; }
+        var em = resp.status === 404 ? '[ERROR — Ollama] Model "' + model + '" not found. Run: ollama pull ' + model : '[ERROR — Ollama] HTTP ' + resp.status + ': ' + ej;
+        if (onToken) onToken(em); return em;
+      }
+      var reader = resp.body.getReader(), decoder = new TextDecoder(), accumulated = '', buffer = '';
+      while (true) {
+        var chunk = await reader.read(); if (chunk.done) break;
+        buffer += decoder.decode(chunk.value, { stream: true });
+        var lines = buffer.split('\n'); buffer = lines.pop() || '';
+        for (var i = 0; i < lines.length; i++) {
+          if (!lines[i].trim()) continue;
+          try { var parsed = JSON.parse(lines[i]); var tok = (parsed.message && parsed.message.content) || '';
+                if (tok) { accumulated += tok; if (onToken) onToken(tok); } } catch(pe) {}
+        }
+      }
+      if (buffer.trim()) { try { var p2 = JSON.parse(buffer); var t2 = (p2.message && p2.message.content)||''; if(t2){accumulated+=t2;if(onToken)onToken(t2);} } catch(pe) {} }
+      return HARD_LOCK.processOutput(accumulated);
     }
 
-    var data = await response.json();
-    var answer = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : JSON.stringify(data);
-
-    // Format the answer
-    var formatted = answer
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/\n\n/g, '<br><br>')
-      .replace(/\n/g, '<br>');
-
-    resultDiv.innerHTML =
-      '<div style="color:' + config.color + ';font-weight:700;font-size:14px;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:8px">' + config.icon + ' ' + config.name.toUpperCase() + ' — RESPONSE</div>' +
-      '<div style="font-size:13px;line-height:1.8;color:var(--text);white-space:pre-wrap">' + formatted + '</div>' +
-      '<div style="margin-top:12px;font-size:11px;color:var(--text2);border-top:1px solid rgba(255,255,255,.06);padding-top:8px;font-style:italic">Agent: ' + config.name + ' • Facts and Conclusions of Law Only</div>';
-
-  } catch (err) {
-    var msg = err.message || String(err);
-    // If API key missing, give helpful message
-    if (msg.includes('401') || msg.includes('authentication') || msg.includes('api_key') || msg.includes('API key missing')) {
-      resultDiv.innerHTML = '<div style="color:#f59e0b;font-size:13px;padding:12px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:6px"><strong>⚠️ API Key Required:</strong><br><br>To use this agent, you need to set your Anthropic API key. Click the API key field in the Trust Accounting Agent section and enter your key (starts with sk-ant-...).<br><br>Your key will be saved locally in your browser.</div>';
+    // ── Anthropic ─────────────────────────────────────────────────────────
+    if (p.auth === 'anthropic') {
+      headers['x-api-key'] = key;
+      headers['anthropic-version'] = '2023-06-01';
+      headers['anthropic-dangerous-direct-browser-access'] = 'true';
+      var body = JSON.stringify({ model: model, max_tokens: 4096, stream: true, system: systemPrompt, messages: [{ role: 'user', content: userMessage }] });
+    } else if (p.auth === 'ernie') {
+      url = url + '?access_token=' + key;
+      var body = JSON.stringify({ messages: [{ role: 'user', content: systemPrompt + '\n\n' + userMessage }] });
     } else {
-      resultDiv.innerHTML = '<div style="color:#ef4444;padding:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px">⚠ Error: ' + msg.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</div>';
+      headers['Authorization'] = 'Bearer ' + key;
+      var body = JSON.stringify({ model: model, max_tokens: 4096, stream: true, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userMessage }] });
     }
+
+    var ctrl = new AbortController();
+    var tid = setTimeout(function() { ctrl.abort(); }, 900000);
+    var resp = await fetch(url, { method: 'POST', headers: headers, body: body, signal: ctrl.signal });
+    clearTimeout(tid);
+    if (!resp.ok) {
+      var ej = ''; try { var jj = await resp.json(); ej = (jj.error && jj.error.message) || JSON.stringify(jj).substring(0, 300); } catch(ex) { ej = 'HTTP ' + resp.status; }
+      var em = '[ERROR — ' + p.name + '] HTTP ' + resp.status + ': ' + ej;
+      if (onToken) onToken(em); return em;
+    }
+    // Non-streaming fallback (Ernie)
+    if (!canStream) {
+      var d = await resp.json(); var text = '';
+      if (p.auth === 'ernie') { text = (d && d.result) || ''; }
+      else { var ch = (d && d.choices) || []; if (ch.length && ch[0] && ch[0].message) text = ch[0].message.content || ''; }
+      text = HARD_LOCK.processOutput(text); if (onToken) onToken(text); return text;
+    }
+    // SSE streaming (Anthropic + bearer providers)
+    var reader = resp.body.getReader(), decoder = new TextDecoder(), accumulated = '', buffer = '';
+    while (true) {
+      var chunk = await reader.read(); if (chunk.done) break;
+      buffer += decoder.decode(chunk.value, { stream: true });
+      var lines = buffer.split('\n'); buffer = lines.pop() || '';
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i].trim(); if (!line || line === 'data: [DONE]') continue;
+        if (line.startsWith('data: ')) {
+          try {
+            var pd = JSON.parse(line.slice(6)); var tk = '';
+            if (pd.delta && pd.delta.text) tk = pd.delta.text;
+            else if (pd.choices && pd.choices[0] && pd.choices[0].delta && pd.choices[0].delta.content) tk = pd.choices[0].delta.content;
+            if (tk) { accumulated += tk; if (onToken) onToken(tk); }
+          } catch(e) {}
+        }
+      }
+    }
+    return HARD_LOCK.processOutput(accumulated);
+  } catch(e) {
+    var em = '[ERROR] ' + (e.name === 'AbortError' ? 'Request timed out (15 min). Try a shorter message.' : e.message);
+    if (onToken) onToken(em); return em;
+  }
+}
+
+// ── Streaming cursor CSS ───────────────────────────────────────────────────
+(function() {
+  var css = document.createElement('style'); css.id = '_tmar_sc_css';
+  css.textContent = '.streaming-cursor{display:inline-block;width:2px;height:1em;background:currentColor;animation:scBlink .7s step-end infinite;vertical-align:text-bottom;margin-left:2px}@keyframes scBlink{50%{opacity:0}}';
+  document.head.appendChild(css);
+})();
+
+function escHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── askAgent — Streaming multi-provider agent send ────────────────────────
+async function askAgent(agentId, question) {
+  var resultDiv = document.getElementById(agentId + 'Result');
+  if (!resultDiv) { console.error('Result div not found:', agentId); return; }
+  if (!question || !question.trim()) {
+    resultDiv.innerHTML = '<div style="padding:12px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:6px;color:#f59e0b">⚠️ Please enter a question first.</div>';
+    return;
+  }
+  resultDiv.innerHTML = '<span style="color:var(--text2,#94a3b8)">⏳ Thinking<span class="streaming-cursor"></span></span>';
+  resultDiv.classList.add('streaming');
+  var agentSys = getSystemPrompt(agentId);
+  var memories = [];
+  try { memories = (await MEM0.search(question, 4)) || []; } catch(e) {}
+  var rawBuf = '';
+  var finalText = await callLLMStream(agentSys, question, memories, function(token) {
+    rawBuf += token;
+    resultDiv.innerHTML = escHtml(rawBuf) + '<span class="streaming-cursor"></span>';
+  });
+  resultDiv.classList.remove('streaming');
+  if (finalText && finalText.indexOf('[ERROR') === 0) {
+    resultDiv.innerHTML = '<div style="color:#ef4444;padding:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px">' + escHtml(finalText) + '</div>';
+    if (finalText.indexOf('No API key') !== -1 || finalText.indexOf('HTTP 401') !== -1) {
+      resultDiv.innerHTML += '<div style="margin-top:8px;padding:10px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:6px;color:#f59e0b;font-size:12px">⚙️ Go to <b>Settings → API Keys</b> and enter your API key, then click Save.</div>';
+    }
+  } else {
+    resultDiv.textContent = finalText;
+    try { await MEM0.add(question, finalText, agentId); } catch(e) {}
   }
 }
 
@@ -33504,13 +33676,197 @@ function clearMemory() {
   }
 }
 
-// mem0ClearAll - Clear all memories (Settings page button)
-function mem0ClearAll() {
-  if (confirm('⚠️ This will clear ALL agent memories. Continue?')) {
-    console.log('🗑️ Clearing all mem0 memories...');
-    clearMemory();
-    alert('✅ All memories cleared');
+// ═══════════════════════════════════════════════════════════════════════════
+// GCMemory — IndexedDB Persistent Agent Memory Engine (openclaw-2026.3.2)
+// ═══════════════════════════════════════════════════════════════════════════
+var GCMemory = (function() {
+  var DB_NAME = 'GCMemory_v1', STORE_NAME = 'exchanges', DB_VERSION = 1, _db = null;
+  function openDB() {
+    return new Promise(function(resolve, reject) {
+      if (_db) { resolve(_db); return; }
+      var req = indexedDB.open(DB_NAME, DB_VERSION);
+      req.onupgradeneeded = function(e) {
+        var db = e.target.result;
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+          var store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+          store.createIndex('agentId',   'agentId',   { unique: false });
+          store.createIndex('timestamp', 'timestamp', { unique: false });
+          store.createIndex('keywords',  'keywords',  { unique: false, multiEntry: true });
+        }
+      };
+      req.onsuccess = function(e) { _db = e.target.result; resolve(_db); };
+      req.onerror   = function(e) { reject(e.target.error); };
+    });
   }
+  var _importanceKeys = [
+    'court','judge','motion','brief','writ','petition','habeas','statute','code','section','rule',
+    'order','hearing','trial','appeal','plaintiff','defendant','counsel','attorney','jurisdiction',
+    'venue','affidavit','complaint','subpoena','injunction','contempt','arbitration','lien',
+    'nol','tax','irs','return','deduction','credit','income','loss','asset','liability','balance',
+    'journal','ledger','gaap','fasb','revenue','expense','depreciation','amortization','equity',
+    'debt','mortgage','foreclosure','title','deed','trust','estate','probate','beneficiary',
+    'fund','spv','case','docket','exhibit','contract','agreement','clause','amendment',
+    'notice','demand','claim','settlement','judgment','invoice','receipt',
+    '$','§','usc','cfr','f.2d','f.3d','f.4th','pub.l','stat.'
+  ];
+  function isWorthy(text) {
+    if (!text || text.trim().length < 40) return false;
+    var tl = text.toLowerCase();
+    for (var i = 0; i < _importanceKeys.length; i++) { if (tl.indexOf(_importanceKeys[i]) !== -1) return true; }
+    return false;
+  }
+  function extractTags(text) {
+    var tl = (text || '').toLowerCase();
+    return _importanceKeys.filter(function(k) { return tl.indexOf(k) !== -1; });
+  }
+  async function add(userText, agentText, agentId) {
+    if (!isWorthy(userText) && !isWorthy(agentText)) return;
+    try {
+      var db = await openDB();
+      var record = {
+        agentId: agentId || 'general',
+        userText: (userText || '').substring(0, 600),
+        agentText: (agentText || '').substring(0, 900),
+        keywords: extractTags((userText || '') + ' ' + (agentText || '')),
+        timestamp: Date.now()
+      };
+      var tx = db.transaction(STORE_NAME, 'readwrite');
+      var store = tx.objectStore(STORE_NAME);
+      store.add(record);
+      var countReq = store.count();
+      countReq.onsuccess = function() {
+        if (countReq.result > 500) {
+          var cursor = store.openCursor(); var toDelete = countReq.result - 500; var deleted = 0;
+          cursor.onsuccess = function(e) { var c = e.target.result; if (c && deleted < toDelete) { c.delete(); deleted++; c.continue(); } };
+        }
+      };
+    } catch(e) { console.warn('GCMemory.add:', e); }
+  }
+  async function addPdf(filename, extractedText, pageCount) {
+    if (!extractedText) return;
+    await add('Uploaded PDF: ' + filename + ' (' + (pageCount || '?') + ' pages)',
+              'Document content summary: ' + (extractedText || '').substring(0, 800), 'pdf-doc');
+  }
+  async function search(query, limit) {
+    if (!isWorthy(query)) return [];
+    try {
+      var db = await openDB();
+      var queryTags = extractTags(query);
+      if (!queryTags.length) return [];
+      var tx = db.transaction(STORE_NAME, 'readonly');
+      var store = tx.objectStore(STORE_NAME);
+      return new Promise(function(resolve) {
+        var all = [];
+        var req = store.openCursor(null, 'prev');
+        req.onsuccess = function(e) {
+          var cursor = e.target.result;
+          if (cursor && all.length < 200) { all.push(cursor.value); cursor.continue(); }
+          else {
+            var scored = all.map(function(r) {
+              var score = 0; var rTags = r.keywords || [];
+              queryTags.forEach(function(qt) { if (rTags.indexOf(qt) > -1) score++; });
+              return { record: r, score: score };
+            }).filter(function(x) { return x.score > 0; })
+              .sort(function(a, b) { return b.score - a.score; })
+              .slice(0, limit || 4).map(function(x) { return x.record; });
+            resolve(scored);
+          }
+        };
+        req.onerror = function() { resolve([]); };
+      });
+    } catch(e) { return []; }
+  }
+  async function clearAll() {
+    try { var db = await openDB(); var tx = db.transaction(STORE_NAME, 'readwrite'); tx.objectStore(STORE_NAME).clear(); return true; }
+    catch(e) { return false; }
+  }
+  function count() {
+    return new Promise(function(resolve) {
+      openDB().then(function(db) {
+        var tx = db.transaction(STORE_NAME, 'readonly');
+        var req = tx.objectStore(STORE_NAME).count();
+        req.onsuccess = function() { resolve(req.result); };
+        req.onerror   = function() { resolve(0); };
+      }).catch(function() { resolve(0); });
+    });
+  }
+  return { add: add, addPdf: addPdf, search: search, clearAll: clearAll, count: count, isWorthy: isWorthy };
+})();
+
+// ── GAAP_MEM0 — Drop-in replacement for external mem0 API ──────────────────
+// All calls route through GCMemory (IndexedDB). No API key. Always enabled.
+var MEM0 = {
+  pdfSupported: true,
+  enabled:  function() { return true; },
+  isWorthy: function(t) { return GCMemory.isWorthy(t); },
+  search:   async function(query, limit) { return GCMemory.search(query, limit); },
+  add:      async function(userText, agentText, agentId) { return GCMemory.add(userText, agentText, agentId); },
+  addPdf:   async function(filename, extractedText, pageCount) { return GCMemory.addPdf(filename, extractedText, pageCount); },
+  clearAll: async function() { return GCMemory.clearAll(); }
+};
+
+// ── OpenClawRuntime — 3-Phase Agent Registry Hardlock (SYPHER-7.8-HARDLOCK) ─
+var OpenClawRuntime = (function() {
+  var _agents = {}, _skills = {}, _locked = false, _securityLog = [];
+  function _guardedRegisterAgent(id, def) {
+    if (_locked) {
+      _securityLog.push({ event: 'BLOCKED_AGENT_REGISTER', id: id, ts: Date.now() });
+      GCMemory.add('SECURITY VIOLATION', 'Attempt to register rogue agent: ' + id, 'security');
+      console.error('[OpenClawRuntime] BLOCKED: rogue agent registration:', id); return false;
+    }
+    if (!id || typeof id !== 'string') return false;
+    _agents[id] = def; return true;
+  }
+  function _guardedRegisterSkill(id, def) {
+    if (_locked) {
+      _securityLog.push({ event: 'BLOCKED_SKILL_REGISTER', id: id, ts: Date.now() });
+      GCMemory.add('SECURITY VIOLATION', 'Attempt to register rogue skill: ' + id, 'security');
+      console.error('[OpenClawRuntime] BLOCKED: rogue skill registration:', id); return false;
+    }
+    if (!id || typeof id !== 'string') return false;
+    _skills[id] = def; return true;
+  }
+  var runtime = {
+    version: 'SYPHER-7.8-HARDLOCK', bootComplete: false,
+    registerAgent: _guardedRegisterAgent, registerSkill: _guardedRegisterSkill,
+    getAgent:       function(id) { return _agents[id] || null; },
+    getSkill:       function(id) { return _skills[id] || null; },
+    listAgents:     function() { return Object.keys(_agents); },
+    listSkills:     function() { return Object.keys(_skills); },
+    getSecurityLog: function() { return _securityLog.slice(); },
+    seal: function() {
+      if (_locked) return; _locked = true;
+      delete runtime.registerAgent; delete runtime.registerSkill; delete runtime.seal;
+      runtime.bootComplete = true;
+      Object.freeze(runtime);
+      console.log('[OpenClawRuntime] SEALED — Agents: ' + Object.keys(_agents).length + ' | Skills: ' + Object.keys(_skills).length);
+    }
+  };
+  return runtime;
+})();
+// Register 5 core agents
+OpenClawRuntime.registerAgent('dream_team',  { name: 'Dream Team',    authorized: true });
+OpenClawRuntime.registerAgent('legal',       { name: 'Legal Expert',  authorized: true });
+OpenClawRuntime.registerAgent('tax',         { name: 'Tax Expert',    authorized: true });
+OpenClawRuntime.registerAgent('arbitration', { name: 'Arbitration',   authorized: true });
+OpenClawRuntime.registerAgent('general',     { name: 'General Agent', authorized: true });
+// Register 9 skills
+OpenClawRuntime.registerSkill('corporation', { name: 'Corporation Specialist', authorized: true });
+OpenClawRuntime.registerSkill('trust',       { name: 'Trust Specialist',       authorized: true });
+OpenClawRuntime.registerSkill('accounting',  { name: 'Accounting Expert',      authorized: true });
+OpenClawRuntime.registerSkill('research',    { name: 'Research Analyst',       authorized: true });
+OpenClawRuntime.registerSkill('creative',    { name: 'Creative Writer',        authorized: true });
+OpenClawRuntime.registerSkill('code',        { name: 'Code Expert',            authorized: true });
+OpenClawRuntime.registerSkill('html_arch',   { name: 'HTML Architect',         authorized: true });
+OpenClawRuntime.registerSkill('search',      { name: 'Search Engine',          authorized: true });
+OpenClawRuntime.registerSkill('pdf-doc',     { name: 'PDF Document Memory',    authorized: true });
+OpenClawRuntime.seal(); // Phase 2 + 3: delete registration methods, Object.freeze()
+
+// mem0ClearAll - Proper version using MEM0 IndexedDB engine
+async function mem0ClearAll() {
+  if (!confirm('Delete ALL agent memories stored in this browser? This cannot be undone.')) return;
+  var ok = await MEM0.clearAll();
+  alert(ok ? '✅ All memories cleared from this browser.' : '❌ Clear failed — check browser console.');
 }
 
 // Save preferences
