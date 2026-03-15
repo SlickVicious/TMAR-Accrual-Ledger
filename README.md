@@ -1,108 +1,386 @@
-# TMAR Project — Trust Master Account Register
-## Location: `Legal Document Generator/06 Toolkit/Dev/SS Master Acct Reg/TMAR/`
+# TMAR - Trust Master Account Register
 
-**Google Sheet:** https://docs.google.com/spreadsheets/d/1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ/
-
-**Last Updated:** 2026-02-26
+**Complete Interactive Web Application + Google Sheets Integration**
+**Version:** 3.0
+**Last Updated:** March 14, 2026
+**Status:** ✅ Production Ready — GAAPCLAW Full Parity
 
 ---
 
-## Project Structure
+## 🌐 Live Application
+
+### Public URL (Auto-Updates)
+**GitHub Pages:** https://slickvicious.github.io/TMAR-Accrual-Ledger/TMAR-Accrual-Ledger.html
+
+Access from anywhere:
+- ✅ Mac Desktop/Laptop
+- ✅ Windows PC
+- ✅ Mobile/Tablet
+- ✅ Any modern web browser
+
+### Local Development
+```bash
+# Start local server
+npx http-server -p 8080 -o
+
+# Access at
+http://localhost:8080/TMAR-Accrual-Ledger.html
+```
+
+---
+
+## 📊 Project Overview
+
+TMAR is a comprehensive financial management system combining:
+
+1. **Interactive Web Application** - Full-featured HTML/JavaScript GUI
+2. **Google Apps Script Backend** - Automated Google Sheets integration
+3. **AI Agent Integration** - 6 specialized Claude AI agents
+4. **Secure Vault System** - Encrypted document storage
+5. **Research & Analysis Tools** - Legal, tax, and accounting research
+
+---
+
+## 🎯 Core Features
+
+### Web Application (TMAR-Accrual-Ledger.html)
+
+**26 Pages/Screens:**
+- Dashboard
+- Trust Agent (6 AI Agents: Legal, Tax, Accounting, Trust, Arbitration, Corporation)
+- Research HUB (3 depth modes: Standard, Deep, Legal with Citations)
+- Document Creator
+- Calendar & Scheduling
+- Encrypted Vault
+- API Keys Management
+- Sync Center
+- Bill of Exchange Generator
+- GAAP Interface
+- Settings & Preferences
+
+**246 Total Functions:**
+- ✅ 100% Implementation Coverage
+- ✅ All interactive elements functional
+- ✅ Comprehensive error handling
+- ✅ Console logging for debugging
+
+**17 Custom Functions (All Documented):**
+- Chat & Communication (3)
+- Memory & Storage (3)
+- Settings & Preferences (3)
+- Voice & Speech (4)
+- Utilities (4)
+
+See [Function_Reference_Cards/](./Function_Reference_Cards/) for complete documentation.
+
+### Google Sheets Integration
+
+**Apps Script Project:**
+https://docs.google.com/spreadsheets/d/1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ
+
+**Features:**
+- Master Account Register
+- Cash Flow Analysis (CapOne, BOA, PNC, Fidelity)
+- Bill of Exchange Management
+- Duplicate Detection & Analysis
+- GAAP Compliance Interface
+- Sync Center for data exchange
+
+See [GSheet/](./GSheet/) for Google Sheets documentation.
+
+---
+
+## 🚀 Quick Start
+
+### 1. Access the Web Application
+
+**Option A - GitHub Pages (Recommended):**
+```
+https://slickvicious.github.io/TMAR-Accrual-Ledger/TMAR-Accrual-Ledger.html
+```
+
+**Option B - Local Development:**
+```bash
+cd "/path/to/TMAR"
+npx http-server -p 8080 -o
+```
+
+### 2. Configure API Keys
+
+1. Navigate to **Settings > API Keys**
+2. Add your Anthropic Claude API key
+3. Click **Save** (green indicators appear)
+4. Click **Test** to verify connection
+
+### 3. Start Using Agents
+
+1. Go to **Trust Agent** page
+2. Select an agent (Legal, Tax, Accounting, etc.)
+3. Type your question
+4. Click **⚡ Analyze**
+
+---
+
+## 📂 Project Structure
 
 ```
 TMAR/
-├── README.md                          ← This file
-├── gas/                               ← Google Apps Script files
-│   ├── TMAR_CreditReport_Import.js    ← Syrina credit report → MR + Acct Ledger
-│   └── apply_master_register_formatting.gs  ← Tab colors, dropdowns, conditional fmt
-├── data/                              ← Source data files
-│   ├── Wimberly_Financial_Workbook_2025.xlsx
-│   ├── Syrina_Credit_Report_Sheets.xlsx
-│   └── Wimberly_Master_Register_2025.xlsx  (generated)
-└── docs/                              ← Documentation & context
-    └── TMAR_Context.md
+├── TMAR-Accrual-Ledger.html          # Main web application
+├── TMAR_Audit_Dashboard.html         # Interactive audit dashboard
+├── AUDIT_SUMMARY.md                  # Audit results and coverage
+├── audit_report.json                 # Full audit data
+│
+├── Function_Reference_Cards/         # Complete function documentation
+│   ├── README.md                     # Quick reference index
+│   ├── COMPLETE_IMPLEMENTATION_GUIDE.md
+│   ├── COMPLETION_STATUS.md
+│   ├── 01_sendQuick.md               # Individual function cards
+│   ├── 02_eeonSendChat.md
+│   └── ... (17 total reference cards)
+│
+├── gas/                              # Google Apps Script files
+│   ├── Code.gs                       # Main GAS code
+│   ├── FormattingComplement.gs       # Formatting utilities
+│   ├── SyncCenter.gs                 # Data synchronization
+│   ├── DocumentGenerator.html        # Document generation UI
+│   ├── GAAPInterface.html            # GAAP compliance UI
+│   ├── README.md                     # GAS documentation
+│   └── ... (22 total GAS files)
+│
+├── GSheet/                           # Google Sheets documentation
+│   ├── README.md                     # GSheet overview
+│   ├── INTEGRATION_COMPLETE.md       # Integration guide
+│   ├── DEPLOYMENT_GUIDE.md
+│   └── ... (17 documentation files)
+│
+├── docs/                             # Additional documentation
+│   ├── Bank_Statement_Extraction_Guide.md
+│   ├── Extractor_API_Reference.md
+│   ├── LLM Provider Status.md
+│   └── plans/                        # Development plans
+│
+└── ClaudeSkills/                     # Claude Code skills
+    └── LDG Vault Skills Suite — Index.md
 ```
 
-## What Is TMAR?
+---
 
-The **Trust Master Account Register** is a Google Sheets workbook that serves as the central ledger for the Wimberly household's financial administration under the **A Provident Private Creditor Revocable Living Trust** (EIN: 41-6809588).
+## 🔧 Development Workflow
 
-### Tab Structure (Unified 35-col schema)
+### Git Workflow
 
-**Group A — Living Dashboard (7 tabs):**
-- Executive Dashboard
-- Transaction Ledger
-- W-2 & Income Detail
-- BOA Cash Flow
-- Household Obligations
-- Subscriptions & Services
-- Tax Strategy
+**Mac → GitHub:**
+```bash
+git add .
+git commit -m "Your changes"
+git push origin master
+```
 
-**Group B — Estate Ledger (7 tabs):**
-- Acct Ledger (EIN cross-reference — same data as Master Register, different headers)
-- Master Register (35 columns, primary account tracker)
-- Trust Ledger
-- 1099 Filing Chain
-- Forms & Authority
-- Proof of Mailing
-- Document Inventory
+**PC → Sync from GitHub:**
+```bash
+git pull origin master
+# Make changes
+git add .
+git commit -m "PC updates"
+git push origin master
+```
 
-**Hidden:** `_Validation` (dropdown lists), `_Settings`, `_YearData`
+### Google Apps Script Deployment
 
-### Master Register 35-Column Schema
+```bash
+# Navigate to gas/ directory
+cd gas/
 
-| Col | Field | Col | Field |
-|-----|-------|-----|-------|
-| A | Row ID (MR-XXX) | S | Next Payment Due |
-| B | Date Added | T | Primary User |
-| C | Provider/Creditor | U | Secondary User |
-| D | Mailing Address | V | Account Purpose |
-| E | Provider EIN | W | Document Location |
-| F | Account Number | X | Last Verified |
-| G | Account Type | Y | Linked MR Account |
-| H | Account Subtype | Z | Trust Assignment |
-| I | Account Agent | AA | Tax Relevance |
-| J | Agent Address | AB | Tax Form |
-| K | Status | AC | Deduction Type |
-| L | Opened Date | AD | Credit Report Status |
-| M | Closed Date | AE | Removal Date |
-| N | Current Balance | AF | Dispute Status |
-| O | High Balance | AG | Notes |
-| P | Monthly Payment | AH | Source |
-| Q | APR/Rate | AI | Discovery Status |
-| R | Billing Frequency | | |
+# Push to Google Apps Script
+clasp push
 
-## Key Insight: Acct Ledger = Master Register
+# Open in Apps Script editor
+clasp open
+```
 
-The **Acct Ledger** and **Master Register** tabs track the same accounts — Acct Ledger is an EIN-focused view with fewer columns, while Master Register is the full 35-column version. The import script populates both.
+---
 
-## Apps Script Functions
+## 📖 Documentation
 
-### `importSyrinaCreditReportAccounts()`
-Adds 24 accounts from Syrina's TransUnion report to both sheets:
-- 5 charge-offs (Capital One, Continental Finance, First Premier, Launch Servicing, Merrick Bank)
-- 2 collections (LVNV × 2)
-- 7 Nelnet student loans (individual)
-- 1 OneMain Financial (active)
-- 9 closed/paid accounts
+### Quick References
+- [Function Reference Cards](./Function_Reference_Cards/README.md) - All 17 custom functions
+- [Audit Dashboard](./TMAR_Audit_Dashboard.html) - Interactive coverage report
+- [Audit Summary](./AUDIT_SUMMARY.md) - Coverage statistics
 
-### `linkMRIdsToAcctLedger()`
-Cross-references MR-XXX IDs from Master Register into Acct Ledger after both are populated.
+### Implementation Guides
+- [Complete Implementation Guide](./Function_Reference_Cards/COMPLETE_IMPLEMENTATION_GUIDE.md)
+- [Completion Status](./Function_Reference_Cards/COMPLETION_STATUS.md)
+- [Development Plan](./Function_Reference_Cards/TMAR_Function_Development_Plan.md)
 
-### `applyAllFormatting()`
-Applies Google-native features: tab colors, data validation dropdowns, conditional formatting, filters, header protection.
+### Google Sheets Integration
+- [GSheet README](./GSheet/README.md)
+- [Integration Complete](./GSheet/INTEGRATION_COMPLETE.md)
+- [Deployment Guide](./GSheet/DEPLOYMENT_GUIDE.md)
 
-## Data Sources
+### Specialized Guides
+- [Bank Statement Extraction](./docs/Bank_Statement_Extraction_Guide.md)
+- [Extractor API Reference](./docs/Extractor_API_Reference.md)
+- [LLM Provider Status](./docs/LLM%20Provider%20Status.md)
 
-| Source | Content |
-|--------|---------|
-| `Wimberly_Financial_Workbook_2025.xlsx` | W-2s, BOA cash flow, transfers, income, 1095-C, subscriptions, tax strategy |
-| `Syrina_Credit_Report_Sheets.xlsx` | TransUnion credit summary, debt strategy, student loans |
-| TMAR Google Sheet | Live working register with all tabs |
+---
 
-## Deployment Workflow
+## ✅ Implementation Status
 
-1. Edit `.js` files in `gas/` directory
-2. Open TMAR Google Sheet → Extensions → Apps Script
-3. Paste updated script → Save → Run target function
-4. *Or* use `clasp push` if clasp is configured (see `.clasp.json`)
+### Web Application
+- **Functions:** 246/246 (100%)
+- **Custom Functions:** 17/17 (100%)
+- **Pages/Screens:** 26/26 (100%)
+- **Reference Cards:** 17/17 (100%)
+- **Testing:** ✅ All buttons functional
+
+### Google Apps Script
+- **Main Code:** Code.gs (137 KB)
+- **Modules:** 22 files
+- **Integration:** ✅ Complete
+- **Deployment:** ✅ Live on Google Sheets
+
+### AI Agents (6 Total)
+1. ⚖️ Legal Expert - Presumption Killer
+2. 💰 Tax Strategist - IRC Master
+3. 📊 Accounting Expert - GAAP/FASB
+4. 🏛️ Trust Administrator - Estate Planning
+5. ⚔️ Arbitration Expert - Dispute Resolution
+6. 🏢 Corporation Specialist - Business Formation
+
+**API Integration:** Anthropic Claude (claude-sonnet-4-20250514)
+
+---
+
+## 🔐 Security Features
+
+### Vault System
+- **Encryption:** AES-256-GCM
+- **Key Derivation:** PBKDF2 (100,000 iterations)
+- **Password Hashing:** SHA-256
+- **Auto-Lock:** 15-minute timer
+- **Failed Attempts:** 5 max before lockout
+
+### API Keys
+- **Storage:** Browser localStorage (encrypted at rest)
+- **Transmission:** HTTPS only
+- **Validation:** Connection testing before save
+- **Indicators:** Visual key status dots
+
+### Data Privacy
+- **Local First:** All data stored in browser localStorage
+- **No Cloud Sync:** Unless explicitly configured
+- **No Tracking:** No analytics or telemetry
+- **Offline Capable:** Works without internet (except AI features)
+
+---
+
+## 🎨 Tech Stack
+
+### Frontend
+- **HTML5** - Semantic markup
+- **CSS3** - Bootstrap 5 + Custom styles
+- **JavaScript** - Vanilla JS (ES6+)
+- **LocalStorage** - Client-side persistence
+- **Web Crypto API** - Encryption
+- **Web Speech API** - Voice features
+
+### Backend
+- **Google Apps Script** - Server-side automation
+- **Google Sheets API** - Data storage
+- **Anthropic Claude API** - AI agents
+
+### Deployment
+- **GitHub Pages** - Static hosting
+- **Git** - Version control
+- **clasp** - Google Apps Script CLI
+
+---
+
+## 📈 Version History
+
+### v3.0 (March 14, 2026) — GAAPCLAW Full Parity + Engine Ports
+- ✅ **GCMemory IndexedDB engine** — Full persistent agent memory (replaces localStorage stub)
+  - `add()`, `addPdf()`, `search()` with keyword-overlap scoring, `clearAll()`, `count()`
+  - 60+ legal/financial importance keywords; auto-prune at 500 records
+- ✅ **MEM0 (GAAP_MEM0)** — Drop-in proxy routing all calls to GCMemory; always enabled, no key gate
+- ✅ **OpenClawRuntime SYPHER-7.8-HARDLOCK** — 3-phase boot: guarded registration → delete methods → `Object.freeze()`; 5 agents + 9 skills sealed; rogue injection blocked + logged
+- ✅ **HARD_LOCK enforcement layer** — Frozen object: sanitizeOutput (strips markdown), validatePrompt, stripDisclaimers, processOutput; integrity self-test at load
+- ✅ **Streaming architecture (callLLMStream v7.1)** — Multi-provider SSE/NDJSON streaming: Ollama, Anthropic, OpenAI-compatible bearer, Ernie non-streaming fallback; 15-min AbortController
+- ✅ **Token Budget Guard** — PROVIDER_LIMITS for 14 providers; `truncateToTokenBudget()` preserves questions, truncates docs first
+- ✅ **resolveProvider()** — Reads `eeon_*` localStorage keys; cascading fallback to Claude
+- ✅ **askAgent() refactored** — Full streaming with live cursor, MEM0 context injection, IndexedDB save on completion
+- ✅ **API Scout v2** — 22 curated APIs, search/category/auth filters, ⚡ Test All Live with per-card status dots, ⬇ Integrate All
+- ✅ **`#gc-v3-bar` footer status bar** — Fixed bottom: Rev/Exp/Net/Assets/Tax/BALANCED/entries/Mem + 5 panel buttons
+- ✅ **AP pattern** — All 7 specialist pages rebuilt with left sidebar + 6-button action bar (Speak/Listen/Print/PDF/Word/Share) + localStorage conversation persistence
+- ✅ **AUTONOMOUS sidebar section** — Task Planner, API Integrations, Code Builder, API Scout properly separated from SYSTEM
+- ✅ **uploadIRSTemplate()** — PDF template upload with FileReader + localStorage
+- ✅ **Settings expanded** — Appearance tab, LLM provider grid buttons, GCMemory block, OpenClaw + Apify sections
+
+### v2.0 (March 9, 2026)
+- ✅ Implemented all 17 custom functions
+- ✅ Created 17 reference cards
+- ✅ Complete audit system (246 functions)
+- ✅ Interactive audit dashboard
+- ✅ 100% function coverage
+- ✅ Documentation reorganization
+
+### v1.0 (March 8, 2026)
+- ✅ 6 AI agents with Claude API integration
+- ✅ Research HUB with 3 depth modes
+- ✅ API Keys management
+- ✅ Enhanced button styling
+- ✅ Comprehensive error handling
+
+---
+
+## 🤝 Contributing
+
+### Reporting Issues
+1. Check existing issues on GitHub
+2. Provide detailed description
+3. Include browser/environment info
+4. Add screenshots if applicable
+
+### Making Changes
+1. Fork the repository
+2. Create feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit pull request
+
+---
+
+## 📞 Support
+
+### Documentation
+- Check [Function Reference Cards](./Function_Reference_Cards/)
+- Review [Audit Dashboard](./TMAR_Audit_Dashboard.html)
+- Read implementation guides
+
+### Troubleshooting
+- Enable browser console (F12)
+- Check for error messages
+- Verify API key configuration
+- Test network connectivity
+
+---
+
+## 📝 License
+
+Copyright © 2026 TMAR Development Team
+All Rights Reserved
+
+---
+
+## 🔗 Links
+
+- **Live Application:** https://slickvicious.github.io/TMAR-Accrual-Ledger/TMAR-Accrual-Ledger.html
+- **GitHub Repository:** https://github.com/SlickVicious/TMAR-Accrual-Ledger
+- **Google Sheets:** https://docs.google.com/spreadsheets/d/1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ
+- **Audit Dashboard:** https://slickvicious.github.io/TMAR-Accrual-Ledger/TMAR_Audit_Dashboard.html
+
+---
+
+**Last Updated:** March 14, 2026
+**Status:** ✅ Production Ready — GAAPCLAW Full Parity
+**Coverage:** 100%

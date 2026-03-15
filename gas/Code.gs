@@ -50,6 +50,7 @@ function applyTabColors(ss) {
     'Transaction Ledger':       '#1B2A4A',  // Dark blue
     'W-2 & Income Detail':      '#1B2A4A',
     'BOA Cash Flow':            '#1B2A4A',
+    'PNC Cash Flow':            '#4A148C',  // Deep purple — Syrina's PNC Spend
     'Household Obligations':    '#1B2A4A',
     'Subscriptions & Services': '#1B2A4A',
     'Tax Strategy':             '#1B2A4A',
@@ -463,6 +464,7 @@ function protectHeaderRows(ss) {
     'Transaction Ledger',
     'W-2 & Income Detail',
     'BOA Cash Flow',
+    'PNC Cash Flow',
     'Household Obligations',
     'Subscriptions & Services',
     'Tax Strategy',
@@ -514,6 +516,8 @@ function onOpen() {
       .addItem('Set Active Year...', 'showYearSelector')
       .addItem('View Current Year', 'showCurrentYear')
       .addSeparator()
+      .addItem('📊 Data Completeness Diagnostic', 'showDataCompletenessDashboard')
+      .addSeparator()
       .addItem('Reset to Current Year', 'resetToDefaultYear'))
 
     .addSubMenu(ui.createMenu('Dashboard')
@@ -545,7 +549,9 @@ function onOpen() {
       .addSeparator()
       .addItem('Add Account to Master Reg...', 'showAddAccountDialog')
       .addItem('Add Obligation Entry...', 'showAddObligationDialog')
-      .addItem('Add Subscription Entry...', 'showAddSubscriptionDialog'))
+      .addItem('Add Subscription Entry...', 'showAddSubscriptionDialog')
+      .addSeparator()
+      .addItem('Import from Accrual Ledger...', 'showLedgerImportDialog'))
 
 
     .addSubMenu(ui.createMenu('Setup & Administration')
@@ -563,7 +569,16 @@ function onOpen() {
       .addItem('Refresh Data Validation', 'menuRefreshDataValidation')
       .addItem('Refresh Conditional Fmt.', 'menuRefreshConditionalFmt')
       .addItem('Refresh Filters', 'menuRefreshFilters')
-      .addItem('Refresh Header Protection', 'menuRefreshHeaderProtection'))
+      .addItem('Refresh Header Protection', 'menuRefreshHeaderProtection')
+      .addSeparator()
+      .addItem('⚡ Apply All Enhancements', 'applyAllEnhancements')
+      .addItem('Add Legend Blocks', 'menuApplyLegendBlocks')
+      .addItem('Add Attribution Stamps', 'menuApplyFinePrint')
+      .addItem('Apply Party Row Colors', 'menuApplyPartyColors')
+      .addSeparator()
+      .addItem('🩺 Run Health Audit', 'runFormattingHealthAudit')
+      .addItem('🔧 Fix All Issues', 'fixAllFormattingIssues')
+      .addItem('🔍 Diagnose Legend Issues', 'diagnoseLegendAndAttribution'))
 
     .addSeparator()
 
@@ -1008,9 +1023,9 @@ function showYearSelector() {
     <p>Select the fiscal year:</p>
     <select id="yearSelect">${optionsHtml}</select>
     <div class="legend">
-      \\u2705 Full financial data (W-2, income, tax calcs)<br>
-      \\uD83D\\uDCC4 Documents on file (no W-2 data loaded)<br>
-      \\u26A0\\uFE0F Tax brackets only (no data or docs)
+      \u2705 Full financial data (W-2, income, tax calcs)<br>
+      \uD83D\uDCC4 Documents on file (no W-2 data loaded)<br>
+      \u26A0\uFE0F Tax brackets only (no data or docs)
     </div>
     <div>
       <button class="btn btn-primary" onclick="submitYear()">Apply</button>
@@ -1086,16 +1101,18 @@ function setActiveYear(year) {
 
   if (yearData) {
     ss.toast('Loading ' + year + ' financial data...', 'Year Settings', 3);
-    applyYearDataToSheets_(yearData, Number(year));
   } else if (docsExist && hasBrackets) {
-    ss.toast(year + ': Documents on file \u2014 updating labels and tax brackets.', 'Year Settings', 5);
+    ss.toast(year + ': Documents on file \u2014 clearing old data, updating labels and tax brackets.', 'Year Settings', 5);
   } else if (docsExist) {
-    ss.toast(year + ': Documents on file \u2014 updating labels only (no tax brackets for this year).', 'Year Settings', 5);
+    ss.toast(year + ': Documents on file \u2014 clearing old data, updating labels only.', 'Year Settings', 5);
   } else if (hasBrackets) {
-    ss.toast(year + ': Tax brackets only \u2014 updating labels and brackets.', 'Year Settings', 5);
+    ss.toast(year + ': Tax brackets only \u2014 clearing old data, updating labels and brackets.', 'Year Settings', 5);
   } else {
-    ss.toast('No data available for ' + year + '.', 'Year Settings', 5);
+    ss.toast('No data available for ' + year + ' \u2014 clearing old values.', 'Year Settings', 5);
   }
+
+  // ALWAYS apply year data — pass empty dict {} if no data so apply functions clear old values
+  applyYearDataToSheets_(yearData || {}, Number(year));
 
   // Update display labels (title text replacements)
   updateYearReferences_(String(oldYear), String(year));
@@ -1124,6 +1141,136 @@ function showCurrentYear() {
 
 function resetToDefaultYear() {
   setActiveYear(DEFAULT_YEAR_);
+}
+
+
+/**
+ * Show diagnostic dashboard for year data completeness.
+ * Displays which years have data in each category and what's missing.
+ */
+function showDataCompletenessDashboard() {
+  const yearsWithFinancialData = getYearsWithData_();
+  const yearsWithDocuments = getYearsFromDocRegistry_();
+  const yearsWithBrackets = Object.keys(TAX_BRACKETS_).map(Number);
+
+  // Get all unique years
+  const allYearsSet = new Set([
+    ...yearsWithFinancialData,
+    ...yearsWithDocuments,
+    ...yearsWithBrackets
+  ]);
+  const allYears = Array.from(allYearsSet).sort((a, b) => b - a); // descending
+
+  // Analyze data completeness for each year
+  const yearAnalysis = {};
+  for (const year of allYears) {
+    const yearData = loadYearData_(Number(year));
+    const analysis = {
+      hasW2: false,
+      hasBOA: false,
+      hasPNC: false,
+      hasHH: false,
+      hasDocs: yearsWithDocuments.indexOf(year) >= 0,
+      hasBrackets: TAX_BRACKETS_[year] !== undefined,
+      totalFields: yearData ? Object.keys(yearData).length : 0
+    };
+
+    if (yearData) {
+      // Check for W-2/tax/income data
+      analysis.hasW2 = Object.keys(yearData).some(k =>
+        k.startsWith('w2_') || k.startsWith('tax.') || k.startsWith('income.')
+      );
+
+      // Check for BOA cash flow data (sentinel: boa.jan.deposits)
+      analysis.hasBOA = yearData['boa.jan.deposits'] !== undefined &&
+                        yearData['boa.jan.deposits'] !== '';
+
+      // Check for PNC cash flow data (sentinel: pnc.jan.deposits)
+      analysis.hasPNC = yearData['pnc.jan.deposits'] !== undefined &&
+                        yearData['pnc.jan.deposits'] !== '';
+
+      // Check for Household Obligations data
+      analysis.hasHH = Object.keys(yearData).some(k => k.startsWith('hh.'));
+    }
+
+    yearAnalysis[year] = analysis;
+  }
+
+  // Build HTML
+  let html = `
+    <style>
+      body { font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; color: #333; }
+      h2 { color: #1B2A4A; font-size: 18px; margin-bottom: 8px; }
+      .subtitle { color: #666; font-size: 12px; margin-bottom: 20px; }
+      table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+      th { background: #1B2A4A; color: white; padding: 10px 8px; text-align: left;
+           font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+      td { padding: 8px; border-bottom: 1px solid #E0E0E0; font-size: 13px; }
+      .year-col { font-weight: bold; color: #1B2A4A; width: 60px; }
+      .status-col { text-align: center; font-size: 16px; width: 50px; }
+      .total-col { text-align: right; color: #666; font-size: 12px; width: 70px; }
+      .legend { margin-top: 20px; padding: 12px; background: #F5F5F5; border-radius: 4px; font-size: 12px; }
+      .legend-item { margin: 4px 0; }
+      .missing { background: #FFEBEE; }
+      .partial { background: #FFF8E1; }
+      .complete { background: #E8F5E9; }
+      .footer { margin-top: 16px; font-size: 11px; color: #999; text-align: center; }
+    </style>
+    <h2>Year Data Completeness Diagnostic</h2>
+    <div class="subtitle">Shows which financial data exists for each tax year</div>
+    <table>
+      <tr>
+        <th>Year</th>
+        <th>W-2 / Tax</th>
+        <th>BOA Cash</th>
+        <th>PNC Cash</th>
+        <th>H/H Oblig.</th>
+        <th>Documents</th>
+        <th>Brackets</th>
+        <th>Total Fields</th>
+      </tr>
+  `;
+
+  for (const year of allYears) {
+    const a = yearAnalysis[year];
+    const rowClass = a.totalFields === 0 ? 'missing' :
+                     (a.hasW2 && a.hasBOA && a.hasPNC && a.hasHH) ? 'complete' : 'partial';
+
+    html += `
+      <tr class="${rowClass}">
+        <td class="year-col">${year}</td>
+        <td class="status-col">${a.hasW2 ? '✓' : '—'}</td>
+        <td class="status-col">${a.hasBOA ? '✓' : '—'}</td>
+        <td class="status-col">${a.hasPNC ? '✓' : '—'}</td>
+        <td class="status-col">${a.hasHH ? '✓' : '—'}</td>
+        <td class="status-col">${a.hasDocs ? '📄' : '—'}</td>
+        <td class="status-col">${a.hasBrackets ? '✓' : '—'}</td>
+        <td class="total-col">${a.totalFields} fields</td>
+      </tr>
+    `;
+  }
+
+  html += `
+    </table>
+    <div class="legend">
+      <div class="legend-item"><b>Legend:</b></div>
+      <div class="legend-item">✓ = Data exists | 📄 = Documents on file | — = Missing</div>
+      <div class="legend-item" style="margin-top: 8px;"><b>Row Colors:</b></div>
+      <div class="legend-item">🟢 Green = Complete (all data categories) | 🟡 Yellow = Partial | 🔴 Red = No data</div>
+      <div class="legend-item" style="margin-top: 8px;"><b>Data Sources:</b></div>
+      <div class="legend-item">• <b>W-2/Tax:</b> W-2 wages, tax calculations, income sources</div>
+      <div class="legend-item">• <b>BOA Cash:</b> Monthly cash flow (BOA account 6198)</div>
+      <div class="legend-item">• <b>PNC Cash:</b> Monthly cash flow (PNC account 0672)</div>
+      <div class="legend-item">• <b>H/H Oblig.:</b> Household Obligations vendor data</div>
+      <div class="legend-item">• <b>Documents:</b> Tax documents in Document Registry</div>
+      <div class="legend-item">• <b>Brackets:</b> Tax bracket lookup tables</div>
+    </div>
+    <div class="footer">TMAR Tools — Data Completeness Diagnostic</div>
+  `;
+
+  const output = HtmlService.createHtmlOutput(html)
+    .setWidth(720).setHeight(550);
+  SpreadsheetApp.getUi().showModalDialog(output, 'Year Data Completeness');
 }
 
 
@@ -1171,6 +1318,15 @@ function applyYearDataToSheets_(d, year) {
 
   // ── TAX STRATEGY ──
   applyToTaxStrategy_(ss, d, year);
+
+  // ── BOA CASH FLOW ──
+  applyToBOACashFlow_(ss, d);
+
+  // ── PNC CASH FLOW ──
+  applyToPNCCashFlow_(ss, d);
+
+  // ── HOUSEHOLD OBLIGATIONS ──
+  applyToHouseholdObligations_(ss, d);
 
   Logger.log('Year data applied to sheets for year ' + year);
 }
@@ -1418,6 +1574,205 @@ function applyToTaxStrategy_(ss, d, year) {
 }
 
 
+/**
+ * Apply year-specific BOA Cash Flow data from _YearData.
+ * Writes monthly cash flow values (rows 3-14) and Zelle breakdown.
+ * Keys: boa.{month}.{field}
+ */
+function applyToBOACashFlow_(ss, d) {
+  const sheet = ss.getSheetByName('BOA Cash Flow');
+  if (!sheet) return;
+
+  // Fix account number if still showing old PNC number
+  const titleCell = sheet.getRange('A1');
+  const title = titleCell.getValue();
+  if (typeof title === 'string' && title.includes('0672')) {
+    titleCell.setValue(title.replace('0672', '6198'));
+  }
+
+  const months = ['jan','feb','mar','apr','may','jun',
+                  'jul','aug','sep','oct','nov','dec'];
+  const fields = [
+    'beginning_balance',   // col B
+    'deposits',            // col C
+    'debits',              // col D
+    'fees',                // col E
+    'ending_balance',      // col F
+    'net_change',          // col G
+    'zelle_to_syrina'      // col H
+  ];
+
+  // CLEAR main cash flow grid (rows 3-14, cols B-H) — always clear before write
+  sheet.getRange(3, 2, 12, fields.length).clearContent();
+
+  // Find and CLEAR Zelle breakdown section
+  const lastRow = sheet.getLastRow();
+  const colA = sheet.getRange('A1:A' + lastRow).getValues().flat();
+  let zelleDataStart = 0;
+  for (let i = 0; i < colA.length; i++) {
+    if (String(colA[i]).includes('TRANSFERS TO SYRINA')) {
+      zelleDataStart = i + 3;  // header row + sub-header row + 1 for first data row
+      break;
+    }
+  }
+  if (zelleDataStart > 0) {
+    sheet.getRange(zelleDataStart, 2, 12, 3).clearContent();
+  }
+
+  // Check sentinel — if no BOA data for this year, we're done (grid already cleared)
+  const testKey = 'boa.jan.deposits';
+  if (d[testKey] === undefined || d[testKey] === '') {
+    Logger.log('No BOA Cash Flow data — cleared old values');
+    return;
+  }
+
+  // Write main cash flow grid (rows 3-14, cols B-H)
+  for (let m = 0; m < 12; m++) {
+    const row = m + 3;  // Rows 3-14 = Jan-Dec
+    for (let f = 0; f < fields.length; f++) {
+      const key = 'boa.' + months[m] + '.' + fields[f];
+      if (d[key] !== undefined && d[key] !== '') {
+        sheet.getRange(row, f + 2).setValue(Number(d[key]) || 0);
+      }
+    }
+  }
+
+  // Write Zelle/Assurant breakdown
+  if (zelleDataStart > 0) {
+    const zelleFields = ['zelle_transfers', 'assurant', 'transfers_total'];
+    for (let m = 0; m < 12; m++) {
+      const row = zelleDataStart + m;
+      for (let f = 0; f < zelleFields.length; f++) {
+        const key = 'boa.' + months[m] + '.' + zelleFields[f];
+        if (d[key] !== undefined && d[key] !== '') {
+          sheet.getRange(row, f + 2).setValue(Number(d[key]) || 0);
+        }
+      }
+    }
+  }
+
+  Logger.log('BOA Cash Flow updated with year data');
+}
+
+
+/**
+ * Apply year-specific PNC Cash Flow data from _YearData.
+ * Same pattern as BOA but with 6 fields (no Zelle section).
+ * Keys: pnc.{month}.{field}
+ */
+function applyToPNCCashFlow_(ss, d) {
+  const sheet = ss.getSheetByName('PNC Cash Flow');
+  if (!sheet) return;
+
+  const months = ['jan','feb','mar','apr','may','jun',
+                  'jul','aug','sep','oct','nov','dec'];
+  const fields = [
+    'beginning_balance',   // col B
+    'deposits',            // col C
+    'debits',              // col D
+    'fees',                // col E
+    'ending_balance',      // col F
+    'net_change'           // col G
+  ];
+
+  // CLEAR data grid (rows 3-14, cols B-G) — always clear before write
+  sheet.getRange(3, 2, 12, fields.length).clearContent();
+
+  // Check sentinel — if no PNC data for this year, we're done (grid already cleared)
+  const testKey = 'pnc.jan.deposits';
+  if (d[testKey] === undefined || d[testKey] === '') {
+    Logger.log('No PNC Cash Flow data — cleared old values');
+    return;
+  }
+
+  // Write main cash flow grid (rows 3-14, cols B-G)
+  for (let m = 0; m < 12; m++) {
+    const row = m + 3;  // Rows 3-14 = Jan-Dec
+    for (let f = 0; f < fields.length; f++) {
+      const key = 'pnc.' + months[m] + '.' + fields[f];
+      if (d[key] !== undefined && d[key] !== '') {
+        sheet.getRange(row, f + 2).setValue(Number(d[key]) || 0);
+      }
+    }
+  }
+
+  Logger.log('PNC Cash Flow updated with year data');
+}
+
+
+/**
+ * Apply year-specific Household Obligations data from _YearData.
+ * Matches vendor names in column A and writes monthly amount to column D
+ * and status to column H.
+ */
+function applyToHouseholdObligations_(ss, d) {
+  const sheet = ss.getSheetByName('Household Obligations');
+  if (!sheet) return;
+
+  const lastRow = sheet.getLastRow();
+  const colA = sheet.getRange('A1:A' + lastRow).getValues().flat();
+
+  const vendorMap = {
+    'Rent':                'rent',
+    'Duke Energy':         'electric',
+    'T-Mobile':            'cell',
+    'Spectrum':            'internet',
+    'Piedmont Natural Gas':'gas',
+    'Lawn Care':           'lawn',
+    'Nelnet':              'nelnet',
+    'OneMain Financial':   'onemain',
+    'GEICO':               'geico',
+    'National Life':       'life_ins',
+    'Planet Fitness':      'planet_fitness',
+    'IRS':                 'irs',
+    'Milestone':           'milestone',
+    'Merrick Bank':        'merrick',
+    'Verde Card':          'verde',
+    'Credit One':          'creditone',
+    'Destiny':             'destiny',
+  };
+
+  // CLEAR amount (col D) and status (col H) for all vendor rows — always clear before write
+  for (let i = 0; i < colA.length; i++) {
+    const label = String(colA[i]).trim();
+    for (const [vendorName] of Object.entries(vendorMap)) {
+      if (label.includes(vendorName)) {
+        sheet.getRange(i + 1, 4).clearContent();  // col D: amount
+        sheet.getRange(i + 1, 8).clearContent();  // col H: status
+        break;
+      }
+    }
+  }
+
+  // Check sentinel — if no HH data for this year, we're done (cells already cleared)
+  const testKey = 'hh.rent.amount';
+  if (d[testKey] === undefined || d[testKey] === '') {
+    Logger.log('No HH Obligations data — cleared old values');
+    return;
+  }
+
+  // Write new values
+  for (let i = 0; i < colA.length; i++) {
+    const label = String(colA[i]).trim();
+    for (const [vendorName, vendorKey] of Object.entries(vendorMap)) {
+      if (label.includes(vendorName)) {
+        const amtKey = 'hh.' + vendorKey + '.amount';
+        const statKey = 'hh.' + vendorKey + '.status';
+        if (d[amtKey] !== undefined && d[amtKey] !== '') {
+          sheet.getRange(i + 1, 4).setValue(Number(d[amtKey]) || 0);  // col D
+        }
+        if (d[statKey] !== undefined && d[statKey] !== '') {
+          sheet.getRange(i + 1, 8).setValue(d[statKey]);  // col H
+        }
+        break;
+      }
+    }
+  }
+
+  Logger.log('Household Obligations updated with year data');
+}
+
+
 function updateYearReferences_(oldYear, newYear) {
   if (oldYear === newYear) return;
 
@@ -1430,6 +1785,7 @@ function updateYearReferences_(oldYear, newYear) {
     'Transaction Ledger':       ['A'],
     'W-2 & Income Detail':      ['A', 'F'],
     'BOA Cash Flow':            ['A', 'H'],
+    'PNC Cash Flow':            ['A'],
     'Household Obligations':    ['A', 'I', 'J'],
     'Subscriptions & Services': ['A', 'J'],
     'Tax Strategy':             ['A', 'B', 'D'],
@@ -1451,7 +1807,25 @@ function updateYearReferences_(oldYear, newYear) {
     if (lastRow < 1) continue;
 
     for (const colLetter of cols) {
-      const range = sheet.getRange(colLetter + '1:' + colLetter + lastRow);
+      // ── Row 1: handle separately with setValue (merged title cells break bulk setValues) ──
+      const cell1 = sheet.getRange(colLetter + '1');
+      const val1 = cell1.getValue();
+      if (typeof val1 === 'string') {
+        let newVal = val1;
+        if (newVal.includes(oldYear)) {
+          newVal = newVal.split(oldYear).join(newYear);
+        } else {
+          // Fallback: replace any 4-digit year (20xx) — handles desync when B1 moved ahead of title
+          newVal = newVal.replace(/\b(20[1-3]\d)\b/g, newYear);
+        }
+        if (newVal !== val1) {
+          cell1.setValue(newVal);
+        }
+      }
+
+      // ── Rows 2+: bulk scan with setValues (safe — no merged cells in data rows) ──
+      if (lastRow < 2) continue;
+      const range = sheet.getRange(colLetter + '2:' + colLetter + lastRow);
       const values = range.getValues();
       let changed = false;
 
@@ -3066,7 +3440,7 @@ function addSampleData() {
   }
   
   var sampleData = [
-    ['Bank of America', '12-3456789', '****0672', 'Bank Account', 'Checking', 'Active', '2020-01-15', '', 5234.56],
+    ['Bank of America', '12-3456789', '****6198', 'Bank Account', 'Checking', 'Active', '2020-01-15', '', 5234.56],
     ['Fidelity Investments', '04-2731432', '****7819', 'Investment', 'Brokerage', 'Active', '2019-06-01', '', 125000.00],
     ['American Express', '13-4922250', '****1234', 'Credit Card', 'Personal', 'Active', '2018-03-20', '', -2456.78],
     ['Duke Energy', '56-1234567', '****5678', 'Utility', 'Electric', 'Active', '2015-08-01', '', 0]

@@ -1,7 +1,7 @@
 # GAAP Source — Complete Association Chart
 
-**Source**: `GAAP-source.html` (9,401 lines, 643KB)
-**Date**: 2026-03-01
+**Source**: `TMAR-Accrual-Ledger.html` (~19,030 lines, ~1.3MB)
+**Date**: 2026-03-04 (v1.4.0 — Sync Center added)
 **Purpose**: Map every GUI element to its function, document navigation flow, and break down all core/sub/remote functions.
 
 ---
@@ -22,7 +22,7 @@
 
 ## 2. MAIN TAB NAVIGATION (Lines 322-417)
 
-### Tab Buttons (32 total → 31 after removing UK Accounting)
+### Tab Buttons (39 total → 38 after removing UK Accounting)
 
 All buttons call `switchMainTab(tabName)` which:
 1. Removes `.active` from all `.tab-btn` elements
@@ -65,6 +65,15 @@ All buttons call `switchMainTab(tabName)` which:
 | 30 | 🎙️ Voice & Chat | `voiceChat` | `initVoiceChat()` (guarded) | Gradient yellow/red, bold |
 | 31 | 📄 Document Creator | `docCreator` | `initDocCreator()` (guarded) | Gradient cyan/blue, bold |
 | 32 | 📁 Source Folders | `sourceFolders` | *(setTimeout init)* | Purple tint border |
+| | **Group 9: RedressRight Source Libraries** | | | |
+| 33 | ⚖️ Constitutional Challenges | `cpsa` | `initCPSA()` (guarded) | Cyan bold border |
+| 34 | 💰 Tax Refund Calculator | `trcf` | `initTRCF()` (guarded) | Red tint border |
+| 35 | 📊 NOL Classification | `ccsn` | `initCCSN()` (guarded) | Amber bold border |
+| 36 | 🏛️ Federal Damages | `fdrf` | `initFDRF()` (guarded) | Green bold border |
+| 37 | 📓 Tutorial Journal | `eeej` | `initEEEJ()` (guarded) | Yellow bold border |
+| 38 | 🔍 Entity Verifier | `entityVerifier` | `initEntityVerifier()` (guarded) | Blue bold border |
+| | **Group 11: Data Integration** | | | |
+| 39 | 🔄 Sync Center | `syncCenter` | `initSyncCenter()` (guarded) | Green/cyan gradient bold border |
 
 ---
 
@@ -122,8 +131,32 @@ switchMainTab(tabName)
 ├── voiceChat ───────→ initVoiceChat()
 │                      └── SpeechRecognition + SpeechSynthesis + Anthropic API chat
 │
-└── docCreator ──────→ initDocCreator()
-                       └── Document template selection + PDF generation
+├── docCreator ──────→ initDocCreator()
+│                      └── Document template selection + PDF generation
+│
+├── cpsa ────────────→ initCPSA()
+│                      └── 15 document type tabs, multi-doc persistence, undo/redo, auto-save, section mgmt, citations DB, form generator, image insert, code editor
+│
+├── trcf ────────────→ initTRCF()
+│                      └── 7 sub-tabs, Route 1/Route 2 tax refund calculators (2024 brackets)
+│
+├── ccsn ────────────→ initCCSN()
+│                      └── 72-slide NOL asset classification, prev/next navigation, TOC
+│
+├── fdrf ────────────→ initFDRF()
+│                      └── 4-part accordion, TTS via speakWithHighlight()
+│
+├── eeej ────────────→ initEEEJ()
+│                      └── 28-slide tutorial journal, topic nav, progress tracking
+│
+├── entityVerifier ──→ initEntityVerifier()
+│                      └── SEC EDGAR verification, EIN cross-ref, detail modal, JSON export
+│
+└── syncCenter ─────→ initSyncCenter()
+                       ├── Populates export count badges from appData
+                       ├── Restores GAS URL from appData.settings.gasWebAppUrl
+                       ├── Renders sync log from appData.syncLog
+                       └── Calls updateTier2PanelState() to enable/disable Live Sync panel
 ```
 
 ---
@@ -318,6 +351,8 @@ switchMainTab(tabName)
 | Calculate Estimate | `onclick` | `calcTaxEstimate()` | Combined federal + state + SE tax |
 | Filing Status Select | `onchange` | *(inline)* | Adjusts brackets |
 | What-If Scenarios | `onclick` | `runTaxScenario()` | Adjustable income/deduction sliders |
+| Import 1099 Data | `onclick` | `import1099ToEstimator()` | Preview modal → `apply1099ToEstimator()` sets income fields + additive withholding |
+| 1099 Aggregation | internal | `aggregate1099Data()` | Shared: sums all `appData.filings` 1099 types into investment/capGains/SE/rental/other/withholding |
 
 ### 4.19 Payment Orders Tab (setTimeout 0ms init)
 
@@ -435,6 +470,226 @@ switchMainTab(tabName)
 | Delete Folder | `onclick` | `deleteSourceFolder(id)` | Removes |
 | Category Filter | `onchange` | `filterSourceFolders()` | Filters by category |
 
+### 4.32 Constitutional Challenges Tab (CPSA) — v1.3.0 Enhanced
+
+#### Document Type Tabs (15 total)
+
+| Tab | `data-cpsa-doc` | Template Key | Document Title |
+|---|---|---|---|
+| 1 | `dismiss` | `dismiss` | Motion to Dismiss |
+| 2 | `summary` | `summary` | Motion for Summary Judgment |
+| 3 | `habeas` | `habeas` | Writ of Habeas Corpus |
+| 4 | `mandamus` | `mandamus` | Writ of Mandamus |
+| 5 | `certiorari` | `certiorari` | Writ of Certiorari |
+| 6 | `declaratory` | `declaratory` | Declaratory Judgment |
+| 7 | `tro` | `tro` | Temporary Restraining Order |
+| 8 | `dueprocess` | `dueprocess` | Due Process Challenge |
+| 9 | `equalprotection` | `equalprotection` | Equal Protection Challenge |
+| 10 | `standing` | `standing` | Declaration of Standing |
+| 11 | `civil` | `civil` | Civil Rights Complaint |
+| 12 | `quowarranto` | `quowarranto` | Quo Warranto |
+| 13 | `prohibition` | `prohibition` | Writ of Prohibition |
+| 14 | `rehearing` | `rehearing` | Motion for Rehearing |
+| 15 | `templates` | — | Legal Templates Generator |
+
+#### Toolbar Buttons
+
+| Button/Element | Handler | Function | Sub-functions |
+|---|---|---|---|
+| Undo (↩) | `onclick` | `cpsaUndo()` | Navigates `cpsaHistory[]` backward, calls `cpsaRestoreState()` |
+| Redo (↪) | `onclick` | `cpsaRedo()` | Navigates `cpsaHistory[]` forward, calls `cpsaRestoreState()` |
+| Bold / Italic / Underline | `onclick` | `cpsaCmd('bold'\|'italic'\|'underline')` | `document.execCommand()` formatting |
+| Ordered List | `onclick` | `cpsaCmd('insertOrderedList')` | Inserts numbered list |
+| Unordered List | `onclick` | `cpsaCmd('insertUnorderedList')` | Inserts bullet list |
+| Indent / Outdent | `onclick` | `cpsaCmd('indent'\|'outdent')` | Block indent/outdent |
+| Constitutional Citation | `onclick` | `cpsaInsertCitation('constitutional')` | Modal with amendment/article search |
+| Statutory Citation | `onclick` | `cpsaInsertCitation('statutory')` | Modal with 14-entry statute database |
+| Case Law Citation | `onclick` | `cpsaInsertCitation('caselaw')` | Modal with 20-entry landmark case database |
+| IRC Citation | `onclick` | `cpsaInsertCitation('irc')` | Modal for tax code citations |
+| Font Size − | `onclick` | `cpsaChangeFontSize(-1)` | Decreases font, min 8px |
+| Font Size Input | `oninput` | `cpsaSetFontSize(value)` | Direct numeric input, 8-72 range |
+| Font Size + | `onclick` | `cpsaChangeFontSize(1)` | Increases font, max 72px |
+| UPPER / lower / Title | `onclick` | `cpsaSetCase(type)` | Text case transform on selection |
+| Insert Image (📷) | `onclick` | `cpsaOpenImageModal()` | File upload modal → Base64 insert |
+| Preview (👁) | `onclick` | `cpsaPreviewDocument()` | Opens clean new window preview |
+
+#### Action Bar Buttons
+
+| Button/Element | Handler | Function | Sub-functions |
+|---|---|---|---|
+| Save All | `onclick` | `cpsaSaveAll()` | Persists all 15 documents + state to `cpsa_documents` localStorage |
+| Export PDF | `onclick` | `cpsaExportPDF()` | jsPDF export of current document |
+| Export Word | `onclick` | `cpsaExportWord()` | HTML-based .doc export |
+| Print | `onclick` | `cpsaPrint()` | `window.print()` |
+| Code Editor | `onclick` | `cpsaOpenCodeEditor()` | Modal with HTML textarea + Apply/Cancel |
+| View Code | `onclick` | `cpsaViewUpdatedCode()` | Read-only modal + Copy + Download |
+| Clean HTML | `onclick` | `cpsaCleanHTML()` | Strips unnecessary formatting |
+
+#### Form Generator Panel
+
+| Field | ID | Purpose |
+|---|---|---|
+| Your Name | `cpsa-form-name` | Populates `${d.yourName}` in templates |
+| City | `cpsa-form-city` | Populates `${d.city}` |
+| State | `cpsa-form-state` | Populates `${d.state}` |
+| District | `cpsa-form-district` | Populates `${d.district}` |
+| Case Number | `cpsa-form-case` | Populates `${d.caseNumber}` |
+| Date | `cpsa-form-date` | Populates `${d.date}` |
+| Debtor Name | `cpsa-form-debtor` | Populates `${d.debtorName}` |
+| Toggle Form | `onclick` | `cpsaToggleFormPanel()` |
+
+#### Legal Templates Generator (templates tab)
+
+| Template Card | Handler | Function |
+|---|---|---|
+| Declaration of Non-Consent | `onclick` | `cpsaGenerateLegalTemplate('nonConsent')` → `cpsaCreateDeclarationOfNonConsent(d)` |
+| Reservation & Withdrawal | `onclick` | `cpsaGenerateLegalTemplate('withdrawal')` → `cpsaCreateReservationAndWithdrawal(d)` |
+| Adversary Complaint | `onclick` | `cpsaGenerateLegalTemplate('adversary')` → `cpsaCreateAdversaryComplaint(d)` |
+| Voluntary Dismissal | `onclick` | `cpsaGenerateLegalTemplate('dismissal')` → `cpsaCreateVoluntaryDismissal(d)` |
+| Creditor Challenge | `onclick` | `cpsaGenerateLegalTemplate('creditorChallenge')` → `cpsaCreateCreditorChallenge(d)` |
+| Voluntary Challenge | `onclick` | `cpsaGenerateLegalTemplate('voluntaryChallenge')` → `cpsaCreateVoluntaryChallenge(d)` |
+
+#### Core Architecture Functions
+
+| Function | Purpose | Key Details |
+|---|---|---|
+| `initCPSA()` | Initialize module | Loads state, sets up auto-save (5s), keyboard shortcuts, generates doc IDs |
+| `cpsaSwitchDoc(docType, skipSave)` | Switch between 15 document tabs | Saves current → loads target → toggles `.active` tab styling |
+| `cpsaGenerateDocIds()` | Create unique document IDs | Format: `CPSA-{ABBREV}-{YEAR}-{RANDOM3}` (e.g., `CPSA-DISM-2026-042`) |
+| `cpsaSaveToHistory()` | Push undo state | `{docType, content, timestamp}`, trims redo stack, max 20 states |
+| `cpsaUndo()` / `cpsaRedo()` | Navigate history | Array-based with index pointer |
+| `cpsaSaveAll()` | Persist all documents | Writes to `cpsa_documents` localStorage key |
+| `cpsaLoadAll()` | Restore from storage | Migrates legacy `cpsa_draft` key if found |
+| `cpsaSetupAutoSave()` | 5-second interval | Calls `cpsaSaveAll()` + updates green indicator |
+| `cpsaSetupKeyboardShortcuts()` | Ctrl+S/Z/Y/P | Active only when CPSA section visible |
+| `cpsaAddSectionAfter(btn)` | Section management | Insert new `.cpsa-section` after current |
+| `cpsaMoveSection(btn, dir)` | Section management | Swap section with sibling |
+| `cpsaDeleteSection(btn)` | Section management | Confirm + remove section |
+| `cpsaInsertCitation(type)` | Enhanced citations | Modal with searchable database (14 statutes, 20 case law) |
+| `cpsaApplyCitation(className, ref)` | Apply citation | Inserts color-coded span at cursor position |
+| `cpsaOpenImageModal()` | Image insertion | File upload modal with preview |
+| `cpsaInsertImage()` | Image insert | Base64 encode + insert at cursor |
+| `cpsaPreviewDocument()` | Document preview | Clean new window (no UI controls) |
+| `cpsaOpenCodeEditor()` | Code editor | Modal with textarea + Apply/Cancel |
+| `cpsaApplyCodeChanges()` | Apply code | Sets editor innerHTML from textarea |
+| `cpsaViewUpdatedCode()` | View code | Read-only modal + Copy + Download |
+
+#### Citation Databases
+
+| Database | Entries | Example |
+|---|---|---|
+| `cpsaStatuteDB` | 14 statutes | 11 U.S.C. § 362 (Automatic Stay), 26 U.S.C. § 6020(b), etc. |
+| `cpsaCaseLawDB` | 20 cases | Marbury v. Madison, Miranda v. Arizona, etc. |
+
+### 4.33 Tax Refund Calculator Tab (TRCF)
+
+| Button/Element | Handler | Function | Sub-functions |
+|---|---|---|---|
+| Sub-tab Buttons (7) | `onclick` | `trcfSwitchTab(tabName)` | Switches between 7 calculator sub-tabs |
+| Route Select (1/2) | `onclick` | `trcfSelectRoute(routeNum)` | Toggles Route 1 vs Route 2 calculator view |
+| Route 1 Calculate | `onclick` | `trcfCalculateRoute1()` | Standard refund with 2024 individual/trust brackets |
+| Route 2 Calculate | `onclick` | `trcfCalculateRoute2()` | Alternative method refund calculation |
+| Interest Calculator | `onclick` | `trcfCalcInterestUI()` | `trcfCalcInterest(principal, rate, days)` — simple interest |
+| Number Formatter | auto | `trcfFmt(n)` | Currency formatting helper |
+| Tax Bracket Engine | internal | `trcfCalcTax(income, status)` | 2024 brackets: Single, MFJ, MFS, HOH |
+| Trust Tax Engine | internal | `trcfCalcTrustTax(income)` | 2024 trust brackets: 10%→37% |
+| Import 1099 Data (Route 1) | `onclick` | `import1099ToTRCF()` | Preview modal → `apply1099ToTRCF()` sets gross income + additive withholding |
+| Live 1099 Summary | auto (tab switch) | `updateTRCF1099Summary()` | Shows filing counts + totals on 1099/1065 Mechanics sub-tab |
+
+### 4.34 NOL Classification Tab (CCSN)
+
+| Button/Element | Handler | Function | Sub-functions |
+|---|---|---|---|
+| Next Slide | `onclick` | `ccsnNext()` | `ccsnShowSlide(ccsnCurrentSlide + 1)` |
+| Prev Slide | `onclick` | `ccsnPrev()` | `ccsnShowSlide(ccsnCurrentSlide - 1)` |
+| Jump to Slide | `onclick` | `ccsnJumpTo(n)` | Direct slide navigation from TOC |
+| TOC Toggle | `onclick` | `ccsnToggleTOC()` | Shows/hides table of contents panel |
+| TOC Update | auto | `ccsnUpdateTOC(n)` | Highlights current slide in TOC |
+| Slide Counter | auto | — | Displays "Slide X of 72" |
+
+### 4.35 Federal Damages Tab (FDRF)
+
+| Button/Element | Handler | Function | Sub-functions |
+|---|---|---|---|
+| Part Toggle (4 parts) | `onclick` | `fdrfTogglePart(partNum)` | Expand/collapse major damage framework sections |
+| Accordion Headers | `onclick` | `fdrfToggleAccordion(el)` | Expand/collapse individual accordion items within parts |
+| Read Section Aloud | `onclick` | `fdrfReadSection(sectionId)` | `speakWithHighlight(text)` — TTS via existing utility |
+
+### 4.36 Tutorial Journal Tab (EEEJ)
+
+| Button/Element | Handler | Function | Sub-functions |
+|---|---|---|---|
+| Next Slide | `onclick` | `eeejNext()` | Advances to next slide, updates progress |
+| Prev Slide | `onclick` | `eeejPrev()` | Returns to previous slide |
+| Jump to Slide | `onclick` | `eeejJumpTo(index)` | Direct slide navigation from topic list |
+| Render Slide | internal | `eeejRenderSlide(index)` | Builds slide HTML from data array |
+| Progress Update | auto | `eeejUpdateProgress()` | Updates progress bar and "X of 28" counter |
+
+### 4.37 Entity Verifier Tab
+
+| Button/Element | Handler | Function | Sub-functions |
+|---|---|---|---|
+| Verify All | `onclick` | `runEntityVerification()` | Loops entities, calls `verifyEntity()` per entity, updates progress bar |
+| Export JSON | `onclick` | `exportVerifierResults('json')` | Exports masked verification results as JSON file download |
+| Summary Cards | `onclick` | `filterVerifierResults(level)` | Filters table by confidence: all/HIGH/MEDIUM/LOW/UNVERIFIED |
+| Search Input | `oninput` | `filterVerifierResults()` | Filters by entity name, EIN, or account number |
+| Table Row Click | `onclick` | `showVerifierDetail(idx)` | Opens modal with TMAR record, SEC data, filings, recommended actions |
+| SEC EDGAR Ticker | internal | `edgarLookupByTicker(ticker)` | Fetches `sec.gov/files/company_tickers.json` |
+| SEC EDGAR Name | internal | `edgarLookupByName(name)` | Searches ticker JSON by company name substring |
+| SEC EDGAR CIK | internal | `edgarGetSubmissions(cik)` | Fetches `data.sec.gov/submissions/CIK{padded}.json` |
+| SEC EDGAR EIN | internal | `edgarSearchByEIN(ein)` | Full-text EIN search via `efts.sec.gov/LATEST/search-index` |
+| Verify Entity | internal | `verifyEntity(entity)` | Core engine: ticker → name → EIN search, confidence scoring |
+
+### 4.38 Sync Center Tab (v1.4.0)
+
+#### Connection Status Card
+
+| Element | Handler | Function | Sub-functions |
+|---|---|---|---|
+| GAS URL Input (`#sync-gas-url`) | `oninput` | `onGasUrlChange()` | Saves URL to `appData.settings.gasWebAppUrl`, calls `saveToStorage()`, calls `updateTier2PanelState()` |
+| Test Connection Button | `onclick` | `testSyncConnection()` | `fetch(url+'?action=ping')` → parses JSON → `updateSyncStatus()` (green/red dot + message) |
+| Status Dot (`#sync-status-dot`) | auto | `updateSyncStatus(msg, isError)` | Sets dot color: `#10b981` (green) or `#ef4444` (red) or `#6b7280` (gray default) |
+
+#### Export Panel (5 buttons)
+
+| Button Label | Handler | Function | Key Sub-calls |
+|---|---|---|---|
+| Entities → Master Register CSV | `onclick` | `exportEntitiesToMasterRegisterCSV()` | `maskEIN()`, `mapEntityTypeToAccountType()`, `calculateEntityBalance()`, `syncCSVEscape()`, `syncDownloadCSV()`, `addSyncLogEntry()` |
+| Ledger → Transaction Ledger CSV | `onclick` | `exportLedgerToTransactionCSV()` | Converts debit/credit → signed amount, Source='Accrual Ledger', `syncDownloadCSV()`, `addSyncLogEntry()` |
+| Journal → Transaction Ledger CSV | `onclick` | `exportJournalToTransactionCSV()` | Expands `journalEntries[].lines[]` into separate rows, `syncDownloadCSV()`, `addSyncLogEntry()` |
+| 1099 → Filing Chain CSV | `onclick` | `export1099ToFilingChainCSV()` | Iterates `appData.filings['1099-*']`, maps form fields per type, `syncDownloadCSV()`, `addSyncLogEntry()` |
+| Payables → Obligations CSV | `onclick` | `exportPayablesToObligationsCSV()` | Extracts due day from dueDate, `syncDownloadCSV()`, `addSyncLogEntry()` |
+
+#### Import Panel (4 file inputs)
+
+| Input Label | Handler | Function | Dedup Strategy |
+|---|---|---|---|
+| Import Master Register CSV | `onchange` | `importMasterRegisterCSV(this)` | Match by entity name → `showSyncConflictModal()` for modified, auto-add new |
+| Import Transaction Ledger CSV | `onchange` | `importTransactionLedgerCSV(this)` | `syncHash(date+desc+amount)` → skip exact duplicates |
+| Import Obligations CSV | `onchange` | `importObligationsCSV(this)` | Match by vendor name → upsert (update existing or append new) |
+| Import W-2 Income CSV | `onchange` | `importW2IncomeCSV(this)` | Flexible header mapping → overwrite income fields |
+
+#### Live Sync Panel (Tier 2 — disabled until GAS URL configured)
+
+| Button Label | Handler | Function | Status |
+|---|---|---|---|
+| Push Entities | `onclick` | `syncPush('entities')` | Stub → Phase 2: `SyncBridge.pushEntities()` |
+| Push Transactions | `onclick` | `syncPush('transactions')` | Stub → Phase 2: `SyncBridge.pushTransactions()` |
+| Push Payables | `onclick` | `syncPush('payables')` | Stub → Phase 2: `SyncBridge.pushPayables()` |
+| Push 1099s | `onclick` | `syncPush('1099')` | Stub → Phase 2: `SyncBridge.push1099()` |
+| Push All | `onclick` | `syncPushAll()` | Stub → Phase 2: Sequential push with progress bar |
+| Pull Accounts | `onclick` | `syncPull('accounts')` | Stub → Phase 2: `SyncBridge.pullAccounts()` |
+| Pull Transactions | `onclick` | `syncPull('transactions')` | Stub → Phase 2: `SyncBridge.pullTransactions()` |
+| Pull Obligations | `onclick` | `syncPull('obligations')` | Stub → Phase 2: `SyncBridge.pullObligations()` |
+| Pull All | `onclick` | `syncPullAll()` | Stub → Phase 2: Sequential pull with conflict detection |
+
+#### Sync Log
+
+| Element | Handler | Function | Sub-functions |
+|---|---|---|---|
+| Clear Log Button | `onclick` | `clearSyncLog()` | `showConfirm()` → empties `appData.syncLog`, calls `renderSyncLog()` |
+| Log Container (`#sync-log-container`) | auto | `renderSyncLog()` | Renders last 50 entries with timestamps, status colors, direction icons |
+
 ---
 
 ## 5. CORE FUNCTIONS BREAKDOWN
@@ -443,9 +698,12 @@ switchMainTab(tabName)
 
 | Function | Line | Purpose | Called By |
 |---|---|---|---|
-| `loadFromStorage()` | ~3935 | Loads `GAAP_UniversalLedger_Data` from localStorage, merges with defaults | App init (once) |
-| `saveToStorage()` | ~3951 | JSON.stringify → localStorage.setItem + timestamp | Auto-save interval, manual save, every CRUD op |
-| `showAutoSaveStatus(msg, isError)` | ~3966 | Fixed-position toast (bottom-right), fades after 2s | `loadFromStorage()`, `saveToStorage()` |
+| `loadFromStorage()` | ~5254 | Loads `TMAR_AccrualLedger_Data` from localStorage, merges with defaults | App init (once) |
+| `saveToStorage()` | ~5290 | JSON.stringify → localStorage.setItem + timestamp | Auto-save interval, manual save, every CRUD op |
+| `maskEIN(ein)` | ~5272 | Masks EIN to last 4 digits: `'41-6809588'` → `'••-•••9588'` | `updateHeaderSubtitle()`, `buildTrustAgentSystemPrompt()` |
+| `updateHeaderSubtitle()` | ~5280 | Refreshes `#headerTrustSubtitle` from `appData.settings` with masked EIN | App init (after `loadFromStorage()`) |
+| `buildTrustAgentSystemPrompt()` | ~10397 | Builds AI system prompt dynamically from `appData.settings` with masked EIN | `sendTrustAgentQuery()`, `sendChat()` |
+| `showAutoSaveStatus(msg, isError)` | ~5305 | Fixed-position toast (bottom-right), fades after 2s | `loadFromStorage()`, `saveToStorage()` |
 | `applyTheme()` | ~3886 | Adds/removes `.dark` on `<html>`, updates icon | `toggleDarkMode()`, init |
 | `toggleDarkMode()` | ~3895 | Flips `isDarkMode`, persists to localStorage | Header toggle button |
 
@@ -502,14 +760,68 @@ switchMainTab(tabName)
 
 | Function | Endpoint | Method | Auth | Purpose |
 |---|---|---|---|---|
-| `sendGaapAgentQuery()` | `https://api.anthropic.com/v1/messages` | POST | `x-api-key` header (user-provided) | GAAP accounting Q&A with 6,000-char system prompt |
-| `sendChat()` | `https://api.anthropic.com/v1/messages` | POST | `x-api-key` header (user-provided) | Voice & Chat conversational AI |
+| `sendTrustAgentQuery()` | `https://api.anthropic.com/v1/messages` | POST | `x-api-key` header (user-provided) | GAAP accounting Q&A; system prompt built dynamically via `buildTrustAgentSystemPrompt() + TRUST_AGENT_PROMPT_BODY` |
+| `sendChat()` | `https://api.anthropic.com/v1/messages` | POST | `x-api-key` header (user-provided) | Voice & Chat conversational AI; same dynamic prompt builder |
+| `edgarLookupByTicker()` / `edgarLookupByName()` | `https://www.sec.gov/files/company_tickers.json` | GET | `User-Agent` header | Entity Verifier: look up CIK by ticker symbol or company name |
+| `edgarGetSubmissions()` | `https://data.sec.gov/submissions/CIK{padded}.json` | GET | `User-Agent` header | Entity Verifier: fetch entity details, address, EIN, filings |
+| `edgarSearchByEIN()` | `https://efts.sec.gov/LATEST/search-index` | GET | `User-Agent` header | Entity Verifier: full-text EIN search in 10-K/10-Q/8-K filings |
 
 **Browser APIs Used:**
 - `SpeechRecognition` (Web Speech API) — voice input transcription
 - `SpeechSynthesis` (Web Speech API) — text-to-speech responses
 - `navigator.clipboard.writeText()` — copy to clipboard
 - `window.open()` — print preview
+
+### 5.7 Sync Center (v1.4.0 — 22 functions)
+
+#### Utilities
+
+| Function | Line | Purpose | Called By |
+|---|---|---|---|
+| `initSyncCenter()` | ~18157 | Populates count badges, restores GAS URL, renders sync log, calls `updateTier2PanelState()` | `switchMainTab('syncCenter')` |
+| `onGasUrlChange()` | ~18175 | Saves `gasWebAppUrl` to settings, calls `updateTier2PanelState()` | GAS URL input `oninput` |
+| `updateTier2PanelState()` | ~18184 | Enables/disables Live Sync panel based on URL validity | `onGasUrlChange()`, `initSyncCenter()` |
+| `updateSyncStatus(msg, isError)` | ~18199 | Sets status dot color and text in Connection Card | `testSyncConnection()`, export/import functions |
+| `addSyncLogEntry(action, dir, count, status)` | ~18209 | Prepends to `appData.syncLog[]` (max 50), saves, renders log | All export/import/push/pull functions |
+| `renderSyncLog()` | ~18226 | Renders sync log HTML with timestamps, status colors, direction icons | `addSyncLogEntry()`, `initSyncCenter()` |
+| `clearSyncLog()` | ~18260 | Clears sync log with confirmation dialog | Clear Log button |
+| `syncCSVEscape(val)` | ~18268 | Proper CSV quoting (wraps in quotes if contains comma/quote/newline) | All export functions |
+| `syncDownloadCSV(filename, csv)` | ~18278 | Triggers file download via `saveAs()` or fallback `<a>` click | All export functions |
+| `syncParseCSV(csvText)` | ~18292 | Parses CSV handling quoted fields, commas, escaped quotes | All import functions |
+| `mapEntityTypeToAccountType(type)` | ~18354 | Maps entity types → Master Register Account Types (11 mappings) | `exportEntitiesToMasterRegisterCSV()` |
+| `syncHash(str)` | ~18377 | Simple string hash for dedup (djb2 variant) | `importTransactionLedgerCSV()` |
+| `showSyncConflictModal(conflicts, onResolve)` | ~18388 | Radio buttons (local/remote) per conflicting field | `importMasterRegisterCSV()` |
+| `resolveSyncConflicts()` | ~18420 | Reads radio selections, calls resolution callback | Conflict modal buttons |
+| `calculateEntityBalance(entityId)` | ~18440 | Sums debit-credit from `appData.ledgerEntries` for entity | `exportEntitiesToMasterRegisterCSV()` |
+
+#### Export Functions (5)
+
+| Function | Line | Source Data | Output | Cols |
+|---|---|---|---|---|
+| `exportEntitiesToMasterRegisterCSV()` | ~18405 | `appData.entities[]` | 29-col CSV | Master Register schema |
+| `exportLedgerToTransactionCSV()` | ~18484 | `appData.ledgerEntries[]` | 16-col CSV | Transaction Ledger schema |
+| `exportJournalToTransactionCSV()` | ~18536 | `appData.journalEntries[]` | 16-col CSV (expanded lines) | Transaction Ledger schema |
+| `export1099ToFilingChainCSV()` | ~18587 | `appData.filings['1099-*']` | 15-col CSV | 1099 Filing Chain schema |
+| `exportPayablesToObligationsCSV()` | ~18638 | `appData.payables[]` | 11-col CSV | Household Obligations schema |
+
+#### Import Functions (4)
+
+| Function | Line | Input | Target | Dedup |
+|---|---|---|---|---|
+| `importMasterRegisterCSV(inputEl)` | ~18700 | 29-col CSV file | `appData.entities[]` | Name match → conflict modal |
+| `importTransactionLedgerCSV(inputEl)` | ~18780 | 16-col CSV file | `appData.ledgerEntries[]` | Hash(date+desc+amt) skip |
+| `importObligationsCSV(inputEl)` | ~18840 | 11-col CSV file | `appData.payables[]` | Vendor name upsert |
+| `importW2IncomeCSV(inputEl)` | ~18900 | W-2 CSV file | `appData.filings['1040']` | Header mapping overwrite |
+
+#### Tier 2 Stubs (Phase 2)
+
+| Function | Line | Purpose | Current |
+|---|---|---|---|
+| `syncPush(type)` | ~18985 | Push data to GAS endpoint | `showAlert()` stub |
+| `syncPull(type)` | ~18988 | Pull data from GAS endpoint | `showAlert()` stub |
+| `syncPushAll()` | ~18991 | Sequential push all 4 types | `showAlert()` stub |
+| `syncPullAll()` | ~18994 | Sequential pull all 3 types | `showAlert()` stub |
+| `testSyncConnection()` | ~18999 | Pings GAS `?action=ping` | Functional — calls `fetch()` |
 
 ---
 
@@ -521,11 +833,12 @@ Page Load
 │   └── CSS variables, dark/light mode, glass morphism, responsive
 │
 ├── HTML renders (lines 189-3850)
-│   └── RedressRight nav, app header, 32 tab buttons, 32 tab sections
+│   └── RedressRight nav, app header, 37 tab buttons, 37 tab sections
 │
 ├── <script> executes (line 3877+)
 │   ├── Theme init: isDarkMode from localStorage → applyTheme()
 │   ├── Data init: appData = loadFromStorage()
+│   ├── Header refresh: updateHeaderSubtitle() — masked EIN from settings
 │   ├── Auto-save: setInterval(saveToStorage, 5000)
 │   ├── Unload save: window.addEventListener('beforeunload', saveToStorage)
 │   ├── Default COA: defaultCOA[] (68 accounts)
@@ -559,7 +872,7 @@ Page Load
 
 | Key | Scope | Used By |
 |---|---|---|
-| `GAAP_UniversalLedger_Data` | Main app data (all core modules) | `loadFromStorage()` / `saveToStorage()` |
+| `TMAR_AccrualLedger_Data` | Main app data (all core modules) | `loadFromStorage()` / `saveToStorage()` |
 | `darkMode` | Theme preference | `toggleDarkMode()` / `applyTheme()` |
 | `RR_BOE` | Bills of Exchange | BOE module |
 | `RR_Expenses` | Expense Itemization | Expenses module |
@@ -569,10 +882,11 @@ Page Load
 | `RR_Reconciliations` | Bank reconciliation data | Bank Recon module |
 | `vcHistory` | Voice & Chat history | Voice & Chat module |
 | `vcStats` | Voice & Chat statistics | Voice & Chat module |
+| `cpsa_documents` | CPSA all 15 documents + state (JSON) | Constitutional Challenges module |
+| `cpsa_draft` | *(legacy, auto-migrated to cpsa_documents)* | Constitutional Challenges module |
 
-**TMAR Rename Plan:**
-- `GAAP_UniversalLedger_Data` → `TMAR_AccrualLedger_Data`
-- `RR_*` prefix → `TMAR_*` prefix
+**Pending Renames:**
+- `RR_*` prefix → `TMAR_*` prefix (future cleanup)
 - `darkMode` → keep as-is (generic)
 
 ---
@@ -593,7 +907,7 @@ Page Load
 ## 9. TMAR ADAPTATION NOTES
 
 ### Tabs to Remove
-- `ukAccounting` (1 tab removed → 31 remain)
+- `ukAccounting` (1 tab removed → 36 remain)
 
 ### Tabs to Rename
 - `spvDashboard` → `trustDashboard` (Trust Estate Dashboard)
@@ -601,8 +915,11 @@ Page Load
 - `spvReports` → `trustReports` (Trust Estate Reports)
 - `gaapAgent` → `trustAgent` (Trust Accounting Agent)
 
-### Pre-populated Data
-- **Entities**: A Provident Private Creditor RLT (EIN 41-6809588, Trustee Clinton Wimberly IV, CAF 0317-17351)
+### Pre-populated Data & PII Security
+- **Entities**: Defaults are empty placeholders; user enters trust name, EIN, trustee, CAF via Entities tab
+- **EIN Masking**: `maskEIN()` shows only last 4 digits everywhere (header, AI prompt) — e.g. `••-•••9588`
+- **Header**: `updateHeaderSubtitle()` refreshes on load from `appData.settings`; shows `[Trust Entity Name] — EIN ••-•••••••` for fresh installs
+- **AI Prompt**: `buildTrustAgentSystemPrompt()` injects settings dynamically with masked EIN; replaces former hardcoded `TRUST_AGENT_SYSTEM_PROMPT` const
 - **COA**: 68 default accounts (keep as-is, GAAP-standard)
 - **Account Types**: 33 TMAR types for Ledger category dropdown
 - **Statuses**: 9 TMAR statuses for entity status

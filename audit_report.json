@@ -1,0 +1,1029 @@
+{
+  "timestamp": "2026-03-09T05:07:40.065Z",
+  "summary": {
+    "total": 254,
+    "implemented": 229,
+    "missing": 25,
+    "coverage": "90.2"
+  },
+  "implemented": [
+    {
+      "name": "addBeneficiary",
+      "callCount": 1
+    },
+    {
+      "name": "addInvLine",
+      "callCount": 1
+    },
+    {
+      "name": "addJournalLine",
+      "callCount": 1
+    },
+    {
+      "name": "addSourceFolder",
+      "callCount": 1
+    },
+    {
+      "name": "addSubsidiary",
+      "callCount": 1
+    },
+    {
+      "name": "apply1099ToEstimator",
+      "callCount": 1
+    },
+    {
+      "name": "apply1099ToTRCF",
+      "callCount": 1
+    },
+    {
+      "name": "askAgentSafe",
+      "callCount": 6
+    },
+    {
+      "name": "boeAcceptSignature",
+      "callCount": 1
+    },
+    {
+      "name": "boeClearSignature",
+      "callCount": 1
+    },
+    {
+      "name": "boeResetSignature",
+      "callCount": 1
+    },
+    {
+      "name": "boeUndoStroke",
+      "callCount": 1
+    },
+    {
+      "name": "buildAndPreviewPackage",
+      "callCount": 1
+    },
+    {
+      "name": "calculate1040",
+      "callCount": 1
+    },
+    {
+      "name": "calculate1040ES",
+      "callCount": 1
+    },
+    {
+      "name": "calculate1041",
+      "callCount": 1
+    },
+    {
+      "name": "calculate1041ES",
+      "callCount": 1
+    },
+    {
+      "name": "calculate1099A",
+      "callCount": 1
+    },
+    {
+      "name": "calculate1099B",
+      "callCount": 1
+    },
+    {
+      "name": "calculate1099C",
+      "callCount": 1
+    },
+    {
+      "name": "calculate1099DIV",
+      "callCount": 1
+    },
+    {
+      "name": "calculate1099INT",
+      "callCount": 1
+    },
+    {
+      "name": "calculate1099MISC",
+      "callCount": 1
+    },
+    {
+      "name": "calculate1099NEC",
+      "callCount": 1
+    },
+    {
+      "name": "calculate1099R",
+      "callCount": 1
+    },
+    {
+      "name": "calculate1120",
+      "callCount": 1
+    },
+    {
+      "name": "calculate990",
+      "callCount": 1
+    },
+    {
+      "name": "calculateBadDebtRefund",
+      "callCount": 1
+    },
+    {
+      "name": "calculateInstrumentLoss",
+      "callCount": 1
+    },
+    {
+      "name": "calculateInterestRefund",
+      "callCount": 1
+    },
+    {
+      "name": "calculateSchC",
+      "callCount": 1
+    },
+    {
+      "name": "ccsnJumpTo",
+      "callCount": 22
+    },
+    {
+      "name": "ccsnNext",
+      "callCount": 1
+    },
+    {
+      "name": "ccsnPrev",
+      "callCount": 1
+    },
+    {
+      "name": "ccsnToggleTOC",
+      "callCount": 1
+    },
+    {
+      "name": "clearBOEForm",
+      "callCount": 1
+    },
+    {
+      "name": "clearChat",
+      "callCount": 1
+    },
+    {
+      "name": "clearJournalEntry",
+      "callCount": 1
+    },
+    {
+      "name": "clearPOForm",
+      "callCount": 1
+    },
+    {
+      "name": "clearSyncLog",
+      "callCount": 1
+    },
+    {
+      "name": "clearTrustAgentChat",
+      "callCount": 1
+    },
+    {
+      "name": "closeModal",
+      "callCount": 20
+    },
+    {
+      "name": "coaImportCommit",
+      "callCount": 1
+    },
+    {
+      "name": "coaImportSelectMode",
+      "callCount": 2
+    },
+    {
+      "name": "coaImportStep2",
+      "callCount": 2
+    },
+    {
+      "name": "coaImportStep3",
+      "callCount": 1
+    },
+    {
+      "name": "cpsaApplyCitation",
+      "callCount": 2
+    },
+    {
+      "name": "cpsaApplyCodeChanges",
+      "callCount": 1
+    },
+    {
+      "name": "cpsaChangeFontSize",
+      "callCount": 2
+    },
+    {
+      "name": "cpsaCleanHTML",
+      "callCount": 1
+    },
+    {
+      "name": "cpsaClearGenerated",
+      "callCount": 1
+    },
+    {
+      "name": "cpsaCmd",
+      "callCount": 7
+    },
+    {
+      "name": "cpsaDeleteSection",
+      "callCount": 1
+    },
+    {
+      "name": "cpsaExportPDF",
+      "callCount": 1
+    },
+    {
+      "name": "cpsaExportWord",
+      "callCount": 1
+    },
+    {
+      "name": "cpsaGenerateLegalTemplate",
+      "callCount": 6
+    },
+    {
+      "name": "cpsaInsertCitation",
+      "callCount": 4
+    },
+    {
+      "name": "cpsaInsertImage",
+      "callCount": 1
+    },
+    {
+      "name": "cpsaMoveSection",
+      "callCount": 2
+    },
+    {
+      "name": "cpsaOpenCodeEditor",
+      "callCount": 1
+    },
+    {
+      "name": "cpsaOpenImageModal",
+      "callCount": 1
+    },
+    {
+      "name": "cpsaPreviewDocument",
+      "callCount": 1
+    },
+    {
+      "name": "cpsaPrint",
+      "callCount": 1
+    },
+    {
+      "name": "cpsaPrintGenerated",
+      "callCount": 1
+    },
+    {
+      "name": "cpsaRedo",
+      "callCount": 1
+    },
+    {
+      "name": "cpsaSaveAll",
+      "callCount": 1
+    },
+    {
+      "name": "cpsaSaveGenerated",
+      "callCount": 1
+    },
+    {
+      "name": "cpsaSetCase",
+      "callCount": 3
+    },
+    {
+      "name": "cpsaSwitchDoc",
+      "callCount": 15
+    },
+    {
+      "name": "cpsaToggleFormPanel",
+      "callCount": 1
+    },
+    {
+      "name": "cpsaUndo",
+      "callCount": 1
+    },
+    {
+      "name": "cpsaViewUpdatedCode",
+      "callCount": 1
+    },
+    {
+      "name": "createAgent",
+      "callCount": 1
+    },
+    {
+      "name": "deleteAP",
+      "callCount": 1
+    },
+    {
+      "name": "deleteAR",
+      "callCount": 1
+    },
+    {
+      "name": "deleteAccount",
+      "callCount": 1
+    },
+    {
+      "name": "deleteAsset",
+      "callCount": 1
+    },
+    {
+      "name": "deleteCustomer",
+      "callCount": 1
+    },
+    {
+      "name": "deleteEntity",
+      "callCount": 1
+    },
+    {
+      "name": "deleteEntry",
+      "callCount": 1
+    },
+    {
+      "name": "deleteExpense",
+      "callCount": 1
+    },
+    {
+      "name": "deleteFiling",
+      "callCount": 1
+    },
+    {
+      "name": "deleteInvoice",
+      "callCount": 1
+    },
+    {
+      "name": "deleteJournalEntry",
+      "callCount": 1
+    },
+    {
+      "name": "deleteRecon",
+      "callCount": 1
+    },
+    {
+      "name": "deleteVendor",
+      "callCount": 1
+    },
+    {
+      "name": "doResearch",
+      "callCount": 1
+    },
+    {
+      "name": "doSearch",
+      "callCount": 1
+    },
+    {
+      "name": "docCmd",
+      "callCount": 9
+    },
+    {
+      "name": "docRedo",
+      "callCount": 1
+    },
+    {
+      "name": "docUndo",
+      "callCount": 1
+    },
+    {
+      "name": "dtClearHistory",
+      "callCount": 1
+    },
+    {
+      "name": "dtNewChat",
+      "callCount": 1
+    },
+    {
+      "name": "dtSend",
+      "callCount": 1
+    },
+    {
+      "name": "eeejJumpTo",
+      "callCount": 5
+    },
+    {
+      "name": "eeejNext",
+      "callCount": 1
+    },
+    {
+      "name": "eeejPrev",
+      "callCount": 1
+    },
+    {
+      "name": "eeonTab",
+      "callCount": 11
+    },
+    {
+      "name": "exitPDFViewer",
+      "callCount": 1
+    },
+    {
+      "name": "exitPackageBuilder",
+      "callCount": 1
+    },
+    {
+      "name": "export1099ToFilingChainCSV",
+      "callCount": 1
+    },
+    {
+      "name": "exportCSV",
+      "callCount": 1
+    },
+    {
+      "name": "exportChat",
+      "callCount": 1
+    },
+    {
+      "name": "exportChatHistory",
+      "callCount": 1
+    },
+    {
+      "name": "exportDocPDF",
+      "callCount": 1
+    },
+    {
+      "name": "exportDocWord",
+      "callCount": 1
+    },
+    {
+      "name": "exportEntitiesToMasterRegisterCSV",
+      "callCount": 1
+    },
+    {
+      "name": "exportExpensesCSV",
+      "callCount": 1
+    },
+    {
+      "name": "exportFiling",
+      "callCount": 15
+    },
+    {
+      "name": "exportJournalEntries",
+      "callCount": 1
+    },
+    {
+      "name": "exportJournalToTransactionCSV",
+      "callCount": 1
+    },
+    {
+      "name": "exportLedgerToTransactionCSV",
+      "callCount": 1
+    },
+    {
+      "name": "exportPackagePDF",
+      "callCount": 1
+    },
+    {
+      "name": "exportPackageZIP",
+      "callCount": 1
+    },
+    {
+      "name": "exportPayablesToObligationsCSV",
+      "callCount": 1
+    },
+    {
+      "name": "exportStatements",
+      "callCount": 1
+    },
+    {
+      "name": "exportVerifierResults",
+      "callCount": 1
+    },
+    {
+      "name": "fdrfReadSection",
+      "callCount": 1
+    },
+    {
+      "name": "fdrfToggleAccordion",
+      "callCount": 12
+    },
+    {
+      "name": "fdrfTogglePart",
+      "callCount": 4
+    },
+    {
+      "name": "filterAccounts",
+      "callCount": 6
+    },
+    {
+      "name": "filterVerifierResults",
+      "callCount": 5
+    },
+    {
+      "name": "generateBadDebtActionPlan",
+      "callCount": 1
+    },
+    {
+      "name": "generateEliminations",
+      "callCount": 1
+    },
+    {
+      "name": "generateInterestReport",
+      "callCount": 1
+    },
+    {
+      "name": "generateJournalFromForms",
+      "callCount": 2
+    },
+    {
+      "name": "generateLossActionPlan",
+      "callCount": 1
+    },
+    {
+      "name": "generateMasterReport",
+      "callCount": 1
+    },
+    {
+      "name": "generateTrustAssetSummary",
+      "callCount": 1
+    },
+    {
+      "name": "generateTrustTrialBalance",
+      "callCount": 1
+    },
+    {
+      "name": "goEonPage",
+      "callCount": 26
+    },
+    {
+      "name": "import1099ToEstimator",
+      "callCount": 1
+    },
+    {
+      "name": "import1099ToTRCF",
+      "callCount": 1
+    },
+    {
+      "name": "insertCitation",
+      "callCount": 1
+    },
+    {
+      "name": "loadDefaultCOA",
+      "callCount": 1
+    },
+    {
+      "name": "loadDocTemplate",
+      "callCount": 1
+    },
+    {
+      "name": "loadFiling",
+      "callCount": 1
+    },
+    {
+      "name": "manualSave",
+      "callCount": 1
+    },
+    {
+      "name": "markInvoicePaid",
+      "callCount": 1
+    },
+    {
+      "name": "newBlankDoc",
+      "callCount": 1
+    },
+    {
+      "name": "noiAsk",
+      "callCount": 1
+    },
+    {
+      "name": "pauseVoice",
+      "callCount": 1
+    },
+    {
+      "name": "populateAllForms",
+      "callCount": 9
+    },
+    {
+      "name": "previewData",
+      "callCount": 1
+    },
+    {
+      "name": "printBOE",
+      "callCount": 1
+    },
+    {
+      "name": "printDoc",
+      "callCount": 1
+    },
+    {
+      "name": "printExpenseReport",
+      "callCount": 1
+    },
+    {
+      "name": "printForm",
+      "callCount": 10
+    },
+    {
+      "name": "printInvoice",
+      "callCount": 1
+    },
+    {
+      "name": "printMasterReport",
+      "callCount": 1
+    },
+    {
+      "name": "printPackage",
+      "callCount": 1
+    },
+    {
+      "name": "printPaymentOrder",
+      "callCount": 1
+    },
+    {
+      "name": "printReconciliation",
+      "callCount": 1
+    },
+    {
+      "name": "printSpecificBOE",
+      "callCount": 1
+    },
+    {
+      "name": "printSpecificPO",
+      "callCount": 1
+    },
+    {
+      "name": "recordAPPayment",
+      "callCount": 1
+    },
+    {
+      "name": "recordARPayment",
+      "callCount": 1
+    },
+    {
+      "name": "removeInvLine",
+      "callCount": 2
+    },
+    {
+      "name": "removeJournalLine",
+      "callCount": 1
+    },
+    {
+      "name": "removeSourceFolder",
+      "callCount": 1
+    },
+    {
+      "name": "resolveSyncConflicts",
+      "callCount": 1
+    },
+    {
+      "name": "runEntityVerification",
+      "callCount": 1
+    },
+    {
+      "name": "saveAcctLib",
+      "callCount": 1
+    },
+    {
+      "name": "saveAsset",
+      "callCount": 1
+    },
+    {
+      "name": "saveBOE",
+      "callCount": 1
+    },
+    {
+      "name": "saveBudget",
+      "callCount": 1
+    },
+    {
+      "name": "saveContact",
+      "callCount": 2
+    },
+    {
+      "name": "saveExpense",
+      "callCount": 1
+    },
+    {
+      "name": "saveFiling",
+      "callCount": 15
+    },
+    {
+      "name": "saveInventoryItem",
+      "callCount": 1
+    },
+    {
+      "name": "saveInvoice",
+      "callCount": 1
+    },
+    {
+      "name": "saveKeys",
+      "callCount": 1
+    },
+    {
+      "name": "saveLedger",
+      "callCount": 1
+    },
+    {
+      "name": "savePaymentOrder",
+      "callCount": 1
+    },
+    {
+      "name": "savePayrollRecord",
+      "callCount": 1
+    },
+    {
+      "name": "saveReconciliation",
+      "callCount": 1
+    },
+    {
+      "name": "saveScheduleA",
+      "callCount": 1
+    },
+    {
+      "name": "searchWeb",
+      "callCount": 1
+    },
+    {
+      "name": "selectFilingType",
+      "callCount": 15
+    },
+    {
+      "name": "selectPackagePreset",
+      "callCount": 4
+    },
+    {
+      "name": "sendChat",
+      "callCount": 2
+    },
+    {
+      "name": "sendTrustAgentQuery",
+      "callCount": 1
+    },
+    {
+      "name": "setAlloc",
+      "callCount": 4
+    },
+    {
+      "name": "shareChat",
+      "callCount": 1
+    },
+    {
+      "name": "showAPModal",
+      "callCount": 1
+    },
+    {
+      "name": "showARModal",
+      "callCount": 1
+    },
+    {
+      "name": "showAccountModal",
+      "callCount": 2
+    },
+    {
+      "name": "showAddContact",
+      "callCount": 2
+    },
+    {
+      "name": "showCOAImportWizard",
+      "callCount": 2
+    },
+    {
+      "name": "showClearConfirm",
+      "callCount": 1
+    },
+    {
+      "name": "showEmployeeModal",
+      "callCount": 1
+    },
+    {
+      "name": "showEntityModal",
+      "callCount": 2
+    },
+    {
+      "name": "showFASub",
+      "callCount": 9
+    },
+    {
+      "name": "showInventoryItemModal",
+      "callCount": 1
+    },
+    {
+      "name": "showInvoiceForm",
+      "callCount": 1
+    },
+    {
+      "name": "showPackageBuilder",
+      "callCount": 1
+    },
+    {
+      "name": "showTaxSubTab",
+      "callCount": 4
+    },
+    {
+      "name": "showVerifierDetail",
+      "callCount": 1
+    },
+    {
+      "name": "speakResponse",
+      "callCount": 1
+    },
+    {
+      "name": "startVoiceRec",
+      "callCount": 1
+    },
+    {
+      "name": "stopVoiceRec",
+      "callCount": 1
+    },
+    {
+      "name": "stopVoiceTTS",
+      "callCount": 1
+    },
+    {
+      "name": "switchMainTab",
+      "callCount": 41
+    },
+    {
+      "name": "syncPull",
+      "callCount": 3
+    },
+    {
+      "name": "syncPullAll",
+      "callCount": 1
+    },
+    {
+      "name": "syncPush",
+      "callCount": 4
+    },
+    {
+      "name": "syncPushAll",
+      "callCount": 1
+    },
+    {
+      "name": "testConnection",
+      "callCount": 1
+    },
+    {
+      "name": "toggleAccordion",
+      "callCount": 6
+    },
+    {
+      "name": "toggleDarkMode",
+      "callCount": 1
+    },
+    {
+      "name": "toggleEonSidebar",
+      "callCount": 2
+    },
+    {
+      "name": "toggleMic",
+      "callCount": 2
+    },
+    {
+      "name": "trcfCalcInterestUI",
+      "callCount": 1
+    },
+    {
+      "name": "trcfCalculateRoute1",
+      "callCount": 1
+    },
+    {
+      "name": "trcfCalculateRoute2",
+      "callCount": 1
+    },
+    {
+      "name": "trcfSelectRoute",
+      "callCount": 2
+    },
+    {
+      "name": "trcfSwitchTab",
+      "callCount": 7
+    },
+    {
+      "name": "triggerPackageFromAgent",
+      "callCount": 1
+    },
+    {
+      "name": "trustAgentQ",
+      "callCount": 16
+    },
+    {
+      "name": "trustApplyFilters",
+      "callCount": 1
+    },
+    {
+      "name": "trustDeleteEntry",
+      "callCount": 1
+    },
+    {
+      "name": "trustExportCSV",
+      "callCount": 2
+    },
+    {
+      "name": "trustExportJSON",
+      "callCount": 1
+    },
+    {
+      "name": "trustHideForm",
+      "callCount": 1
+    },
+    {
+      "name": "trustPrintReport",
+      "callCount": 1
+    },
+    {
+      "name": "trustResetFilters",
+      "callCount": 1
+    },
+    {
+      "name": "trustSaveEntry",
+      "callCount": 1
+    },
+    {
+      "name": "trustShowForm",
+      "callCount": 2
+    },
+    {
+      "name": "viewJournalEntry",
+      "callCount": 1
+    }
+  ],
+  "missing": [
+    {
+      "name": "getElementById",
+      "callCount": 13
+    },
+    {
+      "name": "sendQuick",
+      "callCount": 12
+    },
+    {
+      "name": "splice",
+      "callCount": 4
+    },
+    {
+      "name": "print",
+      "callCount": 3
+    },
+    {
+      "name": "closest",
+      "callCount": 2
+    },
+    {
+      "name": "exportAllHistory",
+      "callCount": 2
+    },
+    {
+      "name": "Blob",
+      "callCount": 1
+    },
+    {
+      "name": "_confirmCallback",
+      "callCount": 1
+    },
+    {
+      "name": "addCalEvent",
+      "callCount": 1
+    },
+    {
+      "name": "addVaultEntry",
+      "callCount": 1
+    },
+    {
+      "name": "cancel",
+      "callCount": 1
+    },
+    {
+      "name": "clearMemory",
+      "callCount": 1
+    },
+    {
+      "name": "eeonSendChat",
+      "callCount": 1
+    },
+    {
+      "name": "exportBackup",
+      "callCount": 1
+    },
+    {
+      "name": "genPW",
+      "callCount": 1
+    },
+    {
+      "name": "mem0ClearAll",
+      "callCount": 1
+    },
+    {
+      "name": "refreshOllamaModels",
+      "callCount": 1
+    },
+    {
+      "name": "savePrefs",
+      "callCount": 1
+    },
+    {
+      "name": "speakTTS",
+      "callCount": 1
+    },
+    {
+      "name": "testSyncConnection",
+      "callCount": 1
+    },
+    {
+      "name": "toggleAgentSTT",
+      "callCount": 1
+    },
+    {
+      "name": "toggleAgentTTS",
+      "callCount": 1
+    },
+    {
+      "name": "toggleVoiceMic",
+      "callCount": 1
+    },
+    {
+      "name": "unlockVault",
+      "callCount": 1
+    },
+    {
+      "name": "writeText",
+      "callCount": 1
+    }
+  ]
+}

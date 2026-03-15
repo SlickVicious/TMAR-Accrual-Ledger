@@ -1,3 +1,11 @@
 node_modules/
 .DS_Store
 coverage/
+
+# NOI Agent Browser — Do Not Upload
+bearer.token
+config.toml
+gateway.json
+logs/
+memory/
+sessions/

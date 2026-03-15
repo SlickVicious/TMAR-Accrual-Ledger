@@ -1,7 +1,10 @@
 # TMAR-Aligned Universal Accrual Ledger — Design Document
 
-**Version**: 2.0 (expanded from elegant-drifting-goblet plan)
-**Date**: 2026-03-01
+**Status**: ✅ IMPLEMENTED — 2026-03-04
+**Output File**: `TMAR-Accrual-Ledger.html` (~19,030 lines, 1.3MB)
+
+**Version**: 2.1 (expanded: Sync Center + Entity Verifier + RedressRight Libraries)
+**Date**: 2026-03-04
 **Approach**: Fork & Refactor from `redressright.me/GAAP.html`
 **Reference**: `GAAP-SOURCE-ASSOCIATION-CHART.md` (full GUI mapping)
 
@@ -11,13 +14,13 @@
 
 | Decision | Choice | Session Date |
 |---|---|---|
-| Module scope | All 31 tabs (32 minus UK Accounting) | 2026-02-28 |
+| Module scope | 38 tabs in 11 groups (original 32 minus UK, plus Entity Verifier, Sync Center, 5 RedressRight libraries) | 2026-03-04 |
 | Customization depth | Deep adaptation (pre-populate TMAR data, rename modules, restyle) | 2026-02-28 |
 | Modules removed | UK Accounting only | 2026-02-28 |
 | Google Sheets sync | Fully independent (localStorage only) | 2026-02-28 |
 | Implementation approach | Plan A: Fork & Refactor | 2026-02-28 |
 | Visual identity | Strip RedressRight branding, TMAR palette, Calibri font | 2026-02-28 |
-| Tab restructuring | 8 logical groups, 30 tabs, SPV→Trust Estate, GAAP Agent→Trust Accounting Agent | 2026-02-28 |
+| Tab restructuring | 11 logical groups, 38 tabs, SPV→Trust Estate, GAAP Agent→Trust Accounting Agent | 2026-03-04 |
 
 ---
 
@@ -74,7 +77,7 @@ body { font-family: Calibri, 'Segoe UI', system-ui, sans-serif; }
 
 ---
 
-## 3. Tab Restructuring (31 tabs → 8 groups)
+## 3. Tab Restructuring (38 tabs → 11 groups)
 
 ### Group 1: Core Accounting
 | Tab | Original Name | TMAR Name | data-tab |
@@ -138,6 +141,25 @@ body { font-family: Calibri, 'Segoe UI', system-ui, sans-serif; }
 | 29 | Financial Assets | Financial Assets | `financialAssets` |
 | 30 | Document Creator | Document Creator | `docCreator` |
 | 31 | Source Folders | Source Folders | `sourceFolders` |
+
+### Group 9: RedressRight Source Libraries (v1.1.0)
+| Tab | TMAR Name | data-tab |
+|---|---|---|
+| 32 | Constitutional Challenges (CPSA) | `cpsa` |
+| 33 | Tax Refund Calculator (TRCF) | `trcf` |
+| 34 | NOL Classification (CCSN) | `ccsn` |
+| 35 | Federal Damages (FDRF) | `fdrf` |
+| 36 | Tutorial Journal (EEEJ) | `eeej` |
+
+### Group 10: Entity Verifier (v1.2.0)
+| Tab | TMAR Name | data-tab |
+|---|---|---|
+| 37 | Entity Verifier | `entityVerifier` |
+
+### Group 11: Data Integration (v1.4.0)
+| Tab | TMAR Name | data-tab |
+|---|---|---|
+| 38 | Sync Center | `syncCenter` |
 
 ### Removed
 - ~~UK Accounting~~ (`ukAccounting`) — removed entirely
@@ -256,17 +278,17 @@ Single self-contained HTML file: `TMAR-Accrual-Ledger.html`
 </head>
 <body>
   <!-- TMAR Header: title + trust subtitle + toolbar (toggle, save, export, import, clear) -->
-  <!-- Tab Navigation: 31 buttons in 8 groups with dividers -->
-  <!-- 31 Tab Sections (each with class="form-section") -->
+  <!-- Tab Navigation: 38 buttons in 11 groups with dividers -->
+  <!-- 38 Tab Sections (each with class="form-section") -->
   <!-- Modal Container -->
   <!-- Auto-save Status Toast -->
 
   <script>
-    /* ~6000+ lines:
+    /* ~15,000+ lines:
        - Theme system (dark/light with TMAR palette)
        - Data model & localStorage persistence (TMAR_AccrualLedger_Data)
        - Auto-save (5s interval + beforeunload)
-       - switchMainTab() with 31 tab initializers
+       - switchMainTab() with 38 tab initializers
        - Ledger CRUD
        - Entity management (pre-populated trust)
        - COA (68 GAAP accounts)
@@ -286,8 +308,11 @@ Single self-contained HTML file: `TMAR-Accrual-Ledger.html`
        - Financial Assets (9 panels)
        - Document Creator
        - Source Folders
+       - RedressRight Libraries (CPSA, TRCF, CCSN, FDRF, EEEJ)
+       - Entity Verifier (SEC EDGAR integration)
+       - Sync Center (22 functions: 5 export, 4 import, 13 utilities)
        - Export system (PDF, Word, CSV, JSON)
-       - Import system (JSON)
+       - Import system (JSON, CSV)
        - Modal/Alert/Confirm system
     */
   </script>
@@ -313,8 +338,13 @@ const defaultAppData = {
     trustEIN: "41-6809588",
     trusteeName: "Clinton Wimberly IV",
     cafNumber: "0317-17351",
-    activeYear: "2025"
+    activeYear: "2025",
+    gasWebAppUrl: "",          // GAS Web App URL for Sync Center (Tier 2)
+    lastSyncTimestamp: null,   // Last successful sync timestamp
+    googleClientId: "",        // Google OAuth client ID (Tier 3)
+    spreadsheetId: ""          // TMAR Google Sheet ID
   },
+  syncLog: [],                 // Sync Center operation log (last 50 entries)
   lastSaved: null
 };
 ```
@@ -346,7 +376,7 @@ const defaultAppData = {
 2. Dark mode loads by default with TMAR navy/blue palette
 3. No RedressRight branding visible anywhere
 4. Header shows "TMAR Universal Accrual Ledger" + trust name
-5. All 31 tabs render without errors (no UK Accounting tab)
+5. All 38 tabs render without errors (no UK Accounting tab)
 6. Trust Estate tabs show correct labels (not "SPV")
 7. Trust Accounting Agent label (not "GAAP Agent")
 8. Entities tab has pre-populated trust entity (EIN, Trustee, CAF)
@@ -362,3 +392,8 @@ const defaultAppData = {
 18. All 4 CDN libraries load successfully
 19. Auto-save toast appears every 5 seconds
 20. Master Report pulls from all modules
+21. Sync Center tab renders with connection card, export/import panels, live sync panel
+22. CSV exports download correctly (entities, ledger, journal, 1099, payables)
+23. CSV imports parse and apply with dedup/conflict detection
+24. Sync log records operations with timestamps
+25. EINs are masked (••-•••XXXX) on all CSV exports
