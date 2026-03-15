@@ -13415,6 +13415,14 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
                 <input id="tvar-grantor" placeholder="e.g. John Henry Smith (leave blank = same as Trustee)" style="width:100%;padding:6px 8px;border:1px solid rgba(139,92,246,.3);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);font-size:12px;box-sizing:border-box">
               </div>
               <div>
+                <label style="display:block;font-size:10px;color:var(--text-secondary);margin-bottom:2px">Co-Trustee Name <span style="color:#8b5cf6">→ {{CO_TRUSTEE}}</span></label>
+                <input id="tvar-coTrustee" placeholder="e.g. Jane Smith (leave blank if none)" style="width:100%;padding:6px 8px;border:1px solid rgba(139,92,246,.3);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);font-size:12px;box-sizing:border-box">
+              </div>
+              <div>
+                <label style="display:block;font-size:10px;color:var(--text-secondary);margin-bottom:2px">Successor Trustee <span style="color:#8b5cf6">→ {{SUCCESSOR_TRUSTEE}}</span></label>
+                <input id="tvar-successorTrustee" placeholder="e.g. Robert Smith" style="width:100%;padding:6px 8px;border:1px solid rgba(139,92,246,.3);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);font-size:12px;box-sizing:border-box">
+              </div>
+              <div>
                 <label style="display:block;font-size:10px;color:var(--text-secondary);margin-bottom:2px">Mailing Address <span style="color:#8b5cf6">→ {{ADDRESS}}</span></label>
                 <input id="tvar-address" placeholder="e.g. 123 Main St, Jackson MS 39201" style="width:100%;padding:6px 8px;border:1px solid rgba(139,92,246,.3);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);font-size:12px;box-sizing:border-box">
               </div>
@@ -18316,8 +18324,8 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
       '{{ENTITY_NAME}}':       e.name || s.trustName || '',
       '{{TRUSTEE}}':           e.trustee || s.trusteeName || '',
       '{{GRANTOR}}':           s.grantor || s.trusteeName || '',
-      '{{CO_TRUSTEE}}':        '____________________________',
-      '{{SUCCESSOR_TRUSTEE}}': '____________________________',
+      '{{CO_TRUSTEE}}':        s.coTrustee       || '',
+      '{{SUCCESSOR_TRUSTEE}}': s.successorTrustee || '',
       '{{EIN}}':               e.ein || s.trustEIN || '',
       '{{CAF_NUMBER}}':        e.cafNumber || s.cafNumber || '',
       '{{JURISDICTION}}':      s.jurisdiction || '',
@@ -18659,15 +18667,17 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     if (!ed) return;
     if (ed.style.display === 'none') {
       var s = appData.settings || {};
-      document.getElementById('tvar-trustName').value    = s.trustName    || '';
-      document.getElementById('tvar-trusteeName').value  = s.trusteeName  || '';
-      document.getElementById('tvar-trustEIN').value     = s.trustEIN     || '';
-      document.getElementById('tvar-cafNumber').value    = s.cafNumber    || '';
-      document.getElementById('tvar-jurisdiction').value = s.jurisdiction || '';
-      document.getElementById('tvar-grantor').value      = s.grantor      || '';
-      document.getElementById('tvar-address').value      = s.address      || '';
-      document.getElementById('tvar-court').value        = s.court        || '';
-      document.getElementById('tvar-activeYear').value   = s.activeYear   || new Date().getFullYear().toString();
+      document.getElementById('tvar-trustName').value         = s.trustName         || '';
+      document.getElementById('tvar-trusteeName').value       = s.trusteeName       || '';
+      document.getElementById('tvar-trustEIN').value          = s.trustEIN          || '';
+      document.getElementById('tvar-cafNumber').value         = s.cafNumber         || '';
+      document.getElementById('tvar-jurisdiction').value      = s.jurisdiction      || '';
+      document.getElementById('tvar-grantor').value           = s.grantor           || '';
+      document.getElementById('tvar-coTrustee').value         = s.coTrustee         || '';
+      document.getElementById('tvar-successorTrustee').value  = s.successorTrustee  || '';
+      document.getElementById('tvar-address').value           = s.address           || '';
+      document.getElementById('tvar-court').value             = s.court             || '';
+      document.getElementById('tvar-activeYear').value        = s.activeYear        || new Date().getFullYear().toString();
       ed.style.display = 'block';
       if (btn) btn.textContent = '▲ Close Editor';
     } else {
@@ -18678,15 +18688,17 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
 
   function saveTemplateVars() {
     var s = appData.settings = appData.settings || {};
-    s.trustName    = (document.getElementById('tvar-trustName').value    || '').trim();
-    s.trusteeName  = (document.getElementById('tvar-trusteeName').value  || '').trim();
-    s.trustEIN     = (document.getElementById('tvar-trustEIN').value     || '').trim();
-    s.cafNumber    = (document.getElementById('tvar-cafNumber').value    || '').trim();
-    s.jurisdiction = (document.getElementById('tvar-jurisdiction').value || '').trim();
-    s.grantor      = (document.getElementById('tvar-grantor').value      || '').trim();
-    s.address      = (document.getElementById('tvar-address').value      || '').trim();
-    s.court        = (document.getElementById('tvar-court').value        || '').trim();
-    s.activeYear   = (document.getElementById('tvar-activeYear').value   || '').trim();
+    s.trustName        = (document.getElementById('tvar-trustName').value        || '').trim();
+    s.trusteeName      = (document.getElementById('tvar-trusteeName').value      || '').trim();
+    s.trustEIN         = (document.getElementById('tvar-trustEIN').value         || '').trim();
+    s.cafNumber        = (document.getElementById('tvar-cafNumber').value        || '').trim();
+    s.jurisdiction     = (document.getElementById('tvar-jurisdiction').value     || '').trim();
+    s.grantor          = (document.getElementById('tvar-grantor').value          || '').trim();
+    s.coTrustee        = (document.getElementById('tvar-coTrustee').value        || '').trim();
+    s.successorTrustee = (document.getElementById('tvar-successorTrustee').value || '').trim();
+    s.address          = (document.getElementById('tvar-address').value          || '').trim();
+    s.court            = (document.getElementById('tvar-court').value            || '').trim();
+    s.activeYear       = (document.getElementById('tvar-activeYear').value       || '').trim();
     if (typeof saveToStorage === 'function') saveToStorage();
     updateVariablePreview();
     if (typeof updateHeaderSubtitle === 'function') updateHeaderSubtitle();
@@ -18705,15 +18717,17 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     var payload = {
       _note: 'TMAR Template Variables — import this file on any device',
       _exported: new Date().toISOString(),
-      trustName:    s.trustName    || '',
-      trusteeName:  s.trusteeName  || '',
-      trustEIN:     s.trustEIN     || '',
-      cafNumber:    s.cafNumber    || '',
-      jurisdiction: s.jurisdiction || '',
-      grantor:      s.grantor      || '',
-      address:      s.address      || '',
-      court:        s.court        || '',
-      activeYear:   s.activeYear   || ''
+      trustName:        s.trustName        || '',
+      trusteeName:      s.trusteeName      || '',
+      trustEIN:         s.trustEIN         || '',
+      cafNumber:        s.cafNumber        || '',
+      jurisdiction:     s.jurisdiction     || '',
+      grantor:          s.grantor          || '',
+      coTrustee:        s.coTrustee        || '',
+      successorTrustee: s.successorTrustee || '',
+      address:          s.address          || '',
+      court:            s.court            || '',
+      activeYear:       s.activeYear       || ''
     };
     var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     var url = URL.createObjectURL(blob);
@@ -18732,28 +18746,32 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
       try {
         var data = JSON.parse(e.target.result);
         var s = appData.settings = appData.settings || {};
-        if (data.trustName    !== undefined) s.trustName    = data.trustName;
-        if (data.trusteeName  !== undefined) s.trusteeName  = data.trusteeName;
-        if (data.trustEIN     !== undefined) s.trustEIN     = data.trustEIN;
-        if (data.cafNumber    !== undefined) s.cafNumber    = data.cafNumber;
-        if (data.jurisdiction !== undefined) s.jurisdiction = data.jurisdiction;
-        if (data.grantor      !== undefined) s.grantor      = data.grantor;
-        if (data.address      !== undefined) s.address      = data.address;
-        if (data.court        !== undefined) s.court        = data.court;
-        if (data.activeYear   !== undefined) s.activeYear   = data.activeYear;
+        if (data.trustName        !== undefined) s.trustName        = data.trustName;
+        if (data.trusteeName      !== undefined) s.trusteeName      = data.trusteeName;
+        if (data.trustEIN         !== undefined) s.trustEIN         = data.trustEIN;
+        if (data.cafNumber        !== undefined) s.cafNumber        = data.cafNumber;
+        if (data.jurisdiction     !== undefined) s.jurisdiction     = data.jurisdiction;
+        if (data.grantor          !== undefined) s.grantor          = data.grantor;
+        if (data.coTrustee        !== undefined) s.coTrustee        = data.coTrustee;
+        if (data.successorTrustee !== undefined) s.successorTrustee = data.successorTrustee;
+        if (data.address          !== undefined) s.address          = data.address;
+        if (data.court            !== undefined) s.court            = data.court;
+        if (data.activeYear       !== undefined) s.activeYear       = data.activeYear;
         if (typeof saveToStorage === 'function') saveToStorage();
         // Re-populate form fields and refresh preview
         var ed = document.getElementById('tmpl-var-editor');
         if (ed && ed.style.display !== 'none') {
-          document.getElementById('tvar-trustName').value    = s.trustName    || '';
-          document.getElementById('tvar-trusteeName').value  = s.trusteeName  || '';
-          document.getElementById('tvar-trustEIN').value     = s.trustEIN     || '';
-          document.getElementById('tvar-cafNumber').value    = s.cafNumber    || '';
-          document.getElementById('tvar-jurisdiction').value = s.jurisdiction || '';
-          document.getElementById('tvar-grantor').value      = s.grantor      || '';
-          document.getElementById('tvar-address').value      = s.address      || '';
-          document.getElementById('tvar-court').value        = s.court        || '';
-          document.getElementById('tvar-activeYear').value   = s.activeYear   || '';
+          document.getElementById('tvar-trustName').value         = s.trustName         || '';
+          document.getElementById('tvar-trusteeName').value       = s.trusteeName       || '';
+          document.getElementById('tvar-trustEIN').value          = s.trustEIN          || '';
+          document.getElementById('tvar-cafNumber').value         = s.cafNumber         || '';
+          document.getElementById('tvar-jurisdiction').value      = s.jurisdiction      || '';
+          document.getElementById('tvar-grantor').value           = s.grantor           || '';
+          document.getElementById('tvar-coTrustee').value         = s.coTrustee         || '';
+          document.getElementById('tvar-successorTrustee').value  = s.successorTrustee  || '';
+          document.getElementById('tvar-address').value           = s.address           || '';
+          document.getElementById('tvar-court').value             = s.court             || '';
+          document.getElementById('tvar-activeYear').value        = s.activeYear        || '';
         }
         updateVariablePreview();
         if (typeof updateHeaderSubtitle === 'function') updateHeaderSubtitle();
