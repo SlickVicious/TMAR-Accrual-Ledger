@@ -13248,6 +13248,24 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
             <option value="non_decedent_notice">Notice of Non-Decedent</option>
             <option value="witness_affidavit">Witness Affidavit (3-Witness)</option>
             <option value="certificate_of_service">Certificate of Service</option>
+            <option value="irs_cover_letter">IRS Cover Letter</option>
+            <option value="admin_notice_fiduciary">Administrative Notice (Fiduciary)</option>
+            <option value="distribution_matrix">Distribution Matrix &amp; Mailing Instructions</option>
+          </optgroup>
+          <optgroup label="── Status Correction &amp; Notices ──">
+            <option value="sc_decl_political_status">01 — Declaration of Political Status</option>
+            <option value="sc_decl_naturalization">02 — Declaration of Naturalization</option>
+            <option value="sc_revocation_election">03 — Revocation of Election to Pay Taxes</option>
+            <option value="sc_mandatory_notice_fsi">04 — Mandatory Notice: Foreign Sovereign Immunity</option>
+            <option value="sc_ssa_ethnicity_correction">05 — SSA Ethnicity Correction Letter</option>
+            <option value="sc_distribution_matrix">06 — Distribution Matrix &amp; Mailing Instructions</option>
+            <option value="certificate_assumed_name_dba">07 — Certificate of Assumed Name / DBA</option>
+            <option value="affidavit_of_ownership">08 — Affidavit of Ownership</option>
+            <option value="executor_designation">09 — Executor / Executrix Designation</option>
+            <option value="sc_form_2848_guide">10 — Form 2848 Instructions Guide</option>
+            <option value="sc_sf181_guide">11 — SF-181 Race &amp; National Origin Guide</option>
+            <option value="sc_cp575_ein_guide">12 — CP-575 EIN Assignment Guide</option>
+            <option value="sc_sole_proprietor_decl">13 — Sole Proprietor Declaration</option>
           </optgroup>
         </select>
         <button onclick="loadDocTemplate()" style="padding:6px 14px;border:1px solid rgba(6,182,212,.4);border-radius:4px;background:rgba(6,182,212,.15);color:#06b6d4;cursor:pointer;font-weight:700;font-size:11px">Load Template</button>
@@ -13339,6 +13357,9 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
             <button onclick="selectPackagePreset('irsNotification')" class="pkg-preset-btn" style="padding:8px 14px;border:1px solid rgba(239,68,68,.4);border-radius:6px;background:rgba(239,68,68,.1);color:#ef4444;cursor:pointer;font-weight:700;font-size:11px">★ IRS Notification (Part III)</button>
             <button onclick="selectPackagePreset('bankingSetup')" class="pkg-preset-btn" style="padding:8px 14px;border:1px solid rgba(59,130,246,.4);border-radius:6px;background:rgba(59,130,246,.1);color:#3b82f6;cursor:pointer;font-weight:700;font-size:11px">★ Banking Setup (Part IV)</button>
             <button onclick="selectPackagePreset('fullTrustAdmin')" class="pkg-preset-btn" style="padding:8px 14px;border:1px solid rgba(245,158,11,.4);border-radius:6px;background:rgba(245,158,11,.1);color:#f59e0b;cursor:pointer;font-weight:700;font-size:11px">★ Full Trust Admin</button>
+            <button onclick="selectPackagePreset('fiduciaryFiling')" class="pkg-preset-btn" style="padding:8px 14px;border:1px solid rgba(6,182,212,.4);border-radius:6px;background:rgba(6,182,212,.1);color:#06b6d4;cursor:pointer;font-weight:700;font-size:11px">★ Fiduciary Filing Package</button>
+            <button onclick="selectPackagePreset('statusCorrection')" class="pkg-preset-btn" style="padding:8px 14px;border:1px solid rgba(245,158,11,.4);border-radius:6px;background:rgba(245,158,11,.1);color:#f59e0b;cursor:pointer;font-weight:700;font-size:11px">★ Status Correction (Full 14-Doc)</button>
+            <button onclick="selectPackagePreset('statusCorrectionCore')" class="pkg-preset-btn" style="padding:8px 14px;border:1px solid rgba(245,158,11,.4);border-radius:6px;background:rgba(245,158,11,.1);color:#f59e0b;cursor:pointer;font-weight:700;font-size:11px">★ Status Correction (Core 4)</button>
           </div>
         </div>
 
@@ -13359,10 +13380,62 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
           </div>
         </div>
 
-        <!-- 4. Variable Preview -->
+        <!-- 4. Template Variables -->
         <div style="background:var(--bg-secondary);border:1px solid rgba(139,92,246,.3);border-radius:8px;padding:12px;margin-bottom:12px">
-          <div style="font-weight:700;color:#8b5cf6;font-size:12px;margin-bottom:8px">4. VARIABLE PREVIEW</div>
-          <div id="pkg-variable-preview" style="font-family:monospace;font-size:11px;color:var(--text-secondary);max-height:150px;overflow-y:auto"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <div style="font-weight:700;color:#8b5cf6;font-size:12px">4. TEMPLATE VARIABLES</div>
+            <button onclick="toggleTemplateVarEditor()" id="tmpl-var-edit-btn" style="padding:4px 12px;border:1px solid rgba(139,92,246,.4);border-radius:4px;background:rgba(139,92,246,.15);color:#8b5cf6;cursor:pointer;font-weight:700;font-size:11px">✏️ Edit Variables</button>
+          </div>
+          <!-- Editable variable form -->
+          <div id="tmpl-var-editor" style="display:none;border-top:1px solid rgba(139,92,246,.2);padding-top:10px;margin-bottom:10px">
+            <div style="font-size:10px;color:var(--text-secondary);margin-bottom:8px">These values auto-fill all <code style="color:#8b5cf6">{{TOKEN}}</code> placeholders in every template. Saved to local storage.</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+              <div>
+                <label style="display:block;font-size:10px;color:var(--text-secondary);margin-bottom:2px">Trust / Entity Name <span style="color:#8b5cf6">→ {{TRUST_NAME}}</span></label>
+                <input id="tvar-trustName" placeholder="e.g. SMITH FAMILY TRUST" style="width:100%;padding:6px 8px;border:1px solid rgba(139,92,246,.3);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);font-size:12px;box-sizing:border-box">
+              </div>
+              <div>
+                <label style="display:block;font-size:10px;color:var(--text-secondary);margin-bottom:2px">Trustee Name <span style="color:#8b5cf6">→ {{TRUSTEE}}</span></label>
+                <input id="tvar-trusteeName" placeholder="e.g. John Henry Smith" style="width:100%;padding:6px 8px;border:1px solid rgba(139,92,246,.3);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);font-size:12px;box-sizing:border-box">
+              </div>
+              <div>
+                <label style="display:block;font-size:10px;color:var(--text-secondary);margin-bottom:2px">Trust EIN <span style="color:#8b5cf6">→ {{EIN}}</span></label>
+                <input id="tvar-trustEIN" placeholder="e.g. 98-1234567" style="width:100%;padding:6px 8px;border:1px solid rgba(139,92,246,.3);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);font-size:12px;box-sizing:border-box">
+              </div>
+              <div>
+                <label style="display:block;font-size:10px;color:var(--text-secondary);margin-bottom:2px">CAF Number <span style="color:#8b5cf6">→ {{CAF_NUMBER}}</span></label>
+                <input id="tvar-cafNumber" placeholder="e.g. 1234567890" style="width:100%;padding:6px 8px;border:1px solid rgba(139,92,246,.3);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);font-size:12px;box-sizing:border-box">
+              </div>
+              <div>
+                <label style="display:block;font-size:10px;color:var(--text-secondary);margin-bottom:2px">Jurisdiction / State <span style="color:#8b5cf6">→ {{JURISDICTION}}</span></label>
+                <input id="tvar-jurisdiction" placeholder="e.g. Mississippi" style="width:100%;padding:6px 8px;border:1px solid rgba(139,92,246,.3);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);font-size:12px;box-sizing:border-box">
+              </div>
+              <div>
+                <label style="display:block;font-size:10px;color:var(--text-secondary);margin-bottom:2px">Grantor Name <span style="color:#8b5cf6">→ {{GRANTOR}}</span></label>
+                <input id="tvar-grantor" placeholder="e.g. John Henry Smith (leave blank = same as Trustee)" style="width:100%;padding:6px 8px;border:1px solid rgba(139,92,246,.3);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);font-size:12px;box-sizing:border-box">
+              </div>
+              <div>
+                <label style="display:block;font-size:10px;color:var(--text-secondary);margin-bottom:2px">Mailing Address <span style="color:#8b5cf6">→ {{ADDRESS}}</span></label>
+                <input id="tvar-address" placeholder="e.g. 123 Main St, Jackson MS 39201" style="width:100%;padding:6px 8px;border:1px solid rgba(139,92,246,.3);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);font-size:12px;box-sizing:border-box">
+              </div>
+              <div>
+                <label style="display:block;font-size:10px;color:var(--text-secondary);margin-bottom:2px">Court <span style="color:#8b5cf6">→ {{COURT}}</span></label>
+                <input id="tvar-court" placeholder="e.g. County Court, Hinds County" style="width:100%;padding:6px 8px;border:1px solid rgba(139,92,246,.3);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);font-size:12px;box-sizing:border-box">
+              </div>
+              <div>
+                <label style="display:block;font-size:10px;color:var(--text-secondary);margin-bottom:2px">Active Tax Year <span style="color:#8b5cf6">→ {{ACTIVE_YEAR}}</span></label>
+                <input id="tvar-activeYear" placeholder="e.g. 2025" style="width:100%;padding:6px 8px;border:1px solid rgba(139,92,246,.3);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);font-size:12px;box-sizing:border-box">
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+              <button onclick="saveTemplateVars()" style="padding:7px 18px;border:1px solid rgba(16,185,129,.4);border-radius:5px;background:rgba(16,185,129,.15);color:#10b981;cursor:pointer;font-weight:700;font-size:11px">💾 Save &amp; Refresh Preview</button>
+              <button onclick="exportTemplateSettings()" style="padding:7px 14px;border:1px solid rgba(6,182,212,.4);border-radius:5px;background:rgba(6,182,212,.1);color:#06b6d4;cursor:pointer;font-weight:700;font-size:11px" title="Download settings as JSON — commit to git so Mac picks them up">⬇ Export Settings</button>
+              <label style="padding:7px 14px;border:1px solid rgba(245,158,11,.4);border-radius:5px;background:rgba(245,158,11,.1);color:#f59e0b;cursor:pointer;font-weight:700;font-size:11px" title="Load settings from a previously exported JSON file">⬆ Import Settings<input type="file" accept=".json" style="display:none" onchange="importTemplateSettings(event)"></label>
+              <span style="font-size:10px;color:var(--text-secondary);margin-left:4px">💡 Export → commit to git → Mac auto-loads</span>
+            </div>
+          </div>
+          <!-- Variable status preview -->
+          <div id="pkg-variable-preview" style="font-family:monospace;font-size:11px;color:var(--text-secondary);max-height:130px;overflow-y:auto"></div>
         </div>
 
         <!-- 5. Actions -->
@@ -17803,7 +17876,431 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
       '<div style="margin-bottom:4px">____________________________</div>' +
       '<div style="margin-bottom:4px"><b>{{TRUSTEE}}</b></div>' +
       '<div style="margin-bottom:4px">Trustee / Administrator</div>' +
-      '<div style="margin-bottom:4px"><b>{{TRUST_NAME}}</b></div>'
+      '<div style="margin-bottom:4px"><b>{{TRUST_NAME}}</b></div>',
+
+    // ── FWM Trust Administration – 3 new templates ──────────────────────
+
+    irs_cover_letter:
+      '<div style="font-family:Times New Roman,serif;font-size:12pt;padding:40px 60px;line-height:2">' +
+      '<div style="margin-bottom:24px"><b>{{TRUSTEE}}</b><br>Trustee, {{TRUST_NAME}}<br>{{ADDRESS}}</div>' +
+      '<div style="margin-bottom:24px">{{DATE}}</div>' +
+      '<div style="margin-bottom:8px">Internal Revenue Service</div>' +
+      '<div style="margin-bottom:8px">Attention: Compliance / Fiduciary Processing Unit</div>' +
+      '<div style="margin-bottom:24px">1111 Constitution Avenue NW, Washington, DC 20224</div>' +
+      '<div style="margin-bottom:16px"><b>Re: {{TRUST_NAME}} / EIN: {{EIN}} — Enclosed Filing Submission</b></div>' +
+      '<div style="margin-bottom:16px">Dear IRS Commissioner/Officer,</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">This cover letter accompanies the enclosed documents submitted on behalf of <b>{{TRUST_NAME}}</b>, a <span style="color:#DC143C;font-weight:bold">[TYPE OF TRUST]</span> trust administered under the laws of <b>{{JURISDICTION}}</b>, Employer Identification Number (EIN): <b>{{EIN}}</b>.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold">ENCLOSED DOCUMENTS:</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">1. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">2. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">3. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">4. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:20px;padding-left:24px">5. ____________________________________________________________</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">All documents are submitted in good faith and in full compliance with applicable provisions of the Internal Revenue Code, Treasury Regulations, and applicable administrative procedures. Should any questions arise regarding these filings, please contact the undersigned trustee at the address above.</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">This submission is made without prejudice, under <span style="color:#DC143C;font-weight:bold">[UCC 1-308 / All Rights Reserved]</span>, and does not constitute a waiver of any rights, remedies, or defenses available at law or in equity.</div>' +
+      '<div style="margin-bottom:32px">Respectfully submitted,</div>' +
+      '<div style="margin-bottom:4px">____________________________</div>' +
+      '<div style="margin-bottom:4px"><b>{{TRUSTEE}}</b></div>' +
+      '<div style="margin-bottom:4px">Trustee / Administrator</div>' +
+      '<div style="margin-bottom:4px"><b>{{TRUST_NAME}}</b></div>' +
+      '<div style="margin-bottom:4px">EIN: {{EIN}}</div>' +
+      '</div>',
+
+    admin_notice_fiduciary:
+      '<div style="font-family:Times New Roman,serif;font-size:12pt;padding:40px 60px;line-height:2">' +
+      '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:4px">ADMINISTRATIVE NOTICE</div>' +
+      '<div style="text-align:center;font-size:13px;margin-bottom:4px">Notice of Fiduciary Relationship and Administrative Standing</div>' +
+      '<div style="text-align:center;font-size:11px;margin-bottom:24px">Issued pursuant to 26 U.S.C. §§ 6012, 6401, 6903; IRC § 7701(a)(6)</div>' +
+      '<div style="margin-bottom:16px"><b>Date:</b> {{DATE}} &nbsp;&nbsp;&nbsp; <b>EIN:</b> {{EIN}} &nbsp;&nbsp;&nbsp; <b>CAF #:</b> {{CAF_NUMBER}}</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">I. NOTICE OF ESTABLISHMENT</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">TAKE NOTICE that <b>{{TRUST_NAME}}</b> (hereinafter "the Trust") has been duly established under the laws of <b>{{JURISDICTION}}</b>, with Employer Identification Number (EIN) <b>{{EIN}}</b>, effective as of the date of this Notice.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">II. FIDUCIARY CAPACITY</div>' +
+      '<div style="margin-bottom:16px;text-align:justify"><b>{{TRUSTEE}}</b> hereby gives notice of assumption of fiduciary capacity as Trustee and Administrator of the above-named trust, pursuant to 26 U.S.C. § 6903 and Treasury Regulation § 301.6903-1.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">III. GRANTOR TRUST STATUS</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">The Trust is a <span style="color:#DC143C;font-weight:bold">[GRANTOR / NON-GRANTOR]</span> trust within the meaning of IRC §§ 671–679. All income, deductions, and credits of the Trust are reported by the grantor for federal income tax purposes.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">IV. BENEFICIARY DESIGNATION</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">The Trust has been established for the benefit of the following designated beneficiaries: <span style="color:#DC143C;font-weight:bold">[BENEFICIARY NAME(S)]</span>, whose interests are governed by the Trust Agreement dated <span style="color:#DC143C;font-weight:bold">[TRUST DATE]</span>.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">V. FILING REQUIREMENTS</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">The fiduciary is responsible for filing all required tax returns, information returns, and administrative forms on behalf of the Trust, including but not limited to: Form 1041, Form 56, Form W-9, and such other returns as may be required.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">VI. DISTRIBUTION POLICY</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">Distributions from the Trust shall be made in accordance with the Trust Agreement and applicable provisions of the IRC, including IRC § 643 (DNI) and IRC § 661/662 (deductibility and inclusion of distributions).</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">VII. WITHHOLDING REQUIREMENTS</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">The Trust shall comply with all applicable withholding requirements, including backup withholding under IRC § 3406 and withholding on payments to foreign persons under IRC §§ 1441–1446.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">VIII. RECORD KEEPING</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">The Trustee shall maintain complete and accurate records of all Trust transactions for a period of not less than seven (7) years, or such longer period as required by applicable law.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">IX. EIN ASSIGNMENT</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">Employer Identification Number <b>{{EIN}}</b> has been assigned to the Trust by the Internal Revenue Service pursuant to Form SS-4, Application for Employer Identification Number.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">X. INVESTMENT AUTHORITY</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">The Trustee is authorized to invest and reinvest Trust assets in such investments as a prudent investor would consider appropriate under the Uniform Prudent Investor Act and applicable state law.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">XI. SUCCESSOR TRUSTEE</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">In the event of the resignation, incapacity, or death of the current Trustee, the successor Trustee shall be <span style="color:#DC143C;font-weight:bold">[SUCCESSOR TRUSTEE NAME]</span>, who shall assume all fiduciary duties upon proper notice to all parties.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">XII. AMENDMENT PROCEDURE</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">This Notice may be amended or supplemented at any time by written instrument executed by the Trustee and filed with the Internal Revenue Service and all relevant governmental authorities.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">XIII. POWER OF ATTORNEY</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">A duly executed Form 2848 (Power of Attorney) and/or Form 8821 (Tax Information Authorization) has been <span style="color:#DC143C;font-weight:bold">[been filed / is attached]</span> authorizing designated representatives to act on behalf of the Trust before the Internal Revenue Service.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">XIV. TERMINATION CONDITIONS</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">The Trust shall terminate upon: (a) distribution of all Trust assets; (b) written declaration of termination by the Trustee; or (c) operation of law, whichever occurs first.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">XV. GOVERNING LAW</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">This Notice and all matters relating to the Trust shall be governed by the laws of <b>{{JURISDICTION}}</b>, and applicable federal law, without regard to conflict of laws provisions.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">XVI. NOTICE TO ALL PARTIES</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">All governmental agencies, financial institutions, and interested parties are hereby notified of the establishment and administrative standing of <b>{{TRUST_NAME}}</b> and the fiduciary authority of <b>{{TRUSTEE}}</b> as Trustee thereof.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">XVII. DECLARATION UNDER PENALTY OF PERJURY</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I declare under penalty of perjury under the laws of the United States of America that the foregoing is true and correct to the best of my knowledge and belief.</div>' +
+      '<div style="margin-bottom:32px">Executed on {{DATE}} in {{JURISDICTION}}.</div>' +
+      '<div style="margin-bottom:4px">____________________________</div>' +
+      '<div style="margin-bottom:4px"><b>{{TRUSTEE}}</b>, Trustee</div>' +
+      '<div style="margin-bottom:4px"><b>{{TRUST_NAME}}</b></div>' +
+      '<div style="margin-bottom:4px">EIN: {{EIN}}</div>' +
+      '</div>',
+
+    distribution_matrix:
+      '<div style="font-family:Times New Roman,serif;font-size:12pt;padding:40px 60px;line-height:2">' +
+      '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:4px">DISTRIBUTION MATRIX</div>' +
+      '<div style="text-align:center;font-size:13px;margin-bottom:4px">&amp; Mailing Instructions</div>' +
+      '<div style="text-align:center;font-size:11px;margin-bottom:24px"><b>{{TRUST_NAME}}</b> — EIN: {{EIN}}</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">The following matrix identifies each document in the filing package, the number of copies required, and each recipient to whom certified copies must be mailed. All mailings shall be by U.S. Certified Mail, Return Receipt Requested, unless otherwise noted.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">I. STANDARD RECIPIENTS</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px"><b>1. IRS Commissioner</b> — Room 3000, 1111 Constitution Ave NW, Washington DC 20224</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px"><b>2. Department of the Treasury</b> — P.O. Box 480, Holtsville, NY 11742</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px"><b>3. Secretary of State</b> — <span style="color:#DC143C;font-weight:bold">[STATE CAPITAL ADDRESS]</span></div>' +
+      '<div style="margin-bottom:4px;padding-left:24px"><b>4. State Attorney General</b> — <span style="color:#DC143C;font-weight:bold">[STATE AG ADDRESS]</span></div>' +
+      '<div style="margin-bottom:4px;padding-left:24px"><b>5. County Recorder / Clerk</b> — <span style="color:#DC143C;font-weight:bold">[COUNTY COURTHOUSE ADDRESS]</span></div>' +
+      '<div style="margin-bottom:20px;padding-left:24px"><b>6. Financial Institution</b> — <span style="color:#DC143C;font-weight:bold">[BANK / INSTITUTION ADDRESS]</span></div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">II. DOCUMENT DISTRIBUTION TABLE</div>' +
+      '<table style="width:100%;border-collapse:collapse;font-size:11pt;margin-bottom:20px">' +
+      '<thead><tr style="background:#1a2744">' +
+      '<th style="border:1px solid #555;padding:6px 8px;text-align:left;color:#8ab0e0;font-size:10pt">Document</th>' +
+      '<th style="border:1px solid #555;padding:6px 8px;text-align:center;color:#8ab0e0;font-size:10pt">Copies</th>' +
+      '<th style="border:1px solid #555;padding:6px 8px;text-align:left;color:#8ab0e0;font-size:10pt">Recipients</th>' +
+      '<th style="border:1px solid #555;padding:6px 8px;text-align:center;color:#8ab0e0;font-size:10pt">Method</th>' +
+      '</tr></thead>' +
+      '<tbody>' +
+      '<tr><td style="border:1px solid #555;padding:5px 8px">Form 56 / 56-F</td><td style="border:1px solid #555;padding:5px 8px;text-align:center">3</td><td style="border:1px solid #555;padding:5px 8px">IRS, Treasury, Trust File</td><td style="border:1px solid #555;padding:5px 8px;text-align:center">Certified</td></tr>' +
+      '<tr><td style="border:1px solid #555;padding:5px 8px">Certificate of Trust</td><td style="border:1px solid #555;padding:5px 8px;text-align:center">5</td><td style="border:1px solid #555;padding:5px 8px">IRS, Bank, SoS, AG, Trust File</td><td style="border:1px solid #555;padding:5px 8px;text-align:center">Certified</td></tr>' +
+      '<tr><td style="border:1px solid #555;padding:5px 8px">Form W-9</td><td style="border:1px solid #555;padding:5px 8px;text-align:center">2</td><td style="border:1px solid #555;padding:5px 8px">IRS, Bank</td><td style="border:1px solid #555;padding:5px 8px;text-align:center">Certified</td></tr>' +
+      '<tr><td style="border:1px solid #555;padding:5px 8px">Admin Notice (Fiduciary)</td><td style="border:1px solid #555;padding:5px 8px;text-align:center">4</td><td style="border:1px solid #555;padding:5px 8px">IRS, Treasury, SoS, AG</td><td style="border:1px solid #555;padding:5px 8px;text-align:center">Certified</td></tr>' +
+      '<tr><td style="border:1px solid #555;padding:5px 8px">IRS Cover Letter</td><td style="border:1px solid #555;padding:5px 8px;text-align:center">1</td><td style="border:1px solid #555;padding:5px 8px">IRS</td><td style="border:1px solid #555;padding:5px 8px;text-align:center">Certified</td></tr>' +
+      '<tr><td style="border:1px solid #555;padding:5px 8px"><span style="color:#DC143C;font-weight:bold">[ADDITIONAL DOC]</span></td><td style="border:1px solid #555;padding:5px 8px;text-align:center">___</td><td style="border:1px solid #555;padding:5px 8px"><span style="color:#DC143C;font-weight:bold">[RECIPIENTS]</span></td><td style="border:1px solid #555;padding:5px 8px;text-align:center">___</td></tr>' +
+      '</tbody></table>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">III. TRACKING LOG</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">Certified Mail # 1: ____________________________  Recipient: ____________________________  Date Sent: ____________</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">Certified Mail # 2: ____________________________  Recipient: ____________________________  Date Sent: ____________</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">Certified Mail # 3: ____________________________  Recipient: ____________________________  Date Sent: ____________</div>' +
+      '<div style="margin-bottom:20px;padding-left:24px">Certified Mail # 4: ____________________________  Recipient: ____________________________  Date Sent: ____________</div>' +
+      '<div style="margin-bottom:32px">Prepared by: <b>{{TRUSTEE}}</b> on {{DATE}}</div>' +
+      '<div style="margin-bottom:4px">____________________________</div>' +
+      '<div style="margin-bottom:4px"><b>{{TRUSTEE}}</b>, Trustee</div>' +
+      '<div style="margin-bottom:4px"><b>{{TRUST_NAME}}</b></div>' +
+      '</div>',
+
+    // ── Status Correction & Notices – 13 templates ──────────────────────
+
+    sc_decl_political_status:
+      '<div style="font-family:Times New Roman,serif;font-size:12pt;padding:40px 60px;line-height:2">' +
+      '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:4px">DECLARATION OF POLITICAL STATUS</div>' +
+      '<div style="text-align:center;font-size:12px;margin-bottom:24px">American National — Non-Citizen National</div>' +
+      '<div style="margin-bottom:16px">I, <span style="color:#DC143C;font-weight:bold">[FULL GIVEN NAME]</span>, a living man/woman, an American national born on the land and soil of <span style="color:#DC143C;font-weight:bold">[STATE OF BIRTH]</span>, do hereby make this solemn Declaration of Political Status:</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">I. BIRTH AND DOMICILE</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I was born on <span style="color:#DC143C;font-weight:bold">[DATE OF BIRTH]</span>, in the County of <span style="color:#DC143C;font-weight:bold">[COUNTY OF BIRTH]</span>, State of <span style="color:#DC143C;font-weight:bold">[STATE]</span>, and have remained domiciled on the land and soil of this republic throughout my life. I am not a United States citizen as defined by 8 U.S.C. § 1401 et seq.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">II. POLITICAL STATUS</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I declare myself to be a national of the United States of America as contemplated by 8 U.S.C. § 1101(a)(21) and (22)(B) — a non-citizen national — domiciled on the land jurisdiction of <span style="color:#DC143C;font-weight:bold">[STATE]</span>, and am not subject to the statutory jurisdiction of the United States as a resident alien, citizen, or taxpayer as those terms are defined in the Internal Revenue Code.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">III. PRIOR PRESUMPTIONS REBUTTED</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">Any and all prior presumptions, assumptions, or representations that I am a Fourteenth Amendment citizen of the United States, a resident, a taxpayer, or any other statutory fiction are hereby expressly rebutted and declared void. All such presumptions arose without my knowing, voluntary, and informed consent.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">IV. RESERVATION OF RIGHTS</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I reserve all rights, remedies, and defenses available to me under the common law, natural law, the Constitution for the united States of America (1787/1791), and applicable international law, and I waive none. This declaration is made without prejudice, UCC 1-308.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">V. NOTARIZATION REQUIREMENT</div>' +
+      '<div style="margin-bottom:16px">Sign with autograph in <b>red or blue ink</b> (NEVER black). Notarize with JURAT (sworn statement). Make 10+ copies. Mail certified to: Secretary of State, State Attorney General, State Secretary of State, IRS Commissioner.</div>' +
+      '<div style="margin-bottom:32px">Subscribed and sworn to before me this _____ day of _____________, 20____.</div>' +
+      '<div style="margin-bottom:4px">Autograph: ____________________________</div>' +
+      '<div style="margin-bottom:4px"><span style="color:#DC143C;font-weight:bold">[FULL GIVEN NAME]</span></div>' +
+      '<div style="margin-bottom:4px">All Rights Reserved — Without Prejudice — UCC 1-308</div>' +
+      '<div style="margin-bottom:24px">Red/Blue Ink Thumbprint: [  ]</div>' +
+      '<div style="margin-bottom:4px">Notary Public: ____________________________  Commission Expires: ____________</div>' +
+      '</div>',
+
+    sc_decl_naturalization:
+      '<div style="font-family:Times New Roman,serif;font-size:12pt;padding:40px 60px;line-height:2">' +
+      '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:4px">DECLARATION OF NATURALIZATION</div>' +
+      '<div style="text-align:center;font-size:12px;margin-bottom:24px">Return to Land and Soil Jurisdiction — Expatriation from Federal Territory</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I, <span style="color:#DC143C;font-weight:bold">[FULL GIVEN NAME]</span>, also known as <span style="color:#DC143C;font-weight:bold">[LIST ALL NAME VARIATIONS: FIRST LAST, FIRST M. LAST, LAST FIRST, etc.]</span>, a living man/woman, do hereby make this Declaration of Naturalization and Repatriation:</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">I. REPATRIATION</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I do hereby repatriate to the land and soil jurisdiction of <span style="color:#DC143C;font-weight:bold">[STATE]</span>, and hereby expatriate from all municipal and territorial jurisdictions. I invoke the protections afforded to me as a non-citizen national under 8 U.S.C. § 1101(a)(21) and the Act of July 27, 1868 (Expatriation Act), and the Nottebohm Case (ICJ 1955).</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">II. ALL NAME VARIATIONS</div>' +
+      '<div style="margin-bottom:16px">This declaration covers ALL variations of my name, including but not limited to:<br>' +
+      '<span style="color:#DC143C;font-weight:bold">[LIST EVERY VARIATION: e.g., JOHN HENRY DOE, John Henry Doe, John H. Doe, J. Henry Doe, DOE JOHN H, etc.]</span></div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">III. CORPORATE FICTION REPUDIATION</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I hereby repudiate any and all presumptions that I voluntarily consented to be the surety for, agent of, or co-mingled with any corporate PERSON bearing any variation of my name. The PERSON(s) listed above are fictional entities of commerce existing in the jurisdiction of the sea, not on the land, and I am not subject to the obligations arising from the acts of any such fiction.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">IV. RED INK THUMBPRINT</div>' +
+      '<div style="margin-bottom:16px">Affix red ink thumbprint here: [  ] &nbsp;&nbsp; Right thumb &nbsp;&nbsp; Signed under penalty of perjury.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">V. NOTARIZATION AND DISTRIBUTION</div>' +
+      '<div style="margin-bottom:16px">Notarize with JURAT. Mail to same recipients as Declaration of Political Status. Include this document with Document 1 in all filings.</div>' +
+      '<div style="margin-bottom:32px">Sworn to before me this _____ day of _____________, 20____.</div>' +
+      '<div style="margin-bottom:4px">Autograph: ____________________________</div>' +
+      '<div style="margin-bottom:4px"><span style="color:#DC143C;font-weight:bold">[FULL GIVEN NAME]</span>, All Rights Reserved — UCC 1-308</div>' +
+      '<div style="margin-bottom:24px">Red Ink Thumbprint: [  ]</div>' +
+      '<div style="margin-bottom:4px">Notary Public: ____________________________  Commission Expires: ____________</div>' +
+      '</div>',
+
+    sc_revocation_election:
+      '<div style="font-family:Times New Roman,serif;font-size:12pt;padding:40px 60px;line-height:2">' +
+      '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:4px">REVOCATION OF ELECTION TO PAY TAXES</div>' +
+      '<div style="text-align:center;font-size:12px;margin-bottom:24px">Pursuant to IRC § 6013(g)/(h) — Non-Resident Alien Declaration</div>' +
+      '<div style="margin-bottom:24px"><span style="color:#DC143C;font-weight:bold">[FULL GIVEN NAME]</span><br><span style="color:#DC143C;font-weight:bold">[ADDRESS]</span><br><span style="color:#DC143C;font-weight:bold">[CITY, STATE ZIP]</span></div>' +
+      '<div style="margin-bottom:8px">IRS Commissioner</div>' +
+      '<div style="margin-bottom:8px">Room 3000, 1111 Constitution Ave NW</div>' +
+      '<div style="margin-bottom:8px">Washington, DC 20224</div>' +
+      '<div style="margin-bottom:8px"><b>AND</b></div>' +
+      '<div style="margin-bottom:8px">Department of the Treasury</div>' +
+      '<div style="margin-bottom:24px">P.O. Box 480, Holtsville, NY 11742</div>' +
+      '<div style="margin-bottom:16px"><b>Re: Revocation of Election to Pay Taxes — Non-Resident Alien Status</b></div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I, <span style="color:#DC143C;font-weight:bold">[FULL GIVEN NAME]</span>, do hereby irrevocably revoke any and all prior elections made under IRC §§ 6013(g) and/or 6013(h) or otherwise, whether made knowingly or unknowingly, expressly or by presumption, to be treated as a resident alien or to be subject to the income tax obligations of a resident of the United States as defined in IRC § 7701(b).</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">Effective upon receipt of this notice, I hereby declare my correct status as a non-resident alien with respect to the United States (federal territories, possessions, and the District of Columbia), a national of the united States of America domiciled on the land and soil of <span style="color:#DC143C;font-weight:bold">[STATE]</span>.</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">Any future presumption that I have elected to be taxed as a resident is hereby expressly rejected. This revocation is effective immediately and covers all tax years not already finally adjudicated.</div>' +
+      '<div style="margin-bottom:16px"><b>Mail via U.S. Certified Mail, Return Receipt Requested to both addresses above.</b></div>' +
+      '<div style="margin-bottom:32px">Executed on <span style="color:#DC143C;font-weight:bold">[DATE]</span> in <span style="color:#DC143C;font-weight:bold">[COUNTY, STATE]</span>.</div>' +
+      '<div style="margin-bottom:4px">Autograph: ____________________________</div>' +
+      '<div style="margin-bottom:4px"><span style="color:#DC143C;font-weight:bold">[FULL GIVEN NAME]</span></div>' +
+      '<div style="margin-bottom:4px">All Rights Reserved — Without Prejudice — UCC 1-308</div>' +
+      '<div style="margin-bottom:4px">Notary Public: ____________________________  Commission Expires: ____________</div>' +
+      '</div>',
+
+    sc_mandatory_notice_fsi:
+      '<div style="font-family:Times New Roman,serif;font-size:12pt;padding:40px 60px;line-height:2">' +
+      '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:4px">MANDATORY NOTICE</div>' +
+      '<div style="text-align:center;font-size:14px;font-weight:bold;margin-bottom:4px">FOREIGN SOVEREIGN IMMUNITY</div>' +
+      '<div style="text-align:center;font-size:12px;margin-bottom:24px">28 U.S.C. §§ 1602–1611 — Foreign Sovereign Immunities Act (1976)</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">TO ALL AGENCIES, OFFICERS, AND ENTITIES OF THE UNITED STATES AND STATES THEREOF:</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">TAKE MANDATORY NOTICE that I, <span style="color:#DC143C;font-weight:bold">[FULL GIVEN NAME]</span>, a living man/woman, do hereby invoke the protections of the Foreign Sovereign Immunities Act, 28 U.S.C. §§ 1602–1611, and declare the following:</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">I. VESSEL NAMES (ALL VARIATIONS)</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">All corporate vessel names bearing any variation of my given name, including but not limited to: <span style="color:#DC143C;font-weight:bold">[LIST ALL NAME VARIATIONS IN CAPITAL LETTERS: JOHN HENRY DOE, JOHN H DOE, DOE JOHN HENRY, etc.]</span></div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">II. COPYRIGHT CLAIM</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I hereby assert copyright ownership of all names and variations thereof listed above, effective from the date of my live birth: <span style="color:#DC143C;font-weight:bold">[DATE OF BIRTH]</span>. All unauthorized commercial use of said names is a violation of my intellectual property rights and constitutes copyright infringement.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">III. JURISDICTIONAL STANDING</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">As a foreign sovereign, I am immune from the jurisdiction of the courts of the United States and all state and territorial courts, except as specifically provided under the Foreign Sovereign Immunities Act. Any attempt to exercise jurisdiction over my person without my express written consent constitutes a violation of international law.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">IV. NOTICE OF INTENT</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">Any party attempting to proceed against me in any administrative, civil, or criminal proceeding must first establish proper jurisdiction by providing verified written proof of claim, under penalty of perjury, that I am subject to said jurisdiction. Failure to respond within 30 days constitutes acceptance of this Notice.</div>' +
+      '<div style="margin-bottom:16px;font-weight:bold">Mail certified to: Federal and state agencies, financial institutions, relevant courts, and any adverse parties.</div>' +
+      '<div style="margin-bottom:32px">Executed on <span style="color:#DC143C;font-weight:bold">[DATE]</span>.</div>' +
+      '<div style="margin-bottom:4px">Autograph: ____________________________</div>' +
+      '<div style="margin-bottom:4px"><span style="color:#DC143C;font-weight:bold">[FULL GIVEN NAME]</span> — All Rights Reserved — UCC 1-308</div>' +
+      '<div style="margin-bottom:4px">Notary Public: ____________________________  Commission Expires: ____________</div>' +
+      '</div>',
+
+    sc_ssa_ethnicity_correction:
+      '<div style="font-family:Times New Roman,serif;font-size:12pt;padding:40px 60px;line-height:2">' +
+      '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:4px">SSA ETHNICITY CORRECTION LETTER</div>' +
+      '<div style="text-align:center;font-size:12px;margin-bottom:24px">Request for Race/Ethnicity Record Correction — SF-181 Basis</div>' +
+      '<div style="margin-bottom:24px"><span style="color:#DC143C;font-weight:bold">[FULL GIVEN NAME]</span><br><span style="color:#DC143C;font-weight:bold">[ADDRESS, CITY, STATE ZIP]</span><br>SSN: <span style="color:#DC143C;font-weight:bold">[XXX-XX-XXXX]</span><br>Date of Birth: <span style="color:#DC143C;font-weight:bold">[DATE]</span></div>' +
+      '<div style="margin-bottom:8px">Social Security Administration</div>' +
+      '<div style="margin-bottom:8px">Office of Earnings and International Operations</div>' +
+      '<div style="margin-bottom:24px">P.O. Box 33026, Baltimore, MD 21290-3026</div>' +
+      '<div style="margin-bottom:16px"><b>Re: Request for Ethnicity/Race Correction — SSN: <span style="color:#DC143C;font-weight:bold">[SSN]</span></b></div>' +
+      '<div style="margin-bottom:16px;text-align:justify">Dear Social Security Administration:</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I am writing to formally request a correction to my race/ethnicity designation in Social Security Administration records. Current records reflect an incorrect designation. My correct ethnicity/race is: <b>American Indian and/or Caucasian</b> (Non-Hispanic White / Indigenous American), consistent with SF-181 (Ethnicity and Race Identification) standards.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">ENCLOSED DOCUMENTATION:</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">\u25a1 Copy of Social Security Card</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">\u25a1 Copy of Birth Certificate (certified)</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">\u25a1 Government-issued Photo Identification</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">\u25a1 Completed SF-181 Form</div>' +
+      '<div style="margin-bottom:20px;padding-left:24px">\u25a1 Affidavit of Correction (sworn)</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I request that this correction be made to all SSA records immediately and that a corrected Social Security Statement (Form SSA-1099) be issued upon the next scheduled release. Failure to correct this information within 30 days shall constitute tacit agreement that no lawful basis exists for the current designation.</div>' +
+      '<div style="margin-bottom:16px"><b>Send via U.S. Certified Mail, Return Receipt Requested.</b></div>' +
+      '<div style="margin-bottom:32px">Sincerely,</div>' +
+      '<div style="margin-bottom:4px">Autograph: ____________________________</div>' +
+      '<div style="margin-bottom:4px"><span style="color:#DC143C;font-weight:bold">[FULL GIVEN NAME]</span></div>' +
+      '<div style="margin-bottom:4px">All Rights Reserved — Without Prejudice — UCC 1-308</div>' +
+      '</div>',
+
+    sc_distribution_matrix:
+      '<div style="font-family:Times New Roman,serif;font-size:12pt;padding:40px 60px;line-height:2">' +
+      '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:4px">DISTRIBUTION MATRIX</div>' +
+      '<div style="text-align:center;font-size:13px;margin-bottom:4px">&amp; Mailing Instructions — Status Correction Filing</div>' +
+      '<div style="text-align:center;font-size:11px;margin-bottom:24px"><span style="color:#DC143C;font-weight:bold">[FULL GIVEN NAME]</span> — Status Correction Package</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">The following matrix identifies all documents in the Status Correction package, the number of copies required, the recipients for each, and the method of service. All mailings shall be by U.S. Certified Mail, Return Receipt Requested. Retain all tracking numbers and receipts.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">I. MAILING ADDRESSES</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px"><b>1. Secretary of State</b> — <span style="color:#DC143C;font-weight:bold">[STATE CAPITAL ADDRESS]</span></div>' +
+      '<div style="margin-bottom:4px;padding-left:24px"><b>2. State Attorney General</b> — <span style="color:#DC143C;font-weight:bold">[AG ADDRESS]</span></div>' +
+      '<div style="margin-bottom:4px;padding-left:24px"><b>3. IRS Commissioner</b> — Room 3000, 1111 Constitution Ave NW, Washington DC 20224</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px"><b>4. Dept. of Treasury</b> — P.O. Box 480, Holtsville, NY 11742</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px"><b>5. SSA</b> — P.O. Box 33026, Baltimore, MD 21290-3026</div>' +
+      '<div style="margin-bottom:20px;padding-left:24px"><b>6. County Recorder</b> — <span style="color:#DC143C;font-weight:bold">[COUNTY COURTHOUSE ADDRESS]</span></div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">II. DOCUMENT DISTRIBUTION TABLE</div>' +
+      '<table style="width:100%;border-collapse:collapse;font-size:10pt;margin-bottom:20px">' +
+      '<thead><tr style="background:#1a2744"><th style="border:1px solid #555;padding:5px;color:#8ab0e0">Document</th><th style="border:1px solid #555;padding:5px;color:#8ab0e0;text-align:center">Copies</th><th style="border:1px solid #555;padding:5px;color:#8ab0e0">Recipients</th></tr></thead>' +
+      '<tbody>' +
+      '<tr><td style="border:1px solid #555;padding:5px">Declaration of Political Status</td><td style="border:1px solid #555;padding:5px;text-align:center">10+</td><td style="border:1px solid #555;padding:5px">SoS, AG, IRS, Treasury, County, Personal File</td></tr>' +
+      '<tr><td style="border:1px solid #555;padding:5px">Declaration of Naturalization</td><td style="border:1px solid #555;padding:5px;text-align:center">10+</td><td style="border:1px solid #555;padding:5px">Same as Doc 1</td></tr>' +
+      '<tr><td style="border:1px solid #555;padding:5px">Revocation of Election to Pay Taxes</td><td style="border:1px solid #555;padding:5px;text-align:center">3</td><td style="border:1px solid #555;padding:5px">IRS Commissioner, Treasury, Personal File</td></tr>' +
+      '<tr><td style="border:1px solid #555;padding:5px">Mandatory Notice FSI</td><td style="border:1px solid #555;padding:5px;text-align:center">6</td><td style="border:1px solid #555;padding:5px">Federal &amp; State Agencies, Courts, Banks</td></tr>' +
+      '<tr><td style="border:1px solid #555;padding:5px">SSA Ethnicity Correction</td><td style="border:1px solid #555;padding:5px;text-align:center">2</td><td style="border:1px solid #555;padding:5px">SSA, Personal File</td></tr>' +
+      '<tr><td style="border:1px solid #555;padding:5px">Certificate of Assumed Name / DBA</td><td style="border:1px solid #555;padding:5px;text-align:center">3</td><td style="border:1px solid #555;padding:5px">County Recorder, SoS, Personal File</td></tr>' +
+      '<tr><td style="border:1px solid #555;padding:5px">Affidavit of Ownership</td><td style="border:1px solid #555;padding:5px;text-align:center">3</td><td style="border:1px solid #555;padding:5px">County Recorder, IRS, Personal File</td></tr>' +
+      '<tr><td style="border:1px solid #555;padding:5px">Executor / Executrix Designation</td><td style="border:1px solid #555;padding:5px;text-align:center">3</td><td style="border:1px solid #555;padding:5px">IRS, Agencies, Financial Institutions</td></tr>' +
+      '</tbody></table>' +
+      '<div style="margin-bottom:32px">Prepared by: <span style="color:#DC143C;font-weight:bold">[FULL GIVEN NAME]</span> on <span style="color:#DC143C;font-weight:bold">[DATE]</span></div>' +
+      '</div>',
+
+    certificate_assumed_name_dba:
+      '<div style="font-family:Times New Roman,serif;font-size:12pt;padding:40px 60px;line-height:2">' +
+      '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:4px">CERTIFICATE OF ASSUMED NAME</div>' +
+      '<div style="text-align:center;font-size:13px;margin-bottom:4px">"Doing Business As" / DBA Registration</div>' +
+      '<div style="text-align:center;font-size:11px;margin-bottom:24px">Filed pursuant to applicable state business name registration statutes</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I, <span style="color:#DC143C;font-weight:bold">[FULL GIVEN NAME]</span>, a living man/woman, domiciled at <span style="color:#DC143C;font-weight:bold">[ADDRESS, COUNTY, STATE]</span>, hereby certify and declare as follows:</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">I. ASSUMED BUSINESS NAME</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">The business name under which I intend to do business is: <span style="color:#DC143C;font-weight:bold">[YOUR NAME] ESTATE</span> — or alternatively — <span style="color:#DC143C;font-weight:bold">[YOUR NAME] TRUST</span>, hereinafter "the Assumed Name."</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">II. NATURE OF BUSINESS</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">The nature of the business conducted under the Assumed Name is: private estate administration, trust management, property administration, and all lawful business activities conducted under the common law jurisdiction of <span style="color:#DC143C;font-weight:bold">[STATE]</span>.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">III. LEGAL NAME OF REGISTRANT</div>' +
+      '<div style="margin-bottom:16px"><b>Legal Name:</b> <span style="color:#DC143C;font-weight:bold">[FULL GIVEN NAME]</span><br><b>Address:</b> <span style="color:#DC143C;font-weight:bold">[ADDRESS]</span><br><b>County/State:</b> <span style="color:#DC143C;font-weight:bold">[COUNTY, STATE]</span></div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">IV. COMMON LAW STANDING</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">This registration is made under common law principles, not statutory law, and does not constitute consent to corporate or statutory jurisdiction. The Assumed Name operates as a common law trade name/DBA for the estate of the undersigned living man/woman.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">V. ALTERNATIVE FILING</div>' +
+      '<div style="margin-bottom:16px">This certificate may also be filed at CommonLawCourt.com (free), County Recorder/Clerk office, and State Secretary of State. Notarize and file. Keep certified copies for all financial institution accounts.</div>' +
+      '<div style="margin-bottom:32px">Executed on <span style="color:#DC143C;font-weight:bold">[DATE]</span> in <span style="color:#DC143C;font-weight:bold">[COUNTY, STATE]</span>.</div>' +
+      '<div style="margin-bottom:4px">Autograph: ____________________________</div>' +
+      '<div style="margin-bottom:4px"><span style="color:#DC143C;font-weight:bold">[FULL GIVEN NAME]</span></div>' +
+      '<div style="margin-bottom:4px">All Rights Reserved — Without Prejudice — UCC 1-308</div>' +
+      '<div style="margin-bottom:4px">Notary Public: ____________________________  Commission Expires: ____________</div>' +
+      '</div>',
+
+    affidavit_of_ownership:
+      '<div style="font-family:Times New Roman,serif;font-size:12pt;padding:40px 60px;line-height:2">' +
+      '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:4px">AFFIDAVIT OF OWNERSHIP</div>' +
+      '<div style="text-align:center;font-size:12px;margin-bottom:24px">Claim of Secured Party Creditor Status</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I, <span style="color:#DC143C;font-weight:bold">[FULL GIVEN NAME]</span>, a living man/woman and Secured Party Creditor, domiciled in <span style="color:#DC143C;font-weight:bold">[COUNTY, STATE]</span>, being of sound mind and lawful age, do hereby make this Affidavit of Ownership under oath:</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">I. OWNERSHIP OF VESSEL NAMES</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I hereby claim ownership of all corporate vessel names bearing any variation of my given name, including but not limited to: <span style="color:#DC143C;font-weight:bold">[ALL NAME VARIATIONS IN CAPS]</span>, and all derivatives thereof, as the original creditor and living beneficiary of said estate(s).</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">II. SECURED PARTY CREDITOR STATUS</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I hereby establish my status as Secured Party Creditor of the DEBTOR known as <span style="color:#DC143C;font-weight:bold">[FULL NAME IN CAPS]</span>, pursuant to the Uniform Commercial Code §§ 1-201, 9-102, and 9-509. A UCC-1 Financing Statement has been <span style="color:#DC143C;font-weight:bold">[filed / is being filed]</span> establishing this security interest.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">III. ESTATE OWNERSHIP</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I am the lawful executor and beneficiary of all estates, trusts, and accounts created in my name or any variation thereof, whether by birth registration, Social Security enrollment, or any other governmental act. All beneficial interests in such estates revert to me upon presentment of this Affidavit.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">IV. AUTHORITY OVER ESTATE MATTERS</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">No agency, corporation, court, or individual has authority to administer, manage, or exercise dominion over my estate without my express written consent. Any presumption of such authority is hereby rebutted and declared void ab initio.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">V. DECLARATION</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I declare under penalty of perjury under the laws of the republic that the foregoing is true, correct, complete, and not misleading to the best of my knowledge and belief.</div>' +
+      '<div style="margin-bottom:16px"><b>File with:</b> County Recorder, IRS, Secretary of State, and Personal File. Notarize with JURAT.</div>' +
+      '<div style="margin-bottom:32px">Subscribed and sworn to before me this _____ day of _____________, 20____.</div>' +
+      '<div style="margin-bottom:4px">Autograph: ____________________________</div>' +
+      '<div style="margin-bottom:4px"><span style="color:#DC143C;font-weight:bold">[FULL GIVEN NAME]</span>, Secured Party Creditor</div>' +
+      '<div style="margin-bottom:4px">All Rights Reserved — Without Prejudice — UCC 1-308</div>' +
+      '<div style="margin-bottom:4px">Notary Public: ____________________________  Commission Expires: ____________</div>' +
+      '</div>',
+
+    executor_designation:
+      '<div style="font-family:Times New Roman,serif;font-size:12pt;padding:40px 60px;line-height:2">' +
+      '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:4px">EXECUTOR / EXECUTRIX DESIGNATION</div>' +
+      '<div style="text-align:center;font-size:12px;margin-bottom:24px">Designation as Executor of Estate — Establishment of Authority</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I, <span style="color:#DC143C;font-weight:bold">[FULL GIVEN NAME]</span>, a living man/woman, domiciled at <span style="color:#DC143C;font-weight:bold">[ADDRESS, COUNTY, STATE]</span>, do hereby designate myself as the duly authorized Executor/Executrix of my Estate and all related entities, effective immediately.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">I. EXECUTOR AUTHORITY</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">As Executor of my Estate, I hereby assert full authority over all matters relating to the administration, management, and disposition of the estate bearing my name(s) in any variation, including all accounts, property, credits, and obligations associated therewith.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">II. ESTATE IDENTIFICATION</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">The estate(s) over which I hereby assert executor authority include all entities created in the names: <span style="color:#DC143C;font-weight:bold">[ALL NAME VARIATIONS]</span>, including all trusts, corporations, and accounts bearing any variation of my name.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">III. AUTHORITY OVER AGENCIES AND INSTITUTIONS</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">All government agencies, financial institutions, courts, and other entities are hereby notified that I, as Executor, am the authorized representative and decision-maker for all matters relating to my estate. No decisions regarding my estate shall be made without my express written authorization.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">IV. SUCCESSION PROVISION</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">In the event of my incapacity, I hereby designate <span style="color:#DC143C;font-weight:bold">[SUCCESSOR NAME]</span> as successor Executor, to assume all duties and authorities herein upon written notification to all relevant parties.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">V. NOTICE TO AGENCIES</div>' +
+      '<div style="margin-bottom:16px"><b>Mail certified copies to:</b> IRS, relevant agencies, financial institutions, County Recorder, and Secretary of State. Notarize with JURAT.</div>' +
+      '<div style="margin-bottom:32px">Executed on <span style="color:#DC143C;font-weight:bold">[DATE]</span> in <span style="color:#DC143C;font-weight:bold">[COUNTY, STATE]</span>.</div>' +
+      '<div style="margin-bottom:4px">Autograph: ____________________________</div>' +
+      '<div style="margin-bottom:4px"><span style="color:#DC143C;font-weight:bold">[FULL GIVEN NAME]</span>, Executor/Executrix</div>' +
+      '<div style="margin-bottom:4px">All Rights Reserved — Without Prejudice — UCC 1-308</div>' +
+      '<div style="margin-bottom:4px">Notary Public: ____________________________  Commission Expires: ____________</div>' +
+      '</div>',
+
+    sc_form_2848_guide:
+      '<div style="font-family:Times New Roman,serif;font-size:12pt;padding:40px 60px;line-height:2">' +
+      '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:4px">FORM 2848 INSTRUCTIONS GUIDE</div>' +
+      '<div style="text-align:center;font-size:12px;margin-bottom:24px">Power of Attorney and Declaration of Representative — Completion Guide</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">This guide provides step-by-step instructions for completing IRS Form 2848 (Power of Attorney and Declaration of Representative) in the context of a private trust or status correction filing.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">PART I — TAXPAYER INFORMATION (Lines 1–4)</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px"><b>Line 1:</b> Enter taxpayer name as it appears on returns: <span style="color:#DC143C;font-weight:bold">[TRUST NAME]</span> or <span style="color:#DC143C;font-weight:bold">[FULL NAME]</span></div>' +
+      '<div style="margin-bottom:4px;padding-left:24px"><b>Line 1a:</b> Social Security Number (last 4 only if preferred): <span style="color:#DC143C;font-weight:bold">[SSN or EIN]</span></div>' +
+      '<div style="margin-bottom:4px;padding-left:24px"><b>Line 1b:</b> Employer Identification Number (if applicable): <span style="color:#DC143C;font-weight:bold">[EIN]</span></div>' +
+      '<div style="margin-bottom:4px;padding-left:24px"><b>Line 2:</b> Daytime phone number and address</div>' +
+      '<div style="margin-bottom:16px;padding-left:24px"><b>Line 3:</b> Representative information — name, PTIN/CAF number if applicable</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">PART II — REPRESENTATIVE DECLARATION</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px"><b>Line 5:</b> Select Type: (h) — Unenrolled preparer authorized under §10.9, or select appropriate category</div>' +
+      '<div style="margin-bottom:16px;padding-left:24px"><b>Signature:</b> Trustee/grantor signs as authorized representative</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">ACTS AUTHORIZED (Line 5a)</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">List specific acts: "Inspect and/or receive confidential tax information, sign returns, make agreements, enter into closing agreements, receive refund checks" — or check "All acts."</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">TAX MATTERS (Line 3)</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">Type: <b>Income Tax</b> (Form 1041 for Trust; Form 1040 for individual)</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">Tax Year(s): <span style="color:#DC143C;font-weight:bold">[APPLICABLE TAX YEARS]</span></div>' +
+      '<div style="margin-bottom:20px;padding-left:24px">Form Number: <b>1041</b> (trust) or <b>1040</b> (individual)</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">FILING INSTRUCTIONS</div>' +
+      '<div style="margin-bottom:16px">Mail to: IRS CAF Unit, <span style="color:#DC143C;font-weight:bold">[IRS SERVICE CENTER FOR YOUR STATE]</span>. Include with all IRS correspondence packages. File copy with trust records.</div>' +
+      '</div>',
+
+    sc_sf181_guide:
+      '<div style="font-family:Times New Roman,serif;font-size:12pt;padding:40px 60px;line-height:2">' +
+      '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:4px">SF-181 RACE &amp; NATIONAL ORIGIN GUIDE</div>' +
+      '<div style="text-align:center;font-size:12px;margin-bottom:24px">Standard Form 181 — Ethnicity and Race Identification — Completion Instructions</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">Standard Form 181 (SF-181) is the federal form used for self-identification of ethnicity and race for federal employment and other purposes. This guide explains how to complete SF-181 to correct your race/ethnicity designation in federal records.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">SECTION 1 — ETHNICITY</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">Check ONE of the following:<br>' +
+      '\u25a1 <b>Hispanic or Latino</b> — A person of Cuban, Mexican, Puerto Rican, South or Central American, or other Spanish culture or origin, regardless of race.<br>' +
+      '\u25a1 <b>Not Hispanic or Latino</b> — (Select this option if you are of American Indian / Caucasian descent)</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">SECTION 2 — RACE</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">Check ONE or MORE of the following (check all that apply):<br>' +
+      '\u25a1 American Indian or Alaska Native — A person having origins in any of the original peoples of North and South America (including Central America), who maintains tribal affiliation or community attachment.<br>' +
+      '\u25a1 <b>White</b> — A person having origins in any of the original peoples of Europe, the Middle East, or North Africa.<br>' +
+      '\u25a1 Asian, Black or African American, Native Hawaiian or Other Pacific Islander (if applicable)</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">RECOMMENDED SELECTIONS FOR STATUS CORRECTION</div>' +
+      '<div style="margin-bottom:16px;padding-left:24px">Section 1: <b>Not Hispanic or Latino</b><br>Section 2: <b>American Indian or Alaska Native</b> AND/OR <b>White</b></div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">WHERE TO FILE SF-181</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">SSA: P.O. Box 33026, Baltimore, MD 21290-3026</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">Your employing agency HR department (if applicable)</div>' +
+      '<div style="margin-bottom:16px;padding-left:24px">Accompany with SSA Ethnicity Correction Letter and supporting ID documents</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">NOTES</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">SF-181 is a voluntary self-identification form. Your selection cannot be changed or challenged by any agency without your written authorization. Submit via certified mail and retain copies for your records.</div>' +
+      '</div>',
+
+    sc_cp575_ein_guide:
+      '<div style="font-family:Times New Roman,serif;font-size:12pt;padding:40px 60px;line-height:2">' +
+      '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:4px">CP-575 EIN ASSIGNMENT GUIDE</div>' +
+      '<div style="text-align:center;font-size:12px;margin-bottom:24px">IRS CP 575 Notice — Understanding Your EIN Assignment</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">The CP 575 is the official IRS notice confirming the assignment of an Employer Identification Number (EIN) to your trust, estate, or business entity. This guide explains how to read and use this document.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">I. WHAT IS CP 575?</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">CP 575 is issued by the IRS after approval of Form SS-4 (Application for Employer Identification Number). It confirms: (1) your entity name as registered with the IRS; (2) the assigned EIN; (3) the type of entity; and (4) required filing obligations.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">II. KEY INFORMATION ON CP 575</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px"><b>Entity Name:</b> Verify this matches your trust or DBA name exactly</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px"><b>EIN:</b> 9-digit number in format XX-XXXXXXX (98-XXXXXXX for non-resident trusts)</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px"><b>Tax Period:</b> Annual or fiscal year end date</div>' +
+      '<div style="margin-bottom:16px;padding-left:24px"><b>Filing Requirements:</b> Forms required (Form 1041, 941, etc.)</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">III. HOW TO USE CP 575</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">1. Keep original in a secure location — it is your EIN proof</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">2. Provide certified copies to financial institutions when opening accounts</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">3. Include with Form 56 filings and IRS correspondence</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">4. Use EIN on all trust tax returns (Form 1041)</div>' +
+      '<div style="margin-bottom:16px;padding-left:24px">5. Present to banks as proof of tax ID for trust account opening</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">IV. REQUESTING A REPLACEMENT</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">If you need a replacement CP 575, contact the IRS Business &amp; Specialty Tax Line: 1-800-829-4933. You may also request an EIN Verification Letter (Form 147c) by calling the same number — this is often accepted as a substitute for CP 575.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">V. NON-RESIDENT ALIEN TRUST EIN (98-XXXXXXX)</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">For non-resident alien grantor trusts, the EIN typically begins with "98-". This designation indicates the trust is administered outside U.S. territorial jurisdiction. File Form SS-4 selecting "Trust" as entity type and indicate "foreign" status where applicable.</div>' +
+      '</div>',
+
+    sc_sole_proprietor_decl:
+      '<div style="font-family:Times New Roman,serif;font-size:12pt;padding:40px 60px;line-height:2">' +
+      '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:4px">SOLE PROPRIETOR DECLARATION</div>' +
+      '<div style="text-align:center;font-size:12px;margin-bottom:24px">Declaration of Private Business Status Under Common Law</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I, <span style="color:#DC143C;font-weight:bold">[FULL GIVEN NAME]</span>, a living man/woman, do hereby declare and certify as follows:</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">I. BUSINESS ESTABLISHMENT</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I hereby establish a private sole proprietorship operating under the common law of <span style="color:#DC143C;font-weight:bold">[STATE]</span>, known as <span style="color:#DC143C;font-weight:bold">[BUSINESS NAME / DBA]</span>, engaged in the following lawful business activities: <span style="color:#DC143C;font-weight:bold">[DESCRIBE ACTIVITIES]</span>.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">II. PRIVATE JURISDICTION</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">This business operates exclusively within the private domain, under the common law, and is NOT subject to any licensing, permitting, or regulatory requirements of any statutory, commercial, or administrative jurisdiction unless I expressly consent in writing. I invoke my right to private contract under Article I, Section 10 of the Constitution for the united States of America.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">III. NOT A STATUTORY ENTITY</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">This enterprise is NOT a corporation, LLC, partnership, or other statutory business entity. It is a private business conducted by a living man/woman on the land and soil jurisdiction, operating entirely outside the statutory commercial law of the United States and its territories.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">IV. TAX STATUS</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">The income generated by this sole proprietorship, being derived from private non-commercial activity conducted outside the United States (as defined by IRC § 7701(a)(9)) by a non-resident alien national, is not subject to federal income tax obligations under 26 U.S.C. § 1 or § 61.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">V. RESERVATION OF RIGHTS</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">All rights reserved. This declaration is made without prejudice. Nothing herein shall be construed as consent to any jurisdiction, tax obligation, or regulatory oversight not expressly accepted in writing. UCC 1-308.</div>' +
+      '<div style="margin-bottom:32px">Executed on <span style="color:#DC143C;font-weight:bold">[DATE]</span> in <span style="color:#DC143C;font-weight:bold">[COUNTY, STATE]</span>.</div>' +
+      '<div style="margin-bottom:4px">Autograph: ____________________________</div>' +
+      '<div style="margin-bottom:4px"><span style="color:#DC143C;font-weight:bold">[FULL GIVEN NAME]</span>, Sole Proprietor</div>' +
+      '<div style="margin-bottom:4px">All Rights Reserved — Without Prejudice — UCC 1-308</div>' +
+      '<div style="margin-bottom:4px">Notary Public: ____________________________  Commission Expires: ____________</div>' +
+      '</div>'
   };
 
   // ── Template Variable System ──
@@ -17920,13 +18417,17 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
       label: 'Trust Establishment (Part II)',
       docs: [
         { key: 'fwm_certificate_of_trust', copies: 3 },
-        { key: 'witness_affidavit',        copies: 1 },
-        { key: 'durable_poa',              copies: 1 }
+        { key: 'witness_affidavit',         copies: 1 },
+        { key: 'durable_poa',               copies: 1 },
+        { key: 'distribution_matrix',       copies: 1 },
+        { key: 'certificate_of_service',    copies: 1 }
       ]
     },
     irsNotification: {
       label: 'IRS Notification (Part III)',
       docs: [
+        { key: 'irs_cover_letter',       copies: 1 },
+        { key: 'admin_notice_fiduciary', copies: 2 },
         { key: 'irs_f2848',              copies: 1 },
         { key: 'irs_f8821',              copies: 1 },
         { key: 'irs_f56',                copies: 1 },
@@ -17947,34 +18448,97 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     fullTrustAdmin: {
       label: 'Full Trust Administration',
       docs: [
-        { key: 'fwm_certificate_of_trust', copies: 3 },
-        { key: 'witness_affidavit',         copies: 1 },
-        { key: 'durable_poa',               copies: 1 },
-        { key: 'irs_f2848',                 copies: 1 },
-        { key: 'irs_f8821',                 copies: 1 },
-        { key: 'irs_f56',                   copies: 1 },
-        { key: 'irs_f56f',                  copies: 1 },
-        { key: 'non_decedent_notice',       copies: 1 },
-        { key: 'certificate_of_service',    copies: 1 },
-        { key: 'trust_resolution',          copies: 1 },
-        { key: 'irs_fw9',                   copies: 1 },
-        { key: 'irs_fss4',                  copies: 1 }
+        { key: 'fwm_certificate_of_trust',  copies: 3 },
+        { key: 'witness_affidavit',          copies: 1 },
+        { key: 'durable_poa',                copies: 1 },
+        { key: 'irs_cover_letter',           copies: 1 },
+        { key: 'admin_notice_fiduciary',     copies: 2 },
+        { key: 'distribution_matrix',        copies: 1 },
+        { key: 'irs_f2848',                  copies: 1 },
+        { key: 'irs_f8821',                  copies: 1 },
+        { key: 'irs_f56',                    copies: 1 },
+        { key: 'irs_f56f',                   copies: 1 },
+        { key: 'non_decedent_notice',        copies: 1 },
+        { key: 'certificate_of_service',     copies: 1 },
+        { key: 'trust_resolution',           copies: 1 },
+        { key: 'irs_fw9',                    copies: 1 },
+        { key: 'irs_fss4',                   copies: 1 },
+        { key: 'executor_designation',       copies: 1 },
+        { key: 'affidavit_of_ownership',     copies: 1 },
+        { key: 'certificate_assumed_name_dba', copies: 1 }
+      ]
+    },
+    fiduciaryFiling: {
+      label: 'Fiduciary Filing Package',
+      docs: [
+        { key: 'irs_cover_letter',           copies: 1 },
+        { key: 'admin_notice_fiduciary',     copies: 2 },
+        { key: 'irs_f56',                    copies: 1 },
+        { key: 'fwm_certificate_of_trust',   copies: 1 },
+        { key: 'certificate_of_service',     copies: 1 },
+        { key: 'distribution_matrix',        copies: 1 }
+      ]
+    },
+    statusCorrection: {
+      label: 'Status Correction (Full 14-Doc)',
+      docs: [
+        { key: 'sc_decl_political_status',    copies: 10 },
+        { key: 'sc_decl_naturalization',       copies: 10 },
+        { key: 'sc_revocation_election',       copies: 3 },
+        { key: 'sc_mandatory_notice_fsi',      copies: 6 },
+        { key: 'sc_ssa_ethnicity_correction',  copies: 2 },
+        { key: 'sc_distribution_matrix',       copies: 1 },
+        { key: 'certificate_assumed_name_dba', copies: 3 },
+        { key: 'affidavit_of_ownership',       copies: 3 },
+        { key: 'executor_designation',         copies: 3 },
+        { key: 'sc_form_2848_guide',           copies: 1 },
+        { key: 'sc_sf181_guide',               copies: 1 },
+        { key: 'sc_cp575_ein_guide',           copies: 1 },
+        { key: 'sc_sole_proprietor_decl',      copies: 2 },
+        { key: 'certificate_of_service',       copies: 1 }
+      ]
+    },
+    statusCorrectionCore: {
+      label: 'Status Correction (Core 4)',
+      docs: [
+        { key: 'sc_decl_political_status',    copies: 10 },
+        { key: 'sc_decl_naturalization',       copies: 10 },
+        { key: 'affidavit_of_ownership',       copies: 3 },
+        { key: 'executor_designation',         copies: 3 }
       ]
     }
   };
 
   // Template display names for checklist
   var DOC_DISPLAY_NAMES = {
-    affidavit:                 'Affidavit',
-    demand_letter:             'Demand Letter',
-    trust_resolution:          'Trust Resolution',
-    certificate_of_trust:      'Certificate of Trust',
-    general_legal_memo:        'General Legal Memo',
-    fwm_certificate_of_trust:  'FWM Certificate of Trust (1-Page)',
-    durable_poa:               'Durable Power of Attorney',
-    non_decedent_notice:       'Notice of Non-Decedent',
-    witness_affidavit:         'Witness Affidavit (3-Witness)',
-    certificate_of_service:    'Certificate of Service'
+    affidavit:                    'Affidavit',
+    demand_letter:                'Demand Letter',
+    trust_resolution:             'Trust Resolution',
+    certificate_of_trust:         'Certificate of Trust',
+    general_legal_memo:           'General Legal Memo',
+    fwm_certificate_of_trust:     'FWM Certificate of Trust (1-Page)',
+    durable_poa:                  'Durable Power of Attorney',
+    non_decedent_notice:          'Notice of Non-Decedent',
+    witness_affidavit:            'Witness Affidavit (3-Witness)',
+    certificate_of_service:       'Certificate of Service',
+    // FWM Trust Administration
+    irs_cover_letter:             'IRS Cover Letter',
+    admin_notice_fiduciary:       'Administrative Notice (Fiduciary)',
+    distribution_matrix:          'Distribution Matrix & Mailing Instructions',
+    // Status Correction & Notices
+    sc_decl_political_status:     '01 — Declaration of Political Status',
+    sc_decl_naturalization:       '02 — Declaration of Naturalization',
+    sc_revocation_election:       '03 — Revocation of Election to Pay Taxes',
+    sc_mandatory_notice_fsi:      '04 — Mandatory Notice: Foreign Sovereign Immunity',
+    sc_ssa_ethnicity_correction:  '05 — SSA Ethnicity Correction Letter',
+    sc_distribution_matrix:       '06 — Distribution Matrix & Mailing Instructions (SC)',
+    certificate_assumed_name_dba: '07 — Certificate of Assumed Name / DBA',
+    affidavit_of_ownership:       '08 — Affidavit of Ownership',
+    executor_designation:         '09 — Executor / Executrix Designation',
+    sc_form_2848_guide:           '10 — Form 2848 Instructions Guide',
+    sc_sf181_guide:               '11 — SF-181 Race & National Origin Guide',
+    sc_cp575_ein_guide:           '12 — CP-575 EIN Assignment Guide',
+    sc_sole_proprietor_decl:      '13 — Sole Proprietor Declaration'
   };
 
   function showPackageBuilder() {
@@ -18006,9 +18570,19 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     });
 
     // Populate legal templates checklist
+    var SC_KEYS = ['sc_decl_political_status','sc_decl_naturalization','sc_revocation_election',
+      'sc_mandatory_notice_fsi','sc_ssa_ethnicity_correction','sc_distribution_matrix',
+      'certificate_assumed_name_dba','affidavit_of_ownership','executor_designation',
+      'sc_form_2848_guide','sc_sf181_guide','sc_cp575_ein_guide','sc_sole_proprietor_decl'];
     var legalList = document.getElementById('pkg-legal-list');
     legalList.innerHTML = '';
+    var scHeaderAdded = false;
     Object.keys(DOC_TEMPLATES).forEach(function(key) {
+      // Insert subheader before first status correction template
+      if (!scHeaderAdded && SC_KEYS.indexOf(key) !== -1) {
+        legalList.innerHTML += '<div style="font-weight:700;color:#f59e0b;font-size:9px;margin:8px 0 4px;text-transform:uppercase;letter-spacing:.5px">── Status Correction &amp; Notices ──</div>';
+        scHeaderAdded = true;
+      }
       var name = DOC_DISPLAY_NAMES[key] || key;
       var row = '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">' +
         '<input type="checkbox" id="pkg-chk-' + key + '" data-pkg-key="' + key + '" data-pkg-type="legal" style="accent-color:#8b5cf6">' +
@@ -18032,6 +18606,11 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     });
 
     updateVariablePreview();
+    // Auto-open editor on first use if settings are still blank
+    var s = appData.settings || {};
+    if (!s.trustName && !s.trusteeName && !s.trustEIN) {
+      setTimeout(toggleTemplateVarEditor, 100);
+    }
   }
 
   function selectPackagePreset(presetName) {
@@ -18071,6 +18650,121 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
       html += '<div style="margin-bottom:2px"><span style="color:#8b5cf6">' + token + '</span> = <span style="color:' + color + '">' + (val || '<em>empty</em>') + '</span></div>';
     });
     previewDiv.innerHTML = html;
+  }
+
+  // ── Template Variable Editor ──────────────────────────────────────
+  function toggleTemplateVarEditor() {
+    var ed = document.getElementById('tmpl-var-editor');
+    var btn = document.getElementById('tmpl-var-edit-btn');
+    if (!ed) return;
+    if (ed.style.display === 'none') {
+      var s = appData.settings || {};
+      document.getElementById('tvar-trustName').value    = s.trustName    || '';
+      document.getElementById('tvar-trusteeName').value  = s.trusteeName  || '';
+      document.getElementById('tvar-trustEIN').value     = s.trustEIN     || '';
+      document.getElementById('tvar-cafNumber').value    = s.cafNumber    || '';
+      document.getElementById('tvar-jurisdiction').value = s.jurisdiction || '';
+      document.getElementById('tvar-grantor').value      = s.grantor      || '';
+      document.getElementById('tvar-address').value      = s.address      || '';
+      document.getElementById('tvar-court').value        = s.court        || '';
+      document.getElementById('tvar-activeYear').value   = s.activeYear   || new Date().getFullYear().toString();
+      ed.style.display = 'block';
+      if (btn) btn.textContent = '▲ Close Editor';
+    } else {
+      ed.style.display = 'none';
+      if (btn) btn.textContent = '✏️ Edit Variables';
+    }
+  }
+
+  function saveTemplateVars() {
+    var s = appData.settings = appData.settings || {};
+    s.trustName    = (document.getElementById('tvar-trustName').value    || '').trim();
+    s.trusteeName  = (document.getElementById('tvar-trusteeName').value  || '').trim();
+    s.trustEIN     = (document.getElementById('tvar-trustEIN').value     || '').trim();
+    s.cafNumber    = (document.getElementById('tvar-cafNumber').value    || '').trim();
+    s.jurisdiction = (document.getElementById('tvar-jurisdiction').value || '').trim();
+    s.grantor      = (document.getElementById('tvar-grantor').value      || '').trim();
+    s.address      = (document.getElementById('tvar-address').value      || '').trim();
+    s.court        = (document.getElementById('tvar-court').value        || '').trim();
+    s.activeYear   = (document.getElementById('tvar-activeYear').value   || '').trim();
+    if (typeof saveToStorage === 'function') saveToStorage();
+    updateVariablePreview();
+    if (typeof updateHeaderSubtitle === 'function') updateHeaderSubtitle();
+    // Flash confirmation
+    var btn = document.getElementById('tmpl-var-edit-btn');
+    if (btn) {
+      var prev = btn.textContent;
+      btn.textContent = '✅ Saved!';
+      btn.style.color = '#10b981';
+      setTimeout(function() { btn.textContent = prev; btn.style.color = '#8b5cf6'; }, 1800);
+    }
+  }
+
+  function exportTemplateSettings() {
+    var s = appData.settings || {};
+    var payload = {
+      _note: 'TMAR Template Variables — import this file on any device',
+      _exported: new Date().toISOString(),
+      trustName:    s.trustName    || '',
+      trusteeName:  s.trusteeName  || '',
+      trustEIN:     s.trustEIN     || '',
+      cafNumber:    s.cafNumber    || '',
+      jurisdiction: s.jurisdiction || '',
+      grantor:      s.grantor      || '',
+      address:      s.address      || '',
+      court:        s.court        || '',
+      activeYear:   s.activeYear   || ''
+    };
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'tmar-settings.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function importTemplateSettings(event) {
+    var file = event.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        var data = JSON.parse(e.target.result);
+        var s = appData.settings = appData.settings || {};
+        if (data.trustName    !== undefined) s.trustName    = data.trustName;
+        if (data.trusteeName  !== undefined) s.trusteeName  = data.trusteeName;
+        if (data.trustEIN     !== undefined) s.trustEIN     = data.trustEIN;
+        if (data.cafNumber    !== undefined) s.cafNumber    = data.cafNumber;
+        if (data.jurisdiction !== undefined) s.jurisdiction = data.jurisdiction;
+        if (data.grantor      !== undefined) s.grantor      = data.grantor;
+        if (data.address      !== undefined) s.address      = data.address;
+        if (data.court        !== undefined) s.court        = data.court;
+        if (data.activeYear   !== undefined) s.activeYear   = data.activeYear;
+        if (typeof saveToStorage === 'function') saveToStorage();
+        // Re-populate form fields and refresh preview
+        var ed = document.getElementById('tmpl-var-editor');
+        if (ed && ed.style.display !== 'none') {
+          document.getElementById('tvar-trustName').value    = s.trustName    || '';
+          document.getElementById('tvar-trusteeName').value  = s.trusteeName  || '';
+          document.getElementById('tvar-trustEIN').value     = s.trustEIN     || '';
+          document.getElementById('tvar-cafNumber').value    = s.cafNumber    || '';
+          document.getElementById('tvar-jurisdiction').value = s.jurisdiction || '';
+          document.getElementById('tvar-grantor').value      = s.grantor      || '';
+          document.getElementById('tvar-address').value      = s.address      || '';
+          document.getElementById('tvar-court').value        = s.court        || '';
+          document.getElementById('tvar-activeYear').value   = s.activeYear   || '';
+        }
+        updateVariablePreview();
+        if (typeof updateHeaderSubtitle === 'function') updateHeaderSubtitle();
+        var btn = document.getElementById('tmpl-var-edit-btn');
+        if (btn) { var p = btn.textContent; btn.textContent = '✅ Settings Loaded!'; btn.style.color='#10b981'; setTimeout(function(){btn.textContent=p;btn.style.color='#8b5cf6';},2000); }
+      } catch(err) {
+        alert('Invalid settings file: ' + err.message);
+      }
+      event.target.value = '';
+    };
+    reader.readAsText(file);
   }
 
   function getSelectedPackageDocs() {
@@ -34133,6 +34827,43 @@ function exportAllHistory() {
     console.error('Export error:', err);
     alert('Error exporting history: ' + err.message);
   }
+}
+
+// Import backup (restore all localStorage from exported JSON)
+function importBackup(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var statusEl = document.getElementById('backupStatus');
+  if (statusEl) statusEl.textContent = 'Reading file…';
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var backup = JSON.parse(e.target.result);
+      // Two formats: flat {key: stringValue} (full backup) or appData object
+      if (backup.TMAR_AccrualLedger_Data) {
+        // Full localStorage dump — restore every key
+        Object.keys(backup).forEach(function(k) {
+          localStorage.setItem(k, backup[k]);
+        });
+      } else if (backup.entities || backup.settings || backup.journalEntries) {
+        // appData object — merge into current appData
+        Object.assign(appData, backup);
+        if (typeof saveToStorage === 'function') saveToStorage();
+      } else {
+        // Try treating as full localStorage dump anyway
+        Object.keys(backup).forEach(function(k) {
+          try { localStorage.setItem(k, typeof backup[k] === 'string' ? backup[k] : JSON.stringify(backup[k])); } catch(e2) {}
+        });
+      }
+      if (statusEl) statusEl.style.color = '#10b981';
+      if (statusEl) statusEl.textContent = '✅ Backup restored — reloading…';
+      setTimeout(function() { location.reload(); }, 1200);
+    } catch(err) {
+      if (statusEl) { statusEl.style.color = '#ef4444'; statusEl.textContent = '❌ Invalid backup file: ' + err.message; }
+    }
+    input.value = '';
+  };
+  reader.readAsText(file);
 }
 
 // Export backup
