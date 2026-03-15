@@ -305,6 +305,51 @@ async sendCPAQuery(firm)            // streaming via callLLMStream, entity detec
 
 ---
 
+## Session 5 — EON Agent Pages: Missing + DOM Nesting Fix (2026-03-14)
+
+### Gap: 5 Agent Cards in Agents Grid Failed to Navigate
+
+Agents tab grid showed 11 agents; clicking Code Expert, Creative Writer, HTML Architect, General Assistant, and Arbitration Specialist did nothing (blank screen).
+
+**Root cause:** `goEonPage(null, page)` calls `container.querySelector('#page-' + page)` where `container = eonPagesContainer`. Four agent IDs had no matching `#page-{id}` element:
+
+| Agent ID | Page ID Needed | Status |
+|---|---|---|
+| `code` | `#page-code` | ❌ Missing — only `#page-codebuilder` existed (different tool) |
+| `creative` | `#page-creative` | ❌ Missing |
+| `html_arch` | `#page-html_arch` | ❌ Missing |
+| `general` | `#page-general` | ❌ Missing |
+| `arbitration` | `#page-arbitration` | ✅ Existed — re-verified working |
+
+### Fix Attempt 1 — Pages Added Outside eonPagesContainer
+
+Initial fix inserted the 4 pages by matching the wrong anchor string, placing them outside `eonPagesContainer`. Since `container.querySelector()` only searches within the container subtree, the pages were unreachable.
+
+### Fix Attempt 2 — Broken Voice Page Nesting
+
+Second insertion correctly targeted the container's closing region but accidentally removed 4 closing `</div>` tags from `page-voice` (2-column grid → card-body → card → page-voice). HTML parser then nested all 4 new pages inside `page-voice`'s DOM subtree. Since `page-voice` has `display:none` when inactive, CSS propagated to all children — new pages were hidden even when given `.active`.
+
+### Fix Applied
+
+1. Restored 4 missing `</div>` tags closing `page-voice` structure
+2. New pages (`page-code`, `page-creative`, `page-html_arch`, `page-general`) now correctly placed as siblings of `page-voice` inside `eonPagesContainer`
+3. All 4 follow full AP pattern: saved-convs sidebar, Speak/Listen/Print/PDF/Word/Share action bar, color-matched textarea + Send button
+4. Added to AP `DOMContentLoaded` init list (7 → 11 agents)
+5. Added sidebar nav buttons under SPECIALISTS section
+
+### Parity Status Post-Session 5
+
+| Feature | Status |
+|---|---|
+| page-code (Code Expert, #3b82f6) | ✅ Complete |
+| page-creative (Creative Writer, #ec4899) | ✅ Complete |
+| page-html_arch (HTML Architect, #f97316) | ✅ Complete |
+| page-general (General Assistant, #06b6d4) | ✅ Complete |
+| AP init — 11 agents total | ✅ Complete |
+| Sidebar nav buttons for all 4 | ✅ Complete |
+
+---
+
 ## Commits
 
 | Hash | Description |
@@ -312,8 +357,10 @@ async sendCPAQuery(firm)            // streaming via callLLMStream, entity detec
 | `589a73b` | API Scout v2, footer bar, stubs |
 | `9d5a4fe` | GCMemory, OpenClawRuntime, Streaming engines |
 | *(pending)* | NOI Launcher, parity gap closure (modals, trust prompt, Ollama web search) |
-| *(pending)* | CPA Firm full parity — HTML rebuild + JS engine replacement |
+| `920099a` | CPA Firm full parity — HTML rebuild + JS engine replacement |
+| `eaa34d9` | Add missing agent pages: code, creative, html_arch, general |
+| `0cdcabd` | Fix DOM nesting — restore 4 missing </div> closing page-voice |
 
 ---
 
-*Updated: 2026-03-14 | TMAR v3.0 | CPA parity complete*
+*Updated: 2026-03-14 | TMAR v3.0 | Agent page parity complete*
