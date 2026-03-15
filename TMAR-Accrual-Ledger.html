@@ -13251,6 +13251,11 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
             <option value="irs_cover_letter">IRS Cover Letter</option>
             <option value="admin_notice_fiduciary">Administrative Notice (Fiduciary)</option>
             <option value="distribution_matrix">Distribution Matrix &amp; Mailing Instructions</option>
+            <option value="notice_appointment_trustee">Notice of Appointment of Trustee</option>
+            <option value="affidavit_trustee_authority">Affidavit of Trustee Authority</option>
+            <option value="affidavit_trustee_authority_guardianship">Affidavit &amp; Notice of Trustee Authority &amp; Limited Guardianship</option>
+            <option value="notice_irs_filings_audit">Notice of IRS Filings &amp; Audit Processing</option>
+            <option value="unsworn_declaration_perjury">Unsworn Declaration Under Penalty of Perjury</option>
           </optgroup>
           <optgroup label="── Status Correction &amp; Notices ──">
             <option value="sc_decl_political_status">01 — Declaration of Political Status</option>
@@ -18308,6 +18313,177 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
       '<div style="margin-bottom:4px"><span style="color:#DC143C;font-weight:bold">[FULL GIVEN NAME]</span>, Sole Proprietor</div>' +
       '<div style="margin-bottom:4px">All Rights Reserved — Without Prejudice — UCC 1-308</div>' +
       '<div style="margin-bottom:4px">Notary Public: ____________________________  Commission Expires: ____________</div>' +
+      '</div>',
+
+    // ── FWM Trust Administration – 5 new notice/affidavit templates ─────
+
+    notice_appointment_trustee:
+      '<div style="font-family:Times New Roman,serif;font-size:12pt;padding:40px 60px;line-height:2">' +
+      '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:4px">NOTICE OF APPOINTMENT OF TRUSTEE</div>' +
+      '<div style="text-align:center;font-size:12px;margin-bottom:24px">Pursuant to Trust Agreement and Applicable Law</div>' +
+      '<div style="margin-bottom:16px"><b>Date:</b> {{DATE}} &nbsp;&nbsp; <b>Trust EIN:</b> {{EIN}}</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">TO ALL AGENCIES, FINANCIAL INSTITUTIONS, COURTS, AND INTERESTED PARTIES:</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">TAKE NOTICE that <b>{{TRUSTEE}}</b> has been duly appointed and qualified as Trustee of <b>{{TRUST_NAME}}</b>, a private express trust established and existing under the laws of <b>{{JURISDICTION}}</b>, with Employer Identification Number (EIN) <b>{{EIN}}</b>.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">I. TRUSTEE IDENTIFICATION</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px"><b>Trustee:</b> {{TRUSTEE}}</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px"><b>Co-Trustee (if any):</b> {{CO_TRUSTEE}}</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px"><b>Successor Trustee:</b> {{SUCCESSOR_TRUSTEE}}</div>' +
+      '<div style="margin-bottom:16px;padding-left:24px"><b>Mailing Address:</b> {{ADDRESS}}</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">II. TRUST IDENTIFICATION</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px"><b>Trust Name:</b> {{TRUST_NAME}}</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px"><b>Grantor:</b> {{GRANTOR}}</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px"><b>EIN:</b> {{EIN}}</div>' +
+      '<div style="margin-bottom:16px;padding-left:24px"><b>Jurisdiction:</b> {{JURISDICTION}}</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">III. AUTHORITY GRANTED</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">The Trustee named herein is hereby authorized and empowered to act in all matters relating to the Trust, including but not limited to: opening and maintaining financial accounts; executing contracts, agreements, and legal documents; filing tax returns and corresponding with the Internal Revenue Service; collecting, managing, and distributing trust assets; and taking any and all actions necessary for the administration of the Trust, as more fully set forth in the Trust Agreement.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">IV. RELIANCE BY THIRD PARTIES</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">All persons and entities dealing with the Trustee in connection with Trust matters are authorized to rely upon this Notice as conclusive evidence of the Trustee\'s authority to act. No person dealing in good faith with the Trustee shall be obligated to inquire into the propriety of any action taken by the Trustee.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">V. CERTIFICATION</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">The undersigned Trustee hereby certifies under penalty of perjury that the foregoing is true and correct, that the Trust is in full force and effect, and that there have been no amendments that would limit the authority described herein.</div>' +
+      '<div style="margin-bottom:32px">Executed on {{DATE}} in {{JURISDICTION}}.</div>' +
+      '<div style="margin-bottom:4px">____________________________</div>' +
+      '<div style="margin-bottom:4px"><b>{{TRUSTEE}}</b>, Trustee</div>' +
+      '<div style="margin-bottom:4px"><b>{{TRUST_NAME}}</b> | EIN: {{EIN}}</div>' +
+      '<div style="margin-bottom:24px">All Rights Reserved — Without Prejudice — UCC 1-308</div>' +
+      '<div style="margin-bottom:4px">Notary Public: ____________________________  My Commission Expires: ____________</div>' +
+      '</div>',
+
+    affidavit_trustee_authority:
+      '<div style="font-family:Times New Roman,serif;font-size:12pt;padding:40px 60px;line-height:2">' +
+      '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:4px">AFFIDAVIT OF TRUSTEE AUTHORITY</div>' +
+      '<div style="text-align:center;font-size:12px;margin-bottom:24px">Sworn Statement of Trustee Powers and Legal Capacity</div>' +
+      '<div style="margin-bottom:16px"><b>Date:</b> {{DATE}} &nbsp;&nbsp; <b>EIN:</b> {{EIN}} &nbsp;&nbsp; <b>CAF #:</b> {{CAF_NUMBER}}</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I, <b>{{TRUSTEE}}</b>, being of lawful age and sound mind, being duly sworn, depose and state under penalty of perjury that the following is true and correct to the best of my knowledge and belief:</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">I. IDENTIFICATION OF TRUSTEE AND TRUST</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I am <b>{{TRUSTEE}}</b>, the duly appointed, qualified, and acting Trustee of <b>{{TRUST_NAME}}</b> (the "Trust"), a private express trust organized and existing under the laws of <b>{{JURISDICTION}}</b>. The Trust has been assigned Employer Identification Number (EIN) <b>{{EIN}}</b> by the Internal Revenue Service.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">II. VALID EXISTENCE OF TRUST</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">The Trust is a valid, subsisting, and enforceable legal entity currently in good standing. The Trust has not been revoked, amended in any manner that would limit the Trustee\'s powers described herein, or terminated. I am authorized to act on behalf of the Trust in all matters.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">III. TRUSTEE POWERS</div>' +
+      '<div style="margin-bottom:8px;text-align:justify">Pursuant to the Trust Agreement, I as Trustee am specifically authorized to:</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">1. Open, maintain, and operate financial accounts in the name of the Trust;</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">2. Execute contracts, deeds, assignments, and all other legal instruments;</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">3. File all required federal and state tax returns on behalf of the Trust;</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">4. Correspond with and appear before the Internal Revenue Service and other governmental agencies;</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">5. Collect, receive, hold, manage, invest, and distribute Trust assets;</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">6. Retain legal counsel, accountants, and other professional advisors;</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">7. Execute promissory notes, security agreements, and financing statements on behalf of the Trust;</div>' +
+      '<div style="margin-bottom:16px;padding-left:24px">8. Take all actions necessary or appropriate for the administration of the Trust.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">IV. CO-TRUSTEE AND SUCCESSION</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">Co-Trustee (if applicable): <b>{{CO_TRUSTEE}}</b>. Successor Trustee: <b>{{SUCCESSOR_TRUSTEE}}</b>. Each named Trustee possesses full authority to act independently on behalf of the Trust unless the Trust Agreement requires joint action.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">V. INDEMNIFICATION OF RELYING PARTIES</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">Any financial institution, governmental agency, or third party that relies in good faith upon this Affidavit in dealing with the Trust or its Trustee shall be fully protected and indemnified. No such party shall be required to inquire into the powers of the Trustee or the terms of the Trust Agreement.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">VI. SWORN DECLARATION</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I declare under penalty of perjury pursuant to the laws of <b>{{JURISDICTION}}</b> and the United States that the foregoing is true and correct. Executed on <b>{{DATE}}</b>.</div>' +
+      '<div style="margin-bottom:32px">Subscribed and sworn to before me this _____ day of _____________, 20____.</div>' +
+      '<div style="margin-bottom:4px">____________________________</div>' +
+      '<div style="margin-bottom:4px"><b>{{TRUSTEE}}</b>, Trustee</div>' +
+      '<div style="margin-bottom:4px"><b>{{TRUST_NAME}}</b> | EIN: {{EIN}}</div>' +
+      '<div style="margin-bottom:24px">All Rights Reserved — Without Prejudice — UCC 1-308</div>' +
+      '<div style="margin-bottom:4px">Notary Public: ____________________________  My Commission Expires: ____________</div>' +
+      '</div>',
+
+    affidavit_trustee_authority_guardianship:
+      '<div style="font-family:Times New Roman,serif;font-size:12pt;padding:40px 60px;line-height:2">' +
+      '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:4px">AFFIDAVIT AND NOTICE OF TRUSTEE AUTHORITY</div>' +
+      '<div style="text-align:center;font-size:15px;font-weight:bold;margin-bottom:4px">&amp; LIMITED GUARDIANSHIP</div>' +
+      '<div style="text-align:center;font-size:12px;margin-bottom:24px">Combined Trustee Authority Affidavit with Limited Guardianship Designation</div>' +
+      '<div style="margin-bottom:16px"><b>Date:</b> {{DATE}} &nbsp;&nbsp; <b>Trust EIN:</b> {{EIN}} &nbsp;&nbsp; <b>CAF #:</b> {{CAF_NUMBER}}</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I, <b>{{TRUSTEE}}</b>, being of lawful age and sound mind, duly sworn, do hereby make this combined Affidavit of Trustee Authority and Notice of Limited Guardianship:</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">PART ONE — AFFIDAVIT OF TRUSTEE AUTHORITY</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">I. TRUST IDENTIFICATION</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I am the duly appointed Trustee of <b>{{TRUST_NAME}}</b>, a private express trust organized under the laws of <b>{{JURISDICTION}}</b>, EIN: <b>{{EIN}}</b>, established for the benefit of <b>{{GRANTOR}}</b> and designated beneficiaries. The Trust is valid, in full force, and has not been revoked or amended in a manner that limits the powers described herein.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">II. TRUSTEE AUTHORITY — FINANCIAL AND LEGAL</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">As Trustee, I am authorized to open and maintain financial accounts, execute all legal documents, file tax returns (including Form 1041), correspond with the IRS and all governmental agencies, manage and distribute Trust assets, and take all actions necessary for Trust administration. Co-Trustee: <b>{{CO_TRUSTEE}}</b>. Successor Trustee: <b>{{SUCCESSOR_TRUSTEE}}</b>.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">III. AUTHORITY OVER TRUST PROPERTY</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">The Trustee holds legal title to all property transferred to or acquired by the Trust, including real property, personal property, financial accounts, intellectual property, and any other assets, and may deal with such property in any manner consistent with the Trust Agreement and applicable law.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">PART TWO — NOTICE OF LIMITED GUARDIANSHIP</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">IV. LIMITED GUARDIANSHIP DESIGNATION</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">In addition to Trustee authority, the undersigned hereby gives notice of Limited Guardianship over the following person(s) and/or estate(s), as authorized under applicable law and the Trust Agreement: <span style="color:#DC143C;font-weight:bold">[NAME(S) OF WARD(S) / PROTECTED PERSON(S)]</span>. This Limited Guardianship is specifically confined to the following matters: <span style="color:#DC143C;font-weight:bold">[SPECIFY: e.g., financial decisions, healthcare directives, educational decisions, estate management]</span>.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">V. SCOPE AND LIMITATIONS OF GUARDIANSHIP</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">This Limited Guardianship does NOT constitute a plenary (full) guardianship. The ward retains all rights and powers not specifically delegated herein. The Guardian/Trustee may exercise guardianship authority only within the limited scope defined in Section IV above and consistent with the best interests of the ward and applicable state law of <b>{{JURISDICTION}}</b>.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">VI. DURATION AND REVOCABILITY</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">This Limited Guardianship shall remain in effect until: (a) revoked in writing by the Trustee/Guardian; (b) the ward achieves full legal capacity; (c) a court of competent jurisdiction orders otherwise; or (d) the Trust is terminated. This designation is revocable at the sole discretion of the Trustee.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">VII. NOTICE TO ALL PARTIES</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">All interested parties, agencies, institutions, and courts are hereby notified of both the Trustee Authority described in Part One and the Limited Guardianship described in Part Two. Any action affecting the ward or Trust assets must be coordinated through the undersigned Trustee/Guardian.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">VIII. SWORN DECLARATION</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I declare under penalty of perjury under the laws of <b>{{JURISDICTION}}</b> and the United States that the foregoing is true and correct. Executed on <b>{{DATE}}</b> at <b>{{ADDRESS}}</b>.</div>' +
+      '<div style="margin-bottom:32px">Subscribed and sworn to before me this _____ day of _____________, 20____.</div>' +
+      '<div style="margin-bottom:4px">____________________________</div>' +
+      '<div style="margin-bottom:4px"><b>{{TRUSTEE}}</b>, Trustee &amp; Limited Guardian</div>' +
+      '<div style="margin-bottom:4px"><b>{{TRUST_NAME}}</b> | EIN: {{EIN}}</div>' +
+      '<div style="margin-bottom:24px">All Rights Reserved — Without Prejudice — UCC 1-308</div>' +
+      '<div style="margin-bottom:4px">Notary Public: ____________________________  My Commission Expires: ____________</div>' +
+      '</div>',
+
+    notice_irs_filings_audit:
+      '<div style="font-family:Times New Roman,serif;font-size:12pt;padding:40px 60px;line-height:2">' +
+      '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:4px">NOTICE OF IRS FILINGS AND AUDIT PROCESSING</div>' +
+      '<div style="text-align:center;font-size:12px;margin-bottom:24px">Administrative Notice Regarding Federal Tax Filings and Audit Status</div>' +
+      '<div style="margin-bottom:16px"><b>Date:</b> {{DATE}} &nbsp;&nbsp; <b>EIN:</b> {{EIN}} &nbsp;&nbsp; <b>Tax Year:</b> {{ACTIVE_YEAR}}</div>' +
+      '<div style="margin-bottom:8px">Internal Revenue Service</div>' +
+      '<div style="margin-bottom:8px">Attn: Compliance / Examination Division</div>' +
+      '<div style="margin-bottom:24px">1111 Constitution Avenue NW, Washington, DC 20224</div>' +
+      '<div style="margin-bottom:16px"><b>Re: {{TRUST_NAME}} / EIN: {{EIN}} — Notice of Filings and Audit Processing Status</b></div>' +
+      '<div style="margin-bottom:16px;text-align:justify">Dear IRS Officer/Agent,</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">This Notice is submitted on behalf of <b>{{TRUST_NAME}}</b>, EIN <b>{{EIN}}</b>, by <b>{{TRUSTEE}}</b>, Trustee, to confirm the filing status of all required tax returns and to provide notice of the Trust\'s position with respect to any pending audit, examination, or inquiry for tax year(s) <b>{{ACTIVE_YEAR}}</b>.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">I. FILINGS SUBMITTED</div>' +
+      '<div style="margin-bottom-4px;padding-left:24px">The following returns and/or forms have been filed on behalf of <b>{{TRUST_NAME}}</b>:</div>' +
+      '<div style="margin-bottom:4px;padding-left:40px">\u25a1 Form 1041 — U.S. Income Tax Return for Estates and Trusts — Tax Year <b>{{ACTIVE_YEAR}}</b></div>' +
+      '<div style="margin-bottom:4px;padding-left:40px">\u25a1 Form 56 — Notice Concerning Fiduciary Relationship</div>' +
+      '<div style="margin-bottom:4px;padding-left:40px">\u25a1 Form 2848 — Power of Attorney and Declaration of Representative</div>' +
+      '<div style="margin-bottom:4px;padding-left:40px">\u25a1 Form 8821 — Tax Information Authorization</div>' +
+      '<div style="margin-bottom:4px;padding-left:40px">\u25a1 Form W-9 — Request for Taxpayer Identification Number</div>' +
+      '<div style="margin-bottom:16px;padding-left:40px">\u25a1 <span style="color:#DC143C;font-weight:bold">[OTHER: ________________________]</span></div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">II. AUDIT / EXAMINATION STATUS</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">This Trust: &nbsp; \u25a1 Is NOT currently under audit &nbsp; \u25a1 Has received an audit notice dated <span style="color:#DC143C;font-weight:bold">[DATE]</span> &nbsp; \u25a1 Has responded to an IRS inquiry by letter dated <span style="color:#DC143C;font-weight:bold">[DATE]</span>.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">III. TRUSTEE POSITION AND COOPERATION</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">The Trustee affirms full cooperation with any lawful IRS examination or inquiry and will provide all relevant books, records, and documentation as required under IRC § 7602. However, the Trustee expressly reserves all rights under the Fifth Amendment to the Constitution and applicable law, and will not produce privileged materials without proper legal process.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">IV. REPRESENTATIVE AUTHORIZATION</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">All correspondence regarding this Trust should be directed to: <b>{{TRUSTEE}}</b>, at <b>{{ADDRESS}}</b>. Authorized representative (if applicable): <span style="color:#DC143C;font-weight:bold">[REPRESENTATIVE NAME / PTIN / CAF#]</span>.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">V. RESERVATION OF RIGHTS</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">This Notice is submitted without prejudice and does not constitute an admission of any tax liability, waiver of any rights or defenses, or consent to any jurisdiction beyond that specifically conferred by the Internal Revenue Code. All rights reserved. UCC 1-308.</div>' +
+      '<div style="margin-bottom:32px">Respectfully submitted,</div>' +
+      '<div style="margin-bottom:4px">____________________________</div>' +
+      '<div style="margin-bottom:4px"><b>{{TRUSTEE}}</b>, Trustee</div>' +
+      '<div style="margin-bottom:4px"><b>{{TRUST_NAME}}</b> | EIN: {{EIN}}</div>' +
+      '<div style="margin-bottom:4px">{{ADDRESS}}</div>' +
+      '</div>',
+
+    unsworn_declaration_perjury:
+      '<div style="font-family:Times New Roman,serif;font-size:12pt;padding:40px 60px;line-height:2">' +
+      '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:4px">UNSWORN DECLARATION UNDER PENALTY OF PERJURY</div>' +
+      '<div style="text-align:center;font-size:12px;margin-bottom:24px">Pursuant to 28 U.S.C. § 1746</div>' +
+      '<div style="margin-bottom:24px"><b>Date:</b> {{DATE}} &nbsp;&nbsp; <b>Re:</b> {{TRUST_NAME}} / EIN: {{EIN}}</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I, <b>{{TRUSTEE}}</b>, being over the age of eighteen (18) years and competent to testify, do hereby declare under penalty of perjury under the laws of the United States of America, pursuant to 28 U.S.C. § 1746, that the following is true and correct:</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">I. DECLARANT IDENTIFICATION</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px"><b>Full Legal Name:</b> {{TRUSTEE}}</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px"><b>Capacity:</b> Trustee, <b>{{TRUST_NAME}}</b></div>' +
+      '<div style="margin-bottom:4px;padding-left:24px"><b>Address:</b> {{ADDRESS}}</div>' +
+      '<div style="margin-bottom:16px;padding-left:24px"><b>Jurisdiction of Domicile:</b> {{JURISDICTION}}</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">II. DECLARATION OF FACTS</div>' +
+      '<div style="margin-bottom:8px;text-align:justify">The following facts are declared to be true and correct:</div>' +
+      '<div style="margin-bottom:8px;padding-left:24px">1. <span style="color:#DC143C;font-weight:bold">[STATE FACT 1]</span></div>' +
+      '<div style="margin-bottom:8px;padding-left:24px">2. <span style="color:#DC143C;font-weight:bold">[STATE FACT 2]</span></div>' +
+      '<div style="margin-bottom:8px;padding-left:24px">3. <span style="color:#DC143C;font-weight:bold">[STATE FACT 3]</span></div>' +
+      '<div style="margin-bottom:8px;padding-left:24px">4. <span style="color:#DC143C;font-weight:bold">[STATE FACT 4]</span></div>' +
+      '<div style="margin-bottom:16px;padding-left:24px">5. <span style="color:#DC143C;font-weight:bold">[STATE FACT 5 — add as many as needed]</span></div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">III. PURPOSE OF DECLARATION</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">This Declaration is made for the following purpose: <span style="color:#DC143C;font-weight:bold">[DESCRIBE PURPOSE — e.g., "to establish the identity and authority of the Trustee before the Internal Revenue Service," "in support of a motion filed in the above-captioned proceeding," "to confirm the accuracy of financial records submitted herewith"]</span>.</div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">IV. ATTACHED EXHIBITS (if any)</div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">Exhibit A: <span style="color:#DC143C;font-weight:bold">[DESCRIPTION]</span></div>' +
+      '<div style="margin-bottom:4px;padding-left:24px">Exhibit B: <span style="color:#DC143C;font-weight:bold">[DESCRIPTION]</span></div>' +
+      '<div style="margin-bottom:16px;padding-left:24px">Exhibit C: <span style="color:#DC143C;font-weight:bold">[DESCRIPTION]</span></div>' +
+      '<div style="margin-bottom:12px;font-weight:bold;font-size:14px">V. STATUTORY DECLARATION</div>' +
+      '<div style="margin-bottom:16px;text-align:justify">I declare under penalty of perjury that the foregoing is true and correct.</div>' +
+      '<div style="margin-bottom:8px;text-align:center;font-style:italic">"I declare (or certify, verify, or state) under penalty of perjury under the laws of the United States of America that the foregoing is true and correct. Executed on <b>{{DATE}}</b>."</div>' +
+      '<div style="margin-bottom:8px;font-size:11px;color:#666;text-align:center">— 28 U.S.C. § 1746(1) — (outside the United States) / § 1746(2) — (within the United States)</div>' +
+      '<div style="margin-bottom:32px">&nbsp;</div>' +
+      '<div style="margin-bottom:4px">____________________________</div>' +
+      '<div style="margin-bottom:4px"><b>{{TRUSTEE}}</b></div>' +
+      '<div style="margin-bottom:4px">Trustee, <b>{{TRUST_NAME}}</b></div>' +
+      '<div style="margin-bottom:4px">Executed at: {{ADDRESS}}</div>' +
+      '<div style="margin-bottom:4px">Date: {{DATE}}</div>' +
+      '<div style="margin-bottom:16px;font-size:10px;color:#555"><i>Note: Under 28 U.S.C. § 1746, this unsworn declaration has the same legal force as a sworn affidavit before a notary. No notarization required; however, notarization may be added if desired by the receiving party.</i></div>' +
       '</div>'
   };
 
@@ -18530,9 +18706,14 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     witness_affidavit:            'Witness Affidavit (3-Witness)',
     certificate_of_service:       'Certificate of Service',
     // FWM Trust Administration
-    irs_cover_letter:             'IRS Cover Letter',
-    admin_notice_fiduciary:       'Administrative Notice (Fiduciary)',
-    distribution_matrix:          'Distribution Matrix & Mailing Instructions',
+    irs_cover_letter:                         'IRS Cover Letter',
+    admin_notice_fiduciary:                   'Administrative Notice (Fiduciary)',
+    distribution_matrix:                      'Distribution Matrix & Mailing Instructions',
+    notice_appointment_trustee:               'Notice of Appointment of Trustee',
+    affidavit_trustee_authority:              'Affidavit of Trustee Authority',
+    affidavit_trustee_authority_guardianship: 'Affidavit & Notice of Trustee Authority & Limited Guardianship',
+    notice_irs_filings_audit:                 'Notice of IRS Filings & Audit Processing',
+    unsworn_declaration_perjury:              'Unsworn Declaration Under Penalty of Perjury',
     // Status Correction & Notices
     sc_decl_political_status:     '01 — Declaration of Political Status',
     sc_decl_naturalization:       '02 — Declaration of Naturalization',
