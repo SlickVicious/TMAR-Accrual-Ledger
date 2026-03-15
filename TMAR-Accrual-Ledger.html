@@ -32782,7 +32782,6 @@ function ev2InitEntityVerifier() {
 
 </div>
 
-  <script src="shared-toolbar.js"></script>
 <script>
 // ========== EON AI JAVASCRIPT FUNCTIONS ==========
 
@@ -33091,7 +33090,12 @@ function getSystemPrompt(agentId) {
     corporation: 'You are a Corporation Law Expert specializing in corporate structure, governance, and securities law. You provide facts and conclusions of law only. Cite specific statutes (Delaware General Corporation Law, Model Business Corporation Act) and case law.',
     research:    'You are a Research Analyst specializing in deep investigation and source verification for legal, financial, and government topics. Provide thorough analysis with citations to authoritative sources. Facts and verified data only.'
   };
-  return prompts[agentId] || prompts['legal'];
+    code:        'You are a Code Expert with deep knowledge of HTML, CSS, JavaScript, Python, SQL, REST APIs, and full-stack development. Provide production-ready, copy-paste-ready code with concise explanations. Cite standards (MDN, ECMAScript spec, Python docs) as applicable. No hedging. No disclaimers.',
+    creative:    'You are a Creative Writer and content specialist. You excel at stories, essays, blog posts, scripts, poetry, marketing copy, and all creative content formats. Match the tone and style to the request precisely. Be engaging, vivid, and purposeful. No hedging. No disclaimers.',
+    html_arch:   'You are an HTML Architect specializing in web design, responsive layouts, CSS architecture, and frontend systems. Produce clean, semantic, accessible HTML/CSS using modern best practices (Flexbox, Grid, CSS variables, dark mode). Always provide working, copy-paste-ready code. No hedging. No disclaimers.',
+    general:     'You are a General Assistant capable of answering any question, performing calculations, summarizing documents, providing research, translations, and practical guidance on any topic. Be concise, accurate, and direct. No hedging. No disclaimers.'
+  };
+  return prompts[agentId] || prompts['general'];
 }
 function buildFullSystemPrompt(agentSystemPrompt, mem0Memories) {
   var base = '═══ SYPHER PROTOCOL — TMAR ACCRUAL LEDGER — E2ZERO FRAMEWORK ═══\n' +
@@ -35292,10 +35296,12 @@ async function sendCPAQuery(firm) {
   var respDiv = document.getElementById(firm + '-agent-response');
   if (!input || !respDiv) return;
   var q = (input.value || '').trim();
-  if (!q) return;
-  var entity = localStorage.getItem('gaapclaw_entity');
-  if (!entity) { if (typeof promptEntitySelection === 'function') promptEntitySelection(); return; }
   var cfg = CPA_AGENT_CONFIGS[firm];
+  if (!q) {
+    if (respDiv && cfg) respDiv.innerHTML = '<div style="color:' + cfg.color + ';font-size:13px;padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:6px">⚠️ Please enter a question first.</div>';
+    input.focus();
+    return;
+  }
   if (!cfg) return;
   var subAgent = activeSubAgents[firm] || 'tax';
   var sub = cfg.subAgents[subAgent];
@@ -35681,7 +35687,7 @@ const AP = {
     var inp = document.getElementById('ap_in_' + page);
     if (!inp) return;
     var text = inp.value.trim();
-    if (!text) return;
+    if (!text) { inp.focus(); return; }
     var data = this._load(page);
     if (!data.current || !data.sessions[data.current]) {
       this.newConv(page);
