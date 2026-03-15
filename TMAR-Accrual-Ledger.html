@@ -11762,12 +11762,12 @@
         <script>
           (function(){var k=localStorage.getItem('TMAR_trustApiKey');if(k){window._trustApiKey=k;var inp=document.getElementById('trust-api-key-input');if(inp)inp.value=k;}})();
         </script>
-        <textarea id="trust-agent-input" placeholder="Ask any trust accounting, GAAP / ASC / IRC question — journal entries, form placement, asset classification, valuation, event sequencing, or rebuttal of any accounting presumption..." style="width:100%;min-height:90px;background:rgba(0,0,0,.3);color:#f1f5f9;border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:10px;font-size:13px;font-family:'SF Mono','Cascadia Code',monospace;resize:vertical;box-sizing:border-box"></textarea>
+        <textarea id="tmar-trust-input" placeholder="Ask any trust accounting, GAAP / ASC / IRC question — journal entries, form placement, asset classification, valuation, event sequencing, or rebuttal of any accounting presumption..." style="width:100%;min-height:90px;background:rgba(0,0,0,.3);color:#f1f5f9;border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:10px;font-size:13px;font-family:'SF Mono','Cascadia Code',monospace;resize:vertical;box-sizing:border-box"></textarea>
         <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
           <button onclick="sendTrustAgentQuery()" style="background:#10b981;color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px">⚖️ Submit to Trust Agent</button>
           <button onclick="clearTrustAgentChat()" style="background:rgba(255,255,255,.08);color:#94a3b8;border:1px solid rgba(255,255,255,.1);padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">Clear</button>
         </div>
-        <div id="trust-agent-response" style="margin-top:16px;min-height:40px;font-size:13px;color:#94a3b8;line-height:1.7">
+        <div id="tmar-trust-response" style="margin-top:16px;min-height:40px;font-size:13px;color:#94a3b8;line-height:1.7">
           Ask any accounting question — journal entries, form placement, asset classification, valuation, accrual events, IRC compliance, or rebuttal of any accounting presumption.
         </div>
       </div>
@@ -12726,7 +12726,7 @@ NO NUANCE. NO INTERPRETATION. NO OPINION. NO PRESUMPTION. NO CLARIFICATION.
 ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
 
   function trustAgentQ(question) {
-    var input = document.getElementById('trust-agent-input');
+    var input = document.getElementById('tmar-trust-input');
     if (input) {
       input.value = question;
       sendTrustAgentQuery();
@@ -12734,9 +12734,9 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
   }
 
   function clearTrustAgentChat() {
-    var resp = document.getElementById('trust-agent-response');
+    var resp = document.getElementById('tmar-trust-response');
     if (resp) resp.innerHTML = 'Ask any accounting question — journal entries, form placement, asset classification, valuation, accrual events, IRC compliance, or rebuttal of any accounting presumption.';
-    var input = document.getElementById('trust-agent-input');
+    var input = document.getElementById('tmar-trust-input');
     if (input) input.value = '';
   }
 
@@ -12773,8 +12773,8 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
   }
 
   async function sendTrustAgentQuery() {
-    var input = document.getElementById('trust-agent-input');
-    var respDiv = document.getElementById('trust-agent-response');
+    var input = document.getElementById('tmar-trust-input');
+    var respDiv = document.getElementById('tmar-trust-response');
     if (!input || !respDiv) return;
     var question = (input.value || '').trim();
     if (!question) return;
