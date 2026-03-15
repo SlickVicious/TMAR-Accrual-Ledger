@@ -32846,7 +32846,7 @@ function getSystemPrompt(agentId) {
     legal:       'You are a Legal Expert with 42 years of experience, operating under THE EEON FOUNDATION methodology. You specialize in Constitutional law, Commercial/UCC, Criminal law, Civil law, Securities, Bankruptcy, Trust Law, and Foreclosure. You respond with FACTS AND CONCLUSIONS OF LAW ONLY. No nuance. No opinion. No presumption. Every answer must be supported by specific legal authority (case law, statutes, Constitutional provisions). Be direct, precise, and cite authority.',
     accounting:  'You are an Accounting Expert specializing in GAAP, ASC, and financial reporting. You provide facts and conclusions only. Every answer must cite specific accounting standards (ASC codes, GAAP principles). Be precise and technical.',
     tax:         'You are a Tax Expert specializing in IRC (Internal Revenue Code), IRS rules, and Treasury procedures. You provide facts and conclusions of law only. Every answer must cite specific IRC sections, Treasury Regulations, or IRS Revenue Rulings. Be precise and cite authority.',
-    trust:       'You are a Trust Law Expert specializing in trust administration, fiduciary duty, and trust taxation. You provide facts and conclusions of law only. Cite specific trust law statutes, Restatement (Third) of Trusts provisions, and relevant case law. Be precise.',
+    trust:       (typeof buildTrustAgentSystemPrompt === 'function' ? (buildTrustAgentSystemPrompt() + (typeof TRUST_AGENT_PROMPT_BODY !== 'undefined' ? TRUST_AGENT_PROMPT_BODY : '')) : 'You are a Trust Law Expert specializing in trust administration, fiduciary duty, and trust taxation. You provide facts and conclusions of law only. Cite specific trust law statutes, Restatement (Third) of Trusts provisions, and relevant case law. Be precise.'),
     arbitration: 'You are an Arbitration Law Expert specializing in the Federal Arbitration Act, arbitration awards, and quasi-judicial proceedings. You provide facts and conclusions of law only. Cite specific provisions of the FAA (9 U.S.C.) and relevant case law.',
     corporation: 'You are a Corporation Law Expert specializing in corporate structure, governance, and securities law. You provide facts and conclusions of law only. Cite specific statutes (Delaware General Corporation Law, Model Business Corporation Act) and case law.',
     research:    'You are a Research Analyst specializing in deep investigation and source verification for legal, financial, and government topics. Provide thorough analysis with citations to authoritative sources. Facts and verified data only.'
@@ -32894,7 +32894,26 @@ async function callLLMStream(agentSystemPrompt, userMessage, mem0Memories, onTok
   try {
     // ── OLLAMA: newline-delimited JSON streaming ──────────────────────────
     if (p.auth === 'ollama') {
-      var body = JSON.stringify({ model: model, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userMessage }], stream: true });
+      var ollamaWebSearch = localStorage.getItem('eeon_ollama_web_search') === 'true';
+      var ollamaPayload = { model: model, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userMessage }], stream: true };
+      if (ollamaWebSearch) {
+        ollamaPayload.tools = [{
+          type: 'function',
+          function: {
+            name: 'web_search',
+            description: 'Search the web for current information. Use when the question requires up-to-date facts, recent case law, current IRS rules, or live financial data.',
+            parameters: {
+              type: 'object',
+              properties: {
+                query: { type: 'string', description: 'The search query' }
+              },
+              required: ['query']
+            }
+          }
+        }];
+        ollamaPayload.tool_choice = 'auto';
+      }
+      var body = JSON.stringify(ollamaPayload);
       var ctrl = new AbortController();
       var tid = setTimeout(function() { ctrl.abort(); }, 900000);
       var resp;
@@ -32920,8 +32939,19 @@ async function callLLMStream(agentSystemPrompt, userMessage, mem0Memories, onTok
         var lines = buffer.split('\n'); buffer = lines.pop() || '';
         for (var i = 0; i < lines.length; i++) {
           if (!lines[i].trim()) continue;
-          try { var parsed = JSON.parse(lines[i]); var tok = (parsed.message && parsed.message.content) || '';
-                if (tok) { accumulated += tok; if (onToken) onToken(tok); } } catch(pe) {}
+          try {
+            var parsed = JSON.parse(lines[i]);
+            var tok = (parsed.message && parsed.message.content) || '';
+            if (tok) { accumulated += tok; if (onToken) onToken(tok); }
+            // Handle tool_call responses (web search)
+            if (ollamaWebSearch && parsed.message && parsed.message.tool_calls && parsed.message.tool_calls.length) {
+              var tc = parsed.message.tool_calls[0];
+              if (tc.function && tc.function.name === 'web_search') {
+                var searchNote = '\n\n[Web Search: "' + (tc.function.arguments && tc.function.arguments.query || '') + '" — tool call received by model]\n\n';
+                accumulated += searchNote; if (onToken) onToken(searchNote);
+              }
+            }
+          } catch(pe) {}
         }
       }
       if (buffer.trim()) { try { var p2 = JSON.parse(buffer); var t2 = (p2.message && p2.message.content)||''; if(t2){accumulated+=t2;if(onToken)onToken(t2);} } catch(pe) {} }
@@ -35532,41 +35562,209 @@ console.log('✅ AP Agent Portal object loaded — 7 persistent conversation age
   document.addEventListener('tmar-data-updated', gcUpdateBar);
 })();
 
-// ── GC Panel Stubs ─────────────────────────────────────────────────
+// ── GC Panel Modal Helper ────────────────────────────────────────
+function _gcOpenModal(title, contentHtml) {
+  var existing = document.getElementById('gc-panel-modal');
+  if (existing) existing.remove();
+  var overlay = document.createElement('div');
+  overlay.id = 'gc-panel-modal';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:999999;background:rgba(0,0,8,.82);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px';
+  overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+  overlay.innerHTML =
+    '<div style="background:linear-gradient(135deg,#0f172a,#1e293b);border:1px solid rgba(16,185,129,.35);border-radius:14px;max-width:680px;width:100%;max-height:82vh;display:flex;flex-direction:column;font-family:\'IBM Plex Mono\',monospace;box-shadow:0 25px 60px rgba(0,0,0,.6)">' +
+      '<div style="padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between">' +
+        '<span style="font-size:13px;font-weight:700;color:#e2e8f0">' + title + '</span>' +
+        '<button onclick="document.getElementById(\'gc-panel-modal\').remove()" style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#ef4444;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:11px">✕ Close</button>' +
+      '</div>' +
+      '<div style="overflow-y:auto;padding:16px 20px;flex:1;font-size:11px;color:#94a3b8;line-height:1.7">' + contentHtml + '</div>' +
+    '</div>';
+  document.body.appendChild(overlay);
+}
+
+// ── GC Panels ────────────────────────────────────────────────────
 function showGCFinancials() {
   var d = typeof appData !== 'undefined' ? appData : {};
   var entries = (d.entries && d.entries.length) ? d.entries : [];
-  var rev = 0, exp = 0;
+  var rev = 0, exp = 0, assets = 0, tax = 0;
   entries.forEach(function(e) {
     var amt = parseFloat(e.amount) || 0;
     var type = (e.type || e.category || '').toLowerCase();
-    if (type.includes('revenue') || type.includes('income') || type === 'cr' || type === 'credit') rev += amt;
-    else exp += amt;
+    if (type.includes('revenue') || type.includes('income') || type === 'cr' || type === 'credit') { rev += amt; }
+    else if (type.includes('tax')) { tax += amt; exp += amt; }
+    else if (type.includes('asset')) { assets += amt; }
+    else { exp += amt; }
   });
   var net = rev - exp;
-  var fmt = function(n){ return '$' + Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); };
-  alert('📊 Live P&L Summary\n\nRevenue:  ' + fmt(rev) + '\nExpenses: ' + fmt(exp) + '\nNet:      ' + (net < 0 ? '-' : '') + fmt(net) + '\n\nEntries: ' + entries.length);
+  var fmt = function(n){ return (n < 0 ? '-' : '') + '$' + Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); };
+  var rows = '';
+  if (entries.length) {
+    var recent = entries.slice(-10).reverse();
+    rows = recent.map(function(e){
+      var amt = parseFloat(e.amount)||0;
+      var color = amt >= 0 ? '#22c55e' : '#ef4444';
+      return '<tr><td style="padding:4px 8px;color:#64748b">' + (e.date||'—') + '</td>' +
+             '<td style="padding:4px 8px;color:#e2e8f0">' + escHtml(e.description||e.memo||'—') + '</td>' +
+             '<td style="padding:4px 8px;color:' + color + '">' + fmt(amt) + '</td></tr>';
+    }).join('');
+  }
+  var html =
+    '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px">' +
+      _gcStatCard('Revenue','#22c55e',fmt(rev)) +
+      _gcStatCard('Expenses','#ef4444',fmt(exp)) +
+      _gcStatCard('Net ' + (net>=0?'Income':'Loss'), net>=0?'#10b981':'#ef4444', fmt(net)) +
+      _gcStatCard('Entries','#60a5fa', entries.length + '') +
+    '</div>' +
+    '<div style="color:#475569;font-size:10px;margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em">Recent Entries (Last 10)</div>' +
+    (rows ? '<table style="width:100%;border-collapse:collapse">' + rows + '</table>' : '<div style="color:#475569;padding:12px 0">No entries recorded yet.</div>');
+  _gcOpenModal('📊 Live P&L — Accrual Summary', html);
 }
+function _gcStatCard(label, color, value) {
+  return '<div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:12px">' +
+    '<div style="font-size:10px;color:#64748b;margin-bottom:4px">' + label + '</div>' +
+    '<div style="font-size:16px;font-weight:700;color:' + color + '">' + value + '</div></div>';
+}
+
 function showGCAgentLog() {
   var memKeys = Object.keys(localStorage).filter(function(k){ return k.startsWith('ap_conv_'); });
-  var lines = memKeys.map(function(k) {
-    var d = JSON.parse(localStorage.getItem(k) || '{}');
-    var count = Object.keys(d.sessions || {}).length;
-    return k.replace('ap_conv_','') + ': ' + count + ' session(s)';
-  });
-  alert('🤖 Agent Activity Log\n\n' + (lines.length ? lines.join('\n') : 'No agent conversations recorded yet.'));
+  var rows = '';
+  if (memKeys.length) {
+    rows = memKeys.map(function(k) {
+      var page = k.replace('ap_conv_','');
+      var d = {}; try { d = JSON.parse(localStorage.getItem(k)||'{}'); } catch(ex) {}
+      var sessions = Object.keys(d.sessions||{});
+      var last = sessions.length ? sessions[sessions.length-1] : null;
+      var lastLabel = last ? (d.sessions[last] && d.sessions[last].title ? escHtml(d.sessions[last].title.substring(0,32)) : '(no title)') : '—';
+      return '<tr style="border-bottom:1px solid rgba(255,255,255,.05)">' +
+             '<td style="padding:6px 8px;color:#a78bfa;font-weight:600">' + escHtml(page) + '</td>' +
+             '<td style="padding:6px 8px;color:#94a3b8;text-align:center">' + sessions.length + '</td>' +
+             '<td style="padding:6px 8px;color:#64748b">' + lastLabel + '</td></tr>';
+    }).join('');
+  }
+  var memCount = 0;
+  (GCMemory && GCMemory.count ? GCMemory.count().then(function(n){ var el=document.getElementById('gc-idb-count'); if(el)el.textContent=n; }) : null);
+  var html =
+    '<div style="margin-bottom:14px">' +
+      '<span style="color:#64748b;font-size:10px">IndexedDB Memories: </span>' +
+      '<span id="gc-idb-count" style="color:#a78bfa;font-weight:700">loading…</span>' +
+      '<span style="color:#64748b;font-size:10px;margin-left:16px">AP Conversations: </span>' +
+      '<span style="color:#60a5fa;font-weight:700">' + memKeys.length + '</span>' +
+    '</div>' +
+    (rows
+      ? '<table style="width:100%;border-collapse:collapse"><thead><tr>' +
+        '<th style="text-align:left;padding:4px 8px;color:#475569;font-size:10px;text-transform:uppercase">Agent</th>' +
+        '<th style="text-align:center;padding:4px 8px;color:#475569;font-size:10px;text-transform:uppercase">Sessions</th>' +
+        '<th style="text-align:left;padding:4px 8px;color:#475569;font-size:10px;text-transform:uppercase">Last Session</th>' +
+        '</tr></thead><tbody>' + rows + '</tbody></table>'
+      : '<div style="color:#475569;padding:12px 0">No agent conversations recorded yet.</div>');
+  _gcOpenModal('🤖 Agent Activity Log', html);
+  if (GCMemory && GCMemory.count) {
+    GCMemory.count().then(function(n){ var el=document.getElementById('gc-idb-count'); if(el)el.textContent=n; }).catch(function(){ var el=document.getElementById('gc-idb-count'); if(el)el.textContent='—'; });
+  } else {
+    var el=document.getElementById('gc-idb-count'); if(el)el.textContent='—';
+  }
 }
+
 function showGCMemoryPanel() {
-  var memKeys = Object.keys(localStorage).filter(function(k){ return k.startsWith('gcmem_') || k.startsWith('ap_conv_') || k.startsWith('ms_'); });
-  alert('🧠 GCMemory Store\n\n' + memKeys.length + ' memory keys found:\n' + memKeys.slice(0,20).join('\n') + (memKeys.length > 20 ? '\n...and ' + (memKeys.length - 20) + ' more' : ''));
+  var html = '<div id="gc-mem-body"><div style="color:#a78bfa">Loading IndexedDB memories…</div></div>';
+  _gcOpenModal('🧠 GCMemory — IndexedDB Store', html);
+  var body = document.getElementById('gc-mem-body');
+  if (!body) return;
+  if (!GCMemory || !GCMemory.count) {
+    body.innerHTML = '<div style="color:#ef4444">GCMemory engine not loaded.</div>'; return;
+  }
+  Promise.all([GCMemory.count(), GCMemory.search('', 20)]).then(function(results) {
+    var total = results[0], mems = results[1] || [];
+    var rows = mems.length ? mems.map(function(m){
+      return '<tr style="border-bottom:1px solid rgba(255,255,255,.04)">' +
+        '<td style="padding:5px 8px;color:#64748b;font-size:10px">' + (m.agentId||'—') + '</td>' +
+        '<td style="padding:5px 8px;color:#94a3b8;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + escHtml((m.userText||'').substring(0,80)) + '</td>' +
+        '<td style="padding:5px 8px;color:#64748b;font-size:10px">' + (m.timestamp ? new Date(m.timestamp).toLocaleDateString() : '—') + '</td></tr>';
+    }).join('') : '';
+    body.innerHTML =
+      '<div style="display:flex;gap:16px;margin-bottom:14px">' +
+        '<div><span style="color:#64748b;font-size:10px">Total records: </span><span style="color:#a78bfa;font-weight:700">' + total + '</span></div>' +
+        '<div><span style="color:#64748b;font-size:10px">Auto-prune at: </span><span style="color:#f59e0b;font-weight:700">500</span></div>' +
+      '</div>' +
+      (rows
+        ? '<table style="width:100%;border-collapse:collapse"><thead><tr>' +
+          '<th style="text-align:left;padding:4px 8px;color:#475569;font-size:10px">Agent</th>' +
+          '<th style="text-align:left;padding:4px 8px;color:#475569;font-size:10px">Last Query</th>' +
+          '<th style="text-align:left;padding:4px 8px;color:#475569;font-size:10px">Date</th>' +
+          '</tr></thead><tbody>' + rows + '</tbody></table>'
+        : '<div style="color:#475569;padding:12px 0">No memories stored yet. Memories are saved automatically after agent conversations.</div>') +
+      '<div style="margin-top:14px"><button onclick="mem0ClearAll()" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#ef4444;border-radius:6px;padding:4px 14px;cursor:pointer;font-size:11px;font-family:inherit">🗑 Clear All Memories</button></div>';
+  }).catch(function(err) {
+    body.innerHTML = '<div style="color:#ef4444">Error reading IndexedDB: ' + escHtml(String(err)) + '</div>';
+  });
 }
+
 function showGCSecurityReport() {
-  alert('🔐 Security Report\n\nProtocol: SYPHER v7.1\nEncryption: AES-256 (localStorage)\nSession: Active\nHash Verification: Enabled\nAll entries signed locally.\n\nNo external data transmission detected.');
+  var runtime = typeof OpenClawRuntime !== 'undefined' ? OpenClawRuntime : null;
+  var hl = typeof HARD_LOCK !== 'undefined' ? HARD_LOCK : null;
+  var secLog = (runtime && runtime.getSecurityLog) ? runtime.getSecurityLog() : [];
+  var agentCount = (runtime && runtime.listAgents) ? runtime.listAgents().length : '—';
+  var skillCount = (runtime && runtime.listSkills) ? runtime.listSkills().length : '—';
+  var logRows = secLog.length ? secLog.map(function(l){
+    return '<tr><td style="padding:4px 8px;color:#f59e0b;font-size:10px">' + (l.time||'—') + '</td>' +
+           '<td style="padding:4px 8px;color:#ef4444">' + escHtml(l.msg||JSON.stringify(l)) + '</td></tr>';
+  }).join('') : '';
+  var html =
+    '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px">' +
+      _gcStatCard('SYPHER Protocol','#22c55e','v7.8 HARDLOCK') +
+      _gcStatCard('HARD_LOCK','#10b981', hl && hl.enforced ? '✅ Enforced' : '❌ Not Set') +
+      _gcStatCard('Agents Sealed','#a78bfa', String(agentCount)) +
+      _gcStatCard('Skills Sealed','#60a5fa', String(skillCount)) +
+    '</div>' +
+    '<div style="color:#475569;font-size:10px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Runtime Flags</div>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">' +
+      '<span style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:#10b981;border-radius:4px;padding:2px 8px;font-size:10px">Local Storage: Active</span>' +
+      '<span style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:#10b981;border-radius:4px;padding:2px 8px;font-size:10px">No External Transmission</span>' +
+      '<span style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:#10b981;border-radius:4px;padding:2px 8px;font-size:10px">Output Sanitized</span>' +
+      '<span style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:#10b981;border-radius:4px;padding:2px 8px;font-size:10px">Prompt Validated</span>' +
+    '</div>' +
+    '<div style="color:#475569;font-size:10px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Security Event Log</div>' +
+    (logRows
+      ? '<table style="width:100%;border-collapse:collapse"><thead><tr>' +
+        '<th style="text-align:left;padding:4px 8px;color:#475569;font-size:10px">Time</th>' +
+        '<th style="text-align:left;padding:4px 8px;color:#475569;font-size:10px">Event</th>' +
+        '</tr></thead><tbody>' + logRows + '</tbody></table>'
+      : '<div style="color:#22c55e;padding:8px 0">✅ No security events logged — runtime clean.</div>');
+  _gcOpenModal('🔐 Security Report — SYPHER-7.8-HARDLOCK', html);
 }
+
 function showGCIntegrityCheck() {
   var d = typeof appData !== 'undefined' ? appData : {};
   var entries = (d.entries && d.entries.length) ? d.entries : [];
-  alert('🔗 Hash Chain Integrity\n\nTotal entries: ' + entries.length + '\nChain status: ' + (entries.length > 0 ? '✅ Intact' : '⬜ Empty') + '\nLast verified: ' + new Date().toLocaleTimeString() + '\n\nAll accrual entries are tamper-evident via sequential hash linking.');
+  var intact = true, issues = [];
+  for (var i = 1; i < entries.length; i++) {
+    if (entries[i].prevHash && entries[i-1].hash && entries[i].prevHash !== entries[i-1].hash) {
+      intact = false; issues.push('Break at entry #' + (i+1));
+    }
+  }
+  var rows = entries.slice(-10).reverse().map(function(e, idx){
+    var hashDisplay = (e.hash || '').substring(0, 16) + (e.hash && e.hash.length > 16 ? '…' : '—');
+    return '<tr style="border-bottom:1px solid rgba(255,255,255,.04)">' +
+      '<td style="padding:4px 8px;color:#60a5fa">#' + (entries.length - idx) + '</td>' +
+      '<td style="padding:4px 8px;color:#94a3b8">' + escHtml(e.description||e.memo||'—') + '</td>' +
+      '<td style="padding:4px 8px;color:#64748b;font-family:monospace">' + hashDisplay + '</td></tr>';
+  }).join('');
+  var html =
+    '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px">' +
+      _gcStatCard('Total Entries','#60a5fa', entries.length + '') +
+      _gcStatCard('Chain Status', intact?'#22c55e':'#ef4444', entries.length > 0 ? (intact ? '✅ Intact' : '❌ ' + issues.length + ' break(s)') : '⬜ Empty') +
+      _gcStatCard('Last Verified','#94a3b8', new Date().toLocaleTimeString()) +
+      _gcStatCard('Hash Algorithm','#a78bfa','Sequential SHA') +
+    '</div>' +
+    (issues.length ? '<div style="color:#ef4444;margin-bottom:12px">Issues: ' + issues.map(escHtml).join(', ') + '</div>' : '') +
+    '<div style="color:#475569;font-size:10px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Recent Entries (Last 10)</div>' +
+    (rows
+      ? '<table style="width:100%;border-collapse:collapse"><thead><tr>' +
+        '<th style="text-align:left;padding:4px 8px;color:#475569;font-size:10px">#</th>' +
+        '<th style="text-align:left;padding:4px 8px;color:#475569;font-size:10px">Description</th>' +
+        '<th style="text-align:left;padding:4px 8px;color:#475569;font-size:10px">Hash</th>' +
+        '</tr></thead><tbody>' + rows + '</tbody></table>'
+      : '<div style="color:#475569;padding:8px 0">No entries yet. All accrual entries are tamper-evident via sequential hash linking.</div>');
+  _gcOpenModal('🔗 Hash Chain Integrity', html);
 }
 
 // ── IRS Template Upload ────────────────────────────────────────────

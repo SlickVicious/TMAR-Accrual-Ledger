@@ -200,7 +200,43 @@ async function askAgent(agentId, question)
 | Token Budget Guard | ✅ Complete |
 | callLLMStream (streaming) | ✅ Complete |
 | resolveProvider() | ✅ Complete |
+| Footer panel modals (Live P&L, Agents, Memory, Security, Hash Chain) | ✅ Complete |
+| Trust agent full system prompt (`buildTrustAgentSystemPrompt + TRUST_AGENT_PROMPT_BODY`) | ✅ Complete |
+| Ollama web search injection (`eeon_ollama_web_search` → tools array) | ✅ Complete |
+| NOI Agent Browser Hardened Launcher | ✅ Complete |
 | E2ZERO embedded widget (TRCF only) | N/A — TMAR has own EON portal |
+
+---
+
+## Session 3 — Parity Gap Closure + NOI Launcher (2026-03-14)
+
+### Gap #1: Footer Panel Modals
+Replaced all 5 alert() stubs with real overlay modals backed by live data:
+- `showGCFinancials()` — stat cards (Revenue/Expenses/Net/Entries) + last 10 entries table
+- `showGCAgentLog()` — AP conversation sessions per agent + live IndexedDB count
+- `showGCMemoryPanel()` — GCMemory.count() + last 20 memories table + Clear All button
+- `showGCSecurityReport()` — SYPHER version, HARD_LOCK status, agents/skills sealed, security event log
+- `showGCIntegrityCheck()` — entry count, chain intact/broken status, last 10 entries with hash display
+- Added `_gcOpenModal()` and `_gcStatCard()` helpers for shared panel UI
+
+### Gap #2: Trust Agent Full System Prompt
+Updated `getSystemPrompt('trust')` to call `buildTrustAgentSystemPrompt() + TRUST_AGENT_PROMPT_BODY` at runtime (with `typeof` guards for cross-script-block safety), replacing the simplified fallback prompt.
+
+### Gap #3: Ollama Web Search Injection
+Added `eeon_ollama_web_search` check to the Ollama block in `callLLMStream`:
+- When enabled, injects a `web_search` function tool definition into the request body
+- Sets `tool_choice: 'auto'`
+- Handles `tool_calls` responses in the NDJSON streaming loop (logs search query inline)
+
+### NOI Agent Browser Hardened Launcher
+Created `NOI_Agent_Browser.bat` and `NOI_Agent_Browser_Harden.ps1`:
+- Binds gateway to 127.0.0.1 only; blocks public bind
+- Locks down `bearer.token`, `config.toml`, `gateway.json`, `logs/`, `memory/`, `sessions/` ACLs
+- Checks for healthy existing gateway and reuses if available
+- Validates and blocks remote computer-use endpoints
+- `--dry-run` mode for validation without execution
+- `--enable-startup` flag to create startup shortcut (off by default)
+- Added all sensitive files/dirs to `.gitignore`
 
 ---
 
@@ -210,7 +246,8 @@ async function askAgent(agentId, question)
 |---|---|
 | `589a73b` | API Scout v2, footer bar, stubs |
 | `9d5a4fe` | GCMemory, OpenClawRuntime, Streaming engines |
+| *(pending)* | NOI Launcher, parity gap closure (modals, trust prompt, Ollama web search) |
 
 ---
 
-*Generated: 2026-03-14 | TMAR v3.0 | GAAPCLAW parity session*
+*Updated: 2026-03-14 | TMAR v3.0 | Full parity achieved*
