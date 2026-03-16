@@ -49,9 +49,16 @@ export default {
       return new Response('Forbidden', { status: 403 });
     }
 
+    // Build clean headers for Anthropic — strip Origin/Referer (browser flags),
+    // inject the required direct-browser-access header server-side
+    const forwardHeaders = new Headers(request.headers);
+    forwardHeaders.delete('origin');
+    forwardHeaders.delete('referer');
+    forwardHeaders.set('anthropic-dangerous-direct-browser-access', 'true');
+
     const proxyRequest = new Request(targetUrl, {
       method: request.method,
-      headers: request.headers,
+      headers: forwardHeaders,
       body: request.body,
     });
 
