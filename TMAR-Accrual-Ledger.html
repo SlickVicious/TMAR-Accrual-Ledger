@@ -34780,7 +34780,8 @@ async function testConnection() {
 
     if (provider === 'claude' || provider === 'anthropic') {
       apiKey = localStorage.getItem('eeon_key_claude') || window._trustApiKey || '';
-      testEndpoint = 'https://api.anthropic.com/v1/messages';
+      var corsProxy = (localStorage.getItem('eeon_cors_proxy') || '').replace(/\/$/, '');
+      testEndpoint = corsProxy ? corsProxy + '/v1/messages' : 'https://api.anthropic.com/v1/messages';
       testHeaders = {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
