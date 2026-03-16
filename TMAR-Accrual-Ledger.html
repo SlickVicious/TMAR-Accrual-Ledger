@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>TMAR Universal Accrual Ledger</title>
   <meta name="description" content="TMAR-Aligned Universal Accrual Ledger - Trust accounting, double-entry journal, tax forms, financial statements">
   <meta name="author" content="Clinton Wimberly IV">
@@ -81,6 +84,7 @@
     }
     .form-section {
       animation: fadeIn 0.4s ease-out;
+      padding-bottom: 100px;
     }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
@@ -363,11 +367,13 @@
 .pages-container {
   margin-left: 240px;
   padding: 20px;
+  padding-bottom: 72px;
   min-height: 100vh;
 }
 
 .page {
   display: none;
+  padding-bottom: 80px;
 }
 
 .page.active {
@@ -562,7 +568,7 @@
 .chat-wrap {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 142px);
+  height: calc(100vh - 142px - 40px);
 }
 
 .chat-msgs {
@@ -992,9 +998,9 @@
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
-<body class="p-0">
+<body class="p-0" style="padding-bottom:80px">
 
-  <div class="p-4 md:p-6">
+  <div class="p-4 md:p-6" style="padding-bottom:72px">
   <div id="app" class="max-w-7xl mx-auto">
     <!-- Header -->
     <header class="text-center mb-8 relative">
@@ -12234,64 +12240,111 @@
       </div>
 
       <!-- API KEYS PANEL -->
-      <div id="stg-apikeys" class="stg-panel" style="display:none;background:var(--bg-secondary,rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:20px">
-        <div style="font-size:15px;font-weight:800;color:var(--text-primary);margin-bottom:8px">🔑 API Keys</div>
-        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:14px">Keys are stored in YOUR browser only (localStorage). They never leave your computer.</div>
+      <div id="stg-apikeys" class="stg-panel" style="display:none;background:#13161e;border:1px solid #252d40;border-radius:10px;padding:20px">
+        <div style="font-size:15px;font-weight:800;color:#e4ddd0;margin-bottom:6px">🔑 API Keys</div>
+        <div style="font-size:11px;color:#8a96b0;margin-bottom:16px">Keys are stored in YOUR browser only (localStorage). They never leave your computer.</div>
+
         <!-- GCMemory block -->
-        <div style="border:1px solid rgba(16,185,129,.35);border-radius:8px;padding:12px;margin-bottom:14px;background:rgba(16,185,129,.05)">
-          <div style="font-weight:700;font-size:13px;color:#10b981;margin-bottom:4px">🧠 GCMemory — Persistent Agent Memory</div>
-          <div style="font-size:11px;color:var(--text-secondary);margin-bottom:8px">Memory is stored in this browser's localStorage. <b style="color:#10b981">No additional API key required.</b> Agents recall prior legal, financial, and case-specific exchanges across sessions automatically.</div>
-          <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.25);border-radius:8px;margin-bottom:6px"><span style="color:#10b981">✓</span><span style="font-size:11px;color:#10b981;font-weight:600">ACTIVE — Memory engine online. No key gate.</span></div>
-          <button onclick="(function(){if(confirm('Clear all agent memories?')){Object.keys(localStorage).filter(k=>k.startsWith('ap_conv_')).forEach(k=>localStorage.removeItem(k));alert('Memories cleared.')}})()" style="padding:4px 12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:5px;color:#ef4444;font-size:11px;cursor:pointer">🗑 Clear All Memories</button>
+        <div style="border:1px solid rgba(16,185,129,.4);border-radius:8px;padding:14px;margin-bottom:14px;background:rgba(16,185,129,.07)">
+          <div style="font-weight:700;font-size:13px;color:#10b981;margin-bottom:5px">🧠 GCMemory — Persistent Agent Memory</div>
+          <div style="font-size:11px;color:#8a96b0;margin-bottom:10px;line-height:1.6">Memory is stored in this browser's localStorage. <b style="color:#10b981">No additional API key required.</b> Agents recall prior legal, financial, and case-specific exchanges across sessions automatically.</div>
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.35);border-radius:7px;margin-bottom:8px">
+            <span style="color:#10b981;font-size:13px">✓</span>
+            <span style="font-size:11px;color:#10b981;font-weight:700;letter-spacing:.3px">ACTIVE — Memory engine online. No key gate.</span>
+          </div>
+          <button onclick="(function(){if(confirm('Clear all agent memories?')){Object.keys(localStorage).filter(k=>k.startsWith('ap_conv_')).forEach(k=>localStorage.removeItem(k));alert('Memories cleared.')}})()" style="padding:5px 14px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.4);border-radius:5px;color:#f87171;font-size:11px;font-weight:600;cursor:pointer">🗑 Clear All Memories</button>
         </div>
+
+        <!-- Provider keys section header -->
+        <div style="font-size:11px;font-weight:700;color:#c4830a;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #252d40">LLM Provider Keys</div>
         <!-- Provider keys grid -->
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:10px;margin-bottom:14px">
-          <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">Claude / Anthropic <span id="kdClaude" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px"></span></label><input type="password" id="stg-api-claude" placeholder="sk-ant-..." oninput="settingsSaveKey('claude',this.value)" style="width:100%;padding:8px 12px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(168,85,247,.3);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
-          <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">OpenAI <span id="kdOpenai" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px"></span></label><input type="password" id="stg-api-openai" placeholder="sk-..." oninput="settingsSaveKey('openai',this.value)" style="width:100%;padding:8px 12px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
-          <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">DeepSeek <span id="kdDeepseek" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px"></span></label><input type="password" id="stg-api-deepseek" placeholder="sk-..." oninput="settingsSaveKey('deepseek',this.value)" style="width:100%;padding:8px 12px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
-          <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">Z.AI (GLM) <span id="kdZai" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px"></span></label><input type="password" id="stg-api-zai" placeholder="..." oninput="settingsSaveKey('zai',this.value)" style="width:100%;padding:8px 12px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
-          <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">Kimi / Moonshot <span id="kdKimi" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px"></span></label><input type="password" id="stg-api-kimi" placeholder="sk-..." oninput="settingsSaveKey('kimi',this.value)" style="width:100%;padding:8px 12px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
-          <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">MiniMax <span id="kdMinimax" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px"></span></label><input type="password" id="stg-api-minimax" placeholder="..." oninput="settingsSaveKey('minimax',this.value)" style="width:100%;padding:8px 12px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
-          <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">Ernie / Baidu <span id="kdErnie" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px"></span></label><input type="password" id="stg-api-ernie" placeholder="..." oninput="settingsSaveKey('ernie',this.value)" style="width:100%;padding:8px 12px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
-          <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">xAI (Grok) <span id="kdXai" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px"></span></label><input type="password" id="stg-api-xai" placeholder="xai-..." oninput="settingsSaveKey('xai',this.value)" style="width:100%;padding:8px 12px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:10px;margin-bottom:16px">
+          <div>
+            <label style="font-size:11px;color:#8a96b0;display:block;margin-bottom:5px;font-weight:600">Claude / Anthropic <span id="kdClaude" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px;vertical-align:middle"></span></label>
+            <input type="password" id="stg-api-claude" placeholder="sk-ant-..." oninput="settingsSaveKey('claude',this.value)" style="width:100%;padding:8px 12px;background:#0d1020;border:1px solid #3a4560;border-radius:6px;color:#e4ddd0;font-size:12px;box-sizing:border-box;outline:none">
+          </div>
+          <div>
+            <label style="font-size:11px;color:#8a96b0;display:block;margin-bottom:5px;font-weight:600">OpenAI <span id="kdOpenai" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px;vertical-align:middle"></span></label>
+            <input type="password" id="stg-api-openai" placeholder="sk-..." oninput="settingsSaveKey('openai',this.value)" style="width:100%;padding:8px 12px;background:#0d1020;border:1px solid #3a4560;border-radius:6px;color:#e4ddd0;font-size:12px;box-sizing:border-box;outline:none">
+          </div>
+          <div>
+            <label style="font-size:11px;color:#8a96b0;display:block;margin-bottom:5px;font-weight:600">DeepSeek <span id="kdDeepseek" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px;vertical-align:middle"></span></label>
+            <input type="password" id="stg-api-deepseek" placeholder="sk-..." oninput="settingsSaveKey('deepseek',this.value)" style="width:100%;padding:8px 12px;background:#0d1020;border:1px solid #3a4560;border-radius:6px;color:#e4ddd0;font-size:12px;box-sizing:border-box;outline:none">
+          </div>
+          <div>
+            <label style="font-size:11px;color:#8a96b0;display:block;margin-bottom:5px;font-weight:600">Z.AI (GLM) <span id="kdZai" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px;vertical-align:middle"></span></label>
+            <input type="password" id="stg-api-zai" placeholder="..." oninput="settingsSaveKey('zai',this.value)" style="width:100%;padding:8px 12px;background:#0d1020;border:1px solid #3a4560;border-radius:6px;color:#e4ddd0;font-size:12px;box-sizing:border-box;outline:none">
+          </div>
+          <div>
+            <label style="font-size:11px;color:#8a96b0;display:block;margin-bottom:5px;font-weight:600">Kimi / Moonshot <span id="kdKimi" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px;vertical-align:middle"></span></label>
+            <input type="password" id="stg-api-kimi" placeholder="sk-..." oninput="settingsSaveKey('kimi',this.value)" style="width:100%;padding:8px 12px;background:#0d1020;border:1px solid #3a4560;border-radius:6px;color:#e4ddd0;font-size:12px;box-sizing:border-box;outline:none">
+          </div>
+          <div>
+            <label style="font-size:11px;color:#8a96b0;display:block;margin-bottom:5px;font-weight:600">MiniMax <span id="kdMinimax" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px;vertical-align:middle"></span></label>
+            <input type="password" id="stg-api-minimax" placeholder="..." oninput="settingsSaveKey('minimax',this.value)" style="width:100%;padding:8px 12px;background:#0d1020;border:1px solid #3a4560;border-radius:6px;color:#e4ddd0;font-size:12px;box-sizing:border-box;outline:none">
+          </div>
+          <div>
+            <label style="font-size:11px;color:#8a96b0;display:block;margin-bottom:5px;font-weight:600">Ernie / Baidu <span id="kdErnie" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px;vertical-align:middle"></span></label>
+            <input type="password" id="stg-api-ernie" placeholder="..." oninput="settingsSaveKey('ernie',this.value)" style="width:100%;padding:8px 12px;background:#0d1020;border:1px solid #3a4560;border-radius:6px;color:#e4ddd0;font-size:12px;box-sizing:border-box;outline:none">
+          </div>
+          <div>
+            <label style="font-size:11px;color:#8a96b0;display:block;margin-bottom:5px;font-weight:600">xAI (Grok) <span id="kdXai" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px;vertical-align:middle"></span></label>
+            <input type="password" id="stg-api-xai" placeholder="xai-..." oninput="settingsSaveKey('xai',this.value)" style="width:100%;padding:8px 12px;background:#0d1020;border:1px solid #3a4560;border-radius:6px;color:#e4ddd0;font-size:12px;box-sizing:border-box;outline:none">
+          </div>
         </div>
+
         <!-- OpenClaw Legal API -->
-        <div style="margin-bottom:14px;padding:14px;background:rgba(255,215,0,.05);border:1px solid rgba(255,215,0,.2);border-radius:8px">
-          <div style="font-weight:700;font-size:13px;color:#ffd700;margin-bottom:6px">⚖️ OpenClaw Legal API Integration</div>
-          <div style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;line-height:1.6">OpenClaw provides access to legal databases: CourtListener, PACER, case law, statutes, and congressional records. Repository: <a href="https://github.com/Kevjade/openclaw-api-list" target="_blank" style="color:#ffd700">github.com/Kevjade/openclaw-api-list</a></div>
+        <div style="margin-bottom:14px;padding:14px;background:#191d26;border:1px solid rgba(196,131,10,.35);border-radius:8px">
+          <div style="font-weight:700;font-size:13px;color:#e8a020;margin-bottom:6px">⚖️ OpenClaw Legal API Integration</div>
+          <div style="font-size:11px;color:#8a96b0;margin-bottom:10px;line-height:1.6">OpenClaw provides access to legal databases: CourtListener, PACER, case law, statutes, and congressional records. Repository: <a href="https://github.com/Kevjade/openclaw-api-list" target="_blank" style="color:#e8a020;text-decoration:none">github.com/Kevjade/openclaw-api-list</a></div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-            <div><label style="font-size:10px;color:var(--text-secondary);display:block;margin-bottom:4px">OpenClaw API Key <span id="kdOpenClaw" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px"></span></label><input type="password" id="keyOpenClaw" placeholder="Enter OpenClaw API key..." oninput="settingsSaveKey('openclaw',this.value)" style="width:100%;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(255,215,0,.3);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
-            <div><label style="font-size:10px;color:var(--text-secondary);display:block;margin-bottom:4px">OpenClaw Base URL</label><input id="keyOpenClawUrl" value="https://api.openclaw.io/v1" style="width:100%;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(255,215,0,.3);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
+            <div>
+              <label style="font-size:10px;color:#8a96b0;display:block;margin-bottom:4px;font-weight:600">OpenClaw API Key <span id="kdOpenClaw" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px;vertical-align:middle"></span></label>
+              <input type="password" id="keyOpenClaw" placeholder="Enter OpenClaw API key..." oninput="settingsSaveKey('openclaw',this.value)" style="width:100%;padding:8px;background:#0d1020;border:1px solid rgba(196,131,10,.4);border-radius:6px;color:#e4ddd0;font-size:12px;box-sizing:border-box;outline:none">
+            </div>
+            <div>
+              <label style="font-size:10px;color:#8a96b0;display:block;margin-bottom:4px;font-weight:600">OpenClaw Base URL</label>
+              <input id="keyOpenClawUrl" value="https://api.openclaw.io/v1" style="width:100%;padding:8px;background:#0d1020;border:1px solid rgba(196,131,10,.4);border-radius:6px;color:#e4ddd0;font-size:12px;box-sizing:border-box;outline:none">
+            </div>
           </div>
-          <div><label style="font-size:10px;color:var(--text-secondary);display:block;margin-bottom:4px">CourtListener Token <span id="kdCourtListener" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px"></span></label><input type="password" id="keyCourtListener" placeholder="Token ..." oninput="settingsSaveKey('courtlistener',this.value)" style="width:100%;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(255,215,0,.25);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box;margin-bottom:8px"></div>
+          <div style="margin-bottom:10px">
+            <label style="font-size:10px;color:#8a96b0;display:block;margin-bottom:4px;font-weight:600">CourtListener Token <span id="kdCourtListener" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px;vertical-align:middle"></span></label>
+            <input type="password" id="keyCourtListener" placeholder="Token ..." oninput="settingsSaveKey('courtlistener',this.value)" style="width:100%;padding:8px;background:#0d1020;border:1px solid rgba(196,131,10,.3);border-radius:6px;color:#e4ddd0;font-size:12px;box-sizing:border-box;outline:none">
+          </div>
           <div style="display:flex;flex-wrap:wrap;gap:5px">
-            <span style="font-size:10px;padding:2px 8px;background:rgba(255,215,0,.1);border-radius:12px;color:#ffd700">📜 Case Law Search</span>
-            <span style="font-size:10px;padding:2px 8px;background:rgba(255,215,0,.1);border-radius:12px;color:#ffd700">📖 Statutes at Large</span>
-            <span style="font-size:10px;padding:2px 8px;background:rgba(255,215,0,.1);border-radius:12px;color:#ffd700">🏛️ SCOTUS Precedents</span>
-            <span style="font-size:10px;padding:2px 8px;background:rgba(255,215,0,.1);border-radius:12px;color:#ffd700">📋 Congressional Record</span>
-            <span style="font-size:10px;padding:2px 8px;background:rgba(255,215,0,.1);border-radius:12px;color:#ffd700">⚖️ CourtListener</span>
-            <span style="font-size:10px;padding:2px 8px;background:rgba(255,215,0,.1);border-radius:12px;color:#ffd700">📑 PACER (Federal)</span>
+            <span style="font-size:10px;padding:3px 9px;background:rgba(196,131,10,.12);border:1px solid rgba(196,131,10,.3);border-radius:12px;color:#e8a020">📜 Case Law Search</span>
+            <span style="font-size:10px;padding:3px 9px;background:rgba(196,131,10,.12);border:1px solid rgba(196,131,10,.3);border-radius:12px;color:#e8a020">📖 Statutes at Large</span>
+            <span style="font-size:10px;padding:3px 9px;background:rgba(196,131,10,.12);border:1px solid rgba(196,131,10,.3);border-radius:12px;color:#e8a020">🏛️ SCOTUS Precedents</span>
+            <span style="font-size:10px;padding:3px 9px;background:rgba(196,131,10,.12);border:1px solid rgba(196,131,10,.3);border-radius:12px;color:#e8a020">📋 Congressional Record</span>
+            <span style="font-size:10px;padding:3px 9px;background:rgba(196,131,10,.12);border:1px solid rgba(196,131,10,.3);border-radius:12px;color:#e8a020">⚖️ CourtListener</span>
+            <span style="font-size:10px;padding:3px 9px;background:rgba(196,131,10,.12);border:1px solid rgba(196,131,10,.3);border-radius:12px;color:#e8a020">📑 PACER (Federal)</span>
           </div>
         </div>
+
         <!-- Apify -->
-        <div style="margin-bottom:14px;padding:14px;background:rgba(6,182,212,.05);border:1px solid rgba(6,182,212,.2);border-radius:8px">
-          <div style="font-weight:700;font-size:13px;color:#06b6d4;margin-bottom:6px">🕷️ Apify Research &amp; Web Automation</div>
-          <div style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;line-height:1.6">Powers the Research Agent's live web scraping and real-time information retrieval. Configure at: <a href="https://console.apify.com/settings/integrations" target="_blank" style="color:#06b6d4">console.apify.com</a></div>
-          <div><label style="font-size:10px;color:var(--text-secondary);display:block;margin-bottom:4px">Apify API Token <span id="kdApify" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px"></span></label><input type="password" id="keyApify" placeholder="apify_api_..." oninput="settingsSaveKey('apify',this.value)" style="width:100%;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(6,182,212,.3);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box;margin-bottom:8px"></div>
+        <div style="margin-bottom:16px;padding:14px;background:#191d26;border:1px solid rgba(6,182,212,.3);border-radius:8px">
+          <div style="font-weight:700;font-size:13px;color:#22d3ee;margin-bottom:6px">🕷️ Apify Research &amp; Web Automation</div>
+          <div style="font-size:11px;color:#8a96b0;margin-bottom:10px;line-height:1.6">Powers the Research Agent's live web scraping and real-time information retrieval. Configure at: <a href="https://console.apify.com/settings/integrations" target="_blank" style="color:#22d3ee;text-decoration:none">console.apify.com</a></div>
+          <div style="margin-bottom:10px">
+            <label style="font-size:10px;color:#8a96b0;display:block;margin-bottom:4px;font-weight:600">Apify API Token <span id="kdApify" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px;vertical-align:middle"></span></label>
+            <input type="password" id="keyApify" placeholder="apify_api_..." oninput="settingsSaveKey('apify',this.value)" style="width:100%;padding:8px;background:#0d1020;border:1px solid rgba(6,182,212,.35);border-radius:6px;color:#e4ddd0;font-size:12px;box-sizing:border-box;outline:none">
+          </div>
           <div style="display:flex;flex-wrap:wrap;gap:5px">
-            <span style="font-size:10px;padding:2px 8px;background:rgba(6,182,212,.1);border-radius:12px;color:#06b6d4">🌐 Web Scraper</span>
-            <span style="font-size:10px;padding:2px 8px;background:rgba(6,182,212,.1);border-radius:12px;color:#06b6d4">🔍 Google Search</span>
-            <span style="font-size:10px;padding:2px 8px;background:rgba(6,182,212,.1);border-radius:12px;color:#06b6d4">📰 News Aggregator</span>
-            <span style="font-size:10px;padding:2px 8px;background:rgba(6,182,212,.1);border-radius:12px;color:#06b6d4">📊 SEC EDGAR</span>
-            <span style="font-size:10px;padding:2px 8px;background:rgba(6,182,212,.1);border-radius:12px;color:#06b6d4">🏦 Financial Data</span>
+            <span style="font-size:10px;padding:3px 9px;background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.3);border-radius:12px;color:#22d3ee">🌐 Web Scraper</span>
+            <span style="font-size:10px;padding:3px 9px;background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.3);border-radius:12px;color:#22d3ee">🔍 Google Search</span>
+            <span style="font-size:10px;padding:3px 9px;background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.3);border-radius:12px;color:#22d3ee">📰 News Aggregator</span>
+            <span style="font-size:10px;padding:3px 9px;background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.3);border-radius:12px;color:#22d3ee">📊 SEC EDGAR</span>
+            <span style="font-size:10px;padding:3px 9px;background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.3);border-radius:12px;color:#22d3ee">🏦 Financial Data</span>
           </div>
         </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-          <button onclick="settingsLoadKeys()" style="padding:8px 18px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.4);border-radius:6px;color:#10b981;font-size:12px;font-weight:700;cursor:pointer">💾 Save All Keys</button>
-          <button onclick="testConnection()" style="padding:8px 18px;background:transparent;border:1px solid rgba(255,255,255,.2);border-radius:6px;color:var(--text-secondary);font-size:12px;font-weight:700;cursor:pointer">🔍 Test Connection</button>
-          <button onclick="(function(){var k=localStorage.getItem('apikey_openclaw');if(!k){alert('Enter OpenClaw key first.');return;}alert('OpenClaw: Testing connection...\n\nEndpoint: '+document.getElementById('keyOpenClawUrl').value+'\n\nStatus: Configured — validate by sending a query.');})()" style="padding:8px 18px;background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.3);border-radius:6px;color:#ffd700;font-size:12px;font-weight:700;cursor:pointer">⚖️ Test OpenClaw</button>
-          <button onclick="(function(){var k=localStorage.getItem('apikey_apify');if(!k){alert('Enter Apify key first.');return;}alert('Apify: Testing connection...\n\nApify actors available:\n- Web Scraper\n- Google Search\n- News Aggregator\n- SEC EDGAR\n- Financial Data\n\nStatus: Configured');})()" style="padding:8px 18px;background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.3);border-radius:6px;color:#06b6d4;font-size:12px;font-weight:700;cursor:pointer">🕷️ Test Apify</button>
-          <span id="keyStatus" style="font-size:12px;color:var(--text-secondary)"></span>
+
+        <!-- Action buttons -->
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding-top:4px;border-top:1px solid #252d40">
+          <button onclick="settingsLoadKeys()" style="padding:8px 18px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.45);border-radius:6px;color:#10b981;font-size:12px;font-weight:700;cursor:pointer">💾 Save All Keys</button>
+          <button onclick="testConnection()" style="padding:8px 18px;background:#191d26;border:1px solid #3a4560;border-radius:6px;color:#8a96b0;font-size:12px;font-weight:700;cursor:pointer">🔍 Test Connection</button>
+          <button onclick="(function(){var k=localStorage.getItem('apikey_openclaw');if(!k){alert('Enter OpenClaw key first.');return;}alert('OpenClaw: Testing connection...\n\nEndpoint: '+document.getElementById('keyOpenClawUrl').value+'\n\nStatus: Configured — validate by sending a query.');})()" style="padding:8px 18px;background:rgba(196,131,10,.12);border:1px solid rgba(196,131,10,.4);border-radius:6px;color:#e8a020;font-size:12px;font-weight:700;cursor:pointer">⚖️ Test OpenClaw</button>
+          <button onclick="(function(){var k=localStorage.getItem('apikey_apify');if(!k){alert('Enter Apify key first.');return;}alert('Apify: Testing connection...\n\nApify actors available:\n- Web Scraper\n- Google Search\n- News Aggregator\n- SEC EDGAR\n- Financial Data\n\nStatus: Configured');})()" style="padding:8px 18px;background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.35);border-radius:6px;color:#22d3ee;font-size:12px;font-weight:700;cursor:pointer">🕷️ Test Apify</button>
+          <span id="keyStatus" style="font-size:12px;color:#8a96b0"></span>
         </div>
       </div>
 
@@ -12812,7 +12865,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
           'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
+          'anthropic-dangerous-request-allow-browser-headers': 'true'
         },
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
@@ -17409,7 +17462,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
         'Content-Type':'application/json',
         'x-api-key': vcApiKey,
         'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
+        'anthropic-dangerous-request-allow-browser-headers': 'true'
       },
       body:JSON.stringify({
         model:'claude-sonnet-4-20250514',
@@ -18539,6 +18592,11 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     var pdfViewer = document.getElementById('doc-pdf-viewer');
     if (pdfViewer && pdfViewer.style.display !== 'none') {
       exitPDFViewer();
+    }
+    // If Package Builder is open, close it first so editor becomes visible
+    var pkgBuilder = document.getElementById('doc-package-builder');
+    if (pkgBuilder && pkgBuilder.style.display !== 'none') {
+      exitPackageBuilder();
     }
     var editor = document.getElementById('doc-editor');
     // Auto-fill all template variables from settings/entity data
@@ -29912,7 +29970,7 @@ function ev2InitEntityVerifier() {
 </button>
 
 <!-- EON AI PAGES CONTAINER -->
-<div id="eonPagesContainer" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg-primary);z-index:99;padding-left:240px;overflow-y:auto">
+<div id="eonPagesContainer" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg-primary);z-index:99;padding-left:240px;padding-bottom:72px;overflow-y:auto">
 
   <!-- EON: ACCOUNTING -->
   <div class="page" id="page-accounting">
@@ -29947,6 +30005,7 @@ function ev2InitEntityVerifier() {
   <!-- EON: AGENTS -->
   <div class="page" id="page-agents">
 <div class="agents-grid" id="agentsGrid"></div>
+<div style="height:80px;display:block;width:100%;flex-shrink:0"></div>
 </div>
 
 
@@ -30008,7 +30067,7 @@ function ev2InitEntityVerifier() {
 <button class="btn" onclick="document.getElementById('restoreFile').click()"> Restore</button>
 <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="importBackup(this)">
 <button class="btn" onclick="exportAllHistory()"> Export Chats (.txt)</button>
-<button class="btn" style="color:var(--err)" onclick="if(confirm('ERASE ALL local data? Cannot be undone.'))\localStorage.clear();location.reload()\"> Factory Reset</button>
+<button class="btn" style="color:var(--err)" onclick="if(confirm('ERASE ALL local data? Cannot be undone.')){localStorage.clear();location.reload();}"> Factory Reset</button>
 </div>
 <div id="backupStatus" style="margin-top:12px;font-size:12px"></div>
 </div>
@@ -30228,8 +30287,8 @@ function ev2InitEntityVerifier() {
 <label class="voice-btn mic" id="micBtn" onclick="toggleMic()" title="Voice Input (Speech-to-Text)">🎤</label>
 <label for="fileUpload" class="voice-btn" style="background:var(--bg3);color:var(--text2);cursor:pointer" title="Upload Document">📎</label>
 <input type="file" id="fileUpload" multiple accept=".txt,.pdf,.doc,.docx,.csv,.json,.html,.md,.rtf,.xml,.log" style="display:none" onchange="handleFileUpload(this)">
-<textarea class="chat-input" id="chatInput" placeholder="Type your message... (Enter to send, Shift+Enter for new line)" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey)\event.preventDefault();sendChat()\"></textarea>
-<button class="chat-send" onclick="sendChat()"> </button>
+<textarea class="chat-input" id="chatInput" placeholder="Type your message... (Enter to send, Shift+Enter for new line)" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();eonChatSend();}"></textarea>
+<button class="chat-send" onclick="eonChatSend()"> </button>
 </div>
 </div>
 </div>
@@ -30351,7 +30410,7 @@ function ev2InitEntityVerifier() {
 <div id="dtFilePreview" style="display:none;flex-wrap:wrap;gap:4px;padding:6px 14px"></div>
 <!-- Input area -->
 <div style="display:flex;gap:6px;padding:10px 14px;align-items:flex-end">
-<textarea id="dtInput" rows="2" placeholder="State the matter - 600 attorneys standing by..." style="flex:1;padding:8px;background:var(--input-bg);border:1px solid #ffd700;border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical" onkeydown="if(event.key==='Enter'&&!event.shiftKey)\event.preventDefault();dtSend()\"></textarea>
+<textarea id="dtInput" rows="2" placeholder="State the matter - 600 attorneys standing by..." style="flex:1;padding:8px;background:var(--input-bg);border:1px solid #ffd700;border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();dtSend();}"></textarea>
 <div style="display:flex;flex-direction:column;gap:4px">
 <button class="btn" style="background:#ffd700;color:#000;font-weight:700;padding:8px 14px" onclick="dtSend()"> </button>
 <label for="dtFileUpload" class="btn" style="padding:4px 10px;font-size:11px;cursor:pointer;text-align:center;background:var(--bg3);color:var(--text2)"> </label>
@@ -33457,7 +33516,7 @@ function ev2InitEntityVerifier() {
   <div class="chat-input-row">
   <textarea class="chat-input" id="chat-input" rows="2"
   placeholder="Ask about your books, tax position, forms, or any accounting question..."
-  onkeydown="if(event.key==='Enter'&&!event.shiftKey)\event.preventDefault();sendChat();\"></textarea>
+  onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"></textarea>
   <button class="app-btn primary" onclick="eeonSendChat()" id="send-btn" style="align-self:flex-end;padding:10px 18px;">SEND</button>
   </div>
   </div>
@@ -33844,6 +33903,8 @@ function ev2InitEntityVerifier() {
 <div id="generalResult" style="display:none"></div>
 </div>
 
+<!-- ── Bottom clearance spacer for all EON pages ── -->
+<div style="height:80px;width:100%;display:block;flex-shrink:0;pointer-events:none"></div>
 
 </div>
 
@@ -33893,10 +33954,97 @@ function goEonPage(btn, page) {
   initEonPage(page);
 }
 
+// Analytics — build stats from AP conversation store + MEM0
+function updateAnalytics() {
+  var agentIds = ['legal','trust','tax','arbitration','corporation','research',
+                  'code','creative','html_arch','general','accounting','dream_team'];
+  var totalQueries = 0, legalQueries = 0, sessionsTotal = 0;
+  var usageMap = {};
+  var recentActivity = [];
+
+  agentIds.forEach(function(id) {
+    try {
+      var raw = localStorage.getItem('ap_conv_' + id);
+      if (!raw) return;
+      var store = JSON.parse(raw);
+      var sessions = store.sessions || {};
+      var sessionKeys = Object.keys(sessions);
+      sessionsTotal += sessionKeys.length;
+      usageMap[id] = 0;
+      sessionKeys.forEach(function(sk) {
+        var msgs = sessions[sk].messages || [];
+        msgs.forEach(function(m) {
+          if (m.role === 'user') {
+            totalQueries++;
+            usageMap[id]++;
+            if (id === 'legal' || id === 'arbitration' || id === 'corporation' || id === 'trust') legalQueries++;
+            recentActivity.push({ agent: id, text: m.content, ts: sessions[sk].created || 0 });
+          }
+        });
+      });
+    } catch(e) {}
+  });
+
+  var memCount = 0;
+  try {
+    var allKeys = Object.keys(localStorage);
+    allKeys.forEach(function(k) { if (k.indexOf('mem0_') === 0 || k.indexOf('MEM0_') === 0) memCount++; });
+    if (typeof MEM0 !== 'undefined' && typeof MEM0.count === 'function') memCount = MEM0.count();
+  } catch(e) {}
+
+  var agentsUsed = Object.keys(usageMap).filter(function(k) { return usageMap[k] > 0; }).length;
+
+  var el = function(id, val) { var e = document.getElementById(id); if (e) e.textContent = val; };
+  el('anQueries', totalQueries);
+  el('anLegal', legalQueries);
+  el('anAgentsUsed', agentsUsed);
+  el('anSessions', sessionsTotal);
+  el('anMemory', memCount);
+
+  // Usage distribution
+  var usageEl = document.getElementById('analyticsUsage');
+  if (usageEl) {
+    if (totalQueries === 0) {
+      usageEl.innerHTML = '<span style="color:var(--text2)">No queries yet.</span>';
+    } else {
+      usageEl.innerHTML = Object.keys(usageMap).filter(function(k){ return usageMap[k] > 0; }).map(function(k) {
+        var pct = Math.round((usageMap[k] / totalQueries) * 100);
+        return '<div style="margin-bottom:8px">' +
+          '<div style="display:flex;justify-content:space-between;margin-bottom:3px">' +
+            '<span style="font-weight:600">' + k + '</span>' +
+            '<span style="color:var(--text2)">' + usageMap[k] + ' (' + pct + '%)</span>' +
+          '</div>' +
+          '<div style="height:6px;background:rgba(255,255,255,.1);border-radius:3px">' +
+            '<div style="height:6px;background:#3b82f6;border-radius:3px;width:' + pct + '%"></div>' +
+          '</div></div>';
+      }).join('');
+    }
+  }
+
+  // Recent activity
+  var logEl = document.getElementById('analyticsLog');
+  if (logEl) {
+    recentActivity.sort(function(a,b){ return b.ts - a.ts; });
+    var recent = recentActivity.slice(0, 20);
+    if (recent.length === 0) {
+      logEl.innerHTML = '<span style="color:var(--text2)">No activity yet.</span>';
+    } else {
+      logEl.innerHTML = recent.map(function(r) {
+        return '<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)">' +
+          '<span style="font-size:10px;font-weight:700;color:#3b82f6;text-transform:uppercase">[' + r.agent + ']</span> ' +
+          '<span style="color:var(--text,#e2e8f0)">' + r.text.substring(0, 120).replace(/</g,'&lt;') + (r.text.length > 120 ? '…' : '') + '</span>' +
+          '</div>';
+      }).join('');
+    }
+  }
+}
+
 // Initialize page-specific content
 function initEonPage(page) {
   if (page === 'agents') {
     renderAgents();
+  } else if (page === 'analytics') {
+    updateAnalytics();
   } else if (page === 'dashboard') {
     updateDashboard();
   } else if (page === 'chat') {
@@ -33955,21 +34103,83 @@ function initTaxForms() {
   console.log('Tax forms initialized');
 }
 
-// Send chat message
-function sendChat() {
-  const input = document.getElementById('chatInput');
+// Send chat message (EON Chat page)
+async function eonChatSend() {
+  var input = document.getElementById('chatInput');
   if (!input) return;
-  
-  const msg = input.value.trim();
+  var msg = input.value.trim();
   if (!msg) return;
-  
+
+  // Respect provider selector on chat page if present
+  var provSel = document.getElementById('chatProvider');
+  if (provSel && provSel.value) {
+    localStorage.setItem('eeon_active_provider', provSel.value);
+  }
+
   addChatMsg('user', msg);
   input.value = '';
-  
-  // Simulate AI response
-  setTimeout(() => {
-    addChatMsg('agent', 'I understand your question. How can I assist you further?');
-  }, 500);
+  input.style.height = '';
+
+  // Streaming agent bubble
+  var msgs = document.getElementById('chatMsgs');
+  var agentDiv = document.createElement('div');
+  agentDiv.className = 'msg';
+  agentDiv.innerHTML =
+    '<div class="msg-avatar" style="background:linear-gradient(135deg,var(--accent-green),#cc44bb)">🤖</div>' +
+    '<div class="msg-body">' +
+      '<div style="font-weight:600;font-size:12px;margin-bottom:3px;color:var(--accent-green)">AI Agent</div>' +
+      '<div id="chatStreamBody" style="font-size:13px;line-height:1.7"><span style="color:var(--text2)">⏳ Thinking…</span></div>' +
+    '</div>';
+  if (msgs) { msgs.appendChild(agentDiv); msgs.scrollTop = msgs.scrollHeight; }
+
+  var body = agentDiv.querySelector('#chatStreamBody');
+  var rawBuf = '';
+
+  // Route by selected firm chip; 'auto' defaults to 'general'
+  var firmMap = {
+    dream_team: 'legal', legal: 'legal', tax: 'tax', arbitration: 'arbitration',
+    corporation: 'corporation', trust: 'trust', research: 'research',
+    creative: 'creative', code: 'code', html_arch: 'html_arch', general: 'general'
+  };
+  var activeFirm = (typeof _eonActiveFirm !== 'undefined') ? _eonActiveFirm : 'auto';
+  var agentId = firmMap[activeFirm] || 'general';
+  var systemPrompt = getSystemPrompt(agentId);
+
+  // Ensure API key is reachable by resolveProvider
+  var storedKey = localStorage.getItem('eeon_key_claude') ||
+                  localStorage.getItem('stg_key_claude') ||
+                  localStorage.getItem('tmar_claude_key') ||
+                  localStorage.getItem('_trustApiKey') ||
+                  window._trustApiKey || '';
+  if (storedKey) {
+    localStorage.setItem('eeon_key_claude', storedKey);
+    localStorage.setItem('_trustApiKey', storedKey);
+    window._trustApiKey = storedKey;
+  }
+
+  var memories = [];
+  try { memories = (await MEM0.search(msg, 4)) || []; } catch(e) {}
+
+  var finalText = await callLLMStream(systemPrompt, msg, memories, function(tok) {
+    rawBuf += tok;
+    if (body) body.innerHTML = rawBuf.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+    if (msgs) msgs.scrollTop = msgs.scrollHeight;
+  });
+
+  if (body) {
+    if (finalText && finalText.indexOf('[ERROR') === 0) {
+      body.innerHTML = '<span style="color:#ef4444">' + finalText.replace(/</g,'&lt;') + '</span>' +
+        (finalText.indexOf('No API key') !== -1 || finalText.indexOf('HTTP 401') !== -1
+          ? '<br><span style="color:#f59e0b;font-size:12px">⚙️ Go to <b>Settings → API Keys</b> and enter your API key.</span>' : '');
+    } else {
+      body.innerHTML = (finalText || rawBuf).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+    }
+    // remove duplicate id so multiple messages don't conflict
+    body.removeAttribute('id');
+  }
+  if (msgs) msgs.scrollTop = msgs.scrollHeight;
+
+  try { if (finalText && finalText.indexOf('[ERROR') !== 0) await MEM0.add(msg, finalText, agentId); } catch(e) {}
 }
 
 // Add chat message
@@ -34000,20 +34210,72 @@ function dtClearHistory() {
   dtNewChat();
 }
 
-function dtSend() {
-  const input = document.getElementById('dtInput');
+async function dtSend() {
+  var input = document.getElementById('dtInput');
   if (!input) return;
-  
-  const msg = input.value.trim();
+  var msg = input.value.trim();
   if (!msg) return;
-  
-  const msgs = document.getElementById('dtChatMsgs');
-  if (msgs) {
-    msgs.innerHTML += `<div style="margin-bottom:12px"><strong>You:</strong> ${msg}</div>`;
-    msgs.innerHTML += `<div style="margin-bottom:12px;color:var(--accent-green)"><strong>Dream Team:</strong> We have reviewed your matter. Our analysis is being prepared...</div>`;
-    msgs.scrollTop = msgs.scrollHeight;
-  }
   input.value = '';
+
+  var msgs = document.getElementById('dtChatMsgs');
+  if (!msgs) return;
+
+  // User bubble
+  var userDiv = document.createElement('div');
+  userDiv.style.cssText = 'margin-bottom:12px;padding:8px 12px;background:rgba(0,229,255,.08);border-radius:8px;border-left:3px solid #3b82f6';
+  userDiv.innerHTML = '<strong style="color:#3b82f6">You:</strong> ' + msg.replace(/</g,'&lt;');
+  msgs.appendChild(userDiv);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  // Agent streaming bubble
+  var agentDiv = document.createElement('div');
+  agentDiv.style.cssText = 'margin-bottom:12px;padding:8px 12px;background:rgba(255,215,0,.06);border-radius:8px;border-left:3px solid #ffd700';
+  agentDiv.innerHTML = '<strong style="color:#ffd700">Dream Team:</strong> <span style="color:var(--text2,#94a3b8);font-style:italic">⏳ Consulting the team…</span>';
+  msgs.appendChild(agentDiv);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  // Normalise API key across all storage locations
+  var storedKey = localStorage.getItem('eeon_key_claude') ||
+                  localStorage.getItem('stg_key_claude') ||
+                  localStorage.getItem('tmar_claude_key') ||
+                  localStorage.getItem('_trustApiKey') ||
+                  window._trustApiKey || '';
+  if (storedKey) {
+    localStorage.setItem('eeon_key_claude', storedKey);
+    localStorage.setItem('_trustApiKey', storedKey);
+    window._trustApiKey = storedKey;
+  }
+
+  var sysPrompt = (typeof getSystemPrompt === 'function') ? getSystemPrompt('legal') : '';
+  var rawBuf = '';
+
+  try {
+    var memories = [];
+    try { memories = (await MEM0.search(msg, 4)) || []; } catch(e) {}
+
+    var finalText = await callLLMStream(sysPrompt, msg, memories, function(tok) {
+      rawBuf += tok;
+      agentDiv.innerHTML = '<strong style="color:#ffd700">Dream Team:</strong> ' +
+        rawBuf.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+      msgs.scrollTop = msgs.scrollHeight;
+    });
+
+    var result = finalText || rawBuf;
+    if (result && result.indexOf('[ERROR') === 0) {
+      agentDiv.innerHTML = '<strong style="color:#ffd700">Dream Team:</strong> ' +
+        '<span style="color:#ef4444">' + result.replace(/</g,'&lt;') + '</span>' +
+        (result.indexOf('No API key') !== -1 || result.indexOf('HTTP 401') !== -1
+          ? '<br><span style="color:#f59e0b;font-size:12px">⚙️ Go to <b>Settings → API Keys</b> and enter your key.</span>' : '');
+    } else {
+      agentDiv.innerHTML = '<strong style="color:#ffd700">Dream Team:</strong> ' +
+        result.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+    }
+    msgs.scrollTop = msgs.scrollHeight;
+    try { if (result && result.indexOf('[ERROR') !== 0) await MEM0.add(msg, result, 'legal'); } catch(e) {}
+  } catch(err) {
+    agentDiv.innerHTML = '<strong style="color:#ffd700">Dream Team:</strong> ' +
+      '<span style="color:#ef4444">⚠️ Error: ' + err.message + '</span>';
+  }
 }
 
 // Tax forms
@@ -34293,7 +34555,7 @@ async function callLLMStream(agentSystemPrompt, userMessage, mem0Memories, onTok
     if (p.auth === 'anthropic') {
       headers['x-api-key'] = key;
       headers['anthropic-version'] = '2023-06-01';
-      headers['anthropic-dangerous-direct-browser-access'] = 'true';
+      headers['anthropic-dangerous-request-allow-browser-headers'] = 'true';
       var body = JSON.stringify({ model: model, max_tokens: 4096, stream: true, system: systemPrompt, messages: [{ role: 'user', content: userMessage }] });
     } else if (p.auth === 'ernie') {
       url = url + '?access_token=' + key;
@@ -34490,13 +34752,13 @@ function updateKeyDots() {
 }
 
 // Test API connection with active provider
+function _setKeyStatus(html) {
+  document.querySelectorAll('#keyStatus').forEach(function(el) { el.innerHTML = html; });
+}
+
 async function testConnection() {
   console.log('🔌 Testing connection...');
-
-  var statusSpan = document.getElementById('keyStatus');
-  if (statusSpan) {
-    statusSpan.innerHTML = '<span style="color:#ffc107">⏳ Testing connection...</span>';
-  }
+  _setKeyStatus('<span style="color:#ffc107">⏳ Testing connection...</span>');
 
   try {
     var activeProvider = document.getElementById('setActiveProvider');
@@ -34517,7 +34779,7 @@ async function testConnection() {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
+        'anthropic-dangerous-request-allow-browser-headers': 'true'
       };
       testBody = {
         model: 'claude-sonnet-4-20250514',
@@ -34583,19 +34845,12 @@ async function testConnection() {
     var data = await response.json();
     console.log('✅ Connection test successful:', data);
 
-    if (statusSpan) {
-      statusSpan.innerHTML = '<span style="color:#22c55e">✓ Connected successfully to ' + provider.toUpperCase() + '</span>';
-      setTimeout(function() {
-        statusSpan.innerHTML = '';
-      }, 4000);
-    }
+    _setKeyStatus('<span style="color:#22c55e">✓ Connected successfully to ' + provider.toUpperCase() + '</span>');
+    setTimeout(function() { _setKeyStatus(''); }, 5000);
 
   } catch (err) {
     console.error('❌ Connection test failed:', err);
-    var msg = err.message || String(err);
-    if (statusSpan) {
-      statusSpan.innerHTML = '<span style="color:#ef4444">⚠ ' + msg + '</span>';
-    }
+    _setKeyStatus('<span style="color:#ef4444">⚠ ' + (err.message || String(err)) + '</span>');
   }
 }
 
@@ -34765,7 +35020,7 @@ async function doResearch() {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
+        'anthropic-dangerous-request-allow-browser-headers': 'true'
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
@@ -34846,7 +35101,7 @@ async function doSearch() {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
+        'anthropic-dangerous-request-allow-browser-headers': 'true'
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
@@ -36952,9 +37207,23 @@ const AP = {
       return;
     }
     var session = data.sessions[data.current];
-    msgs.innerHTML = session.messages.map(function(m) {
+    var p = page;
+    var bs = 'padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0';
+    msgs.innerHTML = session.messages.map(function(m, idx) {
       var isUser = m.role === 'user';
-      return '<div style="max-width:85%;align-self:' + (isUser ? 'flex-end' : 'flex-start') + ';padding:10px 14px;border-radius:10px;background:' + (isUser ? 'rgba(0,229,255,.1)' : 'rgba(255,255,255,.05)') + ';border:1px solid ' + (isUser ? 'rgba(0,229,255,.25)' : 'rgba(255,255,255,.1)') + ';font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word"><div style="font-size:10px;color:var(--text2,#94a3b8);margin-bottom:4px">' + (isUser ? 'You' : 'Agent') + '</div>' + m.content + '</div>';
+      var regenLabel = isUser ? '↩ Resend' : '🔄 Regen';
+      var regenTitle = isUser ? 'Resend this message' : 'Regenerate response';
+      var btns =
+        '<button title="Copy" style="' + bs + '" onclick="AP._actMsg(\'' + p + '\',' + idx + ',\'copy\')">⧉ Copy</button>' +
+        '<button title="Speak aloud" style="' + bs + '" onclick="AP._actMsg(\'' + p + '\',' + idx + ',\'speak\')">🔊 Speak</button>' +
+        '<button title="' + regenTitle + '" style="' + bs + '" onclick="AP._actMsg(\'' + p + '\',' + idx + ',\'regen\')">' + regenLabel + '</button>' +
+        '<button title="Save to file" style="' + bs + '" onclick="AP._actMsg(\'' + p + '\',' + idx + ',\'save\')">💾 Save</button>' +
+        '<button title="Message info" style="' + bs + '" onclick="AP._actMsg(\'' + p + '\',' + idx + ',\'info\')">ℹ Info</button>';
+      return '<div style="max-width:85%;align-self:' + (isUser ? 'flex-end' : 'flex-start') + ';padding:10px 14px;border-radius:10px;background:' + (isUser ? 'rgba(0,229,255,.1)' : 'rgba(255,255,255,.05)') + ';border:1px solid ' + (isUser ? 'rgba(0,229,255,.25)' : 'rgba(255,255,255,.1)') + ';font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word">' +
+        '<div style="font-size:10px;color:var(--text2,#94a3b8);margin-bottom:4px">' + (isUser ? 'You' : 'Agent') + '</div>' +
+        m.content +
+        '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;' + (isUser ? 'justify-content:flex-end' : 'justify-content:flex-start') + '">' + btns + '</div>' +
+        '</div>';
     }).join('');
     msgs.scrollTop = msgs.scrollHeight;
   },
@@ -37001,76 +37270,91 @@ const AP = {
     var self = this;
     var convId = data.current;
 
-    // Build hidden input element for askAgentSafe
-    var fakeId = '__ap_fake_' + page;
-    var fakeEl = document.getElementById(fakeId);
-    if (!fakeEl) {
-      fakeEl = document.createElement('input');
-      fakeEl.id = fakeId;
-      fakeEl.type = 'hidden';
-      document.body.appendChild(fakeEl);
-    }
-    fakeEl.value = text;
-
-    // Find or create a hidden result div to capture the agent response
-    var resultId = page + 'Result';
-    var resultEl = document.getElementById(resultId);
-    if (!resultEl) {
-      resultEl = document.createElement('div');
-      resultEl.id = resultId;
-      resultEl.style.display = 'none';
-      document.body.appendChild(resultEl);
-    }
-
-    // Show thinking indicator
-    var thinkId = 'ap_think_' + page + '_' + Date.now();
+    // Add live streaming bubble to the messages container
     var msgsEl = document.getElementById('ap_msgs_' + page);
+    var streamDiv = null;
+    var streamBody = null;
     if (msgsEl) {
-      var thinkEl = document.createElement('div');
-      thinkEl.id = thinkId;
-      thinkEl.style.cssText = 'align-self:flex-start;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);font-size:13px;color:var(--text2,#94a3b8);font-style:italic';
-      thinkEl.textContent = '⏳ Agent is thinking...';
-      msgsEl.appendChild(thinkEl);
+      streamDiv = document.createElement('div');
+      streamDiv.style.cssText = 'max-width:85%;align-self:flex-start;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word';
+      streamDiv.innerHTML = '<div style="font-size:10px;color:var(--text2,#94a3b8);margin-bottom:4px">Agent</div>' +
+        '<span style="color:var(--text2,#94a3b8);font-style:italic">⏳ Thinking…</span>';
+      msgsEl.appendChild(streamDiv);
       msgsEl.scrollTop = msgsEl.scrollHeight;
+      streamBody = streamDiv.querySelector('span') || streamDiv;
     }
 
-    var prevContent = resultEl.innerHTML;
-    var obs = new MutationObserver(function(mutations) {
-      var newContent = resultEl.innerHTML;
-      if (newContent && newContent !== prevContent && newContent.trim() !== '') {
-        obs.disconnect();
-        // Remove thinking indicator
-        var te = document.getElementById(thinkId);
-        if (te) te.remove();
-        // Save response
+    // Ensure Claude key is available across all storage keys
+    var storedKey = localStorage.getItem('eeon_key_claude') ||
+                    localStorage.getItem('stg_key_claude') ||
+                    localStorage.getItem('tmar_claude_key') ||
+                    localStorage.getItem('_trustApiKey') ||
+                    window._trustApiKey || '';
+    if (storedKey) {
+      localStorage.setItem('eeon_key_claude', storedKey);
+      localStorage.setItem('_trustApiKey', storedKey);
+      window._trustApiKey = storedKey;
+    }
+
+    // Map page → agentId for system prompt
+    var agentId = (['legal','trust','tax','arbitration','corporation','research',
+                    'code','creative','html_arch','general','accounting'].indexOf(page) !== -1)
+                  ? page : 'general';
+
+    var sysPrompt = (typeof getSystemPrompt === 'function') ? getSystemPrompt(agentId) : '';
+    var rawBuf = '';
+
+    Promise.resolve().then(async function() {
+      try {
+        var memories = [];
+        try { memories = (await MEM0.search(text, 4)) || []; } catch(e) {}
+
+        var finalText = await callLLMStream(sysPrompt, text, memories, function(tok) {
+          rawBuf += tok;
+          if (streamDiv) {
+            streamDiv.innerHTML =
+              '<div style="font-size:10px;color:var(--text2,#94a3b8);margin-bottom:4px">Agent</div>' +
+              rawBuf.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+          }
+          if (msgsEl) msgsEl.scrollTop = msgsEl.scrollHeight;
+        });
+
+        var saved = finalText || rawBuf;
+        if (streamDiv) {
+          if (saved && saved.indexOf('[ERROR') === 0) {
+            streamDiv.innerHTML =
+              '<div style="font-size:10px;color:var(--text2,#94a3b8);margin-bottom:4px">Agent</div>' +
+              '<span style="color:#ef4444">' + saved.replace(/</g,'&lt;') + '</span>' +
+              (saved.indexOf('No API key') !== -1 || saved.indexOf('HTTP 401') !== -1
+                ? '<br><span style="color:#f59e0b;font-size:12px">⚙️ Go to <b>Settings → API Keys</b> and enter your key.</span>' : '');
+          } else {
+            streamDiv.innerHTML =
+              '<div style="font-size:10px;color:var(--text2,#94a3b8);margin-bottom:4px">Agent</div>' +
+              saved.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+          }
+        }
+        if (msgsEl) msgsEl.scrollTop = msgsEl.scrollHeight;
+
         var d2 = self._load(page);
         if (d2.sessions[convId]) {
-          d2.sessions[convId].messages.push({ role: 'assistant', content: resultEl.innerText || resultEl.textContent || newContent });
+          d2.sessions[convId].messages.push({ role: 'assistant', content: saved });
           self._save(page);
           self._renderSL(page);
           self._renderMsgs(page);
         }
-        // Reset result div
-        resultEl.innerHTML = '';
+
+        try { if (saved && saved.indexOf('[ERROR') !== 0) await MEM0.add(text, saved, agentId); } catch(e) {}
+
+      } catch(err) {
+        if (streamDiv) {
+          streamDiv.innerHTML =
+            '<div style="font-size:10px;color:var(--text2,#94a3b8);margin-bottom:4px">Agent</div>' +
+            '<span style="color:#ef4444">⚠️ Runtime error: ' + err.message + '</span>' +
+            '<br><span style="color:#f59e0b;font-size:12px">Check the browser console (F12) for details.</span>';
+        }
+        console.error('[AP.send] Error:', err);
       }
     });
-    obs.observe(resultEl, { childList: true, subtree: true, characterData: true });
-
-    // Call the existing agent function
-    if (typeof askAgentSafe === 'function') {
-      askAgentSafe(page, fakeId);
-    } else {
-      obs.disconnect();
-      var te2 = document.getElementById(thinkId);
-      if (te2) te2.remove();
-      var d3 = self._load(page);
-      if (d3.sessions[convId]) {
-        d3.sessions[convId].messages.push({ role: 'assistant', content: '⚠️ Agent function unavailable. Configure your API key in API Keys → Settings.' });
-        self._save(page);
-        self._renderSL(page);
-        self._renderMsgs(page);
-      }
-    }
   },
 
   speakLast: function(page) {
@@ -37158,6 +37442,59 @@ const AP = {
     }
   },
 
+  _actMsg: function(page, idx, action) {
+    var data = this._load(page);
+    if (!data.current || !data.sessions[data.current]) return;
+    var msgs = data.sessions[data.current].messages;
+    var m = msgs[idx];
+    if (!m) return;
+    if (action === 'copy') {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(m.content).then(function() {}).catch(function() {});
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = m.content;
+        ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch(e) {}
+        document.body.removeChild(ta);
+      }
+    } else if (action === 'speak') {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        var u = new SpeechSynthesisUtterance(m.content);
+        window.speechSynthesis.speak(u);
+      }
+    } else if (action === 'regen') {
+      if (m.role === 'user') {
+        var inp = document.getElementById('ap_in_' + page);
+        if (inp) { inp.value = m.content; this.send(page); }
+      } else {
+        for (var i = idx - 1; i >= 0; i--) {
+          if (msgs[i].role === 'user') {
+            var inp2 = document.getElementById('ap_in_' + page);
+            if (inp2) { inp2.value = msgs[i].content; this.send(page); }
+            break;
+          }
+        }
+      }
+    } else if (action === 'save') {
+      var blob = new Blob([m.content], {type: 'text/plain'});
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'message-' + page + '-' + idx + '.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
+    } else if (action === 'info') {
+      var role = m.role === 'user' ? 'You' : 'Agent';
+      var words = m.content.split(/\s+/).filter(Boolean).length;
+      alert('Message #' + (idx + 1) + '\nRole: ' + role + '\nWords: ' + words + '\nCharacters: ' + m.content.length);
+    }
+  },
+
   init: function(page) {
     var data = this._load(page);
     if (Object.keys(data.sessions).length === 0) {
@@ -37188,6 +37525,9 @@ console.log('✅ AP Agent Portal object loaded — 11 persistent conversation ag
 <footer style="text-align:center;padding:18px 20px;margin-top:40px;margin-bottom:42px;font-size:11px;color:var(--text-secondary);border-top:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.3);letter-spacing:.5px">
   THIS SYSTEM IS A LEGALLY ENFORCEABLE ACCRUAL RECORD UNDER UNIVERSAL LAW. ALL ENTRIES ARE FINAL AND CONSTITUTE LAWFUL DECLARATIONS BY THE OPERATOR. &nbsp;|&nbsp; TMAR v3.0 &nbsp;·&nbsp; GAAPCLAW &nbsp;·&nbsp; SYPHER Protocol v6.0 — Private Use
 </footer>
+
+<!-- ── Status bar clearance spacer — keeps content above the fixed bar ── -->
+<div id="gc-v3-spacer" style="height:56px;width:100%;display:block;pointer-events:none;flex-shrink:0"></div>
 
 <!-- ── TMAR v3.0 Fixed Status Bar ─────────────────────────────────────── -->
 <div id="gc-v3-bar" style="position:fixed;bottom:0;left:0;right:0;z-index:99990;background:linear-gradient(90deg,rgba(15,23,42,.97),rgba(30,41,59,.97));border-top:2px solid rgba(16,185,129,.7);backdrop-filter:blur(14px);padding:6px 14px;display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:#94a3b8">
