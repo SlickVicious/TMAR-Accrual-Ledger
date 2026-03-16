@@ -2,7 +2,7 @@
 
 **Complete Interactive Web Application + Google Sheets Integration**
 **Version:** 3.0
-**Last Updated:** March 14, 2026
+**Last Updated:** March 16, 2026
 **Status:** ✅ Production Ready — GAAPCLAW Full Parity
 
 ---
@@ -26,6 +26,27 @@ npx http-server -p 8080 -o
 # Access at
 http://localhost:8080/TMAR-Accrual-Ledger.html
 ```
+
+---
+
+## 🌐 CORS Proxy Setup
+
+Direct browser API calls to Anthropic are blocked by CORS when using the app from GitHub Pages. A free Cloudflare Worker proxy solves this.
+
+### Deploy (one-time, ~3 minutes)
+
+1. Go to [workers.cloudflare.com](https://workers.cloudflare.com) — create a free account
+2. Click **Create Worker**
+3. Select all default code, delete it, paste the full contents of [`cors-proxy-worker.js`](./cors-proxy-worker.js)
+4. Click **Deploy** — copy the worker URL (e.g. `https://your-worker.yourname.workers.dev`)
+
+### Configure in TMAR
+
+5. Open the app → click **🤖** → **API Keys**
+6. Scroll to **🌐 CORS Proxy URL** → paste the worker URL
+7. Click **Save All Keys**
+
+All Anthropic API calls now route through your worker. The worker strips browser identity headers and forwards requests cleanly to `api.anthropic.com`.
 
 ---
 
@@ -381,6 +402,6 @@ All Rights Reserved
 
 ---
 
-**Last Updated:** March 14, 2026
+**Last Updated:** March 16, 2026
 **Status:** ✅ Production Ready — GAAPCLAW Full Parity
 **Coverage:** 100%
