@@ -30636,6 +30636,9 @@ function ev2InitEntityVerifier() {
 <div style="font-size:11px;color:var(--text2);margin-bottom:6px">Free: 100 searches/day. Get key at <a href="\*HYPERLINK "https://ollama.com/"https://ollama.com" target="_blank" style="color:var(--accent)">ollama.com</a> Account API Keys</div>
 <div class="setting-row"><span>Ollama API Key <span class="key-dot off" id="kdOllamaApi"></span></span><input type="password" id="keyOllamaApiKey" placeholder="Enter Ollama API key for web search..."></div>
 <div class="setting-row"><span>Web Search</span><label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><input type="checkbox" id="keyOllamaWebSearch" checked> Use Ollama native web search when API key is set</label></div>
+<div style="margin:18px 0 10px;font-weight:600;font-size:13px;color:#f59e0b"> 🌐 CORS Proxy (required for GitHub Pages)</div>
+<div style="font-size:11px;color:var(--text2);margin-bottom:6px">Direct browser API calls are blocked by CORS when hosted on GitHub Pages. Deploy a free Cloudflare Worker proxy and paste its URL here. <a href="https://github.com/SlickVicious/TMAR-Accrual-Ledger#cors-proxy-setup" target="_blank" style="color:#f59e0b">Setup guide ↗</a></div>
+<div class="setting-row"><span>CORS Proxy URL</span><input id="keyCorsProxy" placeholder="https://your-worker.your-name.workers.dev" style="border-color:rgba(245,158,11,.4)"></div>
 <div style="margin:18px 0 10px;font-weight:600;font-size:13px;color:var(--accent)"> Custom Provider</div>
 <div class="setting-row"><span>Custom Name</span><input id="keyCustomName" placeholder="My Provider"></div>
 <div class="setting-row"><span>Custom URL</span><input id="keyCustomUrl" placeholder="https://api.example.com/v1/chat/completions"></div>
@@ -34553,6 +34556,8 @@ async function callLLMStream(agentSystemPrompt, userMessage, mem0Memories, onTok
 
     // ── Anthropic ─────────────────────────────────────────────────────────
     if (p.auth === 'anthropic') {
+      var corsProxy = (localStorage.getItem('eeon_cors_proxy') || '').replace(/\/$/, '');
+      if (corsProxy) { url = corsProxy + '/v1/messages'; }
       headers['x-api-key'] = key;
       headers['anthropic-version'] = '2023-06-01';
       headers['anthropic-dangerous-request-allow-browser-headers'] = 'true';
@@ -34671,6 +34676,7 @@ function saveKeys() {
       'keyCustomModel': 'eeon_custom_model',
       'keyTelegram': 'eeon_key_telegram',
       'keyDiscord': 'eeon_key_discord',
+      'keyCorsProxy': 'eeon_cors_proxy',
       'setActiveProvider': 'eeon_active_provider'
     };
 
@@ -34878,6 +34884,7 @@ function loadSavedKeys() {
     'keyCustomModel': 'eeon_custom_model',
     'keyTelegram': 'eeon_key_telegram',
     'keyDiscord': 'eeon_key_discord',
+    'keyCorsProxy': 'eeon_cors_proxy',
     'setActiveProvider': 'eeon_active_provider'
   };
 
