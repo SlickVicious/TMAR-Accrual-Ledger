@@ -24,6 +24,7 @@ const CORS_HEADERS = {
     'x-api-key',
     'anthropic-version',
     'anthropic-dangerous-request-allow-browser-headers',
+    'anthropic-dangerous-direct-browser-access',
     'anthropic-beta',
     'Authorization',
   ].join(', '),
