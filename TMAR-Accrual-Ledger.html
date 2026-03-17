@@ -7596,7 +7596,8 @@
 
     // --- ENTITY MANAGEMENT ---
     function showEntityModal(editId = null) {
-      const entity = editId ? appData.entities.find(e => e.id === editId) : null;
+      if (editId) editId = isNaN(editId) ? editId : Number(editId);
+      const entity = editId ? appData.entities.find(e => e.id == editId) : null;
       const parentOptions = appData.entities
         .filter(e => e.type === 'parent' && (!entity || e.id !== entity.id))
         .map(e => `<option value="${e.id}" ${entity?.parentId === e.id ? 'selected' : ''}>${e.name}</option>`)
@@ -7688,6 +7689,7 @@
 
     function saveEntity(event, editId) {
       event.preventDefault();
+      if (editId) editId = isNaN(editId) ? editId : Number(editId);
       const entity = {
         id: editId || Date.now(),
         name: document.getElementById('entityName').value,
@@ -7701,7 +7703,7 @@
       };
 
       if (editId) {
-        const idx = appData.entities.findIndex(e => e.id === editId);
+        const idx = appData.entities.findIndex(e => e.id == editId);
         appData.entities[idx] = entity;
       } else {
         appData.entities.push(entity);
@@ -7715,8 +7717,9 @@
     }
 
     function deleteEntity(id) {
+      if (id) id = isNaN(id) ? id : Number(id);
       showConfirm('Are you sure you want to delete this entity?', () => {
-        appData.entities = appData.entities.filter(e => e.id !== id);
+        appData.entities = appData.entities.filter(e => e.id != id);
         updateEntitiesTable();
         updateEntitySelects();
         saveToStorage(); // Auto-save immediately
