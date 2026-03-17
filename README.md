@@ -1,9 +1,9 @@
 # TMAR - Trust Master Account Register
 
 **Complete Interactive Web Application + Google Sheets Integration**
-**Version:** 3.0
-**Last Updated:** March 16, 2026
-**Status:** ✅ Production Ready — GAAPCLAW Full Parity
+**Version:** 3.1
+**Last Updated:** March 17, 2026
+**Status:** ✅ Production Ready — 211/211 GUI Elements Verified
 
 ---
 
@@ -66,24 +66,25 @@ TMAR is a comprehensive financial management system combining:
 
 ### Web Application (TMAR-Accrual-Ledger.html)
 
-**26 Pages/Screens:**
-- Dashboard
-- Trust Agent (6 AI Agents: Legal, Tax, Accounting, Trust, Arbitration, Corporation)
-- Research HUB (3 depth modes: Standard, Deep, Legal with Citations)
-- Document Creator
-- Calendar & Scheduling
-- Encrypted Vault
-- API Keys Management
-- Sync Center
-- Bill of Exchange Generator
-- GAAP Interface
-- Settings & Preferences
+**51 Tabs/Screens** across 12 groups:
 
-**246 Total Functions:**
-- ✅ 100% Implementation Coverage
-- ✅ All interactive elements functional
-- ✅ Comprehensive error handling
-- ✅ Console logging for debugging
+- Core Accounting (Ledger, Entities, CoA, Journal, A/R, A/P, Consolidation, Statements)
+- Tax & Compliance (Tax Filings, Tax Estimator, Schedule A)
+- Trust Estate (Dashboard, Ledger, Reports)
+- Operations (Invoicing, Payroll, Inventory, Budget, Payment Orders, Bills of Exchange, Expenses, Customers/Vendors, Depreciation, Bank Recon)
+- Reports & Intelligence (Reports, Master Report, GAAPCLAW Master, 6 CPA Firms, IRS Form Generator)
+- Tools (Settings & API, API Scout, Voice & Chat, Financial Assets, Document Creator, Source Folders)
+- RedressRight Libraries (CPSA, TRCF, CCSN, FDRF, EEEJ)
+- Verification (Entity Verifier v2.0)
+- Data Integration (Sync Center)
+- PDKB Tools (Transcript, Etymology, PDF/MD, POA/DBA)
+
+**211 GUI Elements Verified** (see [System Status Dashboard](./TMAR-System-Status-Dashboard.html)):
+
+- ✅ 211/211 Working (100%)
+- ✅ 0 Not Working
+- ✅ Full function audit with dependency documentation
+- ✅ Interactive dashboard with search & filtering
 
 **17 Custom Functions (All Documented):**
 - Chat & Communication (3)
@@ -147,6 +148,7 @@ npx http-server -p 8080 -o
 ```
 TMAR/
 ├── TMAR-Accrual-Ledger.html          # Main web application
+├── TMAR-System-Status-Dashboard.html # GUI element status dashboard (211 elements)
 ├── TMAR_Audit_Dashboard.html         # Interactive audit dashboard
 ├── AUDIT_SUMMARY.md                  # Audit results and coverage
 ├── audit_report.json                 # Full audit data
@@ -248,11 +250,11 @@ clasp open
 ## ✅ Implementation Status
 
 ### Web Application
-- **Functions:** 246/246 (100%)
-- **Custom Functions:** 17/17 (100%)
-- **Pages/Screens:** 26/26 (100%)
-- **Reference Cards:** 17/17 (100%)
-- **Testing:** ✅ All buttons functional
+
+- **GUI Elements:** 211/211 (100%) — verified via System Status Dashboard
+- **Tabs/Screens:** 51 across 12 groups (100%)
+- **AI Agents:** 19 total (GAAPCLAW Master + 6 CPA firms × 3 sub-agents each)
+- **Testing:** ✅ All buttons verified working (zero stubs remaining)
 
 ### Google Apps Script
 - **Main Code:** Code.gs (137 KB)
@@ -318,6 +320,15 @@ clasp open
 ---
 
 ## 📈 Version History
+
+### v3.1 (March 17, 2026) — Full GUI Audit + Entity Verifier CSV Import
+
+- ✅ **System Status Dashboard** — Interactive HTML dashboard mapping all 211 GUI elements with status, handlers, descriptions, search & filtering
+- ✅ **Full function verification** — All 23 previously-unconfirmed functions investigated and confirmed working with graceful degradation
+- ✅ **toggleMic() fixed** — Replaced stub with real implementation wired to startVoiceRec()/stopVoiceRec()
+- ✅ **testSyncConnection() implemented** — Pings GAS Web App via SyncBridge.ping(), shows version/year/latency
+- ✅ **Entity Verifier CSV Import** — `ev2ImportCSV()` parses TMAR Entities CSV format, deduplicates by EIN/name, merges into `appData.entities` with extended fields (address, phone, email)
+- ✅ **Entity Verifier v2.0 section** added to System Status Dashboard (12 elements)
 
 ### v3.0 (March 14, 2026) — GAAPCLAW Full Parity + Engine Ports
 - ✅ **GCMemory IndexedDB engine** — Full persistent agent memory (replaces localStorage stub)
@@ -402,6 +413,6 @@ All Rights Reserved
 
 ---
 
-**Last Updated:** March 16, 2026
-**Status:** ✅ Production Ready — GAAPCLAW Full Parity
+**Last Updated:** March 17, 2026
+**Status:** ✅ Production Ready — 211/211 GUI Elements Verified
 **Coverage:** 100%

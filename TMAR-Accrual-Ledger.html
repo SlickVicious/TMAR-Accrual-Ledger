@@ -16349,6 +16349,8 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
         <button id="ev2-run-btn" onclick="ev2RunVerification()" style="background:rgba(59,130,246,0.25);border:1px solid rgba(59,130,246,0.5);color:#60a5fa;padding:8px 18px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;transition:all 0.2s" data-guide="Run batch verification on all entities loaded from the ledger">&#9654; Verify All</button>
         <button onclick="ev2ExportResults('json')" style="background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.4);color:#34d399;padding:8px 18px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;transition:all 0.2s" data-guide="Download all verification results as a JSON file">&#128229; Export JSON</button>
         <button onclick="ev2ExportResults('csv')" style="background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);color:#fbbf24;padding:8px 18px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;transition:all 0.2s" data-guide="Download verification results as CSV spreadsheet for CoA 1099-B template">&#128229; Export CSV</button>
+        <label onclick="document.getElementById('ev2-csv-import').click()" style="background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.4);color:#c084fc;padding:8px 18px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:4px" data-guide="Import entities from a CSV file (TMAR Entities format) into the universal source registry. Deduplicates by EIN.">&#128228; Import CSV</label>
+        <input type="file" id="ev2-csv-import" accept=".csv" onchange="ev2ImportCSV(this)" style="display:none">
         <button id="ev2-guide-toggle" onclick="ev2ToggleInfoGuide()" style="background:rgba(147,51,234,0.2);border:1px solid rgba(147,51,234,0.4);color:#a78bfa;padding:8px 18px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;transition:all 0.2s" title="Toggle Info Guide">&#x2139;&#xFE0F; Guide</button>
       </div>
       <!-- Progress Bar -->
@@ -28092,6 +28094,234 @@ function ev2ImportCache() {
    SECTION 13: EXPORT FUNCTIONS
    ═══════════════════════════════════════════════════════════════════════════ */
 
+// ═══════════════════════════════════════════════════════════════════════════
+// CSV Import — Parses TMAR Entities CSV and merges into appData.entities
+// ═══════════════════════════════════════════════════════════════════════════
+
+function ev2ImportCSV(fileInput) {
+  if (!fileInput || !fileInput.files || !fileInput.files[0]) return;
+  var file = fileInput.files[0];
+  if (!file.name.toLowerCase().endsWith('.csv')) {
+    showAlert('Please select a .csv file.', 'Import Error');
+    fileInput.value = '';
+    return;
+  }
+
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var text = e.target.result;
+      var parsed = ev2ParseCSV(text);
+      if (!parsed.length) {
+        showAlert('No valid entity rows found in CSV.', 'Import Error');
+        fileInput.value = '';
+        return;
+      }
+
+      // Deduplicate against existing entities by EIN
+      var existingEINs = {};
+      var existingNames = {};
+      (appData.entities || []).forEach(function(ent) {
+        if (ent.ein) existingEINs[ent.ein.replace(/\D/g, '')] = true;
+        if (ent.name) existingNames[ent.name.toLowerCase().trim()] = true;
+      });
+
+      var added = 0, skipped = 0, dupes = [];
+      for (var i = 0; i < parsed.length; i++) {
+        var row = parsed[i];
+        var einDigits = row.ein ? row.ein.replace(/\D/g, '') : '';
+
+        // Skip if EIN already exists (and EIN is not empty)
+        if (einDigits && existingEINs[einDigits]) {
+          skipped++;
+          dupes.push(row.name);
+          continue;
+        }
+        // Skip if exact name match (for entities without EIN)
+        if (!einDigits && row.name && existingNames[row.name.toLowerCase().trim()]) {
+          skipped++;
+          dupes.push(row.name);
+          continue;
+        }
+
+        // Build entity object
+        var entity = {
+          id: Date.now() + Math.floor(Math.random() * 100000) + i,
+          name: row.name,
+          ein: row.ein || '',
+          type: row.entityType === 'Individual' ? 'individual' : 'business',
+          parentId: null,
+          ownership: 100,
+          fye: 12,
+          status: 'Active',
+          primaryUser: '',
+          // Extended fields from CSV
+          accountNumber: row.accountNumber || '',
+          accountType: row.tinType || '',
+          address: row.address1 || '',
+          address2: row.address2 || '',
+          city: row.city || '',
+          state: row.state || '',
+          zip: row.zip || '',
+          country: row.country || 'US',
+          phone: row.phone || '',
+          email: row.email || '',
+          firstName: row.firstName || '',
+          middleName: row.middleName || '',
+          suffix: row.suffix || '',
+          importSource: 'csv',
+          importDate: new Date().toISOString()
+        };
+
+        appData.entities.push(entity);
+        if (einDigits) existingEINs[einDigits] = true;
+        if (entity.name) existingNames[entity.name.toLowerCase().trim()] = true;
+        added++;
+      }
+
+      saveToStorage();
+
+      // Refresh Entity Verifier state if initialized
+      if (typeof ev2Initialized !== 'undefined' && ev2Initialized) {
+        ev2Initialized = false;
+        ev2InitEntityVerifier();
+      }
+
+      // Refresh Entities table if visible
+      if (typeof updateEntitiesTable === 'function') updateEntitiesTable();
+      if (typeof updateEntitySelects === 'function') updateEntitySelects();
+
+      // Build result message
+      var msg = '<div style="text-align:left;line-height:1.8">' +
+        '<div style="font-size:16px;font-weight:700;color:#10b981;margin-bottom:8px">CSV Import Complete</div>' +
+        '<div><b>' + added + '</b> entities added to registry</div>' +
+        '<div><b>' + skipped + '</b> duplicates skipped (EIN or name match)</div>' +
+        '<div style="font-size:11px;color:var(--text-secondary);margin-top:4px">Total in registry: <b>' + appData.entities.length + '</b></div>';
+      if (dupes.length > 0 && dupes.length <= 10) {
+        msg += '<div style="font-size:11px;color:var(--text-secondary);margin-top:8px;opacity:0.7">Skipped: ' + dupes.join(', ') + '</div>';
+      } else if (dupes.length > 10) {
+        msg += '<div style="font-size:11px;color:var(--text-secondary);margin-top:8px;opacity:0.7">Skipped: ' + dupes.slice(0, 10).join(', ') + ' + ' + (dupes.length - 10) + ' more</div>';
+      }
+      msg += '</div>';
+      showModal(msg);
+
+    } catch (err) {
+      showAlert('CSV parse error: ' + err.message, 'Import Error');
+    }
+    fileInput.value = '';
+  };
+  reader.readAsText(file);
+}
+
+function ev2ParseCSV(text) {
+  var lines = text.split(/\r?\n/);
+  if (lines.length < 2) return [];
+
+  // Parse header row
+  var headerLine = lines[0];
+  var headers = ev2SplitCSVLine(headerLine);
+
+  // Normalize headers to find column indices
+  var colMap = {};
+  for (var h = 0; h < headers.length; h++) {
+    var hdr = headers[h].trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (hdr.indexOf('type') === 0 && hdr.length < 8) colMap.type = h;
+    else if (hdr.indexOf('tintype') !== -1) colMap.tinType = h;
+    else if (hdr === 'tin' || hdr === 'ein' || hdr === 'ssn') colMap.tin = h;
+    else if (hdr.indexOf('firstname') !== -1) colMap.firstName = h;
+    else if (hdr.indexOf('middlename') !== -1) colMap.middleName = h;
+    else if (hdr.indexOf('businessname') !== -1 || hdr.indexOf('lastname') !== -1) colMap.businessName = h;
+    else if (hdr.indexOf('suffix') !== -1) colMap.suffix = h;
+    else if (hdr.indexOf('accountn') !== -1 || hdr === 'acctno') colMap.accountNo = h;
+    else if (hdr.indexOf('address1') !== -1 || (hdr.indexOf('address') !== -1 && !hdr.match(/2/))) colMap.address1 = h;
+    else if (hdr.indexOf('address2') !== -1) colMap.address2 = h;
+    else if (hdr === 'city') colMap.city = h;
+    else if (hdr === 'state') colMap.state = h;
+    else if (hdr.indexOf('zip') !== -1 || hdr.indexOf('postal') !== -1) colMap.zip = h;
+    else if (hdr === 'country') colMap.country = h;
+    else if (hdr.indexOf('phone') !== -1) colMap.phone = h;
+    else if (hdr.indexOf('email') !== -1) colMap.email = h;
+  }
+
+  var results = [];
+  for (var i = 1; i < lines.length; i++) {
+    var line = lines[i].trim();
+    if (!line) continue;
+
+    var cols = ev2SplitCSVLine(line);
+    var entityType = (cols[colMap.type] || '').trim();
+    var tinType = (cols[colMap.tinType] || '').trim();
+    var tin = (cols[colMap.tin] || '').trim();
+    var firstName = (cols[colMap.firstName] || '').trim();
+    var middleName = (cols[colMap.middleName] || '').trim();
+    var businessName = (cols[colMap.businessName] || '').trim();
+    var suffix = (cols[colMap.suffix] || '').trim();
+
+    // Build entity name
+    var name = '';
+    if (entityType === 'Individual') {
+      var parts = [];
+      if (firstName) parts.push(firstName);
+      if (middleName) parts.push(middleName);
+      if (businessName) parts.push(businessName);
+      if (suffix) parts.push(suffix);
+      name = parts.join(' ');
+    } else {
+      name = businessName || '';
+    }
+
+    // Skip empty rows
+    if (!name && !tin) continue;
+    // Skip placeholder rows (all-empty business rows)
+    if (entityType === 'Business' && !name && !tin) continue;
+
+    results.push({
+      entityType: entityType,
+      tinType: tinType,
+      ein: tin,
+      firstName: firstName,
+      middleName: middleName,
+      name: name,
+      suffix: suffix,
+      accountNumber: (cols[colMap.accountNo] || '').trim(),
+      address1: (cols[colMap.address1] || '').trim(),
+      address2: (cols[colMap.address2] || '').trim(),
+      city: (cols[colMap.city] || '').trim(),
+      state: (cols[colMap.state] || '').trim(),
+      zip: (cols[colMap.zip] || '').trim(),
+      country: (cols[colMap.country] || '').trim(),
+      phone: (cols[colMap.phone] || '').trim(),
+      email: (cols[colMap.email] || '').trim()
+    });
+  }
+
+  return results;
+}
+
+function ev2SplitCSVLine(line) {
+  var result = [];
+  var current = '';
+  var inQuotes = false;
+  for (var i = 0; i < line.length; i++) {
+    var ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (ch === ',' && !inQuotes) {
+      result.push(current);
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  result.push(current);
+  return result;
+}
+
 function ev2ExportResults(format) {
   var results = ev2State.results || [];
   if (results.length === 0) {
@@ -34297,7 +34527,28 @@ function eeonTab(formId, btn) {
 // Placeholder functions
 function exportChat() { alert('Chat export functionality'); }
 function shareChat() { alert('Chat share functionality'); }
-function toggleMic() { alert('Voice input functionality'); }
+function toggleMic() {
+  var btn = document.getElementById('micBtn');
+  if (!btn && event) btn = event.target.closest('[onclick*="toggleMic"]');
+  if (!btn) return;
+  var isActive = btn.classList.toggle('active');
+  if (isActive) {
+    btn.textContent = '🔴';
+    btn.title = 'Stop Recording';
+    if (typeof startVoiceRec === 'function') {
+      startVoiceRec();
+    } else if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      btn.classList.remove('active');
+      btn.textContent = '🎤';
+      btn.title = 'Voice Input (Speech-to-Text)';
+      showAlert('Voice recognition requires Chrome, Edge, or Safari.');
+    }
+  } else {
+    btn.textContent = '🎤';
+    btn.title = 'Voice Input (Speech-to-Text)';
+    if (typeof stopVoiceRec === 'function') stopVoiceRec();
+  }
+}
 function handleFileUpload() { alert('File upload functionality'); }
 function dtHandleFiles() { alert('Dream Team file upload'); }
 function populateAllForms() { alert('Sync from GAAP ledger'); }
@@ -35571,10 +35822,63 @@ function savePrefs() {
   }
 }
 
-// Test sync connection
+// Test sync connection — pings GAS Web App and reports status
 function testSyncConnection() {
   console.log('🔌 Testing sync connection...');
-  alert('Sync connection test - Feature coming soon');
+  var dot = document.getElementById('sync-status-dot');
+  var text = document.getElementById('sync-status-text');
+  var btn = document.getElementById('sync-test-btn');
+
+  var url = (appData.settings && appData.settings.gasWebAppUrl) ? appData.settings.gasWebAppUrl.trim() : '';
+  if (!url) {
+    if (dot) dot.style.background = '#ef4444';
+    if (text) { text.textContent = 'No GAS Web App URL configured'; text.style.color = '#ef4444'; }
+    return;
+  }
+  if (url.indexOf('https://') !== 0) {
+    if (dot) dot.style.background = '#ef4444';
+    if (text) { text.textContent = 'URL must start with https://'; text.style.color = '#ef4444'; }
+    return;
+  }
+
+  // Show testing state
+  if (dot) dot.style.background = '#ffc107';
+  if (text) { text.textContent = 'Testing connection...'; text.style.color = '#ffc107'; }
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Testing...'; }
+
+  var bridge = new SyncBridge(url);
+  var startTime = Date.now();
+
+  bridge.ping()
+    .then(function(result) {
+      var elapsed = Date.now() - startTime;
+      if (result && result.status === 'ok') {
+        if (dot) dot.style.background = '#10b981';
+        var info = 'Connected — v' + (result.version || '?') +
+          ' | Year: ' + (result.year || '?') +
+          ' | ' + elapsed + 'ms';
+        if (text) { text.textContent = info; text.style.color = '#10b981'; }
+        addSyncLogEntry('Ping', 'pull', 0, 'success');
+        console.log('✅ Sync ping OK:', result);
+      } else {
+        if (dot) dot.style.background = '#ef4444';
+        var msg = 'Unexpected response: ' + JSON.stringify(result).substring(0, 200);
+        if (text) { text.textContent = msg; text.style.color = '#ef4444'; }
+        addSyncLogEntry('Ping', 'pull', 0, 'error');
+      }
+    })
+    .catch(function(err) {
+      if (dot) dot.style.background = '#ef4444';
+      var errMsg = err.name === 'AbortError'
+        ? 'Connection timed out (30s). Check URL and GAS deployment.'
+        : 'Connection failed: ' + (err.message || String(err));
+      if (text) { text.textContent = errMsg; text.style.color = '#ef4444'; }
+      addSyncLogEntry('Ping', 'pull', 0, 'error');
+      console.error('❌ Sync ping failed:', err);
+    })
+    .finally(function() {
+      if (btn) { btn.disabled = false; btn.textContent = '🔌 Test Connection'; }
+    });
 }
 
 // Refresh Ollama models list

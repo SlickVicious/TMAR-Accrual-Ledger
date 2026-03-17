@@ -1,7 +1,7 @@
 # TMAR-Aligned Universal Accrual Ledger — Design Document
 
 **Status**: ✅ IMPLEMENTED — 2026-03-04
-**Output File**: `TMAR-Accrual-Ledger.html` (~19,030 lines, 1.3MB)
+**Output File**: `TMAR-Accrual-Ledger.html` (~37,830 lines, 2.5MB)
 
 **Version**: 2.1 (expanded: Sync Center + Entity Verifier + RedressRight Libraries)
 **Date**: 2026-03-04
