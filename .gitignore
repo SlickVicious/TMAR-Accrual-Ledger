@@ -9,3 +9,12 @@ gateway.json
 logs/
 memory/
 sessions/
+
+# Local build artifacts & reference scans
+.tmar-build/
+agent_scan_FULL.md
+agent_scan_pages_preview.txt
+
+# Data exports (local only)
+*.csv
+*.xlsx
