@@ -1,0 +1,2801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Constitutional Challenge Creator - Professional Legal Document System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Times New Roman', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .toolbar {
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            padding: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .toolbar-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .toolbar-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .toolbar-button:active {
+            transform: translateY(0);
+        }
+
+        .auto-save-indicator {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-left: auto;
+        }
+
+        .font-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255,255,255,0.2);
+            padding: 5px;
+            border-radius: 6px;
+        }
+
+        .font-size-input {
+            width: 60px;
+            padding: 4px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .case-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255,255,255,0.2);
+            padding: 5px;
+            border-radius: 6px;
+        }
+
+        .case-select {
+            padding: 4px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .tab-container {
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            padding: 0 15px;
+            overflow-x: auto;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 2px;
+            min-width: max-content;
+        }
+
+        .tab-button {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            font-size: 13px;
+        }
+
+        .tab-button:hover {
+            background: #5a6268;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            background: white;
+            overflow-y: auto;
+        }
+
+        .document-content {
+            display: none;
+            max-width: 8.5in;
+            margin: 0 auto;
+            background: white;
+            min-height: 11in;
+            padding: 0.25in;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            line-height: 1.6;
+            font-size: 12pt;
+        }
+
+        .document-content.active {
+            display: block;
+        }
+
+        .document-id {
+            text-align: right;
+            font-size: 10pt;
+            color: #666;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .document-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+        }
+
+        .caption {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .case-info {
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-decoration: underline;
+            margin-top: 15px;
+        }
+
+        .section {
+            position: relative;
+            margin: 20px 0;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            background: #f8f9ff;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .section:hover .section-controls {
+            opacity: 1;
+        }
+
+        .section-controls {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            display: flex;
+            gap: 2px;
+        }
+
+        .control-button {
+            background: #dc3545;
+            color: white;
+            border: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-button:hover {
+            background: #c82333;
+        }
+
+        .section-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .subsection-title {
+            font-weight: bold;
+            margin: 15px 0 10px 0;
+            text-decoration: underline;
+        }
+
+        .quote {
+            margin: 15px 0;
+            padding: 15px;
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            font-style: italic;
+        }
+
+        .indent {
+            margin-left: 40px;
+            margin: 10px 0 10px 40px;
+        }
+
+        .double-indent {
+            margin-left: 80px;
+            margin: 10px 0 10px 80px;
+        }
+
+        .statutory-ref, .constitutional-ref, .case-ref, .congressional-ref {
+            font-weight: bold;
+            color: #0066cc;
+        }
+
+        .add-section-button {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 15px 0;
+            display: block;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            transition: all 0.3s ease;
+        }
+
+        .add-section-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+        }
+
+        .signature-section {
+            position: relative;
+            margin-top: 40px;
+            text-align: left;
+            padding: 15px;
+            border-left: 4px solid #28a745;
+            background: #f0fff0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .signature-section:hover .section-controls {
+            opacity: 1;
+        }
+
+        .electronic-signature {
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .signature-field {
+            text-transform: none !important;
+        }
+
+        .no-caps {
+            text-transform: none !important;
+        }
+
+        .table-of-authorities {
+            position: relative;
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            background: #f9f9f9;
+            border-left: 4px solid #ffc107;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .table-of-authorities:hover .section-controls {
+            opacity: 1;
+        }
+
+        .authority-category {
+            margin-bottom: 20px;
+        }
+
+        .authority-category h4 {
+            font-weight: bold;
+            text-decoration: underline;
+            margin-bottom: 10px;
+        }
+
+        .authority-list {
+            margin-left: 20px;
+        }
+
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+            font-size: 12px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1001;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        [contenteditable="true"]:focus {
+            outline: 2px solid #667eea;
+            outline-offset: 2px;
+            background-color: #f8f9ff;
+        }
+
+        [contenteditable="true"] {
+            transition: all 0.2s ease;
+        }
+
+        .caps-mode [contenteditable="true"] {
+            text-transform: uppercase;
+        }
+
+        .lower-mode [contenteditable="true"] {
+            text-transform: lowercase;
+        }
+
+        .title-mode [contenteditable="true"] {
+            text-transform: capitalize;
+        }
+
+        /* Legal Templates Specific Styles */
+        .template-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .template-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        .template-card h3 {
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .template-card p {
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        @media print {
+            .toolbar, .tab-container, .header {
+                display: none !important;
+            }
+            
+            .app-container {
+                box-shadow: none;
+            }
+            
+            .document-content {
+                box-shadow: none;
+                padding: 0.25in !important;
+                margin: 0 !important;
+                max-width: none !important;
+                width: 100% !important;
+                border-radius: 0 !important;
+                background: white !important;
+            }
+            
+            .section {
+                border-left: none !important;
+                background: transparent !important;
+                border-radius: 0 !important;
+                padding-left: 0 !important;
+            }
+            
+            body {
+                margin: 0.25in !important;
+            }
+            
+            @page {
+                margin: 0.25in !important;
+                size: letter;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                margin: 0;
+                border-radius: 0;
+            }
+            
+            .document-content {
+                padding: 0.25in;
+                margin: 0;
+                border-radius: 0;
+            }
+            
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .toolbar-button {
+                margin-bottom: 5px;
+            }
+        }
+    
+    /* === STANDARD REDRESSRIGHT NAV === */
+    .redressright-header {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        width: 100%;
+    }
+    .redressright-nav-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 70px;
+    }
+    .redressright-logo { font-size: 28px; font-weight: bold; color: #ffffff; text-decoration: none; letter-spacing: 1px; transition: color 0.3s ease; }
+    .redressright-logo:hover { color: #ffd700; }
+    .redressright-nav-links { display: flex; gap: 5px; list-style: none; overflow-x: auto; }
+    .redressright-nav-links::-webkit-scrollbar { height: 0; }
+    .redressright-nav-links li a { display: block; padding: 12px 15px; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 500; border-radius: 6px; transition: all 0.3s ease; position: relative; white-space: nowrap; }
+    .redressright-nav-links li a:hover { background-color: rgba(255,255,255,0.15); color: #ffd700; }
+    .redressright-nav-links li a::after { content: ''; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 0; height: 2px; background: #ffd700; transition: width 0.3s; }
+    .redressright-nav-links li a:hover::after { width: 60%; }
+    .redressright-mobile-toggle { display: none; flex-direction: column; cursor: pointer; gap: 5px; }
+    .redressright-mobile-toggle span { width: 30px; height: 3px; background-color: #ffffff; border-radius: 3px; transition: all 0.3s ease; }
+    @media (max-width: 768px) {
+        .redressright-nav-links { position: absolute; top: 70px; left: 0; right: 0; background: linear-gradient(135deg, #1e3c72, #2a5298); flex-direction: column; gap: 0; max-height: 0; overflow: hidden; transition: max-height 0.3s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .redressright-nav-links.active { max-height: 600px; }
+        .redressright-nav-links li { border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .redressright-nav-links li a { padding: 16px 20px; border-radius: 0; }
+        .redressright-mobile-toggle { display: flex; }
+    }
+    /* === END STANDARD NAV === */
+
+</style>
+</head>
+<body>
+    <div class="app-container">
+<!-- REDRESSRIGHT NAVIGATION HEADER - START -->
+<style>
+    @media (max-width: 768px) {
+    }
+</style>
+
+<header class="redressright-header">
+    <nav class="redressright-nav-container">
+        <a href="https://redressright.com" class="redressright-logo">RedressRight</a>
+        <ul class="redressright-nav-links" id="navLinks">
+            <li><a href="http://redressright.me/">Home</a></li>
+            <li><a href="http://redressright.me/PFR.html" style="color:#ffd700;font-weight:700">PETITION FOR REDRESS</a></li>
+            <li><a href="http://redressright.me/GAAP.html">GAAP LEDGER</a></li>
+            <li><a href="http://redressright.me/CLMP.html">MEMORIAL AND CONGRESSIONAL PETITION</a></li>
+            <li><a href="http://redressright.me/CPSA.html">CPSA</a></li>
+            <li><a href="http://redressright.me/PORG.html">PORG</a></li>
+            <li><a href="http://redressright.me/TRCF.html">TRCF</a></li>
+            <li><a href="http://redressright.me/DIBE.html">DIBE</a></li>
+            <li><a href="http://redressright.me/CCSN.html">CCSN</a></li>
+            <li><a href="http://redressright.me/EEEJ.html">EEEJ</a></li>
+            <li><a href="http://redressright.me/FDRF.html">FDRF</a></li>
+            <li><a href="http://redressright.me/At-PAR.html">At-Par Tutorial</a></li>
+            <li><a href="http://redressright.me/Agent.html" style="color:#00d4ff;font-weight:700">AI AGENT</a></li>
+            <li><a href="http://redressright.me/huma.html" style="color:#ffd700">AI HUMANIZER</a></li>
+            <li><a href="http://redressright.me/Terms.html">TERMS &amp; CONDITIONS</a></li>
+        </ul>
+        <div class="redressright-mobile-toggle" id="mobileToggle"><span></span><span></span><span></span></div>
+    </nav>
+</header>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var toggle = document.getElementById('mobileToggle');
+        var navLinks = document.getElementById('navLinks');
+
+        if (toggle && navLinks) {
+            toggle.addEventListener('click', function () {
+                toggle.classList.toggle('active');
+                navLinks.classList.toggle('active');
+            });
+
+            document.addEventListener('click', function (event) {
+                var isClickInsideNav =
+                    toggle.contains(event.target) || navLinks.contains(event.target);
+                if (!isClickInsideNav && navLinks.classList.contains('active')) {
+                    toggle.classList.remove('active');
+                    navLinks.classList.remove('active');
+                }
+            });
+        }
+    });
+</script>
+<!-- REDRESSRIGHT NAVIGATION HEADER - END -->
+        <div class="header">
+            <h1>CONSTITUTIONAL CHALLENGE CREATOR</h1>
+            <div class="subtitle">Professional Legal Document Generation System</div>
+        </div>
+        
+        <div class="toolbar">
+            <button class="toolbar-button" onclick="formatBold()">📝 Bold</button>
+            <button class="toolbar-button" onclick="formatItalic()">🔤 Italic</button>
+            <button class="toolbar-button" onclick="formatUnderline()">📄 Underline</button>
+            <button class="toolbar-button" onclick="insertCitation()">📚 Citation</button>
+            <button class="toolbar-button" onclick="insertStatute()">⚖️ Statute</button>
+            <button class="toolbar-button" onclick="insertCase()">🏛️ Case Law</button>
+            <button class="toolbar-button" onclick="insertConstitutional()">📜 Constitutional</button>
+            <button class="toolbar-button" onclick="openImageModal()">🖼️ Image</button>
+            <button class="toolbar-button" onclick="undoChange()">↶ Undo</button>
+            <button class="toolbar-button" onclick="redoChange()">↷ Redo</button>
+            <button class="toolbar-button" onclick="previewDocument()">👁️ Preview</button>
+            <button class="toolbar-button" onclick="printDocument()">🖨️ Print</button>
+            <button class="toolbar-button" onclick="saveAsHTML()">💾 Save HTML</button>
+            <button class="toolbar-button" onclick="loadFromLocalStorage()">📂 Load</button>
+            <button class="toolbar-button" onclick="openCodeEditor()">⌨️ Code</button>
+            <button class="toolbar-button" onclick="viewUpdatedCode()">📋 View Updated Code</button>
+            <button class="toolbar-button" onclick="cleanCorruptedHTML()">🧹 Clean HTML</button>
+            
+            <div class="font-controls">
+                <span style="color: #666; font-size: 12px;">Font Size:</span>
+                <button class="toolbar-button" onclick="changeFontSize(-1)" style="padding: 4px 8px;">-</button>
+                <input type="number" id="fontSizeInput" class="font-size-input" value="12" min="8" max="72" onchange="setFontSize(this.value)">
+                <button class="toolbar-button" onclick="changeFontSize(1)" style="padding: 4px 8px;">+</button>
+                <span style="color: #666; font-size: 12px;">pt</span>
+            </div>
+
+            <div class="case-controls">
+                <span style="color: #666; font-size: 12px;">Text Case:</span>
+                <select id="caseSelect" class="case-select" onchange="changeTextCase(this.value)">
+                    <option value="normal">Normal</option>
+                    <option value="uppercase">UPPERCASE</option>
+                    <option value="lowercase">lowercase</option>
+                    <option value="capitalize">Title Case</option>
+                </select>
+            </div>
+            
+            <div id="autoSaveIndicator" class="auto-save-indicator">Auto-save Ready</div>
+        </div>
+        
+        <div class="tab-container">
+            <div class="tab-buttons">
+                <button id="rule60b-tab" class="tab-button active" onclick="switchDocument('rule60b')">Rule 60(b) Challenge</button>
+                <button id="cris-tab" class="tab-button" onclick="switchDocument('cris')">CRIS Challenge</button>
+                <button id="mandamus-tab" class="tab-button" onclick="switchDocument('mandamus')">Mandamus</button>
+                <button id="certiorari-tab" class="tab-button" onclick="switchDocument('certiorari')">Certiorari</button>
+                <button id="habeas-tab" class="tab-button" onclick="switchDocument('habeas')">Habeas Corpus</button>
+                <button id="standing-tab" class="tab-button" onclick="switchDocument('standing')">Standing</button>
+                <button id="warrant-tab" class="tab-button" onclick="switchDocument('warrant')">Pre-Warrant</button>
+                <button id="civil-tab" class="tab-button" onclick="switchDocument('civil')">Civil Rights</button>
+                <button id="constitutional-tab" class="tab-button" onclick="switchDocument('constitutional')">Constitutional</button>
+                <button id="federal-tab" class="tab-button" onclick="switchDocument('federal')">Federal Question</button>
+                <button id="arbitration-tab" class="tab-button" onclick="switchDocument('arbitration')">Arbitration</button>
+                <button id="templates-tab" class="tab-button" onclick="switchDocument('templates')">Legal Templates</button>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <!-- Rule 60(b) Document -->
+            <div id="rule60b-content" class="document-content active">
+                <div class="document-id" contenteditable="true">Document ID: <span id="rule60b-doc-id">CONST-R60B-2025-001</span></div>
+                
+                <div class="document-header">
+                    <div class="caption">
+                        <div contenteditable="true">IN THE UNITED STATES DISTRICT COURT</div>
+                        <div contenteditable="true">FOR THE [INSERT DISTRICT]</div>
+                    </div>
+
+                    <div class="case-info">
+                        <div contenteditable="true">[CASE CAPTION]</div>
+                        <div contenteditable="true">Case No: [CASE NUMBER]</div>
+                    </div>
+
+                    <div class="title">
+                        <div contenteditable="true">PETITION PRESENTMENT FOR RELIEF FROM VOID JUDGMENT UNDER RULE 60(b); CONSTITUTIONAL CHALLENGE TO FOREIGN LAW APPLICATION; DEMAND FOR CRIS ACCOUNT ACCESS; TERMINATION OF COUNSEL; SOLICITOR GENERAL NOTIFICATION</div>
+                    </div>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <!-- Table of Authorities -->
+                <div class="table-of-authorities">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    <h3 contenteditable="true" style="text-align: center; font-weight: bold; text-decoration: underline; margin-bottom: 20px;">TABLE OF AUTHORITIES</h3>
+                    
+                    <div class="authority-category">
+                        <h4 contenteditable="true">CONSTITUTIONAL PROVISIONS</h4>
+                        <div class="authority-list">
+                            <p contenteditable="true">U.S. Const. art. I, § 7, cl. 2</p>
+                            <p contenteditable="true">U.S. Const. art. I, § 8, cl. 1</p>
+                            <p contenteditable="true">U.S. Const. art. III, § 2, cl. 1</p>
+                            <p contenteditable="true">U.S. Const. art. VI, cl. 2</p>
+                            <p contenteditable="true">U.S. Const. amend. I</p>
+                            <p contenteditable="true">U.S. Const. amend. V</p>
+                            <p contenteditable="true">U.S. Const. amend. VII</p>
+                            <p contenteditable="true">U.S. Const. amend. XIV, § 1</p>
+                        </div>
+                    </div>
+
+                    <div class="authority-category">
+                        <h4 contenteditable="true">STATUTES AT LARGE</h4>
+                        <div class="authority-list">
+                            <p contenteditable="true">1 Stat. 68-71 (May 8, 1792)</p>
+                            <p contenteditable="true">1 Stat. 91 § 32 (Sept. 29, 1789)</p>
+                            <p contenteditable="true">1 Stat. 123 § 2 (Feb. 18, 1790)</p>
+                            <p contenteditable="true">48 Stat. 1064 (June 18, 1934)</p>
+                            <p contenteditable="true">62 Stat. 944 (June 25, 1948)</p>
+                            <p contenteditable="true">87 Stat. 792 (Dec. 23, 1973)</p>
+                            <p contenteditable="true">96 Stat. 25 (Feb. 26, 1982)</p>
+                        </div>
+                    </div>
+
+                    <div class="authority-category">
+                        <h4 contenteditable="true">CASES</h4>
+                        <div class="authority-list">
+                            <p contenteditable="true">Marbury v. Madison, 5 U.S. 137 (1803)</p>
+                            <p contenteditable="true">Knox v. Lee, 79 U.S. 457 (1871)</p>
+                            <p contenteditable="true">Ex parte Young, 209 U.S. 123 (1908)</p>
+                            <p contenteditable="true">Erie R.R. Co. v. Tompkins, 304 U.S. 64 (1938)</p>
+                            <p contenteditable="true">Guaranty Trust Co. v. York, 326 U.S. 99 (1945)</p>
+                            <p contenteditable="true">Banco Nacional de Cuba v. Sabbatino, 376 U.S. 398 (1964)</p>
+                        </div>
+                    </div>
+
+                    <div class="authority-category">
+                        <h4 contenteditable="true">RULES</h4>
+                        <div class="authority-list">
+                            <p contenteditable="true">Fed. R. Civ. P. 60(b)</p>
+                            <p contenteditable="true">Fed. R. Civ. P. 11</p>
+                        </div>
+                    </div>
+
+                    <div class="authority-category">
+                        <h4 contenteditable="true">CONGRESSIONAL RECORDS</h4>
+                        <div class="authority-list">
+                            <p contenteditable="true">H.R. Rep. No. 308, 78th Cong., 1st Sess. (1943)</p>
+                            <p contenteditable="true">S. Rep. No. 1049, 89th Cong., 2d Sess. (1966)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+                
+                <!-- Statement of Claim -->
+                <div class="section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    
+                    <div class="section-title" contenteditable="true">STATEMENT OF CLAIM</div>
+                    <p contenteditable="true">1. THIS COURT HAS JURISDICTION UNDER 28 U.S.C. § 1331 AND 28 U.S.C. § 1343.</p>
+                    <p contenteditable="true">2. VENUE IS PROPER IN THIS DISTRICT UNDER 28 U.S.C. § 1391.</p>
+                    <p contenteditable="true">3. THIS PETITION CHALLENGES THE APPLICATION OF FOREIGN LAW IN VIOLATION OF U.S. CONST. ART. VI, CL. 2.</p>
+                    <p contenteditable="true">4. PETITIONER DEMANDS ACCESS TO CRIS ACCOUNT ESTABLISHED FOR THIS CASE.</p>
+                    <p contenteditable="true">5. PETITIONER SEEKS TERMINATION OF INEFFECTIVE COUNSEL.</p>
+                    <p contenteditable="true">6. NOTIFICATION TO SOLICITOR GENERAL IS REQUIRED UNDER 28 U.S.C. § 2403.</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    
+                    <p contenteditable="true"><strong>TO THE HONORABLE COURT:</strong></p>
+                    <p contenteditable="true">COMES NOW THE UNDERSIGNED, AS THE ACCUSED AND BENEFICIAL OWNER OF THE CRIS ACCOUNT ESTABLISHED FOR THIS CASE, AND PETITIONS THIS COURT UNDER Rule 60(b) FOR RELIEF FROM VOID JUDGMENT BASED ON APPLICATION OF FOREIGN LAW, CONSTITUTIONAL VIOLATIONS, AND JURISDICTIONAL DEFECTS AS FOLLOWS:</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    
+                    <div class="section-title" contenteditable="true">I. FACTUAL BACKGROUND</div>
+                    <p contenteditable="true">1. The judgment in this matter was rendered through application of statutes and procedures that violate the Constitution of the United States.</p>
+                    <p contenteditable="true">2. No proper jurisdiction was established over the underlying matter.</p>
+                    <p contenteditable="true">3. Constitutional rights were violated through denial of due process.</p>
+                    <p contenteditable="true">4. Foreign law was applied in contravention of the Supremacy Clause.</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    
+                    <div class="section-title" contenteditable="true">II. CONSTITUTIONAL VIOLATIONS</div>
+                    
+                    <div class="subsection-title" contenteditable="true">A. Supremacy Clause Violation</div>
+                    <p contenteditable="true">The application of any law contrary to the Constitution violates Article VI, Clause 2. As established in <span class="case-ref">Marbury v. Madison</span>, 5 U.S. 137, 177 (1803), any law repugnant to the Constitution is void.</p>
+                    
+                    <div class="subsection-title" contenteditable="true">B. Due Process Violation</div>
+                    <p contenteditable="true">The proceedings violated the Fifth and Fourteenth Amendment guarantees of due process. No proper notice was provided, and the accused was denied fundamental procedural protections.</p>
+                    
+                    <div class="subsection-title" contenteditable="true">C. Jurisdictional Defects</div>
+                    <p contenteditable="true">The court lacked subject matter jurisdiction over the underlying claims. Jurisdiction cannot be conferred by consent where it does not exist by law.</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    
+                    <div class="section-title" contenteditable="true">III. CRIS ACCOUNT ACCESS DEMAND</div>
+                    <p contenteditable="true">Pursuant to the Court Registry Investment System, Petitioner demands immediate access to all accounts, interest calculations, and related documentation for Case No. [CASE NUMBER].</p>
+                    
+                    <div class="quote" contenteditable="true">
+                        "The beneficial owner of any CRIS account has the absolute right to access all related financial information and documentation."
+                    </div>
+                    
+                    <p contenteditable="true">This demand is made under the authority of <span class="statutory-ref">48 Stat. 1064 (June 18, 1934)</span> and related Congressional enactments establishing the court registry system.</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    
+                    <div class="section-title" contenteditable="true">IV. TERMINATION OF COUNSEL</div>
+                    <p contenteditable="true">Petitioner hereby terminates all counsel of record for ineffective assistance and failure to raise constitutional defenses. This termination is effective immediately upon filing of this petition.</p>
+                    
+                    <p contenteditable="true">Grounds for termination include:</p>
+                    <div class="indent" contenteditable="true">
+                        <p contenteditable="true">1. Failure to challenge subject matter jurisdiction</p>
+                        <p contenteditable="true">2. Failure to raise constitutional defenses</p>
+                        <p contenteditable="true">3. Failure to demand CRIS account access</p>
+                        <p contenteditable="true">4. Failure to notify Solicitor General of constitutional challenges</p>
+                    </div>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    
+                    <div class="section-title" contenteditable="true">V. SOLICITOR GENERAL NOTIFICATION</div>
+                    <p contenteditable="true">Pursuant to <span class="statutory-ref">28 U.S.C. § 2403</span>, the Solicitor General must be notified of this constitutional challenge. This petition challenges the constitutionality of federal statutes and their application.</p>
+                    
+                    <p contenteditable="true">The constitutional challenges raised herein include:</p>
+                    <div class="indent" contenteditable="true">
+                        <p contenteditable="true">1. Supremacy Clause violations under Article VI</p>
+                        <p contenteditable="true">2. Due Process violations under Amendments V and XIV</p>
+                        <p contenteditable="true">3. Jurisdictional violations under Article III</p>
+                        <p contenteditable="true">4. First Amendment petition right violations</p>
+                    </div>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    
+                    <div class="section-title" contenteditable="true">VI. PRAYER FOR RELIEF</div>
+                    <p contenteditable="true">WHEREFORE, Petitioner respectfully requests this Court:</p>
+                    
+                    <div class="indent" contenteditable="true">
+                        <p contenteditable="true">A. GRANT relief from void judgment under Rule 60(b);</p>
+                        <p contenteditable="true">B. DECLARE the application of foreign law unconstitutional;</p>
+                        <p contenteditable="true">C. ORDER immediate access to all CRIS account information;</p>
+                        <p contenteditable="true">D. APPROVE termination of ineffective counsel;</p>
+                        <p contenteditable="true">E. NOTIFY the Solicitor General pursuant to 28 U.S.C. § 2403;</p>
+                        <p contenteditable="true">F. GRANT such other relief as the Court deems just and proper.</p>
+                    </div>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+                
+                <div class="signature-section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    <p contenteditable="true">RESPECTFULLY PRESENTED,</p>
+                    <br contenteditable="true">
+                    <div class="electronic-signature">
+                        <p><span contenteditable="true">ELECTRONIC SIGNATURE:</span> <span contenteditable="true">/s/ [YOUR NAME]</span></p>
+                        <p><span contenteditable="true">Date:</span> <span contenteditable="true" id="currentDate"></span></p>
+                    </div>
+                    <br contenteditable="true">
+                    <p contenteditable="true">[YOUR NAME], Pro Se<br>
+                    [STREET ADDRESS]<br>
+                    [CITY, STATE ZIP]</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+            </div>
+            
+            <!-- CRIS Challenge Document -->
+            <div id="cris-content" class="document-content">
+                <div class="document-id" contenteditable="true">Document ID: <span id="cris-doc-id">CRIS-CONST-001-2025</span></div>
+                
+                <div class="document-header">
+                    <div class="caption">
+                        <div contenteditable="true">IN THE UNITED STATES DISTRICT COURT</div>
+                        <div contenteditable="true">FOR THE SOUTHERN DISTRICT OF TEXAS</div>
+                    </div>
+
+                    <div class="case-info">
+                        <div contenteditable="true">Case No.: 4:25-cv-00001</div>
+                        <div contenteditable="true">JUDGE: HONORABLE [JUDGE NAME]</div>
+                        <div contenteditable="true">[PETITIONER NAME],</div>
+                        <div contenteditable="true">Petitioner,</div>
+                        <div contenteditable="true">v.</div>
+                        <div contenteditable="true">CLERK OF COURT, et al.,</div>
+                        <div contenteditable="true">Respondent.</div>
+                    </div>
+
+                    <div class="title">
+                        <div contenteditable="true">PETITION PRESENTMENT TO ENFORCE GENERAL ORDER 2016-3; COURT REGISTRY INTEREST SYSTEM (CRIS) FUND; OBJECTION TO FILING FEES AS UNCONSTITUTIONAL BARRIER TO JUDICIAL ACCESS; FIRST AMENDMENT CHALLENGE</div>
+                    </div>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <!-- Table of Authorities -->
+                <div class="table-of-authorities">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    <h3 contenteditable="true" style="text-align: center; font-weight: bold; text-decoration: underline; margin-bottom: 20px;">TABLE OF AUTHORITIES</h3>
+                    
+                    <div class="authority-category">
+                        <h4 contenteditable="true">CONSTITUTIONAL PROVISIONS</h4>
+                        <div class="authority-list">
+                            <p contenteditable="true">U.S. Const. amend. I</p>
+                            <p contenteditable="true">U.S. Const. amend. V</p>
+                            <p contenteditable="true">U.S. Const. amend. XIV</p>
+                        </div>
+                    </div>
+
+                    <div class="authority-category">
+                        <h4 contenteditable="true">STATUTES</h4>
+                        <div class="authority-list">
+                            <p contenteditable="true">28 U.S.C. § 1914</p>
+                            <p contenteditable="true">28 U.S.C. § 1915</p>
+                            <p contenteditable="true">48 Stat. 1064 (June 18, 1934)</p>
+                        </div>
+                    </div>
+
+                    <div class="authority-category">
+                        <h4 contenteditable="true">CASES</h4>
+                        <div class="authority-list">
+                            <p contenteditable="true">Boddie v. Connecticut, 401 U.S. 371 (1971)</p>
+                            <p contenteditable="true">United Mine Workers v. Ill. State Bar Ass'n, 389 U.S. 217 (1967)</p>
+                        </div>
+                    </div>
+
+                    <div class="authority-category">
+                        <h4 contenteditable="true">COURT ORDERS</h4>
+                        <div class="authority-list">
+                            <p contenteditable="true">General Order 2016-3 (S.D. Tex.)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    <p contenteditable="true"><strong>TO THE HONORABLE COURT:</strong></p>
+                    <p contenteditable="true">Comes now Petitioner, [PETITIONER NAME], as officer of the court and fiduciary litigant, and moves this Court for immediate enforcement of all registry fiduciary and constitutional obligations as follows:</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    
+                    <div class="section-title" contenteditable="true">I. JURISDICTION AND VENUE</div>
+                    <p contenteditable="true">1. This Court has original jurisdiction under 28 U.S.C. § 1331 (federal question).</p>
+                    <p contenteditable="true">2. This action arises under the Constitution and laws of the United States.</p>
+                    <p contenteditable="true">3. Venue is proper under 28 U.S.C. § 1391(b).</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    
+                    <div class="section-title" contenteditable="true">II. FACTUAL BACKGROUND</div>
+                    <p contenteditable="true">1. This Court maintains Court Registry Investment System (CRIS) accounts for litigants.</p>
+                    <p contenteditable="true">2. General Order 2016-3 establishes procedures for CRIS account management.</p>
+                    <p contenteditable="true">3. Filing fees create unconstitutional barriers to judicial access.</p>
+                    <p contenteditable="true">4. Petitioner seeks enforcement of fiduciary obligations and constitutional rights.</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    
+                    <div class="section-title" contenteditable="true">III. CONSTITUTIONAL VIOLATIONS</div>
+                    
+                    <div class="subsection-title" contenteditable="true">A. First Amendment - Right to Petition</div>
+                    <p contenteditable="true">Filing fees violate the First Amendment right to petition for redress of grievances. <span class="case-ref">United Mine Workers v. Illinois State Bar Ass'n</span>, 389 U.S. 217, 222 (1967).</p>
+                    
+                    <div class="subsection-title" contenteditable="true">B. Due Process Violations</div>
+                    <p contenteditable="true">Requiring fees for court access violates due process under the Fifth and Fourteenth Amendments. <span class="case-ref">Boddie v. Connecticut</span>, 401 U.S. 371, 377 (1971).</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    
+                    <div class="section-title" contenteditable="true">IV. PRAYER FOR RELIEF</div>
+                    <p contenteditable="true">WHEREFORE, Petitioner respectfully requests this Court:</p>
+                    
+                    <div class="indent" contenteditable="true">
+                        <p contenteditable="true">A. ENFORCE General Order 2016-3 and all CRIS obligations;</p>
+                        <p contenteditable="true">B. DECLARE filing fees unconstitutional as applied;</p>
+                        <p contenteditable="true">C. ORDER immediate access to CRIS account information;</p>
+                        <p contenteditable="true">D. GRANT injunctive relief protecting First Amendment rights;</p>
+                        <p contenteditable="true">E. AWARD such other relief as the Court deems just and proper.</p>
+                    </div>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="signature-section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    <p contenteditable="true">Respectfully Presented,</p>
+                    <br contenteditable="true">
+                    <div class="electronic-signature">
+                        <p><span contenteditable="true">ELECTRONIC SIGNATURE:</span> <span contenteditable="true">/s/ [YOUR NAME]</span></p>
+                        <p><span contenteditable="true">Date:</span> <span contenteditable="true" class="currentDate">July 4, 2025</span></p>
+                    </div>
+                    <br contenteditable="true">
+                    <p contenteditable="true">[YOUR NAME],<br>
+                    COUNSEL for Petitioner<br>
+                    [STREET ADDRESS]<br>
+                    [CITY, STATE ZIP]</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+            </div>
+
+            <!-- Mandamus Document -->
+            <div id="mandamus-content" class="document-content">
+                <div class="document-id" contenteditable="true">Document ID: <span id="mandamus-doc-id">WOM-CONST-2025-003</span></div>
+                
+                <div class="document-header">
+                    <div class="caption">
+                        <div contenteditable="true">IN THE SUPREME COURT OF THE UNITED STATES</div>
+                    </div>
+
+                    <div class="case-info">
+                        <div contenteditable="true">[PETITIONER NAME], PETITIONER</div>
+                        <div contenteditable="true">v.</div>
+                        <div contenteditable="true">[RESPONDENT NAME], RESPONDENT</div>
+                        <br>
+                        <div contenteditable="true">Case No: [CASE NUMBER]</div>
+                    </div>
+
+                    <div class="title">
+                        <div contenteditable="true">PETITION PRESENTMENT FOR WRIT OF MANDAMUS; CONSTITUTIONAL CHALLENGE TO FOREIGN LAW APPLICATION</div>
+                    </div>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    
+                    <p contenteditable="true"><strong>TO THE HONORABLE COURT:</strong></p>
+                    <p contenteditable="true">COMES NOW THE UNDERSIGNED, AS ONE OF THE POSTERITY REFERENCED IN THE CONSTITUTION'S PREAMBLE, AND RESPECTFULLY PETITIONS THIS COURT FOR A WRIT OF MANDAMUS TO COMPEL COMPLIANCE WITH CONSTITUTIONAL REQUIREMENTS THAT HAVE <strong>NEVER BEEN ADDRESSED</strong> AT ANY JUDICIAL LEVEL.</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="signature-section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    <p contenteditable="true">RESPECTFULLY PRESENTED,</p>
+                    <br contenteditable="true">
+                    <div class="electronic-signature">
+                        <p><span contenteditable="true">ELECTRONIC SIGNATURE:</span> <span contenteditable="true">/s/ [YOUR NAME]</span></p>
+                        <p><span contenteditable="true">Date:</span> <span contenteditable="true" class="currentDate"></span></p>
+                    </div>
+                    <br contenteditable="true">
+                    <p contenteditable="true">[YOUR NAME], Pro Se<br>
+                    [ADDRESS]</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+            </div>
+
+            <!-- Certiorari Document -->
+            <div id="certiorari-content" class="document-content">
+                <div class="document-id" contenteditable="true">Document ID: <span id="certiorari-doc-id">WOC-CONST-2025-004</span></div>
+                
+                <div class="document-header">
+                    <div class="caption">
+                        <div contenteditable="true">IN THE SUPREME COURT OF THE UNITED STATES</div>
+                    </div>
+
+                    <div class="case-info">
+                        <div contenteditable="true">[PETITIONER NAME], PETITIONER</div>
+                        <div contenteditable="true">v.</div>
+                        <div contenteditable="true">[RESPONDENT NAME], RESPONDENT</div>
+                        <br>
+                        <div contenteditable="true">Case No: [CASE NUMBER]</div>
+                    </div>
+
+                    <div class="title">
+                        <div contenteditable="true">PETITION PRESENTMENT FOR WRIT OF CERTIORARI</div>
+                    </div>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    
+                    <p contenteditable="true"><strong>TO THE HONORABLE COURT:</strong></p>
+                    <p contenteditable="true">Petitioner respectfully prays that a writ of certiorari issue to review the judgment of the [LOWER COURT].</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="signature-section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    <p contenteditable="true">RESPECTFULLY PRESENTED,</p>
+                    <br contenteditable="true">
+                    <div class="electronic-signature">
+                        <p><span contenteditable="true">ELECTRONIC SIGNATURE:</span> <span contenteditable="true">/s/ [YOUR NAME]</span></p>
+                        <p><span contenteditable="true">Date:</span> <span contenteditable="true" class="currentDate"></span></p>
+                    </div>
+                    <br contenteditable="true">
+                    <p contenteditable="true">[YOUR NAME], Pro Se<br>
+                    [ADDRESS]</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+            </div>
+
+            <!-- Habeas Corpus Document -->
+            <div id="habeas-content" class="document-content">
+                <div class="document-id" contenteditable="true">Document ID: <span id="habeas-doc-id">HC-CONST-2025-005</span></div>
+                
+                <div class="document-header">
+                    <div class="caption">
+                        <div contenteditable="true">IN THE [INSERT COURT]</div>
+                        <div contenteditable="true">[INSERT JURISDICTION]</div>
+                    </div>
+
+                    <div class="case-info">
+                        <div contenteditable="true">[PETITIONER NAME], PETITIONER</div>
+                        <div contenteditable="true">v.</div>
+                        <div contenteditable="true">[RESPONDENT NAME], RESPONDENT</div>
+                        <br>
+                        <div contenteditable="true">Case No: [CASE NUMBER]</div>
+                    </div>
+
+                    <div class="title">
+                        <div contenteditable="true">PETITION PRESENTMENT FOR WRIT OF HABEAS CORPUS</div>
+                    </div>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    <p contenteditable="true"><strong>TO THE HONORABLE COURT:</strong></p>
+                    <p contenteditable="true">Petitioner respectfully petitions this Court for a writ of habeas corpus alleging that their detention violates the Constitution.</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="signature-section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    <p contenteditable="true">RESPECTFULLY PRESENTED,</p>
+                    <br contenteditable="true">
+                    <div class="electronic-signature">
+                        <p><span contenteditable="true">ELECTRONIC SIGNATURE:</span> <span contenteditable="true">/s/ [YOUR NAME]</span></p>
+                        <p><span contenteditable="true">Date:</span> <span contenteditable="true" class="currentDate"></span></p>
+                    </div>
+                    <br contenteditable="true">
+                    <p contenteditable="true">[YOUR NAME], Pro Se<br>
+                    [ADDRESS]</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+            </div>
+
+            <!-- Standing Declaration Document -->
+            <div id="standing-content" class="document-content">
+                <div class="document-id" contenteditable="true">Document ID: <span id="standing-doc-id">STAND-2025-006</span></div>
+                
+                <div class="document-header">
+                    <div class="title">
+                        <div contenteditable="true">DECLARATION OF SELF-AUTONOMY AND STANDING</div>
+                    </div>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    <p contenteditable="true">I, <strong>[YOUR FULL NAME]</strong>, a living individual and member of the Posterity referenced in the Constitution's Preamble, hereby make this Declaration of Self-Autonomy and Standing.</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="signature-section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    <p contenteditable="true">Executed this <span contenteditable="true">[DAY]</span> day of <span contenteditable="true">[MONTH]</span>, <span contenteditable="true">[YEAR]</span>.</p>
+                    <br contenteditable="true">
+                    <div class="electronic-signature">
+                        <p><span contenteditable="true">ELECTRONIC SIGNATURE:</span> <span contenteditable="true">/s/ [YOUR FULL NAME]</span></p>
+                    </div>
+                    <br contenteditable="true">
+                    <p contenteditable="true">[YOUR FULL NAME], Sui Juris</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+            </div>
+
+            <!-- Pre-Warrant Hearing Challenge Document -->
+            <div id="warrant-content" class="document-content">
+                <div class="document-id" contenteditable="true">DOCUMENT ID: <span id="warrant-doc-id">PWHR-2025-096</span></div>
+                
+                <div class="document-header">
+                    <div class="caption">
+                        <div contenteditable="true">IN THE [INSERT COURT]</div>
+                        <div contenteditable="true">[INSERT JURISDICTION]</div>
+                    </div>
+
+                    <div class="case-info">
+                        <div contenteditable="true">[PETITIONER NAME], PETITIONER</div>
+                        <div contenteditable="true">V.</div>
+                        <div contenteditable="true">[RESPONDENT NAME], RESPONDENT</div>
+                        <br>
+                        <div contenteditable="true">CASE NO: [CASE NUMBER]</div>
+                    </div>
+
+                    <div class="title">
+                        <div contenteditable="true">PETITION PRESENTMENT FOR DECLARATORY RELIEF IN THE FORM OF AN AFFIDAVIT AS A CONSTITUTIONAL CHALLENGE TO WAIVER OF PRE-WARRANT HEARING</div>
+                    </div>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    
+                    <p contenteditable="true"><strong>TO THE HONORABLE COURT:</strong></p>
+                    <p contenteditable="true">COMES NOW THE UNDERSIGNED, CHALLENGING THE SYSTEMATIC PRACTICE OF ISSUING WARRANTS WITHOUT ADVERSARIAL HEARINGS.</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="signature-section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    <p contenteditable="true">RESPECTFULLY PRESENTED,</p>
+                    <br contenteditable="true">
+                    <div class="electronic-signature">
+                        <p><span contenteditable="true">ELECTRONIC SIGNATURE:</span> <span contenteditable="true">/s/ [YOUR NAME]</span></p>
+                        <p><span contenteditable="true">DATE:</span> <span contenteditable="true" class="currentDate">JULY 7, 2025</span></p>
+                    </div>
+                    <br contenteditable="true">
+                    <p contenteditable="true">[YOUR NAME], Sui Juris, In My Proper Person<br>
+                    [ADDRESS]</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+            </div>
+
+            <!-- Civil Rights Document -->
+            <div id="civil-content" class="document-content">
+                <div class="document-id" contenteditable="true">Document ID: <span id="civil-doc-id">CR-2025-008</span></div>
+                
+                <div class="document-header">
+                    <div class="caption">
+                        <div contenteditable="true">IN THE [INSERT COURT]</div>
+                        <div contenteditable="true">[INSERT JURISDICTION]</div>
+                    </div>
+
+                    <div class="case-info">
+                        <div contenteditable="true">[PLAINTIFF NAME], PLAINTIFF</div>
+                        <div contenteditable="true">v.</div>
+                        <div contenteditable="true">[DEFENDANT NAME], DEFENDANT</div>
+                        <br>
+                        <div contenteditable="true">Case No: [CASE NUMBER]</div>
+                    </div>
+
+                    <div class="title">
+                        <div contenteditable="true">CIVIL RIGHTS COMPLAINT</div>
+                    </div>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    <p contenteditable="true"><strong>TO THE HONORABLE COURT:</strong></p>
+                    <p contenteditable="true">This action is brought for violations of Plaintiff's rights secured by the Constitution and laws of the United States.</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="signature-section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    <p contenteditable="true">RESPECTFULLY PRESENTED,</p>
+                    <br contenteditable="true">
+                    <div class="electronic-signature">
+                        <p><span contenteditable="true">ELECTRONIC SIGNATURE:</span> <span contenteditable="true">/s/ [YOUR NAME]</span></p>
+                        <p><span contenteditable="true">Date:</span> <span contenteditable="true" class="currentDate"></span></p>
+                    </div>
+                    <br contenteditable="true">
+                    <p contenteditable="true">[YOUR NAME], Pro Se<br>
+                    [ADDRESS]</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+            </div>
+
+            <!-- Constitutional Challenge Document -->
+            <div id="constitutional-content" class="document-content">
+                <div class="document-id" contenteditable="true">Document ID: <span id="constitutional-doc-id">CONST-2025-009</span></div>
+                
+                <div class="document-header">
+                    <div class="caption">
+                        <div contenteditable="true">IN THE [INSERT COURT]</div>
+                        <div contenteditable="true">[INSERT JURISDICTION]</div>
+                    </div>
+
+                    <div class="case-info">
+                        <div contenteditable="true">[PETITIONER NAME], PETITIONER</div>
+                        <div contenteditable="true">v.</div>
+                        <div contenteditable="true">[RESPONDENT NAME], RESPONDENT</div>
+                        <br>
+                        <div contenteditable="true">Case No: [CASE NUMBER]</div>
+                    </div>
+
+                    <div class="title">
+                        <div contenteditable="true">CONSTITUTIONAL CHALLENGE TO UNCONSTITUTIONAL APPLICATION OF FOREIGN LAW</div>
+                    </div>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    <p contenteditable="true"><strong>TO THE HONORABLE COURT:</strong></p>
+                    <p contenteditable="true">Comes now the undersigned, challenging the systematic application of foreign law in violation of constitutional principles.</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="signature-section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    <p contenteditable="true">RESPECTFULLY PRESENTED,</p>
+                    <br contenteditable="true">
+                    <div class="electronic-signature">
+                        <p><span contenteditable="true">ELECTRONIC SIGNATURE:</span> <span contenteditable="true">/s/ [YOUR NAME]</span></p>
+                        <p><span contenteditable="true">Date:</span> <span contenteditable="true" class="currentDate"></span></p>
+                    </div>
+                    <br contenteditable="true">
+                    <p contenteditable="true">[YOUR NAME], Pro Se<br>
+                    [ADDRESS]</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+            </div>
+
+            <!-- Federal Question Document -->
+            <div id="federal-content" class="document-content">
+                <div class="document-id" contenteditable="true">Document ID: <span id="federal-doc-id">FQ-2025-010</span></div>
+                
+                <div class="document-header">
+                    <div class="caption">
+                        <div contenteditable="true">IN THE [INSERT COURT]</div>
+                        <div contenteditable="true">[INSERT JURISDICTION]</div>
+                    </div>
+
+                    <div class="case-info">
+                        <div contenteditable="true">[PLAINTIFF NAME], PLAINTIFF</div>
+                        <div contenteditable="true">v.</div>
+                        <div contenteditable="true">[DEFENDANT NAME], DEFENDANT</div>
+                        <br>
+                        <div contenteditable="true">Case No: [CASE NUMBER]</div>
+                    </div>
+
+                    <div class="title">
+                        <div contenteditable="true">FEDERAL QUESTION COMPLAINT</div>
+                    </div>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    <p contenteditable="true"><strong>TO THE HONORABLE COURT:</strong></p>
+                    <p contenteditable="true">This action arises under the Constitution and laws of the United States.</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="signature-section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    <p contenteditable="true">RESPECTFULLY PRESENTED,</p>
+                    <br contenteditable="true">
+                    <div class="electronic-signature">
+                        <p><span contenteditable="true">ELECTRONIC SIGNATURE:</span> <span contenteditable="true">/s/ [YOUR NAME]</span></p>
+                        <p><span contenteditable="true">Date:</span> <span contenteditable="true" class="currentDate"></span></p>
+                    </div>
+                    <br contenteditable="true">
+                    <p contenteditable="true">[YOUR NAME], Pro Se<br>
+                    [ADDRESS]</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+            </div>
+
+            <!-- Arbitration Document -->
+            <div id="arbitration-content" class="document-content">
+                <div class="document-id" contenteditable="true">Document ID: <span id="arbitration-doc-id">ARB-2025-011</span></div>
+                
+                <div class="document-header">
+                    <div class="caption">
+                        <div contenteditable="true">IN THE [INSERT COURT]</div>
+                        <div contenteditable="true">[INSERT JURISDICTION]</div>
+                    </div>
+
+                    <div class="case-info">
+                        <div contenteditable="true">[PETITIONER NAME], PETITIONER</div>
+                        <div contenteditable="true">v.</div>
+                        <div contenteditable="true">[RESPONDENT NAME], RESPONDENT</div>
+                        <br>
+                        <div contenteditable="true">Case No: [CASE NUMBER]</div>
+                    </div>
+
+                    <div class="title">
+                        <div contenteditable="true">PETITION PRESENTMENT TO COMPEL ARBITRATION</div>
+                    </div>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    <p contenteditable="true"><strong>TO THE HONORABLE COURT:</strong></p>
+                    <p contenteditable="true">Petitioner respectfully moves this Court to compel arbitration pursuant to Acts of Congress.</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+
+                <div class="signature-section">
+                    <div class="section-controls">
+                        <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                        <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                        <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                    </div>
+                    <p contenteditable="true">RESPECTFULLY PRESENTED,</p>
+                    <br contenteditable="true">
+                    <div class="electronic-signature">
+                        <p><span contenteditable="true">ELECTRONIC SIGNATURE:</span> <span contenteditable="true">/s/ [YOUR NAME]</span></p>
+                        <p><span contenteditable="true">Date:</span> <span contenteditable="true" class="currentDate"></span></p>
+                    </div>
+                    <br contenteditable="true">
+                    <p contenteditable="true">[YOUR NAME], Pro Se<br>
+                    [ADDRESS]</p>
+                </div>
+
+                <button class="add-section-button" onclick="addSectionAfter(this)">+ ADD SECTION AFTER THIS</button>
+            </div>
+
+            <!-- Legal Templates Document -->
+            <div id="templates-content" class="document-content">
+                <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; margin-bottom: 20px;">
+                    <h2 style="color: #667eea; margin-bottom: 20px; text-align: center;">📄 LEGAL TEMPLATES GENERATOR</h2>
+                    <p style="text-align: center; color: #666; margin-bottom: 30px;">Professional bankruptcy and legal document templates with automatic field completion</p>
+                    
+                    <!-- Form Panel -->
+                    <div style="background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <h3 style="margin-bottom: 20px; color: #2d3748;">Document Information</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                            <div class="form-group">
+                                <label class="form-label">Your Name</label>
+                                <input type="text" id="templateYourName" class="form-input" placeholder="Enter your full name">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">City</label>
+                                <input type="text" id="templateCity" class="form-input" placeholder="City">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">State</label>
+                                <input type="text" id="templateState" class="form-input" placeholder="State">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">District</label>
+                                <input type="text" id="templateDistrict" class="form-input" placeholder="District Name">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Case Number</label>
+                                <input type="text" id="templateCaseNo" class="form-input" placeholder="Case Number">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Date</label>
+                                <input type="date" id="templateDate" class="form-input">
+                            </div>
+                        </div>
+                        <div id="templateSpecificFields"></div>
+                    </div>
+
+                    <!-- Template Selection Grid -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                        <div class="template-card" onclick="generateLegalTemplate('declaration')">
+                            <h3>⚖️ Declaration of Non-Consent</h3>
+                            <p>Challenge constitutional rights waiver and notify Solicitor General</p>
+                        </div>
+                        
+                        <div class="template-card" onclick="generateLegalTemplate('reservation')">
+                            <h3>📋 Reservation & Withdrawal</h3>
+                            <p>Affidavit of exempt property reservation and PETITION PRESENTMENT for withdrawal</p>
+                        </div>
+                        
+                        <div class="template-card" onclick="generateLegalTemplate('adversary')">
+                            <h3>⚡ Adversary Complaint</h3>
+                            <p>Challenge voluntary petition requirements with full citations</p>
+                        </div>
+                        
+                        <div class="template-card" onclick="generateLegalTemplate('dismissal')">
+                            <h3>📝 Voluntary PETITION PRESENTMENT to Dismiss</h3>
+                            <p>PETITION PRESENTMENT to dismiss Chapter 11 proceeding preserving constitutional rights</p>
+                        </div>
+                        
+                        <div class="template-card" onclick="generateLegalTemplate('creditor')">
+                            <h3>🎯 Creditor Challenge</h3>
+                            <p>Challenge creditor claims, negotiable instrument foreclosure, demand offset</p>
+                        </div>
+                        
+                        <div class="template-card" onclick="generateLegalTemplate('voluntary')">
+                            <h3>🚫 Voluntary Filing Challenge</h3>
+                            <p>Object to voluntary bankruptcy filing and 13th Amendment violation</p>
+                        </div>
+                    </div>
+
+                    <!-- Generated Document Display -->
+                    <div id="generatedDocument" style="display: none; background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #e9ecef;">
+                            <h3 style="color: #2d3748; margin: 0;">Generated Document</h3>
+                            <div style="display: flex; gap: 10px;">
+                                <button onclick="saveTemplateDocument()" class="toolbar-button">💾 Save</button>
+                                <button onclick="printTemplateDocument()" class="toolbar-button">🖨️ Print</button>
+                                <button onclick="exportTemplateHTML()" class="toolbar-button">📄 Export HTML</button>
+                                <button onclick="clearGeneratedDocument()" class="toolbar-button" style="background: #dc3545;">✗ Clear</button>
+                            </div>
+                        </div>
+                        <div id="documentDisplay" style="font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 2.0; color: black; background: white; padding: 20px; border: 1px solid #e9ecef; border-radius: 4px; min-height: 400px;">
+                            <!-- Generated document content will appear here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modals -->
+    <div id="image-modal" class="modal">
+        <div class="modal-content">
+            <h2>Insert Image</h2>
+            <div class="form-group">
+                <label class="form-label">Upload Image:</label>
+                <input type="file" id="imageUpload" class="form-input" accept="image/*" onchange="previewImage()">
+            </div>
+            <button onclick="insertImageIntoDocument()" class="toolbar-button">Insert Image</button>
+            <button onclick="closeModal('image-modal')" class="toolbar-button">Cancel</button>
+        </div>
+    </div>
+    
+    <div id="code-modal" class="modal">
+        <div class="modal-content" style="max-width: 90%; max-height: 90%;">
+            <h2>Document HTML Code Editor</h2>
+            <textarea id="codeEditor" style="width: 100%; height: 400px; font-family: monospace; font-size: 12px;"></textarea>
+            <br><br>
+            <button onclick="applyCodeChanges()" class="toolbar-button">Apply Changes</button>
+            <button onclick="closeModal('code-modal')" class="toolbar-button">Cancel</button>
+        </div>
+    </div>
+    
+    <div id="updated-code-modal" class="modal">
+        <div class="modal-content" style="max-width: 95%; max-height: 90%;">
+            <h2>📋 Complete Updated HTML Source Code</h2>
+            <p style="margin-bottom: 20px; color: #666;">This is your complete HTML file with all current changes. Copy this to replace your original file.</p>
+            <textarea id="updatedCodeViewer" style="width: 100%; height: 500px; font-family: monospace; font-size: 11px; white-space: nowrap;" readonly></textarea>
+            <br><br>
+            <button onclick="copyUpdatedCode()" class="toolbar-button">📋 Copy to Clipboard</button>
+            <button onclick="downloadUpdatedCode()" class="toolbar-button">💾 Download HTML</button>
+            <button onclick="closeModal('updated-code-modal')" class="toolbar-button">Close</button>
+        </div>
+    </div>
+    
+    <script>
+        // Application state management
+        let currentDocument = 'rule60b';
+        let editHistory = [];
+        let historyIndex = -1;
+        let maxHistorySize = 20;
+        let autoSaveInterval;
+        let realTimeEditMode = true;
+        let currentTextCase = 'normal';
+        let editMode = true;
+        
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Initializing Constitutional Challenge Creator...');
+            loadFromLocalStorage();
+            generateDocumentIds();
+            initializeDates();
+            saveToHistory();
+            setupAutoSave();
+            setupEventListeners();
+            updateAutoSaveIndicator();
+            showNotification('Constitutional Challenge Creator Ready');
+            
+            // Initialize template date field
+            const templateDate = document.getElementById('templateDate');
+            if (templateDate) {
+                const today = new Date().toISOString().split('T')[0];
+                templateDate.value = today;
+            }
+        });
+        
+        // Font Size Control Functions
+        function changeFontSize(change) {
+            const input = document.getElementById('fontSizeInput');
+            let currentSize = parseInt(input.value);
+            currentSize += change;
+            if (currentSize >= 8 && currentSize <= 72) {
+                input.value = currentSize;
+                setFontSize(currentSize);
+            }
+        }
+        
+        function setFontSize(size) {
+            const activeDoc = document.querySelector('.document-content.active');
+            if (activeDoc) {
+                activeDoc.style.fontSize = size + 'pt';
+                activeDoc.querySelectorAll('p, div, span').forEach(el => {
+                    if (!el.classList.contains('document-id') && !el.classList.contains('control-button')) {
+                        el.style.fontSize = size + 'pt';
+                    }
+                });
+                showNotification(`Font size set to ${size}pt`);
+                saveToHistory();
+            }
+        }
+
+        // Text Case Control Functions
+        function changeTextCase(caseType) {
+            const activeDoc = document.querySelector('.document-content.active');
+            if (!activeDoc) return;
+
+            activeDoc.classList.remove('caps-mode', 'lower-mode', 'title-mode');
+            
+            switch(caseType) {
+                case 'uppercase':
+                    activeDoc.classList.add('caps-mode');
+                    currentTextCase = 'uppercase';
+                    showNotification('Text set to UPPERCASE');
+                    break;
+                case 'lowercase':
+                    activeDoc.classList.add('lower-mode');
+                    currentTextCase = 'lowercase';
+                    showNotification('Text set to lowercase');
+                    break;
+                case 'capitalize':
+                    activeDoc.classList.add('title-mode');
+                    currentTextCase = 'capitalize';
+                    showNotification('Text set to Title Case');
+                    break;
+                default:
+                    currentTextCase = 'normal';
+                    showNotification('Text case set to Normal');
+                    break;
+            }
+            saveToHistory();
+        }
+        
+        // Document switching functionality
+        function switchDocument(docType) {
+            console.log('Switching to document:', docType);
+            saveToHistory();
+            
+            document.querySelectorAll('.tab-button').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            const tabButton = document.getElementById(docType + '-tab');
+            if (tabButton) {
+                tabButton.classList.add('active');
+            }
+            
+            document.querySelectorAll('.document-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            const targetContent = document.getElementById(docType + '-content');
+            if (targetContent) {
+                targetContent.classList.add('active');
+                currentDocument = docType;
+                showNotification('Switched to ' + getDocumentDisplayName(docType));
+            } else {
+                console.error('Document content not found for:', docType);
+            }
+        }
+        
+        function getDocumentDisplayName(docType) {
+            const names = {
+                'rule60b': 'Rule 60(b) Constitutional Challenge',
+                'cris': 'CRIS Constitutional Challenge',
+                'mandamus': 'Writ of Mandamus',
+                'certiorari': 'Writ of Certiorari',
+                'habeas': 'Habeas Corpus Petition',
+                'standing': 'Declaration of Standing',
+                'warrant': 'Pre-Warrant Hearing Challenge',
+                'civil': 'Civil Rights Challenge',
+                'constitutional': 'Constitutional Challenge',
+                'federal': 'Federal Question Petition',
+                'arbitration': 'Arbitration Enforcement',
+                'templates': 'Legal Templates'
+            };
+            return names[docType] || docType;
+        }
+        
+        // Legal Templates Functions
+        function generateLegalTemplate(templateType) {
+            const formData = {
+                yourName: document.getElementById('templateYourName').value || '[Your Name]',
+                city: document.getElementById('templateCity').value || '[City]',
+                state: document.getElementById('templateState').value || '[State]',
+                district: document.getElementById('templateDistrict').value || '[District Name]',
+                caseNo: document.getElementById('templateCaseNo').value || '[Case Number]',
+                date: document.getElementById('templateDate').value || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+                debtorName: document.getElementById('templateDebtorName')?.value || '[Debtor\'s Name]'
+            };
+
+            let htmlContent = '';
+            
+            switch(templateType) {
+                case 'declaration':
+                    htmlContent = createDeclarationOfNonConsent(formData);
+                    break;
+                case 'reservation':
+                    htmlContent = createReservationAndWithdrawal(formData);
+                    break;
+                case 'adversary':
+                    htmlContent = createAdversaryComplaint(formData);
+                    break;
+                case 'dismissal':
+                    htmlContent = createVoluntaryDismissal(formData);
+                    break;
+                case 'creditor':
+                    htmlContent = createCreditorChallenge(formData);
+                    break;
+                case 'voluntary':
+                    htmlContent = createVoluntaryChallenge(formData);
+                    break;
+                default:
+                    showNotification('Template not found');
+                    return;
+            }
+            
+            document.getElementById('documentDisplay').innerHTML = htmlContent;
+            document.getElementById('generatedDocument').style.display = 'block';
+            showNotification('Document generated successfully!');
+        }
+
+        // Template creation functions - ALL FULLY EDITABLE
+        function createDeclarationOfNonConsent(data) {
+            return `
+                <div style="text-align: center; margin-bottom: 24pt;">
+                    <p contenteditable="true" style="font-weight: bold; margin-bottom: 12pt;">DECLARATION OF NON-CONSENT AND CHALLENGE</p>
+                </div>
+                <p contenteditable="true" style="margin-bottom: 24pt;"><strong>I, ${data.yourName}, do not consent to any statutory or contractual waiver of my constitutional rights.</strong></p>
+                <p contenteditable="true" style="font-weight: bold; margin-bottom: 16pt;">I. FACTS</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;"><strong>1. Bill of Rights Supremacy:</strong><br>The First, Fourth, Fifth, Ninth, and Thirteenth Amendments impose specific restraints on Congressional power, including any bankruptcy enactment, and override any conflicting Article I clause. Marbury v. Madison, 5 U.S. 137, 177 (1803).</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;"><strong>2. Petition Clause Protection:</strong><br>The First Amendment guarantees the unabridged right to petition for redress of grievances, including lawsuits as protected petitions. United Mine Workers v. Ill. State Bar Ass'n, 389 U.S. 217, 222 (1967).</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;"><strong>3. Fourth Amendment 'Effects':</strong><br>The Fourth Amendment secures persons, houses, papers, and effects against unreasonable seizures. Katz v. United States, 389 U.S. 347, 353 (1967).</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;"><strong>4. Fifth Amendment Takings & Due Process:</strong><br>The Fifth Amendment prohibits taking private property for public use without just compensation and deprivation without due process. Lucas v. S.C. Coastal Council, 505 U.S. 1003, 1015 (1992).</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;"><strong>5. Thirteenth Amendment -- No Involuntary Servitude:</strong><br>The Thirteenth Amendment forbids involuntary servitude; conditioning court access on oath-taking constitutes involuntary servitude.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;"><strong>6. Statutes at Large on Form:</strong><br>1 Stat. 91 § 32 (1789) and 1 Stat. 123 § 2 (1790) forbid quashing proceedings for want of form.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;"><strong>7. Statutes at Large on Oaths:</strong><br>13 Stat. 356 § 13 (1864) prohibits compelling any oath without voluntary consent.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;"><strong>8. Bankruptcy Estate Vesting:</strong><br>30 Stat. 544 § 12 (1898) and 92 Stat. 2547 § 541 (1978) vest debtor property in a bankruptcy estate but do not authorize waiver of constitutional rights by mere petition.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;"><strong>9. Penalty-of-Perjury Coercion:</strong><br>18 U.S.C. § 1621 criminalizes false oaths but may not be used to coerce waiver of rights.</p>
+                <p contenteditable="true" style="margin-bottom: 24pt;"><strong>10. Solicitor General Notification:</strong><br>Under 28 U.S.C. § 2403(a), when constitutionality of a federal statute is challenged, the court must notify the Attorney General to intervene.</p>
+                <p contenteditable="true" style="font-weight: bold; margin-bottom: 16pt;">II. CONCLUSIONS OF LAW</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">A. The Bill of Rights amendments override any congressional bankruptcy power that conflicts with constitutional protections. Marbury v. Madison, 5 U.S. at 177.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">B. Conditioning access on a 'voluntary petition' form coerces waiver of First Amendment petition rights and effects an unconstitutional taking under the Fifth Amendment. Ex parte Hull, 312 U.S. 546, 549 (1941).</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">C. Under 1 Stat. 91 § 32 and 1 Stat. 123 § 2, this Court must accept any petition regardless of form and may not infer waiver of rights.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">D. Mandatory vesting of debtor assets without just compensation violates the Takings Clause; process access is not compensation. Lucas v. S.C. Coastal Council, 505 U.S. at 1015.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">E. Requiring oath-taking 'under penalty of perjury' as a filing condition violates 13 Stat. 356 § 13 and constitutes involuntary servitude under the Thirteenth Amendment.</p>
+                <p contenteditable="true" style="margin-bottom: 24pt;">F. This statutory challenge to the Bankruptcy Code triggers 28 U.S.C. § 2403(a), requiring notification of the Solicitor General.</p>
+                <p contenteditable="true" style="font-weight: bold; margin-bottom: 16pt;">III. NON-CONSENT AND ELECTION</p>
+                <p contenteditable="true" style="margin-bottom: 24pt;">I do not consent to any Title 11 'voluntary petition,' official form, or oath under penalty of perjury. I elect to file a pure First Amendment Petition for Redress of Grievances in the District Court, preserving all constitutional rights.</p>
+                <p contenteditable="true" style="margin-top: 48pt;">Executed this ${data.date} at ${data.city}, ${data.state}.</p>
+                <br><br><p contenteditable="true">${data.yourName}<br>Declarant</p><br><br><p contenteditable="true">Respectfully Presented</p>
+            `;
+        }
+
+        function createReservationAndWithdrawal(data) {
+            return `
+                <div style="text-align: center; margin-bottom: 24pt;">
+                    <p contenteditable="true" style="font-weight: bold; margin-bottom: 12pt;">AFFIDAVIT OF RESERVATION OF EXEMPT PROPERTY<br>&<br>PETITION PRESENTMENT FOR WITHDRAWAL OF REFERENCE</p>
+                </div>
+                <p contenteditable="true" style="font-weight: bold; margin-bottom: 16pt;">I. FACTS</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;"><strong>1. Original Jurisdiction:</strong><br>Under U.S. Const. Art. III, § 2, district courts have original jurisdiction of all civil cases arising under federal law.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;"><strong>2. Bankruptcy Jurisdiction Statutes:</strong><br>30 Stat. 544 § 12 (1898) and 92 Stat. 2547 § 541 (1978) vest debtor property in a bankruptcy estate upon petition.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;"><strong>3. Exclusive District Court Jurisdiction:</strong><br>98 Stat. 333 § 101 (1984) amends 28 U.S.C. § 1334 to give district courts original and exclusive jurisdiction of all cases under Title 11.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;"><strong>4. Referral Statute:</strong><br>98 Stat. 358 § 402 (1984) authorizes district court referrals to bankruptcy judges but does not alter Article III original jurisdiction.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;"><strong>5. Due Process Requirement:</strong><br>Fifth Amendment Due Process Clause prohibits deprivation of property or forum rights without notice and a hearing. Mathews v. Eldridge, 424 U.S. 319 (1976).</p>
+                <p contenteditable="true" style="margin-bottom: 24pt;"><strong>6. Exemption Rights as Property:</strong><br>Exemptions under state law constitute property interests protected by the Fifth Amendment. Phillips v. Washington Legal Found., 524 U.S. 156, 164 (1998).</p>
+                <p contenteditable="true" style="font-weight: bold; margin-bottom: 16pt;">II. CONCLUSIONS OF LAW</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">1. The referral of this matter without a hearing violates the Fifth Amendment's Due Process Clause. Mathews v. Eldridge, 424 U.S. at 335.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">2. Article III's grant of original jurisdiction to district courts cannot be circumvented by referral to an Article I tribunal absent full due process. Northern Pipeline v. Marathon, 458 U.S. 50, 87 (1982).</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">3. Exemption rights are constitutionally protected property; they may not be impaired by estate vesting without notice, hearing, and compensation. Phillips, 524 U.S. at 164.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">4. Under 28 U.S.C. § 157(d), the district court must withdraw the reference "for cause shown," including deprivation of constitutional rights.</p>
+                <p contenteditable="true" style="margin-bottom: 24pt;">5. Without withdrawal, this Court would unlawfully adjudicate matters reserved for an Article III forum, violating separation of powers.</p>
+                <p contenteditable="true" style="font-weight: bold; margin-bottom: 16pt;">III. RELIEF REQUESTED</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">1. Reservation of all exempt property under applicable state and federal law.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">2. Immediate withdrawal of the reference of this Chapter 11 proceeding to the Bankruptcy Court under 28 U.S.C. § 157(d).</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">3. Restoration of original jurisdiction to the District Court for hearing on constitutional and exemption claims.</p>
+                <p contenteditable="true" style="margin-bottom: 24pt;">4. Any further relief the Court deems just and proper.</p>
+                <p contenteditable="true" style="margin-top: 48pt;">Executed this ${data.date} at ${data.city}, ${data.state}.</p>
+                <br><br><p contenteditable="true">${data.yourName}<br>Declarant/Movant</p><br><br><p contenteditable="true">Respectfully Presented</p>
+            `;
+        }
+
+        function createAdversaryComplaint(data) {
+            return `
+                <div style="text-align: center; margin-bottom: 24pt;">
+                    <p contenteditable="true" style="font-weight: bold;">UNITED STATES BANKRUPTCY COURT<br>FOR THE ${data.district.toUpperCase()} DISTRICT OF ${data.state.toUpperCase()}</p>
+                </div>
+                <p contenteditable="true" style="margin-bottom: 24pt;"><strong>In re: ${data.debtorName},</strong><br>Debtor.<br><br>Chapter 11   Case No. ${data.caseNo}<br><br><strong>${data.yourName},</strong><br>Plaintiff,<br><br>v.<br><br><strong>${data.debtorName},</strong><br><br>Defendant.</p>
+                <p contenteditable="true" style="font-weight: bold; margin-bottom: 16pt;">I. INTRODUCTION</p>
+                <p contenteditable="true" style="margin-bottom: 24pt;">1. This adversary proceeding challenges the requirement that Plaintiff use a "Voluntary Petition" form, which coerces waiver of constitutional rights and effects an unconstitutional taking of property and rights. No Statutes at Large or Constitutional text authorizes waiver of First, Fourth, Fifth, Ninth, or Thirteenth Amendment rights by form alone.</p>
+                <p contenteditable="true" style="font-weight: bold; margin-bottom: 16pt;">II. JURISDICTION & VENUE</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">1. Core jurisdiction under 28 U.S.C. § 157(b)(2)(A) & (O).</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">2. Venue proper under 28 U.S.C. § 1409(a).</p>
+                <p contenteditable="true" style="margin-bottom: 24pt;">3. Constitutional challenge notification under 28 U.S.C. § 2403(a): Attorney General must be notified.</p>
+                <p contenteditable="true" style="font-weight: bold; margin-bottom: 16pt;">III. FACTS</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">1. The Bill of Rights amendments override any conflicting Title 11 provision. Marbury v. Madison, 5 U.S. 137, 177 (1803).</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">2. The First Amendment petition right is unabridged; lawsuits are protected petitions. United Mine Workers v. Ill. State Bar Ass'n, 389 U.S. 217, 222 (1967).</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">3. The Fourth Amendment secures "persons, houses, papers, and effects." Katz v. United States, 389 U.S. 347, 353 (1967).</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">4. The Fifth Amendment prohibits taking property without just compensation. Lucas v. S.C. Coastal Council, 505 U.S. 1003, 1015 (1992).</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">5. 1 Stat. 91 § 32 and 1 Stat. 123 § 2 forbid quashing for want of form.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">6. 13 Stat. 356 § 13 forbids compelled oaths without voluntary consent.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">7. 30 Stat. 544 § 12 & 92 Stat. 2547 § 541 vest debtor assets but do not authorize waiver by form.</p>
+                <p contenteditable="true" style="margin-bottom: 24pt;">8. The referral from district to bankruptcy court occurred without any hearing, violating due process. Mathews v. Eldridge, 424 U.S. 319 (1976).</p>
+                <p contenteditable="true" style="font-weight: bold; margin-bottom: 16pt;">IV. CONCLUSIONS OF LAW</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">1. Any Title 11 requirement conflicting with the Bill of Rights is void. Marbury v. Madison, 5 U.S. at 177.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">2. Conditioning access on "voluntariness" coerces waiver and constitutes an unconstitutional taking. Ex parte Hull, 312 U.S. 546, 549 (1941).</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">3. Under 1 Stat. 91 § 32 and 1 Stat. 123 § 2, this Court must accept any petition.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">4. Mandatory estate vesting without compensation violates the Takings Clause. Lucas v. S.C. Coastal Council, 505 U.S. at 1015.</p>
+                <p contenteditable="true" style="margin-bottom: 24pt;">5. Referral without hearing violates due process and separation of powers. Northern Pipeline v. Marathon, 458 U.S. 50, 87 (1982); Mathews v. Eldridge, 424 U.S. at 335.</p>
+                <p contenteditable="true" style="font-weight: bold; margin-bottom: 16pt;">V. PRAYER FOR RELIEF</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">A. Declare no law requires use of any "Voluntary Petition" form or waiver of rights.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">B. Enjoin any demands for "voluntariness" or oath under penalty of perjury.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">C. Withdraw reference under 28 U.S.C. § 157(d).</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">D. Notify Attorney General under 28 U.S.C. § 2403(a).</p>
+                <p contenteditable="true" style="margin-bottom: 24pt;">E. Grant any further relief necessary to protect constitutional rights.</p>
+                <p contenteditable="true" style="margin-top: 48pt;">Executed this ${data.date} at ${data.city}, ${data.state}.</p>
+                <br><br><p contenteditable="true">${data.yourName}<br>Plaintiff</p><br><br><p contenteditable="true">Respectfully Presented</p>
+            `;
+        }
+
+        function createVoluntaryDismissal(data) {
+            return `
+                <div style="text-align: center; margin-bottom: 24pt;">
+                    <p contenteditable="true" style="font-weight: bold;">IN THE UNITED STATES BANKRUPTCY COURT<br>[INSERT DISTRICT -- e.g., ${data.district.toUpperCase()} DISTRICT OF ${data.state.toUpperCase()}]</p>
+                </div>
+                <p contenteditable="true" style="margin-bottom: 16pt;">IN RE:</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">[${data.yourName}]</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">Case No: [${data.caseNo}]</p>
+                <p contenteditable="true" style="margin-bottom: 24pt;">Chapter 11</p>
+                <div style="text-align: center; margin-bottom: 24pt;">
+                    <p contenteditable="true" style="font-weight: bold;">VOLUNTARY PETITION PRESENTMENT TO DISMISS CHAPTER 11 PROCEEDING</p>
+                </div>
+                <p contenteditable="true" style="margin-bottom: 24pt;">TO THE HONORABLE UNITED STATES BANKRUPTCY COURT:</p>
+                <p contenteditable="true" style="margin-bottom: 24pt;">Comes now the Undersigned, appearing as the Debtor, and with all due respect, tenders the following lawful instrument:</p>
+                <p contenteditable="true" style="font-weight: bold; margin-bottom: 16pt;">I. JURISDICTION AND AUTHORITY</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">This Court's jurisdiction arises under the lawful provisions of the Bankruptcy Act as amended by the Act of November 6, 1978, 92 Stat. 2549 (Bankruptcy Reform Act of 1978), as enacted by the Congress of the United States.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">The Debtor filed this Chapter 11 petition voluntarily. Pursuant to the authority preserved under the aforementioned Act and the constitutional rights retained by the People under the Ninth and Tenth Amendments to the Constitution of the United States, the Debtor retains the power to move for voluntary dismissal.</p>
+                <p contenteditable="true" style="margin-bottom: 24pt;">Nothing in the controlling Statutes at Large abrogates the Debtor's right to withdraw from this administrative proceeding where fundamental rights were not knowingly or voluntarily waived.</p>
+                <p contenteditable="true" style="font-weight: bold; margin-bottom: 16pt;">II. FACTUAL GROUNDS FOR DISMISSAL</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">The Debtor entered this proceeding without full understanding of the procedural implications and constraints imposed by this administrative forum, including, but not limited to, restrictions on raising constitutional claims or challenging the validity of regulatory processes under Article III judicial oversight.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">The Court, being an Article I legislative tribunal, has not provided the full judicial safeguards contemplated by the Constitution, including the right to adjudication of constitutional claims before an Article III court.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">The record fails to reflect any express, informed, and voluntary waiver of these constitutional rights by the Debtor.</p>
+                <p contenteditable="true" style="margin-bottom: 24pt;">No finding of fraud, bad faith, or prejudice has been established on the record by any creditor or party in interest which would preclude dismissal.</p>
+                <p contenteditable="true" style="font-weight: bold; margin-bottom: 16pt;">III. LEGAL CONCLUSIONS AND SUPPORT</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">Under the Bankruptcy Act of 1978 (92 Stat. 2549), specifically Title I, Section 1112(b), a debtor may request dismissal of a case, and such dismissal is not barred where cause is not contested or where dismissal serves the best interest of the debtor and the estate.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">The Supreme Court of the United States has recognized the inviolability of constitutional rights, even in bankruptcy proceedings. Northern Pipeline Construction Co. v. Marathon Pipe Line Co., 458 U.S. 50 (1982) confirms that bankruptcy courts may not adjudicate certain matters beyond their Article I scope, and the retention of judicial power remains with the Article III judiciary.</p>
+                <p contenteditable="true" style="margin-bottom: 24pt;">The Debtor reasserts all rights retained under the Constitution of the United States and invokes the provisions of the Act of March 3, 1863 (12 Stat. 756), recognizing voluntary dismissal procedures in federal judicial proceedings.</p>
+                <p contenteditable="true" style="font-weight: bold; margin-bottom: 16pt;">IV. PRAYER FOR RELIEF</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">WHEREFORE, based solely on constitutional limitations, statutory authority under the Statutes at Large, and the absence of fraud or prejudice to creditors, the Debtor respectfully tenders this lawful instrument and moves this Court to enter an order:</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">A. GRANTING dismissal of this Chapter 11 proceeding;</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">B. VACATING all interim orders entered during the pendency of this case that operate in derogation of unwaived rights;</p>
+                <p contenteditable="true" style="margin-bottom: 24pt;">C. AUTHORIZING the Clerk to close the case forthwith without further proceedings.</p>
+                <p contenteditable="true" style="margin-top: 48pt;">Respectfully tendered on this ${data.date}.</p>
+                <br><br><p contenteditable="true">${data.yourName}<br>Authorized Agent of Record<br>[Address]<br>[${data.city}, ${data.state}, ZIP]<br>[Phone]</p>
+            `;
+        }
+
+        function createCreditorChallenge(data) {
+            return `
+                <div style="text-align: center; margin-bottom: 24pt;">
+                    <p contenteditable="true" style="font-weight: bold;">UNITED STATES BANKRUPTCY COURT<br>FOR THE ${data.district.toUpperCase()} DISTRICT OF ${data.state.toUpperCase()}</p>
+                </div>
+                <p contenteditable="true" style="margin-bottom: 24pt;"><strong>In re: ${data.debtorName},</strong><br>Debtor.<br><br>Chapter 11<br><br><strong>${data.yourName},</strong><br>Debtor-in-Possession,<br><br>v.<br><br>Creditors and Interested Parties.</p>
+                <p contenteditable="true" style="font-weight: bold; margin-bottom: 16pt;">I. INTRODUCTION</p>
+                <p contenteditable="true" style="margin-bottom: 24pt;">This Petition challenges the validity of each Creditor's claim to be the holder of an enforceable note and the attempted foreclosure under the Speedy Foreclosure Act, as no provision exists for foreclosing on a negotiable instrument. Debtor asserts common-law right of offset and demands return of pledged collateral held in restrictive collateral accounts. Facts and conclusions of law follow.</p>
+                <p contenteditable="true" style="font-weight: bold; margin-bottom: 16pt;">II. FACTS</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">1. Each Creditor filed only a copy of the promissory note; no original note was produced or requested by leave of the court, as required by UCC § 3-309(a)(2).</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">2. At closing, the original lender converted the loan to a negotiable promissory note, creating a negotiable instrument under UCC § 3-104.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">3. Creditors pursue foreclosure under the Speedy Foreclosure Act--a statute with no authorization to foreclose a negotiable instrument, as foreclosure relates to mortgages, not notes.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">4. Debtor pledged the negotiable promissory note as collateral; Creditor accepted it and created a restricted collateral account, per UCC § 9-203(a).</p>
+                <p contenteditable="true" style="margin-bottom: 24pt;">5. Creditors retain the original negotiable instrument in the collateral account, preventing Debtor's right of common-law offset.</p>
+                <p contenteditable="true" style="font-weight: bold; margin-bottom: 16pt;">III. CONCLUSIONS OF LAW</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">1. Under UCC § 3-309(a)(2), enforcement of a negotiable instrument requires presentation of the original note.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">2. UCC § 3-104 defines a 'negotiable instrument'; foreclosure statutes do not apply to instruments independent of mortgage liens.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">3. The Speedy Foreclosure Act provides expedited mortgage foreclosure procedures; it contains no provision for foreclosure of notes. Foreclosure of a bare instrument is ultra vires.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">4. Under UCC § 9-203(a), attachment of a security interest requires debtor's rights in collateral. Holding the original instrument in a restricted collateral account without enforcement rights violates Debtor's rights.</p>
+                <p contenteditable="true" style="margin-bottom: 24pt;">5. At common law, Debtor has a right of offset: tender of the negotiable instrument to Creditor extinguishes the underlying obligation.</p>
+                <p contenteditable="true" style="font-weight: bold; margin-bottom: 16pt;">IV. PRAYER FOR RELIEF</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">A. Declare each Creditor's claim invalid for failure to produce the original note under UCC § 3-309.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">B. Enjoin any foreclosure proceedings on the negotiable instrument as beyond statutory authority.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">C. Order return of the original promissory note and release of the restricted collateral account.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">D. Recognize Debtor's right of common-law offset upon tender of the negotiable instrument.</p>
+                <p contenteditable="true" style="margin-bottom: 24pt;">E. Grant any other relief the Court deems just and proper.</p>
+                <p contenteditable="true" style="margin-top: 48pt;">Executed this ${data.date} at ${data.city}, ${data.state}.</p>
+                <br><br><p contenteditable="true">${data.yourName}<br>Debtor-in-Possession</p><br><br><p contenteditable="true">Respectfully Presented</p>
+            `;
+        }
+
+        function createVoluntaryChallenge(data) {
+            return `
+                <div style="text-align: center; margin-bottom: 24pt;">
+                    <p contenteditable="true" style="font-weight: bold;">UNITED STATES BANKRUPTCY COURT<br>FOR THE ${data.district.toUpperCase()} DISTRICT OF ${data.state.toUpperCase()}</p>
+                </div>
+                <p contenteditable="true" style="margin-bottom: 24pt;">Case No. ${data.caseNo}<br>Chapter 11</p>
+                <div style="text-align: center; margin-bottom: 24pt;">
+                    <p contenteditable="true" style="font-weight: bold;">PETITION PRESENTMENT CHALLENGING 'VOLUNTARY' BANKRUPTCY FILING</p>
+                </div>
+                <p contenteditable="true" style="font-weight: bold; margin-bottom: 16pt;">I. FACTS</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">1. A 'voluntary bankruptcy' filing implies a knowing, intentional waiver of all rights and protections guaranteed by the First, Fourth, Fifth, Ninth, and Thirteenth Amendments. Johnson v. Zerbst, 304 U.S. 458, 464 (1938).</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">2. Once rights are voluntarily waived by contract or form, the Supreme Court holds they cannot later be challenged. Brady v. United States, 397 U.S. 742, 757 (1970).</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">3. The Bill of Rights secures rights as property interests in 'persons, houses, papers, and effects.' U.S. Const. amends I, IV, V; Katz v. United States, 389 U.S. 347, 353 (1967).</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">4. The Thirteenth Amendment prohibits involuntary servitude; voluntary waiver for bankruptcy subjects one to servitude by contract. U.S. Const. amend. XIII; Butler v. Perry, 240 U.S. 328, 332 (1916).</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">5. No Statutes at Large authorize forcing a waiver of constitutional rights as a condition of filing. 13 Stat. 356 § 13 forbids compelled oaths; 1 Stat. 91 § 32 forbids dismissals for form.</p>
+                <p contenteditable="true" style="margin-bottom: 24pt;">6. Under 28 U.S.C. § 2403(a), any challenge to a federal statute's constitutionality requires notification of the Solicitor General.</p>
+                <p contenteditable="true" style="font-weight: bold; margin-bottom: 16pt;">II. CONCLUSIONS OF LAW</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">1. A voluntary waiver of constitutional rights by form constitutes a binding contract, barring later challenge. Carnley v. Cochran, 369 U.S. 506, 516 (1962).</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">2. The Supreme Court does not allow collateral attack on rights knowingly waived. United States v. Mezzanatto, 513 U.S. 196, 201 (1995).</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">3. Voluntary servitude arises when one contracts away fundamental rights, prohibited by the Thirteenth Amendment. Butler, 240 U.S. at 332.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">4. A filing that forces waiver without genuine consent violates due process and freedom of contract. Meyer v. Nebraska, 262 U.S. 390, 399 (1923).</p>
+                <p contenteditable="true" style="margin-bottom: 24pt;">5. Notification of the Solicitor General under 28 U.S.C. § 2403(a) is mandatory upon constitutional challenge to a federal statute.</p>
+                <p contenteditable="true" style="font-weight: bold; margin-bottom: 16pt;">III. OBJECTION</p>
+                <p contenteditable="true" style="margin-bottom: 24pt;">I hereby OBJECT on the record to the characterization of my filing as "voluntary" under Title 11 or any form requirement that imposes waiver of constitutional rights. Such coercion renders the process unconstitutional.</p>
+                <p contenteditable="true" style="font-weight: bold; margin-bottom: 16pt;">IV. RELIEF REQUESTED</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">A. Declare that no voluntary-petition requirement may compel waiver of constitutional rights.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">B. Prohibit the Court from treating any filing form as contractually waiving rights.</p>
+                <p contenteditable="true" style="margin-bottom: 16pt;">C. Require notification to the Solicitor General under 28 U.S.C. § 2403(a).</p>
+                <p contenteditable="true" style="margin-bottom: 24pt;">D. Grant any other relief necessary to preserve Plaintiff's rights.</p>
+                <p contenteditable="true" style="margin-top: 48pt;">Executed this ${data.date} at ${data.city}, ${data.state}.</p>
+                <br><br><p contenteditable="true">${data.yourName}<br>Debtor-in-Possession</p><br><br><p contenteditable="true">Respectfully Presented</p>
+            `;
+        }
+
+        // All other existing functions (formatBold, saveToHistory, etc.) go here
+        function formatBold() {
+            document.execCommand('bold', false, null);
+            saveToHistory();
+            showNotification('Bold formatting applied');
+        }
+        
+        function formatItalic() {
+            document.execCommand('italic', false, null);
+            saveToHistory();
+            showNotification('Italic formatting applied');
+        }
+        
+        function formatUnderline() {
+            document.execCommand('underline', false, null);
+            saveToHistory();
+            showNotification('Underline formatting applied');
+        }
+        
+        function insertCitation() {
+            const citation = prompt('Enter citation:');
+            if (citation) {
+                const span = document.createElement('span');
+                span.className = 'case-ref';
+                span.textContent = citation;
+                insertElementAtCursor(span);
+                saveToHistory();
+                showNotification('Citation inserted');
+            }
+        }
+        
+        function insertStatute() {
+            const statute = prompt('Enter Statutes at Large reference (e.g., "1 Stat. 68-71 (May 8, 1792)"):');
+            if (statute) {
+                const span = document.createElement('span');
+                span.className = 'statutory-ref';
+                span.textContent = statute;
+                insertElementAtCursor(span);
+                saveToHistory();
+                showNotification('Statute reference inserted');
+            }
+        }
+        
+        function insertCase() {
+            const caseRef = prompt('Enter case citation:');
+            if (caseRef) {
+                const span = document.createElement('span');
+                span.className = 'case-ref';
+                span.textContent = caseRef;
+                insertElementAtCursor(span);
+                saveToHistory();
+                showNotification('Case citation inserted');
+            }
+        }
+        
+        function insertConstitutional() {
+            const constRef = prompt('Enter constitutional reference (e.g., "Article I, Section 7"):');
+            if (constRef) {
+                const span = document.createElement('span');
+                span.className = 'constitutional-ref';
+                span.textContent = constRef;
+                insertElementAtCursor(span);
+                saveToHistory();
+                showNotification('Constitutional reference inserted');
+            }
+        }
+        
+        function insertElementAtCursor(element) {
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                range.deleteContents();
+                range.insertNode(element);
+                range.setStartAfter(element);
+                range.setEndAfter(element);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+        }
+        
+        // Section management
+        function addSectionAfter(button) {
+            const newSection = document.createElement('div');
+            newSection.className = 'section';
+            newSection.innerHTML = `
+                <div class="section-controls">
+                    <button class="control-button" onclick="moveSection(this, 'up')" title="Move Up">↑</button>
+                    <button class="control-button" onclick="moveSection(this, 'down')" title="Move Down">↓</button>
+                    <button class="control-button" onclick="deleteSection(this)" title="Delete">✗</button>
+                </div>
+                <div class="section-title" contenteditable="true">NEW SECTION</div>
+                <p contenteditable="true">Enter your content here...</p>
+            `;
+            
+            const activeDoc = document.querySelector('.document-content.active');
+            const nextSibling = button.nextElementSibling;
+            
+            if (nextSibling) {
+                activeDoc.insertBefore(newSection, nextSibling);
+            } else {
+                activeDoc.appendChild(newSection);
+            }
+            
+            const newAddButton = document.createElement('button');
+            newAddButton.className = 'add-section-button';
+            newAddButton.textContent = '+ ADD SECTION AFTER THIS';
+            newAddButton.onclick = function() { addSectionAfter(this); };
+            
+            if (nextSibling) {
+                activeDoc.insertBefore(newAddButton, nextSibling);
+            } else {
+                activeDoc.appendChild(newAddButton);
+            }
+            
+            saveToHistory();
+            showNotification('Section added');
+        }
+        
+        function moveSection(button, direction) {
+            const section = button.closest('.section, .table-of-authorities, .signature-section');
+            const parent = section.parentNode;
+            
+            if (direction === 'up') {
+                const prevElement = section.previousElementSibling;
+                if (prevElement && (prevElement.classList.contains('section') || prevElement.classList.contains('table-of-authorities') || prevElement.classList.contains('signature-section'))) {
+                    parent.insertBefore(section, prevElement);
+                    showNotification('Section moved up');
+                    saveToHistory();
+                }
+            } else {
+                const nextElement = section.nextElementSibling;
+                if (nextElement && nextElement.nextElementSibling) {
+                    parent.insertBefore(section, nextElement.nextElementSibling);
+                    showNotification('Section moved down');
+                    saveToHistory();
+                }
+            }
+        }
+        
+        function deleteSection(button) {
+            if (confirm('Delete this section?')) {
+                const section = button.closest('.section, .table-of-authorities, .signature-section');
+                section.remove();
+                saveToHistory();
+                showNotification('Section deleted');
+            }
+        }
+        
+        // History management
+        function saveToHistory() {
+            const currentState = getCurrentDocumentState();
+            editHistory = editHistory.slice(0, historyIndex + 1);
+            editHistory.push(currentState);
+            historyIndex = editHistory.length - 1;
+            
+            if (editHistory.length > maxHistorySize) {
+                editHistory.shift();
+                historyIndex--;
+            }
+            
+            saveToLocalStorage();
+        }
+        
+        function getCurrentDocumentState() {
+            const activeDoc = document.querySelector('.document-content.active');
+            return {
+                docType: currentDocument,
+                content: activeDoc ? activeDoc.innerHTML : '',
+                timestamp: Date.now()
+            };
+        }
+        
+        function undoChange() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                restoreState(editHistory[historyIndex]);
+                showNotification('Undo applied');
+            } else {
+                showNotification('Nothing to undo');
+            }
+        }
+        
+        function redoChange() {
+            if (historyIndex < editHistory.length - 1) {
+                historyIndex++;
+                restoreState(editHistory[historyIndex]);
+                showNotification('Redo applied');
+            } else {
+                showNotification('Nothing to redo');
+            }
+        }
+        
+        function restoreState(state) {
+            const activeDoc = document.querySelector('.document-content.active');
+            if (activeDoc && state) {
+                activeDoc.innerHTML = state.content;
+            }
+        }
+        
+        // Initialize and other functions
+        function generateDocumentIds() {
+            const date = new Date();
+            const year = date.getFullYear();
+            const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            
+            const docIds = {
+                'rule60b': `CONST-R60B-${year}-${random}`,
+                'cris': `CRIS-CONST-${year}-${random}`,
+                'mandamus': `WOM-CONST-${year}-${random}`,
+                'certiorari': `WOC-CONST-${year}-${random}`,
+                'habeas': `HC-CONST-${year}-${random}`,
+                'standing': `STAND-${year}-${random}`,
+                'warrant': `PWHR-${year}-${random}`,
+                'civil': `CR-${year}-${random}`,
+                'constitutional': `CONST-${year}-${random}`,
+                'federal': `FQ-${year}-${random}`,
+                'arbitration': `ARB-${year}-${random}`
+            };
+            
+            Object.keys(docIds).forEach(docType => {
+                const element = document.getElementById(docType + '-doc-id');
+                if (element) {
+                    element.textContent = docIds[docType];
+                }
+            });
+        }
+        
+        function initializeDates() {
+            const today = new Date().toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            document.querySelectorAll('#currentDate, .currentDate').forEach(el => {
+                if (el) el.textContent = today;
+            });
+            document.querySelectorAll('#serviceDate, .serviceDate').forEach(el => {
+                if (el) el.textContent = today;
+            });
+        }
+
+        // Auto-save functionality
+        function setupAutoSave() {
+            autoSaveInterval = setInterval(() => {
+                saveToLocalStorage();
+                updateAutoSaveIndicator();
+            }, 5000);
+        }
+        
+        function saveToLocalStorage() {
+            try {
+                const allDocs = {};
+                document.querySelectorAll('.document-content').forEach(doc => {
+                    const docType = doc.id.replace('-content', '');
+                    allDocs[docType] = doc.innerHTML;
+                });
+                
+                const saveData = {
+                    documents: allDocs,
+                    currentDocument: currentDocument,
+                    history: editHistory,
+                    historyIndex: historyIndex,
+                    timestamp: Date.now()
+                };
+                
+                localStorage.setItem('constitutionalChallengeCreator', JSON.stringify(saveData));
+            } catch (error) {
+                console.error('Auto-save failed:', error);
+            }
+        }
+        
+        function loadFromLocalStorage() {
+            try {
+                const savedData = localStorage.getItem('constitutionalChallengeCreator');
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    
+                    Object.keys(data.documents).forEach(docType => {
+                        const docElement = document.getElementById(docType + '-content');
+                        if (docElement) {
+                            docElement.innerHTML = data.documents[docType];
+                        }
+                    });
+                    
+                    if (data.history) {
+                        editHistory = data.history;
+                        historyIndex = data.historyIndex || 0;
+                    }
+                    
+                    showNotification('Documents loaded from storage');
+                } else {
+                    showNotification('No saved documents found');
+                }
+            } catch (error) {
+                console.error('Load failed:', error);
+                showNotification('Load failed - starting fresh');
+            }
+        }
+        
+        function updateAutoSaveIndicator() {
+            const indicator = document.getElementById('autoSaveIndicator');
+            if (indicator) {
+                indicator.textContent = 'Auto-saved ' + new Date().toLocaleTimeString();
+                indicator.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+                
+                setTimeout(() => {
+                    indicator.textContent = 'Auto-save Ready';
+                    indicator.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+                }, 2000);
+            }
+        }
+
+        function previewDocument() {
+            const activeDoc = document.querySelector('.document-content.active');
+            const previewWindow = window.open('', '_blank', 'width=800,height=1000,scrollbars=yes');
+            
+            const previewContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Document Preview</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 12pt;
+            line-height: 1.6;
+            color: black;
+            margin: 0.25in;
+            padding: 0;
+            background: white;
+        }
+        .add-section-button, .section-controls { display: none !important; }
+    </style>
+</head>
+<body>
+    ${activeDoc.innerHTML}
+  </body>
+</html>`;
+            
+            previewWindow.document.write(previewContent);
+            previewWindow.document.close();
+            previewWindow.focus();
+            
+            showNotification('Document preview opened');
+        }
+        
+        function printDocument() {
+            window.print();
+            showNotification('Print dialog opened');
+        }
+        
+        function saveAsHTML() {
+            const activeDoc = document.querySelector('.document-content.active');
+            const docName = getDocumentDisplayName(currentDocument);
+            
+            const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>${docName}</title>
+    <style>
+        body { 
+            font-family: 'Times New Roman', serif; 
+            margin: 0.25in; 
+            line-height: 1.6; 
+        }
+        .add-section-button, .section-controls { display: none; }
+    </style>
+</head>
+<body>
+    ${activeDoc.innerHTML}
+  </body>
+</html>`;
+            
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${currentDocument}-${new Date().toISOString().split('T')[0]}.html`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('Document exported as HTML');
+        }
+
+        // Image handling
+        function openImageModal() {
+            document.getElementById('image-modal').style.display = 'block';
+        }
+        
+        function previewImage() {
+            const file = document.getElementById('imageUpload').files[0];
+            if (file) {
+                showNotification('Image selected for upload');
+            }
+        }
+        
+        function insertImageIntoDocument() {
+            const file = document.getElementById('imageUpload').files[0];
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.width = '300px';
+                    img.style.display = 'block';
+                    img.style.margin = '20px auto';
+                    
+                    insertElementAtCursor(img);
+                    closeModal('image-modal');
+                    saveToHistory();
+                    showNotification('Image inserted');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                showNotification('Please select an image first');
+            }
+        }
+        
+        // Code editor
+        function openCodeEditor() {
+            const activeDoc = document.querySelector('.document-content.active');
+            document.getElementById('codeEditor').value = activeDoc.innerHTML;
+            document.getElementById('code-modal').style.display = 'block';
+        }
+        
+        function applyCodeChanges() {
+            const newCode = document.getElementById('codeEditor').value;
+            const activeDoc = document.querySelector('.document-content.active');
+            activeDoc.innerHTML = newCode;
+            closeModal('code-modal');
+            saveToHistory();
+            showNotification('Code changes applied');
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        function viewUpdatedCode() {
+            const completeHTML = generateCompleteHTML();
+            document.getElementById('updatedCodeViewer').value = completeHTML;
+            document.getElementById('updated-code-modal').style.display = 'block';
+            showNotification('Updated code generated');
+        }
+        
+        function generateCompleteHTML() {
+            return document.documentElement.outerHTML;
+        }
+        
+        function copyUpdatedCode() {
+            const textarea = document.getElementById('updatedCodeViewer');
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showNotification('Updated code copied to clipboard!');
+            } catch (err) {
+                showNotification('Copy failed - please select and copy manually');
+            }
+        }
+        
+        function downloadUpdatedCode() {
+            const completeHTML = document.getElementById('updatedCodeViewer').value;
+            const blob = new Blob([completeHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `constitutional-challenge-creator-updated-${new Date().toISOString().split('T')[0]}.html`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showNotification('Updated HTML file downloaded');
+        }
+
+        function cleanCorruptedHTML() {
+            let cleanCount = 0;
+            
+            document.querySelectorAll('[data-start], [data-end]').forEach(element => {
+                element.removeAttribute('data-start');
+                element.removeAttribute('data-end');
+                cleanCount++;
+            });
+            
+            showNotification(`HTML cleaned: ${cleanCount} issues fixed`);
+            saveToHistory();
+        }
+
+        // Template utility functions
+        function saveTemplateDocument() {
+            const content = document.getElementById('documentDisplay').innerHTML;
+            if (!content || content.trim() === '') {
+                showNotification('No document to save');
+                return;
+            }
+            
+            const blob = new Blob([content], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `legal-template-${new Date().toISOString().split('T')[0]}.html`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showNotification('Template document saved');
+        }
+
+        function printTemplateDocument() {
+            const content = document.getElementById('documentDisplay').innerHTML;
+            if (!content || content.trim() === '') {
+                showNotification('No document to print');
+                return;
+            }
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Legal Template</title>
+                    <style>
+                        body { 
+                            font-family: 'Times New Roman', serif; 
+                            font-size: 12pt; 
+                            line-height: 2.0; 
+                            margin: 72px; 
+                            color: black; 
+                            background: white;
+                        }
+                        p { line-height: 2.0; margin-bottom: 12pt; }
+                        h1, h2, h3 { line-height: 2.0; margin-bottom: 12pt; }
+                    </style>
+                </head>
+                <body>${content}
+  </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+            showNotification('Print dialog opened');
+        }
+
+        function exportTemplateHTML() {
+            const content = document.getElementById('documentDisplay').innerHTML;
+            if (!content || content.trim() === '') {
+                showNotification('No document to export');
+                return;
+            }
+            
+            const htmlContent = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Legal Document</title>
+    <style>
+        body { 
+            font-family: 'Times New Roman', serif; 
+            font-size: 12pt; 
+            line-height: 2.0; 
+            margin: 72px; 
+            color: black; 
+            background: white;
+        }
+        p { line-height: 2.0; margin-bottom: 12pt; }
+        h1, h2, h3 { line-height: 2.0; margin-bottom: 12pt; }
+    </style>
+</head>
+<body>${content}
+  </body>
+</html>`;
+            
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `legal-template-export-${new Date().toISOString().split('T')[0]}.html`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showNotification('Template exported as HTML');
+        }
+
+        function clearGeneratedDocument() {
+            document.getElementById('documentDisplay').innerHTML = '';
+            document.getElementById('generatedDocument').style.display = 'none';
+            showNotification('Document cleared');
+        }
+
+        // Enhanced Event Listeners
+        function setupEventListeners() {
+            document.addEventListener('input', function(e) {
+                if (e.target.getAttribute('contenteditable') === 'true') {
+                    setTimeout(() => {
+                        saveToHistory();
+                    }, 1000);
+                }
+            });
+            
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey || e.metaKey) {
+                    switch(e.key) {
+                        case 's':
+                            e.preventDefault();
+                            saveAsHTML();
+                            break;
+                        case 'p':
+                            e.preventDefault();
+                            printDocument();
+                            break;
+                        case 'z':
+                            e.preventDefault();
+                            if (e.shiftKey) {
+                                redoChange();
+                            } else {
+                                undoChange();
+                            }
+                            break;
+                        case 'y':
+                            e.preventDefault();
+                            redoChange();
+                            break;
+                    }
+                }
+            });
+            
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    e.target.style.display = 'none';
+                }
+            });
+        }
+        
+        // Notification system
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.classList.add('show'), 100);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+    </script>
+  <!-- E2ZERO AGENT SYPHER -->
+  <script src="e2zero-sypher.js"></script>
+</body>
+</html>

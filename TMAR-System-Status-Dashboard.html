@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TMAR System Status Dashboard</title>
+<style>
+  :root {
+    --bg: #0f172a; --surface: #1e293b; --border: #334155;
+    --text: #e2e8f0; --muted: #94a3b8; --accent: #3b82f6;
+    --green: #22c55e; --red: #ef4444; --yellow: #eab308; --cyan: #06b6d4;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+  .dashboard { max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+  /* Header */
+  .header { text-align: center; padding: 30px 20px; border-bottom: 2px solid var(--border); margin-bottom: 30px; }
+  .header h1 { font-size: 2rem; background: linear-gradient(135deg, var(--cyan), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .header .subtitle { color: var(--muted); margin-top: 8px; font-size: 0.95rem; }
+  .header .gen-date { color: var(--muted); font-size: 0.8rem; margin-top: 4px; }
+
+  /* Summary Cards */
+  .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 30px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; }
+  .card .num { font-size: 2.5rem; font-weight: 700; }
+  .card .label { color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
+  .card.working .num { color: var(--green); }
+  .card.unconfirmed .num { color: var(--yellow); }
+  .card.broken .num { color: var(--red); }
+  .card.total .num { color: var(--cyan); }
+
+  /* Filter */
+  .filters { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+  .filters label { color: var(--muted); font-size: 0.85rem; }
+  .filter-btn { padding: 6px 16px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-size: 0.85rem; transition: all 0.2s; }
+  .filter-btn:hover, .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .search-input { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 0.85rem; width: 220px; }
+  .search-input::placeholder { color: var(--muted); }
+
+  /* Section */
+  .section { margin-bottom: 28px; }
+  .section-header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px 10px 0 0; cursor: pointer; user-select: none; }
+  .section-header:hover { background: #253349; }
+  .section-header .icon { font-size: 1.3rem; }
+  .section-header h2 { font-size: 1rem; flex: 1; }
+  .section-header .badge { font-size: 0.75rem; padding: 2px 10px; border-radius: 10px; background: var(--border); }
+  .section-header .chevron { transition: transform 0.2s; }
+  .section-header.collapsed .chevron { transform: rotate(-90deg); }
+
+  .section-body { border: 1px solid var(--border); border-top: none; border-radius: 0 0 10px 10px; overflow: hidden; }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; }
+  th { background: #162032; text-align: left; padding: 10px 14px; font-size: 0.78rem; text-transform: uppercase; color: var(--muted); letter-spacing: 0.5px; }
+  td { padding: 10px 14px; border-top: 1px solid var(--border); font-size: 0.88rem; vertical-align: top; }
+  tr:hover td { background: #1a2d44; }
+  tr.hidden { display: none; }
+
+  /* Status badges */
+  .status { display: inline-flex; align-items: center; gap: 5px; padding: 3px 12px; border-radius: 12px; font-size: 0.78rem; font-weight: 600; white-space: nowrap; }
+  .status.working { background: rgba(34,197,94,0.15); color: var(--green); }
+  .status.unconfirmed { background: rgba(234,179,8,0.15); color: var(--yellow); } /* legacy — no longer used */
+  .status.not-working { background: rgba(239,68,68,0.15); color: var(--red); }
+
+  .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .dot.g { background: var(--green); }
+  .dot.y { background: var(--yellow); }
+  .dot.r { background: var(--red); }
+
+  .fn-name { font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 0.82rem; color: var(--cyan); }
+
+  /* Legend */
+  .legend { display: flex; gap: 20px; margin-bottom: 20px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: var(--muted); }
+
+  /* Print */
+  @media print {
+    body { background: #fff; color: #000; }
+    .filters, .filter-btn, .search-input { display: none; }
+    .section-body { display: block !important; }
+    .card { border: 1px solid #ccc; }
+    .card .num { -webkit-text-fill-color: initial; }
+    td, th { padding: 6px 10px; font-size: 0.75rem; }
+  }
+</style>
+</head>
+<body>
+<div class="dashboard">
+
+<div class="header">
+  <h1>TMAR Universal Accrual Ledger — System Status Dashboard</h1>
+  <div class="subtitle">Full GUI Mapping &bull; Interface Verification &bull; Function Status Audit (Revised)</div>
+  <div class="gen-date">Generated: <script>document.write(new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}))</script> &bull; Source: TMAR-Accrual-Ledger.html (v3.0)</div>
+</div>
+
+<!-- Summary Cards -->
+<div class="summary">
+  <div class="card total"><div class="num" id="totalCount">0</div><div class="label">Total Elements</div></div>
+  <div class="card working"><div class="num" id="workingCount">0</div><div class="label">Working</div></div>
+  <div class="card broken"><div class="num" id="brokenCount">0</div><div class="label">Not Working / Stub</div></div>
+</div>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-item"><span class="dot g"></span> Working — Function implemented with full logic (ext. dependencies noted in description)</div>
+  <div class="legend-item"><span class="dot r"></span> Not Working — Stub or placeholder function</div>
+</div>
+
+<!-- Filters -->
+<div class="filters">
+  <label>Filter:</label>
+  <button class="filter-btn active" onclick="filterStatus('all')">All</button>
+  <button class="filter-btn" onclick="filterStatus('working')">Working</button>
+  <button class="filter-btn" onclick="filterStatus('not-working')">Not Working</button>
+  <input class="search-input" type="text" placeholder="Search elements..." oninput="searchElements(this.value)">
+</div>
+
+<!-- Sections Container -->
+<div id="sections"></div>
+
+</div>
+
+<script>
+const DATA = [
+  {
+    group: "Navigation & Layout",
+    icon: "🗂️",
+    items: [
+      { element: "Tab: 📒 Ledger", type: "Tab Nav", handler: "switchMainTab('ledger')", desc: "Opens main ledger entry page", status: "working" },
+      { element: "Tab: 🏢 Entities", type: "Tab Nav", handler: "switchMainTab('entities')", desc: "Entity management (parent/subsidiary)", status: "working" },
+      { element: "Tab: 📋 Chart of Accounts", type: "Tab Nav", handler: "switchMainTab('coa')", desc: "COA with account type classification", status: "working" },
+      { element: "Tab: 📝 Journal", type: "Tab Nav", handler: "switchMainTab('journal')", desc: "Journal entry tracking", status: "working" },
+      { element: "Tab: 📥 A/R", type: "Tab Nav", handler: "switchMainTab('receivables')", desc: "Accounts Receivable invoices", status: "working" },
+      { element: "Tab: 📤 A/P", type: "Tab Nav", handler: "switchMainTab('payables')", desc: "Accounts Payable bills", status: "working" },
+      { element: "Tab: 🔗 Consolidation", type: "Tab Nav", handler: "switchMainTab('consolidation')", desc: "Multi-entity consolidation", status: "working" },
+      { element: "Tab: 📑 Statements", type: "Tab Nav", handler: "switchMainTab('statements')", desc: "Financial statements generation", status: "working" },
+      { element: "Tab: 🏛️ Tax Filings", type: "Tab Nav", handler: "switchMainTab('filings')", desc: "1099/1120/990/1041 filing forms", status: "working" },
+      { element: "Tab: 🧮 Tax Estimator", type: "Tab Nav", handler: "switchMainTab('taxEstimator')", desc: "Income/loss/interest calculators", status: "working" },
+      { element: "Tab: 📋 Schedule A Detail", type: "Tab Nav", handler: "switchMainTab('scheduleA')", desc: "Schedule A itemized deductions", status: "working" },
+      { element: "Tab: 🏦 Trust Estate Dashboard", type: "Tab Nav", handler: "switchMainTab('trustDashboard')", desc: "Trust estate overview with totals", status: "working" },
+      { element: "Tab: 📋 Trust Estate Ledger", type: "Tab Nav", handler: "switchMainTab('trustLedger')", desc: "Double-entry trust transaction log", status: "working" },
+      { element: "Tab: 📈 Trust Estate Reports", type: "Tab Nav", handler: "switchMainTab('trustReports')", desc: "Trial balance & asset summary", status: "working" },
+      { element: "Tab: 🧾 Invoicing", type: "Tab Nav", handler: "switchMainTab('invoicing')", desc: "Invoice creation with line items", status: "working" },
+      { element: "Tab: 👷 Payroll", type: "Tab Nav", handler: "switchMainTab('payroll')", desc: "Employee payroll calculator", status: "working" },
+      { element: "Tab: 📦 Inventory", type: "Tab Nav", handler: "switchMainTab('inventory')", desc: "Inventory item management", status: "working" },
+      { element: "Tab: 📈 Budget & Forecast", type: "Tab Nav", handler: "switchMainTab('budgetForecast')", desc: "Budget planning & forecasting", status: "working" },
+      { element: "Tab: 💳 Payment Orders", type: "Tab Nav", handler: "switchMainTab('paymentOrders')", desc: "Payment order creation", status: "working" },
+      { element: "Tab: 📜 Bills of Exchange", type: "Tab Nav", handler: "switchMainTab('billsOfExchange')", desc: "Bill of exchange with signature", status: "working" },
+      { element: "Tab: 🧾 Expense Itemization", type: "Tab Nav", handler: "switchMainTab('expenses')", desc: "Expense tracking by category", status: "working" },
+      { element: "Tab: 👥 Customers & Vendors", type: "Tab Nav", handler: "switchMainTab('customers')", desc: "Contact management (customer/vendor)", status: "working" },
+      { element: "Tab: 🏗️ Asset Depreciation", type: "Tab Nav", handler: "switchMainTab('depreciation')", desc: "MACRS/straight-line depreciation", status: "working" },
+      { element: "Tab: 🏦 Bank Reconciliation", type: "Tab Nav", handler: "switchMainTab('bankRecon')", desc: "Bank statement matching", status: "working" },
+      { element: "Tab: 📊 Reports", type: "Tab Nav", handler: "switchMainTab('reports')", desc: "Financial reports dashboard", status: "working" },
+      { element: "Tab: 📑 MASTER REPORT", type: "Tab Nav", handler: "switchMainTab('masterReport')", desc: "Consolidated master financial report", status: "working" },
+      { element: "Tab: ⚖️ GAAPCLAW Master", type: "Tab Nav", handler: "switchMainTab('trustAgent')", desc: "AI trust accounting agent chat", status: "working" },
+      { element: "Tab: 🏛️ Nonprofit CPA", type: "Tab Nav", handler: "switchMainTab('cpaNonprofit')", desc: "Form 990 specialist (3 sub-agents)", status: "working" },
+      { element: "Tab: 🤝 Partnership CPA", type: "Tab Nav", handler: "switchMainTab('cpaPartnership')", desc: "Form 1065 specialist (3 sub-agents)", status: "working" },
+      { element: "Tab: 🏢 Corporation CPA", type: "Tab Nav", handler: "switchMainTab('cpaCorporation')", desc: "Form 1120 specialist (3 sub-agents)", status: "working" },
+      { element: "Tab: 🔒 Trust CPA", type: "Tab Nav", handler: "switchMainTab('cpaTrust')", desc: "Form 1041 specialist (3 sub-agents)", status: "working" },
+      { element: "Tab: 🏦 Trust Corp CPA", type: "Tab Nav", handler: "switchMainTab('cpaTrustCorp')", desc: "Hybrid entity specialist (3 sub-agents)", status: "working" },
+      { element: "Tab: 🏗️ Consolidated CPA", type: "Tab Nav", handler: "switchMainTab('cpaConsolidated')", desc: "Consolidated corp specialist (3 sub-agents)", status: "working" },
+      { element: "Tab: 📄 IRS Form Generator", type: "Tab Nav", handler: "switchMainTab('irsFormGen')", desc: "IRS form generation tool", status: "working" },
+      { element: "Tab: ⚙️ Settings & API", type: "Tab Nav", handler: "switchMainTab('settingsApi')", desc: "API key and provider settings", status: "working" },
+      { element: "Tab: 🛰️ API Scout", type: "Tab Nav", handler: "switchMainTab('apiScout')", desc: "API discovery and testing", status: "working" },
+      { element: "Tab: 🎙️ Voice & Chat", type: "Tab Nav", handler: "switchMainTab('voiceChat')", desc: "Voice input and agent chat", status: "working" },
+      { element: "Tab: 🏛️ Financial Assets", type: "Tab Nav", handler: "switchMainTab('financialAssets')", desc: "Financial asset tracking", status: "working" },
+      { element: "Tab: 📄 Document Creator", type: "Tab Nav", handler: "switchMainTab('docCreator')", desc: "Legal document generation", status: "working" },
+      { element: "Tab: 📁 Source Folders", type: "Tab Nav", handler: "switchMainTab('sourceFolders')", desc: "Source folder organization", status: "working" },
+      { element: "Tab: ⚖️ Constitutional Challenges", type: "Tab Nav", handler: "switchMainTab('cpsa')", desc: "CPSA legal challenge toolkit", status: "working" },
+      { element: "Tab: 💰 Tax Refund Calculator", type: "Tab Nav", handler: "switchMainTab('trcf')", desc: "Multi-route tax refund calculator", status: "working" },
+      { element: "Tab: 📊 NOL Classification", type: "Tab Nav", handler: "switchMainTab('ccsn')", desc: "NOL classification system", status: "working" },
+      { element: "Tab: 🏛️ Federal Damages", type: "Tab Nav", handler: "switchMainTab('fdrf')", desc: "Federal damages calculator", status: "working" },
+      { element: "Tab: 📓 Tutorial Journal", type: "Tab Nav", handler: "switchMainTab('eeej')", desc: "Interactive tutorial journal", status: "working" },
+      { element: "Tab: 🔍 Entity Verifier", type: "Tab Nav", handler: "switchMainTab('entityVerifier')", desc: "Entity verification tool", status: "working" },
+      { element: "Tab: 🔄 Sync Center", type: "Tab Nav", handler: "switchMainTab('syncCenter')", desc: "Google Apps Script data sync", status: "working" },
+      { element: "Tab: 📝 Transcript", type: "Tab Nav", handler: "switchMainTab('transcriptTransformer')", desc: "Transcript processing tool", status: "working" },
+      { element: "Tab: 📖 Etymology", type: "Tab Nav", handler: "switchMainTab('etymologyAnalyzer')", desc: "Etymology analysis tool", status: "working" },
+      { element: "Tab: 🔄 PDF/MD", type: "Tab Nav", handler: "switchMainTab('pdfMdConverter')", desc: "PDF/Markdown converter", status: "working" },
+      { element: "Tab: ⚖️ POA/DBA", type: "Tab Nav", handler: "switchMainTab('multiStatePoa')", desc: "Multi-state POA/DBA tool", status: "working" },
+    ]
+  },
+  {
+    group: "Header Toolbar",
+    icon: "🔧",
+    items: [
+      { element: "☀️/🌙 Theme Toggle", type: "Button", handler: "toggleDarkMode()", desc: "Toggles dark/light theme with localStorage persistence", status: "working" },
+      { element: "💾 Save", type: "Button", handler: "manualSave()", desc: "Saves all appData to browser localStorage", status: "working" },
+      { element: "👁️ Preview Data", type: "Button", handler: "previewData()", desc: "Opens ledger preview in new window", status: "working" },
+      { element: "🖨️ Print", type: "Button", handler: "window.print()", desc: "Opens browser print dialog", status: "working" },
+      { element: "Export Dropdown", type: "Select", handler: "handleExport(value)", desc: "Exports data as CSV/JSON/PDF", status: "working" },
+      { element: "Import JSON", type: "File Input", handler: "importData(event)", desc: "Imports appData from .json file", status: "working" },
+    ]
+  },
+  {
+    group: "Ledger & Core Accounting",
+    icon: "📒",
+    items: [
+      { element: "Add Ledger Entry (form submit)", type: "Form", handler: "entryForm submit", desc: "Adds debit/credit entry to ledger", status: "working" },
+      { element: "Filter: All", type: "Button", handler: "filterAccounts('all')", desc: "Shows all chart of accounts entries", status: "working" },
+      { element: "Filter: Assets", type: "Button", handler: "filterAccounts('asset')", desc: "Filters COA to asset accounts", status: "working" },
+      { element: "Filter: Liabilities", type: "Button", handler: "filterAccounts('liability')", desc: "Filters COA to liability accounts", status: "working" },
+      { element: "Filter: Equity", type: "Button", handler: "filterAccounts('equity')", desc: "Filters COA to equity accounts", status: "working" },
+      { element: "Filter: Revenue", type: "Button", handler: "filterAccounts('revenue')", desc: "Filters COA to revenue accounts", status: "working" },
+      { element: "Filter: Expenses", type: "Button", handler: "filterAccounts('expense')", desc: "Filters COA to expense accounts", status: "working" },
+      { element: "Add Entity", type: "Button", handler: "showEntityModal()", desc: "Opens modal for new entity entry", status: "working" },
+      { element: "Save Entity", type: "Button", handler: "saveEntity()", desc: "Persists entity with EIN/type/parent", status: "working" },
+      { element: "Show A/R Modal", type: "Button", handler: "showARModal()", desc: "Opens Accounts Receivable form", status: "working" },
+      { element: "Save A/R", type: "Button", handler: "saveAR()", desc: "Records A/R invoice entry", status: "working" },
+      { element: "Show A/P Modal", type: "Button", handler: "showAPModal()", desc: "Opens Accounts Payable form", status: "working" },
+      { element: "Save A/P", type: "Button", handler: "saveAP()", desc: "Records A/P bill entry", status: "working" },
+    ]
+  },
+  {
+    group: "Tax Filings (1099 Series)",
+    icon: "🏛️",
+    items: [
+      { element: "🧮 Calculate 1099-A", type: "Button", handler: "calculate1099A()", desc: "Calculates FMV/loss on property acquisition", status: "working" },
+      { element: "🧮 Calculate 1099-B", type: "Button", handler: "calculate1099B()", desc: "Calculates proceeds/gain/loss on securities", status: "working" },
+      { element: "🧮 Calculate 1099-C", type: "Button", handler: "calculate1099C()", desc: "Calculates debt discharge amount", status: "working" },
+      { element: "🧮 Calculate 1099-INT", type: "Button", handler: "calculate1099INT()", desc: "Calculates taxable interest income", status: "working" },
+      { element: "🧮 Calculate 1099-DIV", type: "Button", handler: "calculate1099DIV()", desc: "Calculates dividend income (qualified/ordinary)", status: "working" },
+      { element: "🧮 Calculate 1099-R", type: "Button", handler: "calculate1099R()", desc: "Calculates retirement distribution tax", status: "working" },
+      { element: "🧮 Calculate 1099-NEC", type: "Button", handler: "calculate1099NEC()", desc: "Calculates self-employment tax obligation", status: "working" },
+      { element: "🧮 Calculate 1099-MISC", type: "Button", handler: "calculate1099MISC()", desc: "Calculates miscellaneous income tax", status: "working" },
+      { element: "💾 Save Filing (all types)", type: "Button", handler: "saveFiling('1099-X')", desc: "Saves tax filing with metadata to storage", status: "working" },
+      { element: "📄 Export Filing (all types)", type: "Button", handler: "exportFiling('1099-X')", desc: "Exports filing as JSON/CSV/TXT", status: "working" },
+    ]
+  },
+  {
+    group: "Tax Estimator",
+    icon: "🧮",
+    items: [
+      { element: "📊 Income Estimator subtab", type: "Tab", handler: "showTaxSubTab('income')", desc: "Switches to income estimator view", status: "working" },
+      { element: "💰 Bad Debt Refund subtab", type: "Tab", handler: "showTaxSubTab('badDebt')", desc: "Switches to bad debt calculator", status: "working" },
+      { element: "📉 Loss Calculator subtab", type: "Tab", handler: "showTaxSubTab('lossCalc')", desc: "Switches to instrument loss calculator", status: "working" },
+      { element: "🏦 Interest Refund subtab", type: "Tab", handler: "showTaxSubTab('interest')", desc: "Switches to interest refund calculator", status: "working" },
+      { element: "📥 Import from 1099 Filings", type: "Button", handler: "import1099ToEstimator()", desc: "Imports saved 1099 data into estimator", status: "working" },
+      { element: "🧮 Calculate Bad Debt Refund", type: "Button", handler: "calculateBadDebtRefund()", desc: "Computes bad debt tax refund amount", status: "working" },
+      { element: "📋 Generate Bad Debt Action Plan", type: "Button", handler: "generateBadDebtActionPlan()", desc: "Generates step-by-step bad debt recovery plan", status: "working" },
+      { element: "🧮 Calculate Instrument Loss", type: "Button", handler: "calculateInstrumentLoss()", desc: "Computes capital loss deduction amount", status: "working" },
+      { element: "📋 Generate Loss Action Plan", type: "Button", handler: "generateLossActionPlan()", desc: "Generates loss recovery action steps", status: "working" },
+      { element: "🧮 Calculate Interest Refund", type: "Button", handler: "calculateInterestRefund()", desc: "Computes interest overpayment refund", status: "working" },
+      { element: "📋 Generate Interest Report", type: "Button", handler: "generateInterestReport()", desc: "Generates interest refund report", status: "working" },
+    ]
+  },
+  {
+    group: "Trust Estate Module",
+    icon: "🏦",
+    items: [
+      { element: "+ Add Entry (Dashboard)", type: "Button", handler: "switchMainTab('trustLedger')", desc: "Navigates to Trust Ledger for entry", status: "working" },
+      { element: "Trust Estate Reports (Dashboard)", type: "Button", handler: "switchMainTab('trustReports')", desc: "Navigates to Trust Reports page", status: "working" },
+      { element: "Export CSV (Dashboard)", type: "Button", handler: "trustExportCSV()", desc: "Exports trust data as CSV file", status: "working" },
+      { element: "+ Add Entry (Ledger)", type: "Button", handler: "trustShowForm()", desc: "Shows trust entry form with accounts", status: "working" },
+      { element: "Cancel (Ledger)", type: "Button", handler: "trustHideForm()", desc: "Hides entry form and clears fields", status: "working" },
+      { element: "💾 Save Entry", type: "Button", handler: "trustSaveEntry()", desc: "Saves double-entry trust transaction", status: "working" },
+      { element: "Filter", type: "Button", handler: "trustApplyFilters()", desc: "Filters trust entries by date/type/account", status: "working" },
+      { element: "Reset", type: "Button", handler: "trustResetFilters()", desc: "Clears all filter criteria", status: "working" },
+      { element: "Generate Trial Balance", type: "Button", handler: "generateTrustTrialBalance()", desc: "Generates trust trial balance report", status: "working" },
+      { element: "Generate Asset Summary", type: "Button", handler: "generateTrustAssetSummary()", desc: "Generates asset type totals summary", status: "working" },
+      { element: "📊 Export CSV", type: "Button", handler: "trustExportCSV()", desc: "Exports trust report as CSV", status: "working" },
+      { element: "📋 Export JSON", type: "Button", handler: "trustExportJSON()", desc: "Exports trust data as JSON", status: "working" },
+      { element: "🖨️ Print Report", type: "Button", handler: "trustPrintReport()", desc: "Opens print dialog for trust report", status: "working" },
+    ]
+  },
+  {
+    group: "Operations Modules",
+    icon: "⚙️",
+    items: [
+      { element: "+ Add Line (Invoice)", type: "Button", handler: "addInvLine()", desc: "Adds new line item to invoice", status: "working" },
+      { element: "✕ Remove Line (Invoice)", type: "Button", handler: "removeInvLine(this)", desc: "Removes invoice line item row", status: "working" },
+      { element: "💾 Save Invoice", type: "Button", handler: "saveInvoice()", desc: "Saves invoice with all line items", status: "working" },
+      { element: "🖨️ Print/PDF Invoice", type: "Button", handler: "printInvoice()", desc: "Opens invoice in print preview", status: "working" },
+      { element: "✕ Cancel Invoice", type: "Button", handler: "classList.add('hidden')", desc: "Hides invoice form panel", status: "working" },
+      { element: "➕ Add Employee", type: "Button", handler: "showEmployeeModal()", desc: "Opens payroll calculator form", status: "working" },
+      { element: "💾 Save Payroll Record", type: "Button", handler: "savePayrollRecord()", desc: "Saves employee payroll entry", status: "working" },
+      { element: "➕ Add Inventory Item", type: "Button", handler: "showInventoryItemModal()", desc: "Opens inventory item form", status: "working" },
+      { element: "💾 Save Inventory Item", type: "Button", handler: "saveInventoryItem()", desc: "Saves inventory item with details", status: "working" },
+      { element: "💾 Save Budget Plan", type: "Button", handler: "saveBudget()", desc: "Saves budget values to localStorage", status: "working" },
+      { element: "💾 Save Schedule A", type: "Button", handler: "saveScheduleA()", desc: "Saves Schedule A deduction data", status: "working" },
+    ]
+  },
+  {
+    group: "Payment Orders & Bills of Exchange",
+    icon: "💳",
+    items: [
+      { element: "💾 Save Payment Order", type: "Button", handler: "savePaymentOrder()", desc: "Persists payment order to localStorage", status: "working" },
+      { element: "🖨️ Print/Preview PO", type: "Button", handler: "printPaymentOrder()", desc: "Opens payment order print preview", status: "working" },
+      { element: "🔄 Clear PO Form", type: "Button", handler: "clearPOForm()", desc: "Resets payment order form fields", status: "working" },
+      { element: "Clear Signature", type: "Button", handler: "boeClearSignature()", desc: "Erases drawn signature from canvas", status: "working" },
+      { element: "Undo Stroke", type: "Button", handler: "boeUndoStroke()", desc: "Undoes last signature stroke", status: "working" },
+      { element: "Accept Signature", type: "Button", handler: "boeAcceptSignature()", desc: "Locks signature for bill submission", status: "working" },
+      { element: "Re-sign", type: "Link", handler: "boeResetSignature()", desc: "Resets signature for re-entry", status: "working" },
+      { element: "💾 Save Bill of Exchange", type: "Button", handler: "saveBOE()", desc: "Persists bill of exchange data", status: "working" },
+      { element: "🖨️ Print/Preview BOE", type: "Button", handler: "printBOE()", desc: "Opens bill of exchange print preview", status: "working" },
+      { element: "🔄 Clear BOE Form", type: "Button", handler: "clearBOEForm()", desc: "Resets bill of exchange form fields", status: "working" },
+    ]
+  },
+  {
+    group: "Expenses, Contacts & Assets",
+    icon: "🧾",
+    items: [
+      { element: "➕ Add Expense", type: "Button", handler: "toggle('hidden')", desc: "Toggles expense entry form visibility", status: "working" },
+      { element: "💾 Save Expense", type: "Button", handler: "saveExpense()", desc: "Saves expense record with category", status: "working" },
+      { element: "📊 Export Expenses CSV", type: "Button", handler: "exportExpensesCSV()", desc: "Exports all expenses as CSV", status: "working" },
+      { element: "🖨️ Print Expense Report", type: "Button", handler: "printExpenseReport()", desc: "Opens expense report in print dialog", status: "working" },
+      { element: "➕ Add Customer", type: "Button", handler: "showAddContact('customer')", desc: "Opens customer contact form", status: "working" },
+      { element: "Save Customer", type: "Button", handler: "saveContact('customer')", desc: "Persists customer contact info", status: "working" },
+      { element: "➕ Add Vendor", type: "Button", handler: "showAddContact('vendor')", desc: "Opens vendor contact form", status: "working" },
+      { element: "Save Vendor", type: "Button", handler: "saveContact('vendor')", desc: "Persists vendor contact info", status: "working" },
+      { element: "➕ Add Depreciation Asset", type: "Button", handler: "toggle('hidden')", desc: "Toggles depreciation asset form", status: "working" },
+      { element: "💾 Add Asset (Depreciation)", type: "Button", handler: "saveAsset()", desc: "Saves asset with MACRS/SL method", status: "working" },
+    ]
+  },
+  {
+    group: "Bank Reconciliation & Reports",
+    icon: "🏦",
+    items: [
+      { element: "💾 Save Reconciliation", type: "Button", handler: "saveReconciliation()", desc: "Saves bank reconciliation data", status: "working" },
+      { element: "🖨️ Print Reconciliation", type: "Button", handler: "printReconciliation()", desc: "Opens reconciliation print dialog", status: "working" },
+      { element: "🔄 Generate Master Report", type: "Button", handler: "generateMasterReport()", desc: "Compiles all financial data into report", status: "working" },
+      { element: "🖨️ Print Master Report", type: "Button", handler: "printMasterReport()", desc: "Opens master report print preview", status: "working" },
+    ]
+  },
+  {
+    group: "AI Agents (GAAPCLAW + 6 CPA Firms)",
+    icon: "🤖",
+    items: [
+      { element: "GAAPCLAW Master — Send Query", type: "Button", handler: "sendTrustAgentQuery()", desc: "Streams query to trust accounting AI agent. Requires: API key (Settings → API Keys)", status: "working" },
+      { element: "GAAPCLAW Master — Quick Queries (×9)", type: "Button", handler: "trustAgentQ(question)", desc: "Wrapper → sets question + calls sendTrustAgentQuery(). Requires: API key", status: "working" },
+      { element: "GAAPCLAW Master — Clear Chat", type: "Button", handler: "clearTrustAgentChat()", desc: "Clears agent chat history and response", status: "working" },
+      { element: "Nonprofit CPA — Send Query", type: "Button", handler: "sendCPAQuery('nfp')", desc: "Streams query to Form 990 specialist via callLLMStream + MEM0. Requires: API key", status: "working" },
+      { element: "Partnership CPA — Send Query", type: "Button", handler: "sendCPAQuery('ptnr')", desc: "Streams query to Form 1065 specialist via callLLMStream + MEM0. Requires: API key", status: "working" },
+      { element: "Corporation CPA — Send Query", type: "Button", handler: "sendCPAQuery('corp')", desc: "Streams query to Form 1120 specialist via callLLMStream + MEM0. Requires: API key", status: "working" },
+      { element: "Trust CPA — Send Query", type: "Button", handler: "sendCPAQuery('trust')", desc: "Streams query to Form 1041 specialist via callLLMStream + MEM0. Requires: API key", status: "working" },
+      { element: "Trust Corp CPA — Send Query", type: "Button", handler: "sendCPAQuery('tcorp')", desc: "Streams query to hybrid entity specialist via callLLMStream + MEM0. Requires: API key", status: "working" },
+      { element: "Consolidated CPA — Send Query", type: "Button", handler: "sendCPAQuery('consol')", desc: "Streams query to consolidated corp specialist via callLLMStream + MEM0. Requires: API key", status: "working" },
+      { element: "CPA Sub-Agent Toggle (×6 firms × 3 agents)", type: "Button", handler: "switchCPASubAgent(firm, sub)", desc: "Switches between tax/reporting/audit sub-agents", status: "working" },
+      { element: "CPA Quick Queries (×6 firms × 4-6 each)", type: "Button", handler: "cpaQuery(firm, question)", desc: "Wrapper → sets question + calls sendCPAQuery(firm). Requires: API key", status: "working" },
+      { element: "CPA Clear Chat (×6 firms)", type: "Button", handler: "clearCPAChat(firm)", desc: "Clears CPA agent chat history", status: "working" },
+    ]
+  },
+  {
+    group: "LLM & Voice Engine",
+    icon: "🎙️",
+    items: [
+      { element: "callLLMStream()", type: "Engine", handler: "callLLMStream()", desc: "140-line multi-provider streaming engine (11 providers). Shows setup instructions if key missing. Requires: API key via Settings", status: "working" },
+      { element: "resolveProvider()", type: "Engine", handler: "resolveProvider()", desc: "Reads eeon_* localStorage keys; cascading fallback to Claude; returns null gracefully", status: "working" },
+      { element: "askAgent()", type: "Engine", handler: "askAgent()", desc: "Full impl: MEM0.search → callLLMStream → MEM0.add. Shows 'Go to Settings' on auth errors. Requires: API key", status: "working" },
+      { element: "Toggle Microphone", type: "Button", handler: "toggleMic()", desc: "Wired to startVoiceRec()/stopVoiceRec(). Requires: Chrome/Edge/Safari (SpeechRecognition API)", status: "working" },
+      { element: "Toggle Agent STT", type: "Button", handler: "toggleAgentSTT()", desc: "Calls startVoiceRec() via webkitSpeechRecognition. Requires: Chrome/Edge/Safari", status: "working" },
+      { element: "Toggle Agent TTS", type: "Button", handler: "toggleAgentTTS()", desc: "Toggles speechSynthesis.speak() output. Requires: any modern browser", status: "working" },
+      { element: "GCMemory (IndexedDB)", type: "Engine", handler: "GCMemory.add/search/clear", desc: "Persistent memory engine (IndexedDB: GCMemory_v1)", status: "working" },
+      { element: "HARD_LOCK Sanitizer", type: "Engine", handler: "HARD_LOCK.sanitizeOutput()", desc: "Frozen output sanitizer + prompt validator v2.0", status: "working" },
+      { element: "OpenClawRuntime", type: "Engine", handler: "OpenClawRuntime", desc: "SYPHER-7.8-HARDLOCK agent registry", status: "working" },
+    ]
+  },
+  {
+    group: "Entity Verifier v2.0",
+    icon: "🔍",
+    items: [
+      { element: "Verify All", type: "Button", handler: "ev2RunVerification()", desc: "Batch verification on all entities from ledger", status: "working" },
+      { element: "Export JSON", type: "Button", handler: "ev2ExportResults('json')", desc: "Downloads verification results as JSON", status: "working" },
+      { element: "Export CSV", type: "Button", handler: "ev2ExportResults('csv')", desc: "Downloads verification results as CSV", status: "working" },
+      { element: "Import CSV", type: "Button", handler: "ev2ImportCSV()", desc: "Imports entities from TMAR CSV into universal registry. Deduplicates by EIN/name.", status: "working" },
+      { element: "Guide Toggle", type: "Button", handler: "ev2ToggleInfoGuide()", desc: "Toggles interactive info guide badges", status: "working" },
+      { element: "Verify Single", type: "Button", handler: "ev2VerifySingle()", desc: "Single entity verification by name/EIN/type", status: "working" },
+      { element: "Run Full Pre-Flight", type: "Button", handler: "ev2RunBatchPreflight()", desc: "Runs 15 IRIS pre-flight checks on all entities", status: "working" },
+      { element: "Dashboard subtab", type: "Tab", handler: "ev2SwitchSubTab('dashboard')", desc: "Entity verification overview and status cards", status: "working" },
+      { element: "Single Verify subtab", type: "Tab", handler: "ev2SwitchSubTab('single-verify')", desc: "Single entity lookup and verification", status: "working" },
+      { element: "Batch Results subtab", type: "Tab", handler: "ev2SwitchSubTab('batch-results')", desc: "Searchable/filterable verification results table", status: "working" },
+      { element: "IRIS Pre-Flight subtab", type: "Tab", handler: "ev2SwitchSubTab('preflight-panel')", desc: "15-check IRIS pre-flight rejection scanner", status: "working" },
+      { element: "Settings subtab", type: "Tab", handler: "ev2SwitchSubTab('settings')", desc: "SAM.gov API key, source toggles, cache management", status: "working" },
+    ]
+  },
+  {
+    group: "Sync Center (Google Apps Script)",
+    icon: "🔄",
+    items: [
+      { element: "Test Connection", type: "Button", handler: "testConnection()", desc: "100-line test: minimal API call to active provider. Shows status message. Requires: API key configured", status: "working" },
+      { element: "Test Sync Connection", type: "Button", handler: "testSyncConnection()", desc: "Pings GAS Web App ?action=ping; shows version, year, latency. Requires: GAS Web App URL", status: "working" },
+      { element: "Pull Accounts", type: "Button", handler: "syncPull('accounts')", desc: "Pulls entities from GAS via SyncBridge with progress bar. Requires: GAS Web App URL (Sync Center tab)", status: "working" },
+      { element: "Pull Obligations", type: "Button", handler: "syncPull('obligations')", desc: "Pulls A/P from GAS via SyncBridge with progress bar. Requires: GAS Web App URL", status: "working" },
+      { element: "Pull Transactions", type: "Button", handler: "syncPull('transactions')", desc: "Pulls ledger entries from GAS via SyncBridge. Requires: GAS Web App URL", status: "working" },
+      { element: "Pull All", type: "Button", handler: "syncPullAll()", desc: "Sequential pull of accounts → transactions → obligations. Requires: GAS Web App URL", status: "working" },
+      { element: "Push 1099", type: "Button", handler: "syncPush('1099')", desc: "Pushes all 1099 filings to GAS. Validates non-empty. Requires: GAS Web App URL + filing data", status: "working" },
+      { element: "Push Entities", type: "Button", handler: "syncPush('entities')", desc: "Pushes entity data to GAS via _prepEntitiesForPush(). Requires: GAS Web App URL", status: "working" },
+      { element: "Push Payables", type: "Button", handler: "syncPush('payables')", desc: "Pushes A/P data to GAS via _prepPayablesForPush(). Requires: GAS Web App URL", status: "working" },
+      { element: "Push Transactions", type: "Button", handler: "syncPush('transactions')", desc: "Pushes ledger entries to GAS. Requires: GAS Web App URL", status: "working" },
+      { element: "Push All", type: "Button", handler: "syncPushAll()", desc: "Sequential push of entities → transactions → payables → 1099s. Filters empty. Requires: GAS Web App URL", status: "working" },
+    ]
+  },
+  {
+    group: "Tax Refund Calculator (TRCF)",
+    icon: "💰",
+    items: [
+      { element: "Tab: Calculator", type: "Tab", handler: "trcfSwitchTab('calculator')", desc: "Main TRCF calculator view", status: "working" },
+      { element: "Tab: Financial Instruments", type: "Tab", handler: "trcfSwitchTab('financial-instruments')", desc: "FI loss calculation tools", status: "working" },
+      { element: "Tab: Form Guidance", type: "Tab", handler: "trcfSwitchTab('form-guidance')", desc: "IRS form selection guidance", status: "working" },
+      { element: "Tab: Info Returns", type: "Tab", handler: "trcfSwitchTab('info-returns')", desc: "Information return reference", status: "working" },
+      { element: "Tab: Interest Refunds", type: "Tab", handler: "trcfSwitchTab('interest-refunds')", desc: "Interest refund calculator", status: "working" },
+      { element: "Tab: Legal Requirements", type: "Tab", handler: "trcfSwitchTab('legal-requirements')", desc: "Legal requirement reference", status: "working" },
+      { element: "Tab: Tax Rates", type: "Tab", handler: "trcfSwitchTab('tax-rates')", desc: "Tax rate tables reference", status: "working" },
+      { element: "Route 1-4 Selection", type: "Button", handler: "trcfSelectRoute(1-4)", desc: "Selects NOL refund calculation route", status: "working" },
+      { element: "FI Method 1-4 Selection", type: "Button", handler: "trcfFI_selectMethod(1-4)", desc: "Selects FI loss calculation method", status: "working" },
+      { element: "FI Calculate", type: "Button", handler: "trcfFI_calculate()", desc: "Calculates FI loss tax benefit", status: "working" },
+      { element: "FI Clear", type: "Button", handler: "trcfFI_clear()", desc: "Clears FI calculator inputs", status: "working" },
+      { element: "FI Validate", type: "Button", handler: "trcfFI_validate()", desc: "Validates FI documentation checklist", status: "working" },
+      { element: "FI Print", type: "Button", handler: "trcfFI_print()", desc: "Prints FI calculation results", status: "working" },
+      { element: "Calculate NOL", type: "Button", handler: "trcfCalculateNOL()", desc: "Calculates NOL carryback refund", status: "working" },
+      { element: "Clear NOL", type: "Button", handler: "trcfClearNOL()", desc: "Clears NOL calculator fields", status: "working" },
+      { element: "Print NOL", type: "Button", handler: "trcfPrintNOL()", desc: "Prints NOL refund report", status: "working" },
+      { element: "Calculate Bad Debt (TRCF)", type: "Button", handler: "trcfCalculateBadDebt()", desc: "Calculates bad debt via TRCF module", status: "working" },
+      { element: "Clear Bad Debt (TRCF)", type: "Button", handler: "trcfClearBadDebt()", desc: "Clears TRCF bad debt fields", status: "working" },
+      { element: "Print Bad Debt (TRCF)", type: "Button", handler: "trcfPrintBadDebt()", desc: "Prints bad debt calculation", status: "working" },
+      { element: "Interest Calculate", type: "Button", handler: "trcfInt_calculate()", desc: "Calculates interest refund benefit", status: "working" },
+      { element: "Interest Clear", type: "Button", handler: "trcfInt_clear()", desc: "Clears interest calculator fields", status: "working" },
+      { element: "Interest Validate", type: "Button", handler: "trcfInt_validate()", desc: "Validates interest documentation", status: "working" },
+      { element: "Interest Generate Report", type: "Button", handler: "trcfInt_generateReport()", desc: "Generates interest refund report", status: "working" },
+      { element: "Interest UI Calculate", type: "Button", handler: "trcfCalcInterestUI()", desc: "Calculates interest from UI inputs", status: "working" },
+    ]
+  },
+  {
+    group: "Modal System",
+    icon: "🪟",
+    items: [
+      { element: "showModal(content)", type: "Engine", handler: "showModal()", desc: "Displays dynamic modal overlay with content", status: "working" },
+      { element: "closeModal()", type: "Engine", handler: "closeModal()", desc: "Closes and clears modal container", status: "working" },
+      { element: "showAlert(message)", type: "Engine", handler: "showAlert()", desc: "Shows alert message in modal dialog", status: "working" },
+      { element: "showConfirm(msg, cb)", type: "Engine", handler: "showConfirm()", desc: "Shows confirmation dialog with callback", status: "working" },
+    ]
+  },
+];
+
+// Render
+function render() {
+  const container = document.getElementById('sections');
+  let html = '';
+  let total = 0, working = 0, broken = 0;
+
+  DATA.forEach(section => {
+    section.items.forEach(i => {
+      total++;
+      if (i.status === 'working') working++;
+      else broken++;
+    });
+
+    html += `<div class="section" data-group="${section.group}">
+      <div class="section-header" onclick="toggleSection(this)">
+        <span class="icon">${section.icon}</span>
+        <h2>${section.group}</h2>
+        <span class="badge">${section.items.length} elements</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="section-body">
+        <table>
+          <thead><tr><th>Element</th><th>Type</th><th>Handler</th><th>Description</th><th>Status</th></tr></thead>
+          <tbody>`;
+
+    section.items.forEach(item => {
+      const statusClass = item.status === 'not-working' ? 'not-working' : item.status;
+      const dotClass = item.status === 'working' ? 'g' : item.status === 'unconfirmed' ? 'y' : 'r';
+      const label = item.status === 'not-working' ? 'Not Working' : item.status.charAt(0).toUpperCase() + item.status.slice(1);
+      html += `<tr class="row" data-status="${item.status}" data-search="${(item.element + ' ' + item.handler + ' ' + item.desc).toLowerCase()}">
+        <td>${item.element}</td>
+        <td>${item.type}</td>
+        <td><span class="fn-name">${item.handler}</span></td>
+        <td>${item.desc}</td>
+        <td><span class="status ${statusClass}"><span class="dot ${dotClass}"></span>${label}</span></td>
+      </tr>`;
+    });
+
+    html += `</tbody></table></div></div>`;
+  });
+
+  container.innerHTML = html;
+  document.getElementById('totalCount').textContent = total;
+  document.getElementById('workingCount').textContent = working;
+  document.getElementById('brokenCount').textContent = broken;
+}
+
+function toggleSection(el) {
+  el.classList.toggle('collapsed');
+  const body = el.nextElementSibling;
+  body.style.display = body.style.display === 'none' ? '' : 'none';
+}
+
+function filterStatus(status) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  document.querySelectorAll('.row').forEach(r => {
+    if (status === 'all' || r.dataset.status === status) r.classList.remove('hidden');
+    else r.classList.add('hidden');
+  });
+}
+
+function searchElements(query) {
+  const q = query.toLowerCase();
+  document.querySelectorAll('.row').forEach(r => {
+    if (!q || r.dataset.search.includes(q)) r.classList.remove('hidden');
+    else r.classList.add('hidden');
+  });
+}
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,1747 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    /* ===== RESET & BASE ===== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      font-size: 13px;
+      line-height: 1.5;
+      width: 600px;
+      overflow-x: hidden;
+    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #1e293b; }
+    ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+    /* ===== TAB BAR ===== */
+    .tab-bar {
+      display: flex;
+      background: #1e293b;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 10px 4px;
+      background: none;
+      border: none;
+      color: #94a3b8;
+      font-size: 11px;
+      cursor: pointer;
+      text-align: center;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+    .tab-btn:hover { color: #e2e8f0; background: rgba(255,255,255,0.03); }
+    .tab-btn.active { color: #10b981; border-bottom-color: #10b981; background: rgba(16,185,129,0.05); }
+    .tab-btn .tab-icon { font-size: 16px; }
+    .tab-panel { display: none; padding: 16px; min-height: calc(100vh - 52px); }
+    .tab-panel.active { display: block; }
+
+    /* ===== CARDS ===== */
+    .card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .card-header {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #94a3b8;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ===== SUMMARY GRID ===== */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .summary-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 6px;
+      padding: 10px;
+      text-align: center;
+    }
+    .summary-card .sc-value {
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .summary-card .sc-label {
+      font-size: 10px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+    }
+
+    /* ===== IRIS READINESS ===== */
+    .iris-readiness {
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .iris-readiness.ready { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); }
+    .iris-readiness.blocked { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3); }
+    .iris-readiness .ir-icon { font-size: 28px; }
+    .iris-readiness .ir-label { font-size: 18px; font-weight: 700; margin-top: 4px; }
+    .iris-readiness .ir-sub { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: #fff;
+    }
+    .btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; filter: none; }
+    .btn-green { background: #10b981; }
+    .btn-blue { background: #3b82f6; }
+    .btn-purple { background: #a855f7; }
+    .btn-amber { background: #f59e0b; color: #0f172a; }
+    .btn-red { background: #ef4444; }
+    .btn-gray { background: #475569; }
+    .btn-sm { padding: 5px 10px; font-size: 11px; }
+    .btn-lg { padding: 10px 24px; font-size: 14px; }
+    .btn-block { width: 100%; justify-content: center; }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #e2e8f0;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.05); }
+    .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    /* ===== BADGES ===== */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+    .badge-green { background: rgba(16,185,129,0.2); color: #34d399; }
+    .badge-red { background: rgba(239,68,68,0.2); color: #f87171; }
+    .badge-amber { background: rgba(245,158,11,0.2); color: #fbbf24; }
+    .badge-orange { background: rgba(249,115,22,0.2); color: #fb923c; }
+    .badge-purple { background: rgba(168,85,247,0.2); color: #c084fc; }
+    .badge-gray { background: rgba(148,163,184,0.2); color: #94a3b8; }
+    .badge-blue { background: rgba(59,130,246,0.2); color: #60a5fa; }
+    .badge-white { background: rgba(255,255,255,0.15); color: #e2e8f0; }
+    .badge-lg { padding: 6px 14px; font-size: 12px; border-radius: 6px; }
+
+    /* ===== FORM ELEMENTS ===== */
+    .form-group { margin-bottom: 12px; }
+    .form-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: #94a3b8;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .form-input {
+      width: 100%;
+      padding: 9px 12px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      color: #e2e8f0;
+      font-size: 13px;
+      transition: border-color 0.15s;
+    }
+    .form-input:focus { outline: none; border-color: #10b981; background: rgba(255,255,255,0.08); }
+    .form-input::placeholder { color: #64748b; }
+    .form-hint { font-size: 10px; color: #64748b; margin-top: 3px; }
+    .form-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .form-check input[type="checkbox"] {
+      accent-color: #10b981;
+      width: 14px;
+      height: 14px;
+    }
+
+    /* ===== TABLE ===== */
+    .ev-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+    .ev-table th {
+      text-align: left;
+      padding: 8px 6px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #64748b;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      white-space: nowrap;
+    }
+    .ev-table td {
+      padding: 7px 6px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      vertical-align: middle;
+    }
+    .ev-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .ev-table .sortable { cursor: pointer; user-select: none; }
+    .ev-table .sortable:hover { color: #e2e8f0; }
+
+    /* ===== CONFIDENCE BAR ===== */
+    .conf-bar-wrap {
+      background: rgba(255,255,255,0.08);
+      border-radius: 4px;
+      height: 8px;
+      width: 80px;
+      overflow: hidden;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .conf-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.4s ease;
+    }
+    .conf-label { font-size: 10px; font-weight: 600; margin-left: 4px; vertical-align: middle; }
+
+    /* ===== PROGRESS BAR ===== */
+    .progress-wrap {
+      background: rgba(255,255,255,0.08);
+      border-radius: 6px;
+      height: 12px;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 6px;
+      background: linear-gradient(90deg, #10b981, #3b82f6);
+      transition: width 0.3s ease;
+    }
+    .progress-text { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+
+    /* ===== DBA ALERT ===== */
+    .dba-alert {
+      background: rgba(168,85,247,0.12);
+      border: 1px solid rgba(168,85,247,0.3);
+      border-left: 4px solid #a855f7;
+      border-radius: 6px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+    .dba-alert .dba-title {
+      font-weight: 700;
+      color: #c084fc;
+      font-size: 12px;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .dba-alert .dba-body { font-size: 12px; color: #e2e8f0; }
+    .dba-alert .dba-legal {
+      font-weight: 700;
+      color: #a855f7;
+      background: rgba(168,85,247,0.15);
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+
+    /* ===== TIMELINE ===== */
+    .timeline { position: relative; padding-left: 24px; margin: 10px 0; }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 4px;
+      bottom: 4px;
+      width: 2px;
+      background: rgba(255,255,255,0.1);
+    }
+    .tl-event {
+      position: relative;
+      margin-bottom: 12px;
+      font-size: 12px;
+    }
+    .tl-event::before {
+      content: '';
+      position: absolute;
+      left: -20px;
+      top: 5px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 2px solid #3b82f6;
+      background: #0f172a;
+    }
+    .tl-event .tl-date { font-size: 10px; color: #64748b; }
+    .tl-event .tl-desc { color: #e2e8f0; }
+
+    /* ===== WARNING CARDS ===== */
+    .warning-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+    }
+    .warning-card.sev-critical { border-left: 4px solid #ef4444; }
+    .warning-card.sev-high { border-left: 4px solid #f59e0b; }
+    .warning-card.sev-medium { border-left: 4px solid #3b82f6; }
+    .warning-card.sev-low { border-left: 4px solid #94a3b8; }
+    .warning-card .wc-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .warning-card .wc-entity { font-weight: 600; font-size: 12px; }
+    .warning-card .wc-msg { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+    .warning-card .wc-fix { font-size: 11px; color: #60a5fa; margin-top: 4px; }
+
+    /* ===== FILTER BAR ===== */
+    .filter-bar {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .filter-btn {
+      padding: 4px 10px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 4px;
+      background: transparent;
+      color: #94a3b8;
+      font-size: 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .filter-btn:hover { background: rgba(255,255,255,0.05); color: #e2e8f0; }
+    .filter-btn.active { background: rgba(16,185,129,0.15); border-color: #10b981; color: #10b981; }
+
+    /* ===== SPINNER ===== */
+    .spinner-wrap { text-align: center; padding: 24px; }
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: #10b981;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner-text { font-size: 12px; color: #94a3b8; }
+
+    /* ===== TOAST ===== */
+    .toast-container {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .toast {
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #fff;
+      animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .toast-success { background: #10b981; }
+    .toast-error { background: #ef4444; }
+    .toast-info { background: #3b82f6; }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
+
+    /* ===== COLLAPSIBLE ===== */
+    .collapsible-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      padding: 8px 0;
+      user-select: none;
+    }
+    .collapsible-header:hover { color: #e2e8f0; }
+    .collapsible-body { display: none; padding-top: 6px; }
+    .collapsible-body.open { display: block; }
+    .collapse-arrow { transition: transform 0.2s; font-size: 10px; }
+    .collapse-arrow.open { transform: rotate(90deg); }
+
+    /* ===== ACTIVITY LIST ===== */
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 12px;
+    }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-time { font-size: 10px; color: #64748b; white-space: nowrap; }
+    .activity-name { flex: 1; font-weight: 500; }
+
+    /* ===== SEVERITY SUMMARY BAR ===== */
+    .sev-summary {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .sev-item {
+      flex: 1;
+      text-align: center;
+      padding: 8px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.04);
+    }
+    .sev-item .sev-count { font-size: 20px; font-weight: 700; }
+    .sev-item .sev-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* ===== SETTINGS ===== */
+    .settings-section { margin-bottom: 20px; }
+    .settings-section .ss-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #e2e8f0;
+      margin-bottom: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .source-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 0;
+      font-size: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .source-toggle:last-child { border-bottom: none; }
+    .toggle-switch {
+      position: relative;
+      width: 32px;
+      height: 18px;
+    }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #475569;
+      border-radius: 9px;
+      transition: 0.2s;
+    }
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      height: 14px;
+      width: 14px;
+      left: 2px;
+      bottom: 2px;
+      background: #e2e8f0;
+      border-radius: 50%;
+      transition: 0.2s;
+    }
+    .toggle-switch input:checked + .toggle-slider { background: #10b981; }
+    .toggle-switch input:checked + .toggle-slider::before { transform: translateX(14px); }
+
+    /* ===== RESULT DETAIL ===== */
+    .result-detail {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 14px;
+      margin-top: 12px;
+    }
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px 0;
+      font-size: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .result-row:last-child { border-bottom: none; }
+    .result-row .rr-label { color: #94a3b8; }
+    .result-row .rr-value { font-weight: 500; text-align: right; max-width: 60%; }
+
+    /* ===== EXPANDABLE ROW ===== */
+    .expand-row { display: none; }
+    .expand-row.open { display: table-row; }
+    .expand-row td {
+      padding: 12px;
+      background: rgba(255,255,255,0.02);
+    }
+
+    /* ===== MISC ===== */
+    .text-muted { color: #64748b; }
+    .text-green { color: #10b981; }
+    .text-red { color: #ef4444; }
+    .text-amber { color: #fbbf24; }
+    .text-purple { color: #c084fc; }
+    .text-blue { color: #60a5fa; }
+    .mt-8 { margin-top: 8px; }
+    .mt-12 { margin-top: 12px; }
+    .mb-8 { margin-bottom: 8px; }
+    .gap-8 { gap: 8px; }
+    .flex { display: flex; }
+    .flex-wrap { flex-wrap: wrap; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .hidden { display: none !important; }
+    .inline-flex { display: inline-flex; align-items: center; gap: 4px; }
+    .stat-row { display: flex; justify-content: space-between; font-size: 12px; padding: 4px 0; }
+    .about-version { text-align: center; padding: 16px; color: #64748b; font-size: 11px; }
+  </style>
+</head>
+<body>
+
+  <!-- ===== TAB BAR ===== -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('dashboard')">
+      <span class="tab-icon">&#x1F4CA;</span>Dashboard
+    </button>
+    <button class="tab-btn" onclick="switchTab('verify')">
+      <span class="tab-icon">&#x1F50D;</span>Verify
+    </button>
+    <button class="tab-btn" onclick="switchTab('batch')">
+      <span class="tab-icon">&#x1F4CB;</span>Batch
+    </button>
+    <button class="tab-btn" onclick="switchTab('preflight')">
+      <span class="tab-icon">&#x2708;&#xFE0F;</span>IRIS
+    </button>
+    <button class="tab-btn" onclick="switchTab('settings')">
+      <span class="tab-icon">&#x2699;&#xFE0F;</span>Settings
+    </button>
+  </div>
+
+  <!-- ===== TOAST CONTAINER ===== -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 1: DASHBOARD                                              -->
+  <!-- ============================================================ -->
+  <div class="tab-panel active" id="panel-dashboard">
+
+    <!-- Summary Cards -->
+    <div id="dash-summary">
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="sc-value" style="color:#e2e8f0" id="ds-total">--</div>
+          <div class="sc-label">Total Entities</div>
+        </div>
+        <div class="summary-card">
+          <div class="sc-value" style="color:#10b981" id="ds-verified">--</div>
+          <div class="sc-label">Verified</div>
+        </div>
+        <div class="summary-card">
+          <div class="sc-value" style="color:#a855f7" id="ds-dba">--</div>
+          <div class="sc-label">DBA Mismatch</div>
+        </div>
+        <div class="summary-card">
+          <div class="sc-value" style="color:#64748b" id="ds-defunct">--</div>
+          <div class="sc-label">Defunct</div>
+        </div>
+        <div class="summary-card">
+          <div class="sc-value" style="color:#e2e8f0" id="ds-manual">--</div>
+          <div class="sc-label">Manual Required</div>
+        </div>
+        <div class="summary-card">
+          <div class="sc-value" style="color:#ef4444" id="ds-unverified">--</div>
+          <div class="sc-label">Unverified</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IRIS Filing Readiness -->
+    <div id="dash-iris-readiness">
+      <div class="iris-readiness blocked" id="iris-readiness-box">
+        <div class="ir-icon" id="iris-icon">&#x23F3;</div>
+        <div class="ir-label" id="iris-label">Loading...</div>
+        <div class="ir-sub" id="iris-sub">Fetching verification status</div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card">
+      <div class="card-header">&#x26A1; Quick Actions</div>
+      <div class="quick-actions">
+        <button class="btn btn-green" onclick="verifyBatch()" id="btn-verify-all">
+          &#x2705; Verify All Entities
+        </button>
+        <button class="btn btn-blue" onclick="runPreflight()" id="btn-preflight">
+          &#x2708;&#xFE0F; Run IRIS Pre-Flight
+        </button>
+        <button class="btn btn-gray btn-sm" onclick="purgeCache()">
+          &#x1F5D1;&#xFE0F; Purge Cache
+        </button>
+        <button class="btn btn-gray btn-sm" onclick="exportResults()">
+          &#x1F4E5; Export Results
+        </button>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="card">
+      <div class="card-header">&#x1F552; Recent Verification Activity</div>
+      <div id="dash-activity">
+        <div class="spinner-wrap">
+          <div class="spinner"></div>
+          <div class="spinner-text">Loading activity...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 2: VERIFY SINGLE                                          -->
+  <!-- ============================================================ -->
+  <div class="tab-panel" id="panel-verify">
+    <div class="card">
+      <div class="card-header">&#x1F50D; Verify Single Entity</div>
+
+      <div class="form-group">
+        <label class="form-label" for="ev-name">Entity Name</label>
+        <input type="text" class="form-input" id="ev-name" placeholder="e.g. JPMorgan Chase Bank, N.A.">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="ev-ein">EIN</label>
+        <input type="text" class="form-input" id="ev-ein" placeholder="XX-XXXXXXX" maxlength="10">
+        <div class="form-hint">Format: XX-XXXXXXX (optional)</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-check">
+          <input type="checkbox" id="ev-force">
+          Force re-verify (bypass cache)
+        </label>
+      </div>
+
+      <button class="btn btn-green btn-block btn-lg" onclick="verifySingle()" id="btn-verify-single">
+        &#x1F50D; Verify Entity
+      </button>
+    </div>
+
+    <!-- Result Panel -->
+    <div id="ev-result"></div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 3: BATCH RESULTS                                          -->
+  <!-- ============================================================ -->
+  <div class="tab-panel" id="panel-batch">
+    <!-- Progress -->
+    <div id="ev-batch-progress" class="hidden">
+      <div class="card">
+        <div class="card-header">&#x1F504; Batch Verification In Progress</div>
+        <div class="progress-wrap">
+          <div class="progress-fill" id="batch-progress-bar" style="width: 0%"></div>
+        </div>
+        <div class="progress-text" id="batch-progress-text">Preparing...</div>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar" id="batch-filters">
+      <button class="filter-btn active" onclick="filterBatch('all')">Show All</button>
+      <button class="filter-btn" onclick="filterBatch('HIGH')">&#x2705; High</button>
+      <button class="filter-btn" onclick="filterBatch('MEDIUM')">&#x26A0;&#xFE0F; Medium</button>
+      <button class="filter-btn" onclick="filterBatch('LOW')">&#x1F7E0; Low</button>
+      <button class="filter-btn" onclick="filterBatch('DBA_MISMATCH')">&#x1F7E3; DBA</button>
+      <button class="filter-btn" onclick="filterBatch('DEFUNCT')">&#x1F6AB; Defunct</button>
+      <button class="filter-btn" onclick="filterBatch('MANUAL_REQUIRED')">&#x1F441;&#xFE0F; Manual</button>
+      <button class="filter-btn" onclick="filterBatch('UNVERIFIED')">&#x274C; Unverified</button>
+    </div>
+
+    <!-- Results Table -->
+    <div style="overflow-x: auto;">
+      <table class="ev-table" id="batch-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th class="sortable" onclick="sortBatch('entity')">Entity &#x25B4;&#x25BE;</th>
+            <th>EIN</th>
+            <th>Legal Name</th>
+            <th>Type</th>
+            <th>DBA?</th>
+            <th class="sortable" onclick="sortBatch('status')">Status &#x25B4;&#x25BE;</th>
+            <th class="sortable" onclick="sortBatch('confidence')">Conf &#x25B4;&#x25BE;</th>
+            <th>Warns</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="batch-tbody">
+          <tr><td colspan="10" style="text-align:center; padding:24px; color:#64748b;">
+            No batch results yet. Click "Verify All Entities" to begin.
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Export Buttons -->
+    <div class="flex gap-8 mt-12" id="batch-export-bar" style="display:none;">
+      <button class="btn btn-gray btn-sm" onclick="exportJSON()">&#x1F4C4; JSON</button>
+      <button class="btn btn-gray btn-sm" onclick="exportCSV()">&#x1F4C3; CSV</button>
+      <button class="btn btn-gray btn-sm" onclick="printAuditTrail()">&#x1F5A8;&#xFE0F; Print Audit Trail</button>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 4: IRIS PRE-FLIGHT REPORT                                 -->
+  <!-- ============================================================ -->
+  <div class="tab-panel" id="panel-preflight">
+
+    <!-- Severity Summary -->
+    <div class="sev-summary" id="pf-sev-summary">
+      <div class="sev-item">
+        <div class="sev-count text-red" id="pf-critical">--</div>
+        <div class="sev-label" style="color:#ef4444">Critical</div>
+      </div>
+      <div class="sev-item">
+        <div class="sev-count text-amber" id="pf-high">--</div>
+        <div class="sev-label" style="color:#fbbf24">High</div>
+      </div>
+      <div class="sev-item">
+        <div class="sev-count text-blue" id="pf-medium">--</div>
+        <div class="sev-label" style="color:#60a5fa">Medium</div>
+      </div>
+      <div class="sev-item">
+        <div class="sev-count" style="color:#94a3b8" id="pf-low">--</div>
+        <div class="sev-label" style="color:#94a3b8">Low</div>
+      </div>
+    </div>
+
+    <!-- Filing Readiness -->
+    <div id="pf-readiness">
+      <div class="iris-readiness blocked" id="pf-readiness-box">
+        <div class="ir-icon">&#x23F3;</div>
+        <div class="ir-label">Run Pre-Flight Check</div>
+        <div class="ir-sub">Click "Run IRIS Pre-Flight" on the Dashboard to generate report</div>
+      </div>
+    </div>
+
+    <button class="btn btn-blue btn-block mt-8" onclick="runPreflight()">&#x2708;&#xFE0F; Run IRIS Pre-Flight Check</button>
+
+    <!-- Warning Groups -->
+    <div id="pf-warnings" class="mt-12"></div>
+
+    <!-- Ready Entities (collapsed) -->
+    <div id="pf-ready-section" class="mt-12 hidden">
+      <div class="card">
+        <div class="collapsible-header" onclick="toggleCollapsible(this)">
+          <span class="card-header" style="margin:0">&#x2705; Ready Entities</span>
+          <span class="collapse-arrow">&#x25B6;</span>
+        </div>
+        <div class="collapsible-body" id="pf-ready-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 5: SETTINGS                                               -->
+  <!-- ============================================================ -->
+  <div class="tab-panel" id="panel-settings">
+
+    <!-- SAM.gov API Key -->
+    <div class="card">
+      <div class="settings-section">
+        <div class="ss-title">&#x1F511; SAM.gov API Key</div>
+        <div class="form-group">
+          <label class="form-label" for="ev-sam-key">API Key</label>
+          <input type="password" class="form-input" id="ev-sam-key" placeholder="Enter your api.data.gov API key">
+          <div class="form-hint">Get a free key at <strong>api.data.gov</strong></div>
+        </div>
+        <div class="flex gap-8">
+          <button class="btn btn-green btn-sm" onclick="saveApiKey()">&#x1F4BE; Save</button>
+          <button class="btn btn-blue btn-sm" onclick="testApiKey()">&#x1F9EA; Test Connection</button>
+        </div>
+        <div id="api-key-status" class="mt-8"></div>
+      </div>
+    </div>
+
+    <!-- Cache Settings -->
+    <div class="card">
+      <div class="settings-section">
+        <div class="ss-title">&#x1F4E6; Cache Settings</div>
+        <div class="form-group">
+          <label class="form-label" for="ev-cache-ttl">Cache TTL (days)</label>
+          <input type="number" class="form-input" id="ev-cache-ttl" value="30" min="1" max="365">
+        </div>
+        <div id="cache-stats" class="mb-8">
+          <div class="stat-row"><span class="text-muted">Total Entries:</span><span id="cs-total">--</span></div>
+          <div class="stat-row"><span class="text-muted">Expired:</span><span id="cs-expired">--</span></div>
+          <div class="stat-row"><span class="text-muted">Storage Used:</span><span id="cs-storage">--</span></div>
+          <div class="stat-row"><span class="text-muted">Hit Rate:</span><span id="cs-hitrate">--</span></div>
+        </div>
+        <div class="flex gap-8">
+          <button class="btn btn-amber btn-sm" onclick="purgeExpired()">&#x1F9F9; Purge Expired</button>
+          <button class="btn btn-red btn-sm" onclick="purgeCache()">&#x1F5D1;&#xFE0F; Purge All</button>
+          <button class="btn btn-gray btn-sm" onclick="loadCacheStats()">&#x1F504; Refresh Stats</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Source Configuration -->
+    <div class="card">
+      <div class="settings-section">
+        <div class="ss-title">&#x1F4E1; Source Configuration</div>
+        <div id="source-list">
+          <div class="spinner-wrap">
+            <div class="spinner"></div>
+            <div class="spinner-text">Loading sources...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- About -->
+    <div class="card">
+      <div class="settings-section">
+        <div class="ss-title">&#x2139;&#xFE0F; About</div>
+        <div class="about-version">
+          <div style="font-size:16px; font-weight:700; color:#e2e8f0;">Entity Verifier v2.0.0</div>
+          <div style="margin-top:4px;">TMAR Accrual Ledger</div>
+          <div class="mt-8">
+            <div class="stat-row"><span class="text-muted">Sources Available:</span><span id="about-sources">--</span></div>
+            <div class="stat-row"><span class="text-muted">Entity Types Supported:</span><span id="about-types">--</span></div>
+            <div class="stat-row"><span class="text-muted">Status Levels:</span><span>8</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- JAVASCRIPT                                                     -->
+  <!-- ============================================================ -->
+  <script>
+    // ===================================================================
+    // STATE
+    // ===================================================================
+    var batchResults = [];
+    var batchSortField = null;
+    var batchSortAsc = true;
+    var batchFilter = 'all';
+
+    // ===================================================================
+    // TAB SWITCHING
+    // ===================================================================
+    function switchTab(tabId) {
+      var btns = document.querySelectorAll('.tab-btn');
+      var panels = document.querySelectorAll('.tab-panel');
+      for (var i = 0; i < btns.length; i++) { btns[i].classList.remove('active'); }
+      for (var i = 0; i < panels.length; i++) { panels[i].classList.remove('active'); }
+      document.getElementById('panel-' + tabId).classList.add('active');
+      // activate corresponding button
+      var labels = { dashboard: 0, verify: 1, batch: 2, preflight: 3, settings: 4 };
+      if (labels[tabId] !== undefined) btns[labels[tabId]].classList.add('active');
+      // auto-load data for tab
+      if (tabId === 'dashboard') loadDashboard();
+      if (tabId === 'settings') loadSettings();
+      if (tabId === 'preflight') loadPreflight();
+    }
+
+    // ===================================================================
+    // DASHBOARD
+    // ===================================================================
+    function loadDashboard() {
+      google.script.run
+        .withSuccessHandler(renderDashboard)
+        .withFailureHandler(function(e) { showError(e); })
+        .getVerificationSummary();
+    }
+
+    function renderDashboard(data) {
+      if (!data) { data = {}; }
+      var d = data;
+      setText('ds-total', d.total || 0);
+      setText('ds-verified', d.verified || 0);
+      setText('ds-dba', d.dbaMismatch || 0);
+      setText('ds-defunct', d.defunct || 0);
+      setText('ds-manual', d.manualRequired || 0);
+      setText('ds-unverified', d.unverified || 0);
+
+      // IRIS readiness
+      var box = document.getElementById('iris-readiness-box');
+      var ready = (d.criticalIssues || 0) === 0 && (d.verified || 0) > 0;
+      box.className = 'iris-readiness ' + (ready ? 'ready' : 'blocked');
+      setText('iris-icon', ready ? '\u2705' : '\u1F6A8');
+      if (ready) {
+        setText('iris-label', 'READY TO FILE: ' + (d.verified || 0) + ' of ' + (d.total || 0) + ' entities');
+        setText('iris-sub', 'All critical verifications passed');
+      } else {
+        setText('iris-label', 'BLOCKED: ' + (d.criticalIssues || 0) + ' critical issue' + ((d.criticalIssues || 0) !== 1 ? 's' : ''));
+        setText('iris-sub', 'Resolve critical issues before filing');
+      }
+
+      // Recent activity
+      var actEl = document.getElementById('dash-activity');
+      if (d.recentActivity && d.recentActivity.length > 0) {
+        var html = '';
+        for (var i = 0; i < Math.min(d.recentActivity.length, 5); i++) {
+          var a = d.recentActivity[i];
+          html += '<div class="activity-item">' +
+            statusBadge(a.status) +
+            '<span class="activity-name">' + esc(a.entityName || '') + '</span>' +
+            '<span class="activity-time">' + esc(a.time || '') + '</span>' +
+          '</div>';
+        }
+        actEl.innerHTML = html;
+      } else {
+        actEl.innerHTML = '<div style="text-align:center;padding:12px;color:#64748b;font-size:12px;">No recent activity</div>';
+      }
+    }
+
+    // ===================================================================
+    // SINGLE VERIFY
+    // ===================================================================
+    function verifySingle() {
+      var name = document.getElementById('ev-name').value.trim();
+      var ein = document.getElementById('ev-ein').value.trim();
+      var force = document.getElementById('ev-force').checked;
+
+      if (!name) {
+        showToast('Please enter an entity name', 'error');
+        document.getElementById('ev-name').focus();
+        return;
+      }
+
+      showSpinner('ev-result', 'Verifying ' + name + '...');
+      disableBtn('btn-verify-single', true);
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          disableBtn('btn-verify-single', false);
+          renderSingleResult(result);
+        })
+        .withFailureHandler(function(e) {
+          disableBtn('btn-verify-single', false);
+          showError(e);
+          document.getElementById('ev-result').innerHTML = '';
+        })
+        .verifyEntityFromSidebar(name, ein, force);
+    }
+
+    function renderSingleResult(result) {
+      if (!result) {
+        document.getElementById('ev-result').innerHTML =
+          '<div class="card" style="text-align:center;color:#64748b;">No result returned</div>';
+        return;
+      }
+      var r = result;
+      var html = '<div class="result-detail">';
+
+      // Status + Type badges row
+      html += '<div class="flex items-center gap-8 mb-8">' +
+        statusBadge(r.status, true) + ' ' + typeBadge(r.entityType) +
+      '</div>';
+
+      // DBA Alert
+      if (r.isDBA || r.status === 'DBA_MISMATCH') {
+        html += dbaAlert(r);
+      }
+
+      // Detail rows
+      html += '<div class="result-row"><span class="rr-label">Legal Name</span><span class="rr-value">' +
+        (r.legalName && r.legalName !== r.entityName
+          ? '<strong style="color:#c084fc">' + esc(r.legalName) + '</strong>'
+          : esc(r.legalName || r.entityName || '--')) +
+      '</span></div>';
+      html += '<div class="result-row"><span class="rr-label">Input Name</span><span class="rr-value">' + esc(r.entityName || '--') + '</span></div>';
+      html += '<div class="result-row"><span class="rr-label">Confirmed EIN</span><span class="rr-value">' + esc(r.ein || '--') + '</span></div>';
+      html += '<div class="result-row"><span class="rr-label">Entity Type</span><span class="rr-value">' + esc(r.entityTypeLabel || r.entityType || '--') + '</span></div>';
+
+      // Confidence bar
+      html += '<div class="result-row"><span class="rr-label">Confidence</span><span class="rr-value">' +
+        confidenceBar(r.confidence || 0) + '</span></div>';
+
+      // Recommendation
+      if (r.recommendation) {
+        html += '<div style="margin-top:10px;padding:8px 10px;background:rgba(59,130,246,0.1);border-radius:6px;font-size:12px;">' +
+          '<strong style="color:#60a5fa">Recommendation:</strong> ' + esc(r.recommendation) + '</div>';
+      }
+
+      // Sources table
+      if (r.sources && r.sources.length > 0) {
+        html += '<div style="margin-top:12px;">' +
+          '<div class="card-header">&#x1F4E1; Sources Queried</div>' +
+          sourceTable(r.sources) +
+        '</div>';
+      }
+
+      // IRIS Pre-Flight Warnings
+      if (r.warnings && r.warnings.length > 0) {
+        html += '<div style="margin-top:12px;">' +
+          '<div class="card-header">&#x26A0;&#xFE0F; IRIS Pre-Flight Warnings</div>';
+        for (var i = 0; i < r.warnings.length; i++) {
+          html += warningCard(r.warnings[i]);
+        }
+        html += '</div>';
+      }
+
+      // Corporate Genealogy Timeline
+      if (r.genealogy && r.genealogy.length > 0) {
+        html += '<div style="margin-top:12px;">' +
+          '<div class="card-header">&#x1F3DB;&#xFE0F; Corporate Genealogy</div>' +
+          genealogyTimeline(r.genealogy) +
+        '</div>';
+      }
+
+      html += '</div>';
+      document.getElementById('ev-result').innerHTML = html;
+    }
+
+    // ===================================================================
+    // BATCH VERIFY
+    // ===================================================================
+    function verifyBatch() {
+      var progressEl = document.getElementById('ev-batch-progress');
+      progressEl.classList.remove('hidden');
+      document.getElementById('batch-progress-bar').style.width = '0%';
+      setText('batch-progress-text', 'Starting batch verification...');
+      disableBtn('btn-verify-all', true);
+
+      google.script.run
+        .withSuccessHandler(function(results) {
+          disableBtn('btn-verify-all', false);
+          progressEl.classList.add('hidden');
+          renderBatchResults(results);
+        })
+        .withFailureHandler(function(e) {
+          disableBtn('btn-verify-all', false);
+          progressEl.classList.add('hidden');
+          showError(e);
+        })
+        .verifyAllFromSidebar({});
+    }
+
+    function renderBatchResults(results) {
+      if (!results || !results.length) {
+        document.getElementById('batch-tbody').innerHTML =
+          '<tr><td colspan="10" style="text-align:center;padding:24px;color:#64748b;">No results returned.</td></tr>';
+        return;
+      }
+      batchResults = results;
+      batchFilter = 'all';
+      renderBatchTable();
+      document.getElementById('batch-export-bar').style.display = 'flex';
+      // Reset filter buttons
+      var fbtns = document.querySelectorAll('.filter-btn');
+      for (var i = 0; i < fbtns.length; i++) {
+        fbtns[i].classList.remove('active');
+      }
+      document.querySelector('.filter-btn').classList.add('active');
+    }
+
+    function renderBatchTable() {
+      var filtered = batchResults;
+      if (batchFilter !== 'all') {
+        filtered = batchResults.filter(function(r) { return r.status === batchFilter; });
+      }
+
+      // Sort
+      if (batchSortField) {
+        filtered.sort(function(a, b) {
+          var va = a[batchSortField] || '';
+          var vb = b[batchSortField] || '';
+          if (batchSortField === 'confidence') {
+            va = parseFloat(va) || 0;
+            vb = parseFloat(vb) || 0;
+          }
+          if (va < vb) return batchSortAsc ? -1 : 1;
+          if (va > vb) return batchSortAsc ? 1 : -1;
+          return 0;
+        });
+      }
+
+      var html = '';
+      for (var i = 0; i < filtered.length; i++) {
+        var r = filtered[i];
+        var isDba = r.isDBA || r.status === 'DBA_MISMATCH';
+        var rowId = 'batch-expand-' + i;
+        html += '<tr>' +
+          '<td>' + (i + 1) + '</td>' +
+          '<td style="font-weight:500;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + esc(r.entityName || '') + '">' + esc(r.entityName || '--') + '</td>' +
+          '<td style="font-family:monospace;font-size:10px;">' + esc(r.ein || '--') + '</td>' +
+          '<td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + esc(r.legalName || '') + '">' +
+            (r.legalName && r.legalName !== r.entityName
+              ? '<span style="color:#c084fc">' + esc(r.legalName) + '</span>'
+              : esc(r.legalName || '--')) +
+          '</td>' +
+          '<td>' + typeBadge(r.entityType) + '</td>' +
+          '<td style="text-align:center;" title="' + (isDba ? 'DBA / Trade Name detected' : 'No DBA mismatch') + '">' +
+            (isDba ? '<span style="color:#c084fc">&#x2713;</span>' : '<span style="color:#475569">&#x2717;</span>') +
+          '</td>' +
+          '<td>' + statusBadge(r.status) + '</td>' +
+          '<td>' + confidenceBar(r.confidence || 0) + '</td>' +
+          '<td style="text-align:center;">' +
+            (r.warnings && r.warnings.length > 0
+              ? '<span class="badge badge-amber">' + r.warnings.length + '</span>'
+              : '<span style="color:#475569">0</span>') +
+          '</td>' +
+          '<td style="white-space:nowrap;">' +
+            '<button class="btn btn-outline btn-sm" onclick="toggleExpandRow(\'' + rowId + '\', ' + i + ')" style="padding:2px 6px;font-size:10px;">Details</button> ' +
+            '<button class="btn btn-outline btn-sm" onclick="reVerify(' + i + ')" style="padding:2px 6px;font-size:10px;">Re-Verify</button>' +
+          '</td>' +
+        '</tr>';
+        // Expandable detail row
+        html += '<tr class="expand-row" id="' + rowId + '"><td colspan="10" id="' + rowId + '-content"></td></tr>';
+      }
+
+      if (filtered.length === 0) {
+        html = '<tr><td colspan="10" style="text-align:center;padding:16px;color:#64748b;">No results match the selected filter.</td></tr>';
+      }
+
+      document.getElementById('batch-tbody').innerHTML = html;
+    }
+
+    function filterBatch(filter) {
+      batchFilter = filter;
+      var fbtns = document.querySelectorAll('.filter-btn');
+      for (var i = 0; i < fbtns.length; i++) {
+        fbtns[i].classList.remove('active');
+        if ((filter === 'all' && i === 0) ||
+            fbtns[i].textContent.indexOf(filter) > -1 ||
+            (filter === 'HIGH' && i === 1) ||
+            (filter === 'MEDIUM' && i === 2) ||
+            (filter === 'LOW' && i === 3) ||
+            (filter === 'DBA_MISMATCH' && i === 4) ||
+            (filter === 'DEFUNCT' && i === 5) ||
+            (filter === 'MANUAL_REQUIRED' && i === 6) ||
+            (filter === 'UNVERIFIED' && i === 7)) {
+          fbtns[i].classList.add('active');
+        }
+      }
+      renderBatchTable();
+    }
+
+    function sortBatch(field) {
+      var fieldMap = { entity: 'entityName', status: 'status', confidence: 'confidence' };
+      var f = fieldMap[field] || field;
+      if (batchSortField === f) {
+        batchSortAsc = !batchSortAsc;
+      } else {
+        batchSortField = f;
+        batchSortAsc = true;
+      }
+      renderBatchTable();
+    }
+
+    function toggleExpandRow(rowId, index) {
+      var row = document.getElementById(rowId);
+      if (!row) return;
+      var isOpen = row.classList.contains('open');
+      // close all expand rows first
+      var allExpand = document.querySelectorAll('.expand-row');
+      for (var i = 0; i < allExpand.length; i++) allExpand[i].classList.remove('open');
+
+      if (!isOpen) {
+        row.classList.add('open');
+        var r = batchResults[index];
+        if (r) {
+          var contentEl = document.getElementById(rowId + '-content');
+          var html = '<div style="max-width:560px;">';
+          if (r.isDBA || r.status === 'DBA_MISMATCH') { html += dbaAlert(r); }
+          html += '<div class="result-row"><span class="rr-label">Legal Name</span><span class="rr-value">' + esc(r.legalName || '--') + '</span></div>';
+          html += '<div class="result-row"><span class="rr-label">Entity Type</span><span class="rr-value">' + esc(r.entityTypeLabel || r.entityType || '--') + '</span></div>';
+          html += '<div class="result-row"><span class="rr-label">Confidence</span><span class="rr-value">' + confidenceBar(r.confidence || 0) + '</span></div>';
+          if (r.recommendation) {
+            html += '<div style="margin-top:6px;font-size:11px;color:#60a5fa;">' + esc(r.recommendation) + '</div>';
+          }
+          if (r.sources && r.sources.length > 0) { html += sourceTable(r.sources); }
+          if (r.warnings && r.warnings.length > 0) {
+            for (var w = 0; w < r.warnings.length; w++) { html += warningCard(r.warnings[w]); }
+          }
+          if (r.genealogy && r.genealogy.length > 0) { html += genealogyTimeline(r.genealogy); }
+          html += '</div>';
+          contentEl.innerHTML = html;
+        }
+      }
+    }
+
+    function reVerify(index) {
+      var r = batchResults[index];
+      if (!r) return;
+      showToast('Re-verifying ' + (r.entityName || 'entity') + '...', 'info');
+      google.script.run
+        .withSuccessHandler(function(result) {
+          batchResults[index] = result;
+          renderBatchTable();
+          showToast('Re-verification complete for ' + (result.entityName || 'entity'), 'success');
+        })
+        .withFailureHandler(showError)
+        .verifyEntityFromSidebar(r.entityName, r.ein, true);
+    }
+
+    // ===================================================================
+    // IRIS PRE-FLIGHT
+    // ===================================================================
+    function runPreflight() {
+      switchTab('preflight');
+      var readinessBox = document.getElementById('pf-readiness-box');
+      readinessBox.className = 'iris-readiness blocked';
+      readinessBox.innerHTML = '<div class="spinner" style="border-top-color:#3b82f6;margin:8px auto;"></div>' +
+        '<div class="ir-label">Running Pre-Flight Check...</div>' +
+        '<div class="ir-sub">Analyzing all entities for IRIS filing readiness</div>';
+
+      google.script.run
+        .withSuccessHandler(renderPreflightReport)
+        .withFailureHandler(function(e) {
+          showError(e);
+          readinessBox.innerHTML = '<div class="ir-icon">&#x274C;</div>' +
+            '<div class="ir-label">Pre-Flight Failed</div>' +
+            '<div class="ir-sub">' + esc(e.message || 'Unknown error') + '</div>';
+        })
+        .runIrisPreFlight();
+    }
+
+    function loadPreflight() {
+      google.script.run
+        .withSuccessHandler(function(report) { if (report) renderPreflightReport(report); })
+        .withFailureHandler(function() { /* silently ignore if no cached report */ })
+        .getLastPreFlightReport();
+    }
+
+    function renderPreflightReport(report) {
+      if (!report) return;
+      var r = report;
+
+      // Severity counts
+      setText('pf-critical', r.critical || 0);
+      setText('pf-high', r.high || 0);
+      setText('pf-medium', r.medium || 0);
+      setText('pf-low', r.low || 0);
+
+      // Readiness
+      var box = document.getElementById('pf-readiness-box');
+      var isReady = (r.critical || 0) === 0;
+      box.className = 'iris-readiness ' + (isReady ? 'ready' : 'blocked');
+      box.innerHTML = '<div class="ir-icon">' + (isReady ? '&#x2705;' : '&#x1F6A8;') + '</div>' +
+        '<div class="ir-label">' + (isReady ? 'READY TO FILE' : 'BLOCKED') + '</div>' +
+        '<div class="ir-sub">' + (isReady
+          ? 'All critical checks passed'
+          : (r.critical || 0) + ' critical issue' + ((r.critical || 0) !== 1 ? 's' : '') + ' must be resolved') + '</div>';
+
+      // Warning groups
+      var warningsEl = document.getElementById('pf-warnings');
+      var warnings = r.warnings || [];
+      if (warnings.length > 0) {
+        // Group by severity
+        var groups = { CRITICAL: [], HIGH: [], MEDIUM: [], LOW: [] };
+        for (var i = 0; i < warnings.length; i++) {
+          var sev = (warnings[i].severity || 'LOW').toUpperCase();
+          if (!groups[sev]) groups[sev] = [];
+          groups[sev].push(warnings[i]);
+        }
+        var html = '';
+        var sevOrder = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
+        var sevLabels = { CRITICAL: '&#x1F534; Critical', HIGH: '&#x1F7E1; High', MEDIUM: '&#x1F535; Medium', LOW: '&#x26AA; Low' };
+        for (var s = 0; s < sevOrder.length; s++) {
+          var sev = sevOrder[s];
+          if (groups[sev] && groups[sev].length > 0) {
+            html += '<div class="card-header mt-12">' + sevLabels[sev] + ' (' + groups[sev].length + ')</div>';
+            for (var w = 0; w < groups[sev].length; w++) {
+              html += warningCard(groups[sev][w]);
+            }
+          }
+        }
+        warningsEl.innerHTML = html;
+      } else {
+        warningsEl.innerHTML = '<div style="text-align:center;padding:16px;color:#10b981;font-size:13px;">&#x2705; No warnings found</div>';
+      }
+
+      // Ready entities
+      var readySection = document.getElementById('pf-ready-section');
+      var readyList = r.readyEntities || [];
+      if (readyList.length > 0) {
+        readySection.classList.remove('hidden');
+        var rl = '';
+        for (var i = 0; i < readyList.length; i++) {
+          rl += '<div class="activity-item">' +
+            '<span style="color:#10b981">&#x2705;</span>' +
+            '<span class="activity-name">' + esc(readyList[i].entityName || readyList[i]) + '</span>' +
+            '<span class="activity-time" style="font-family:monospace;">' + esc(readyList[i].ein || '') + '</span>' +
+          '</div>';
+        }
+        document.getElementById('pf-ready-list').innerHTML = rl;
+      } else {
+        readySection.classList.add('hidden');
+      }
+    }
+
+    // ===================================================================
+    // SETTINGS
+    // ===================================================================
+    function loadSettings() {
+      loadCacheStats();
+      loadSources();
+      loadApiKeyStatus();
+      loadAboutInfo();
+    }
+
+    function loadCacheStats() {
+      google.script.run
+        .withSuccessHandler(function(stats) {
+          if (!stats) return;
+          setText('cs-total', stats.total || 0);
+          setText('cs-expired', stats.expired || 0);
+          setText('cs-storage', stats.storageUsed || '--');
+          setText('cs-hitrate', stats.hitRate ? (stats.hitRate + '%') : '--');
+        })
+        .withFailureHandler(function() { /* silent */ })
+        .cacheGetStats();
+    }
+
+    function loadSources() {
+      google.script.run
+        .withSuccessHandler(function(sources) {
+          if (!sources || !sources.length) {
+            document.getElementById('source-list').innerHTML =
+              '<div style="color:#64748b;font-size:12px;">No sources configured</div>';
+            return;
+          }
+          var html = '';
+          for (var i = 0; i < sources.length; i++) {
+            var s = sources[i];
+            html += '<div class="source-toggle">' +
+              '<span title="' + esc(s.name || '') + '">' + esc(s.id || '') + ' <span class="text-muted" style="font-size:10px;">(' + esc(s.name || '') + ')</span></span>' +
+              '<label class="toggle-switch">' +
+                '<input type="checkbox" ' + (s.enabled !== false ? 'checked' : '') + ' onchange="toggleSource(\'' + esc(s.id) + '\', this.checked)">' +
+                '<span class="toggle-slider"></span>' +
+              '</label>' +
+            '</div>';
+          }
+          document.getElementById('source-list').innerHTML = html;
+        })
+        .withFailureHandler(function() {
+          document.getElementById('source-list').innerHTML =
+            '<div style="color:#ef4444;font-size:12px;">Failed to load sources</div>';
+        })
+        .getSourceRegistry();
+    }
+
+    function loadApiKeyStatus() {
+      google.script.run
+        .withSuccessHandler(function(key) {
+          var el = document.getElementById('api-key-status');
+          if (key) {
+            el.innerHTML = '<span class="badge badge-green">&#x2705; Key configured</span>';
+            document.getElementById('ev-sam-key').placeholder = '***configured***';
+          } else {
+            el.innerHTML = '<span class="badge badge-amber">&#x26A0;&#xFE0F; No key set</span>';
+          }
+        })
+        .withFailureHandler(function() { /* silent */ })
+        .getApiKey('SAM_GOV_API_KEY');
+    }
+
+    function loadAboutInfo() {
+      google.script.run
+        .withSuccessHandler(function(info) {
+          if (!info) return;
+          setText('about-sources', info.sourceCount || '--');
+          setText('about-types', info.entityTypeCount || '--');
+        })
+        .withFailureHandler(function() { /* silent */ })
+        .getAboutInfo();
+    }
+
+    function saveApiKey() {
+      var key = document.getElementById('ev-sam-key').value.trim();
+      if (!key) {
+        showToast('Please enter an API key', 'error');
+        return;
+      }
+      google.script.run
+        .withSuccessHandler(function() {
+          showToast('API key saved', 'success');
+          loadApiKeyStatus();
+          document.getElementById('ev-sam-key').value = '';
+        })
+        .withFailureHandler(showError)
+        .setApiKey('SAM_GOV_API_KEY', key);
+    }
+
+    function testApiKey() {
+      var statusEl = document.getElementById('api-key-status');
+      statusEl.innerHTML = '<span class="badge badge-blue">&#x1F504; Testing...</span>';
+      google.script.run
+        .withSuccessHandler(function(ok) {
+          if (ok) {
+            statusEl.innerHTML = '<span class="badge badge-green">&#x2705; Connection successful</span>';
+            showToast('API key is valid', 'success');
+          } else {
+            statusEl.innerHTML = '<span class="badge badge-red">&#x274C; Connection failed</span>';
+            showToast('API key test failed', 'error');
+          }
+        })
+        .withFailureHandler(function(e) {
+          statusEl.innerHTML = '<span class="badge badge-red">&#x274C; Test error</span>';
+          showError(e);
+        })
+        .testSamGovApiKey();
+    }
+
+    function toggleSource(sourceId, enabled) {
+      google.script.run
+        .withSuccessHandler(function() {
+          showToast(sourceId + (enabled ? ' enabled' : ' disabled'), 'info');
+        })
+        .withFailureHandler(showError)
+        .setSourceEnabled(sourceId, enabled);
+    }
+
+    function purgeCache() {
+      if (!confirm('Purge ALL cached verification results?')) return;
+      google.script.run
+        .withSuccessHandler(function(count) {
+          showToast('Purged ' + (count || 0) + ' cache entries', 'success');
+          loadCacheStats();
+        })
+        .withFailureHandler(showError)
+        .cachePurgeAll();
+    }
+
+    function purgeExpired() {
+      google.script.run
+        .withSuccessHandler(function(count) {
+          showToast('Purged ' + (count || 0) + ' expired entries', 'success');
+          loadCacheStats();
+        })
+        .withFailureHandler(showError)
+        .cachePurgeExpired();
+    }
+
+    // ===================================================================
+    // EXPORT FUNCTIONS
+    // ===================================================================
+    function exportResults() {
+      if (batchResults.length > 0) {
+        exportJSON();
+      } else {
+        showToast('No results to export. Run batch verification first.', 'info');
+      }
+    }
+
+    function exportJSON() {
+      if (!batchResults.length) { showToast('No results to export', 'info'); return; }
+      var json = JSON.stringify(batchResults, null, 2);
+      downloadBlob(json, 'entity-verification-results.json', 'application/json');
+      showToast('JSON exported', 'success');
+    }
+
+    function exportCSV() {
+      if (!batchResults.length) { showToast('No results to export', 'info'); return; }
+      var headers = ['Entity Name', 'EIN', 'Legal Name', 'Entity Type', 'Status', 'Confidence', 'DBA Mismatch', 'Warnings', 'Recommendation'];
+      var rows = [headers.join(',')];
+      for (var i = 0; i < batchResults.length; i++) {
+        var r = batchResults[i];
+        rows.push([
+          csvCell(r.entityName),
+          csvCell(r.ein),
+          csvCell(r.legalName),
+          csvCell(r.entityType),
+          csvCell(r.status),
+          r.confidence || 0,
+          r.isDBA ? 'Yes' : 'No',
+          (r.warnings || []).length,
+          csvCell(r.recommendation)
+        ].join(','));
+      }
+      downloadBlob(rows.join('\n'), 'entity-verification-results.csv', 'text/csv');
+      showToast('CSV exported', 'success');
+    }
+
+    function printAuditTrail() {
+      if (!batchResults.length) { showToast('No results to print', 'info'); return; }
+      var win = window.open('', '_blank');
+      if (!win) { showToast('Popup blocked — allow popups for this page', 'error'); return; }
+      var html = '<html><head><title>Entity Verification Audit Trail</title>' +
+        '<style>body{font-family:sans-serif;font-size:12px;color:#333;padding:20px;}' +
+        'table{width:100%;border-collapse:collapse;margin-top:12px;}' +
+        'th,td{border:1px solid #ddd;padding:6px 8px;text-align:left;}' +
+        'th{background:#f5f5f5;font-size:11px;text-transform:uppercase;}' +
+        'h1{font-size:18px;} .ts{font-size:10px;color:#999;}</style></head><body>' +
+        '<h1>Entity Verification Audit Trail</h1>' +
+        '<p class="ts">Generated: ' + new Date().toISOString() + '</p>' +
+        '<p>Total Entities: ' + batchResults.length + '</p>' +
+        '<table><tr><th>#</th><th>Entity</th><th>EIN</th><th>Legal Name</th><th>Type</th><th>Status</th><th>Confidence</th><th>Warnings</th></tr>';
+      for (var i = 0; i < batchResults.length; i++) {
+        var r = batchResults[i];
+        html += '<tr><td>' + (i+1) + '</td><td>' + esc(r.entityName||'') + '</td><td>' + esc(r.ein||'') +
+          '</td><td>' + esc(r.legalName||'') + '</td><td>' + esc(r.entityType||'') +
+          '</td><td>' + esc(r.status||'') + '</td><td>' + (r.confidence||0) + '%</td><td>' +
+          (r.warnings||[]).length + '</td></tr>';
+      }
+      html += '</table></body></html>';
+      win.document.write(html);
+      win.document.close();
+      win.print();
+    }
+
+    function downloadBlob(content, filename, mimeType) {
+      // In GAS sandboxed mode, we use a data URI approach
+      var a = document.createElement('a');
+      a.href = 'data:' + mimeType + ';charset=utf-8,' + encodeURIComponent(content);
+      a.download = filename;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    function csvCell(val) {
+      if (val === null || val === undefined) return '""';
+      var s = String(val).replace(/"/g, '""');
+      return '"' + s + '"';
+    }
+
+    // ===================================================================
+    // COMPONENT RENDERERS
+    // ===================================================================
+    function statusBadge(status, large) {
+      var map = {
+        HIGH:            { cls: 'badge-green',  label: 'High Confidence', icon: '\u2705' },
+        MEDIUM:          { cls: 'badge-amber',  label: 'Medium',          icon: '\u26A0\uFE0F' },
+        LOW:             { cls: 'badge-orange', label: 'Low',             icon: '\uD83D\uDFE0' },
+        UNVERIFIED:      { cls: 'badge-red',    label: 'Unverified',      icon: '\u274C' },
+        DBA_MISMATCH:    { cls: 'badge-purple', label: 'DBA Mismatch',    icon: '\uD83D\uDFE3' },
+        DEFUNCT:         { cls: 'badge-gray',   label: 'Defunct',          icon: '\uD83D\uDEAB' },
+        PLACEHOLDER:     { cls: 'badge-blue',   label: 'Placeholder',     icon: '\uD83D\uDD35' },
+        MANUAL_REQUIRED: { cls: 'badge-white',  label: 'Manual Review',   icon: '\uD83D\uDC41\uFE0F' }
+      };
+      var m = map[status] || { cls: 'badge-gray', label: status || 'Unknown', icon: '?' };
+      return '<span class="badge ' + m.cls + (large ? ' badge-lg' : '') + '">' + m.icon + ' ' + m.label + '</span>';
+    }
+
+    function confidenceBar(confidence) {
+      var pct = Math.max(0, Math.min(100, Math.round(confidence)));
+      var color = '#ef4444';
+      if (pct > 85) color = '#10b981';
+      else if (pct > 60) color = '#fbbf24';
+      else if (pct > 30) color = '#f59e0b';
+      return '<span class="conf-bar-wrap"><span class="conf-bar-fill" style="width:' + pct + '%;background:' + color + '"></span></span>' +
+        '<span class="conf-label" style="color:' + color + '">' + pct + '%</span>';
+    }
+
+    function typeBadge(entityType) {
+      if (!entityType) return '<span class="badge badge-gray">Unknown</span>';
+      var label = entityType.replace(/_/g, ' ');
+      // Abbreviate long labels
+      if (label.length > 18) {
+        var words = label.split(' ');
+        label = words.map(function(w) { return w.charAt(0).toUpperCase(); }).join('');
+      } else {
+        label = label.charAt(0).toUpperCase() + label.slice(1).toLowerCase();
+      }
+      return '<span class="badge badge-blue">' + esc(label) + '</span>';
+    }
+
+    function dbaAlert(result) {
+      if (!result) return '';
+      var legalName = result.legalName || result.entityName || 'Unknown';
+      return '<div class="dba-alert">' +
+        '<div class="dba-title">\uD83D\uDFE3 DBA / Trade Name Detected</div>' +
+        '<div class="dba-body">The name you entered is a <strong>TRADE NAME</strong>. ' +
+        'The IRS-registered legal entity is: <span class="dba-legal">' + esc(legalName) + '</span></div>' +
+      '</div>';
+    }
+
+    function genealogyTimeline(genealogy) {
+      if (!genealogy || !genealogy.length) return '';
+      var html = '<div class="timeline">';
+      for (var i = 0; i < genealogy.length; i++) {
+        var g = genealogy[i];
+        html += '<div class="tl-event">' +
+          '<div class="tl-date">' + esc(g.date || '') + '</div>' +
+          '<div class="tl-desc">' + esc(g.event || g.description || '') + '</div>' +
+        '</div>';
+      }
+      html += '</div>';
+      return html;
+    }
+
+    function warningCard(warning) {
+      if (!warning) return '';
+      var sev = (warning.severity || 'low').toLowerCase();
+      var sevBadge = '';
+      if (sev === 'critical') sevBadge = '<span class="badge badge-red">CRITICAL</span>';
+      else if (sev === 'high') sevBadge = '<span class="badge badge-amber">HIGH</span>';
+      else if (sev === 'medium') sevBadge = '<span class="badge badge-blue">MEDIUM</span>';
+      else sevBadge = '<span class="badge badge-gray">LOW</span>';
+
+      var html = '<div class="warning-card sev-' + sev + '">' +
+        '<div class="wc-header">' + sevBadge +
+          (warning.code ? ' <span class="text-muted" style="font-size:10px;font-family:monospace;">' + esc(warning.code) + '</span>' : '') +
+        '</div>' +
+        '<div class="wc-entity">' + esc(warning.entityName || '') +
+          (warning.ein ? ' <span class="text-muted" style="font-size:10px;">(' + esc(warning.ein) + ')</span>' : '') +
+        '</div>' +
+        '<div class="wc-msg">' + esc(warning.message || '') + '</div>';
+      if (warning.suggestedFix) {
+        html += '<div class="wc-fix">&#x1F527; Fix: ' + esc(warning.suggestedFix) + '</div>';
+      }
+      if (warning.autoFixable) {
+        html += '<div class="mt-8"><button class="btn btn-green btn-sm" onclick="autoFix(\'' +
+          esc(warning.entityName || '') + '\',\'' + esc(warning.code || '') + '\')">&#x26A1; Auto-Fix</button></div>';
+      }
+      html += '</div>';
+      return html;
+    }
+
+    function sourceTable(sources) {
+      if (!sources || !sources.length) return '';
+      var html = '<table class="ev-table" style="margin-top:8px;">' +
+        '<thead><tr><th>Source</th><th>Hit</th><th>Data</th><th>Time</th></tr></thead><tbody>';
+      for (var i = 0; i < sources.length; i++) {
+        var s = sources[i];
+        var hitIcon = s.hit ? '<span style="color:#10b981">&#x2713;</span>' : '<span style="color:#475569">&#x2717;</span>';
+        html += '<tr>' +
+          '<td style="font-weight:500;">' + esc(s.sourceId || s.name || '--') + '</td>' +
+          '<td style="text-align:center;">' + hitIcon + '</td>' +
+          '<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + esc(s.data || '') + '">' + esc(s.data || '--') + '</td>' +
+          '<td style="font-family:monospace;font-size:10px;">' + esc(s.time || '--') + '</td>' +
+        '</tr>';
+      }
+      html += '</tbody></table>';
+      return html;
+    }
+
+    function autoFix(entityName, warningCode) {
+      showToast('Applying auto-fix for ' + entityName + '...', 'info');
+      google.script.run
+        .withSuccessHandler(function(result) {
+          showToast('Auto-fix applied: ' + (result.message || 'Done'), 'success');
+          runPreflight();
+        })
+        .withFailureHandler(showError)
+        .applyAutoFix(entityName, warningCode);
+    }
+
+    // ===================================================================
+    // UI HELPERS
+    // ===================================================================
+    function showSpinner(containerId, message) {
+      var el = document.getElementById(containerId);
+      if (el) {
+        el.innerHTML = '<div class="spinner-wrap">' +
+          '<div class="spinner"></div>' +
+          '<div class="spinner-text">' + esc(message || 'Loading...') + '</div>' +
+        '</div>';
+      }
+    }
+
+    function showToast(message, type) {
+      type = type || 'info';
+      var container = document.getElementById('toast-container');
+      var toast = document.createElement('div');
+      toast.className = 'toast toast-' + (type === 'error' ? 'error' : type === 'success' ? 'success' : 'info');
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(function() {
+        if (toast.parentNode) toast.parentNode.removeChild(toast);
+      }, 3000);
+    }
+
+    function showError(error) {
+      var msg = (error && error.message) ? error.message : String(error || 'Unknown error');
+      showToast(msg, 'error');
+    }
+
+    function setText(id, text) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = String(text);
+    }
+
+    function disableBtn(id, disabled) {
+      var el = document.getElementById(id);
+      if (el) el.disabled = disabled;
+    }
+
+    function toggleCollapsible(header) {
+      var body = header.nextElementSibling;
+      var arrow = header.querySelector('.collapse-arrow');
+      if (body) body.classList.toggle('open');
+      if (arrow) arrow.classList.toggle('open');
+    }
+
+    function esc(str) {
+      if (str === null || str === undefined) return '';
+      var div = document.createElement('div');
+      div.appendChild(document.createTextNode(String(str)));
+      return div.innerHTML;
+    }
+
+    // ===================================================================
+    // EIN INPUT FORMATTER
+    // ===================================================================
+    (function() {
+      var einInput = document.getElementById('ev-ein');
+      if (einInput) {
+        einInput.addEventListener('input', function() {
+          var v = this.value.replace(/[^0-9]/g, '');
+          if (v.length > 2) {
+            v = v.substring(0, 2) + '-' + v.substring(2, 9);
+          }
+          this.value = v;
+        });
+      }
+    })();
+
+    // ===================================================================
+    // INIT
+    // ===================================================================
+    (function init() {
+      loadDashboard();
+    })();
+  </script>
+</body>
+</html>

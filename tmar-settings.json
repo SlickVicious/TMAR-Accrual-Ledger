@@ -1,0 +1,15 @@
+{
+  "_note": "TMAR Template Variables — fill these in via Document Creator → Package Builder → Edit Variables, then click Export Settings to update this file.",
+  "_exported": "",
+  "trustName": "",
+  "trusteeName": "",
+  "trustEIN": "",
+  "cafNumber": "",
+  "jurisdiction": "",
+  "grantor": "",
+  "coTrustee": "",
+  "successorTrustee": "",
+  "address": "",
+  "court": "",
+  "activeYear": "2025"
+}
