@@ -34352,6 +34352,40 @@ async function eonChatSend() {
     localStorage.setItem('eeon_active_provider', provSel.value);
   }
 
+  // Build user content — include any file attachments
+  var attachments = (window._chatAttachments || []).filter(Boolean);
+  var userContent;
+  if (attachments.length === 0) {
+    userContent = msg;
+  } else {
+    var activePid = localStorage.getItem('eeon_active_provider') || 'claude';
+    var isAnthropic = (activePid === 'claude' || activePid === 'anthropic');
+    if (isAnthropic) {
+      userContent = [];
+      attachments.forEach(function(att) {
+        if (att.type === 'pdf') {
+          userContent.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: att.base64 } });
+        } else {
+          userContent.push({ type: 'text', text: '═══ FILE: ' + att.name + ' ═══\n' + att.content + '\n═══ END ═══' });
+        }
+      });
+      userContent.push({ type: 'text', text: msg });
+    } else {
+      var injected = '\n\n═══ UPLOADED DOCUMENTS ═══\n';
+      attachments.forEach(function(att) {
+        if (att.type === 'pdf') {
+          injected += '\n[PDF: ' + att.name + ' — switch to Claude provider for full PDF reading]\n';
+        } else {
+          injected += '\n[File: ' + att.name + ']\n' + att.content + '\n';
+        }
+      });
+      userContent = msg + injected;
+    }
+    window._chatAttachments = [];
+    var fp = document.getElementById('filePreview');
+    if (fp) { fp.innerHTML = ''; fp.style.display = 'none'; }
+  }
+
   addChatMsg('user', msg);
   input.value = '';
   input.style.height = '';
@@ -34396,7 +34430,7 @@ async function eonChatSend() {
   var memories = [];
   try { memories = (await MEM0.search(msg, 4)) || []; } catch(e) {}
 
-  var finalText = await callLLMStream(systemPrompt, msg, memories, function(tok) {
+  var finalText = await callLLMStream(systemPrompt, userContent, memories, function(tok) {
     rawBuf += tok;
     if (body) body.innerHTML = rawBuf.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
     if (msgs) msgs.scrollTop = msgs.scrollHeight;
@@ -34552,7 +34586,50 @@ function toggleMic() {
     if (typeof stopVoiceRec === 'function') stopVoiceRec();
   }
 }
-function handleFileUpload() { alert('File upload functionality'); }
+function handleFileUpload(input) {
+  if (!input || !input.files || !input.files.length) return;
+  if (!window._chatAttachments) window._chatAttachments = [];
+  var preview = document.getElementById('filePreview');
+  Array.from(input.files).forEach(function(file) {
+    var isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    var reader = new FileReader();
+    if (isPdf) {
+      reader.onload = function(e) {
+        var base64 = e.target.result.split(',')[1];
+        var idx = window._chatAttachments.length;
+        window._chatAttachments.push({ name: file.name, type: 'pdf', base64: base64 });
+        _addAttachPill(file.name, idx);
+        if (preview) preview.style.display = 'flex';
+      };
+      reader.readAsDataURL(file);
+    } else {
+      reader.onload = function(e) {
+        var idx = window._chatAttachments.length;
+        window._chatAttachments.push({ name: file.name, type: 'text', content: e.target.result });
+        _addAttachPill(file.name, idx);
+        if (preview) preview.style.display = 'flex';
+      };
+      reader.readAsText(file);
+    }
+  });
+  input.value = '';
+}
+function _addAttachPill(name, idx) {
+  var preview = document.getElementById('filePreview');
+  if (!preview) return;
+  var pill = document.createElement('div');
+  pill.id = 'attach-pill-' + idx;
+  pill.style.cssText = 'display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.4);border-radius:12px;font-size:11px;color:#10b981';
+  pill.innerHTML = '📎 ' + escHtml(name) + ' <span onclick="_removeAttach(' + idx + ')" style="cursor:pointer;color:#ef4444;font-size:14px;line-height:1;margin-left:2px">×</span>';
+  preview.appendChild(pill);
+}
+function _removeAttach(idx) {
+  if (window._chatAttachments) window._chatAttachments[idx] = null;
+  var pill = document.getElementById('attach-pill-' + idx);
+  if (pill) pill.remove();
+  var preview = document.getElementById('filePreview');
+  if (preview && !preview.querySelector('[id^="attach-pill-"]')) preview.style.display = 'none';
+}
 function dtHandleFiles() { alert('Dream Team file upload'); }
 function populateAllForms() { alert('Sync from GAAP ledger'); }
 function generateJournalFromForms() { alert('Push back to GAAP'); }
@@ -34734,7 +34811,9 @@ async function callLLMStream(agentSystemPrompt, userMessage, mem0Memories, onTok
     var e2 = '[HARD LOCK VIOLATION] System prompt integrity failed.';
     if (onToken) onToken(e2); return e2;
   }
-  userMessage = truncateToTokenBudget(userMessage, estimateTokens(systemPrompt));
+  if (!Array.isArray(userMessage)) {
+    userMessage = truncateToTokenBudget(userMessage, estimateTokens(systemPrompt));
+  }
 
   var p = r.provider, url = r.url, model = r.model, key = r.key, pid = r.pid;
   var headers = { 'Content-Type': 'application/json' };
@@ -34745,7 +34824,8 @@ async function callLLMStream(agentSystemPrompt, userMessage, mem0Memories, onTok
     // ── OLLAMA: newline-delimited JSON streaming ──────────────────────────
     if (p.auth === 'ollama') {
       var ollamaWebSearch = localStorage.getItem('eeon_ollama_web_search') === 'true';
-      var ollamaPayload = { model: model, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userMessage }], stream: true };
+      var ollamaMsgText = Array.isArray(userMessage) ? userMessage.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('\n') : userMessage;
+      var ollamaPayload = { model: model, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: ollamaMsgText }], stream: true };
       if (ollamaWebSearch) {
         ollamaPayload.tools = [{
           type: 'function',
@@ -34818,10 +34898,12 @@ async function callLLMStream(agentSystemPrompt, userMessage, mem0Memories, onTok
       var body = JSON.stringify({ model: model, max_tokens: 4096, stream: true, system: systemPrompt, messages: [{ role: 'user', content: userMessage }] });
     } else if (p.auth === 'ernie') {
       url = url + '?access_token=' + key;
-      var body = JSON.stringify({ messages: [{ role: 'user', content: systemPrompt + '\n\n' + userMessage }] });
+      var ernieMsgText = Array.isArray(userMessage) ? userMessage.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('\n') : userMessage;
+      var body = JSON.stringify({ messages: [{ role: 'user', content: systemPrompt + '\n\n' + ernieMsgText }] });
     } else {
       headers['Authorization'] = 'Bearer ' + key;
-      var body = JSON.stringify({ model: model, max_tokens: 4096, stream: true, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userMessage }] });
+      var bearerMsgText = Array.isArray(userMessage) ? userMessage.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('\n') : userMessage;
+      var body = JSON.stringify({ model: model, max_tokens: 4096, stream: true, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: bearerMsgText }] });
     }
 
     var ctrl = new AbortController();
@@ -37568,6 +37650,41 @@ const AP = {
     if (!inp) return;
     var text = inp.value.trim();
     if (!text) { inp.focus(); return; }
+
+    // Build userContent with any file attachments
+    var attachments = (this._attachments && this._attachments[page] || []).filter(Boolean);
+    var userContent;
+    if (attachments.length === 0) {
+      userContent = text;
+    } else {
+      var activePid = localStorage.getItem('eeon_active_provider') || 'claude';
+      var isAnthropic = (activePid === 'claude' || activePid === 'anthropic');
+      if (isAnthropic) {
+        userContent = [];
+        attachments.forEach(function(att) {
+          if (att.type === 'pdf') {
+            userContent.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: att.base64 } });
+          } else {
+            userContent.push({ type: 'text', text: '═══ FILE: ' + att.name + ' ═══\n' + att.content + '\n═══ END ═══' });
+          }
+        });
+        userContent.push({ type: 'text', text: text });
+      } else {
+        var injected = '\n\n═══ UPLOADED DOCUMENTS ═══\n';
+        attachments.forEach(function(att) {
+          if (att.type === 'pdf') {
+            injected += '\n[PDF: ' + att.name + ' — switch to Claude provider for full PDF reading]\n';
+          } else {
+            injected += '\n[File: ' + att.name + ']\n' + att.content + '\n';
+          }
+        });
+        userContent = text + injected;
+      }
+      if (this._attachments) this._attachments[page] = [];
+      var fp = document.getElementById('ap_fp_' + page);
+      if (fp) { fp.innerHTML = ''; fp.style.display = 'none'; }
+    }
+
     var data = this._load(page);
     if (!data.current || !data.sessions[data.current]) {
       this.newConv(page);
@@ -37624,7 +37741,7 @@ const AP = {
         var memories = [];
         try { memories = (await MEM0.search(text, 4)) || []; } catch(e) {}
 
-        var finalText = await callLLMStream(sysPrompt, text, memories, function(tok) {
+        var finalText = await callLLMStream(sysPrompt, userContent, memories, function(tok) {
           rawBuf += tok;
           if (streamDiv) {
             streamDiv.innerHTML =
@@ -37810,6 +37927,83 @@ const AP = {
     }
   },
 
+  _ensureFileUI: function(page) {
+    if (document.getElementById('ap_fu_' + page)) return;
+    var inp = document.getElementById('ap_in_' + page);
+    if (!inp) return;
+    var bar = inp.parentNode;
+    if (!bar) return;
+    // Preview pill strip
+    var prevDiv = document.createElement('div');
+    prevDiv.id = 'ap_fp_' + page;
+    prevDiv.style.cssText = 'display:none;flex-wrap:wrap;gap:4px;padding:0 0 6px 0';
+    bar.insertBefore(prevDiv, inp);
+    // Hidden file input
+    var fi = document.createElement('input');
+    fi.type = 'file'; fi.id = 'ap_fu_' + page; fi.multiple = true;
+    fi.accept = '.txt,.pdf,.doc,.docx,.csv,.json,.html,.md,.rtf,.xml,.log';
+    fi.style.display = 'none';
+    fi.onchange = function() { AP.handleFile(this, page); };
+    // Attach label button
+    var lbl = document.createElement('label');
+    lbl.htmlFor = 'ap_fu_' + page;
+    lbl.title = 'Attach file (PDF, text, CSV…)';
+    lbl.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:6px;cursor:pointer;font-size:16px;margin-left:6px;vertical-align:middle;flex-shrink:0';
+    lbl.textContent = '📎';
+    var sendBtn = bar.querySelector('button[onclick*="AP.send"]');
+    if (sendBtn) {
+      sendBtn.after(fi, lbl);
+    } else {
+      bar.appendChild(fi); bar.appendChild(lbl);
+    }
+  },
+
+  handleFile: function(input, page) {
+    if (!input || !input.files || !input.files.length) return;
+    if (!this._attachments) this._attachments = {};
+    if (!this._attachments[page]) this._attachments[page] = [];
+    var self = this;
+    var preview = document.getElementById('ap_fp_' + page);
+    Array.from(input.files).forEach(function(file) {
+      var isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+      var reader = new FileReader();
+      if (isPdf) {
+        reader.onload = function(e) {
+          self._attachments[page].push({ name: file.name, type: 'pdf', base64: e.target.result.split(',')[1] });
+          self._addAttachPill(page, file.name, self._attachments[page].length - 1);
+          if (preview) preview.style.display = 'flex';
+        };
+        reader.readAsDataURL(file);
+      } else {
+        reader.onload = function(e) {
+          self._attachments[page].push({ name: file.name, type: 'text', content: e.target.result });
+          self._addAttachPill(page, file.name, self._attachments[page].length - 1);
+          if (preview) preview.style.display = 'flex';
+        };
+        reader.readAsText(file);
+      }
+    });
+    input.value = '';
+  },
+
+  _addAttachPill: function(page, name, idx) {
+    var preview = document.getElementById('ap_fp_' + page);
+    if (!preview) return;
+    var pill = document.createElement('div');
+    pill.id = 'ap_pill_' + page + '_' + idx;
+    pill.style.cssText = 'display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.4);border-radius:12px;font-size:11px;color:#10b981';
+    pill.innerHTML = '📎 ' + escHtml(name) + ' <span onclick="AP._removeAttach(\'' + page + '\',' + idx + ')" style="cursor:pointer;color:#ef4444;font-size:14px;line-height:1;margin-left:2px">×</span>';
+    preview.appendChild(pill);
+  },
+
+  _removeAttach: function(page, idx) {
+    if (this._attachments && this._attachments[page]) this._attachments[page][idx] = null;
+    var pill = document.getElementById('ap_pill_' + page + '_' + idx);
+    if (pill) pill.remove();
+    var preview = document.getElementById('ap_fp_' + page);
+    if (preview && !preview.querySelector('[id^="ap_pill_"]')) preview.style.display = 'none';
+  },
+
   init: function(page) {
     var data = this._load(page);
     if (Object.keys(data.sessions).length === 0) {
@@ -37823,6 +38017,7 @@ const AP = {
     }
     this._renderSL(page);
     this._renderMsgs(page);
+    this._ensureFileUI(page);
   }
 };
 
