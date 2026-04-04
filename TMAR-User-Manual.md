@@ -37,11 +37,11 @@
    - 8.1 [Trust Estate Dashboard](#81-trust-estate-dashboard)
    - 8.2 [Trust Estate Ledger](#82-trust-estate-ledger)
    - 8.3 [Trust Estate Reports](#83-trust-estate-reports)
-8a. [SPV Module](#8a-spv-module)
+     8a. [SPV Module](#8a-spv-module)
    - 8a.1 [SPV Dashboard](#8a1-spv-dashboard)
    - 8a.2 [SPV Ledger](#8a2-spv-ledger)
    - 8a.3 [SPV Reports](#8a3-spv-reports)
-8b. [UK Accounting](#8b-uk-accounting)
+     8b. [UK Accounting](#8b-uk-accounting)
 9. [Operations Pages](#9-operations-pages)
    - 9.1 [Invoicing](#91-invoicing)
    - 9.2 [Payroll](#92-payroll)
@@ -108,11 +108,8 @@ The **TMAR Universal Accrual Ledger** is a self-contained, single-file HTML appl
 The application serves four primary functions:
 
 1. **Full-spectrum accrual accounting.** Double-entry journal, chart of accounts, accounts receivable, accounts payable, bank reconciliation, asset depreciation, payroll, invoicing, budgeting, and multi-entity consolidation — all in one place.
-
 2. **Trust and estate management.** A dedicated ledger, dashboard, and reporting module for managing trust assets, distributions, and fiduciary records under GAAP.
-
 3. **Tax form preparation and estimation.** Fillable, auto-calculating versions of IRS Forms 1040, 1041, 1041-ES, 1120, 990, Schedule C, and the full 1099 series (A, B, C, INT, DIV, R, NEC, MISC). The Tax Estimator aggregates 1099 data from those forms automatically.
-
 4. **AI legal and financial analysis.** The E2ZERO Agent Platform provides access to eleven specialized AI agents — Legal Expert, Tax Expert, Trust Specialist, Corporation Specialist, Arbitration Specialist, Research Analyst, Accounting Expert, Code Expert, Creative Writer, HTML Architect, and General Assistant — all powered by the SYPHER Protocol with the HARD_LOCK enforcement layer.
 
 ### Who it is for
@@ -162,23 +159,24 @@ To use any AI feature you must configure at least one provider API key. Navigate
 
 **Available providers:**
 
-| Provider | Key Field ID | Notes |
-|---|---|---|
-| Anthropic / Claude | `keyClaude` | Default. Supports streaming. Model: `claude-sonnet-4-20250514`. |
-| OpenAI | `keyOpenai` | Model: `gpt-4o`. Supports streaming. |
-| DeepSeek | `keyDeepseek` | Model: `deepseek-chat`. |
-| xAI (Grok) | `keyXai` | Model: `grok-3-mini-beta`. |
-| Z.AI | `keyZai` | Model: `z1-preview`. |
-| Kimi / Moonshot | `keyKimi` | Model: `moonshot-v1-8k`. |
-| MiniMax | `keyMinimax` | Model: `abab6.5s-chat`. |
-| Ernie / Baidu | `keyErnie` | No streaming. |
-| Groq | `stg_key_groq` | Model: `llama-3.3-70b-versatile`. Free tier available. |
-| Cerebras | `stg_key_cerebras` | Model: `llama-3.3-70b`. Free tier available. |
-| OpenRouter | `stg_key_openrouter` | Default model: `openai/gpt-4o-mini`. Aggregates 200+ models. |
-| Ollama (Local) | URL + Model fields | Runs locally. No API key required. |
-| Custom Provider | `keyCustom` | Any OpenAI-compatible endpoint. |
+| Provider           | Key Field ID           | Notes                                                            |
+| ------------------ | ---------------------- | ---------------------------------------------------------------- |
+| Anthropic / Claude | `keyClaude`          | Default. Supports streaming. Model:`claude-sonnet-4-20250514`. |
+| OpenAI             | `keyOpenai`          | Model:`gpt-4o`. Supports streaming.                            |
+| DeepSeek           | `keyDeepseek`        | Model:`deepseek-chat`.                                         |
+| xAI (Grok)         | `keyXai`             | Model:`grok-3-mini-beta`.                                      |
+| Z.AI               | `keyZai`             | Model:`z1-preview`.                                            |
+| Kimi / Moonshot    | `keyKimi`            | Model:`moonshot-v1-8k`.                                        |
+| MiniMax            | `keyMinimax`         | Model:`abab6.5s-chat`.                                         |
+| Ernie / Baidu      | `keyErnie`           | No streaming.                                                    |
+| Groq               | `stg_key_groq`       | Model:`llama-3.3-70b-versatile`. Free tier available.          |
+| Cerebras           | `stg_key_cerebras`   | Model:`llama-3.3-70b`. Free tier available.                    |
+| OpenRouter         | `stg_key_openrouter` | Default model:`openai/gpt-4o-mini`. Aggregates 200+ models.    |
+| Ollama (Local)     | URL + Model fields     | Runs locally. No API key required.                               |
+| Custom Provider    | `keyCustom`          | Any OpenAI-compatible endpoint.                                  |
 
 **Steps:**
+
 1. Paste your API key into the corresponding field.
 2. Select the active provider from the **Active Provider** dropdown.
 3. Click **Save All Keys**.
@@ -192,13 +190,13 @@ To use any AI feature you must configure at least one provider API key. Navigate
 
 See [Appendix A](#appendix-a--localstorage-keys-reference) for the complete reference. The most important keys during setup are:
 
-| Key | Purpose |
-|---|---|
-| `TMAR_AppData` | All accounting data (ledger, entities, journals, filings, settings) |
-| `eeon_key_claude` | Anthropic API key |
-| `eeon_active_provider` | Currently selected AI provider |
-| `eeon_cors_proxy` | CORS proxy URL for Anthropic when running from `file://` |
-| `_trustApiKey` | Legacy Anthropic key (still read for backwards compatibility) |
+| Key                      | Purpose                                                             |
+| ------------------------ | ------------------------------------------------------------------- |
+| `TMAR_AppData`         | All accounting data (ledger, entities, journals, filings, settings) |
+| `eeon_key_claude`      | Anthropic API key                                                   |
+| `eeon_active_provider` | Currently selected AI provider                                      |
+| `eeon_cors_proxy`      | CORS proxy URL for Anthropic when running from `file://`          |
+| `_trustApiKey`         | Legacy Anthropic key (still read for backwards compatibility)       |
 
 ---
 
@@ -209,38 +207,46 @@ See [Appendix A](#appendix-a--localstorage-keys-reference) for the complete refe
 The primary navigation is a horizontally scrolling tab bar below the header. Tabs are organized into logical groups separated by vertical dividers. Click any tab to switch the main content area.
 
 **Group 1 — Core Accounting**
+
 - **Ledger** — Double-entry general ledger
 - **Entities** — Legal entity registry
 - **Chart of Accounts** — Account codes and types
 - **Journal** — Formal journal entries
 
 **Group 2 — Receivables and Payables**
+
 - **A/R** — Accounts receivable
 - **A/P** — Accounts payable
 
 **Group 3 — Consolidation and Statements**
+
 - **Consolidation** — Multi-entity elimination entries
 - **Statements** — Trial balance, income statement, balance sheet
 
 **Group 4 — Tax and Compliance**
+
 - **Tax Filings** — IRS form preparation (1040, 1041, 1120, 990, 1099 series, Schedule C)
 - **Tax Estimator** — Aggregate 1099 data into a tax estimate
 - **Schedule A Detail** — Itemized deduction worksheet
 
 **Group 5 — Trust Estate**
+
 - **Trust Estate Dashboard** — Asset and balance overview with particle animation
 - **Trust Estate Ledger** — Trust-specific transaction ledger
 - **Trust Estate Reports** — Trust trial balance and asset summary
 
 **Group 5b — SPV Module**
+
 - **SPV Dashboard** — Special Purpose Vehicle entity management and quick actions
 - **SPV Ledger** — SPV-specific journal entry recording
 - **SPV Reports** — SPV trial balance and asset type summaries
 
 **Group 5c — UK Accounting**
+
 - **UK Accounting** — FRS 102 / IFRS compliance, UK entity configuration, compliance checklist, and UK financial statements
 
 **Group 6 — Operations**
+
 - **Invoicing** — Invoice creation and payment tracking
 - **Payroll** — Employee payroll calculation
 - **Inventory** — Inventory item tracking
@@ -253,6 +259,7 @@ The primary navigation is a horizontally scrolling tab bar below the header. Tab
 - **Bank Reconciliation** — Bank statement reconciliation
 
 **Group 7 — Reports and Intelligence**
+
 - **Reports** — Summary financial reports
 - **Master Report** — Comprehensive multi-section report
 - **GAAPCLAW Master** — AI-powered GAAP analysis agent
@@ -268,11 +275,13 @@ The primary navigation is a horizontally scrolling tab bar below the header. Tab
 - **Voice and Chat** — Voice input, TTS output, and general chat
 
 **Group 8 — Tools**
+
 - **Financial Assets** — Asset allocation and analysis
 - **Document Creator** — Rich-text legal document editor
 - **Source Folders** — Account library folder management
 
 **Group 9 — RedressRight Source Libraries**
+
 - **Constitutional Challenges (CPSA)** — Draft constitutional challenge documents
 - **Tax Refund Calculator (TRCF)** — Multi-route tax refund calculation
 - **NOL Classification (CCSN)** — NOL classification slide presentation
@@ -280,12 +289,15 @@ The primary navigation is a horizontally scrolling tab bar below the header. Tab
 - **Tutorial Journal (EEEJ)** — Step-by-step Q&A tutorial slides
 
 **Group 10 — Verification Tools**
+
 - **Entity Verifier** — Multi-source entity verification (SEC, FDIC, ProPublica, USASpending, FINRA, IARD, CFPB, OpenCorporates, SAM)
 
 **Group 11 — Data Integration**
+
 - **Sync Center** — Google Apps Script bidirectional sync
 
 **Group 12 — PDKB Tools**
+
 - **Transcript** — AI transcript transformer to Obsidian-ready markdown
 - **Etymology** — Legal and financial etymology analyzer
 - **PDF/MD** — PDF to markdown converter
@@ -296,6 +308,7 @@ The primary navigation is a horizontally scrolling tab bar below the header. Tab
 A floating robot button (bottom-right of the screen) opens the E2ZERO AI Agent Sidebar. This is a full-screen overlay with its own navigation independent of the main tab bar.
 
 The sidebar contains:
+
 - **MAIN:** Dashboard, Chat, NOI Ask
 - **AGENTS:** Agents grid, Create Agent
 - **LEGAL:** Dream Team, Legal Expert, Tax Expert, Tax Forms, Tax Estimator, Arbitration
@@ -310,14 +323,14 @@ Each page in the sidebar is an independent chat interface for a specific AI spec
 
 At the top of every main page, the header toolbar provides:
 
-| Button | Function |
-|---|---|
-| **Save** | Immediately writes all data to localStorage |
-| **Preview** | Opens a modal showing a formatted summary of all current data |
-| **Print** | Triggers browser print (nav and toolbar are hidden via print CSS) |
-| **Export As...** | Dropdown: PDF, Word (.docx), CSV, JSON |
-| **Import** | File picker — accepts a previously exported `.json` file |
-| Theme Toggle (top-right) | Switches between dark mode and light mode |
+| Button                   | Function                                                          |
+| ------------------------ | ----------------------------------------------------------------- |
+| **Save**           | Immediately writes all data to localStorage                       |
+| **Preview**        | Opens a modal showing a formatted summary of all current data     |
+| **Print**          | Triggers browser print (nav and toolbar are hidden via print CSS) |
+| **Export As...**   | Dropdown: PDF, Word (.docx), CSV, JSON                            |
+| **Import**         | File picker — accepts a previously exported `.json` file       |
+| Theme Toggle (top-right) | Switches between dark mode and light mode                         |
 
 Auto-save status appears in the bottom-right corner and confirms each save with a green badge.
 
@@ -333,13 +346,13 @@ The Ledger is the starting page and the foundation of all financial records.
 
 **New Entry Form**
 
-| Field | Type | Description |
-|---|---|---|
-| Date | Date picker | Transaction date |
-| Description | Text | Free-text description of the transaction |
-| Category | Dropdown | 30+ predefined categories (Checking, Savings, Credit Card, Trust Account, Tax Account, etc.) |
-| Debit (IN) | Number | Amount received or debited |
-| Credit (OUT) | Number | Amount paid or credited |
+| Field        | Type        | Description                                                                                  |
+| ------------ | ----------- | -------------------------------------------------------------------------------------------- |
+| Date         | Date picker | Transaction date                                                                             |
+| Description  | Text        | Free-text description of the transaction                                                     |
+| Category     | Dropdown    | 30+ predefined categories (Checking, Savings, Credit Card, Trust Account, Tax Account, etc.) |
+| Debit (IN)   | Number      | Amount received or debited                                                                   |
+| Credit (OUT) | Number      | Amount paid or credited                                                                      |
 
 Click **Add Entry** to append the entry to the ledger table.
 
@@ -348,10 +361,12 @@ Click **Add Entry** to append the entry to the ledger table.
 Displays all entries with columns for Date, Description, Category, Debit (IN), Credit (OUT), and Actions. The footer row shows running totals for Debit and Credit columns. The Net Balance row shows the difference.
 
 **Action buttons on each row:**
+
 - Edit icon — Opens the entry for in-place editing
 - Delete icon — Removes the entry after confirmation
 
 **Table toolbar buttons:**
+
 - **Save** — Forces an immediate localStorage save
 - **CSV** — Exports the ledger to a CSV file via FileSaver.js
 - **Clear** — Opens a confirmation modal before deleting all entries
@@ -362,15 +377,15 @@ Displays all entries with columns for Date, Description, Category, Debit (IN), C
 
 **Add Entity button** opens a modal with the following fields:
 
-| Field | Description |
-|---|---|
-| Entity Name | Legal name of the entity |
-| Entity Type | Dropdown: Corporation, LLC, Partnership, Trust, Nonprofit, Sole Proprietor, Government |
-| EIN | Employer Identification Number in XX-XXXXXXX format |
-| State of Formation | Two-letter state code |
-| Fiscal Year End | Month of fiscal year end |
-| Parent Entity | Optional — select a parent entity for subsidiary relationships |
-| Notes | Free-text |
+| Field              | Description                                                                            |
+| ------------------ | -------------------------------------------------------------------------------------- |
+| Entity Name        | Legal name of the entity                                                               |
+| Entity Type        | Dropdown: Corporation, LLC, Partnership, Trust, Nonprofit, Sole Proprietor, Government |
+| EIN                | Employer Identification Number in XX-XXXXXXX format                                    |
+| State of Formation | Two-letter state code                                                                  |
+| Fiscal Year End    | Month of fiscal year end                                                               |
+| Parent Entity      | Optional — select a parent entity for subsidiary relationships                        |
+| Notes              | Free-text                                                                              |
 
 **Entities Table** lists all registered entities with Edit and Delete buttons. An **Entity Structure** accordion below the table renders a visual hierarchy of parent-subsidiary relationships.
 
@@ -384,14 +399,14 @@ Entity data feeds the Consolidation module, CPA workpaper pages, and the Trust E
 
 **Add Account modal fields:**
 
-| Field | Description |
-|---|---|
-| Account Code | Numeric code (e.g., 1000, 2000) |
-| Account Name | Descriptive name |
-| Account Type | Asset, Liability, Equity, Income, Expense |
-| Normal Balance | Debit or Credit |
-| Parent Account | Optional — for sub-accounts |
-| Description | Free-text |
+| Field          | Description                               |
+| -------------- | ----------------------------------------- |
+| Account Code   | Numeric code (e.g., 1000, 2000)           |
+| Account Name   | Descriptive name                          |
+| Account Type   | Asset, Liability, Equity, Income, Expense |
+| Normal Balance | Debit or Credit                           |
+| Parent Account | Optional — for sub-accounts              |
+| Description    | Free-text                                 |
 
 **Filter buttons** above the table let you show All, Assets, Liabilities, Equity, Income, or Expense accounts only.
 
@@ -404,6 +419,7 @@ Entity data feeds the Consolidation module, CPA workpaper pages, and the Trust E
 **Journal Entry Form**
 
 A dynamic form where each row represents one line of the entry:
+
 - Date (header, shared across all lines)
 - Description (header)
 - Reference number (header)
@@ -427,13 +443,13 @@ The running balance indicator at the bottom shows whether the entry is balanced.
 
 **Add A/R button** opens a modal:
 
-| Field | Description |
-|---|---|
+| Field          | Description       |
+| -------------- | ----------------- |
 | Invoice Number | Unique identifier |
-| Customer | Customer name |
-| Amount | Dollar amount |
-| Due Date | Payment due date |
-| Notes | Free-text |
+| Customer       | Customer name     |
+| Amount         | Dollar amount     |
+| Due Date       | Payment due date  |
+| Notes          | Free-text         |
 
 **A/R Table** columns: Invoice, Customer, Amount, Due Date, Age (calculated from due date), Status, Actions.
 
@@ -458,6 +474,7 @@ The **Age** field is automatically color-coded: green for current, yellow for 30
 **Purpose:** Generates elimination journal entries to remove intercompany transactions when preparing consolidated financial statements for a group of related entities.
 
 **Generate Eliminations button** analyzes the journal entries across all entities and identifies intercompany balances. It creates offsetting elimination entries for:
+
 - Intercompany receivables and payables
 - Intercompany revenue and expense
 - Equity investments in subsidiaries
@@ -507,6 +524,7 @@ After clicking the **Tax Filings** tab, a card grid presents the available form 
 - **Form 1099-MISC** — Miscellaneous Information
 
 **Each form includes:**
+
 - Field labels that match official IRS PDF line numbers
 - Placeholder text explaining what data goes in each field and where to find it on your tax documents
 - Real-time auto-calculation (triggered by `oninput` on numeric fields)
@@ -521,6 +539,7 @@ After clicking the **Tax Filings** tab, a card grid presents the available form 
 **Purpose:** Aggregates 1099 data entered in the Tax Filings section and produces an estimated federal and state tax liability. Supports three calculation routes.
 
 **Sub-tabs:**
+
 - **Tax Calculator** — Enter income sources, deductions, filing status. Calculates estimated tax.
 - **1099 Aggregator** — Pulls amounts from all saved 1099-series forms automatically. Click **Import 1099 Data** to populate fields from saved filings, then **Apply to Estimator** to push totals to the calculator.
 - **Bad Debt Refund** — Calculates potential refund from bad debt deductions under IRC Section 166.
@@ -544,6 +563,7 @@ All calculations update in real time. The **Save Schedule A** button persists th
 The dashboard features a particle canvas animation in the background (initialized by `initParticles()`). Scroll-reveal animations fade sections into view as you scroll down.
 
 **Key metrics displayed:**
+
 - Total Assets
 - Total Liabilities
 - Net Worth (Assets minus Liabilities)
@@ -559,16 +579,16 @@ The dashboard features a particle canvas animation in the background (initialize
 
 **Add Entry form fields:**
 
-| Field | Description |
-|---|---|
-| Date | Transaction date |
-| Description | Transaction description |
+| Field            | Description                                                                 |
+| ---------------- | --------------------------------------------------------------------------- |
+| Date             | Transaction date                                                            |
+| Description      | Transaction description                                                     |
 | Transaction Type | Dropdown: Contribution, Distribution, Income, Expense, Transfer, Adjustment |
-| Amount | Dollar (or other currency) amount |
-| Currency | Currency code (USD, EUR, GBP, etc.) |
-| Beneficiary | Name of beneficiary receiving a distribution |
-| Account | Account from the Chart of Accounts |
-| Notes | Free-text |
+| Amount           | Dollar (or other currency) amount                                           |
+| Currency         | Currency code (USD, EUR, GBP, etc.)                                         |
+| Beneficiary      | Name of beneficiary receiving a distribution                                |
+| Account          | Account from the Chart of Accounts                                          |
+| Notes            | Free-text                                                                   |
 
 The `trustCurrSymbol()` function converts currency codes to symbols for display. The `trustTypeLabel()` function provides human-readable labels for transaction types.
 
@@ -579,6 +599,7 @@ The `trustCurrSymbol()` function converts currency codes to symbols for display.
 The ledger table shows entries with running balance. Each row has Edit and Delete buttons.
 
 **Export buttons:**
+
 - **CSV** — Exports ledger entries as CSV
 - **JSON** — Exports raw data as JSON
 - **Print** — Triggers browser print
@@ -607,17 +628,17 @@ The SPV (Special Purpose Vehicle) Module provides three dedicated tabs for creat
 
 **UI elements:**
 
-| Element | Description |
-|---|---|
-| Active SPV dropdown | Selects the currently active SPV entity. Fires `spvSetActive(id)` on change. |
-| New SPV button | Calls `spvAddEntity()` — prompts for name, EIN, type, and purpose, then saves and refreshes the selector. |
-| Delete SPV button | Calls `spvDeleteActive()` — removes the selected SPV and all its entries after confirmation. |
-| SPV info line | Displays EIN, entity type, and purpose for the currently selected SPV. Updated by `spvSetActive()`. |
-| Add Entry (quick action) | Navigates to the SPV Ledger and opens the Add Entry form. |
-| SPV Reports (quick action) | Navigates to the SPV Reports tab and calls `spvUpdateReports()`. |
-| Export CSV (quick action) | Calls `spvExportCSV()` — downloads all SPV entries as a CSV file. |
-| Export JSON (quick action) | Calls `spvExportJSON()` — downloads the full SPV data object (entities + entries) as a JSON file. |
-| Recent SPV Activity table | Displays the last 10 SPV ledger entries: Date, SPV, Description, Amount. Populated by `spvUpdateDashboard()`. |
+| Element                    | Description                                                                                                     |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Active SPV dropdown        | Selects the currently active SPV entity. Fires `spvSetActive(id)` on change.                                  |
+| New SPV button             | Calls `spvAddEntity()` — prompts for name, EIN, type, and purpose, then saves and refreshes the selector.    |
+| Delete SPV button          | Calls `spvDeleteActive()` — removes the selected SPV and all its entries after confirmation.                 |
+| SPV info line              | Displays EIN, entity type, and purpose for the currently selected SPV. Updated by `spvSetActive()`.           |
+| Add Entry (quick action)   | Navigates to the SPV Ledger and opens the Add Entry form.                                                       |
+| SPV Reports (quick action) | Navigates to the SPV Reports tab and calls `spvUpdateReports()`.                                              |
+| Export CSV (quick action)  | Calls `spvExportCSV()` — downloads all SPV entries as a CSV file.                                            |
+| Export JSON (quick action) | Calls `spvExportJSON()` — downloads the full SPV data object (entities + entries) as a JSON file.            |
+| Recent SPV Activity table  | Displays the last 10 SPV ledger entries: Date, SPV, Description, Amount. Populated by `spvUpdateDashboard()`. |
 
 **Storage:** `TMAR_SPV_Data` — JSON object `{ entities: [], entries: [] }`.
 
@@ -632,27 +653,28 @@ The SPV (Special Purpose Vehicle) Module provides three dedicated tabs for creat
 
 **Toolbar buttons:**
 
-| Button | Function |
-|---|---|
-| Add Entry | Calls `spvShowAddEntry()` — shows the form with today's date pre-filled. |
-| Filter | Calls `spvFilterEntries()` — toggles the filter bar. |
-| Reset | Calls `spvResetFilter()` — clears all filters and re-renders the full ledger. |
+| Button    | Function                                                                         |
+| --------- | -------------------------------------------------------------------------------- |
+| Add Entry | Calls `spvShowAddEntry()` — shows the form with today's date pre-filled.      |
+| Filter    | Calls `spvFilterEntries()` — toggles the filter bar.                          |
+| Reset     | Calls `spvResetFilter()` — clears all filters and re-renders the full ledger. |
 
 **Add Entry form fields:**
 
-| Field | Description |
-|---|---|
-| Date | Transaction date |
-| SPV Name | Free-text name (or selected from known SPVs) |
-| Asset Type | Dropdown: Capital Contribution / Asset Acquisition / Distribution / Income / Expense / Debt Issuance / Debt Repayment / Other |
-| Description | Free-text description |
-| Amount | Dollar amount |
+| Field       | Description                                                                                                                   |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Date        | Transaction date                                                                                                              |
+| SPV Name    | Free-text name (or selected from known SPVs)                                                                                  |
+| Asset Type  | Dropdown: Capital Contribution / Asset Acquisition / Distribution / Income / Expense / Debt Issuance / Debt Repayment / Other |
+| Description | Free-text description                                                                                                         |
+| Amount      | Dollar amount                                                                                                                 |
 
 Click **Save Entry** to call `spvSaveEntry()`, which validates the form, appends the entry to `TMAR_SPV_Data`, persists via `spvSave()`, and re-renders the table.
 
 **Filter bar:**
 
 Appears below the toolbar when the Filter button is clicked.
+
 - Text search field — matches against SPV name and description
 - Asset Type dropdown — filters by entry type
 - **Apply button** — calls `spvApplyFilter()`
@@ -676,6 +698,7 @@ The table footer shows a running **Total** of all visible entries. Rendered by `
 **Reports generated by `spvUpdateReports()`:**
 
 **SPV Trial Balance** — Groups entries by SPV entity name. For each SPV, shows:
+
 - In (sum of income, capital contributions, and debt issuances)
 - Out (sum of distributions, expenses, and debt repayments)
 - Net (In minus Out)
@@ -683,6 +706,7 @@ The table footer shows a running **Total** of all visible entries. Rendered by `
 Generated by `generateSPVTrialBalance()`. Populates the trial balance table.
 
 **Asset Type Summary** — Groups all entries by asset type. For each type, shows:
+
 - Entry count
 - Total value
 
@@ -690,11 +714,11 @@ Generated by `generateSPVAssetSummary()`. Populates `spvAssetSummaryBody`.
 
 **Action buttons:**
 
-| Button | Function |
-|---|---|
-| Export CSV | `spvExportCSV()` — downloads all entries as CSV |
-| Export JSON | `spvExportJSON()` — downloads full data object as JSON |
-| Print Report | `spvPrintReport()` — calls `window.print()` |
+| Button       | Function                                                  |
+| ------------ | --------------------------------------------------------- |
+| Export CSV   | `spvExportCSV()` — downloads all entries as CSV        |
+| Export JSON  | `spvExportJSON()` — downloads full data object as JSON |
+| Print Report | `spvPrintReport()` — calls `window.print()`          |
 
 ---
 
@@ -710,14 +734,14 @@ This tab is divided into four sections.
 
 Stores identifying information for the UK entity under `TMAR_UK_Settings`.
 
-| Field | Description |
-|---|---|
-| Company Name | Registered company name |
-| Companies House Number | 8-digit Companies House registration number |
-| UTR | Unique Taxpayer Reference (10 digits) |
-| VAT Registration Number | UK VAT number |
-| Accounting Standard | Dropdown: FRS 102 / FRS 105 / IFRS / FRS 101 |
-| Accounting Period End | Date field for period end date |
+| Field                   | Description                                  |
+| ----------------------- | -------------------------------------------- |
+| Company Name            | Registered company name                      |
+| Companies House Number  | 8-digit Companies House registration number  |
+| UTR                     | Unique Taxpayer Reference (10 digits)        |
+| VAT Registration Number | UK VAT number                                |
+| Accounting Standard     | Dropdown: FRS 102 / FRS 105 / IFRS / FRS 101 |
+| Accounting Period End   | Date field for period end date               |
 
 **Save UK Settings button** calls `ukSaveSettings()`, which writes all field values into `TMAR_UK_Settings` in localStorage.
 
@@ -738,11 +762,11 @@ Eight checkboxes covering the key annual compliance obligations for a UK company
 
 **Buttons:**
 
-| Button | Function |
-|---|---|
+| Button         | Function                                                                             |
+| -------------- | ------------------------------------------------------------------------------------ |
 | Save Checklist | `ukSaveChecklist()` — saves all checkbox states to `TMAR_UK_Settings.checklist` |
-| Check All | `ukCheckAll()` — marks all 8 items checked |
-| Uncheck All | `ukUncheckAll()` — marks all 8 items unchecked |
+| Check All      | `ukCheckAll()` — marks all 8 items checked                                        |
+| Uncheck All    | `ukUncheckAll()` — marks all 8 items unchecked                                    |
 
 ### UK Financial Statements
 
@@ -755,11 +779,11 @@ Generates UK-format financial statements from the main ledger and chart of accou
 
 **Buttons:**
 
-| Button | Function |
-|---|---|
-| Generate UK Statements | `ukGenerateStatements()` — builds and renders both statements from ledger and COA data |
+| Button                        | Function                                                                                                       |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Generate UK Statements        | `ukGenerateStatements()` — builds and renders both statements from ledger and COA data                      |
 | Generate UK Compliance Report | `ukGenerateComplianceReport()` — produces a plain-text compliance summary from settings and checklist state |
-| Print | `ukPrintStatements()` — calls `window.print()` |
+| Print                         | `ukPrintStatements()` — calls `window.print()`                                                            |
 
 ### UK Accounting AI Agent
 
@@ -783,6 +807,7 @@ The system prompt instructs the agent to cite specific FRS 102 section numbers, 
 **Show Invoice Form button** opens the invoice creation panel.
 
 **Invoice form fields:**
+
 - Invoice number (auto-generated)
 - Client name
 - Invoice date
@@ -806,6 +831,7 @@ The `calcInvTotals()` function recalculates subtotal, tax, and total whenever a 
 **Purpose:** Calculates employee payroll including federal and state withholdings.
 
 **Payroll Calculator fields:**
+
 - Employee name
 - Pay period (Weekly, Bi-weekly, Semi-monthly, Monthly)
 - Gross wages
@@ -827,6 +853,7 @@ The `calcInvTotals()` function recalculates subtotal, tax, and total whenever a 
 **Purpose:** Tracks inventory items, quantities, and valuations.
 
 **Add Item modal fields:**
+
 - Item name
 - SKU / Item code
 - Category
@@ -852,6 +879,7 @@ The `calcInvTotals()` function recalculates subtotal, tax, and total whenever a 
 **Purpose:** Creates formal payment order instruments — written orders directing payment of a specific sum.
 
 **Payment Order form fields:**
+
 - Order number (auto-generated)
 - Date
 - Pay to (payee name)
@@ -871,6 +899,7 @@ The `calcInvTotals()` function recalculates subtotal, tax, and total whenever a 
 **Purpose:** Creates UCC Article 3-compliant bills of exchange, including a digital signature canvas.
 
 **Bill of Exchange form fields:**
+
 - Serial number (auto-generated by `generateBOESerial()`)
 - Date
 - Drawee (who must pay)
@@ -884,6 +913,7 @@ The `calcInvTotals()` function recalculates subtotal, tax, and total whenever a 
 - Language / jurisdiction label — updated by `updateBOELanguageLabel()`
 
 **Signature Canvas** — Allows the drawer to sign digitally:
+
 - Touch or mouse drawing is captured by `boeCanvasDown()`, `boeCanvasDraw()`, `boeCanvasUp()`
 - **Accept Signature** — Saves the signature data
 - **Clear** — Erases the signature
@@ -896,6 +926,7 @@ The `calcInvTotals()` function recalculates subtotal, tax, and total whenever a 
 **Purpose:** Detailed expense tracking by category with receipt reference.
 
 **Add Expense form fields:**
+
 - Date
 - Description
 - Amount
@@ -916,6 +947,7 @@ The `calcInvTotals()` function recalculates subtotal, tax, and total whenever a 
 **Two sub-tabs:** Customers and Vendors.
 
 **Add Customer / Add Vendor modal fields:**
+
 - Name
 - Contact person
 - Email
@@ -930,6 +962,7 @@ Customers and vendors are listed in separate tables. Each row has a Delete butto
 **Purpose:** Manages fixed assets and calculates depreciation using straight-line method.
 
 **Add Asset form fields:**
+
 - Asset name
 - Purchase date
 - Purchase price
@@ -948,6 +981,7 @@ The `saveAsset()` function calculates annual depreciation as (purchase price min
 **Purpose:** Reconciles your book balance with the bank statement balance.
 
 **Reconciliation form fields:**
+
 - Statement date
 - Bank statement ending balance
 - Book balance (from ledger)
@@ -959,6 +993,7 @@ The `saveAsset()` function calculates annual depreciation as (purchase price min
 - Bank charges
 
 **Calculate Reconciliation button** runs `calcReconciliation()` which computes:
+
 - Adjusted bank balance = Statement balance + outstanding deposits - outstanding checks ± bank errors
 - Adjusted book balance = Book balance + interest earned - bank charges ± book errors
 - Difference = Adjusted bank balance minus adjusted book balance (must be zero)
@@ -976,6 +1011,7 @@ The `saveAsset()` function calculates annual depreciation as (purchase price min
 **Purpose:** Summary financial overview that aggregates ledger, A/R, A/P, and filing data.
 
 `updateReports()` calculates and displays:
+
 - Total income (sum of all debit entries)
 - Total expenses (sum of all credit entries)
 - Net income
@@ -988,6 +1024,7 @@ The `saveAsset()` function calculates annual depreciation as (purchase price min
 **Purpose:** A single comprehensive document that assembles all financial data into a printable master report.
 
 `generateMasterReport()` builds a multi-section report including:
+
 - Trust entity identification header
 - Balance sheet summary
 - Income statement summary
@@ -1007,6 +1044,7 @@ The `saveAsset()` function calculates annual depreciation as (purchase price min
 **Purpose:** An AI-powered agent specialized in GAAP accounting, trust law, and document command parsing.
 
 The GAAPCLAW Master agent is backed by `buildTrustAgentSystemPrompt()` which constructs a detailed system prompt covering:
+
 - GAAP/FASB standards
 - Trust law (Restatement Third of Trusts)
 - IRS trust taxation (Forms 1041, 1041-ES)
@@ -1020,12 +1058,14 @@ The GAAPCLAW Master agent is backed by `buildTrustAgentSystemPrompt()` which con
 ### 10.4 CPA Specialist Pages
 
 Six pages provide structured financial workpapers for different entity types. Each page follows the same pattern:
+
 - Entity identification header
 - Multiple accordion sections for income, expenses, adjustments, and notes
 - Calculate and Save buttons
 - Export to PDF or Word
 
 **Available workpapers:**
+
 - **Nonprofit CPA** — Follows IRS Form 990 structure
 - **Partnership CPA** — Follows IRS Form 1065 structure
 - **Corporation CPA** — Follows IRS Form 1120 structure
@@ -1044,6 +1084,7 @@ Six pages provide structured financial workpapers for different entity types. Ea
 **IRS Form Viewer** — Renders interactive representations of IRS forms (W-9, SS-4, 2553, etc.) styled to match actual IRS formatting.
 
 **Package Builder** — Select multiple documents to bundle into a single PDF or ZIP package. Preset packages are available:
+
 - Trust Formation Package
 - IRS Compliance Package
 - Entity Verification Package
@@ -1060,6 +1101,7 @@ Six pages provide structured financial workpapers for different entity types. Ea
 The Settings page (accessible via the **Settings & API** tab or **API Keys** in the E2ZERO sidebar) is divided into several sections.
 
 **Trust Entity Settings**
+
 - Trust/Entity Name (populates the header subtitle)
 - Trust EIN (stored and displayed as masked `••-•••XXXX`)
 - Fiscal year start month
@@ -1069,6 +1111,7 @@ The Settings page (accessible via the **Settings & API** tab or **API Keys** in 
 **API Keys Section**
 
 One row per provider with:
+
 - Password-type input for the API key
 - Status dot (green = key saved, gray = no key)
 - Provider-specific notes
@@ -1076,36 +1119,42 @@ One row per provider with:
 Three additional cloud providers are available in the API Keys section:
 
 **Groq**
+
 - Endpoint: `https://api.groq.com/openai/v1/chat/completions`
 - Default model: `llama-3.3-70b-versatile`
 - Context limit: 32,768 tokens
 - Free tier available. Key stored as `stg_key_groq` / `eeon_key_groq`.
 
 **Cerebras**
+
 - Endpoint: `https://api.cerebras.ai/v1/chat/completions`
 - Default model: `llama-3.3-70b`
 - Context limit: 8,192 tokens
 - Free tier available. Key stored as `stg_key_cerebras` / `eeon_key_cerebras`.
 
 **OpenRouter**
+
 - Endpoint: `https://openrouter.ai/api/v1/chat/completions`
 - Default model: `openai/gpt-4o-mini`
 - Context limit: 200,000 tokens
 - Aggregates 200+ models from multiple providers. Key stored as `stg_key_openrouter` / `eeon_key_openrouter`.
 
 Additional fields for Ollama:
+
 - Server URL (default `http://127.0.0.1:11434`)
 - Model name (dropdown of common models + custom text field)
 - API Key (optional, for remote Ollama instances with auth)
 - Web Search toggle (enables tool-calling mode for Ollama models that support it)
 
 Custom Provider fields:
+
 - Provider name
 - API endpoint URL
 - API key
 - Model name
 
 Notification Integrations:
+
 - Telegram Bot Token and Chat ID
 - Discord Webhook URL
 
@@ -1114,16 +1163,19 @@ Notification Integrations:
 **Active Provider** — Dropdown to select which provider is used for all AI features.
 
 **Buttons:**
+
 - **Save All Keys** — Calls `saveKeys()`, writes all field values to their respective localStorage keys
 - **Test Connection** — Calls `testConnection()`, sends a minimal test request to the active provider
 - **Load Keys** — Calls `loadSavedKeys()`, reloads all field values from localStorage
 
 **Memory Settings**
+
 - **View Memory Stats** — Opens the GCMemory panel showing IndexedDB record count and stored exchanges
 - **Clear All Memories** — Calls `mem0ClearAll()` after confirmation, purges the entire IndexedDB store
 - **Check for Source Updates** — Calls `parityCheckNow()`, fetches `parity-fingerprint.json` from the GitHub repository, and updates the parity status display inline. See Section 11.4 for full details.
 
 **Preferences**
+
 - Theme (Dark/Light)
 - Auto-save interval
 - Font size
@@ -1148,6 +1200,7 @@ Notification Integrations:
 **Purpose:** Voice input (Speech-to-Text), Text-to-Speech output, and a general-purpose chat interface.
 
 **Voice Controls:**
+
 - **Start Recording button** — Calls `startVoiceRec()`, activates the browser's Web Speech API
 - **Stop Recording button** — Calls `stopVoiceRec()`, finalizes the recognized text
 - Voice language selector — Selects the STT language
@@ -1156,6 +1209,7 @@ Notification Integrations:
 - **Speak Response button** — Calls `speakWithHighlight()`, reads the last agent response aloud with word-level highlighting
 
 **Chat Interface:**
+
 - Message input (text or voice)
 - Send button
 - Chat history display
@@ -1232,6 +1286,7 @@ The committed fingerprint file is what the in-app functions fetch to determine b
 **Sync from Ledger button** — Calls `syncFAFromLedger()`, which reads ledger entries categorized as investment accounts and creates asset records automatically.
 
 **Sub-tabs** (switched by `showFASub()`):
+
 - Overview — Asset allocation chart and totals
 - Equities — Stock and equity holdings
 - Fixed Income — Bond and fixed-income holdings
@@ -1248,6 +1303,7 @@ The committed fingerprint file is what the in-app functions fetch to determine b
 **Purpose:** A full-featured rich-text legal document editor with formatting toolbar, auto-save, undo/redo, and export.
 
 **Formatting toolbar buttons:**
+
 - Bold, Italic, Underline, Strikethrough
 - Font size controls (increase/decrease via `cpsaChangeFontSize()`)
 - Case conversion (UPPER, lower, Title) via `changeDocCase()`
@@ -1261,6 +1317,7 @@ The committed fingerprint file is what the in-app functions fetch to determine b
 **Auto-save** — `initDocAutoSave()` saves editor content to localStorage every 30 seconds. `docAutoSaveRestore()` prompts on load if unsaved content is detected.
 
 **Export buttons:**
+
 - **Export PDF** — `exportDocPDF()` uses jsPDF to generate a PDF
 - **Export Word** — `exportDocWord()` generates a .docx-format HTML file
 - **Print** — `printDoc()` triggers browser print
@@ -1270,6 +1327,7 @@ The committed fingerprint file is what the in-app functions fetch to determine b
 **Purpose:** Manages a library of account folders for organizing reference materials.
 
 **Add Folder form:**
+
 - Folder name
 - Description
 - Category
@@ -1289,6 +1347,7 @@ These pages are ported from the RedressRight legal platform and provide pre-buil
 **Purpose:** A multi-document legal drafting environment for constitutional challenge filings.
 
 **Document tabs** (switched by `cpsaSwitchDoc()`):
+
 - Constitutional Challenge
 - Motion to Dismiss
 - Writ of Mandamus
@@ -1296,6 +1355,7 @@ These pages are ported from the RedressRight legal platform and provide pre-buil
 - Custom Document
 
 **Editor features:**
+
 - A rich-text editor (`cpsa-editor-area`) using `contentEditable`
 - Section management: Add section after (`cpsaAddSectionAfter()`), move up/down (`cpsaMoveSection()`), delete section (`cpsaDeleteSection()`)
 - Citation insertion panel — inserts formatted references to cases (`cpsa-case-ref`), statutes (`cpsa-statutory-ref`), constitutional provisions (`cpsa-constitutional-ref`), or Congressional records (`cpsa-congressional-ref`)
@@ -1305,6 +1365,7 @@ These pages are ported from the RedressRight legal platform and provide pre-buil
 - Code editor for direct HTML editing of the document
 
 **Toolbar buttons:**
+
 - Bold, Italic, Underline, Strikethrough, font size
 - Case conversion
 - Insert Citation (4 types)
@@ -1323,6 +1384,7 @@ These pages are ported from the RedressRight legal platform and provide pre-buil
 **Purpose:** A multi-route tax refund calculator covering bad debt, instrument loss, interest recovery, and NOL procedures.
 
 **Sub-tabs** (switched by `trcfSwitchTab()`):
+
 - **Route Calculator** — Choose Route 1 (standard) or Route 2 (alternative). Each route walks through a multi-step calculation.
 - **1099 Import** — Import 1099 data from saved filings (`import1099ToTRCF()`), then apply to the calculator (`apply1099ToTRCF()`).
 - **Bad Debt** — IRC Section 166 bad debt deduction calculator (`trcfCalculateBadDebt()`). Clear (`trcfClearBadDebt()`) and Print (`trcfPrintBadDebt()`) buttons.
@@ -1341,6 +1403,7 @@ The presentation uses a slide system managed by `ccsnShowSlide(n)`. Navigation: 
 A collapsible **Table of Contents** sidebar (`ccsnToggleTOC()`) shows all slide titles with active-state highlighting (`ccsnUpdateTOC(n)`).
 
 **Slide content types:**
+
 - `ccsn-presumption-box` (green) — Statutory presumptions
 - `ccsn-rebuttal-box` (red) — Rebuttal rules
 - `ccsn-fact-box` (blue) — Factual standards
@@ -1369,6 +1432,7 @@ A **topic filter** buttons panel lets you filter slides by topic category. Activ
 A **progress bar** shows current position. `eeejUpdateProgress()` updates it on each navigation.
 
 **Slide components:**
+
 - `eeej-question` (amber border) — The question being answered
 - `eeej-answer` (standard card) — The detailed answer
 - Hero slides with large headings for section introductions
@@ -1382,6 +1446,7 @@ A **progress bar** shows current position. `eeejUpdateProgress()` updates it on 
 **Purpose:** Verifies legal entities against nine public data sources simultaneously. Returns confidence scores, classification results, DBA resolution, and genealogy tracing.
 
 **Sub-tabs** (switched by `ev2SwitchSubTab()`):
+
 - **Single Verify** — Verify one entity by name and/or EIN
 - **Batch Verify** — Upload a CSV of entities for bulk verification
 - **Dashboard** — Summary statistics across all verification results
@@ -1390,6 +1455,7 @@ A **progress bar** shows current position. `eeejUpdateProgress()` updates it on 
 - **Settings** — Source enable/disable, SAM.gov API key, cache controls
 
 **Single Verify workflow:**
+
 1. Enter entity name and/or EIN in the input fields.
 2. Select entity type from the dropdown (Corporation, LLC, Trust, Nonprofit, Government, Individual).
 3. Click **Verify Entity**. The `ev2VerifySingle()` function runs.
@@ -1399,17 +1465,18 @@ A **progress bar** shows current position. `eeejUpdateProgress()` updates it on 
 7. If genealogy tracing is triggered, `ev2RenderGenealogyPanel()` shows the entity's ownership history.
 
 **Data sources queried:**
-| Source ID | Data Source | Requires Key |
-|---|---|---|
-| `sec` | SEC EDGAR | No |
-| `fdic` | FDIC BankFind | No |
-| `propublica` | ProPublica Nonprofit Explorer | No |
-| `usaspending` | USASpending.gov | No |
-| `finra` | FINRA BrokerCheck | No |
-| `iard` | IARD Investment Advisers | No |
-| `cfpb` | CFPB Complaint Database | No |
-| `opencorporates` | OpenCorporates | No |
-| `sam` | SAM.gov | Optional — improves results |
+
+| Source ID          | Data Source                   | Requires Key                 |
+| ------------------ | ----------------------------- | ---------------------------- |
+| `sec`            | SEC EDGAR                     | No                           |
+| `fdic`           | FDIC BankFind                 | No                           |
+| `propublica`     | ProPublica Nonprofit Explorer | No                           |
+| `usaspending`    | USASpending.gov               | No                           |
+| `finra`          | FINRA BrokerCheck             | No                           |
+| `iard`           | IARD Investment Advisers      | No                           |
+| `cfpb`           | CFPB Complaint Database       | No                           |
+| `opencorporates` | OpenCorporates                | No                           |
+| `sam`            | SAM.gov                       | Optional — improves results |
 
 **Cache system:** Results are cached locally by `ev2CacheSet()` with configurable TTL. View cache statistics via `ev2RenderCacheStats()`. Export/import cache via `ev2ExportCache()` / `ev2ImportCache()`.
 
@@ -1422,11 +1489,13 @@ A **progress bar** shows current position. `eeejUpdateProgress()` updates it on 
 **Purpose:** Bidirectional synchronization between the local browser app and a Google Sheets spreadsheet via Google Apps Script (GAS).
 
 **GAS Setup:**
+
 1. Deploy the companion Apps Script (located in `gas/SyncCenter.gs`) as a Web App.
 2. Paste the Web App URL into the **GAS URL** field in Sync Center.
 3. The URL is saved to localStorage as `TMAR_GAS_URL`.
 
 **Sync operations:**
+
 - **Push Entities** — Sends entity records to Google Sheets
 - **Push Transactions** — Sends ledger entries to Google Sheets
 - **Push Payables** — Sends A/P records to Google Sheets
@@ -1439,6 +1508,7 @@ A **progress bar** shows current position. `eeejUpdateProgress()` updates it on 
 **Conflict resolution:** When pulled data conflicts with local data, `showSyncConflictModal()` presents a side-by-side comparison. `resolveSyncConflicts()` applies the selected resolution strategy (local wins, remote wins, or merge).
 
 **CSV Export/Import buttons:**
+
 - Export Entities to CSV — `exportEntitiesToMasterRegisterCSV()`
 - Export Ledger to CSV — `exportLedgerToTransactionCSV()`
 - Export Journal to CSV — `exportJournalToTransactionCSV()`
@@ -1460,12 +1530,14 @@ A **progress bar** shows current position. `eeejUpdateProgress()` updates it on 
 **Purpose:** Converts raw conversation transcripts (from AI sessions, legal proceedings, or meetings) into structured, Obsidian-ready markdown notes with proper YAML frontmatter.
 
 **Input fields:**
+
 - Source URL — The URL where the transcript originates. Single-quoted in frontmatter to handle Windows-style paths with colons (e.g., `'C:\path\to\file'`).
 - Purpose — Descriptive purpose field, uses YAML `>-` block scalar for multi-line safety.
 - Tags — Entered as comma-separated values, rendered as a YAML list format.
 - Raw transcript text area
 
 **Transform button** calls `ttBuildPrompt()` which sends the transcript to the AI for processing. The output is a formatted markdown document with:
+
 - YAML frontmatter block
 - Summary section
 - Key points section
@@ -1481,6 +1553,7 @@ A **progress bar** shows current position. `eeejUpdateProgress()` updates it on 
 **Input:** Enter a word or term. Click **Analyze**.
 
 The AI provides:
+
 - Language of origin
 - Root word breakdown
 - Historical legal usage
@@ -1500,6 +1573,7 @@ The AI provides:
 **Purpose:** Generates multi-state power of attorney and DBA (Doing Business As) registration documents.
 
 **POA form fields:**
+
 - Principal name
 - Agent name
 - Scope of authority
@@ -1508,6 +1582,7 @@ The AI provides:
 - State
 
 **DBA form fields:**
+
 - Legal entity name
 - DBA name
 - State
@@ -1530,10 +1605,12 @@ Click **Close Sidebar** or the robot button again to return to the main ledger w
 Each agent page follows the same three-panel layout:
 
 **Left column (conversation list panel):**
+
 - **New Conversation button** — Creates a new conversation session for this agent. Conversations are stored under `ap_conv_{agentId}` in localStorage.
 - Session list — Previously saved conversations. Click any session to restore it.
 
 **Center column (chat panel):**
+
 - Agent title bar with the agent's name and color
 - **Toolbar buttons:** Speak (STT input), Listen (TTS output of last response), Print, PDF, Word, Share Link
 - Message display area — shows the conversation history with user messages on the right and agent responses on the left
@@ -1542,20 +1619,20 @@ Each agent page follows the same three-panel layout:
 
 **The 11 agent specialists:**
 
-| Agent | Color | System Prompt Focus |
-|---|---|---|
-| Dream Team | Gold | Full-spectrum legal: 600-attorney panel covering all law areas |
-| Legal Expert | Amber | Constitutional, UCC, criminal, civil, securities, bankruptcy, trust, foreclosure |
-| Tax Expert | Green | IRC, IRS rules, Treasury procedures, tax authority citations |
-| Trust Specialist | Purple | Trust administration, fiduciary duty, Restatement Third of Trusts |
-| Corporation Specialist | Indigo | Corporate structure, Delaware GCL, Model Business Corporation Act |
-| Arbitration Specialist | Teal | Federal Arbitration Act (9 U.S.C.), arbitration awards |
-| Research Analyst | Purple | Deep investigation, source verification, government and financial data |
-| Accounting Expert | Amber | GAAP, ASC codes, FASB standards |
-| Code Expert | Blue | HTML, CSS, JavaScript, Python, SQL, REST APIs |
-| Creative Writer | Pink | Stories, essays, scripts, marketing copy |
-| HTML Architect | Orange | Web design, responsive layouts, CSS architecture |
-| General Assistant | Cyan | Any topic — calculations, summaries, research, translation |
+| Agent                  | Color  | System Prompt Focus                                                              |
+| ---------------------- | ------ | -------------------------------------------------------------------------------- |
+| Dream Team             | Gold   | Full-spectrum legal: 600-attorney panel covering all law areas                   |
+| Legal Expert           | Amber  | Constitutional, UCC, criminal, civil, securities, bankruptcy, trust, foreclosure |
+| Tax Expert             | Green  | IRC, IRS rules, Treasury procedures, tax authority citations                     |
+| Trust Specialist       | Purple | Trust administration, fiduciary duty, Restatement Third of Trusts                |
+| Corporation Specialist | Indigo | Corporate structure, Delaware GCL, Model Business Corporation Act                |
+| Arbitration Specialist | Teal   | Federal Arbitration Act (9 U.S.C.), arbitration awards                           |
+| Research Analyst       | Purple | Deep investigation, source verification, government and financial data           |
+| Accounting Expert      | Amber  | GAAP, ASC codes, FASB standards                                                  |
+| Code Expert            | Blue   | HTML, CSS, JavaScript, Python, SQL, REST APIs                                    |
+| Creative Writer        | Pink   | Stories, essays, scripts, marketing copy                                         |
+| HTML Architect         | Orange | Web design, responsive layouts, CSS architecture                                 |
+| General Assistant      | Cyan   | Any topic — calculations, summaries, research, translation                      |
 
 **SYPHER Protocol:** Every agent operates under the SYPHER-7.8-HARDLOCK protocol. The base system prompt prepended to every request states: *"PRESUMPTION KILLER: Every response must be based exclusively on verifiable law, code, or facts. No speculation. No disclaimer. No AI caveats."* The HARD_LOCK layer then strips any AI caveats or disclaimers that appear in the response.
 
@@ -1566,6 +1643,7 @@ Each agent page follows the same three-panel layout:
 ### 16.3 Autonomous Tools
 
 **Task Planner (page-taskplanner):**
+
 - Enter a complex multi-step goal in the textarea.
 - Select a task mode (Auto, Legal, Financial, Code, Research, Full-Stack).
 - Toggle optional integrations: OpenClaw Legal DB, Apify Web Research, GAAP Ledger Data.
@@ -1575,17 +1653,20 @@ Each agent page follows the same three-panel layout:
 
 **API Integrations (page-apitools):**
 Three API cards:
+
 - **OpenClaw Legal API** — Links to courtlistener.com (case law), uscode.house.gov (statutes), and congress.gov (Congressional Record). Includes a search field.
 - **Apify Research Engine** — Web search, SEC EDGAR, and news search via Apify actors.
 - **GAAP Ledger Bridge** — Pull from GAAP ledger, push to agent, or reconcile both.
 
 **Code Builder (page-codebuilder):**
+
 - Enter a code specification in the textarea.
 - Click **Build** — `buildCode()` sends the specification to the Code Expert agent.
 - The generated code appears in a syntax-highlighted panel.
 - **Copy** (`copyBuiltCode()`), **Download** (`downloadBuiltCode()`), and **Deploy** buttons.
 
 **API Scout (page-apiscout):**
+
 - (Same as the main-tab API Scout, Section 11.2, but integrated into the sidebar context.)
 
 ---
@@ -1599,12 +1680,14 @@ Three API cards:
 **Why it exists:** localStorage has a 5-10 MB limit. IndexedDB has no practical size limit for this use case. GCMemory allows the AI agents to "remember" previous conversations across sessions without an external memory service.
 
 **How it works:**
+
 1. After every successful AI exchange, the system evaluates whether the exchange is "worth remembering" by checking if it contains legally or financially significant keywords (court, trust, IRS, GAAP, NOL, statute, etc.).
 2. If worthy, the exchange is saved to IndexedDB as a record with fields: `agentId`, `userText` (up to 600 characters), `agentText` (up to 900 characters), `keywords` (extracted tags), and `timestamp`.
 3. The database is capped at 500 records. When the cap is reached, the oldest records are deleted automatically.
 4. Before each new query, `GCMemory.search(query, limit)` scores all stored records against the query's keywords and returns the top 4 matches. These are injected into the system prompt.
 
 **Key methods:**
+
 - `GCMemory.add(userText, agentText, agentId)` — Saves an exchange
 - `GCMemory.search(query, limit)` — Returns the most relevant stored exchanges
 - `GCMemory.addPdf(filename, text, pageCount)` — Stores PDF content as a memory
@@ -1626,6 +1709,7 @@ Three API cards:
 **Why it exists:** To prevent malicious code injection from registering unauthorized agents that could exploit the API key or bypass the SYPHER Protocol.
 
 **Three phases:**
+
 1. **Registration phase** — `registerAgent()` and `registerSkill()` methods accept new entries while `_locked === false`.
 2. **Seal phase** — `runtime.seal()` sets `_locked = true`, deletes the `registerAgent`, `registerSkill`, and `seal` methods from the object, and calls `Object.freeze()`.
 3. **Post-seal** — Any attempt to register an agent or skill writes a security violation to GCMemory and logs to the console. The freeze ensures no property can be reassigned.
@@ -1643,6 +1727,7 @@ Three API cards:
 **Why it is frozen:** `Object.freeze(HARD_LOCK)` is called at definition time. The code immediately after tries `HARD_LOCK.enforced = false` — because the object is frozen, this assignment silently fails, leaving `enforced` as `true`. The next line throws an error if `enforced` is not `true`, confirming the freeze succeeded. This is a tamper-detection mechanism.
 
 **Sanitization steps (in order):**
+
 1. Strip all HTML tags
 2. Strip markdown bold, italic, code, heading, and link syntax
 3. Strip blockquote and list markers
@@ -1658,6 +1743,7 @@ Three API cards:
 **What it is:** The central AI call function. Takes a system prompt, user message, memory records, and a callback function. Calls the configured LLM provider's API using streaming, and calls the callback once per token as the response arrives.
 
 **Supported streaming modes:**
+
 - **Ollama (NDJSON):** Reads newline-delimited JSON objects from the response body. Extracts `message.content` from each line. Supports tool_call responses for Ollama's web search mode.
 - **Anthropic (SSE):** Reads Server-Sent Events. Extracts text from `event.delta.text` fields.
 - **Bearer providers (OpenAI, DeepSeek, xAI, Z.AI, Kimi, MiniMax, Custom):** Same SSE format, extracts from `choices[0].delta.content`.
@@ -1674,6 +1760,7 @@ Three API cards:
 **What it is:** Reads the active provider from localStorage and returns a complete configuration object with the provider name, authentication type, API endpoint URL, model name, and API key.
 
 **Resolution order:**
+
 1. Read `eeon_active_provider` from localStorage (default: `claude`).
 2. Look up the provider's static configuration (URL, model, auth type) from the PROVIDERS map.
 3. Read the API key from the key map (`eeon_key_{provider}`).
@@ -1689,6 +1776,7 @@ Three API cards:
 **What it is:** The high-level function called by each agent page's Send button. Handles the full lifecycle of an agent query: showing a loading state, fetching memories, calling the LLM, rendering the streaming output, and saving to memory.
 
 **Flow:**
+
 1. Validate that the question is non-empty.
 2. Show a "Thinking..." cursor in the result div.
 3. Look up the agent's system prompt via `getSystemPrompt(agentId)`.
@@ -1701,59 +1789,59 @@ Three API cards:
 
 ## Appendix A — localStorage Keys Reference
 
-| Key | Type | Description |
-|---|---|---|
-| `TMAR_AppData` | JSON string | All core accounting data: ledger entries, entities, chart of accounts, journal entries, A/R, A/P, filings, settings, payroll, inventory, budget, invoices, payment orders, BOEs, expenses, contacts, assets, reconciliations, source folders, sync log |
-| `TMAR_TrustLedger` | JSON string | Trust estate ledger entries |
-| `TMAR_Expenses` | JSON string | Expense itemization records |
-| `TMAR_Customers` | JSON string | Customer contact records |
-| `TMAR_Vendors` | JSON string | Vendor contact records |
-| `TMAR_Assets` | JSON string | Fixed asset records |
-| `TMAR_Reconciliations` | JSON string | Bank reconciliation history |
-| `TMAR_PaymentOrders` | JSON string | Payment order records |
-| `TMAR_BOE` | JSON string | Bills of exchange records |
-| `TMAR_ScheduleA` | JSON string | Schedule A itemized deduction data |
-| `TMAR_SourceFolders` | JSON string | Source folder library |
-| `TMAR_SPV_Data` | JSON string | SPV module data object `{ entities: [], entries: [] }`. Entities: `{ id, name, ein, type, purpose }`. Entries: `{ id, date, spvName, type, desc, amount }`. |
-| `TMAR_UK_Settings` | JSON string | UK Accounting config: `companyName`, `chNumber`, `utr`, `vat`, `standard`, `periodEnd`, and `checklist` (object with 8 boolean flags). |
-| `TMAR_parity_dismissed` | Number | Unix timestamp (ms). Parity drift banner is suppressed for 3 days after the user dismisses it. |
-| `eeon_key_claude` | String | Anthropic API key |
-| `eeon_key_openai` | String | OpenAI API key |
-| `eeon_key_deepseek` | String | DeepSeek API key |
-| `eeon_key_zai` | String | Z.AI API key |
-| `eeon_key_kimi` | String | Kimi/Moonshot API key |
-| `eeon_key_minimax` | String | MiniMax API key |
-| `eeon_key_ernie` | String | Ernie/Baidu API key |
-| `eeon_key_xai` | String | xAI/Grok API key |
-| `eeon_key_groq` | String | Groq API key |
-| `stg_key_groq` | String | Groq API key (Settings form field storage alias) |
-| `eeon_key_cerebras` | String | Cerebras API key |
-| `stg_key_cerebras` | String | Cerebras API key (Settings form field storage alias) |
-| `eeon_key_openrouter` | String | OpenRouter API key |
-| `stg_key_openrouter` | String | OpenRouter API key (Settings form field storage alias) |
-| `eeon_key_custom` | String | Custom provider API key |
-| `eeon_active_provider` | String | Currently selected provider ID |
-| `eeon_ollama_url` | String | Ollama server URL |
-| `eeon_ollama_model` | String | Ollama model name (dropdown selection) |
-| `eeon_ollama_model_custom` | String | Ollama model name (manual override) |
-| `eeon_ollama_api_key` | String | Optional Ollama authentication key |
-| `eeon_ollama_web_search` | String (`"true"/"false"`) | Enable Ollama web search tool calling |
-| `eeon_custom_name` | String | Display name for custom provider |
-| `eeon_custom_url` | String | Custom provider API endpoint |
-| `eeon_custom_model` | String | Custom provider model name |
-| `eeon_cors_proxy` | String | CORS proxy URL for Anthropic |
-| `eeon_key_telegram` | String | Telegram Bot Token |
-| `eeon_key_discord` | String | Discord Webhook URL |
-| `_trustApiKey` | String | Legacy Anthropic key (backwards compatibility) |
-| `ap_conv_{agentId}` | JSON string | Conversation history for each agent (accounting, legal, tax, etc.) |
-| `TMAR_GAS_URL` | String | Google Apps Script web app URL for Sync Center |
-| `ev2_settings` | JSON string | Entity Verifier settings (enabled sources, cache TTL) |
-| `ev2_cache` | JSON string | Entity Verifier result cache |
-| `CPSA_{docType}` | JSON string | Constitutional challenge document states |
-| `TMAR_TemplateVars` | JSON string | Document template variable overrides |
-| `TMAR_TemplateSettings` | JSON string | Document template configuration |
-| `tmar_doc_autosave` | String | Document Creator auto-save content |
-| `tmar_theme` | String | `"dark"` or `"light"` |
+| Key                          | Type                        | Description                                                                                                                                                                                                                                            |
+| ---------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `TMAR_AppData`             | JSON string                 | All core accounting data: ledger entries, entities, chart of accounts, journal entries, A/R, A/P, filings, settings, payroll, inventory, budget, invoices, payment orders, BOEs, expenses, contacts, assets, reconciliations, source folders, sync log |
+| `TMAR_TrustLedger`         | JSON string                 | Trust estate ledger entries                                                                                                                                                                                                                            |
+| `TMAR_Expenses`            | JSON string                 | Expense itemization records                                                                                                                                                                                                                            |
+| `TMAR_Customers`           | JSON string                 | Customer contact records                                                                                                                                                                                                                               |
+| `TMAR_Vendors`             | JSON string                 | Vendor contact records                                                                                                                                                                                                                                 |
+| `TMAR_Assets`              | JSON string                 | Fixed asset records                                                                                                                                                                                                                                    |
+| `TMAR_Reconciliations`     | JSON string                 | Bank reconciliation history                                                                                                                                                                                                                            |
+| `TMAR_PaymentOrders`       | JSON string                 | Payment order records                                                                                                                                                                                                                                  |
+| `TMAR_BOE`                 | JSON string                 | Bills of exchange records                                                                                                                                                                                                                              |
+| `TMAR_ScheduleA`           | JSON string                 | Schedule A itemized deduction data                                                                                                                                                                                                                     |
+| `TMAR_SourceFolders`       | JSON string                 | Source folder library                                                                                                                                                                                                                                  |
+| `TMAR_SPV_Data`            | JSON string                 | SPV module data object `{ entities: [], entries: [] }`. Entities: `{ id, name, ein, type, purpose }`. Entries: `{ id, date, spvName, type, desc, amount }`.                                                                                      |
+| `TMAR_UK_Settings`         | JSON string                 | UK Accounting config:`companyName`, `chNumber`, `utr`, `vat`, `standard`, `periodEnd`, and `checklist` (object with 8 boolean flags).                                                                                                    |
+| `TMAR_parity_dismissed`    | Number                      | Unix timestamp (ms). Parity drift banner is suppressed for 3 days after the user dismisses it.                                                                                                                                                         |
+| `eeon_key_claude`          | String                      | Anthropic API key                                                                                                                                                                                                                                      |
+| `eeon_key_openai`          | String                      | OpenAI API key                                                                                                                                                                                                                                         |
+| `eeon_key_deepseek`        | String                      | DeepSeek API key                                                                                                                                                                                                                                       |
+| `eeon_key_zai`             | String                      | Z.AI API key                                                                                                                                                                                                                                           |
+| `eeon_key_kimi`            | String                      | Kimi/Moonshot API key                                                                                                                                                                                                                                  |
+| `eeon_key_minimax`         | String                      | MiniMax API key                                                                                                                                                                                                                                        |
+| `eeon_key_ernie`           | String                      | Ernie/Baidu API key                                                                                                                                                                                                                                    |
+| `eeon_key_xai`             | String                      | xAI/Grok API key                                                                                                                                                                                                                                       |
+| `eeon_key_groq`            | String                      | Groq API key                                                                                                                                                                                                                                           |
+| `stg_key_groq`             | String                      | Groq API key (Settings form field storage alias)                                                                                                                                                                                                       |
+| `eeon_key_cerebras`        | String                      | Cerebras API key                                                                                                                                                                                                                                       |
+| `stg_key_cerebras`         | String                      | Cerebras API key (Settings form field storage alias)                                                                                                                                                                                                   |
+| `eeon_key_openrouter`      | String                      | OpenRouter API key                                                                                                                                                                                                                                     |
+| `stg_key_openrouter`       | String                      | OpenRouter API key (Settings form field storage alias)                                                                                                                                                                                                 |
+| `eeon_key_custom`          | String                      | Custom provider API key                                                                                                                                                                                                                                |
+| `eeon_active_provider`     | String                      | Currently selected provider ID                                                                                                                                                                                                                         |
+| `eeon_ollama_url`          | String                      | Ollama server URL                                                                                                                                                                                                                                      |
+| `eeon_ollama_model`        | String                      | Ollama model name (dropdown selection)                                                                                                                                                                                                                 |
+| `eeon_ollama_model_custom` | String                      | Ollama model name (manual override)                                                                                                                                                                                                                    |
+| `eeon_ollama_api_key`      | String                      | Optional Ollama authentication key                                                                                                                                                                                                                     |
+| `eeon_ollama_web_search`   | String (`"true"/"false"`) | Enable Ollama web search tool calling                                                                                                                                                                                                                  |
+| `eeon_custom_name`         | String                      | Display name for custom provider                                                                                                                                                                                                                       |
+| `eeon_custom_url`          | String                      | Custom provider API endpoint                                                                                                                                                                                                                           |
+| `eeon_custom_model`        | String                      | Custom provider model name                                                                                                                                                                                                                             |
+| `eeon_cors_proxy`          | String                      | CORS proxy URL for Anthropic                                                                                                                                                                                                                           |
+| `eeon_key_telegram`        | String                      | Telegram Bot Token                                                                                                                                                                                                                                     |
+| `eeon_key_discord`         | String                      | Discord Webhook URL                                                                                                                                                                                                                                    |
+| `_trustApiKey`             | String                      | Legacy Anthropic key (backwards compatibility)                                                                                                                                                                                                         |
+| `ap_conv_{agentId}`        | JSON string                 | Conversation history for each agent (accounting, legal, tax, etc.)                                                                                                                                                                                     |
+| `TMAR_GAS_URL`             | String                      | Google Apps Script web app URL for Sync Center                                                                                                                                                                                                         |
+| `ev2_settings`             | JSON string                 | Entity Verifier settings (enabled sources, cache TTL)                                                                                                                                                                                                  |
+| `ev2_cache`                | JSON string                 | Entity Verifier result cache                                                                                                                                                                                                                           |
+| `CPSA_{docType}`           | JSON string                 | Constitutional challenge document states                                                                                                                                                                                                               |
+| `TMAR_TemplateVars`        | JSON string                 | Document template variable overrides                                                                                                                                                                                                                   |
+| `TMAR_TemplateSettings`    | JSON string                 | Document template configuration                                                                                                                                                                                                                        |
+| `tmar_doc_autosave`        | String                      | Document Creator auto-save content                                                                                                                                                                                                                     |
+| `tmar_theme`               | String                      | `"dark"` or `"light"`                                                                                                                                                                                                                              |
 
 ---
 
@@ -2894,18 +2982,6 @@ Placeholder called when the EEON tax year selector changes.
 
 ### P
 
-**`parityCheckNow()`**
-Fetches `parity-fingerprint.json` from the GitHub repository and updates the parity status indicator in the Settings page. Shows inline success or drift-detected message. Called by the "Check for Source Updates" button.
-
-**`parityCheckOnLoad()`**
-Called automatically 3 seconds after initial page load. Fetches the parity fingerprint silently. If `driftDetected` is true and the 3-day dismiss window has not expired, shows the sticky drift banner. Does nothing if drift is absent or banner was recently dismissed.
-
-**`parityDismissBanner()`**
-Hides the parity drift banner and stores the current Unix timestamp (ms) in `TMAR_parity_dismissed`. The banner will not reappear for 3 days.
-
-**`parityShowDetails()`**
-Displays a modal alert containing the full drift summary from the fetched fingerprint: source hashes, tab counts, version strings, drift summary text, and links to the two source URLs.
-
 **`parseDocumentCommand(query)`**
 Parses a GAAPCLAW Master chat query for document generation commands (e.g., "generate payment order"). Returns a command object or null.
 
@@ -3102,57 +3178,6 @@ Saves manual template variable overrides to localStorage.
 
 **`saveToStorage()`**
 Serializes `appData` to JSON and saves to `TMAR_AppData` in localStorage.
-
-**`spvAddEntity()`**
-Prompts the user for SPV name, EIN, entity type, and purpose. Creates a new entity record with a generated ID, appends it to `TMAR_SPV_Data.entities`, saves, and refreshes the SPV Dashboard selector.
-
-**`spvApplyFilter()`**
-Reads the current text and type values from the SPV filter bar inputs and calls `spvRenderLedger()` with the resulting filter object.
-
-**`spvDeleteActive()`**
-Prompts for confirmation, then removes the currently selected SPV entity and all entries associated with that SPV name from `TMAR_SPV_Data`. Saves and refreshes the dashboard.
-
-**`spvDeleteEntry(id)`**
-Prompts for confirmation, then removes the SPV ledger entry with the given `id` from `TMAR_SPV_Data.entries`. Saves and re-renders the ledger. `id`: string entry identifier.
-
-**`spvExportCSV()`**
-Builds a CSV string from all SPV ledger entries (Date, SPV Name, Asset Type, Description, Amount) and triggers a browser file download.
-
-**`spvExportJSON()`**
-Serializes the full `_spvData` object (entities and entries) as JSON and triggers a browser file download.
-
-**`spvFilterEntries()`**
-Toggles the visibility of the SPV filter bar below the ledger toolbar.
-
-**`spvLoad()`**
-Reads `TMAR_SPV_Data` from localStorage. If the key is absent, initializes and saves a default empty structure `{ entities: [], entries: [] }`. Returns the data object.
-
-**`spvPrintReport()`**
-Calls `window.print()` to print the current SPV Reports view.
-
-**`spvRenderLedger(filter)`**
-Renders the SPV ledger table. If `filter` is provided (object with optional `text` and `type` properties), only matching entries are shown. Updates the running total footer. `filter`: optional filter object.
-
-**`spvResetFilter()`**
-Clears the filter bar input fields and calls `spvRenderLedger()` with no filter argument to show all entries.
-
-**`spvSave()`**
-Serializes `_spvData` to JSON and writes it to `localStorage['TMAR_SPV_Data']`.
-
-**`spvSaveEntry()`**
-Reads all fields from the Add Entry form, validates that date, SPV name, and amount are present, generates a unique ID, appends the entry to `_spvData.entries`, calls `spvSave()`, hides the form, and calls `spvRenderLedger()`.
-
-**`spvSetActive(id)`**
-Called when the user changes the Active SPV dropdown. Finds the entity with the given `id` in the entities array and updates the SPV info line (EIN, type, purpose) below the selector. `id`: entity ID string.
-
-**`spvShowAddEntry()`**
-Shows the Add Entry form panel and pre-fills the Date field with today's date.
-
-**`spvUpdateDashboard()`**
-Refreshes the SPV Dashboard: rebuilds the Active SPV dropdown options from `_spvData.entities` and populates the Recent Activity table with the 10 most recent entries.
-
-**`spvUpdateReports()`**
-Calls both `generateSPVTrialBalance()` and `generateSPVAssetSummary()` to refresh all report tables on the SPV Reports tab.
 
 **`scoutClearIntegrated()`**
 Removes all APIs from the integrated APIs list.
@@ -3450,33 +3475,6 @@ Recalculates and updates the Trust Estate Dashboard metrics.
 
 ### U
 
-**`ukAgentQuery()`**
-Reads the UK Accounting Agent text area value and sends it to `callLLMStream()` with a UK-law-specific system prompt (covering FRS 102, HMRC procedures, and the Companies Act 2006). Streams the response into the output area below the text area.
-
-**`ukCheckAll()`**
-Sets all 8 UK compliance checklist checkboxes to the checked state.
-
-**`ukGenerateComplianceReport()`**
-Reads `TMAR_UK_Settings` (company info and checklist state) and produces a formatted plain-text compliance report listing completed and outstanding obligations.
-
-**`ukGenerateStatements()`**
-Reads main ledger entries and chart of accounts data and generates UK-format financial statements: a Statement of Comprehensive Income (P&L) and a Statement of Financial Position (Balance Sheet), labeled per FRS 102 or IFRS conventions based on the saved accounting standard setting.
-
-**`ukLoadSettings()`**
-Reads `TMAR_UK_Settings` from localStorage and populates the UK Entity Configuration form fields. Called on page init.
-
-**`ukPrintStatements()`**
-Calls `window.print()` to print the UK Statements section.
-
-**`ukSaveChecklist()`**
-Reads the state of all 8 checklist checkboxes and saves the boolean values into `TMAR_UK_Settings.checklist` in localStorage.
-
-**`ukSaveSettings()`**
-Reads all UK Entity Configuration field values (company name, Companies House number, UTR, VAT, accounting standard, period end) and saves them to `TMAR_UK_Settings` in localStorage.
-
-**`ukUncheckAll()`**
-Sets all 8 UK compliance checklist checkboxes to the unchecked state.
-
 **`updateAPTable()`**
 Re-renders the A/P table.
 
@@ -3573,4 +3571,4 @@ Opens a modal showing the formatted lines of the journal entry with the given ID
 
 ---
 
-This document was generated from a complete reading of `TMAR-Accrual-Ledger.html` and updated to v3.3 to cover the SPV Module, UK Accounting tab, Groq/Cerebras/OpenRouter providers, and the Parity Drift Notification System.
+This document was generated from a complete reading of `TMAR-Accrual-Ledger.html` (38,334 lines).

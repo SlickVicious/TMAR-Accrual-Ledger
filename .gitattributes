@@ -1,0 +1,25 @@
+# Normalize line endings
+# Text files: auto-detect, checkout as CRLF on Windows
+* text=auto
+
+# Always LF for files that run on Linux (GitHub Actions, shell scripts)
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.sh   text eol=lf
+
+# Always LF for web files (served as-is)
+*.html text eol=lf
+*.js   text eol=lf
+*.css  text eol=lf
+*.json text eol=lf
+
+# Markdown and docs: CRLF on Windows checkout is fine
+*.md   text eol=crlf
+
+# Binary files: no line ending conversion
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.pdf  binary
