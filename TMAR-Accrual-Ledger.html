@@ -31176,6 +31176,7 @@ function ev2InitEntityVerifier() {
 <div style="padding:6px 20px;display:flex;gap:6px;flex-wrap:wrap;align-items:center" id="chatActions">
 <button class="btn btn-sm" onclick="exportChat()"> Export</button>
 <button class="btn btn-sm" onclick="shareChat()"> Share</button>
+<span id="tokenGuard" title="Estimated session token usage — Token Guard v7.2" style="margin-left:auto;font-size:10px;font-family:'IBM Plex Mono',monospace;padding:3px 8px;background:rgba(100,116,139,.1);border:1px solid rgba(100,116,139,.25);border-radius:10px;color:#64748b;white-space:nowrap;cursor:default">0 tokens</span>
 <select id="chatProvider" onchange="eonChatProviderChange(this.value)" style="padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:12px" title="Select provider">
   <option value="claude">Claude (Anthropic)</option>
   <option value="openai">OpenAI</option>
@@ -31199,7 +31200,7 @@ function ev2InitEntityVerifier() {
 <label class="voice-btn mic" id="micBtn" onclick="toggleMic()" title="Voice Input (Speech-to-Text)">🎤</label>
 <label for="fileUpload" class="voice-btn" style="background:var(--bg3);color:var(--text2);cursor:pointer" title="Upload Document">📎</label>
 <input type="file" id="fileUpload" multiple accept=".txt,.pdf,.doc,.docx,.csv,.json,.html,.md,.rtf,.xml,.log" style="display:none" onchange="handleFileUpload(this)">
-<textarea class="chat-input" id="chatInput" placeholder="Type your message... (Enter to send, Shift+Enter for new line)" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();eonChatSend();}"></textarea>
+<textarea class="chat-input" id="chatInput" placeholder="Type your message… (Enter to send, Shift+Enter for new line, Ctrl+V to paste image)" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();eonChatSend();}" onpaste="handleChatPaste(event)"></textarea>
 <button class="chat-send" onclick="eonChatSend()"> </button>
 </div>
 </div>
@@ -34430,8 +34431,8 @@ function ev2InitEntityVerifier() {
   </div>
   <div class="chat-input-row">
   <textarea class="chat-input" id="chat-input" rows="2"
-  placeholder="Ask about your books, tax position, forms, or any accounting question..."
-  onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"></textarea>
+  placeholder="Ask about your books, tax position, forms, or any accounting question… (Ctrl+V to paste image)"
+  onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}" onpaste="handleChatPaste(event)"></textarea>
   <button class="app-btn primary" onclick="eeonSendChat()" id="send-btn" style="align-self:flex-end;padding:10px 18px;">SEND</button>
   </div>
   </div>
@@ -34459,6 +34460,8 @@ function ev2InitEntityVerifier() {
       <button id="eon-est-tab-baddebt" onclick="eonEstTab('baddebt')" style="padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:#f87171;border:1px solid rgba(248,113,113,.3)">💰 Bad Debt Refund</button>
       <button id="eon-est-tab-loss" onclick="eonEstTab('loss')" style="padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:#f87171;border:1px solid rgba(248,113,113,.3)">📉 Loss Calculator</button>
       <button id="eon-est-tab-interest" onclick="eonEstTab('interest')" style="padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:#f87171;border:1px solid rgba(248,113,113,.3)">🏦 Interest Refund</button>
+      <button id="eon-est-tab-camt" onclick="eonEstTab('camt')" style="padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:#f87171;border:1px solid rgba(248,113,113,.3)">🏛️ Corp AMT (CAMT)</button>
+      <button id="eon-est-tab-buyback" onclick="eonEstTab('buyback')" style="padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:#f87171;border:1px solid rgba(248,113,113,.3)">🔄 Buyback Tax §4501</button>
     </div>
 
     <!-- Panel: Income Estimator -->
@@ -34601,6 +34604,65 @@ function ev2InitEntityVerifier() {
               <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:#94a3b8">Accrued Interest</span><span style="font-family:monospace;color:#fbbf24" id="eon-int-accrued">$0.00</span></div>
               <div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:700;font-size:13px"><span style="color:#22c55e">Total Refund + Interest</span><span style="font-family:monospace;color:#22c55e" id="eon-int-total">$0.00</span></div>
               <div style="font-size:10px;color:#94a3b8;margin-top:4px">IRS is mandated to pay this interest. Claim by filing Form 843 or noting on your original return. IRC §6402 SHALL refund.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel: Corp AMT (CAMT) — IIJA §10101, IRC §55-59 -->
+    <div id="eon-est-panel-camt" style="display:none">
+      <div style="border:1px solid rgba(248,113,113,.3);border-radius:10px;padding:20px;background:rgba(248,113,113,.04)">
+        <div style="font-size:14px;font-weight:700;color:#f87171;margin-bottom:4px">🏛️ Corporate Alternative Minimum Tax (CAMT) — IRC §55 / IIJA §10101</div>
+        <div style="font-size:11px;color:#94a3b8;margin-bottom:14px">Inflation Reduction Act (2022): 15% minimum tax on Adjusted Financial Statement Income (AFSI) for corporations with ≥$1B average 3-year AFSI. Effective tax years beginning after Dec 31, 2022.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div style="display:flex;flex-direction:column;gap:10px;font-size:12px">
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">Adjusted Financial Statement Income — Year 1 ($)</label><input type="number" id="camt-afsi1" step="1000" oninput="calcCAMT()" placeholder="0" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px;box-sizing:border-box"/></div>
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">Adjusted Financial Statement Income — Year 2 ($)</label><input type="number" id="camt-afsi2" step="1000" oninput="calcCAMT()" placeholder="0" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px;box-sizing:border-box"/></div>
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">Adjusted Financial Statement Income — Year 3 (Current) ($)</label><input type="number" id="camt-afsi3" step="1000" oninput="calcCAMT()" placeholder="0" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px;box-sizing:border-box"/></div>
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">Regular Corporate Tax Liability ($)</label><input type="number" id="camt-regular" step="1000" oninput="calcCAMT()" placeholder="0" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px;box-sizing:border-box"/></div>
+            <div style="font-size:10px;color:#94a3b8;padding:8px;background:rgba(0,0,0,.2);border-radius:6px;border-left:3px solid rgba(248,113,113,.5)">IRC §55: CAMT = 15% × AFSI, reduced by CAMT foreign tax credit. Applies only if average 3-year AFSI ≥ $1,000,000,000. Additional tax = CAMT − regular tax (if positive). No CAMT carryforward under IRA rules.</div>
+          </div>
+          <div style="border:1px solid rgba(248,113,113,.2);border-radius:8px;padding:14px;background:rgba(248,113,113,.03)">
+            <div style="font-size:12px;font-weight:700;color:#f87171;margin-bottom:10px">CAMT Analysis</div>
+            <div style="display:flex;flex-direction:column;gap:6px;font-size:12px">
+              <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:#94a3b8">3-Year Average AFSI</span><span style="font-family:monospace;color:#e2e8f0" id="camt-avg">$0</span></div>
+              <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:#94a3b8">CAMT Threshold Met?</span><span style="font-family:monospace" id="camt-thresh">—</span></div>
+              <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:#94a3b8">Tentative CAMT (15% × AFSI)</span><span style="font-family:monospace;color:#fbbf24" id="camt-tentative">$0</span></div>
+              <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:#94a3b8">Regular Tax</span><span style="font-family:monospace;color:#e2e8f0" id="camt-reg-display">$0</span></div>
+              <div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:700;font-size:13px"><span style="color:#f87171">Additional CAMT Owed</span><span style="font-family:monospace;color:#f87171" id="camt-additional">$0</span></div>
+              <div id="camt-note" style="font-size:10px;color:#94a3b8;margin-top:4px"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel: Stock Buyback Excise Tax — IRC §4501 -->
+    <div id="eon-est-panel-buyback" style="display:none">
+      <div style="border:1px solid rgba(248,113,113,.3);border-radius:10px;padding:20px;background:rgba(248,113,113,.04)">
+        <div style="font-size:14px;font-weight:700;color:#f87171;margin-bottom:4px">🔄 Stock Buyback Excise Tax — IRC §4501</div>
+        <div style="font-size:11px;color:#94a3b8;margin-bottom:14px">Inflation Reduction Act (2022): 1% excise tax on FMV of stock repurchased by covered corporations. Effective for repurchases after Dec 31, 2022. Reported on Form 720, due by April 30 of the following calendar year.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div style="display:flex;flex-direction:column;gap:10px;font-size:12px">
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">FMV of Stock Repurchased ($)</label><input type="number" id="bb-repurchased" step="1000" oninput="calcBuyback()" placeholder="0" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px;box-sizing:border-box"/></div>
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">FMV of New Stock Issued to Employees (netting offset) ($)</label><input type="number" id="bb-issued" step="1000" oninput="calcBuyback()" placeholder="0" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px;box-sizing:border-box"/></div>
+            <div><label style="display:block;font-size:10px;color:#94a3b8;margin-bottom:3px">Tax Year</label>
+              <select id="bb-year" onchange="calcBuyback()" style="width:100%;padding:7px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#e2e8f0;font-size:12px">
+                <option value="2023">2023</option><option value="2024" selected>2024</option><option value="2025">2025</option>
+              </select>
+            </div>
+            <div style="font-size:10px;color:#94a3b8;padding:8px;background:rgba(0,0,0,.2);border-radius:6px;border-left:3px solid rgba(248,113,113,.5)">IRC §4501(a): 1% excise tax on FMV of any stock repurchased by a covered corporation. Net basis: repurchases minus new stock issued to employees during the year. <10M de minimis threshold per IRC §4501(e). Report on Form 720 by April 30.</div>
+          </div>
+          <div style="border:1px solid rgba(248,113,113,.2);border-radius:8px;padding:14px;background:rgba(248,113,113,.03)">
+            <div style="font-size:12px;font-weight:700;color:#f87171;margin-bottom:10px">Buyback Tax Calculation</div>
+            <div style="display:flex;flex-direction:column;gap:6px;font-size:12px">
+              <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:#94a3b8">Gross Repurchases</span><span style="font-family:monospace;color:#e2e8f0" id="bb-gross">$0</span></div>
+              <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:#94a3b8">Employee Stock Issued (Offset)</span><span style="font-family:monospace;color:#22c55e" id="bb-offset">($0)</span></div>
+              <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:#94a3b8">Net Repurchase Base</span><span style="font-family:monospace;color:#e2e8f0" id="bb-net">$0</span></div>
+              <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:#94a3b8">De Minimis Exempt? (&lt;$10M)</span><span style="font-family:monospace" id="bb-deminimis">—</span></div>
+              <div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:700;font-size:13px"><span style="color:#f87171">Excise Tax Due (1%)</span><span style="font-family:monospace;color:#f87171" id="bb-tax">$0</span></div>
+              <div style="font-size:10px;color:#94a3b8;margin-top:4px" id="bb-note">Report on Form 720 by April 30 of following calendar year. Not deductible as a business expense per IRC §4501(f).</div>
             </div>
           </div>
         </div>
@@ -35044,6 +35106,8 @@ async function eonChatSend() {
       attachments.forEach(function(att) {
         if (att.type === 'pdf') {
           userContent.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: att.base64 } });
+        } else if (att.type === 'image') {
+          userContent.push({ type: 'image', source: { type: 'base64', media_type: att.mediaType || 'image/png', data: att.base64 } });
         } else {
           userContent.push({ type: 'text', text: '═══ FILE: ' + att.name + ' ═══\n' + att.content + '\n═══ END ═══' });
         }
@@ -35054,6 +35118,8 @@ async function eonChatSend() {
       attachments.forEach(function(att) {
         if (att.type === 'pdf') {
           injected += '\n[PDF: ' + att.name + ' — switch to Claude provider for full PDF reading]\n';
+        } else if (att.type === 'image') {
+          injected += '\n[Image: ' + att.name + ' — switch to Claude (Anthropic) provider for image analysis]\n';
         } else {
           injected += '\n[File: ' + att.name + ']\n' + att.content + '\n';
         }
@@ -35065,6 +35131,7 @@ async function eonChatSend() {
     if (fp) { fp.innerHTML = ''; fp.style.display = 'none'; }
   }
 
+  _updateTokenGuard(msg);
   addChatMsg('user', msg);
   input.value = '';
   input.style.height = '';
@@ -35111,6 +35178,7 @@ async function eonChatSend() {
 
   var finalText = await callLLMStream(systemPrompt, userContent, memories, function(tok) {
     rawBuf += tok;
+    _updateTokenGuard(tok);
     if (body) body.innerHTML = rawBuf.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
     if (msgs) msgs.scrollTop = msgs.scrollHeight;
   });
@@ -35309,6 +35377,115 @@ function _removeAttach(idx) {
   var preview = document.getElementById('filePreview');
   if (preview && !preview.querySelector('[id^="attach-pill-"]')) preview.style.display = 'none';
 }
+// ── Paste Handler — images + text into any chat input ──────────────────────
+function handleChatPaste(e) {
+  var items = e.clipboardData && e.clipboardData.items;
+  if (!items) return;
+  // Find image in clipboard
+  var imgItem = null;
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].kind === 'file' && items[i].type.startsWith('image/')) { imgItem = items[i]; break; }
+  }
+  if (!imgItem) return; // no image — let normal text paste through unchanged
+  e.preventDefault();
+  var mediaType = imgItem.type || 'image/png';
+  var file = imgItem.getAsFile();
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    var dataUrl = ev.target.result;
+    var base64 = dataUrl.split(',')[1];
+    if (!window._chatAttachments) window._chatAttachments = [];
+    var idx = window._chatAttachments.length;
+    var name = 'pasted-image-' + Date.now() + '.png';
+    window._chatAttachments.push({ name: name, type: 'image', base64: base64, mediaType: mediaType });
+    var preview = document.getElementById('filePreview');
+    if (preview) {
+      preview.style.display = 'flex';
+      var pill = document.createElement('div');
+      pill.id = 'attach-pill-' + idx;
+      pill.style.cssText = 'display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.4);border-radius:12px;font-size:11px;color:#a78bfa';
+      var img = document.createElement('img');
+      img.src = dataUrl;
+      img.style.cssText = 'height:28px;border-radius:3px;object-fit:cover;max-width:48px';
+      pill.appendChild(img);
+      var lbl = document.createTextNode(' \uD83D\uDCF7 Image');
+      pill.appendChild(lbl);
+      var x = document.createElement('span');
+      x.textContent = '×';
+      x.style.cssText = 'cursor:pointer;color:#ef4444;font-size:14px;line-height:1;margin-left:4px';
+      x.setAttribute('onclick', '_removeAttach(' + idx + ')');
+      pill.appendChild(x);
+      preview.appendChild(pill);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── Token Guard v7.2 — session token estimator ──────────────────────────────
+var _sessionTokens = 0;
+function _updateTokenGuard(text) {
+  _sessionTokens += Math.ceil(((text || '').length) / 4);
+  var el = document.getElementById('tokenGuard');
+  if (!el) return;
+  var k = _sessionTokens;
+  var label, color, bg, border;
+  if (k < 50000)       { label = (k >= 1000 ? (k/1000).toFixed(1)+'k' : k) + ' tokens'; color='#64748b'; bg='rgba(100,116,139,.1)'; border='rgba(100,116,139,.25)'; }
+  else if (k < 100000) { label = (k/1000).toFixed(1)+'k tokens ⚡'; color='#f59e0b'; bg='rgba(245,158,11,.1)'; border='rgba(245,158,11,.35)'; }
+  else if (k < 180000) { label = (k/1000).toFixed(1)+'k tokens ⚠️'; color='#ef4444'; bg='rgba(239,68,68,.1)'; border='rgba(239,68,68,.35)'; }
+  else                 { label = (k/1000).toFixed(0)+'k LIMIT ⛔'; color='#ef4444'; bg='rgba(239,68,68,.2)'; border='rgba(239,68,68,.5)'; el.title='Context limit approaching — start a new conversation'; }
+  el.textContent = label;
+  el.style.color = color;
+  el.style.background = bg;
+  el.style.borderColor = border;
+}
+function _resetTokenGuard() {
+  _sessionTokens = 0;
+  var el = document.getElementById('tokenGuard');
+  if (el) { el.textContent = '0 tokens'; el.style.color='#64748b'; el.style.background='rgba(100,116,139,.1)'; el.style.borderColor='rgba(100,116,139,.25)'; }
+}
+
+// ── CAMT Calculator — IRC §55 / IIJA §10101 ──────────────────────────────────
+function calcCAMT() {
+  var afsi1 = parseFloat(document.getElementById('camt-afsi1').value)||0;
+  var afsi2 = parseFloat(document.getElementById('camt-afsi2').value)||0;
+  var afsi3 = parseFloat(document.getElementById('camt-afsi3').value)||0;
+  var regular = parseFloat(document.getElementById('camt-regular').value)||0;
+  var avg = (afsi1 + afsi2 + afsi3) / 3;
+  var tentative = avg * 0.15;
+  var additional = Math.max(0, tentative - regular);
+  var threshMet = avg >= 1000000000;
+  var fmt = function(n){ return '$' + Math.round(n).toLocaleString(); };
+  document.getElementById('camt-avg').textContent = fmt(avg);
+  document.getElementById('camt-thresh').textContent = threshMet ? '✅ YES — CAMT applies' : '❌ No (< $1B threshold)';
+  document.getElementById('camt-thresh').style.color = threshMet ? '#f87171' : '#22c55e';
+  document.getElementById('camt-tentative').textContent = threshMet ? fmt(tentative) : '$0 (N/A)';
+  document.getElementById('camt-reg-display').textContent = fmt(regular);
+  document.getElementById('camt-additional').textContent = threshMet ? fmt(additional) : '$0';
+  document.getElementById('camt-note').textContent = threshMet
+    ? (additional > 0 ? 'CAMT exceeds regular tax — additional ' + fmt(additional) + ' owed. Report on Form 1120 Schedule UTP.' : 'Regular tax ≥ CAMT — no additional CAMT due.')
+    : 'Corporation does not meet the $1B AFSI threshold — CAMT does not apply.';
+}
+
+// ── Buyback Tax Calculator — IRC §4501 ───────────────────────────────────────
+function calcBuyback() {
+  var repurchased = parseFloat(document.getElementById('bb-repurchased').value)||0;
+  var issued = parseFloat(document.getElementById('bb-issued').value)||0;
+  var netBase = Math.max(0, repurchased - issued);
+  var deminimis = netBase < 10000000;
+  var tax = deminimis ? 0 : netBase * 0.01;
+  var fmt = function(n){ return '$' + Math.round(n).toLocaleString(); };
+  document.getElementById('bb-gross').textContent = fmt(repurchased);
+  document.getElementById('bb-offset').textContent = '(' + fmt(issued) + ')';
+  document.getElementById('bb-net').textContent = fmt(netBase);
+  document.getElementById('bb-deminimis').textContent = deminimis ? '✅ Yes — exempt' : '❌ No — tax applies';
+  document.getElementById('bb-deminimis').style.color = deminimis ? '#22c55e' : '#f87171';
+  document.getElementById('bb-tax').textContent = fmt(tax);
+  document.getElementById('bb-note').textContent = deminimis
+    ? 'Net repurchase base under $10M de minimis threshold (IRC §4501(e)) — no excise tax due.'
+    : 'Excise tax ' + fmt(tax) + ' due. Report on Form 720 by April 30 of following calendar year. Not deductible per IRC §4501(f).';
+}
+
 function dtHandleFiles() { alert('Dream Team file upload'); }
 function populateAllForms() { alert('Sync from GAAP ledger'); }
 function generateJournalFromForms() { alert('Push back to GAAP'); }
@@ -37824,7 +38001,7 @@ console.log("✅ PDKB Tools loaded (Transcript Transformer, Etymology Analyzer, 
 // EON TAX ESTIMATOR — standalone functions for page-taxestimator
 // ═══════════════════════════════════════════════════════════════════════════
 function eonEstTab(name) {
-  var panels = ['income','baddebt','loss','interest'];
+  var panels = ['income','baddebt','loss','interest','camt','buyback'];
   panels.forEach(function(p) {
     var el = document.getElementById('eon-est-panel-' + p);
     var btn = document.getElementById('eon-est-tab-' + p);
