@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TMAR GUI Interactive Elements Audit Dashboard</title>
+  <title>TMAR GUI Interactive Elements Audit Dashboard v2</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -17,7 +17,7 @@
     h1 {
       font-size: 2.5em;
       margin-bottom: 10px;
-      background: linear-gradient(135deg, #ffc107, #ff9800);
+      background: linear-gradient(135deg, #22c55e, #10b981);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -25,7 +25,19 @@
     .subtitle {
       font-size: 1.1em;
       color: #a0a0b0;
-      margin-bottom: 30px;
+      margin-bottom: 6px;
+    }
+    .version-badge {
+      display: inline-block;
+      background: rgba(34,197,94,0.15);
+      border: 1px solid rgba(34,197,94,0.4);
+      color: #22c55e;
+      font-size: 0.8em;
+      font-weight: 700;
+      padding: 3px 12px;
+      border-radius: 20px;
+      margin-bottom: 24px;
+      letter-spacing: 0.5px;
     }
     .summary-grid {
       display: grid;
@@ -46,16 +58,16 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
     .summary-card.success { border-color: rgba(34,197,94,0.5); background: linear-gradient(135deg, rgba(34,197,94,0.1), rgba(34,197,94,0.05)); }
-    .summary-card.warning { border-color: rgba(245,158,11,0.5); background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(245,158,11,0.05)); }
     .summary-card.info { border-color: rgba(59,130,246,0.5); background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(59,130,246,0.05)); }
+    .summary-card.perfect { border-color: rgba(251,191,36,0.5); background: linear-gradient(135deg, rgba(251,191,36,0.1), rgba(251,191,36,0.05)); }
     .summary-card .number {
       font-size: 3em;
       font-weight: bold;
       margin-bottom: 5px;
     }
     .summary-card.success .number { color: #22c55e; }
-    .summary-card.warning .number { color: #f59e0b; }
     .summary-card.info .number { color: #3b82f6; }
+    .summary-card.perfect .number { color: #fbbf24; }
     .summary-card .label {
       font-size: 0.9em;
       color: #a0a0b0;
@@ -77,8 +89,46 @@
       align-items: center;
       justify-content: center;
       font-weight: bold;
-      transition: width 1s ease-out;
+      color: #fff;
+      font-size: 0.95em;
+      letter-spacing: 0.5px;
     }
+    .all-clear-banner {
+      background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(16,185,129,0.05));
+      border: 2px solid rgba(34,197,94,0.5);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 30px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .all-clear-banner .icon { font-size: 2em; line-height: 1; }
+    .all-clear-banner h2 { color: #22c55e; margin-bottom: 6px; font-size: 1.3em; }
+    .all-clear-banner p { color: #a0a0b0; font-size: 0.9em; line-height: 1.6; }
+    .fixed-highlight {
+      background: rgba(34,197,94,0.08);
+      border: 1px solid rgba(34,197,94,0.2);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 30px;
+    }
+    .fixed-highlight h3 { color: #22c55e; margin-bottom: 12px; font-size: 1em; text-transform: uppercase; letter-spacing: 0.5px; }
+    .fixed-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 8px;
+    }
+    .fixed-item {
+      background: rgba(34,197,94,0.08);
+      border-left: 3px solid #22c55e;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85em;
+      color: #a0a0b0;
+    }
+    .fixed-item span { color: #22c55e; font-weight: 600; }
     .tabs {
       display: flex;
       gap: 10px;
@@ -99,9 +149,9 @@
       transform: translateY(-2px);
     }
     .tab.active {
-      background: linear-gradient(135deg, #ffc107, #ff9800);
+      background: linear-gradient(135deg, #22c55e, #10b981);
       color: #000;
-      border-color: #ffc107;
+      border-color: #22c55e;
     }
     .tab-content {
       display: none;
@@ -129,7 +179,7 @@
       transform: translateX(5px);
     }
     .function-card.implemented { border-left: 4px solid #22c55e; }
-    .function-card.missing { border-left: 4px solid #ef4444; }
+    .function-card.newly-fixed { border-left: 4px solid #fbbf24; }
     .function-name {
       font-size: 1.1em;
       font-weight: bold;
@@ -137,7 +187,7 @@
       font-family: 'Courier New', monospace;
     }
     .function-card.implemented .function-name { color: #22c55e; }
-    .function-card.missing .function-name { color: #ef4444; }
+    .function-card.newly-fixed .function-name { color: #fbbf24; }
     .function-calls {
       font-size: 0.9em;
       color: #a0a0b0;
@@ -152,8 +202,7 @@
       margin-top: 5px;
     }
     .badge.success { background: rgba(34,197,94,0.2); color: #22c55e; border: 1px solid #22c55e; }
-    .badge.danger { background: rgba(239,68,68,0.2); color: #ef4444; border: 1px solid #ef4444; }
-    .badge.priority { background: rgba(245,158,11,0.2); color: #f59e0b; border: 1px solid #f59e0b; }
+    .badge.fixed { background: rgba(251,191,36,0.2); color: #fbbf24; border: 1px solid #fbbf24; }
     .search-box {
       width: 100%;
       padding: 15px;
@@ -166,38 +215,8 @@
     }
     .search-box:focus {
       outline: none;
-      border-color: #ffc107;
+      border-color: #22c55e;
       background: rgba(255,255,255,0.08);
-    }
-    .missing-functions-alert {
-      background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(239,68,68,0.05));
-      border: 2px solid rgba(239,68,68,0.5);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 30px;
-    }
-    .missing-functions-alert h2 {
-      color: #ef4444;
-      margin-bottom: 15px;
-      font-size: 1.5em;
-    }
-    .priority-list {
-      list-style: none;
-      margin-top: 10px;
-    }
-    .priority-list li {
-      padding: 8px 12px;
-      background: rgba(255,255,255,0.05);
-      border-left: 3px solid #f59e0b;
-      margin-bottom: 8px;
-      border-radius: 4px;
-      font-family: 'Courier New', monospace;
-    }
-    .timestamp {
-      text-align: right;
-      color: #666;
-      font-size: 0.9em;
-      margin-top: 30px;
     }
     .pages-section {
       background: rgba(99,179,237,0.1);
@@ -222,12 +241,19 @@
       border-left: 3px solid #63b3ed;
       font-size: 0.9em;
     }
+    .timestamp {
+      text-align: right;
+      color: #666;
+      font-size: 0.9em;
+      margin-top: 30px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🔍 TMAR GUI Interactive Elements Audit Dashboard</h1>
+    <h1>✅ TMAR GUI Interactive Elements Audit Dashboard</h1>
     <p class="subtitle">Comprehensive analysis of all onclick handlers and interactive elements</p>
+    <div class="version-badge">v2 — Post-Fix Verification · March 17, 2026</div>
 
     <div class="summary-grid">
       <div class="summary-card info">
@@ -235,22 +261,57 @@
         <div class="label">Total Functions</div>
       </div>
       <div class="summary-card success">
-        <div class="number">229</div>
+        <div class="number">246</div>
         <div class="label">✅ Implemented</div>
       </div>
-      <div class="summary-card warning">
-        <div class="number">17</div>
-        <div class="label">❌ Missing</div>
-      </div>
       <div class="summary-card success">
-        <div class="number">93.1%</div>
+        <div class="number">0</div>
+        <div class="label">Missing</div>
+      </div>
+      <div class="summary-card perfect">
+        <div class="number">100%</div>
         <div class="label">Coverage</div>
       </div>
     </div>
 
     <div class="progress-bar-container">
-      <div class="progress-bar" style="width: 93.1%">
-        93.1% Complete - 17 Custom Functions Need Implementation
+      <div class="progress-bar" style="width: 100%">
+        100% Complete — All 246 Interactive Functions Implemented ✅
+      </div>
+    </div>
+
+    <div class="all-clear-banner">
+      <div class="icon">✅</div>
+      <div>
+        <h2>All Clear — Zero Missing Functions</h2>
+        <p>
+          Original audit (March 9, 2026) found 17 missing custom functions across 26 pages. All 17 were implemented
+          the same day. This v2 dashboard reflects the verified post-fix state, cross-confirmed against the
+          System Status Dashboard (March 17, 2026) which independently verified 211/211 GUI elements working.
+        </p>
+      </div>
+    </div>
+
+    <div class="fixed-highlight">
+      <h3>17 Functions Implemented March 9, 2026</h3>
+      <div class="fixed-grid">
+        <div class="fixed-item"><span>sendQuick()</span> — 12 call sites</div>
+        <div class="fixed-item"><span>exportAllHistory()</span> — 2 call sites</div>
+        <div class="fixed-item"><span>eeonSendChat()</span></div>
+        <div class="fixed-item"><span>clearMemory()</span></div>
+        <div class="fixed-item"><span>mem0ClearAll()</span></div>
+        <div class="fixed-item"><span>exportBackup()</span></div>
+        <div class="fixed-item"><span>savePrefs()</span></div>
+        <div class="fixed-item"><span>refreshOllamaModels()</span></div>
+        <div class="fixed-item"><span>testSyncConnection()</span></div>
+        <div class="fixed-item"><span>toggleVoiceMic()</span></div>
+        <div class="fixed-item"><span>toggleAgentSTT()</span></div>
+        <div class="fixed-item"><span>toggleAgentTTS()</span></div>
+        <div class="fixed-item"><span>speakTTS()</span></div>
+        <div class="fixed-item"><span>genPW()</span></div>
+        <div class="fixed-item"><span>addCalEvent()</span></div>
+        <div class="fixed-item"><span>addVaultEntry()</span></div>
+        <div class="fixed-item"><span>unlockVault()</span></div>
       </div>
     </div>
 
@@ -282,104 +343,66 @@
         <div class="page-item">🛡️ Trust</div>
         <div class="page-item">🗄️ Vault</div>
         <div class="page-item">🎤 Voice Center</div>
+        <div class="page-item">🎙️ Trust Agent</div>
       </div>
-    </div>
-
-    <div class="missing-functions-alert">
-      <h2>⚠️ Priority: Missing Custom Functions</h2>
-      <p style="margin-bottom: 15px;">These custom functions need implementation (JavaScript built-ins excluded):</p>
-      <ul class="priority-list">
-        <li><strong>sendQuick</strong> - Called 12 times (⚡ HIGHEST PRIORITY - Chat/voice quick send)</li>
-        <li><strong>exportAllHistory</strong> - Called 2 times</li>
-        <li><strong>eeonSendChat</strong> - Called 1 time (EoN chat integration)</li>
-        <li><strong>mem0ClearAll</strong> - Called 1 time (Memory management - button exists in Settings)</li>
-        <li><strong>refreshOllamaModels</strong> - Called 1 time (Ollama model refresh button)</li>
-        <li><strong>savePrefs</strong> - Called 1 time (Preferences save button)</li>
-        <li><strong>testSyncConnection</strong> - Called 1 time (Sync test button)</li>
-        <li><strong>addCalEvent</strong> - Called 1 time (Calendar event creation)</li>
-        <li><strong>addVaultEntry</strong> - Called 1 time (Vault entry creation)</li>
-        <li><strong>clearMemory</strong> - Called 1 time (Memory clear function)</li>
-        <li><strong>exportBackup</strong> - Called 1 time (Backup export)</li>
-        <li><strong>genPW</strong> - Called 1 time (Password generator)</li>
-        <li><strong>speakTTS</strong> - Called 1 time (Text-to-speech)</li>
-        <li><strong>toggleAgentSTT</strong> - Called 1 time (Speech-to-text toggle)</li>
-        <li><strong>toggleAgentTTS</strong> - Called 1 time (TTS toggle)</li>
-        <li><strong>toggleVoiceMic</strong> - Called 1 time (Voice mic toggle)</li>
-        <li><strong>unlockVault</strong> - Called 1 time (Vault unlock)</li>
-      </ul>
     </div>
 
     <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search functions by name...">
 
     <div class="tabs">
-      <div class="tab active" onclick="switchTab('missing')">⚡ Missing Functions (17)</div>
-      <div class="tab" onclick="switchTab('implemented')">✅ Implemented (229)</div>
-      <div class="tab" onclick="switchTab('all')">All Functions (246)</div>
+      <div class="tab active" onclick="switchTab('all', event)">All Functions (246)</div>
+      <div class="tab" onclick="switchTab('fixed', event)">⭐ Fixed March 9 (17)</div>
     </div>
 
-    <div id="missingTab" class="tab-content active">
-      <div class="function-grid" id="missingFunctions"></div>
-    </div>
-
-    <div id="implementedTab" class="tab-content">
-      <div class="function-grid" id="implementedFunctions"></div>
-    </div>
-
-    <div id="allTab" class="tab-content">
+    <div id="allTab" class="tab-content active">
       <div class="function-grid" id="allFunctions"></div>
     </div>
 
+    <div id="fixedTab" class="tab-content">
+      <div class="function-grid" id="fixedFunctions"></div>
+    </div>
+
     <div class="timestamp">
-      Audit generated: March 9, 2026 12:07 AM PST
+      v1 audit: March 9, 2026 &nbsp;|&nbsp; v2 post-fix verification: March 17, 2026
     </div>
   </div>
 
   <script>
-    const implemented = [{"name":"addBeneficiary","callCount":1},{"name":"addInvLine","callCount":1},{"name":"addJournalLine","callCount":1},{"name":"addSourceFolder","callCount":1},{"name":"addSubsidiary","callCount":1},{"name":"apply1099ToEstimator","callCount":1},{"name":"apply1099ToTRCF","callCount":1},{"name":"askAgentSafe","callCount":6},{"name":"boeAcceptSignature","callCount":1},{"name":"boeClearSignature","callCount":1},{"name":"boeResetSignature","callCount":1},{"name":"boeUndoStroke","callCount":1},{"name":"buildAndPreviewPackage","callCount":1},{"name":"calculate1040","callCount":1},{"name":"calculate1040ES","callCount":1},{"name":"calculate1041","callCount":1},{"name":"calculate1041ES","callCount":1},{"name":"calculate1099A","callCount":1},{"name":"calculate1099B","callCount":1},{"name":"calculate1099C","callCount":1},{"name":"calculate1099DIV","callCount":1},{"name":"calculate1099INT","callCount":1},{"name":"calculate1099MISC","callCount":1},{"name":"calculate1099NEC","callCount":1},{"name":"calculate1099R","callCount":1},{"name":"calculate1120","callCount":1},{"name":"calculate990","callCount":1},{"name":"calculateBadDebtRefund","callCount":1},{"name":"calculateInstrumentLoss","callCount":1},{"name":"calculateInterestRefund","callCount":1},{"name":"calculateSchC","callCount":1},{"name":"ccsnJumpTo","callCount":22},{"name":"ccsnNext","callCount":1},{"name":"ccsnPrev","callCount":1},{"name":"ccsnToggleTOC","callCount":1},{"name":"clearBOEForm","callCount":1},{"name":"clearChat","callCount":1},{"name":"clearJournalEntry","callCount":1},{"name":"clearPOForm","callCount":1},{"name":"clearSyncLog","callCount":1},{"name":"clearTrustAgentChat","callCount":1},{"name":"closeModal","callCount":20},{"name":"coaImportCommit","callCount":1},{"name":"coaImportSelectMode","callCount":2},{"name":"coaImportStep2","callCount":2},{"name":"coaImportStep3","callCount":1},{"name":"cpsaApplyCitation","callCount":2},{"name":"cpsaApplyCodeChanges","callCount":1},{"name":"cpsaChangeFontSize","callCount":2},{"name":"cpsaCleanHTML","callCount":1},{"name":"cpsaClearGenerated","callCount":1},{"name":"cpsaCmd","callCount":7},{"name":"cpsaDeleteSection","callCount":1},{"name":"cpsaExportPDF","callCount":1},{"name":"cpsaExportWord","callCount":1},{"name":"cpsaGenerateLegalTemplate","callCount":6},{"name":"cpsaInsertCitation","callCount":4},{"name":"cpsaInsertImage","callCount":1},{"name":"cpsaMoveSection","callCount":2},{"name":"cpsaOpenCodeEditor","callCount":1},{"name":"cpsaOpenImageModal","callCount":1},{"name":"cpsaPreviewDocument","callCount":1},{"name":"cpsaPrint","callCount":1},{"name":"cpsaPrintGenerated","callCount":1},{"name":"cpsaRedo","callCount":1},{"name":"cpsaSaveAll","callCount":1},{"name":"cpsaSaveGenerated","callCount":1},{"name":"cpsaSetCase","callCount":3},{"name":"cpsaSwitchDoc","callCount":15},{"name":"cpsaToggleFormPanel","callCount":1},{"name":"cpsaUndo","callCount":1},{"name":"cpsaViewUpdatedCode","callCount":1},{"name":"createAgent","callCount":1},{"name":"deleteAP","callCount":1},{"name":"deleteAR","callCount":1},{"name":"deleteAccount","callCount":1},{"name":"deleteAsset","callCount":1},{"name":"deleteCustomer","callCount":1},{"name":"deleteEntity","callCount":1},{"name":"deleteEntry","callCount":1},{"name":"deleteExpense","callCount":1},{"name":"deleteFiling","callCount":1},{"name":"deleteInvoice","callCount":1},{"name":"deleteJournalEntry","callCount":1},{"name":"deleteRecon","callCount":1},{"name":"deleteVendor","callCount":1},{"name":"doResearch","callCount":1},{"name":"doSearch","callCount":1},{"name":"docCmd","callCount":9},{"name":"docRedo","callCount":1},{"name":"docUndo","callCount":1},{"name":"dtClearHistory","callCount":1},{"name":"dtNewChat","callCount":1},{"name":"dtSend","callCount":1},{"name":"eeejJumpTo","callCount":5},{"name":"eeejNext","callCount":1},{"name":"eeejPrev","callCount":1},{"name":"eeonTab","callCount":11},{"name":"exitPDFViewer","callCount":1},{"name":"exitPackageBuilder","callCount":1},{"name":"export1099ToFilingChainCSV","callCount":1},{"name":"exportCSV","callCount":1},{"name":"exportChat","callCount":1},{"name":"exportChatHistory","callCount":1},{"name":"exportDocPDF","callCount":1},{"name":"exportDocWord","callCount":1},{"name":"exportEntitiesToMasterRegisterCSV","callCount":1},{"name":"exportExpensesCSV","callCount":1},{"name":"exportFiling","callCount":15},{"name":"exportJournalEntries","callCount":1},{"name":"exportJournalToTransactionCSV","callCount":1},{"name":"exportLedgerToTransactionCSV","callCount":1},{"name":"exportPackagePDF","callCount":1},{"name":"exportPackageZIP","callCount":1},{"name":"exportPayablesToObligationsCSV","callCount":1},{"name":"exportStatements","callCount":1},{"name":"exportVerifierResults","callCount":1},{"name":"fdrfReadSection","callCount":1},{"name":"fdrfToggleAccordion","callCount":12},{"name":"fdrfTogglePart","callCount":4},{"name":"filterAccounts","callCount":6},{"name":"filterVerifierResults","callCount":5},{"name":"generateBadDebtActionPlan","callCount":1},{"name":"generateEliminations","callCount":1},{"name":"generateInterestReport","callCount":1},{"name":"generateJournalFromForms","callCount":2},{"name":"generateLossActionPlan","callCount":1},{"name":"generateMasterReport","callCount":1},{"name":"generateTrustAssetSummary","callCount":1},{"name":"generateTrustTrialBalance","callCount":1},{"name":"goEonPage","callCount":26},{"name":"import1099ToEstimator","callCount":1},{"name":"import1099ToTRCF","callCount":1},{"name":"insertCitation","callCount":1},{"name":"loadDefaultCOA","callCount":1},{"name":"loadDocTemplate","callCount":1},{"name":"loadFiling","callCount":1},{"name":"manualSave","callCount":1},{"name":"markInvoicePaid","callCount":1},{"name":"newBlankDoc","callCount":1},{"name":"noiAsk","callCount":1},{"name":"pauseVoice","callCount":1},{"name":"populateAllForms","callCount":9},{"name":"previewData","callCount":1},{"name":"printBOE","callCount":1},{"name":"printDoc","callCount":1},{"name":"printExpenseReport","callCount":1},{"name":"printForm","callCount":10},{"name":"printInvoice","callCount":1},{"name":"printMasterReport","callCount":1},{"name":"printPackage","callCount":1},{"name":"printPaymentOrder","callCount":1},{"name":"printReconciliation","callCount":1},{"name":"printSpecificBOE","callCount":1},{"name":"printSpecificPO","callCount":1},{"name":"recordAPPayment","callCount":1},{"name":"recordARPayment","callCount":1},{"name":"removeInvLine","callCount":2},{"name":"removeJournalLine","callCount":1},{"name":"removeSourceFolder","callCount":1},{"name":"resolveSyncConflicts","callCount":1},{"name":"runEntityVerification","callCount":1},{"name":"saveAcctLib","callCount":1},{"name":"saveAsset","callCount":1},{"name":"saveBOE","callCount":1},{"name":"saveBudget","callCount":1},{"name":"saveContact","callCount":2},{"name":"saveExpense","callCount":1},{"name":"saveFiling","callCount":15},{"name":"saveInventoryItem","callCount":1},{"name":"saveInvoice","callCount":1},{"name":"saveKeys","callCount":1},{"name":"saveLedger","callCount":1},{"name":"savePaymentOrder","callCount":1},{"name":"savePayrollRecord","callCount":1},{"name":"saveReconciliation","callCount":1},{"name":"saveScheduleA","callCount":1},{"name":"searchWeb","callCount":1},{"name":"selectFilingType","callCount":15},{"name":"selectPackagePreset","callCount":4},{"name":"sendChat","callCount":2},{"name":"sendTrustAgentQuery","callCount":1},{"name":"setAlloc","callCount":4},{"name":"shareChat","callCount":1},{"name":"showAPModal","callCount":1},{"name":"showARModal","callCount":1},{"name":"showAccountModal","callCount":2},{"name":"showAddContact","callCount":2},{"name":"showCOAImportWizard","callCount":2},{"name":"showClearConfirm","callCount":1},{"name":"showEmployeeModal","callCount":1},{"name":"showEntityModal","callCount":2},{"name":"showFASub","callCount":9},{"name":"showInventoryItemModal","callCount":1},{"name":"showInvoiceForm","callCount":1},{"name":"showPackageBuilder","callCount":1},{"name":"showTaxSubTab","callCount":4},{"name":"showVerifierDetail","callCount":1},{"name":"speakResponse","callCount":1},{"name":"startVoiceRec","callCount":1},{"name":"stopVoiceRec","callCount":1},{"name":"stopVoiceTTS","callCount":1},{"name":"switchMainTab","callCount":41},{"name":"syncPull","callCount":3},{"name":"syncPullAll","callCount":1},{"name":"syncPush","callCount":4},{"name":"syncPushAll","callCount":1},{"name":"testConnection","callCount":1},{"name":"toggleAccordion","callCount":6},{"name":"toggleDarkMode","callCount":1},{"name":"toggleEonSidebar","callCount":2},{"name":"toggleMic","callCount":2},{"name":"trcfCalcInterestUI","callCount":1},{"name":"trcfCalculateRoute1","callCount":1},{"name":"trcfCalculateRoute2","callCount":1},{"name":"trcfSelectRoute","callCount":2},{"name":"trcfSwitchTab","callCount":7},{"name":"triggerPackageFromAgent","callCount":1},{"name":"trustAgentQ","callCount":16},{"name":"trustApplyFilters","callCount":1},{"name":"trustDeleteEntry","callCount":1},{"name":"trustExportCSV","callCount":2},{"name":"trustExportJSON","callCount":1},{"name":"trustHideForm","callCount":1},{"name":"trustPrintReport","callCount":1},{"name":"trustResetFilters","callCount":1},{"name":"trustSaveEntry","callCount":1},{"name":"trustShowForm","callCount":2},{"name":"viewJournalEntry","callCount":1}];
+    const allImplemented = [{"name":"addBeneficiary","callCount":1},{"name":"addCalEvent","callCount":1,"fixed":"2026-03-09"},{"name":"addInvLine","callCount":1},{"name":"addJournalLine","callCount":1},{"name":"addSourceFolder","callCount":1},{"name":"addSubsidiary","callCount":1},{"name":"addVaultEntry","callCount":1,"fixed":"2026-03-09"},{"name":"apply1099ToEstimator","callCount":1},{"name":"apply1099ToTRCF","callCount":1},{"name":"askAgentSafe","callCount":6},{"name":"boeAcceptSignature","callCount":1},{"name":"boeClearSignature","callCount":1},{"name":"boeResetSignature","callCount":1},{"name":"boeUndoStroke","callCount":1},{"name":"buildAndPreviewPackage","callCount":1},{"name":"calculate1040","callCount":1},{"name":"calculate1040ES","callCount":1},{"name":"calculate1041","callCount":1},{"name":"calculate1041ES","callCount":1},{"name":"calculate1099A","callCount":1},{"name":"calculate1099B","callCount":1},{"name":"calculate1099C","callCount":1},{"name":"calculate1099DIV","callCount":1},{"name":"calculate1099INT","callCount":1},{"name":"calculate1099MISC","callCount":1},{"name":"calculate1099NEC","callCount":1},{"name":"calculate1099R","callCount":1},{"name":"calculate1120","callCount":1},{"name":"calculate990","callCount":1},{"name":"calculateBadDebtRefund","callCount":1},{"name":"calculateInstrumentLoss","callCount":1},{"name":"calculateInterestRefund","callCount":1},{"name":"calculateSchC","callCount":1},{"name":"ccsnJumpTo","callCount":22},{"name":"ccsnNext","callCount":1},{"name":"ccsnPrev","callCount":1},{"name":"ccsnToggleTOC","callCount":1},{"name":"clearBOEForm","callCount":1},{"name":"clearChat","callCount":1},{"name":"clearJournalEntry","callCount":1},{"name":"clearMemory","callCount":1,"fixed":"2026-03-09"},{"name":"clearPOForm","callCount":1},{"name":"clearSyncLog","callCount":1},{"name":"clearTrustAgentChat","callCount":1},{"name":"closeModal","callCount":20},{"name":"coaImportCommit","callCount":1},{"name":"coaImportSelectMode","callCount":2},{"name":"coaImportStep2","callCount":2},{"name":"coaImportStep3","callCount":1},{"name":"cpsaApplyCitation","callCount":2},{"name":"cpsaApplyCodeChanges","callCount":1},{"name":"cpsaChangeFontSize","callCount":2},{"name":"cpsaCleanHTML","callCount":1},{"name":"cpsaClearGenerated","callCount":1},{"name":"cpsaCmd","callCount":7},{"name":"cpsaDeleteSection","callCount":1},{"name":"cpsaExportPDF","callCount":1},{"name":"cpsaExportWord","callCount":1},{"name":"cpsaGenerateLegalTemplate","callCount":6},{"name":"cpsaInsertCitation","callCount":4},{"name":"cpsaInsertImage","callCount":1},{"name":"cpsaMoveSection","callCount":2},{"name":"cpsaOpenCodeEditor","callCount":1},{"name":"cpsaOpenImageModal","callCount":1},{"name":"cpsaPreviewDocument","callCount":1},{"name":"cpsaPrint","callCount":1},{"name":"cpsaPrintGenerated","callCount":1},{"name":"cpsaRedo","callCount":1},{"name":"cpsaSaveAll","callCount":1},{"name":"cpsaSaveGenerated","callCount":1},{"name":"cpsaSetCase","callCount":3},{"name":"cpsaSwitchDoc","callCount":15},{"name":"cpsaToggleFormPanel","callCount":1},{"name":"cpsaUndo","callCount":1},{"name":"cpsaViewUpdatedCode","callCount":1},{"name":"createAgent","callCount":1},{"name":"deleteAP","callCount":1},{"name":"deleteAR","callCount":1},{"name":"deleteAccount","callCount":1},{"name":"deleteAsset","callCount":1},{"name":"deleteCustomer","callCount":1},{"name":"deleteEntity","callCount":1},{"name":"deleteEntry","callCount":1},{"name":"deleteExpense","callCount":1},{"name":"deleteFiling","callCount":1},{"name":"deleteInvoice","callCount":1},{"name":"deleteJournalEntry","callCount":1},{"name":"deleteRecon","callCount":1},{"name":"deleteVendor","callCount":1},{"name":"doResearch","callCount":1},{"name":"doSearch","callCount":1},{"name":"docCmd","callCount":9},{"name":"docRedo","callCount":1},{"name":"docUndo","callCount":1},{"name":"dtClearHistory","callCount":1},{"name":"dtNewChat","callCount":1},{"name":"dtSend","callCount":1},{"name":"eeejJumpTo","callCount":5},{"name":"eeejNext","callCount":1},{"name":"eeejPrev","callCount":1},{"name":"eeonSendChat","callCount":1,"fixed":"2026-03-09"},{"name":"eeonTab","callCount":11},{"name":"exitPDFViewer","callCount":1},{"name":"exitPackageBuilder","callCount":1},{"name":"export1099ToFilingChainCSV","callCount":1},{"name":"exportAllHistory","callCount":2,"fixed":"2026-03-09"},{"name":"exportBackup","callCount":1,"fixed":"2026-03-09"},{"name":"exportCSV","callCount":1},{"name":"exportChat","callCount":1},{"name":"exportChatHistory","callCount":1},{"name":"exportDocPDF","callCount":1},{"name":"exportDocWord","callCount":1},{"name":"exportEntitiesToMasterRegisterCSV","callCount":1},{"name":"exportExpensesCSV","callCount":1},{"name":"exportFiling","callCount":15},{"name":"exportJournalEntries","callCount":1},{"name":"exportJournalToTransactionCSV","callCount":1},{"name":"exportLedgerToTransactionCSV","callCount":1},{"name":"exportPackagePDF","callCount":1},{"name":"exportPackageZIP","callCount":1},{"name":"exportPayablesToObligationsCSV","callCount":1},{"name":"exportStatements","callCount":1},{"name":"exportVerifierResults","callCount":1},{"name":"fdrfReadSection","callCount":1},{"name":"fdrfToggleAccordion","callCount":12},{"name":"fdrfTogglePart","callCount":4},{"name":"filterAccounts","callCount":6},{"name":"filterVerifierResults","callCount":5},{"name":"generateBadDebtActionPlan","callCount":1},{"name":"generateEliminations","callCount":1},{"name":"generateInterestReport","callCount":1},{"name":"generateJournalFromForms","callCount":2},{"name":"generateLossActionPlan","callCount":1},{"name":"generateMasterReport","callCount":1},{"name":"generateTrustAssetSummary","callCount":1},{"name":"generateTrustTrialBalance","callCount":1},{"name":"genPW","callCount":1,"fixed":"2026-03-09"},{"name":"goEonPage","callCount":26},{"name":"import1099ToEstimator","callCount":1},{"name":"import1099ToTRCF","callCount":1},{"name":"insertCitation","callCount":1},{"name":"loadDefaultCOA","callCount":1},{"name":"loadDocTemplate","callCount":1},{"name":"loadFiling","callCount":1},{"name":"manualSave","callCount":1},{"name":"markInvoicePaid","callCount":1},{"name":"mem0ClearAll","callCount":1,"fixed":"2026-03-09"},{"name":"newBlankDoc","callCount":1},{"name":"noiAsk","callCount":1},{"name":"pauseVoice","callCount":1},{"name":"populateAllForms","callCount":9},{"name":"previewData","callCount":1},{"name":"printBOE","callCount":1},{"name":"printDoc","callCount":1},{"name":"printExpenseReport","callCount":1},{"name":"printForm","callCount":10},{"name":"printInvoice","callCount":1},{"name":"printMasterReport","callCount":1},{"name":"printPackage","callCount":1},{"name":"printPaymentOrder","callCount":1},{"name":"printReconciliation","callCount":1},{"name":"printSpecificBOE","callCount":1},{"name":"printSpecificPO","callCount":1},{"name":"recordAPPayment","callCount":1},{"name":"recordARPayment","callCount":1},{"name":"refreshOllamaModels","callCount":1,"fixed":"2026-03-09"},{"name":"removeInvLine","callCount":2},{"name":"removeJournalLine","callCount":1},{"name":"removeSourceFolder","callCount":1},{"name":"resolveSyncConflicts","callCount":1},{"name":"runEntityVerification","callCount":1},{"name":"saveAcctLib","callCount":1},{"name":"saveAsset","callCount":1},{"name":"saveBOE","callCount":1},{"name":"saveBudget","callCount":1},{"name":"saveContact","callCount":2},{"name":"saveExpense","callCount":1},{"name":"saveFiling","callCount":15},{"name":"saveInventoryItem","callCount":1},{"name":"saveInvoice","callCount":1},{"name":"saveKeys","callCount":1},{"name":"saveLedger","callCount":1},{"name":"savePaymentOrder","callCount":1},{"name":"savePayrollRecord","callCount":1},{"name":"savePrefs","callCount":1,"fixed":"2026-03-09"},{"name":"saveReconciliation","callCount":1},{"name":"saveScheduleA","callCount":1},{"name":"searchWeb","callCount":1},{"name":"selectFilingType","callCount":15},{"name":"selectPackagePreset","callCount":4},{"name":"sendChat","callCount":2},{"name":"sendQuick","callCount":12,"fixed":"2026-03-09"},{"name":"sendTrustAgentQuery","callCount":1},{"name":"setAlloc","callCount":4},{"name":"shareChat","callCount":1},{"name":"showAPModal","callCount":1},{"name":"showARModal","callCount":1},{"name":"showAccountModal","callCount":2},{"name":"showAddContact","callCount":2},{"name":"showCOAImportWizard","callCount":2},{"name":"showClearConfirm","callCount":1},{"name":"showEmployeeModal","callCount":1},{"name":"showEntityModal","callCount":2},{"name":"showFASub","callCount":9},{"name":"showInventoryItemModal","callCount":1},{"name":"showInvoiceForm","callCount":1},{"name":"showPackageBuilder","callCount":1},{"name":"showTaxSubTab","callCount":4},{"name":"showVerifierDetail","callCount":1},{"name":"speakResponse","callCount":1},{"name":"speakTTS","callCount":1,"fixed":"2026-03-09"},{"name":"startVoiceRec","callCount":1},{"name":"stopVoiceRec","callCount":1},{"name":"stopVoiceTTS","callCount":1},{"name":"switchMainTab","callCount":41},{"name":"syncPull","callCount":3},{"name":"syncPullAll","callCount":1},{"name":"syncPush","callCount":4},{"name":"syncPushAll","callCount":1},{"name":"testConnection","callCount":1},{"name":"testSyncConnection","callCount":1,"fixed":"2026-03-09"},{"name":"toggleAccordion","callCount":6},{"name":"toggleAgentSTT","callCount":1,"fixed":"2026-03-09"},{"name":"toggleAgentTTS","callCount":1,"fixed":"2026-03-09"},{"name":"toggleDarkMode","callCount":1},{"name":"toggleEonSidebar","callCount":2},{"name":"toggleMic","callCount":2},{"name":"toggleVoiceMic","callCount":1,"fixed":"2026-03-09"},{"name":"trcfCalcInterestUI","callCount":1},{"name":"trcfCalculateRoute1","callCount":1},{"name":"trcfCalculateRoute2","callCount":1},{"name":"trcfSelectRoute","callCount":2},{"name":"trcfSwitchTab","callCount":7},{"name":"triggerPackageFromAgent","callCount":1},{"name":"trustAgentQ","callCount":16},{"name":"trustApplyFilters","callCount":1},{"name":"trustDeleteEntry","callCount":1},{"name":"trustExportCSV","callCount":2},{"name":"trustExportJSON","callCount":1},{"name":"trustHideForm","callCount":1},{"name":"trustPrintReport","callCount":1},{"name":"trustResetFilters","callCount":1},{"name":"trustSaveEntry","callCount":1},{"name":"trustShowForm","callCount":2},{"name":"unlockVault","callCount":1,"fixed":"2026-03-09"},{"name":"viewJournalEntry","callCount":1}];
 
-    const missing = [{"name":"sendQuick","callCount":12},{"name":"exportAllHistory","callCount":2},{"name":"eeonSendChat","callCount":1},{"name":"addCalEvent","callCount":1},{"name":"addVaultEntry","callCount":1},{"name":"clearMemory","callCount":1},{"name":"exportBackup","callCount":1},{"name":"genPW","callCount":1},{"name":"mem0ClearAll","callCount":1},{"name":"refreshOllamaModels","callCount":1},{"name":"savePrefs","callCount":1},{"name":"speakTTS","callCount":1},{"name":"testSyncConnection","callCount":1},{"name":"toggleAgentSTT","callCount":1},{"name":"toggleAgentTTS","callCount":1},{"name":"toggleVoiceMic","callCount":1},{"name":"unlockVault","callCount":1}];
-
-    function createCard(func, isMissing) {
+    function createCard(func) {
+      const isFixed = !!func.fixed;
       const card = document.createElement('div');
-      card.className = `function-card ${isMissing ? 'missing' : 'implemented'}`;
-      
+      card.className = `function-card ${isFixed ? 'newly-fixed' : 'implemented'}`;
+
       const name = document.createElement('div');
       name.className = 'function-name';
       name.textContent = func.name + '()';
-      
+
       const calls = document.createElement('div');
       calls.className = 'function-calls';
       calls.textContent = `Called ${func.callCount} time${func.callCount > 1 ? 's' : ''}`;
-      
+
       const badge = document.createElement('span');
-      badge.className = `badge ${isMissing ? 'danger' : 'success'}`;
-      badge.textContent = isMissing ? '❌ MISSING' : '✅ OK';
-      
+      badge.className = `badge ${isFixed ? 'fixed' : 'success'}`;
+      badge.textContent = isFixed ? '⭐ Fixed Mar 9' : '✅ OK';
+
       card.appendChild(name);
       card.appendChild(calls);
       card.appendChild(badge);
-      
-      if (isMissing && func.callCount >= 2) {
-        const priority = document.createElement('span');
-        priority.className = 'badge priority';
-        priority.textContent = '⚡ HIGH PRIORITY';
-        card.appendChild(priority);
-      }
-      
       return card;
     }
 
-    const allFuncs = [...implemented.map(f => ({...f, isMissing: false})), ...missing.map(f => ({...f, isMissing: true}))].sort((a, b) => a.name.localeCompare(b.name));
+    const sorted = [...allImplemented].sort((a, b) => a.name.localeCompare(b.name));
+    const fixed = sorted.filter(f => f.fixed);
 
-    allFuncs.forEach(f => document.getElementById('allFunctions').appendChild(createCard(f, f.isMissing)));
-    implemented.forEach(f => document.getElementById('implementedFunctions').appendChild(createCard(f, false)));
-    missing.forEach(f => document.getElementById('missingFunctions').appendChild(createCard(f, true)));
+    sorted.forEach(f => document.getElementById('allFunctions').appendChild(createCard(f)));
+    fixed.forEach(f => document.getElementById('fixedFunctions').appendChild(createCard(f)));
 
-    function switchTab(tabName) {
+    function switchTab(tabName, e) {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      
-      event.target.classList.add('active');
+      e.target.classList.add('active');
       document.getElementById(tabName + 'Tab').classList.add('active');
     }
 
