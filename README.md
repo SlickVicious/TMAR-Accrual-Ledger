@@ -1,7 +1,7 @@
 # TMAR - Trust Master Account Register
 
 **Complete Interactive Web Application + Google Sheets Integration**
-**Version:** 3.2
+**Version:** 3.3
 **Last Updated:** April 4, 2026
 **Status:** ✅ Production Ready — 246/246 Functions Verified | 211/211 GUI Elements Verified
 
@@ -66,11 +66,13 @@ TMAR is a comprehensive financial management system combining:
 
 ### Web Application (TMAR-Accrual-Ledger.html)
 
-**51 Tabs/Screens** across 12 groups:
+**55 Tabs/Screens** across 13 groups:
 
 - Core Accounting (Ledger, Entities, CoA, Journal, A/R, A/P, Consolidation, Statements)
 - Tax & Compliance (Tax Filings, Tax Estimator, Schedule A)
 - Trust Estate (Dashboard, Ledger, Reports)
+- SPV Module (SPV Dashboard, SPV Ledger, SPV Reports) ← **new v3.3**
+- UK Accounting (FRS 102 / IFRS — entity config, compliance checklist, UK statements) ← **new v3.3**
 - Operations (Invoicing, Payroll, Inventory, Budget, Payment Orders, Bills of Exchange, Expenses, Customers/Vendors, Depreciation, Bank Recon)
 - Reports & Intelligence (Reports, Master Report, GAAPCLAW Master, 6 CPA Firms, IRS Form Generator)
 - Tools (Settings & API, API Scout, Voice & Chat, Financial Assets, Document Creator, Source Folders)
@@ -143,14 +145,32 @@ npx http-server -p 8080 -o
 
 ---
 
+## 🆕 What's New in v3.3
+
+| Feature | Details |
+|---|---|
+| **SPV Module** | 3 new tabs: SPV Dashboard, SPV Ledger, SPV Reports. Full CRUD for Special Purpose Vehicles with trial balance and asset summaries. |
+| **UK Accounting** | New tab: FRS 102 / IFRS compliance — entity config (UTR, VAT, Companies House), 8-item compliance checklist, UK P&L + Balance Sheet generator, AI agent for HMRC/Companies Act queries. |
+| **Groq provider** | Free-tier LLM via `https://api.groq.com` — `llama-3.3-70b-versatile`, 32K context. |
+| **Cerebras provider** | Free-tier LLM via `https://api.cerebras.ai` — `llama-3.3-70b`, 8K context. |
+| **OpenRouter provider** | 200+ model aggregator via `https://openrouter.ai` — default `gpt-4o-mini`. |
+| **Parity Drift Notifications** | Weekly GitHub Actions cron fingerprints `redressright.me/Agent.html` + `GAAP.html`. In-app sticky banner + GitHub Issue auto-created when upstream changes detected. |
+| **User Manual** | `TMAR-User-Manual.md` updated to v3.3 with all new sections and ~30 new function references. |
+
+---
+
 ## 📂 Project Structure
 
 ```
 TMAR/
-├── TMAR-Accrual-Ledger.html          # Main web application
+├── TMAR-Accrual-Ledger.html          # Main web application (v3.3)
+├── TMAR-User-Manual.md               # Complete user manual (v3.3, ~3,600 lines)
+├── parity-fingerprint.json           # Source parity baseline (auto-updated weekly by CI)
 ├── TMAR-System-Status-Dashboard.html # GUI element status dashboard (211 elements)
 ├── TMAR_Audit_Dashboard.html         # Interactive audit dashboard v2 (246/246, 100%)
 ├── audit_report.json                 # Full audit data v2 (0 missing)
+├── .github/workflows/
+│   └── parity-check.yml              # Weekly cron: fingerprints redressright.me, opens Issue on drift
 ├── _archive/                         # Archived one-time records and superseded docs
 │
 ├── Function_Reference_Cards/         # Complete function documentation

@@ -1,12 +1,12 @@
 # TMAR-Aligned Universal Accrual Ledger — Design Document
 
-**Status**: ✅ IMPLEMENTED — 2026-03-04
-**Output File**: `TMAR-Accrual-Ledger.html` (~37,830 lines, 2.5MB)
+**Status**: ✅ IMPLEMENTED — 2026-04-04
+**Output File**: `TMAR-Accrual-Ledger.html` (~39,088 lines, ~2.8MB)
 
-**Version**: 2.1 (expanded: Sync Center + Entity Verifier + RedressRight Libraries)
-**Date**: 2026-03-04
-**Approach**: Fork & Refactor from `redressright.me/GAAP.html`
-**Reference**: `GAAP-SOURCE-ASSOCIATION-CHART.md` (full GUI mapping)
+**Version**: 3.3 (parity sync: SPV module, UK Accounting, Groq/Cerebras/OpenRouter, parity drift notifications)
+**Date**: 2026-04-04
+**Approach**: Fork & Refactor from `redressright.me/GAAP.html` + ongoing parity sync
+**Reference**: `GAAP-SOURCE-ASSOCIATION-CHART.md` (full GUI mapping) | `TMAR-User-Manual.md` (v3.3)
 
 ---
 
@@ -14,13 +14,14 @@
 
 | Decision | Choice | Session Date |
 |---|---|---|
-| Module scope | 38 tabs in 11 groups (original 32 minus UK, plus Entity Verifier, Sync Center, 5 RedressRight libraries) | 2026-03-04 |
+| Module scope | 55 tabs in 13 groups — expanded per parity sync v3.3 | 2026-04-04 |
 | Customization depth | Deep adaptation (pre-populate TMAR data, rename modules, restyle) | 2026-02-28 |
-| Modules removed | UK Accounting only | 2026-02-28 |
+| Modules removed | ~~UK Accounting~~ — **re-added v3.3** (FRS 102 / IFRS) | 2026-02-28 / 2026-04-04 |
 | Google Sheets sync | Fully independent (localStorage only) | 2026-02-28 |
 | Implementation approach | Plan A: Fork & Refactor | 2026-02-28 |
 | Visual identity | Strip RedressRight branding, TMAR palette, Calibri font | 2026-02-28 |
 | Tab restructuring | 11 logical groups, 38 tabs, SPV→Trust Estate, GAAP Agent→Trust Accounting Agent | 2026-03-04 |
+| v3.3 parity sync | 13 groups, 55 tabs — added SPV module (3 tabs), UK Accounting (1 tab), Groq/Cerebras/OpenRouter providers, parity drift notification system | 2026-04-04 |
 
 ---
 
