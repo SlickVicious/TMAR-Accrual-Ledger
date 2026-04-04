@@ -1,9 +1,9 @@
 # TMAR - Trust Master Account Register
 
 **Complete Interactive Web Application + Google Sheets Integration**
-**Version:** 3.1
-**Last Updated:** March 17, 2026
-**Status:** ✅ Production Ready — 211/211 GUI Elements Verified
+**Version:** 3.2
+**Last Updated:** April 4, 2026
+**Status:** ✅ Production Ready — 246/246 Functions Verified | 211/211 GUI Elements Verified
 
 ---
 
@@ -149,14 +149,13 @@ npx http-server -p 8080 -o
 TMAR/
 ├── TMAR-Accrual-Ledger.html          # Main web application
 ├── TMAR-System-Status-Dashboard.html # GUI element status dashboard (211 elements)
-├── TMAR_Audit_Dashboard.html         # Interactive audit dashboard
-├── AUDIT_SUMMARY.md                  # Audit results and coverage
-├── audit_report.json                 # Full audit data
+├── TMAR_Audit_Dashboard.html         # Interactive audit dashboard v2 (246/246, 100%)
+├── audit_report.json                 # Full audit data v2 (0 missing)
+├── _archive/                         # Archived one-time records and superseded docs
 │
 ├── Function_Reference_Cards/         # Complete function documentation
 │   ├── README.md                     # Quick reference index
 │   ├── COMPLETE_IMPLEMENTATION_GUIDE.md
-│   ├── COMPLETION_STATUS.md
 │   ├── 01_sendQuick.md               # Individual function cards
 │   ├── 02_eeonSendChat.md
 │   └── ... (17 total reference cards)
@@ -227,13 +226,11 @@ clasp open
 
 ### Quick References
 - [Function Reference Cards](./Function_Reference_Cards/README.md) - All 17 custom functions
-- [Audit Dashboard](./TMAR_Audit_Dashboard.html) - Interactive coverage report
-- [Audit Summary](./AUDIT_SUMMARY.md) - Coverage statistics
+- [Audit Dashboard](./TMAR_Audit_Dashboard.html) - Interactive coverage report (v2, 246/246)
+- [System Status Dashboard](./TMAR-System-Status-Dashboard.html) - GUI element status (211/211)
 
 ### Implementation Guides
 - [Complete Implementation Guide](./Function_Reference_Cards/COMPLETE_IMPLEMENTATION_GUIDE.md)
-- [Completion Status](./Function_Reference_Cards/COMPLETION_STATUS.md)
-- [Development Plan](./Function_Reference_Cards/TMAR_Function_Development_Plan.md)
 
 ### Google Sheets Integration
 - [GSheet README](./GSheet/README.md)
@@ -320,6 +317,13 @@ clasp open
 ---
 
 ## 📈 Version History
+
+### v3.2 (April 4, 2026) — Transcript Transformer YAML Fix + Audit Dashboard v2
+
+- ✅ **Transcript Transformer YAML fix** — `source_url` now single-quoted in generated frontmatter, fixing Obsidian parse failure on Windows paths (C: colon was breaking YAML key detection); `purpose` switched to `>-` block scalar; `tags` switched to list format
+- ✅ **Audit Dashboard v2** — Rebuilt to reflect post-fix verified state (246/246, 100%); removed stale red alert, added green all-clear banner with fixed-17 highlight grid
+- ✅ **audit_report.json v2** — All 17 previously-missing functions now in `implemented` array with `fixed` date markers; 8 browser built-ins separated into `excluded_builtins`
+- ✅ **Doc cleanup** — 12 one-time deployment/completion records archived; 15+ GSheet duplicate files archived; stale PR #1 closed
 
 ### v3.1 (March 17, 2026) — Full GUI Audit + Entity Verifier CSV Import
 
@@ -413,6 +417,6 @@ All Rights Reserved
 
 ---
 
-**Last Updated:** March 17, 2026
-**Status:** ✅ Production Ready — 211/211 GUI Elements Verified
+**Last Updated:** April 4, 2026
+**Status:** ✅ Production Ready — 246/246 Functions | 211/211 GUI Elements Verified
 **Coverage:** 100%
