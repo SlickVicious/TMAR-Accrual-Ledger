@@ -1,0 +1,208 @@
+name: Parity Drift Check
+
+on:
+  schedule:
+    # Every Sunday at 08:00 UTC
+    - cron: '0 8 * * 0'
+  workflow_dispatch:
+    inputs:
+      force_issue:
+        description: 'Force create a drift issue even if no change detected'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  parity-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Fetch source pages and compute fingerprints
+        id: fingerprint
+        run: |
+          set -e
+
+          # Fetch both source pages
+          echo "Fetching Agent.html..."
+          curl -s --max-time 30 "https://redressright.me/Agent.html" -o /tmp/Agent.html || { echo "FETCH_FAILED=true" >> $GITHUB_ENV; exit 0; }
+
+          echo "Fetching GAAP.html..."
+          curl -s --max-time 30 "https://redressright.me/GAAP.html" -o /tmp/GAAP.html || { echo "FETCH_FAILED=true" >> $GITHUB_ENV; exit 0; }
+
+          echo "FETCH_FAILED=false" >> $GITHUB_ENV
+
+          # Compute SHA-256 hashes of meaningful content
+          # Strip timestamps/nonces that change on every load
+          grep -o 'onclick="[^"]*"' /tmp/Agent.html | sort > /tmp/agent_tabs.txt
+          grep -o 'onclick="[^"]*"' /tmp/GAAP.html  | sort > /tmp/gaap_tabs.txt
+
+          AGENT_HASH=$(sha256sum /tmp/agent_tabs.txt | cut -d' ' -f1)
+          GAAP_HASH=$(sha256sum /tmp/gaap_tabs.txt | cut -d' ' -f1)
+
+          # Count navigation tabs
+          AGENT_TABS=$(grep -c 'tab-btn\|goEonPage\|switchMainTab' /tmp/Agent.html || echo 0)
+          GAAP_TABS=$(grep  -c 'tab-btn\|goEonPage\|switchMainTab' /tmp/GAAP.html  || echo 0)
+
+          # Extract version string
+          AGENT_VER=$(grep -o 'GAAPCLAW v[0-9.]*\|v[0-9]\.[0-9]' /tmp/Agent.html | head -1 || echo "unknown")
+          GAAP_VER=$(grep  -o 'GAAPCLAW v[0-9.]*\|v[0-9]\.[0-9]' /tmp/GAAP.html  | head -1 || echo "unknown")
+
+          echo "AGENT_HASH=$AGENT_HASH"  >> $GITHUB_ENV
+          echo "GAAP_HASH=$GAAP_HASH"   >> $GITHUB_ENV
+          echo "AGENT_TABS=$AGENT_TABS" >> $GITHUB_ENV
+          echo "GAAP_TABS=$GAAP_TABS"   >> $GITHUB_ENV
+          echo "AGENT_VER=$AGENT_VER"   >> $GITHUB_ENV
+          echo "GAAP_VER=$GAAP_VER"     >> $GITHUB_ENV
+
+          echo "New Agent.html hash: $AGENT_HASH (tabs: $AGENT_TABS, ver: $AGENT_VER)"
+          echo "New GAAP.html hash:  $GAAP_HASH (tabs: $GAAP_TABS, ver: $GAAP_VER)"
+
+      - name: Compare against stored fingerprint
+        id: compare
+        if: env.FETCH_FAILED != 'true'
+        run: |
+          STORED_AGENT_HASH=$(python3 -c "import json,sys; d=json.load(open('parity-fingerprint.json')); print(d['sources']['Agent.html']['hash'])" 2>/dev/null || echo "")
+          STORED_GAAP_HASH=$(python3  -c "import json,sys; d=json.load(open('parity-fingerprint.json')); print(d['sources']['GAAP.html']['hash'])"  2>/dev/null || echo "")
+
+          DRIFT=false
+          SUMMARY=""
+
+          if [ "$STORED_AGENT_HASH" != "$AGENT_HASH" ]; then
+            DRIFT=true
+            SUMMARY="${SUMMARY}• Agent.html changed (was: ${STORED_AGENT_HASH:0:12}... now: ${AGENT_HASH:0:12}...) — tabs: $AGENT_TABS\n"
+          fi
+          if [ "$STORED_GAAP_HASH" != "$GAAP_HASH" ]; then
+            DRIFT=true
+            SUMMARY="${SUMMARY}• GAAP.html changed (was: ${STORED_GAAP_HASH:0:12}... now: ${GAAP_HASH:0:12}...) — tabs: $GAAP_TABS\n"
+          fi
+
+          echo "DRIFT=$DRIFT"     >> $GITHUB_ENV
+          echo "SUMMARY=$SUMMARY" >> $GITHUB_ENV
+
+          echo "Drift detected: $DRIFT"
+          if [ "$DRIFT" = "true" ]; then
+            echo "Summary: $SUMMARY"
+          fi
+
+      - name: Update parity-fingerprint.json
+        if: env.FETCH_FAILED != 'true'
+        run: |
+          NOW=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          python3 - <<EOF
+          import json, os, datetime
+
+          drift = os.environ.get('DRIFT', 'false') == 'true'
+          force = os.environ.get('INPUT_FORCE_ISSUE', 'false') == 'true'
+          summary = os.environ.get('SUMMARY', '').replace('\\n', '\n')
+
+          data = {
+            "lastChecked": os.environ.get('NOW', datetime.datetime.utcnow().isoformat() + 'Z'),
+            "driftDetected": drift or force,
+            "sources": {
+              "Agent.html": {
+                "hash": os.environ.get('AGENT_HASH', ''),
+                "tabCount": int(os.environ.get('AGENT_TABS', 0)),
+                "version": os.environ.get('AGENT_VER', 'unknown'),
+                "checkedAt": os.environ.get('NOW', '')
+              },
+              "GAAP.html": {
+                "hash": os.environ.get('GAAP_HASH', ''),
+                "tabCount": int(os.environ.get('GAAP_TABS', 0)),
+                "version": os.environ.get('GAAP_VER', 'unknown'),
+                "checkedAt": os.environ.get('NOW', '')
+              }
+            },
+            "driftSummary": summary if (drift or force) else ""
+          }
+
+          with open('parity-fingerprint.json', 'w') as f:
+            json.dump(data, f, indent=2)
+          print("parity-fingerprint.json updated.")
+          EOF
+        env:
+          NOW: ${{ steps.fingerprint.outputs.now }}
+          INPUT_FORCE_ISSUE: ${{ github.event.inputs.force_issue }}
+
+      - name: Commit updated fingerprint
+        if: env.FETCH_FAILED != 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add parity-fingerprint.json
+          git diff --staged --quiet || git commit -m "chore(parity): update source fingerprint $(date -u +%Y-%m-%d)"
+          git push origin HEAD
+
+      - name: Create GitHub Issue on drift
+        if: env.DRIFT == 'true' || github.event.inputs.force_issue == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const summary = process.env.SUMMARY || 'No detail available.';
+            const date    = new Date().toISOString().split('T')[0];
+            const agentTabs = process.env.AGENT_TABS;
+            const gaapTabs  = process.env.GAAP_TABS;
+            const agentVer  = process.env.AGENT_VER;
+            const gaapVer   = process.env.GAAP_VER;
+
+            const body = [
+              `## Source Parity Drift Detected — ${date}`,
+              '',
+              'The upstream **redressright.me** source files have changed since the last recorded fingerprint.',
+              'Review the changes and update TMAR-Accrual-Ledger accordingly.',
+              '',
+              '### Changes Detected',
+              '```',
+              summary,
+              '```',
+              '',
+              '### Current Source State',
+              `| Source | Version | Tab Count |`,
+              `|--------|---------|-----------|`,
+              `| [Agent.html](https://redressright.me/Agent.html) | ${agentVer} | ${agentTabs} |`,
+              `| [GAAP.html](https://redressright.me/GAAP.html) | ${gaapVer} | ${gaapTabs} |`,
+              '',
+              '### Action Required',
+              '1. Open both source URLs and compare with TMAR',
+              '2. Identify new pages, features, or function changes',
+              '3. Update `TMAR-Accrual-Ledger.html` to incorporate the changes',
+              '4. Once synced, this issue can be closed',
+              '',
+              '---',
+              '_Auto-generated by [parity-check workflow](.github/workflows/parity-check.yml)_'
+            ].join('\n');
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              title: `🔔 Source parity drift detected — ${date}`,
+              body:  body,
+              labels: ['parity-drift', 'maintenance']
+            });
+        env:
+          SUMMARY:    ${{ env.SUMMARY }}
+          AGENT_TABS: ${{ env.AGENT_TABS }}
+          GAAP_TABS:  ${{ env.GAAP_TABS }}
+          AGENT_VER:  ${{ env.AGENT_VER }}
+          GAAP_VER:   ${{ env.GAAP_VER }}
+
+      - name: Summary
+        run: |
+          echo "### Parity Check Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "$FETCH_FAILED" = "true" ]; then
+            echo "❌ Could not fetch source pages — check network connectivity." >> $GITHUB_STEP_SUMMARY
+          elif [ "$DRIFT" = "true" ]; then
+            echo "⚠️ **Drift detected** — a GitHub Issue has been created." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No drift detected — TMAR is in sync with the source." >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Source | Tabs | Version |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|------|---------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Agent.html | $AGENT_TABS | $AGENT_VER |" >> $GITHUB_STEP_SUMMARY
+          echo "| GAAP.html  | $GAAP_TABS  | $GAAP_VER  |" >> $GITHUB_STEP_SUMMARY

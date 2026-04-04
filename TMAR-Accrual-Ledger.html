@@ -1000,6 +1000,16 @@
 </head>
 <body class="p-0" style="padding-bottom:80px">
 
+  <!-- ══ PARITY DRIFT NOTIFICATION BANNER ══════════════════════════════ -->
+  <div id="parityDriftBanner" style="display:none;position:sticky;top:0;z-index:9999;background:#92400e;border-bottom:2px solid #f59e0b;padding:10px 20px;font-size:13px;color:#fef3c7;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+    <span>⚠️ <strong>Source update detected</strong> — redressright.me has changed since your last sync. Your TMAR version may be missing new features.</span>
+    <div style="display:flex;gap:8px;flex-shrink:0">
+      <button onclick="parityShowDetails()" style="padding:4px 12px;background:#f59e0b;border:none;border-radius:5px;color:#1c1917;font-size:12px;font-weight:700;cursor:pointer">View Details</button>
+      <button onclick="parityDismissBanner()" style="padding:4px 12px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.3);border-radius:5px;color:#fef3c7;font-size:12px;cursor:pointer">Dismiss</button>
+    </div>
+  </div>
+  <!-- ══ END PARITY BANNER ═════════════════════════════════════════════ -->
+
   <div class="p-4 md:p-6" style="padding-bottom:72px">
   <div id="app" class="max-w-7xl mx-auto">
     <!-- Header -->
@@ -1095,6 +1105,22 @@
         </button>
         <button onclick="switchMainTab('trustReports')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="trustReports">
           📈 Trust Estate Reports
+        </button>
+        <div class="w-px h-6 bg-gray-600 mx-1 hidden md:block"></div>
+        <!-- Group 6: SPV -->
+        <button onclick="switchMainTab('spvDashboard')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="spvDashboard">
+          🏦 SPV Dashboard
+        </button>
+        <button onclick="switchMainTab('spvLedger')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="spvLedger">
+          📋 SPV Ledger
+        </button>
+        <button onclick="switchMainTab('spvReports')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="spvReports">
+          📈 SPV Reports
+        </button>
+        <div class="w-px h-6 bg-gray-600 mx-1 hidden md:block"></div>
+        <!-- Group 7: UK Accounting -->
+        <button onclick="switchMainTab('ukAccounting')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="ukAccounting">
+          🇬🇧 UK Accounting
         </button>
         <div class="w-px h-6 bg-gray-600 mx-1 hidden md:block"></div>
         <!-- Group 6: Operations -->
@@ -4558,6 +4584,350 @@
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════════════
+       SPV DASHBOARD SECTION
+  ═══════════════════════════════════════════════════════════════════ -->
+  <section id="spvDashboardSection" class="form-section hidden">
+    <div class="glass-card p-6 rounded-xl mb-6">
+      <h2 class="text-2xl font-bold text-cyan-400 mb-2">🏦 SPV Dashboard</h2>
+      <p class="text-sm text-gray-400">Special Purpose Vehicle management — track SPV entities, activity, and allocations</p>
+    </div>
+
+    <!-- SPV Selector -->
+    <div class="glass-card p-6 rounded-xl mb-6">
+      <h3 class="text-lg font-semibold text-cyan-400 mb-4">🏢 Active SPV</h3>
+      <div class="flex flex-wrap gap-3 items-center mb-4">
+        <select id="spvActiveSelect" onchange="spvSetActive(this.value)" class="px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-white" style="min-width:220px">
+          <option value="">— Select SPV —</option>
+        </select>
+        <button onclick="spvAddEntity()" class="px-4 py-2 bg-cyan-700 hover:bg-cyan-600 text-white rounded-lg font-semibold text-sm">➕ New SPV</button>
+        <button onclick="spvDeleteActive()" class="px-4 py-2 bg-red-800 hover:bg-red-700 text-white rounded-lg font-semibold text-sm">🗑 Delete SPV</button>
+      </div>
+      <div id="spvActiveInfo" class="text-sm text-gray-400 italic">No SPV selected.</div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="glass-card p-6 rounded-xl mb-6">
+      <h3 class="text-lg font-semibold mb-4 text-amber-400">⚡ Quick Actions</h3>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <button onclick="switchMainTab('spvLedger')" class="px-4 py-3 bg-green-700 hover:bg-green-600 text-white rounded-lg font-semibold text-sm">+ Add Entry</button>
+        <button onclick="switchMainTab('spvReports')" class="px-4 py-3 bg-purple-700 hover:bg-purple-600 text-white rounded-lg font-semibold text-sm">SPV Reports</button>
+        <button onclick="spvExportCSV()" class="px-4 py-3 bg-amber-700 hover:bg-amber-600 text-white rounded-lg font-semibold text-sm">Export CSV</button>
+        <button onclick="spvExportJSON()" class="px-4 py-3 bg-blue-700 hover:bg-blue-600 text-white rounded-lg font-semibold text-sm">Export JSON</button>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="glass-card p-6 rounded-xl">
+      <h3 class="text-lg font-semibold text-green-400 mb-4">🕒 Recent SPV Activity</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead><tr class="bg-gray-700 text-left">
+            <th class="p-3 text-white">Date</th>
+            <th class="p-3 text-white">SPV</th>
+            <th class="p-3 text-white">Description</th>
+            <th class="p-3 text-right text-white">Amount</th>
+          </tr></thead>
+          <tbody id="spvRecentBody">
+            <tr><td colspan="4" class="p-4 text-gray-400 text-center">No recent activity.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       SPV LEDGER SECTION
+  ═══════════════════════════════════════════════════════════════════ -->
+  <section id="spvLedgerSection" class="form-section hidden">
+    <div class="glass-card p-6 rounded-xl mb-6">
+      <div class="flex justify-between items-center flex-wrap gap-4">
+        <div>
+          <h2 class="text-2xl font-bold text-cyan-400">📋 SPV Ledger</h2>
+          <p class="text-sm text-gray-400 mt-1">Record SPV-specific journal entries (assets, distributions, capital contributions)</p>
+        </div>
+        <div class="flex gap-3">
+          <button onclick="spvShowAddEntry()" class="px-4 py-2 bg-cyan-700 hover:bg-cyan-600 text-white rounded-lg font-semibold text-sm">➕ Add Entry</button>
+          <button onclick="spvFilterEntries()" class="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg font-semibold text-sm">🔍 Filter</button>
+          <button onclick="spvResetFilter()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-semibold text-sm">↺ Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Entry Form -->
+    <div id="spvAddEntryForm" class="glass-card p-6 rounded-xl mb-6 hidden">
+      <h3 class="text-lg font-semibold text-cyan-400 mb-4">New SPV Entry</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div>
+          <label class="block text-xs text-gray-400 mb-1">Date</label>
+          <input type="date" id="spvEntryDate" class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-white">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-1">SPV Name</label>
+          <input type="text" id="spvEntryName" placeholder="SPV entity name" class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-white">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-1">Asset Type</label>
+          <select id="spvEntryType" class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-white">
+            <option value="Capital Contribution">Capital Contribution</option>
+            <option value="Asset Acquisition">Asset Acquisition</option>
+            <option value="Distribution">Distribution</option>
+            <option value="Income">Income</option>
+            <option value="Expense">Expense</option>
+            <option value="Debt Issuance">Debt Issuance</option>
+            <option value="Debt Repayment">Debt Repayment</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div class="md:col-span-2">
+          <label class="block text-xs text-gray-400 mb-1">Description</label>
+          <input type="text" id="spvEntryDesc" placeholder="Entry description" class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-white">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-1">Amount ($)</label>
+          <input type="number" id="spvEntryAmount" placeholder="0.00" step="0.01" class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-white">
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <button onclick="spvSaveEntry()" class="px-5 py-2 bg-cyan-700 hover:bg-cyan-600 text-white rounded-lg font-semibold text-sm">💾 Save Entry</button>
+        <button onclick="document.getElementById('spvAddEntryForm').classList.add('hidden')" class="px-5 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg font-semibold text-sm">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div id="spvFilterBar" class="glass-card p-4 rounded-xl mb-4 hidden">
+      <div class="flex flex-wrap gap-3 items-center">
+        <input type="text" id="spvFilterText" placeholder="Search description..." class="px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-white" style="min-width:200px">
+        <select id="spvFilterType" class="px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-white">
+          <option value="">All Types</option>
+          <option value="Capital Contribution">Capital Contribution</option>
+          <option value="Asset Acquisition">Asset Acquisition</option>
+          <option value="Distribution">Distribution</option>
+          <option value="Income">Income</option>
+          <option value="Expense">Expense</option>
+          <option value="Debt Issuance">Debt Issuance</option>
+          <option value="Debt Repayment">Debt Repayment</option>
+        </select>
+        <button onclick="spvApplyFilter()" class="px-4 py-2 bg-cyan-700 hover:bg-cyan-600 text-white rounded-lg font-semibold text-sm">Apply</button>
+      </div>
+    </div>
+
+    <!-- Entries Table -->
+    <div class="glass-card p-6 rounded-xl">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead><tr class="bg-gray-700 text-left">
+            <th class="p-3 text-white">Date</th>
+            <th class="p-3 text-white">SPV</th>
+            <th class="p-3 text-white">Type</th>
+            <th class="p-3 text-white">Description</th>
+            <th class="p-3 text-right text-white">Amount</th>
+            <th class="p-3 text-center text-white">Actions</th>
+          </tr></thead>
+          <tbody id="spvLedgerBody">
+            <tr><td colspan="6" class="p-4 text-gray-400 text-center">No entries. Click + Add Entry to begin.</td></tr>
+          </tbody>
+          <tfoot><tr class="bg-gray-700">
+            <td colspan="4" class="p-3 text-right text-white font-bold">Total:</td>
+            <td class="p-3 text-right text-cyan-400 font-bold" id="spvLedgerTotal">$0.00</td>
+            <td></td>
+          </tr></tfoot>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       SPV REPORTS SECTION
+  ═══════════════════════════════════════════════════════════════════ -->
+  <section id="spvReportsSection" class="form-section hidden">
+    <div class="glass-card p-6 rounded-xl mb-6">
+      <h2 class="text-2xl font-bold text-cyan-400 mb-2">📈 SPV Reports Dashboard</h2>
+      <p class="text-sm text-gray-400">Generate, view, and export SPV financial reports and asset summaries</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <!-- SPV Trial Balance -->
+      <div class="glass-card p-6 rounded-xl">
+        <h3 class="text-lg font-semibold text-cyan-400 mb-4">⚖️ SPV Trial Balance</h3>
+        <p class="text-sm text-gray-400 mb-4">Confirms total contributions and distributions across all SPV entries.</p>
+        <button onclick="generateSPVTrialBalance()" class="w-full px-4 py-3 bg-cyan-700 hover:bg-cyan-600 text-white rounded-lg font-semibold text-sm">Generate Trial Balance</button>
+        <div id="spvTrialBalanceOutput" class="mt-4 hidden">
+          <table class="w-full text-sm mt-2">
+            <thead><tr class="bg-gray-700">
+              <th class="p-2 text-left text-white">SPV</th>
+              <th class="p-2 text-right text-white">In</th>
+              <th class="p-2 text-right text-white">Out</th>
+              <th class="p-2 text-right text-white">Net</th>
+            </tr></thead>
+            <tbody id="spvTrialBalanceBody"></tbody>
+            <tfoot id="spvTrialBalanceFoot"></tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- Asset Type Summary -->
+      <div class="glass-card p-6 rounded-xl">
+        <h3 class="text-lg font-semibold text-amber-400 mb-4">💼 Asset Type Summary</h3>
+        <p class="text-sm text-gray-400 mb-4">Total value grouped by SPV asset type.</p>
+        <button onclick="generateSPVAssetSummary()" class="w-full px-4 py-3 bg-amber-700 hover:bg-amber-600 text-white rounded-lg font-semibold text-sm">Generate Asset Summary</button>
+        <div id="spvAssetSummaryOutput" class="mt-4 hidden">
+          <table class="w-full text-sm mt-2">
+            <thead><tr class="bg-gray-700">
+              <th class="p-2 text-left text-white">Asset Type</th>
+              <th class="p-2 text-right text-white">Count</th>
+              <th class="p-2 text-right text-white">Total Value</th>
+            </tr></thead>
+            <tbody id="spvAssetSummaryBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Export Options -->
+    <div class="glass-card p-6 rounded-xl">
+      <h3 class="text-lg font-semibold text-green-400 mb-4">📤 Export SPV Data</h3>
+      <div class="flex flex-wrap gap-4">
+        <button onclick="spvExportCSV()" class="px-5 py-2 bg-green-700 hover:bg-green-600 text-white rounded-lg font-semibold text-sm">📊 Export CSV</button>
+        <button onclick="spvExportJSON()" class="px-5 py-2 bg-blue-700 hover:bg-blue-600 text-white rounded-lg font-semibold text-sm">📋 Export JSON</button>
+        <button onclick="spvPrintReport()" class="px-5 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg font-semibold text-sm">🖨️ Print Report</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       UK ACCOUNTING SECTION (FRS 102 / IFRS)
+  ═══════════════════════════════════════════════════════════════════ -->
+  <section id="ukAccountingSection" class="form-section hidden">
+    <div class="glass-card p-6 rounded-xl mb-6">
+      <h2 class="text-2xl font-bold text-blue-400 mb-2">🇬🇧 UK Accounting</h2>
+      <p class="text-sm text-gray-400">FRS 102 / IFRS compliance — UK entity configuration, compliance checklist, and UK-format financial statements</p>
+    </div>
+
+    <!-- UK Entity Configuration -->
+    <div class="glass-card p-6 rounded-xl mb-6">
+      <h3 class="text-lg font-semibold text-blue-400 mb-4">🏢 UK Entity Configuration</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-xs text-gray-400 mb-1">Company Name</label>
+          <input type="text" id="ukCompanyName" placeholder="Registered company name" class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-white">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-1">Companies House Number</label>
+          <input type="text" id="ukCompanyNumber" placeholder="12345678" class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-white">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-1">UTR (Unique Taxpayer Reference)</label>
+          <input type="text" id="ukUTR" placeholder="10-digit UTR" class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-white">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-1">VAT Registration Number</label>
+          <input type="text" id="ukVAT" placeholder="GB 000 0000 00" class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-white">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-1">Accounting Standard</label>
+          <select id="ukStandard" class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-white">
+            <option value="frs102">FRS 102 (UK GAAP)</option>
+            <option value="frs105">FRS 105 (Micro-entities)</option>
+            <option value="ifrs">IFRS (International)</option>
+            <option value="frs101">FRS 101 (Reduced Disclosure)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-1">Accounting Period End</label>
+          <input type="date" id="ukPeriodEnd" class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-white">
+        </div>
+      </div>
+      <button onclick="ukSaveSettings()" class="px-5 py-2 bg-blue-700 hover:bg-blue-600 text-white rounded-lg font-semibold text-sm">💾 Save UK Settings</button>
+    </div>
+
+    <!-- UK Compliance Checklist -->
+    <div class="glass-card p-6 rounded-xl mb-6">
+      <h3 class="text-lg font-semibold text-green-400 mb-4">✅ UK Compliance Checklist</h3>
+      <div id="ukComplianceChecklist" class="space-y-3">
+        <div class="flex items-center gap-3 p-3 bg-gray-800 rounded-lg">
+          <input type="checkbox" id="ukChk1" class="w-4 h-4 accent-blue-500">
+          <label for="ukChk1" class="text-sm text-gray-300">Companies House annual return filed</label>
+        </div>
+        <div class="flex items-center gap-3 p-3 bg-gray-800 rounded-lg">
+          <input type="checkbox" id="ukChk2" class="w-4 h-4 accent-blue-500">
+          <label for="ukChk2" class="text-sm text-gray-300">Statutory accounts prepared under selected standard (FRS 102 / IFRS)</label>
+        </div>
+        <div class="flex items-center gap-3 p-3 bg-gray-800 rounded-lg">
+          <input type="checkbox" id="ukChk3" class="w-4 h-4 accent-blue-500">
+          <label for="ukChk3" class="text-sm text-gray-300">Corporation Tax return (CT600) submitted to HMRC</label>
+        </div>
+        <div class="flex items-center gap-3 p-3 bg-gray-800 rounded-lg">
+          <input type="checkbox" id="ukChk4" class="w-4 h-4 accent-blue-500">
+          <label for="ukChk4" class="text-sm text-gray-300">VAT returns filed quarterly (if VAT registered)</label>
+        </div>
+        <div class="flex items-center gap-3 p-3 bg-gray-800 rounded-lg">
+          <input type="checkbox" id="ukChk5" class="w-4 h-4 accent-blue-500">
+          <label for="ukChk5" class="text-sm text-gray-300">PAYE / National Insurance paid and reported via RTI</label>
+        </div>
+        <div class="flex items-center gap-3 p-3 bg-gray-800 rounded-lg">
+          <input type="checkbox" id="ukChk6" class="w-4 h-4 accent-blue-500">
+          <label for="ukChk6" class="text-sm text-gray-300">Confirmation Statement (formerly Annual Return) filed</label>
+        </div>
+        <div class="flex items-center gap-3 p-3 bg-gray-800 rounded-lg">
+          <input type="checkbox" id="ukChk7" class="w-4 h-4 accent-blue-500">
+          <label for="ukChk7" class="text-sm text-gray-300">Director loans and related-party transactions disclosed (FRS 102 §33)</label>
+        </div>
+        <div class="flex items-center gap-3 p-3 bg-gray-800 rounded-lg">
+          <input type="checkbox" id="ukChk8" class="w-4 h-4 accent-blue-500">
+          <label for="ukChk8" class="text-sm text-gray-300">Fixed assets depreciated per FRS 102 §17 / IAS 16</label>
+        </div>
+      </div>
+      <div class="mt-4 flex gap-3">
+        <button onclick="ukSaveChecklist()" class="px-4 py-2 bg-green-700 hover:bg-green-600 text-white rounded-lg font-semibold text-sm">💾 Save Checklist</button>
+        <button onclick="ukCheckAll()" class="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg font-semibold text-sm">Check All</button>
+        <button onclick="ukUncheckAll()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-semibold text-sm">Uncheck All</button>
+      </div>
+    </div>
+
+    <!-- UK Financial Statements -->
+    <div class="glass-card p-6 rounded-xl mb-6">
+      <h3 class="text-lg font-semibold text-purple-400 mb-4">📑 UK Financial Statements</h3>
+      <p class="text-sm text-gray-400 mb-4">Generate UK-format P&amp;L and Balance Sheet from your ledger data (FRS 102 / IFRS presentation).</p>
+      <div class="flex flex-wrap gap-3 mb-4">
+        <button onclick="ukGenerateStatements()" class="px-5 py-2 bg-purple-700 hover:bg-purple-600 text-white rounded-lg font-semibold text-sm">📊 Generate UK Statements</button>
+        <button onclick="ukGenerateComplianceReport()" class="px-5 py-2 bg-blue-700 hover:bg-blue-600 text-white rounded-lg font-semibold text-sm">📄 Generate UK Compliance Report</button>
+        <button onclick="ukPrintStatements()" class="px-5 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg font-semibold text-sm">🖨️ Print</button>
+      </div>
+      <div id="ukStatementsOutput" class="hidden">
+        <!-- P&L -->
+        <div class="mb-6">
+          <h4 class="text-base font-semibold text-white mb-3">Statement of Comprehensive Income (P&amp;L)</h4>
+          <table class="w-full text-sm">
+            <thead><tr class="bg-gray-700"><th class="p-3 text-left text-white">Item</th><th class="p-3 text-right text-white">£ Amount</th></tr></thead>
+            <tbody id="ukPLBody"></tbody>
+            <tfoot id="ukPLFoot"></tfoot>
+          </table>
+        </div>
+        <!-- Balance Sheet -->
+        <div>
+          <h4 class="text-base font-semibold text-white mb-3">Statement of Financial Position (Balance Sheet)</h4>
+          <table class="w-full text-sm">
+            <thead><tr class="bg-gray-700"><th class="p-3 text-left text-white">Item</th><th class="p-3 text-right text-white">£ Amount</th></tr></thead>
+            <tbody id="ukBSBody"></tbody>
+            <tfoot id="ukBSFoot"></tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI UK Accounting Agent -->
+    <div class="glass-card p-6 rounded-xl">
+      <h3 class="text-lg font-semibold text-cyan-400 mb-3">🤖 UK Accounting AI Agent</h3>
+      <p class="text-sm text-gray-400 mb-3">Ask questions about FRS 102, IFRS, HMRC rules, Companies House requirements, or UK tax law.</p>
+      <textarea id="ukAgentInput" rows="3" placeholder="e.g. What are the FRS 102 disclosure requirements for related party transactions?" class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-white mb-3"></textarea>
+      <button onclick="ukAgentQuery()" class="px-5 py-2 bg-cyan-700 hover:bg-cyan-600 text-white rounded-lg font-semibold text-sm">Ask UK Accounting Agent</button>
+      <div id="ukAgentOutput" class="mt-4 hidden p-4 bg-gray-800 rounded-lg text-sm text-gray-200 whitespace-pre-wrap"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
        INVOICING SECTION (QuickBooks Pro Feature)
   ═══════════════════════════════════════════════════════════════════ -->
   <section id="invoicingSection" class="form-section hidden">
@@ -6508,6 +6878,9 @@
       if (tabName === 'trustDashboard') { if (typeof updateTrustDashboard === 'function') updateTrustDashboard(); if (typeof initParticles === 'function') initParticles(); }
       if (tabName !== 'trustDashboard') { if (typeof stopParticles === 'function') stopParticles(); }
       if (tabName === 'trustReports') { if (typeof updateTrustReports === 'function') updateTrustReports(); }
+      if (tabName === 'spvDashboard') { spvUpdateDashboard(); }
+      if (tabName === 'spvReports') { spvUpdateReports(); }
+      if (tabName === 'ukAccounting') { ukLoadSettings(); }
       if (tabName === 'masterReport') { if (typeof generateMasterReport === 'function') generateMasterReport(); }
       if (tabName === 'financialAssets') { if (typeof initFinancialAssets === 'function') initFinancialAssets(); if (typeof initScrollReveal === 'function') initScrollReveal(); }
       if (tabName === 'voiceChat') { if (typeof initVoiceChat === 'function') initVoiceChat(); }
@@ -9537,6 +9910,292 @@
 
   function trustPrintReport() { window.print(); }
 
+  // ════════════════════════════════════════════════════════════════════
+  // SPV (Special Purpose Vehicle) MODULE
+  // ════════════════════════════════════════════════════════════════════
+  var _spvData = null;
+  function spvLoad() {
+    if (!_spvData) {
+      try { _spvData = JSON.parse(localStorage.getItem('TMAR_SPV_Data') || 'null'); } catch(e) {}
+      if (!_spvData) _spvData = { entities: [], entries: [] };
+    }
+    return _spvData;
+  }
+  function spvSave() { localStorage.setItem('TMAR_SPV_Data', JSON.stringify(_spvData)); }
+
+  function spvUpdateDashboard() {
+    var d = spvLoad();
+    // Populate selector
+    var sel = document.getElementById('spvActiveSelect');
+    if (!sel) return;
+    var cur = sel.value;
+    sel.innerHTML = '<option value="">— Select SPV —</option>';
+    d.entities.forEach(function(e) {
+      sel.innerHTML += '<option value="' + e.id + '"' + (cur === e.id ? ' selected' : '') + '>' + e.name + '</option>';
+    });
+    // Active info
+    var active = d.entities.find(function(e) { return e.id === sel.value; });
+    var info = document.getElementById('spvActiveInfo');
+    if (info) info.textContent = active ? ('EIN: ' + (active.ein || 'N/A') + ' | Type: ' + (active.type || 'N/A') + ' | Purpose: ' + (active.purpose || 'N/A')) : 'No SPV selected.';
+    // Recent activity (last 10 entries)
+    var tbody = document.getElementById('spvRecentBody');
+    if (!tbody) return;
+    var recent = d.entries.slice(-10).reverse();
+    if (!recent.length) { tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-gray-400 text-center">No recent activity.</td></tr>'; return; }
+    tbody.innerHTML = recent.map(function(e) {
+      return '<tr class="border-b border-gray-700"><td class="p-3 text-sm text-gray-300">' + (e.date||'') + '</td>' +
+        '<td class="p-3 text-sm text-gray-300">' + (e.spvName||'') + '</td>' +
+        '<td class="p-3 text-sm text-gray-400">' + (e.desc||'') + '</td>' +
+        '<td class="p-3 text-sm text-right text-cyan-400">$' + parseFloat(e.amount||0).toFixed(2) + '</td></tr>';
+    }).join('');
+  }
+
+  function spvSetActive(id) {
+    var d = spvLoad();
+    var active = d.entities.find(function(e) { return e.id === id; });
+    var info = document.getElementById('spvActiveInfo');
+    if (info) info.textContent = active ? ('EIN: ' + (active.ein || 'N/A') + ' | Type: ' + (active.type || 'N/A') + ' | Purpose: ' + (active.purpose || 'N/A')) : 'No SPV selected.';
+  }
+
+  function spvAddEntity() {
+    var name = prompt('SPV Entity Name:');
+    if (!name || !name.trim()) return;
+    var ein = prompt('EIN (optional):') || '';
+    var type = prompt('Entity Type (LLC / Corp / Trust / Other):') || 'Other';
+    var purpose = prompt('Purpose / Description (optional):') || '';
+    var d = spvLoad();
+    var entity = { id: 'spv_' + Date.now(), name: name.trim(), ein: ein.trim(), type: type.trim(), purpose: purpose.trim() };
+    d.entities.push(entity);
+    spvSave();
+    spvUpdateDashboard();
+  }
+
+  function spvDeleteActive() {
+    var sel = document.getElementById('spvActiveSelect');
+    if (!sel || !sel.value) { alert('Select an SPV first.'); return; }
+    if (!confirm('Delete this SPV and all its entries?')) return;
+    var d = spvLoad();
+    d.entities = d.entities.filter(function(e) { return e.id !== sel.value; });
+    d.entries  = d.entries.filter(function(e) { return e.spvId !== sel.value; });
+    spvSave();
+    spvUpdateDashboard();
+  }
+
+  function spvShowAddEntry() {
+    var f = document.getElementById('spvAddEntryForm');
+    if (f) { f.classList.remove('hidden'); document.getElementById('spvEntryDate').value = new Date().toISOString().split('T')[0]; }
+  }
+
+  function spvSaveEntry() {
+    var date   = document.getElementById('spvEntryDate').value;
+    var name   = document.getElementById('spvEntryName').value.trim();
+    var type   = document.getElementById('spvEntryType').value;
+    var desc   = document.getElementById('spvEntryDesc').value.trim();
+    var amount = parseFloat(document.getElementById('spvEntryAmount').value) || 0;
+    if (!date || !desc || !amount) { alert('Date, Description, and Amount are required.'); return; }
+    var d = spvLoad();
+    d.entries.push({ id: 'spve_' + Date.now(), date: date, spvName: name, type: type, desc: desc, amount: amount });
+    spvSave();
+    document.getElementById('spvAddEntryForm').classList.add('hidden');
+    ['spvEntryName','spvEntryDesc','spvEntryAmount'].forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
+    spvRenderLedger();
+  }
+
+  function spvRenderLedger(filter) {
+    var d = spvLoad();
+    var entries = d.entries;
+    if (filter) {
+      var txt = (filter.text || '').toLowerCase();
+      var typ = filter.type || '';
+      entries = entries.filter(function(e) {
+        return (!txt || (e.desc||'').toLowerCase().includes(txt) || (e.spvName||'').toLowerCase().includes(txt)) && (!typ || e.type === typ);
+      });
+    }
+    var tbody = document.getElementById('spvLedgerBody');
+    var totalEl = document.getElementById('spvLedgerTotal');
+    if (!tbody) return;
+    if (!entries.length) { tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-gray-400 text-center">No entries.</td></tr>'; if (totalEl) totalEl.textContent = '$0.00'; return; }
+    var total = 0;
+    tbody.innerHTML = entries.map(function(e, i) {
+      total += parseFloat(e.amount || 0);
+      return '<tr class="border-b border-gray-700">' +
+        '<td class="p-3 text-sm text-gray-300">' + (e.date||'') + '</td>' +
+        '<td class="p-3 text-sm text-gray-300">' + (e.spvName||'') + '</td>' +
+        '<td class="p-3 text-sm text-blue-300">' + (e.type||'') + '</td>' +
+        '<td class="p-3 text-sm text-gray-400">' + (e.desc||'') + '</td>' +
+        '<td class="p-3 text-sm text-right text-cyan-400">$' + parseFloat(e.amount||0).toFixed(2) + '</td>' +
+        '<td class="p-3 text-center"><button onclick="spvDeleteEntry(\'' + e.id + '\')" class="text-xs text-red-400 hover:text-red-300">🗑</button></td>' +
+        '</tr>';
+    }).join('');
+    if (totalEl) totalEl.textContent = '$' + total.toFixed(2);
+  }
+
+  function spvDeleteEntry(id) {
+    if (!confirm('Delete this entry?')) return;
+    var d = spvLoad();
+    d.entries = d.entries.filter(function(e) { return e.id !== id; });
+    spvSave();
+    spvRenderLedger();
+  }
+
+  function spvFilterEntries() { var f = document.getElementById('spvFilterBar'); if (f) f.classList.toggle('hidden'); }
+  function spvResetFilter() { document.getElementById('spvFilterText').value = ''; document.getElementById('spvFilterType').value = ''; spvRenderLedger(); var f = document.getElementById('spvFilterBar'); if (f) f.classList.add('hidden'); }
+  function spvApplyFilter() { spvRenderLedger({ text: document.getElementById('spvFilterText').value, type: document.getElementById('spvFilterType').value }); }
+
+  function generateSPVTrialBalance() {
+    var d = spvLoad(); var out = document.getElementById('spvTrialBalanceOutput'); var tbody = document.getElementById('spvTrialBalanceBody'); var tfoot = document.getElementById('spvTrialBalanceFoot');
+    if (!out || !tbody) return;
+    var bySpv = {};
+    d.entries.forEach(function(e) {
+      var n = e.spvName || 'Unknown'; if (!bySpv[n]) bySpv[n] = { inflow: 0, outflow: 0 };
+      var inTypes = ['Capital Contribution','Income','Asset Acquisition'];
+      if (inTypes.indexOf(e.type) >= 0) bySpv[n].inflow += parseFloat(e.amount||0);
+      else bySpv[n].outflow += parseFloat(e.amount||0);
+    });
+    var totalIn = 0, totalOut = 0;
+    tbody.innerHTML = Object.keys(bySpv).map(function(name) {
+      totalIn += bySpv[name].inflow; totalOut += bySpv[name].outflow;
+      var net = bySpv[name].inflow - bySpv[name].outflow;
+      return '<tr class="border-b border-gray-700"><td class="p-2 text-gray-300">' + name + '</td><td class="p-2 text-right text-green-400">$' + bySpv[name].inflow.toFixed(2) + '</td><td class="p-2 text-right text-red-400">$' + bySpv[name].outflow.toFixed(2) + '</td><td class="p-2 text-right ' + (net>=0?'text-cyan-400':'text-red-400') + '">$' + net.toFixed(2) + '</td></tr>';
+    }).join('') || '<tr><td colspan="4" class="p-2 text-gray-400 text-center">No entries.</td></tr>';
+    var totalNet = totalIn - totalOut;
+    tfoot.innerHTML = '<tr class="bg-gray-600 font-bold"><td class="p-2 text-white">TOTAL</td><td class="p-2 text-right text-green-400">$' + totalIn.toFixed(2) + '</td><td class="p-2 text-right text-red-400">$' + totalOut.toFixed(2) + '</td><td class="p-2 text-right ' + (totalNet>=0?'text-cyan-400':'text-red-400') + '">$' + totalNet.toFixed(2) + '</td></tr>';
+    out.classList.remove('hidden');
+  }
+
+  function generateSPVAssetSummary() {
+    var d = spvLoad(); var out = document.getElementById('spvAssetSummaryOutput'); var tbody = document.getElementById('spvAssetSummaryBody');
+    if (!out || !tbody) return;
+    var byType = {};
+    d.entries.forEach(function(e) { var t = e.type || 'Other'; if (!byType[t]) byType[t] = { count: 0, total: 0 }; byType[t].count++; byType[t].total += parseFloat(e.amount||0); });
+    tbody.innerHTML = Object.keys(byType).map(function(t) {
+      return '<tr class="border-b border-gray-700"><td class="p-2 text-gray-300">' + t + '</td><td class="p-2 text-right text-gray-400">' + byType[t].count + '</td><td class="p-2 text-right text-amber-400">$' + byType[t].total.toFixed(2) + '</td></tr>';
+    }).join('') || '<tr><td colspan="3" class="p-2 text-gray-400 text-center">No entries.</td></tr>';
+    out.classList.remove('hidden');
+  }
+
+  function spvUpdateReports() { generateSPVTrialBalance(); generateSPVAssetSummary(); }
+
+  function spvExportCSV() {
+    var d = spvLoad();
+    var headers = ['Date','SPV Name','Type','Description','Amount'];
+    var rows = d.entries.map(function(e) { return [e.date, e.spvName, e.type, e.desc, e.amount].join(','); });
+    var csv = [headers.join(',')].concat(rows).join('\n');
+    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'})); a.download = 'TMAR_SPV_' + new Date().toISOString().split('T')[0] + '.csv'; a.click();
+  }
+  function spvExportJSON() {
+    var d = spvLoad();
+    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 2)], {type:'application/json'})); a.download = 'TMAR_SPV_' + new Date().toISOString().split('T')[0] + '.json'; a.click();
+  }
+  function spvPrintReport() { window.print(); }
+
+  // ════════════════════════════════════════════════════════════════════
+  // UK ACCOUNTING MODULE (FRS 102 / IFRS)
+  // ════════════════════════════════════════════════════════════════════
+  function ukLoadSettings() {
+    try {
+      var s = JSON.parse(localStorage.getItem('TMAR_UK_Settings') || 'null') || {};
+      ['ukCompanyName','ukCompanyNumber','ukUTR','ukVAT','ukPeriodEnd'].forEach(function(id) { var el = document.getElementById(id); if (el && s[id]) el.value = s[id]; });
+      var std = document.getElementById('ukStandard'); if (std && s.ukStandard) std.value = s.ukStandard;
+      // Checklist
+      var chk = s.checklist || {};
+      for (var i = 1; i <= 8; i++) { var c = document.getElementById('ukChk' + i); if (c) c.checked = !!chk['ukChk' + i]; }
+    } catch(e) {}
+  }
+
+  function ukSaveSettings() {
+    var s = {};
+    ['ukCompanyName','ukCompanyNumber','ukUTR','ukVAT','ukPeriodEnd','ukStandard'].forEach(function(id) { var el = document.getElementById(id); if (el) s[id] = el.value; });
+    var existing = {};
+    try { existing = JSON.parse(localStorage.getItem('TMAR_UK_Settings') || '{}'); } catch(e) {}
+    Object.assign(existing, s);
+    localStorage.setItem('TMAR_UK_Settings', JSON.stringify(existing));
+    alert('UK settings saved.');
+  }
+
+  function ukSaveChecklist() {
+    var chk = {};
+    for (var i = 1; i <= 8; i++) { var c = document.getElementById('ukChk' + i); if (c) chk['ukChk' + i] = c.checked; }
+    var existing = {};
+    try { existing = JSON.parse(localStorage.getItem('TMAR_UK_Settings') || '{}'); } catch(e) {}
+    existing.checklist = chk;
+    localStorage.setItem('TMAR_UK_Settings', JSON.stringify(existing));
+    alert('Compliance checklist saved.');
+  }
+
+  function ukCheckAll()   { for (var i=1;i<=8;i++) { var c=document.getElementById('ukChk'+i); if(c) c.checked=true; } }
+  function ukUncheckAll() { for (var i=1;i<=8;i++) { var c=document.getElementById('ukChk'+i); if(c) c.checked=false; } }
+
+  function ukGenerateStatements() {
+    var out = document.getElementById('ukStatementsOutput');
+    var plBody = document.getElementById('ukPLBody'); var plFoot = document.getElementById('ukPLFoot');
+    var bsBody = document.getElementById('ukBSBody'); var bsFoot = document.getElementById('ukBSFoot');
+    if (!out || !plBody) return;
+    // Pull from main ledger appData
+    var data = {};
+    try { data = JSON.parse(localStorage.getItem('TMAR_AccrualLedger_Data') || '{}'); } catch(e) {}
+    var entries = data.entries || [];
+    var revenue = 0, expenses = 0, assets = 0, liabilities = 0, equity = 0;
+    entries.forEach(function(e) {
+      var amt = parseFloat(e.credit || e.debit || e.amount || 0);
+      var cat = (e.category || e.type || '').toLowerCase();
+      if (cat.includes('income') || cat.includes('revenue')) revenue += amt;
+      else if (cat.includes('expense') || cat.includes('cost')) expenses += amt;
+    });
+    // Pull from COA for balance sheet
+    var coa = data.accounts || [];
+    coa.forEach(function(a) { var b = parseFloat(a.balance || 0); var t = (a.type || '').toLowerCase(); if (t === 'asset') assets += b; else if (t === 'liability') liabilities += b; else if (t === 'equity') equity += b; });
+    var netIncome = revenue - expenses;
+    plBody.innerHTML = '<tr class="border-b border-gray-700"><td class="p-3 text-gray-300">Revenue / Turnover</td><td class="p-3 text-right text-green-400">£' + revenue.toFixed(2) + '</td></tr>' +
+      '<tr class="border-b border-gray-700"><td class="p-3 text-gray-300">Less: Expenses / Cost of Sales</td><td class="p-3 text-right text-red-400">(£' + expenses.toFixed(2) + ')</td></tr>';
+    plFoot.innerHTML = '<tr class="bg-gray-600 font-bold"><td class="p-3 text-white">Profit / (Loss) for the Period</td><td class="p-3 text-right ' + (netIncome>=0?'text-green-400':'text-red-400') + '">£' + netIncome.toFixed(2) + '</td></tr>';
+    bsBody.innerHTML = '<tr class="border-b border-gray-700"><td class="p-3 text-gray-300">Total Assets</td><td class="p-3 text-right text-blue-400">£' + assets.toFixed(2) + '</td></tr>' +
+      '<tr class="border-b border-gray-700"><td class="p-3 text-gray-300">Total Liabilities</td><td class="p-3 text-right text-red-400">(£' + liabilities.toFixed(2) + ')</td></tr>' +
+      '<tr class="border-b border-gray-700"><td class="p-3 text-gray-300">Equity / Capital &amp; Reserves</td><td class="p-3 text-right text-purple-400">£' + equity.toFixed(2) + '</td></tr>';
+    bsFoot.innerHTML = '<tr class="bg-gray-600 font-bold"><td class="p-3 text-white">Net Assets</td><td class="p-3 text-right text-cyan-400">£' + (assets - liabilities).toFixed(2) + '</td></tr>';
+    out.classList.remove('hidden');
+  }
+
+  function ukGenerateComplianceReport() {
+    var s = {}; try { s = JSON.parse(localStorage.getItem('TMAR_UK_Settings') || '{}'); } catch(e) {}
+    var chk = s.checklist || {};
+    var checked = 0; for (var i=1;i<=8;i++) { if (chk['ukChk'+i]) checked++; }
+    var std = s.ukStandard || 'frs102';
+    var stdNames = { frs102:'FRS 102 (UK GAAP)', frs105:'FRS 105 (Micro-entities)', ifrs:'IFRS', frs101:'FRS 101' };
+    var report = 'UK ACCOUNTING COMPLIANCE REPORT\n' + '='.repeat(40) + '\n' +
+      'Company: ' + (s.ukCompanyName || 'Not set') + '\n' +
+      'Companies House No: ' + (s.ukCompanyNumber || 'Not set') + '\n' +
+      'UTR: ' + (s.ukUTR || 'Not set') + '\n' +
+      'VAT No: ' + (s.ukVAT || 'Not set') + '\n' +
+      'Standard: ' + (stdNames[std] || std) + '\n' +
+      'Period End: ' + (s.ukPeriodEnd || 'Not set') + '\n' +
+      'Compliance Score: ' + checked + '/8 items completed\n' +
+      'Generated: ' + new Date().toLocaleDateString('en-GB') + '\n';
+    var el = document.getElementById('ukAgentOutput');
+    if (el) { el.textContent = report; el.classList.remove('hidden'); }
+  }
+
+  function ukPrintStatements() { window.print(); }
+
+  function ukAgentQuery() {
+    var q = document.getElementById('ukAgentInput'); var out = document.getElementById('ukAgentOutput');
+    if (!q || !q.value.trim()) return;
+    if (out) { out.textContent = 'Querying UK Accounting Agent...'; out.classList.remove('hidden'); }
+    var s = {}; try { s = JSON.parse(localStorage.getItem('TMAR_UK_Settings') || '{}'); } catch(e) {}
+    var stdNames = { frs102:'FRS 102 (UK GAAP)', frs105:'FRS 105', ifrs:'IFRS', frs101:'FRS 101' };
+    var systemPrompt = 'You are a UK Accounting Expert specialising in FRS 102, FRS 105, IFRS, HMRC tax law, Companies House requirements, and UK GAAP. ' +
+      'The user is operating under: ' + (stdNames[s.ukStandard] || 'FRS 102') + '. ' +
+      'Company: ' + (s.ukCompanyName || 'Unknown') + '. ' +
+      'Provide precise, authoritative answers citing FRS section numbers, HMRC references, or Companies Act 2006 provisions as appropriate. No disclaimers. Facts and conclusions only.';
+    if (typeof callLLMStream === 'function') {
+      callLLMStream(systemPrompt, q.value.trim(), [], function(token) {
+        if (token && out) { if (out.textContent === 'Querying UK Accounting Agent...') out.textContent = ''; out.textContent += token; }
+      }).then(function(full) { if (full && out && out.textContent === 'Querying UK Accounting Agent...') out.textContent = full; });
+    } else {
+      if (out) out.textContent = '[Error] LLM not initialised. Configure an API key in Settings.';
+    }
+  }
+
   // ── Init on load ─────────────────────────────────────
   window.addEventListener('DOMContentLoaded', function () {
     trustRenderLedger();
@@ -12188,6 +12847,9 @@
             <button onclick="settingsSetProvider('minimax')" class="llm-prov-btn" data-prov="minimax" style="padding:11px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:700;cursor:pointer;text-align:left">🔶 MiniMax</button>
             <button onclick="settingsSetProvider('ernie')" class="llm-prov-btn" data-prov="ernie" style="padding:11px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:700;cursor:pointer;text-align:left">🔴 Ernie / Baidu</button>
             <button onclick="settingsSetProvider('xai')" class="llm-prov-btn" data-prov="xai" style="padding:11px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:700;cursor:pointer;text-align:left">🌌 xAI (Grok)</button>
+            <button onclick="settingsSetProvider('groq')" class="llm-prov-btn" data-prov="groq" style="padding:11px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:700;cursor:pointer;text-align:left">⚡ Groq</button>
+            <button onclick="settingsSetProvider('cerebras')" class="llm-prov-btn" data-prov="cerebras" style="padding:11px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:700;cursor:pointer;text-align:left">🧠 Cerebras</button>
+            <button onclick="settingsSetProvider('openrouter')" class="llm-prov-btn" data-prov="openrouter" style="padding:11px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:700;cursor:pointer;text-align:left">🔀 OpenRouter</button>
             <button onclick="settingsSetProvider('custom')" class="llm-prov-btn" data-prov="custom" style="padding:11px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:700;cursor:pointer;text-align:left">🔧 Custom Provider</button>
           </div>
         </div>
@@ -12256,6 +12918,8 @@
             <span style="font-size:11px;color:#10b981;font-weight:700;letter-spacing:.3px">ACTIVE — Memory engine online. No key gate.</span>
           </div>
           <button onclick="(function(){if(confirm('Clear all agent memories?')){Object.keys(localStorage).filter(k=>k.startsWith('ap_conv_')).forEach(k=>localStorage.removeItem(k));alert('Memories cleared.')}})()" style="padding:5px 14px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.4);border-radius:5px;color:#f87171;font-size:11px;font-weight:600;cursor:pointer">🗑 Clear All Memories</button>
+          <button onclick="parityCheckNow()" style="padding:5px 14px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.4);border-radius:5px;color:#fbbf24;font-size:11px;font-weight:600;cursor:pointer;margin-left:8px">🔄 Check for Source Updates</button>
+          <span id="parityCheckStatus" style="font-size:11px;color:#6b7280;margin-left:8px"></span>
         </div>
 
         <!-- Provider keys section header -->
@@ -12293,6 +12957,18 @@
           <div>
             <label style="font-size:11px;color:#8a96b0;display:block;margin-bottom:5px;font-weight:600">xAI (Grok) <span id="kdXai" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px;vertical-align:middle"></span></label>
             <input type="password" id="stg-api-xai" placeholder="xai-..." oninput="settingsSaveKey('xai',this.value)" style="width:100%;padding:8px 12px;background:#0d1020;border:1px solid #3a4560;border-radius:6px;color:#e4ddd0;font-size:12px;box-sizing:border-box;outline:none">
+          </div>
+          <div>
+            <label style="font-size:11px;color:#8a96b0;display:block;margin-bottom:5px;font-weight:600">Groq <span style="font-size:9px;color:#22d3ee">(free tier)</span> <span id="kdGroq" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px;vertical-align:middle"></span></label>
+            <input type="password" id="stg-api-groq" placeholder="gsk_..." oninput="settingsSaveKey('groq',this.value)" style="width:100%;padding:8px 12px;background:#0d1020;border:1px solid #3a4560;border-radius:6px;color:#e4ddd0;font-size:12px;box-sizing:border-box;outline:none">
+          </div>
+          <div>
+            <label style="font-size:11px;color:#8a96b0;display:block;margin-bottom:5px;font-weight:600">Cerebras <span style="font-size:9px;color:#22d3ee">(free tier)</span> <span id="kdCerebras" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px;vertical-align:middle"></span></label>
+            <input type="password" id="stg-api-cerebras" placeholder="csk-..." oninput="settingsSaveKey('cerebras',this.value)" style="width:100%;padding:8px 12px;background:#0d1020;border:1px solid #3a4560;border-radius:6px;color:#e4ddd0;font-size:12px;box-sizing:border-box;outline:none">
+          </div>
+          <div>
+            <label style="font-size:11px;color:#8a96b0;display:block;margin-bottom:5px;font-weight:600">OpenRouter <span id="kdOpenrouter" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px;vertical-align:middle"></span></label>
+            <input type="password" id="stg-api-openrouter" placeholder="sk-or-..." oninput="settingsSaveKey('openrouter',this.value)" style="width:100%;padding:8px 12px;background:#0d1020;border:1px solid #3a4560;border-radius:6px;color:#e4ddd0;font-size:12px;box-sizing:border-box;outline:none">
           </div>
         </div>
 
@@ -34700,11 +35376,85 @@ var HARD_LOCK = Object.freeze({
 try { HARD_LOCK.enforced = false; } catch(e) {}
 if (HARD_LOCK.enforced !== true) throw new Error('HARD LOCK INTEGRITY VIOLATION');
 
+// ════════════════════════════════════════════════════════════════════════════
+// PARITY DRIFT NOTIFICATION SYSTEM
+// Fetches parity-fingerprint.json from the repo and shows a banner if the
+// upstream sources (redressright.me) have changed since last sync.
+// ════════════════════════════════════════════════════════════════════════════
+var PARITY_FINGERPRINT_URL = 'https://raw.githubusercontent.com/SlickVicious/TMAR-Accrual-Ledger/master/parity-fingerprint.json';
+
+function parityCheckOnLoad() {
+  var dismissed = localStorage.getItem('TMAR_parity_dismissed');
+  if (dismissed) {
+    var ts = parseInt(dismissed, 10);
+    if (Date.now() - ts < 86400000 * 3) return; // dismiss for 3 days
+  }
+  fetch(PARITY_FINGERPRINT_URL + '?_=' + Date.now())
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data && data.driftDetected) {
+        window._parityData = data;
+        var banner = document.getElementById('parityDriftBanner');
+        if (banner) banner.style.display = 'flex';
+      }
+    })
+    .catch(function() { /* silently ignore — offline or first deploy */ });
+}
+
+function parityCheckNow() {
+  var status = document.getElementById('parityCheckStatus');
+  if (status) status.textContent = 'Checking...';
+  fetch(PARITY_FINGERPRINT_URL + '?_=' + Date.now())
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      window._parityData = data;
+      if (data && data.driftDetected) {
+        var banner = document.getElementById('parityDriftBanner');
+        if (banner) banner.style.display = 'flex';
+        if (status) status.textContent = '⚠️ Drift detected — see banner above.';
+        localStorage.removeItem('TMAR_parity_dismissed');
+      } else {
+        var checked = data && data.lastChecked ? new Date(data.lastChecked).toLocaleDateString() : 'N/A';
+        if (status) status.textContent = '✅ Up to date as of ' + checked;
+      }
+    })
+    .catch(function() {
+      if (status) status.textContent = '❌ Could not reach fingerprint file.';
+    });
+}
+
+function parityShowDetails() {
+  var data = window._parityData || {};
+  var summary = data.driftSummary || 'No detail available.';
+  var agent = (data.sources && data.sources['Agent.html']) || {};
+  var gaap  = (data.sources && data.sources['GAAP.html'])  || {};
+  var msg = '📋 PARITY DRIFT DETAILS\n\n' +
+    'Last Checked: ' + (data.lastChecked || 'Unknown') + '\n' +
+    'Agent.html tabs: ' + (agent.tabCount || '?') + ' | Hash: ' + (agent.hash || '?').substring(0, 12) + '...\n' +
+    'GAAP.html tabs:  ' + (gaap.tabCount  || '?') + ' | Hash: ' + (gaap.hash  || '?').substring(0, 12) + '...\n\n' +
+    'Summary:\n' + summary + '\n\n' +
+    'Visit https://redressright.me/Agent.html and https://redressright.me/GAAP.html to review changes.';
+  alert(msg);
+}
+
+function parityDismissBanner() {
+  var banner = document.getElementById('parityDriftBanner');
+  if (banner) banner.style.display = 'none';
+  localStorage.setItem('TMAR_parity_dismissed', Date.now().toString());
+}
+
+// Run parity check on page load (non-blocking)
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', function() { setTimeout(parityCheckOnLoad, 3000); });
+} else {
+  setTimeout(parityCheckOnLoad, 3000);
+}
+
 // ── Token Budget Guard ────────────────────────────────────────────────────
 var PROVIDER_LIMITS = {
   ollama:9999999, anthropic:200000, claude:200000, openai:128000, openrouter:200000,
   deepseek:64000, groq:32768, mistral:32000, zai:128000, kimi:128000,
-  minimax:128000, ernie:8000, xai:131072, custom:128000
+  minimax:128000, ernie:8000, xai:131072, cerebras:8192, custom:128000
 };
 function estimateTokens(text) { return text ? Math.ceil(text.length / 3.8) : 0; }
 function truncateToTokenBudget(userMessage, systemTokens) {
@@ -34734,13 +35484,17 @@ function resolveProvider() {
     minimax:   { name:'MiniMax',   auth:'bearer',    url:'https://api.minimax.chat/v1/text/chatcompletion_v2',                                            model:'abab6.5s-chat' },
     ernie:     { name:'Ernie',     auth:'ernie',     url:'https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant',                 model:'eb-instant' },
     xai:       { name:'xAI',       auth:'bearer',    url:'https://api.x.ai/v1/chat/completions',                                                          model:'grok-3-mini-beta' },
+    groq:      { name:'Groq',      auth:'bearer',    url:'https://api.groq.com/openai/v1/chat/completions',                                               model:'llama-3.3-70b-versatile' },
+    cerebras:  { name:'Cerebras',  auth:'bearer',    url:'https://api.cerebras.ai/v1/chat/completions',                                                   model:'llama-3.3-70b' },
+    openrouter:{ name:'OpenRouter',auth:'bearer',    url:'https://openrouter.ai/api/v1/chat/completions',                                                  model:'openai/gpt-4o-mini' },
     ollama:    { name:'Ollama',    auth:'ollama',    url:'',                                                                                               model:'' },
     custom:    { name:'Custom',    auth:'bearer',    url:'',                                                                                               model:'' }
   };
   var keyMap = {
     openai:'eeon_key_openai', anthropic:'eeon_key_claude', claude:'eeon_key_claude',
     deepseek:'eeon_key_deepseek', zai:'eeon_key_zai', kimi:'eeon_key_kimi',
-    minimax:'eeon_key_minimax', ernie:'eeon_key_ernie', xai:'eeon_key_xai'
+    minimax:'eeon_key_minimax', ernie:'eeon_key_ernie', xai:'eeon_key_xai',
+    groq:'eeon_key_groq', cerebras:'eeon_key_cerebras', openrouter:'eeon_key_openrouter'
   };
   var p = PROVIDERS[pid] || PROVIDERS['claude'];
   var key = keyMap[pid] ? (localStorage.getItem(keyMap[pid]) || '') : '';
@@ -37334,7 +38088,7 @@ function settingsSaveKey(provider, value) {
 }
 
 function settingsLoadKeys() {
-  ['claude','openai','deepseek','zai','kimi','xai','telegram','discord'].forEach(function(k) {
+  ['claude','openai','deepseek','zai','kimi','minimax','ernie','xai','groq','cerebras','openrouter','telegram','discord'].forEach(function(k) {
     var stored = localStorage.getItem('stg_key_' + k) || localStorage.getItem('api_key_' + k);
     var el = document.getElementById('stg-api-' + k);
     if (el && stored) el.value = stored;

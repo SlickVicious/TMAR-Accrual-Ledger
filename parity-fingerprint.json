@@ -1,0 +1,21 @@
+{
+  "lastChecked": "2026-04-04T08:00:00Z",
+  "driftDetected": false,
+  "sources": {
+    "Agent.html": {
+      "hash": "gaapclaw-v3.0-sypher-v7.1-tabs41",
+      "tabCount": 41,
+      "version": "v3.0",
+      "protocol": "SYPHER v7.1",
+      "checkedAt": "2026-04-04T08:00:00Z"
+    },
+    "GAAP.html": {
+      "hash": "gaapclaw-v3.0-sypher-v7.1-tabs41",
+      "tabCount": 41,
+      "version": "v3.0",
+      "protocol": "SYPHER v7.1",
+      "checkedAt": "2026-04-04T08:00:00Z"
+    }
+  },
+  "driftSummary": ""
+}
