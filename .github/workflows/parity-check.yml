@@ -46,12 +46,18 @@ jobs:
           GAAP_HASH=$(sha256sum /tmp/gaap_tabs.txt | cut -d' ' -f1)
 
           # Count navigation tabs
-          AGENT_TABS=$(grep -c 'tab-btn\|goEonPage\|switchMainTab' /tmp/Agent.html || echo 0)
-          GAAP_TABS=$(grep  -c 'tab-btn\|goEonPage\|switchMainTab' /tmp/GAAP.html  || echo 0)
+          # grep -c exits 1 on zero matches (outputs "0" but non-zero exit);
+          # using assignment-level fallback avoids the double-output bug from "|| echo 0"
+          AGENT_TABS=$(grep -c 'tab-btn\|goEonPage\|switchMainTab' /tmp/Agent.html 2>/dev/null) || AGENT_TABS=0
+          GAAP_TABS=$(grep  -c 'tab-btn\|goEonPage\|switchMainTab' /tmp/GAAP.html  2>/dev/null) || GAAP_TABS=0
 
           # Extract version string
-          AGENT_VER=$(grep -o 'GAAPCLAW v[0-9.]*\|v[0-9]\.[0-9]' /tmp/Agent.html | head -1 || echo "unknown")
-          GAAP_VER=$(grep  -o 'GAAPCLAW v[0-9.]*\|v[0-9]\.[0-9]' /tmp/GAAP.html  | head -1 || echo "unknown")
+          # head -1 on empty input exits 0, so the "|| echo unknown" would never fire;
+          # use a conditional assignment instead
+          AGENT_VER=$(grep -o 'GAAPCLAW v[0-9.]*\|v[0-9]\.[0-9]' /tmp/Agent.html 2>/dev/null | head -1)
+          GAAP_VER=$(grep  -o 'GAAPCLAW v[0-9.]*\|v[0-9]\.[0-9]' /tmp/GAAP.html  2>/dev/null | head -1)
+          AGENT_VER=${AGENT_VER:-unknown}
+          GAAP_VER=${GAAP_VER:-unknown}
 
           echo "AGENT_HASH=$AGENT_HASH"  >> $GITHUB_ENV
           echo "GAAP_HASH=$GAAP_HASH"   >> $GITHUB_ENV
