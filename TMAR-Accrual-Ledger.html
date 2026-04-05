@@ -14687,9 +14687,9 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     input.value = '';
 
     try {
-      var apiKey = window._trustApiKey || '';
+      var apiKey = window._trustApiKey || localStorage.getItem('stg_key_claude') || localStorage.getItem('tmar_claude_key') || localStorage.getItem('_trustApiKey') || '';
       if (!apiKey) {
-        throw new Error('api_key missing — set window._trustApiKey in console');
+        throw new Error('api_key missing — enter your Anthropic key in Settings → API Keys');
       }
       var response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
@@ -19284,9 +19284,9 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     addChatMsg('user', q);
     input.value = '';
     // Send to Trust Accounting Agent API
-    var vcApiKey = window._trustApiKey || '';
+    var vcApiKey = window._trustApiKey || localStorage.getItem('stg_key_claude') || localStorage.getItem('tmar_claude_key') || localStorage.getItem('_trustApiKey') || '';
     if (!vcApiKey) {
-      addChatMsg('system','API key required. Open browser console and run: window._trustApiKey = "your-anthropic-key"');
+      addChatMsg('system','API key required. Enter your Anthropic key in Settings → API Keys, then Save.');
       return;
     }
     addChatMsg('agent','Processing query via Trust Accounting Agent...');
@@ -38858,79 +38858,115 @@ async function askAgent(agentId, question) {
 
 // Save all API keys to localStorage
 function saveKeys() {
-  console.log('💾 Saving API keys...');
-
   try {
-    // Map of field IDs to localStorage keys
-    var keyMappings = {
-      'keyOpenai': 'eeon_key_openai',
-      'keyDeepseek': 'eeon_key_deepseek',
-      'keyZai': 'eeon_key_zai',
-      'keyKimi': 'eeon_key_kimi',
-      'keyClaude': 'eeon_key_claude',
-      'keyMinimax': 'eeon_key_minimax',
-      'keyErnie': 'eeon_key_ernie',
-      'keyXai': 'eeon_key_xai',
-      'keyOllamaUrl': 'eeon_ollama_url',
-      'keyOllamaModel': 'eeon_ollama_model',
-      'keyOllamaModelCustom': 'eeon_ollama_model_custom',
-      'keyOllamaApiKey': 'eeon_ollama_api_key',
-      'keyOllamaWebSearch': 'eeon_ollama_web_search',
-      'keyCustomName': 'eeon_custom_name',
-      'keyCustomUrl': 'eeon_custom_url',
-      'keyCustom': 'eeon_key_custom',
-      'keyCustomModel': 'eeon_custom_model',
-      'keyTelegram': 'eeon_key_telegram',
-      'keyDiscord': 'eeon_key_discord',
-      'keyCorsProxy': 'eeon_cors_proxy',
-      'setActiveProvider': 'eeon_active_provider'
-    };
-
+    var providers = ['claude','openai','deepseek','zai','kimi','minimax','ernie','xai','groq','cerebras','openrouter','telegram','discord','tavily','firecrawl','mem0'];
     var savedCount = 0;
-
-    // Save each key
-    for (var fieldId in keyMappings) {
-      var elem = document.getElementById(fieldId);
-      if (elem) {
-        var value = '';
-        if (elem.type === 'checkbox') {
-          value = elem.checked ? 'true' : 'false';
-        } else {
-          value = elem.value || '';
+    providers.forEach(function(k) {
+      var el = document.getElementById('stg-api-' + k);
+      if (el && el.value.trim()) {
+        var v = el.value.trim();
+        localStorage.setItem('stg_key_' + k, v);
+        localStorage.setItem('eeon_key_' + k, v);
+        if (k === 'claude') {
+          window._trustApiKey = v;
+          localStorage.setItem('tmar_claude_key', v);
+          localStorage.setItem('_trustApiKey', v);
         }
-        localStorage.setItem(keyMappings[fieldId], value);
-        if (value && value !== 'false') savedCount++;
+        savedCount++;
       }
-    }
-
-    // Sync Claude key with legacy _trustApiKey
-    var claudeKey = document.getElementById('keyClaude');
-    if (claudeKey && claudeKey.value) {
-      window._trustApiKey = claudeKey.value;
-      localStorage.setItem('_trustApiKey', claudeKey.value);
-    }
-
-    // Update key-dot indicators
+    });
     updateKeyDots();
-
-    // Show success message
     var statusSpan = document.getElementById('keyStatus');
     if (statusSpan) {
-      statusSpan.innerHTML = '<span style="color:#22c55e">✓ Saved ' + savedCount + ' keys successfully</span>';
-      setTimeout(function() {
-        statusSpan.innerHTML = '';
-      }, 3000);
+      statusSpan.innerHTML = '<span style="color:#22c55e">✓ Saved ' + savedCount + ' key' + (savedCount !== 1 ? 's' : '') + '</span>';
+      setTimeout(function() { statusSpan.innerHTML = ''; }, 3000);
     }
-
-    console.log('✅ Saved', savedCount, 'API keys');
-
   } catch (err) {
-    console.error('❌ Error saving keys:', err);
     var statusSpan = document.getElementById('keyStatus');
-    if (statusSpan) {
-      statusSpan.innerHTML = '<span style="color:#ef4444">⚠ Error: ' + err.message + '</span>';
-    }
+    if (statusSpan) statusSpan.innerHTML = '<span style="color:#ef4444">⚠ Error: ' + err.message + '</span>';
   }
+}
+
+// API Scout — curated free/freemium API directory by category
+function discoverFreeAPIs(category) {
+  var catalog = {
+    Legal: [
+      { name: 'CourtListener (Free Law Project)', url: 'https://www.courtlistener.com/api/', desc: 'Full-text search of US case law, PACER filings, oral arguments', free: true },
+      { name: 'US Courts PACER API', url: 'https://pacer.uscourts.gov/help/filing/api', desc: 'Federal court dockets and documents', free: false },
+      { name: 'Congress.gov API', url: 'https://api.congress.gov/', desc: 'Bills, amendments, Congressional Record, members', free: true },
+      { name: 'Caselaw Access Project (CAP)', url: 'https://case.law/api/', desc: '6.7M US court decisions 1600s–2020', free: true },
+      { name: 'OpenStates API', url: 'https://openstates.org/api/v3/', desc: 'State legislature bills, votes, legislators', free: true },
+      { name: 'USPTO Patent API', url: 'https://developer.uspto.gov/', desc: 'Patent and trademark filings, TSDR status', free: true },
+      { name: 'IRS IRIS e-File API', url: 'https://iris.irs.gov/', desc: '1099-series direct IRS filing — no fees', free: true },
+      { name: 'CFPB Consumer Complaint API', url: 'https://www.consumerfinance.gov/data-research/consumer-complaints/', desc: 'Financial institution complaints database', free: true }
+    ],
+    Finance: [
+      { name: 'SEC EDGAR Full-Text Search', url: 'https://efts.sec.gov/LATEST/search-index?q=', desc: '10-K, 10-Q, 8-K filings, XBRL financial data', free: true },
+      { name: 'FRED (Federal Reserve)', url: 'https://fred.stlouisfed.org/docs/api/fred/', desc: '500K+ US economic time series from Federal Reserve', free: true },
+      { name: 'US Treasury FiscalData', url: 'https://fiscaldata.treasury.gov/api-documentation/', desc: 'National debt, T-bill rates, federal spending', free: true },
+      { name: 'Open Exchange Rates', url: 'https://openexchangerates.org/api/', desc: 'Currency exchange rates (1K req/month free)', free: true },
+      { name: 'Alpha Vantage', url: 'https://www.alphavantage.co/documentation/', desc: 'Stock quotes, forex, crypto (500 req/day free)', free: true },
+      { name: 'IEX Cloud (Apperate)', url: 'https://iexcloud.io/docs/', desc: 'Equities, earnings, fundamentals, news', free: false },
+      { name: 'CFTC Swaps/Derivatives', url: 'https://publicreporting.dtcc.com/api/', desc: 'Swap transaction reporting data', free: true },
+      { name: 'World Bank Data API', url: 'https://datahelpdesk.worldbank.org/knowledgebase/articles/898581', desc: 'GDP, inflation, poverty, development indicators', free: true }
+    ],
+    Government: [
+      { name: 'data.gov Catalog API', url: 'https://catalog.data.gov/api/3/', desc: '300K+ federal dataset catalog (CKAN API)', free: true },
+      { name: 'BLS Public Data API', url: 'https://www.bls.gov/developers/', desc: 'CPI, unemployment, wages, employment stats', free: true },
+      { name: 'Census Bureau API', url: 'https://www.census.gov/data/developers/', desc: 'ACS, decennial census, business patterns', free: true },
+      { name: 'GSA eLibrary / SAM.gov', url: 'https://open.gsa.gov/api/', desc: 'Federal contractors, grants, procurement opportunities', free: true },
+      { name: 'USASpending.gov API', url: 'https://api.usaspending.gov/', desc: 'Federal awards, contracts, grants by agency', free: true },
+      { name: 'IRS Tax Stats', url: 'https://www.irs.gov/statistics', desc: 'SOI tax stats, SOI microdata, filing population data', free: true },
+      { name: 'Social Security Open Data', url: 'https://www.ssa.gov/developer/', desc: 'Benefit statistics, program data, actuarial tables', free: true },
+      { name: 'FOIA.gov API', url: 'https://api.foia.gov/docs/', desc: 'Submit and track FOIA requests across agencies', free: true }
+    ],
+    Business: [
+      { name: 'OpenCorporates API', url: 'https://api.opencorporates.com/', desc: '140M companies worldwide — UCC, agent, officers', free: true },
+      { name: 'EDGAR Company Search', url: 'https://efts.sec.gov/LATEST/search-index?q=&dateRange=custom', desc: 'SEC-registered entities, CIK lookup', free: true },
+      { name: 'SBA SBSS / SBIC Data', url: 'https://www.sba.gov/about-sba/sba-performance/open-government/digital-sba/open-data/', desc: 'Small business loan and investment data', free: true },
+      { name: 'FinCEN BSA API', url: 'https://www.fincen.gov/resources/bsa-efiling-system', desc: 'FinCEN beneficial ownership & BSA filings', free: true },
+      { name: 'Clearbit Enrichment (freemium)', url: 'https://dashboard.clearbit.com/', desc: 'Company data, domain → company lookup', free: false },
+      { name: 'Hunter.io Email Finder (freemium)', url: 'https://hunter.io/api-documentation/', desc: 'Domain email discovery, 25 req/month free', free: true },
+      { name: 'UCC Lien Search (state APIs)', url: 'https://www.iaca.org/', desc: 'UCC-1 lien searches — most states have REST endpoints', free: true },
+      { name: 'D&B Direct (Dun & Bradstreet)', url: 'https://directplus.documentation.dnb.com/', desc: 'DUNS number lookup, business credit', free: false }
+    ],
+    Documents: [
+      { name: 'IRS Forms & Publications API', url: 'https://apps.irs.gov/app/picklist/list/formsPublications.html', desc: 'Current PDF forms, instructions, publications', free: true },
+      { name: 'GPO Federal Register API', url: 'https://www.federalregister.gov/api/v1/', desc: 'Daily Federal Register rules, proposed rules, notices', free: true },
+      { name: 'PACER Document Retrieval', url: 'https://pacer.uscourts.gov/help/billing/how-do-i-access-pacer', desc: 'Federal court documents ($0.10/page, fee exemptions avail.)', free: false },
+      { name: 'IRS FIRE System (1099 e-file)', url: 'https://fire.irs.gov/', desc: 'Bulk 1099/W-2 info return filing', free: true },
+      { name: 'DocuSeal (open source)', url: 'https://www.docuseal.co/docs/api', desc: 'PDF form filling, e-signature, template API — self-hostable', free: true },
+      { name: 'PDF.co API (freemium)', url: 'https://developer.pdf.co/api/', desc: 'PDF extract, merge, fill, convert — 100 credits/day free', free: true },
+      { name: 'Docparser (freemium)', url: 'https://docparser.com/api/', desc: 'Extract structured data from PDF documents', free: false },
+      { name: 'GPO CFR (Code of Federal Regs)', url: 'https://www.ecfr.gov/api/versioner/v1/', desc: 'Current eCFR content by title, part, section', free: true }
+    ]
+  };
+
+  var apis = catalog[category] || [];
+  var div = document.getElementById('ocResults');
+  if (!div) return;
+
+  if (!apis.length) {
+    div.innerHTML = '<span style="color:#8a96b0">No APIs found for category: ' + category + '</span>';
+    return;
+  }
+
+  var html = '<div style="font-weight:700;color:#e8a020;margin-bottom:8px;font-size:12px">' + category + ' APIs (' + apis.length + ' sources)</div>';
+  html += '<div style="display:grid;gap:6px">';
+  apis.forEach(function(api) {
+    var badge = api.free
+      ? '<span style="background:rgba(34,197,94,.15);color:#22c55e;border:1px solid rgba(34,197,94,.3);border-radius:3px;padding:1px 5px;font-size:9px;font-weight:700">FREE</span>'
+      : '<span style="background:rgba(245,158,11,.1);color:#f59e0b;border:1px solid rgba(245,158,11,.3);border-radius:3px;padding:1px 5px;font-size:9px;font-weight:700">FREEMIUM</span>';
+    html += '<div style="padding:7px 9px;background:rgba(255,255,255,.04);border:1px solid rgba(232,160,32,.2);border-radius:6px">';
+    html += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">';
+    html += badge;
+    html += '<a href="' + api.url + '" target="_blank" style="color:#e8a020;font-weight:700;font-size:11px;text-decoration:none">' + api.name + ' ↗</a>';
+    html += '</div>';
+    html += '<div style="font-size:10px;color:#8a96b0;line-height:1.4">' + api.desc + '</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+  div.innerHTML = html;
 }
 
 // Update key-dot indicators (green = key exists)
@@ -39108,15 +39144,21 @@ function loadSavedKeys() {
     }
   }
 
-  // Sync legacy _trustApiKey
-  var legacyKey = localStorage.getItem('_trustApiKey');
+  // Sync _trustApiKey — check all storage locations so page-reload never loses the key
+  var legacyKey = localStorage.getItem('stg_key_claude') ||
+                  localStorage.getItem('tmar_claude_key') ||
+                  localStorage.getItem('_trustApiKey') ||
+                  localStorage.getItem('eeon_key_claude') || '';
   if (legacyKey) {
     window._trustApiKey = legacyKey;
-    var claudeInput = document.getElementById('keyClaude');
-    if (claudeInput && !claudeInput.value) {
-      claudeInput.value = legacyKey;
-      localStorage.setItem('eeon_key_claude', legacyKey);
-    }
+    // Populate the stg-api-claude input if it exists and is empty
+    var stgClaudeInput = document.getElementById('stg-api-claude');
+    if (stgClaudeInput && !stgClaudeInput.value) stgClaudeInput.value = legacyKey;
+    // Keep all storage keys in sync
+    localStorage.setItem('stg_key_claude', legacyKey);
+    localStorage.setItem('eeon_key_claude', legacyKey);
+    localStorage.setItem('tmar_claude_key', legacyKey);
+    localStorage.setItem('_trustApiKey', legacyKey);
   }
 
   // Populate provider dropdown
@@ -40018,9 +40060,9 @@ function pdkbSelectAll(elementId) {
 }
 function pdkbCallAnthropic(prompt, options) {
   options = options || {};
-  var apiKey = window._trustApiKey || '';
+  var apiKey = window._trustApiKey || localStorage.getItem('stg_key_claude') || localStorage.getItem('tmar_claude_key') || localStorage.getItem('_trustApiKey') || '';
   if (!apiKey) {
-    return Promise.resolve({ success: false, error: { type: 'no_api_key', message: 'API key not set. Set window._trustApiKey or use Settings > API Keys.' } });
+    return Promise.resolve({ success: false, error: { type: 'no_api_key', message: 'API key not set. Enter your Anthropic key in Settings → API Keys.' } });
   }
   var model = options.model || 'claude-sonnet-4-20250514';
   var maxTokens = options.maxTokens || 12000;
@@ -40139,8 +40181,8 @@ async function ttTransform() {
   var input = document.getElementById('tt-input').value;
   var sourceUrl = document.getElementById('tt-source-url').value;
   if (!input.trim()) return alert('Paste a transcript first');
-  var apiKey = window._trustApiKey || '';
-  if (!apiKey) return alert('API key required. Set via Settings or run: window._trustApiKey = "your-key"');
+  var apiKey = window._trustApiKey || localStorage.getItem('stg_key_claude') || localStorage.getItem('tmar_claude_key') || localStorage.getItem('_trustApiKey') || '';
+  if (!apiKey) return alert('API key required. Enter your Anthropic key in Settings → API Keys, then Save.');
 
   var btn = document.getElementById('tt-transform-btn');
   btn.disabled = true; btn.textContent = '⏳ Processing...';
@@ -40285,8 +40327,8 @@ function etymBuildPrompt(content, dictionaries, chainDepth) {
 async function etymAnalyze() {
   var input = document.getElementById('etym-input').value;
   if (!input.trim()) return alert('Enter legal terms to analyze');
-  var apiKey = window._trustApiKey || '';
-  if (!apiKey) return alert('API key required. Set via Settings or run: window._trustApiKey = "your-key"');
+  var apiKey = window._trustApiKey || localStorage.getItem('stg_key_claude') || localStorage.getItem('tmar_claude_key') || localStorage.getItem('_trustApiKey') || '';
+  if (!apiKey) return alert('API key required. Enter your Anthropic key in Settings → API Keys, then Save.');
 
   var btn = document.getElementById('etym-analyze-btn');
   btn.disabled = true; btn.textContent = '⏳ Analyzing...';
@@ -41211,6 +41253,9 @@ function settingsLoadKeys() {
     var el = document.getElementById('stg-api-' + k) || document.getElementById('key' + k.charAt(0).toUpperCase() + k.slice(1));
     if (el && stored) el.value = stored;
   });
+  // Restore window._trustApiKey from localStorage so page-reload doesn't break Transcript Transformer etc.
+  var ck = localStorage.getItem('stg_key_claude') || localStorage.getItem('tmar_claude_key') || localStorage.getItem('_trustApiKey');
+  if (ck) window._trustApiKey = ck;
   // Also load OpenClaw-specific inputs
   ['oc-tavily-key','oc-firecrawl-key','oc-apify-token'].forEach(function(id) {
     var key = id === 'oc-tavily-key' ? 'stg_key_tavily' : id === 'oc-firecrawl-key' ? 'stg_key_firecrawl' : 'stg_key_apify';
