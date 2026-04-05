@@ -145,6 +145,17 @@ npx http-server -p 8080 -o
 
 ---
 
+## 🆕 What's New in v3.5
+
+| Feature | Details |
+|---|---|
+| **14 New EON Chat Agents** | Added 14 legal-specialty firm agents to the Chat firm selector, Agents grid, and sidebar — matching Agent.html parity at 25 total agents. |
+| **LEGAL FIRMS sidebar section** | New sidebar group with 13 dedicated AP-style pages: Document Creation, Legal Analyst, Document Format, Writs Writing, Amicus Brief, Dream Team Appeal, Presumption Killer, Fact & Conclusion of Law, Jurisdictional Challenge, Constitutional Sovereignty, Strategic Brainstorm, Trial Preparation, Biblical Scholar. |
+| **Ledger & Accounting Expert chip** | Chat firm chip added for `ledger` — routes to existing `accounting` page/prompt. |
+| **25 active agents** | Dashboard Active Agents stat updated from 10 → 25. |
+
+---
+
 ## 🆕 What's New in v3.4
 
 | Feature | Details |
@@ -391,6 +402,15 @@ When the weekly Actions run or `gh workflow run parity-check.yml` opens a drift 
 ---
 
 ## 📈 Version History
+
+### v3.5 (April 5, 2026) — 14 New EON Legal Firm Agents (25 Total)
+
+- ✅ **14 new Chat firm chips** — Document Creation, Legal Analyst, Document Format, Writs Writing, Amicus Brief, Dream Team Appeal, Presumption Killer, Fact & Conclusion of Law, Jurisdictional Challenge, Constitutional Sovereignty, Strategic Brainstorm, Trial Preparation, Biblical Scholar, Ledger & Accounting Expert
+- ✅ **13 new AP-style agent pages** — full conversation history, Speak/Listen/Print/PDF/Word/Share, color-matched UI per agent
+- ✅ **LEGAL FIRMS sidebar section** — 13 new sidebar nav buttons
+- ✅ **25 agent cards** in Agents grid (`renderAgents()`)
+- ✅ **System prompts** — SYPHER/EEON methodology applied to all 13 new agents
+- ✅ **Dashboard** — Active Agents stat updated to 25
 
 ### v3.4 (April 4, 2026) — GAAPCLAW Master Agent + OpenClaw + Model Updates + Doc Workflow
 

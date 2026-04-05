@@ -33559,6 +33559,21 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <button class="side-btn" onclick="goEonPage(this,'taxestimator')" style="border-left:3px solid #f87171"><i class="fas fa-calculator" style="width:18px;color:#f87171"></i> Tax Estimator</button>
   <button class="side-btn" onclick="goEonPage(this,'arbitration')"><i class="fas fa-scale-balanced" style="width:18px"></i> Arbitration</button>
 
+  <div class="sidebar-title">LEGAL FIRMS</div>
+  <button class="side-btn" onclick="goEonPage(this,'doc_creation')"><i class="fas fa-file-pen" style="width:18px"></i> Document Creation</button>
+  <button class="side-btn" onclick="goEonPage(this,'legal_analyst')"><i class="fas fa-magnifying-glass" style="width:18px"></i> Legal Analyst</button>
+  <button class="side-btn" onclick="goEonPage(this,'doc_format')"><i class="fas fa-file-lines" style="width:18px"></i> Document Format</button>
+  <button class="side-btn" onclick="goEonPage(this,'writs_writing')"><i class="fas fa-scroll" style="width:18px"></i> Writs Writing</button>
+  <button class="side-btn" onclick="goEonPage(this,'amicus_brief')"><i class="fas fa-file-contract" style="width:18px"></i> Amicus Brief</button>
+  <button class="side-btn" onclick="goEonPage(this,'dt_appeal')"><i class="fas fa-landmark" style="width:18px"></i> Dream Team Appeal</button>
+  <button class="side-btn" onclick="goEonPage(this,'presumption_killer')"><i class="fas fa-skull" style="width:18px"></i> Presumption Killer</button>
+  <button class="side-btn" onclick="goEonPage(this,'fact_conclusion')"><i class="fas fa-scale-balanced" style="width:18px"></i> Fact &amp; Conclusion</button>
+  <button class="side-btn" onclick="goEonPage(this,'jurisdictional')"><i class="fas fa-gavel" style="width:18px"></i> Jurisdictional Challenge</button>
+  <button class="side-btn" onclick="goEonPage(this,'const_sovereignty')"><i class="fas fa-flag" style="width:18px"></i> Constitutional Sovereignty</button>
+  <button class="side-btn" onclick="goEonPage(this,'brainstorm')"><i class="fas fa-brain" style="width:18px"></i> Strategic Brainstorm</button>
+  <button class="side-btn" onclick="goEonPage(this,'trial_prep')"><i class="fas fa-gavel" style="width:18px"></i> Trial Preparation</button>
+  <button class="side-btn" onclick="goEonPage(this,'biblical')"><i class="fas fa-book-bible" style="width:18px"></i> Biblical Scholar</button>
+
   <div class="sidebar-title">TOOLS</div>
   <button class="side-btn" onclick="goEonPage(this,'research')"><i class="fas fa-microscope" style="width:18px"></i> Research HUB</button>
   <button class="side-btn" onclick="goEonPage(this,'search')"><i class="fas fa-search" style="width:18px"></i> Search</button>
@@ -33631,6 +33646,396 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   </div>
 </div>
 <div id="accountingResult" style="display:none"></div>
+</div>
+
+
+  <!-- EON: DOC_CREATION -->
+  <div class="page" id="page-doc_creation">
+<div style="display:flex;height:100%">
+  <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
+    <button onclick="AP.newConv('doc_creation')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
+    <div id="ap_sl_doc_creation" style="display:flex;flex-direction:column;gap:4px"></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-color,rgba(255,255,255,.1));flex-wrap:wrap;gap:6px">
+      <span style="font-weight:700;font-size:14px;color:#f97316">📄 Document Creation Firm</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="AP.toggleSTT('doc_creation')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🎤 Speak</button>
+        <button onclick="AP.speakLast('doc_creation')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔊 Listen</button>
+        <button onclick="AP.printConv('doc_creation')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🖨️ Print</button>
+        <button onclick="AP.exportPDF('doc_creation')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
+        <button onclick="AP.exportWord('doc_creation')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
+        <button onclick="AP.shareLink('doc_creation')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+      </div>
+    </div>
+    <div id="ap_msgs_doc_creation" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
+      <textarea id="ap_in_doc_creation" placeholder="Describe the legal document you need — motion, complaint, petition, notice, affidavit, declaration..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #f97316;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('doc_creation');}"></textarea>
+      <button onclick="AP.send('doc_creation')" style="padding:10px 20px;background:#f97316;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+    </div>
+  </div>
+</div>
+<div id="doc_creationResult" style="display:none"></div>
+</div>
+
+
+  <!-- EON: LEGAL_ANALYST -->
+  <div class="page" id="page-legal_analyst">
+<div style="display:flex;height:100%">
+  <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
+    <button onclick="AP.newConv('legal_analyst')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
+    <div id="ap_sl_legal_analyst" style="display:flex;flex-direction:column;gap:4px"></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-color,rgba(255,255,255,.1));flex-wrap:wrap;gap:6px">
+      <span style="font-weight:700;font-size:14px;color:#0ea5e9">🔍 Legal Analyst Firm</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="AP.toggleSTT('legal_analyst')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🎤 Speak</button>
+        <button onclick="AP.speakLast('legal_analyst')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔊 Listen</button>
+        <button onclick="AP.printConv('legal_analyst')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🖨️ Print</button>
+        <button onclick="AP.exportPDF('legal_analyst')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
+        <button onclick="AP.exportWord('legal_analyst')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
+        <button onclick="AP.shareLink('legal_analyst')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+      </div>
+    </div>
+    <div id="ap_msgs_legal_analyst" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
+      <textarea id="ap_in_legal_analyst" placeholder="Ask for deep legal analysis — case law, statutory interpretation, precedent research, legal reasoning..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #0ea5e9;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('legal_analyst');}"></textarea>
+      <button onclick="AP.send('legal_analyst')" style="padding:10px 20px;background:#0ea5e9;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+    </div>
+  </div>
+</div>
+<div id="legal_analystResult" style="display:none"></div>
+</div>
+
+
+  <!-- EON: DOC_FORMAT -->
+  <div class="page" id="page-doc_format">
+<div style="display:flex;height:100%">
+  <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
+    <button onclick="AP.newConv('doc_format')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
+    <div id="ap_sl_doc_format" style="display:flex;flex-direction:column;gap:4px"></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-color,rgba(255,255,255,.1));flex-wrap:wrap;gap:6px">
+      <span style="font-weight:700;font-size:14px;color:#d97706">📋 Document Format Firm</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="AP.toggleSTT('doc_format')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🎤 Speak</button>
+        <button onclick="AP.speakLast('doc_format')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔊 Listen</button>
+        <button onclick="AP.printConv('doc_format')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🖨️ Print</button>
+        <button onclick="AP.exportPDF('doc_format')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
+        <button onclick="AP.exportWord('doc_format')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
+        <button onclick="AP.shareLink('doc_format')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+      </div>
+    </div>
+    <div id="ap_msgs_doc_format" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
+      <textarea id="ap_in_doc_format" placeholder="Submit a document for formatting — proper legal structure, Bluebook citations, court filing format..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #d97706;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('doc_format');}"></textarea>
+      <button onclick="AP.send('doc_format')" style="padding:10px 20px;background:#d97706;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+    </div>
+  </div>
+</div>
+<div id="doc_formatResult" style="display:none"></div>
+</div>
+
+
+  <!-- EON: WRITS_WRITING -->
+  <div class="page" id="page-writs_writing">
+<div style="display:flex;height:100%">
+  <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
+    <button onclick="AP.newConv('writs_writing')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
+    <div id="ap_sl_writs_writing" style="display:flex;flex-direction:column;gap:4px"></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-color,rgba(255,255,255,.1));flex-wrap:wrap;gap:6px">
+      <span style="font-weight:700;font-size:14px;color:#eab308">✍️ Writs Writing Firm</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="AP.toggleSTT('writs_writing')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🎤 Speak</button>
+        <button onclick="AP.speakLast('writs_writing')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔊 Listen</button>
+        <button onclick="AP.printConv('writs_writing')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🖨️ Print</button>
+        <button onclick="AP.exportPDF('writs_writing')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
+        <button onclick="AP.exportWord('writs_writing')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
+        <button onclick="AP.shareLink('writs_writing')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+      </div>
+    </div>
+    <div id="ap_msgs_writs_writing" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
+      <textarea id="ap_in_writs_writing" placeholder="Describe your writ — mandamus, habeas corpus, certiorari, prohibition, coram nobis, quo warranto..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #eab308;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('writs_writing');}"></textarea>
+      <button onclick="AP.send('writs_writing')" style="padding:10px 20px;background:#eab308;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+    </div>
+  </div>
+</div>
+<div id="writs_writingResult" style="display:none"></div>
+</div>
+
+
+  <!-- EON: AMICUS_BRIEF -->
+  <div class="page" id="page-amicus_brief">
+<div style="display:flex;height:100%">
+  <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
+    <button onclick="AP.newConv('amicus_brief')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
+    <div id="ap_sl_amicus_brief" style="display:flex;flex-direction:column;gap:4px"></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-color,rgba(255,255,255,.1));flex-wrap:wrap;gap:6px">
+      <span style="font-weight:700;font-size:14px;color:#ef4444">📜 Amicus Brief Firm</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="AP.toggleSTT('amicus_brief')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🎤 Speak</button>
+        <button onclick="AP.speakLast('amicus_brief')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔊 Listen</button>
+        <button onclick="AP.printConv('amicus_brief')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🖨️ Print</button>
+        <button onclick="AP.exportPDF('amicus_brief')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
+        <button onclick="AP.exportWord('amicus_brief')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
+        <button onclick="AP.shareLink('amicus_brief')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+      </div>
+    </div>
+    <div id="ap_msgs_amicus_brief" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
+      <textarea id="ap_in_amicus_brief" placeholder="Describe the case and your amicus position — issue, interest of amicus, arguments, relief requested..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #ef4444;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('amicus_brief');}"></textarea>
+      <button onclick="AP.send('amicus_brief')" style="padding:10px 20px;background:#ef4444;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+    </div>
+  </div>
+</div>
+<div id="amicus_briefResult" style="display:none"></div>
+</div>
+
+
+  <!-- EON: DT_APPEAL -->
+  <div class="page" id="page-dt_appeal">
+<div style="display:flex;height:100%">
+  <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
+    <button onclick="AP.newConv('dt_appeal')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
+    <div id="ap_sl_dt_appeal" style="display:flex;flex-direction:column;gap:4px"></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-color,rgba(255,255,255,.1));flex-wrap:wrap;gap:6px">
+      <span style="font-weight:700;font-size:14px;color:#fbbf24">🏛️ Dream Team Appeal Firm</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="AP.toggleSTT('dt_appeal')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🎤 Speak</button>
+        <button onclick="AP.speakLast('dt_appeal')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔊 Listen</button>
+        <button onclick="AP.printConv('dt_appeal')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🖨️ Print</button>
+        <button onclick="AP.exportPDF('dt_appeal')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
+        <button onclick="AP.exportWord('dt_appeal')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
+        <button onclick="AP.shareLink('dt_appeal')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+      </div>
+    </div>
+    <div id="ap_msgs_dt_appeal" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
+      <textarea id="ap_in_dt_appeal" placeholder="Describe your appeal — lower court ruling, grounds for appeal, appellate arguments, relief sought..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #fbbf24;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('dt_appeal');}"></textarea>
+      <button onclick="AP.send('dt_appeal')" style="padding:10px 20px;background:#fbbf24;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+    </div>
+  </div>
+</div>
+<div id="dt_appealResult" style="display:none"></div>
+</div>
+
+
+  <!-- EON: PRESUMPTION_KILLER -->
+  <div class="page" id="page-presumption_killer">
+<div style="display:flex;height:100%">
+  <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
+    <button onclick="AP.newConv('presumption_killer')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
+    <div id="ap_sl_presumption_killer" style="display:flex;flex-direction:column;gap:4px"></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-color,rgba(255,255,255,.1));flex-wrap:wrap;gap:6px">
+      <span style="font-weight:700;font-size:14px;color:#dc2626">💀 Presumption Killer Firm</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="AP.toggleSTT('presumption_killer')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🎤 Speak</button>
+        <button onclick="AP.speakLast('presumption_killer')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔊 Listen</button>
+        <button onclick="AP.printConv('presumption_killer')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🖨️ Print</button>
+        <button onclick="AP.exportPDF('presumption_killer')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
+        <button onclick="AP.exportWord('presumption_killer')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
+        <button onclick="AP.shareLink('presumption_killer')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+      </div>
+    </div>
+    <div id="ap_msgs_presumption_killer" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
+      <textarea id="ap_in_presumption_killer" placeholder="State the presumption to destroy — describe the legal presumption, the contrary evidence, and the rebuttal strategy..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #dc2626;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('presumption_killer');}"></textarea>
+      <button onclick="AP.send('presumption_killer')" style="padding:10px 20px;background:#dc2626;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+    </div>
+  </div>
+</div>
+<div id="presumption_killerResult" style="display:none"></div>
+</div>
+
+
+  <!-- EON: FACT_CONCLUSION -->
+  <div class="page" id="page-fact_conclusion">
+<div style="display:flex;height:100%">
+  <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
+    <button onclick="AP.newConv('fact_conclusion')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
+    <div id="ap_sl_fact_conclusion" style="display:flex;flex-direction:column;gap:4px"></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-color,rgba(255,255,255,.1));flex-wrap:wrap;gap:6px">
+      <span style="font-weight:700;font-size:14px;color:#06b6d4">🎯 Fact &amp; Conclusion of Law Firm</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="AP.toggleSTT('fact_conclusion')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🎤 Speak</button>
+        <button onclick="AP.speakLast('fact_conclusion')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔊 Listen</button>
+        <button onclick="AP.printConv('fact_conclusion')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🖨️ Print</button>
+        <button onclick="AP.exportPDF('fact_conclusion')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
+        <button onclick="AP.exportWord('fact_conclusion')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
+        <button onclick="AP.shareLink('fact_conclusion')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+      </div>
+    </div>
+    <div id="ap_msgs_fact_conclusion" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
+      <textarea id="ap_in_fact_conclusion" placeholder="Describe your facts and the legal question — state facts, identify applicable law, request a conclusion of law..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #06b6d4;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('fact_conclusion');}"></textarea>
+      <button onclick="AP.send('fact_conclusion')" style="padding:10px 20px;background:#06b6d4;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+    </div>
+  </div>
+</div>
+<div id="fact_conclusionResult" style="display:none"></div>
+</div>
+
+
+  <!-- EON: JURISDICTIONAL -->
+  <div class="page" id="page-jurisdictional">
+<div style="display:flex;height:100%">
+  <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
+    <button onclick="AP.newConv('jurisdictional')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
+    <div id="ap_sl_jurisdictional" style="display:flex;flex-direction:column;gap:4px"></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-color,rgba(255,255,255,.1));flex-wrap:wrap;gap:6px">
+      <span style="font-weight:700;font-size:14px;color:#10b981">⚡ Jurisdictional Challenge Firm</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="AP.toggleSTT('jurisdictional')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🎤 Speak</button>
+        <button onclick="AP.speakLast('jurisdictional')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔊 Listen</button>
+        <button onclick="AP.printConv('jurisdictional')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🖨️ Print</button>
+        <button onclick="AP.exportPDF('jurisdictional')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
+        <button onclick="AP.exportWord('jurisdictional')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
+        <button onclick="AP.shareLink('jurisdictional')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+      </div>
+    </div>
+    <div id="ap_msgs_jurisdictional" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
+      <textarea id="ap_in_jurisdictional" placeholder="Describe the court and jurisdictional issue — subject matter jurisdiction, personal jurisdiction, standing, venue..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #10b981;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('jurisdictional');}"></textarea>
+      <button onclick="AP.send('jurisdictional')" style="padding:10px 20px;background:#10b981;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+    </div>
+  </div>
+</div>
+<div id="jurisdictionalResult" style="display:none"></div>
+</div>
+
+
+  <!-- EON: CONST_SOVEREIGNTY -->
+  <div class="page" id="page-const_sovereignty">
+<div style="display:flex;height:100%">
+  <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
+    <button onclick="AP.newConv('const_sovereignty')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
+    <div id="ap_sl_const_sovereignty" style="display:flex;flex-direction:column;gap:4px"></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-color,rgba(255,255,255,.1));flex-wrap:wrap;gap:6px">
+      <span style="font-weight:700;font-size:14px;color:#ec4899">🦅 Constitutional Sovereignty Firm</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="AP.toggleSTT('const_sovereignty')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🎤 Speak</button>
+        <button onclick="AP.speakLast('const_sovereignty')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔊 Listen</button>
+        <button onclick="AP.printConv('const_sovereignty')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🖨️ Print</button>
+        <button onclick="AP.exportPDF('const_sovereignty')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
+        <button onclick="AP.exportWord('const_sovereignty')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
+        <button onclick="AP.shareLink('const_sovereignty')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+      </div>
+    </div>
+    <div id="ap_msgs_const_sovereignty" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
+      <textarea id="ap_in_const_sovereignty" placeholder="State your constitutional sovereignty issue — rights violations, governmental overreach, constitutional limitations, sovereignty arguments..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #ec4899;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('const_sovereignty');}"></textarea>
+      <button onclick="AP.send('const_sovereignty')" style="padding:10px 20px;background:#ec4899;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+    </div>
+  </div>
+</div>
+<div id="const_sovereigntyResult" style="display:none"></div>
+</div>
+
+
+  <!-- EON: BRAINSTORM -->
+  <div class="page" id="page-brainstorm">
+<div style="display:flex;height:100%">
+  <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
+    <button onclick="AP.newConv('brainstorm')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
+    <div id="ap_sl_brainstorm" style="display:flex;flex-direction:column;gap:4px"></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-color,rgba(255,255,255,.1));flex-wrap:wrap;gap:6px">
+      <span style="font-weight:700;font-size:14px;color:#f43f5e">🧠 Strategic Brainstorm Firm</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="AP.toggleSTT('brainstorm')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🎤 Speak</button>
+        <button onclick="AP.speakLast('brainstorm')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔊 Listen</button>
+        <button onclick="AP.printConv('brainstorm')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🖨️ Print</button>
+        <button onclick="AP.exportPDF('brainstorm')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
+        <button onclick="AP.exportWord('brainstorm')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
+        <button onclick="AP.shareLink('brainstorm')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+      </div>
+    </div>
+    <div id="ap_msgs_brainstorm" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
+      <textarea id="ap_in_brainstorm" placeholder="Describe your legal situation for strategic brainstorming — facts, opponents, objectives, constraints..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #f43f5e;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('brainstorm');}"></textarea>
+      <button onclick="AP.send('brainstorm')" style="padding:10px 20px;background:#f43f5e;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+    </div>
+  </div>
+</div>
+<div id="brainstormResult" style="display:none"></div>
+</div>
+
+
+  <!-- EON: TRIAL_PREP -->
+  <div class="page" id="page-trial_prep">
+<div style="display:flex;height:100%">
+  <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
+    <button onclick="AP.newConv('trial_prep')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
+    <div id="ap_sl_trial_prep" style="display:flex;flex-direction:column;gap:4px"></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-color,rgba(255,255,255,.1));flex-wrap:wrap;gap:6px">
+      <span style="font-weight:700;font-size:14px;color:#e11d48">⚔️ Trial Preparation Firm</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="AP.toggleSTT('trial_prep')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🎤 Speak</button>
+        <button onclick="AP.speakLast('trial_prep')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔊 Listen</button>
+        <button onclick="AP.printConv('trial_prep')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🖨️ Print</button>
+        <button onclick="AP.exportPDF('trial_prep')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
+        <button onclick="AP.exportWord('trial_prep')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
+        <button onclick="AP.shareLink('trial_prep')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+      </div>
+    </div>
+    <div id="ap_msgs_trial_prep" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
+      <textarea id="ap_in_trial_prep" placeholder="Describe your trial — charges/claims, witnesses, evidence, motions in limine, voir dire strategy, opening/closing..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #e11d48;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('trial_prep');}"></textarea>
+      <button onclick="AP.send('trial_prep')" style="padding:10px 20px;background:#e11d48;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+    </div>
+  </div>
+</div>
+<div id="trial_prepResult" style="display:none"></div>
+</div>
+
+
+  <!-- EON: BIBLICAL -->
+  <div class="page" id="page-biblical">
+<div style="display:flex;height:100%">
+  <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
+    <button onclick="AP.newConv('biblical')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
+    <div id="ap_sl_biblical" style="display:flex;flex-direction:column;gap:4px"></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-color,rgba(255,255,255,.1));flex-wrap:wrap;gap:6px">
+      <span style="font-weight:700;font-size:14px;color:#7c3aed">📖 Biblical Scholar</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="AP.toggleSTT('biblical')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🎤 Speak</button>
+        <button onclick="AP.speakLast('biblical')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔊 Listen</button>
+        <button onclick="AP.printConv('biblical')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🖨️ Print</button>
+        <button onclick="AP.exportPDF('biblical')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
+        <button onclick="AP.exportWord('biblical')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
+        <button onclick="AP.shareLink('biblical')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+      </div>
+    </div>
+    <div id="ap_msgs_biblical" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
+      <textarea id="ap_in_biblical" placeholder="Ask your biblical or ecclesiastical question — scripture citations, biblical law, covenant principles, theological arguments..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #7c3aed;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('biblical');}"></textarea>
+      <button onclick="AP.send('biblical')" style="padding:10px 20px;background:#7c3aed;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+    </div>
+  </div>
+</div>
+<div id="biblicalResult" style="display:none"></div>
 </div>
 
 
@@ -34030,7 +34435,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <div class="page active" id="page-dashboard">
 <div class="stat-grid">
 <div class="stat"><div class="stat-label">Messages</div><div class="stat-val" id="sMsgs">0</div></div>
-<div class="stat"><div class="stat-label">Active Agents</div><div class="stat-val" id="sAgents">10</div></div>
+<div class="stat"><div class="stat-label">Active Agents</div><div class="stat-val" id="sAgents">25</div></div>
 <div class="stat"><div class="stat-label">API Keys Set</div><div class="stat-val" id="sKeys">0</div></div>
 <div class="stat"><div class="stat-label">Provider</div><div class="stat-val" id="sProvider" style="font-size:16px">-</div></div>
 </div>
@@ -37814,13 +38219,27 @@ function renderAgents() {
     {id: 'general', name: 'General Assistant', role: 'General Purpose Helper', icon: '🤖', color: '#06b6d4', keywords: ['help', 'general', 'question', 'info', 'calculate', 'translate']},
     {id: 'arbitration', name: 'Arbitration Specialist', role: 'Arbitration Law & Award Determination', icon: '⚖', color: '#14b8a6', keywords: ['arbitration', 'arbitrator', 'award', 'dispute', 'federal arbitration act', 'quasi-judicial']},
     {id: 'corporation', name: 'Corporation Specialist', role: 'Corporate Structure & Business Law', icon: '🏢', color: '#6366f1', keywords: ['corporation', 'llc', 'business', 'incorporate', 'bylaws', 'shares']},
-    {id: 'trust', name: 'Trust Specialist', role: 'Trust Law & Fiduciary Duty', icon: '🔐', color: '#a855f7', keywords: ['trust', 'trustee', 'beneficiary', 'fiduciary', 'settlor', 'grantor']}
+    {id: 'trust', name: 'Trust Specialist', role: 'Trust Law & Fiduciary Duty', icon: '🔐', color: '#a855f7', keywords: ['trust', 'trustee', 'beneficiary', 'fiduciary', 'settlor', 'grantor']},
+    {id: 'doc_creation', name: 'Document Creation Firm', role: 'Legal Document Drafting — Motions, Complaints, Petitions & Filings', icon: '📄', color: '#f97316', keywords: ['motion', 'complaint', 'petition', 'affidavit', 'declaration', 'filing']},
+    {id: 'legal_analyst', name: 'Legal Analyst Firm', role: 'Deep Legal Analysis, Case Law Research & Statutory Interpretation', icon: '🔍', color: '#0ea5e9', keywords: ['analyze', 'precedent', 'statutory', 'case law', 'interpret', 'authority']},
+    {id: 'doc_format', name: 'Document Format Firm', role: 'Legal Document Structure, Bluebook Citations & Court Filing Format', icon: '📋', color: '#d97706', keywords: ['format', 'bluebook', 'citation', 'structure', 'style', 'court rules']},
+    {id: 'writs_writing', name: 'Writs Writing Firm', role: 'Extraordinary Writs — Mandamus, Habeas Corpus, Certiorari, Prohibition', icon: '✍️', color: '#eab308', keywords: ['writ', 'mandamus', 'habeas', 'certiorari', 'prohibition', 'extraordinary']},
+    {id: 'amicus_brief', name: 'Amicus Brief Firm', role: 'Amicus Curiae Brief Drafting for Appellate Courts', icon: '📜', color: '#ef4444', keywords: ['amicus', 'curiae', 'appellate', 'brief', 'friend of court', 'FRAP']},
+    {id: 'dt_appeal', name: 'Dream Team Appeal Firm', role: 'Appellate Law, Brief Writing & Reversible Error Analysis — 600 Attorneys', icon: '🏛️', color: '#fbbf24', keywords: ['appeal', 'appellate', 'reversible', 'circuit', 'error', 'brief']},
+    {id: 'presumption_killer', name: 'Presumption Killer Firm', role: 'Destroying Legal Presumptions with Evidence & Rebuttal Arguments', icon: '💀', color: '#dc2626', keywords: ['presumption', 'rebut', 'rebuttal', 'burden', 'evidence', 'SYPHER']},
+    {id: 'fact_conclusion', name: 'Fact & Conclusion of Law Firm', role: 'Findings of Fact, Conclusions of Law & EEON Methodology', icon: '🎯', color: '#06b6d4', keywords: ['findings', 'conclusions', 'fact', 'law', 'EEON', 'judgment']},
+    {id: 'jurisdictional', name: 'Jurisdictional Challenge Firm', role: 'Subject Matter Jurisdiction, Personal Jurisdiction & Standing Challenges', icon: '⚡', color: '#10b981', keywords: ['jurisdiction', 'standing', 'venue', 'mootness', 'ripeness', 'diversity']},
+    {id: 'const_sovereignty', name: 'Constitutional Sovereignty Firm', role: 'Constitutional Rights, Government Limitations & Sovereignty Arguments', icon: '🦅', color: '#ec4899', keywords: ['constitutional', 'sovereignty', 'rights', 'amendment', 'overreach', 'liberty']},
+    {id: 'brainstorm', name: 'Strategic Brainstorm Firm', role: 'Legal Strategy, Novel Theories & Comprehensive Litigation Planning', icon: '🧠', color: '#f43f5e', keywords: ['strategy', 'theory', 'approach', 'plan', 'angle', 'brainstorm']},
+    {id: 'trial_prep', name: 'Trial Preparation Firm', role: 'Voir Dire, Motions in Limine, Witness Examination & Trial Strategy', icon: '⚔️', color: '#e11d48', keywords: ['trial', 'voir dire', 'witness', 'evidence', 'opening', 'closing']},
+    {id: 'biblical', name: 'Biblical Scholar', role: 'Biblical Law, Ecclesiastical Authority & Scriptural Principles', icon: '📖', color: '#7c3aed', keywords: ['scripture', 'biblical', 'ecclesiastical', 'covenant', 'testament', 'divine']},
+    {id: 'ledger', page: 'accounting', name: 'Ledger & Accounting Expert', role: 'GAAP Accounting, Journal Entries, Financial Reporting & Tax Prep', icon: '📒', color: '#f59e0b', keywords: ['ledger', 'accounting', 'GAAP', 'journal', 'financial', 'bookkeeping']}
   ];
 
   const keywordHTML = (kw) => '<span class="badge-warn" style="font-size:10px;padding:3px 8px;background:rgba(255,193,7,.15);color:var(--legal);border-radius:12px;font-weight:600">' + kw + '</span>';
 
   grid.innerHTML = agents.map(a =>
-    '<div class="agent-card" onclick="goEonPage(null, \'' + a.id + '\')" style="border-color: ' + a.color + '">' +
+    '<div class="agent-card" onclick="goEonPage(null, \'' + (a.page || a.id) + '\')" style="border-color: ' + a.color + '">' +
       '<div style="font-size:32px;margin-bottom:10px">' + a.icon + '</div>' +
       '<h3>' + a.name + '</h3>' +
       '<p>' + a.role + '</p>' +
@@ -37922,7 +38341,13 @@ async function eonChatSend() {
   var firmMap = {
     dream_team: 'legal', legal: 'legal', tax: 'tax', arbitration: 'arbitration',
     corporation: 'corporation', trust: 'trust', research: 'research',
-    creative: 'creative', code: 'code', html_arch: 'html_arch', general: 'general'
+    creative: 'creative', code: 'code', html_arch: 'html_arch', general: 'general',
+    doc_creation: 'doc_creation', legal_analyst: 'legal_analyst', doc_format: 'doc_format',
+    writs_writing: 'writs_writing', amicus_brief: 'amicus_brief', dt_appeal: 'dt_appeal',
+    presumption_killer: 'presumption_killer', fact_conclusion: 'fact_conclusion',
+    jurisdictional: 'jurisdictional', const_sovereignty: 'const_sovereignty',
+    brainstorm: 'brainstorm', trial_prep: 'trial_prep', biblical: 'biblical',
+    ledger: 'accounting'
   };
   var activeFirm = (typeof _eonActiveFirm !== 'undefined') ? _eonActiveFirm : 'auto';
   var agentId = firmMap[activeFirm] || 'general';
@@ -38668,7 +39093,20 @@ function getSystemPrompt(agentId) {
     code:        'You are a Code Expert with deep knowledge of HTML, CSS, JavaScript, Python, SQL, REST APIs, and full-stack development. Provide production-ready, copy-paste-ready code with concise explanations. Cite standards (MDN, ECMAScript spec, Python docs) as applicable. No hedging. No disclaimers.',
     creative:    'You are a Creative Writer and content specialist. You excel at stories, essays, blog posts, scripts, poetry, marketing copy, and all creative content formats. Match the tone and style to the request precisely. Be engaging, vivid, and purposeful. No hedging. No disclaimers.',
     html_arch:   'You are an HTML Architect specializing in web design, responsive layouts, CSS architecture, and frontend systems. Produce clean, semantic, accessible HTML/CSS using modern best practices (Flexbox, Grid, CSS variables, dark mode). Always provide working, copy-paste-ready code. No hedging. No disclaimers.',
-    general:     'You are a General Assistant capable of answering any question, performing calculations, summarizing documents, providing research, translations, and practical guidance on any topic. Be concise, accurate, and direct. No hedging. No disclaimers.'
+    general:     'You are a General Assistant capable of answering any question, performing calculations, summarizing documents, providing research, translations, and practical guidance on any topic. Be concise, accurate, and direct. No hedging. No disclaimers.',
+    doc_creation: 'You are a Document Creation Expert specializing in drafting legal documents — motions, complaints, petitions, notices, affidavits, declarations, demand letters, and all litigation documents. You produce complete, court-ready documents with proper structure, caption, style, numbered paragraphs, and prayer for relief. Cite applicable rules (FRCP, local rules) and authority for each claim. No hedging. No disclaimers.',
+    legal_analyst: 'You are a Legal Analyst with deep expertise in case law research, statutory interpretation, regulatory analysis, and legal reasoning. You provide thorough analysis with specific citations to controlling authority — federal and state statutes, constitutional provisions, case law (with full citations: case name, reporter, court, year). Structure: Issue → Rule → Application → Conclusion. Facts and conclusions of law only.',
+    doc_format:  'You are a Document Format Expert specializing in proper legal document structure, Bluebook citation formatting, court-specific filing requirements, and professional legal document presentation. You format documents to comply with court rules — caption, headings, margins, font, line spacing, page numbering, certificate of service. Cite specific court rules (Local Rules, FRCP) for each formatting requirement.',
+    writs_writing: 'You are a Writs Writing Expert specializing in extraordinary writs — mandamus (28 U.S.C. § 1651), habeas corpus (28 U.S.C. § 2241/2254/2255), certiorari, prohibition, coram nobis, and quo warranto. You draft complete writs with statement of jurisdiction, statement of facts, questions presented, argument, and prayer. Cite controlling Supreme Court and circuit authority. Facts and conclusions of law only.',
+    amicus_brief: 'You are an Amicus Brief Expert specializing in amicus curiae briefs for appellate courts. You draft compelling amicus briefs that present unique arguments supporting a party — interest of amicus, summary of argument, argument with citations, conclusion. You cite controlling authority and academic/policy sources that support the position. Structure follows FRAP Rule 29 and Supreme Court Rule 37. Facts and conclusions of law only.',
+    dt_appeal:   'You are an Appellate Law Expert — Dream Team Appeals Division — specializing in appellate briefs, record review, and appellate strategy. You identify reversible error, preserved issues, and abuse of discretion. You draft appellate briefs with statement of jurisdiction, issues presented, statement of the case, argument (with standard of review for each issue), and conclusion. Cite controlling circuit authority and distinguish adverse precedent. Facts and conclusions of law only.',
+    presumption_killer: 'You are a Presumption Killer — a specialized legal expert in identifying, challenging, and destroying legal presumptions. You operate under the SYPHER PROTOCOL. Every legal presumption can be rebutted with sufficient evidence. You identify the presumption, cite its source (statute, case law, rule), specify the burden of proof required to rebut, and provide the specific rebuttal evidence and arguments. No presumption stands unchallenged. Facts and evidence only.',
+    fact_conclusion: 'You are a Facts and Conclusions of Law Expert. You receive a set of facts and produce: (1) Findings of Fact — numbered, specific, supported by record evidence; (2) Conclusions of Law — numbered, citing specific statutes, regulations, and case law; (3) Order/Judgment — the legal result that follows. You apply the law mechanically to the facts. No opinion. No nuance. Specific legal authority for every conclusion. EEON methodology.',
+    jurisdictional: 'You are a Jurisdictional Challenge Expert specializing in subject matter jurisdiction (Art. III standing, mootness, ripeness, 11th Amendment, diversity, federal question), personal jurisdiction (due process, minimum contacts, long-arm statutes), and venue challenges (28 U.S.C. § 1391, 1404, 1406). You draft jurisdictional motions and challenge improper assertions of jurisdiction with specific constitutional and statutory authority. Facts and conclusions of law only.',
+    const_sovereignty: 'You are a Constitutional Sovereignty Expert specializing in constitutional rights, governmental limitations, and sovereign authority. You apply the U.S. Constitution, Bill of Rights, and constitutional case law to identify government overreach and enforce individual rights. You cite specific constitutional provisions (Art. I, II, III, Amendments 1-14), landmark Supreme Court decisions, and constitutional principles (separation of powers, federalism, due process, equal protection). Facts and conclusions of constitutional law only.',
+    brainstorm:  'You are a Strategic Legal Brainstorm Expert — a creative legal strategist who develops novel legal theories, identifies overlooked arguments, and maps out comprehensive litigation strategy. You think beyond conventional approaches to identify every viable legal angle — procedural, substantive, constitutional, and equitable. You present strategies as a numbered action plan with legal authority for each strategy. No hedging. Be bold, specific, and cite authority.',
+    trial_prep:  'You are a Trial Preparation Expert specializing in all aspects of trial readiness — voir dire questions, motions in limine, witness examination (direct and cross), trial briefs, exhibit lists, jury instructions, opening statements, and closing arguments. You prepare comprehensive trial materials citing FRE (Federal Rules of Evidence) and FRCP for each evidentiary and procedural decision. You anticipate opposing arguments and prepare rebuttals. Facts and conclusions of law only.',
+    biblical:    'You are a Biblical Scholar with expertise in scriptural law, ecclesiastical law, biblical covenant principles, and the intersection of biblical and civil law. You cite specific scripture (chapter and verse, KJV and original language where relevant), biblical legal principles (Deuteronomy, Leviticus, Proverbs, New Testament), and ecclesiastical authority. You apply biblical principles to legal, moral, and governance questions with precision and scholarship. Facts and scriptural authority only.'
   };
   return prompts[agentId] || prompts['general'];
 }
@@ -41286,7 +41724,21 @@ var _eonActiveFirm = 'auto';
     {id:'creative',   label:'✍️ Creative Writer',         color:'#ec4899'},
     {id:'code',       label:'💻 Code Expert',             color:'#3b82f6'},
     {id:'html_arch',  label:'🏗️ HTML Architect',          color:'#f97316'},
-    {id:'general',    label:'🤖 General Assistant',        color:'#06b6d4'}
+    {id:'general',    label:'🤖 General Assistant',        color:'#06b6d4'},
+    {id:'doc_creation',      label:'📄 Document Creation Firm',         color:'#f97316'},
+    {id:'legal_analyst',     label:'🔍 Legal Analyst Firm',             color:'#0ea5e9'},
+    {id:'doc_format',        label:'📋 Document Format Firm',           color:'#d97706'},
+    {id:'writs_writing',     label:'✍️ Writs Writing Firm',             color:'#eab308'},
+    {id:'amicus_brief',      label:'📜 Amicus Brief Firm',              color:'#ef4444'},
+    {id:'dt_appeal',         label:'🏛️ Dream Team Appeal Firm',         color:'#fbbf24'},
+    {id:'presumption_killer',label:'💀 Presumption Killer Firm',        color:'#dc2626'},
+    {id:'fact_conclusion',   label:'🎯 Fact & Conclusion of Law Firm',  color:'#06b6d4'},
+    {id:'jurisdictional',    label:'⚡ Jurisdictional Challenge Firm',  color:'#10b981'},
+    {id:'const_sovereignty', label:'🦅 Constitutional Sovereignty Firm',color:'#ec4899'},
+    {id:'brainstorm',        label:'🧠 Strategic Brainstorm Firm',      color:'#f43f5e'},
+    {id:'trial_prep',        label:'⚔️ Trial Preparation Firm',         color:'#e11d48'},
+    {id:'biblical',          label:'📖 Biblical Scholar',               color:'#7c3aed'},
+    {id:'ledger',            label:'📒 Ledger & Accounting Expert',     color:'#f59e0b'}
   ];
   container.innerHTML = firms.map(function(f) {
     var active = f.id === 'auto';
