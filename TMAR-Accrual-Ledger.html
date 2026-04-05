@@ -934,6 +934,10 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
 
 .spinner {
   display: inline-block;
@@ -40076,9 +40080,9 @@ function pdkbSelectAll(elementId) {
     sel.removeAllRanges(); sel.addRange(range);
   }
 }
-function pdkbCallAnthropic(prompt, options) {
+// onProgress(partialText) optional — called with accumulated text as tokens stream in
+function pdkbCallAnthropic(prompt, options, onProgress) {
   options = options || {};
-  // Check all key storage locations (same priority as resolveProvider)
   var apiKey = (
     (window._trustApiKey || '') ||
     (localStorage.getItem('eeon_key_claude') || '') ||
@@ -40087,18 +40091,18 @@ function pdkbCallAnthropic(prompt, options) {
     (localStorage.getItem('_trustApiKey') || '')
   ).trim();
   if (!apiKey) {
-    return Promise.resolve({ success: false, error: { type: 'no_api_key', message: 'API key not set. Enter your Anthropic key in Settings → API Keys, then click Save All Keys.' } });
+    return Promise.resolve({ success: false, error: { type: 'no_api_key', message: 'API key not set. Enter your Anthropic key in Settings \u2192 API Keys, then click Save All Keys.' } });
   }
-  // Sync key so rest of app has it for this session
   window._trustApiKey = apiKey;
   var model = options.model || 'claude-sonnet-4-6';
-  var maxTokens = options.maxTokens || 12000;
-  var timeout = options.timeout || 120000;
-  // Use CORS proxy if configured (same pattern as callLLMStream)
+  var maxTokens = options.maxTokens || 8000;
+  // Long timeout — streaming keeps connection alive so we just need to handle stalls
+  var timeout = options.timeout || 300000;
   var corsProxy = (localStorage.getItem('eeon_cors_proxy') || '').replace(/\/$/, '');
   var endpoint = corsProxy ? corsProxy + '/v1/messages' : 'https://api.anthropic.com/v1/messages';
   var controller = new AbortController();
   var timer = setTimeout(function(){ controller.abort(); }, timeout);
+
   return fetch(endpoint, {
     method: 'POST',
     headers: {
@@ -40107,25 +40111,53 @@ function pdkbCallAnthropic(prompt, options) {
       'anthropic-version': '2023-06-01',
       'anthropic-dangerous-direct-browser-access': 'true'
     },
-    body: JSON.stringify({ model: model, max_tokens: maxTokens, messages: [{ role: 'user', content: prompt }] }),
+    body: JSON.stringify({ model: model, max_tokens: maxTokens, stream: true, messages: [{ role: 'user', content: prompt }] }),
     signal: controller.signal
   })
   .then(function(resp) {
-    clearTimeout(timer);
     if (!resp.ok) {
+      clearTimeout(timer);
       return resp.text().then(function(body) {
         return { success: false, error: { type: 'api_error', status: resp.status, statusText: resp.statusText, message: body } };
       });
     }
-    return resp.json().then(function(data) {
-      var text = data.content && data.content[0] ? data.content[0].text : '';
-      return { success: true, result: text };
-    });
+    // SSE streaming reader — tokens arrive immediately, no bulk-wait timeout
+    var reader = resp.body.getReader();
+    var decoder = new TextDecoder();
+    var accumulated = '';
+    var sseBuffer = '';
+
+    function pump() {
+      return reader.read().then(function(chunk) {
+        if (chunk.done) {
+          clearTimeout(timer);
+          return { success: true, result: accumulated };
+        }
+        sseBuffer += decoder.decode(chunk.value, { stream: true });
+        var lines = sseBuffer.split('\n');
+        sseBuffer = lines.pop(); // hold incomplete last line
+        for (var i = 0; i < lines.length; i++) {
+          var line = lines[i].trim();
+          if (!line.startsWith('data: ')) continue;
+          var raw = line.slice(6);
+          if (raw === '[DONE]') continue;
+          try {
+            var evt = JSON.parse(raw);
+            if (evt.type === 'content_block_delta' && evt.delta && evt.delta.type === 'text_delta') {
+              accumulated += evt.delta.text;
+              if (typeof onProgress === 'function') onProgress(accumulated);
+            }
+          } catch(e) { /* skip malformed SSE line */ }
+        }
+        return pump();
+      });
+    }
+    return pump();
   })
   .catch(function(err) {
     clearTimeout(timer);
     if (err.name === 'AbortError') {
-      return { success: false, error: { type: 'timeout', message: 'Request timed out after ' + (timeout/1000) + 's' } };
+      return { success: false, error: { type: 'timeout', message: 'Request stalled — no response after ' + Math.round(timeout/1000) + 's. Check network or configure a CORS proxy in Settings.' } };
     }
     return { success: false, error: { type: 'network_error', message: err.message } };
   });
@@ -40207,16 +40239,31 @@ function ttBuildPrompt(content, sourceUrl, isChunk, chunkInfo) {
   return 'Transform this transcript into a COMPREHENSIVE README.md that merges both actionable guidance AND educational context.' + chunkNote + '\n\n## CRITICAL: YAML FRONTMATTER FORMAT\n\nYour response MUST start with raw YAML frontmatter. Do NOT wrap it in code blocks or backticks.\n\nStart your response EXACTLY like this:\n---\ndate_created: ' + dateCreated + '\nsource_url: \'' + (sourceUrl || 'Not specified') + '\'\npurpose: >-\n  [Extract the main purpose in 1-2 sentences — be specific about the subject matter covered]\ntransformation_mode: comprehensive' + (isChunk ? '\nchunk: ' + chunkInfo.index + ' of ' + chunkInfo.total : '') + '\nartifact_version: v2.0.0\ngenerator: Transcript Transformer\ntags:\n  - relevant-tag\n  - topic-tag\n  - additional-tag\n---\n\nThen continue with the markdown content.\n\n## DOCUMENT STRUCTURE\n\n### Section Pattern for Each Major Topic:\n1. Header with emoji + timestamp range -> **[MM:SS-MM:SS]**\n2. Brief explanatory paragraph (2-3 sentences of context)\n3. Actionable checklist items with individual timestamps\n4. Key quote or critical point highlighted\n5. Transition to next section\n\n### Required Sections (in order):\nA. Overview with purpose statement\nB. Key Timestamps Reference\nC. Prerequisites as checklist items\nD. Warnings/Outdated Methods\nE. Core Content Sections\nF. Step-by-Step Protocols with timestamps AND explanations\nG. Common Misconceptions\nH. Glossary of specialized terms\nI. Next Steps checklist\n\n### Formatting Rules:\n- Checklists: - [ ] **[MM:SS]** Action item with context\n- Blockquotes for key statements\n- Tables for comparisons\n- Casual speech -> Professional tone\n- Every timestamp appears somewhere\n- No information from transcript is lost\n\n---\n\nTRANSCRIPT TO TRANSFORM:\n' + content + '\n\nREMEMBER: Start with raw YAML frontmatter (three dashes, properties, three dashes) - NO code block wrapper.';
 }
 
+// Live streaming preview — updates output panel as tokens arrive
+function ttStreamPreview(partialText) {
+  var panel = document.getElementById('tt-output-panel');
+  if (panel) {
+    panel.innerHTML = '<pre id="tt-output-pre" style="white-space:pre-wrap;font-size:12px;color:#e2e8f0;user-select:text">' +
+      partialText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') +
+      '<span style="display:inline-block;width:8px;height:14px;background:#10b981;margin-left:2px;vertical-align:text-bottom;animation:blink-cursor 0.8s steps(1) infinite"></span></pre>';
+    // Auto-scroll to bottom so user can see latest output
+    panel.scrollTop = panel.scrollHeight;
+  }
+}
+
 async function ttTransform() {
   var input = document.getElementById('tt-input').value;
   var sourceUrl = document.getElementById('tt-source-url').value;
   if (!input.trim()) return alert('Paste a transcript first');
-  var apiKey = window._trustApiKey || localStorage.getItem('stg_key_claude') || localStorage.getItem('tmar_claude_key') || localStorage.getItem('_trustApiKey') || '';
-  if (!apiKey) return alert('API key required. Enter your Anthropic key in Settings → API Keys, then Save.');
+  var apiKey = window._trustApiKey || localStorage.getItem('eeon_key_claude') || localStorage.getItem('stg_key_claude') || localStorage.getItem('tmar_claude_key') || localStorage.getItem('_trustApiKey') || '';
+  if (!apiKey) return alert('API key required. Enter your Anthropic key in Settings \u2192 API Keys, then Save All Keys.');
 
   var btn = document.getElementById('tt-transform-btn');
-  btn.disabled = true; btn.textContent = '⏳ Processing...';
+  var panel = document.getElementById('tt-output-panel');
+  btn.disabled = true; btn.textContent = '\u23f3 Streaming...';
   document.getElementById('tt-error').style.display = 'none';
+  document.getElementById('tt-output-actions').style.display = 'none';
+  panel.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:20px;color:#10b981"><span style="display:inline-block;width:16px;height:16px;border:2px solid #10b981;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite"></span>Streaming from claude-sonnet-4-6...</div>';
 
   var stats = ttAnalyzeTranscript(input);
   var shouldChunk = ttState.mode === 'chunked' || (ttState.mode === 'auto' && stats.recommendChunking);
@@ -40224,16 +40271,18 @@ async function ttTransform() {
   try {
     if (shouldChunk) {
       var chunks = ttChunkTranscript(input);
-      btn.textContent = '⏳ Processing ' + chunks.length + ' chunks...';
       var combinedOutput = '';
       for (var i = 0; i < chunks.length; i++) {
-        btn.textContent = '⏳ Chunk ' + (i+1) + '/' + chunks.length + '...';
+        btn.textContent = '\u23f3 Chunk ' + (i+1) + '/' + chunks.length + '...';
         var chunkInfo = { index: i + 1, total: chunks.length };
         var prompt = ttBuildPrompt(chunks[i].content, sourceUrl, true, chunkInfo);
-        var result = await pdkbCallAnthropic(prompt);
+        var chunkBase = combinedOutput;
+        var result = await pdkbCallAnthropic(prompt, {}, function(partial) {
+          ttStreamPreview(chunkBase + (chunkBase ? '\n\n---\n\n' : '') + partial);
+        });
         if (!result.success) {
           ttShowError(result.error, 'Failed on chunk ' + (i+1) + ' of ' + chunks.length);
-          btn.disabled = false; btn.textContent = '⚡ Transform'; return;
+          btn.disabled = false; btn.textContent = '\u26a1 Transform'; return;
         }
         if (i === 0) { combinedOutput = result.result; }
         else { var withoutFM = result.result.replace(/^---[\s\S]*?---\n*/m, ''); combinedOutput += '\n\n---\n\n## Part ' + (i+1) + '\n\n' + withoutFM; }
@@ -40241,13 +40290,13 @@ async function ttTransform() {
       ttState.output = combinedOutput;
     } else {
       var prompt = ttBuildPrompt(input, sourceUrl);
-      var result = await pdkbCallAnthropic(prompt);
-      if (!result.success) { ttShowError(result.error); btn.disabled = false; btn.textContent = '⚡ Transform'; return; }
+      var result = await pdkbCallAnthropic(prompt, {}, ttStreamPreview);
+      if (!result.success) { ttShowError(result.error); btn.disabled = false; btn.textContent = '\u26a1 Transform'; return; }
       ttState.output = result.result;
     }
     ttRenderOutput();
   } catch(err) { ttShowError({ type: 'unexpected_error', message: err.message }); }
-  btn.disabled = false; btn.textContent = '⚡ Transform';
+  btn.disabled = false; btn.textContent = '\u26a1 Transform';
 }
 
 function ttShowError(error, context) {
