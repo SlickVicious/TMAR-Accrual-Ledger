@@ -1175,6 +1175,8 @@
         <button onclick="switchMainTab('cpaTrustCorp')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="cpaTrustCorp" style="background:linear-gradient(135deg,rgba(236,72,153,0.2),rgba(139,92,246,0.2));border:2px solid rgba(236,72,153,0.6);font-weight:800;color:#ec4899">🏦 Trust Corp CPA</button>
         <button onclick="switchMainTab('cpaConsolidated')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="cpaConsolidated" style="background:linear-gradient(135deg,rgba(239,68,68,0.2),rgba(245,158,11,0.2));border:2px solid rgba(239,68,68,0.6);font-weight:800;color:#ef4444">🏗️ Consolidated CPA</button>
         <button onclick="switchMainTab('irsFormGen')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="irsFormGen" style="background:linear-gradient(135deg,rgba(16,185,129,0.3),rgba(59,130,246,0.3));border:2px solid rgba(16,185,129,0.6);font-weight:900;color:#10b981">📄 IRS Form Generator</button>
+        <button onclick="switchMainTab('trustMonetize')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="trustMonetize" style="background:linear-gradient(135deg,rgba(245,158,11,0.3),rgba(217,119,6,0.3));border:2px solid rgba(245,158,11,0.8);font-weight:900;color:#f59e0b">Monetization Engine</button>
+        <button onclick="switchMainTab('trustOS')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="trustOS" style="background:linear-gradient(135deg,rgba(139,92,246,0.3),rgba(109,40,217,0.3));border:2px solid rgba(139,92,246,0.8);font-weight:900;color:#8b5cf6">Trust OS</button>
         <button onclick="switchMainTab('settingsApi')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="settingsApi" style="background:linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));border:2px solid rgba(255,255,255,0.2);font-weight:800;color:var(--text-secondary)">⚙️ Settings &amp; API</button>
         <button onclick="switchMainTab('apiScout')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="apiScout" style="background:linear-gradient(135deg,rgba(168,85,247,0.25),rgba(139,92,246,0.15));border:2px solid rgba(168,85,247,0.7);font-weight:900;color:#a855f7">🛰️ API Scout</button>
         <button onclick="switchMainTab('voiceChat')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="voiceChat" style="background:linear-gradient(135deg,rgba(245,158,11,0.3),rgba(239,68,68,0.3));border:2px solid rgba(245,158,11,0.8);font-weight:900;color:#f59e0b">
@@ -12496,6 +12498,974 @@
       </div>
     </div>
   </section>
+
+<section id="trustMonetizeSection" class="form-section hidden">
+  <div style="background:var(--bg-secondary);border-radius:12px;padding:24px;border:1px solid rgba(245,158,11,0.3);">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
+      <div style="width:4px;height:32px;background:linear-gradient(180deg,#f59e0b,#d97706);border-radius:2px;"></div>
+      <div>
+        <h2 style="color:#f59e0b;font-size:1.4rem;font-weight:700;margin:0;">Trust Monetization Workflow Engine</h2>
+        <p style="color:var(--text-secondary);font-size:0.85rem;margin:0;">Asset capture → CUSIP tracking → Uplift valuation → Form chain generation</p>
+      </div>
+    </div>
+
+    <!-- Sub-tab Nav -->
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;border-bottom:1px solid rgba(245,158,11,0.2);padding-bottom:14px;">
+      <button id="tmw-tab-assets" onclick="tmwSwitchTab('assets')"
+        style="padding:8px 14px;border-radius:6px;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.2s;background:rgba(245,158,11,0.2);color:#f59e0b;border:1px solid rgba(245,158,11,0.4);">
+        Asset Entry
+      </button>
+      <button id="tmw-tab-cusip" onclick="tmwSwitchTab('cusip')"
+        style="padding:8px 14px;border-radius:6px;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--text-secondary);border:1px solid rgba(148,163,184,0.2);">
+        CUSIP Tracker
+      </button>
+      <button id="tmw-tab-uplift" onclick="tmwSwitchTab('uplift')"
+        style="padding:8px 14px;border-radius:6px;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--text-secondary);border:1px solid rgba(148,163,184,0.2);">
+        Uplift Calculator
+      </button>
+      <button id="tmw-tab-chain" onclick="tmwSwitchTab('chain')"
+        style="padding:8px 14px;border-radius:6px;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--text-secondary);border:1px solid rgba(148,163,184,0.2);">
+        Form Chain Builder
+      </button>
+      <button id="tmw-tab-schedd" onclick="tmwSwitchTab('schedd')"
+        style="padding:8px 14px;border-radius:6px;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--text-secondary);border:1px solid rgba(148,163,184,0.2);">
+        Schedule D Export
+      </button>
+      <button id="tmw-tab-form3949" onclick="tmwSwitchTab('form3949')"
+        style="padding:8px 14px;border-radius:6px;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--text-secondary);border:1px solid rgba(148,163,184,0.2);">
+        Form 3949-A
+      </button>
+    </div>
+
+    <!-- PANEL: Asset Entry -->
+    <div id="tmw-panel-assets" style="display:block;">
+      <h3 style="color:#f59e0b;font-size:1rem;font-weight:600;margin:0 0 16px;">Asset Entry</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:16px;">
+        <div>
+          <label style="display:block;color:var(--text-secondary);font-size:0.78rem;margin-bottom:4px;">Account Type</label>
+          <select id="tmwAcctType" onchange="tmwGenDescription()"
+            style="width:100%;background:var(--bg-primary);color:var(--text-primary);border:1px solid rgba(245,158,11,0.3);border-radius:6px;padding:8px;font-size:0.85rem;">
+            <option value="">-- Select --</option>
+            <option value="Credit Card">Credit Card</option>
+            <option value="Auto Loan">Auto Loan</option>
+            <option value="Mortgage">Mortgage</option>
+            <option value="Student Loan">Student Loan</option>
+            <option value="Personal Loan">Personal Loan</option>
+            <option value="Business Line">Business Line</option>
+            <option value="Tax Refund">Tax Refund</option>
+            <option value="CUSIP/Bond">CUSIP/Bond</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;color:var(--text-secondary);font-size:0.78rem;margin-bottom:4px;">Account # (Last 4)</label>
+          <input id="tmwAcctLast4" type="text" maxlength="4" onchange="tmwGenDescription()" placeholder="e.g. 4821"
+            style="width:100%;background:var(--bg-primary);color:var(--text-primary);border:1px solid rgba(245,158,11,0.3);border-radius:6px;padding:8px;font-size:0.85rem;">
+        </div>
+        <div>
+          <label style="display:block;color:var(--text-secondary);font-size:0.78rem;margin-bottom:4px;">Institution Name</label>
+          <input id="tmwInstitution" type="text" placeholder="e.g. Chase Bank"
+            style="width:100%;background:var(--bg-primary);color:var(--text-primary);border:1px solid rgba(245,158,11,0.3);border-radius:6px;padding:8px;font-size:0.85rem;">
+        </div>
+        <div>
+          <label style="display:block;color:var(--text-secondary);font-size:0.78rem;margin-bottom:4px;">Original Balance ($)</label>
+          <input id="tmwOrigBalance" type="number" placeholder="0.00"
+            style="width:100%;background:var(--bg-primary);color:var(--text-primary);border:1px solid rgba(245,158,11,0.3);border-radius:6px;padding:8px;font-size:0.85rem;">
+        </div>
+        <div>
+          <label style="display:block;color:var(--text-secondary);font-size:0.78rem;margin-bottom:4px;">FMV at Acquisition ($)</label>
+          <input id="tmwFMV" type="number" placeholder="0.00"
+            style="width:100%;background:var(--bg-primary);color:var(--text-primary);border:1px solid rgba(245,158,11,0.3);border-radius:6px;padding:8px;font-size:0.85rem;">
+        </div>
+        <div>
+          <label style="display:block;color:var(--text-secondary);font-size:0.78rem;margin-bottom:4px;">Acquisition Date</label>
+          <input id="tmwAcqDate" type="date"
+            style="width:100%;background:var(--bg-primary);color:var(--text-primary);border:1px solid rgba(245,158,11,0.3);border-radius:6px;padding:8px;font-size:0.85rem;">
+        </div>
+        <div>
+          <label style="display:block;color:var(--text-secondary);font-size:0.78rem;margin-bottom:4px;">Charge-Off Date (optional)</label>
+          <input id="tmwChargeOffDate" type="date"
+            style="width:100%;background:var(--bg-primary);color:var(--text-primary);border:1px solid rgba(245,158,11,0.3);border-radius:6px;padding:8px;font-size:0.85rem;">
+        </div>
+        <div>
+          <label style="display:block;color:var(--text-secondary);font-size:0.78rem;margin-bottom:4px;">VIN (if Auto, optional)</label>
+          <input id="tmwVIN" type="text" placeholder="17-char VIN"
+            style="width:100%;background:var(--bg-primary);color:var(--text-primary);border:1px solid rgba(245,158,11,0.3);border-radius:6px;padding:8px;font-size:0.85rem;">
+        </div>
+        <div style="grid-column:1/-1;">
+          <label style="display:block;color:var(--text-secondary);font-size:0.78rem;margin-bottom:4px;">Notes</label>
+          <textarea id="tmwNotes" rows="2" placeholder="Additional notes..."
+            style="width:100%;background:var(--bg-primary);color:var(--text-primary);border:1px solid rgba(245,158,11,0.3);border-radius:6px;padding:8px;font-size:0.85rem;resize:vertical;box-sizing:border-box;"></textarea>
+        </div>
+      </div>
+
+      <!-- 30-char Description Generator -->
+      <div style="background:var(--bg-tertiary);border-radius:8px;padding:14px;margin-bottom:16px;border:1px solid rgba(245,158,11,0.2);">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <div>
+            <p style="color:#f59e0b;font-size:0.8rem;font-weight:600;margin:0 0 4px;">30-Char IRS Box 1a Description Generator</p>
+            <p style="color:var(--text-secondary);font-size:0.75rem;margin:0;">Auto-generated from Account Type + Last 4 digits</p>
+          </div>
+          <button onclick="tmwGenDescription()"
+            style="padding:7px 14px;background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.4);border-radius:6px;font-size:0.78rem;font-weight:600;cursor:pointer;">
+            Generate
+          </button>
+        </div>
+        <div id="tmwDescOutput" style="margin-top:10px;font-family:monospace;font-size:0.9rem;color:#fbbf24;background:var(--bg-primary);padding:8px 12px;border-radius:5px;border:1px solid rgba(245,158,11,0.3);min-height:32px;letter-spacing:0.05em;">
+          —
+        </div>
+        <p style="color:var(--text-secondary);font-size:0.7rem;margin:6px 0 0;" id="tmwDescCharCount">0 / 30 characters</p>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-bottom:20px;">
+        <button onclick="tmwSaveAsset()"
+          style="padding:9px 20px;background:linear-gradient(135deg,#d97706,#f59e0b);color:#0D1B2A;border:none;border-radius:6px;font-size:0.85rem;font-weight:700;cursor:pointer;">
+          Save Asset
+        </button>
+        <button onclick="tmwClearAssetForm()"
+          style="padding:9px 16px;background:transparent;color:var(--text-secondary);border:1px solid rgba(148,163,184,0.3);border-radius:6px;font-size:0.85rem;cursor:pointer;">
+          Clear Form
+        </button>
+      </div>
+
+      <h4 style="color:#f59e0b;font-size:0.9rem;font-weight:600;margin:0 0 10px;">Saved Assets</h4>
+      <div style="overflow-x:auto;">
+        <table id="tmwAssetTable" style="width:100%;border-collapse:collapse;font-size:0.8rem;">
+          <thead>
+            <tr style="background:rgba(245,158,11,0.1);">
+              <th style="padding:8px 10px;color:#f59e0b;text-align:left;border-bottom:1px solid rgba(245,158,11,0.2);">Type</th>
+              <th style="padding:8px 10px;color:#f59e0b;text-align:left;border-bottom:1px solid rgba(245,158,11,0.2);">Description</th>
+              <th style="padding:8px 10px;color:#f59e0b;text-align:left;border-bottom:1px solid rgba(245,158,11,0.2);">Institution</th>
+              <th style="padding:8px 10px;color:#f59e0b;text-align:right;border-bottom:1px solid rgba(245,158,11,0.2);">Orig. Balance</th>
+              <th style="padding:8px 10px;color:#f59e0b;text-align:right;border-bottom:1px solid rgba(245,158,11,0.2);">FMV</th>
+              <th style="padding:8px 10px;color:#f59e0b;text-align:center;border-bottom:1px solid rgba(245,158,11,0.2);">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tmwAssetTbody">
+            <tr><td colspan="6" style="padding:16px;text-align:center;color:var(--text-secondary);">No assets saved yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PANEL: CUSIP Tracker -->
+    <div id="tmw-panel-cusip" style="display:none;">
+      <h3 style="color:#f59e0b;font-size:1rem;font-weight:600;margin:0 0 16px;">CUSIP Tracker</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:16px;">
+        <div>
+          <label style="display:block;color:var(--text-secondary);font-size:0.78rem;margin-bottom:4px;">CUSIP #</label>
+          <input id="tmwCusipNum" type="text" placeholder="9-char CUSIP"
+            style="width:100%;background:var(--bg-primary);color:var(--text-primary);border:1px solid rgba(245,158,11,0.3);border-radius:6px;padding:8px;font-size:0.85rem;">
+        </div>
+        <div>
+          <label style="display:block;color:var(--text-secondary);font-size:0.78rem;margin-bottom:4px;">Fund Name</label>
+          <input id="tmwCusipFund" type="text" placeholder="Fund name"
+            style="width:100%;background:var(--bg-primary);color:var(--text-primary);border:1px solid rgba(245,158,11,0.3);border-radius:6px;padding:8px;font-size:0.85rem;">
+        </div>
+        <div>
+          <label style="display:block;color:var(--text-secondary);font-size:0.78rem;margin-bottom:4px;">NAV Date</label>
+          <input id="tmwCusipNavDate" type="date"
+            style="width:100%;background:var(--bg-primary);color:var(--text-primary);border:1px solid rgba(245,158,11,0.3);border-radius:6px;padding:8px;font-size:0.85rem;">
+        </div>
+        <div>
+          <label style="display:block;color:var(--text-secondary);font-size:0.78rem;margin-bottom:4px;">NAV/Share ($)</label>
+          <input id="tmwCusipNAV" type="number" placeholder="0.00"
+            style="width:100%;background:var(--bg-primary);color:var(--text-primary);border:1px solid rgba(245,158,11,0.3);border-radius:6px;padding:8px;font-size:0.85rem;">
+        </div>
+        <div>
+          <label style="display:block;color:var(--text-secondary);font-size:0.78rem;margin-bottom:4px;">Shares Outstanding</label>
+          <input id="tmwCusipShares" type="number" placeholder="0"
+            style="width:100%;background:var(--bg-primary);color:var(--text-primary);border:1px solid rgba(245,158,11,0.3);border-radius:6px;padding:8px;font-size:0.85rem;">
+        </div>
+        <div>
+          <label style="display:block;color:var(--text-secondary);font-size:0.78rem;margin-bottom:4px;">Linked Asset</label>
+          <select id="tmwCusipLinkedAsset"
+            style="width:100%;background:var(--bg-primary);color:var(--text-primary);border:1px solid rgba(245,158,11,0.3);border-radius:6px;padding:8px;font-size:0.85rem;">
+            <option value="">-- None --</option>
+          </select>
+        </div>
+      </div>
+      <button onclick="tmwSaveCUSIP()"
+        style="padding:9px 20px;background:linear-gradient(135deg,#d97706,#f59e0b);color:#0D1B2A;border:none;border-radius:6px;font-size:0.85rem;font-weight:700;cursor:pointer;margin-bottom:20px;">
+        Add CUSIP
+      </button>
+
+      <h4 style="color:#f59e0b;font-size:0.9rem;font-weight:600;margin:0 0 10px;">CUSIP Records</h4>
+      <div style="overflow-x:auto;">
+        <table id="tmwCusipTable" style="width:100%;border-collapse:collapse;font-size:0.8rem;">
+          <thead>
+            <tr style="background:rgba(245,158,11,0.1);">
+              <th style="padding:8px 10px;color:#f59e0b;text-align:left;border-bottom:1px solid rgba(245,158,11,0.2);">CUSIP #</th>
+              <th style="padding:8px 10px;color:#f59e0b;text-align:left;border-bottom:1px solid rgba(245,158,11,0.2);">Fund</th>
+              <th style="padding:8px 10px;color:#f59e0b;text-align:right;border-bottom:1px solid rgba(245,158,11,0.2);">NAV/Share</th>
+              <th style="padding:8px 10px;color:#f59e0b;text-align:right;border-bottom:1px solid rgba(245,158,11,0.2);">Shares</th>
+              <th style="padding:8px 10px;color:#f59e0b;text-align:right;border-bottom:1px solid rgba(245,158,11,0.2);">Total NAV</th>
+              <th style="padding:8px 10px;color:#f59e0b;text-align:center;border-bottom:1px solid rgba(245,158,11,0.2);">Beneficial %</th>
+              <th style="padding:8px 10px;color:#f59e0b;text-align:right;border-bottom:1px solid rgba(245,158,11,0.2);">Est. Yield</th>
+              <th style="padding:8px 10px;color:#f59e0b;text-align:left;border-bottom:1px solid rgba(245,158,11,0.2);">Linked Asset</th>
+              <th style="padding:8px 10px;color:#f59e0b;text-align:center;border-bottom:1px solid rgba(245,158,11,0.2);">Del</th>
+            </tr>
+          </thead>
+          <tbody id="tmwCusipTbody">
+            <tr><td colspan="9" style="padding:16px;text-align:center;color:var(--text-secondary);">No CUSIPs saved yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PANEL: Uplift Calculator -->
+    <div id="tmw-panel-uplift" style="display:none;">
+      <h3 style="color:#f59e0b;font-size:1rem;font-weight:600;margin:0 0 16px;">Uplift Calculator</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:16px;">
+        <div>
+          <label style="display:block;color:var(--text-secondary);font-size:0.78rem;margin-bottom:4px;">Select Asset</label>
+          <select id="tmwUpliftAsset" onchange="tmwUpliftFillBase()"
+            style="width:100%;background:var(--bg-primary);color:var(--text-primary);border:1px solid rgba(245,158,11,0.3);border-radius:6px;padding:8px;font-size:0.85rem;">
+            <option value="">-- Select Asset --</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;color:var(--text-secondary);font-size:0.78rem;margin-bottom:4px;">Base Value ($)</label>
+          <input id="tmwUpliftBase" type="number" placeholder="Auto-filled" readonly
+            style="width:100%;background:var(--bg-primary);color:#fbbf24;border:1px solid rgba(245,158,11,0.3);border-radius:6px;padding:8px;font-size:0.85rem;">
+        </div>
+        <div>
+          <label style="display:block;color:var(--text-secondary);font-size:0.78rem;margin-bottom:4px;">Uplift Factor</label>
+          <select id="tmwUpliftFactor" onchange="tmwToggleCustomMultiplier()"
+            style="width:100%;background:var(--bg-primary);color:var(--text-primary);border:1px solid rgba(245,158,11,0.3);border-radius:6px;padding:8px;font-size:0.85rem;">
+            <option value="1">1× Face Value</option>
+            <option value="10">10× Abandonment / Charge-Off</option>
+            <option value="50">50× Wrongful Closure</option>
+            <option value="100">100× Legacy Denial / Unauthorized Conversion</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+        <div id="tmwCustomMultDiv" style="display:none;">
+          <label style="display:block;color:var(--text-secondary);font-size:0.78rem;margin-bottom:4px;">Custom Multiplier</label>
+          <input id="tmwCustomMult" type="number" placeholder="e.g. 25"
+            style="width:100%;background:var(--bg-primary);color:var(--text-primary);border:1px solid rgba(245,158,11,0.3);border-radius:6px;padding:8px;font-size:0.85rem;">
+        </div>
+      </div>
+
+      <div style="background:var(--bg-tertiary);border-radius:8px;padding:14px;margin-bottom:16px;border:1px solid rgba(245,158,11,0.2);">
+        <p style="color:#f59e0b;font-size:0.82rem;font-weight:600;margin:0 0 10px;">Justification Basis (select all that apply)</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px;">
+          <label style="display:flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:0.82rem;cursor:pointer;">
+            <input type="checkbox" id="tmwJustChargeOff" value="Charge-off documentation"
+              style="accent-color:#f59e0b;width:15px;height:15px;"> Charge-off documentation
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:0.82rem;cursor:pointer;">
+            <input type="checkbox" id="tmwJustFOIA" value="FOIA return"
+              style="accent-color:#f59e0b;width:15px;height:15px;"> FOIA return
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:0.82rem;cursor:pointer;">
+            <input type="checkbox" id="tmwJustCUSIP" value="CUSIP assignment confirmed"
+              style="accent-color:#f59e0b;width:15px;height:15px;"> CUSIP assignment confirmed
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:0.82rem;cursor:pointer;">
+            <input type="checkbox" id="tmwJustConversion" value="Unauthorized conversion"
+              style="accent-color:#f59e0b;width:15px;height:15px;"> Unauthorized conversion
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:0.82rem;cursor:pointer;">
+            <input type="checkbox" id="tmwJustAbandonment" value="Abandonment"
+              style="accent-color:#f59e0b;width:15px;height:15px;"> Abandonment
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:0.82rem;cursor:pointer;">
+            <input type="checkbox" id="tmwJustDamages" value="Damages/harm"
+              style="accent-color:#f59e0b;width:15px;height:15px;"> Damages / harm
+          </label>
+        </div>
+      </div>
+
+      <button onclick="tmwCalcUplift()"
+        style="padding:9px 20px;background:linear-gradient(135deg,#d97706,#f59e0b);color:#0D1B2A;border:none;border-radius:6px;font-size:0.85rem;font-weight:700;cursor:pointer;margin-bottom:16px;">
+        Calculate Uplift
+      </button>
+
+      <div id="tmwUpliftResult" style="display:none;">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">
+          <div style="background:var(--bg-tertiary);border-radius:8px;padding:14px;border:1px solid rgba(245,158,11,0.2);text-align:center;">
+            <p style="color:var(--text-secondary);font-size:0.75rem;margin:0 0 4px;">Base Value</p>
+            <p id="tmwResBase" style="color:#fbbf24;font-size:1.1rem;font-weight:700;margin:0;">$0</p>
+          </div>
+          <div style="background:var(--bg-tertiary);border-radius:8px;padding:14px;border:1px solid rgba(245,158,11,0.2);text-align:center;">
+            <p style="color:var(--text-secondary);font-size:0.75rem;margin:0 0 4px;">Multiplier</p>
+            <p id="tmwResMult" style="color:#fbbf24;font-size:1.1rem;font-weight:700;margin:0;">1×</p>
+          </div>
+          <div style="background:linear-gradient(135deg,rgba(245,158,11,0.2),rgba(217,119,6,0.2));border-radius:8px;padding:14px;border:1px solid rgba(245,158,11,0.4);text-align:center;">
+            <p style="color:var(--text-secondary);font-size:0.75rem;margin:0 0 4px;">Uplifted Value</p>
+            <p id="tmwResUplifted" style="color:#f59e0b;font-size:1.2rem;font-weight:800;margin:0;">$0</p>
+          </div>
+        </div>
+        <div style="background:var(--bg-primary);border-radius:8px;padding:16px;border:1px solid rgba(245,158,11,0.3);margin-bottom:14px;">
+          <p style="color:#f59e0b;font-size:0.8rem;font-weight:600;margin:0 0 8px;">VALUATION MEMORANDUM PREVIEW</p>
+          <pre id="tmwValMemo" style="color:var(--text-secondary);font-size:0.78rem;white-space:pre-wrap;margin:0;font-family:monospace;line-height:1.6;"></pre>
+        </div>
+        <button onclick="tmwSaveUpliftToLedger()"
+          style="padding:8px 18px;background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.4);border-radius:6px;font-size:0.82rem;font-weight:600;cursor:pointer;">
+          Save Uplifted Value to Ledger
+        </button>
+      </div>
+    </div>
+
+    <!-- PANEL: Form Chain Builder -->
+    <div id="tmw-panel-chain" style="display:none;">
+      <h3 style="color:#f59e0b;font-size:1rem;font-weight:600;margin:0 0 16px;">Form Chain Builder</h3>
+      <div style="display:flex;align-items:flex-end;gap:14px;margin-bottom:20px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:200px;">
+          <label style="display:block;color:var(--text-secondary);font-size:0.78rem;margin-bottom:4px;">Select Asset</label>
+          <select id="tmwChainAsset"
+            style="width:100%;background:var(--bg-primary);color:var(--text-primary);border:1px solid rgba(245,158,11,0.3);border-radius:6px;padding:8px;font-size:0.85rem;">
+            <option value="">-- Select Asset --</option>
+          </select>
+        </div>
+        <button onclick="tmwBuildChain()"
+          style="padding:9px 20px;background:linear-gradient(135deg,#d97706,#f59e0b);color:#0D1B2A;border:none;border-radius:6px;font-size:0.85rem;font-weight:700;cursor:pointer;">
+          Build Chain
+        </button>
+      </div>
+
+      <!-- Flow Diagram -->
+      <div style="display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin-bottom:20px;padding:16px;background:var(--bg-tertiary);border-radius:8px;border:1px solid rgba(245,158,11,0.2);">
+        <div style="background:rgba(245,158,11,0.15);border:2px solid #f59e0b;border-radius:8px;padding:10px 16px;text-align:center;">
+          <p style="color:#f59e0b;font-weight:700;font-size:0.85rem;margin:0;">1099-A</p>
+          <p style="color:var(--text-secondary);font-size:0.7rem;margin:0;">Acquisition</p>
+        </div>
+        <span style="color:#f59e0b;font-size:1.2rem;">→</span>
+        <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.5);border-radius:8px;padding:10px 16px;text-align:center;">
+          <p style="color:#f59e0b;font-weight:700;font-size:0.85rem;margin:0;">1099-B #1</p>
+          <p style="color:var(--text-secondary);font-size:0.7rem;margin:0;">Monetization</p>
+        </div>
+        <span style="color:#f59e0b;font-size:1.2rem;">→</span>
+        <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.5);border-radius:8px;padding:10px 16px;text-align:center;">
+          <p style="color:#f59e0b;font-weight:700;font-size:0.85rem;margin:0;">1099-B #2</p>
+          <p style="color:var(--text-secondary);font-size:0.7rem;margin:0;">Trust Dist.</p>
+        </div>
+        <span style="color:#f59e0b;font-size:1.2rem;">→</span>
+        <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.5);border-radius:8px;padding:10px 16px;text-align:center;">
+          <p style="color:#f59e0b;font-weight:700;font-size:0.85rem;margin:0;">1096</p>
+          <p style="color:var(--text-secondary);font-size:0.7rem;margin:0;">Transmittal</p>
+        </div>
+      </div>
+
+      <div id="tmwChainMismatch" style="display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.4);border-radius:6px;padding:10px 14px;margin-bottom:14px;color:#f87171;font-size:0.82rem;font-weight:600;">
+        WARNING: 1099-B #1 and 1099-B #2 values do not match. Review before filing.
+      </div>
+
+      <div id="tmwChainOutput" style="display:none;">
+        <div id="tmwChainForms" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:16px;"></div>
+        <button onclick="window.print()"
+          style="padding:8px 18px;background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.4);border-radius:6px;font-size:0.82rem;font-weight:600;cursor:pointer;">
+          Print / Save Package
+        </button>
+      </div>
+    </div>
+
+    <!-- PANEL: Schedule D Export -->
+    <div id="tmw-panel-schedd" style="display:none;">
+      <h3 style="color:#f59e0b;font-size:1rem;font-weight:600;margin:0 0 16px;">Schedule D Export</h3>
+      <div style="display:flex;align-items:flex-end;gap:14px;margin-bottom:20px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:200px;">
+          <label style="display:block;color:var(--text-secondary);font-size:0.78rem;margin-bottom:4px;">Select Asset</label>
+          <select id="tmwSchedDAsset"
+            style="width:100%;background:var(--bg-primary);color:var(--text-primary);border:1px solid rgba(245,158,11,0.3);border-radius:6px;padding:8px;font-size:0.85rem;">
+            <option value="">-- Select Asset --</option>
+          </select>
+        </div>
+        <button onclick="tmwExportScheduleD()"
+          style="padding:9px 20px;background:linear-gradient(135deg,#d97706,#f59e0b);color:#0D1B2A;border:none;border-radius:6px;font-size:0.85rem;font-weight:700;cursor:pointer;">
+          Generate Schedule D
+        </button>
+      </div>
+
+      <div id="tmwSchedDOutput" style="display:none;">
+        <div style="overflow-x:auto;margin-bottom:16px;">
+          <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+            <thead>
+              <tr style="background:rgba(245,158,11,0.1);">
+                <th style="padding:8px 10px;color:#f59e0b;text-align:left;border-bottom:1px solid rgba(245,158,11,0.2);">Description</th>
+                <th style="padding:8px 10px;color:#f59e0b;text-align:center;border-bottom:1px solid rgba(245,158,11,0.2);">Date Acquired</th>
+                <th style="padding:8px 10px;color:#f59e0b;text-align:center;border-bottom:1px solid rgba(245,158,11,0.2);">Date Sold/Dist.</th>
+                <th style="padding:8px 10px;color:#f59e0b;text-align:right;border-bottom:1px solid rgba(245,158,11,0.2);">Proceeds</th>
+                <th style="padding:8px 10px;color:#f59e0b;text-align:right;border-bottom:1px solid rgba(245,158,11,0.2);">Cost Basis</th>
+                <th style="padding:8px 10px;color:#f59e0b;text-align:right;border-bottom:1px solid rgba(245,158,11,0.2);">Gain / Loss</th>
+                <th style="padding:8px 10px;color:#f59e0b;text-align:center;border-bottom:1px solid rgba(245,158,11,0.2);">Term</th>
+              </tr>
+            </thead>
+            <tbody id="tmwSchedDTbody"></tbody>
+          </table>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;">
+          <div style="background:var(--bg-tertiary);border-radius:8px;padding:12px;border:1px solid rgba(245,158,11,0.2);text-align:center;">
+            <p style="color:var(--text-secondary);font-size:0.75rem;margin:0 0 4px;">Total Proceeds</p>
+            <p id="tmwSchedDProceeds" style="color:#fbbf24;font-size:1rem;font-weight:700;margin:0;">$0</p>
+          </div>
+          <div style="background:var(--bg-tertiary);border-radius:8px;padding:12px;border:1px solid rgba(245,158,11,0.2);text-align:center;">
+            <p style="color:var(--text-secondary);font-size:0.75rem;margin:0 0 4px;">Total Cost Basis</p>
+            <p id="tmwSchedDCost" style="color:#fbbf24;font-size:1rem;font-weight:700;margin:0;">$0</p>
+          </div>
+          <div style="background:var(--bg-tertiary);border-radius:8px;padding:12px;border:1px solid rgba(245,158,11,0.4);text-align:center;">
+            <p style="color:var(--text-secondary);font-size:0.75rem;margin:0 0 4px;">Net Gain / Loss</p>
+            <p id="tmwSchedDNet" style="color:#f59e0b;font-size:1rem;font-weight:700;margin:0;">$0</p>
+          </div>
+        </div>
+        <button onclick="window.print()"
+          style="padding:8px 18px;background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.4);border-radius:6px;font-size:0.82rem;font-weight:600;cursor:pointer;">
+          Print Schedule D Summary
+        </button>
+      </div>
+    </div>
+
+    <!-- PANEL: Form 3949-A -->
+    <div id="tmw-panel-form3949" style="display:none;">
+      <h3 style="color:#f59e0b;font-size:1rem;font-weight:600;margin:0 0 16px;">Form 3949-A Package</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:16px;">
+        <div>
+          <label style="display:block;color:var(--text-secondary);font-size:0.78rem;margin-bottom:4px;">Select Asset</label>
+          <select id="tmw3949Asset" onchange="tmw3949FillFields()"
+            style="width:100%;background:var(--bg-primary);color:var(--text-primary);border:1px solid rgba(245,158,11,0.3);border-radius:6px;padding:8px;font-size:0.85rem;">
+            <option value="">-- Select Asset --</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;color:var(--text-secondary);font-size:0.78rem;margin-bottom:4px;">Institution Name (auto-filled)</label>
+          <input id="tmw3949Institution" type="text" placeholder="Auto-filled from asset"
+            style="width:100%;background:var(--bg-primary);color:#fbbf24;border:1px solid rgba(245,158,11,0.3);border-radius:6px;padding:8px;font-size:0.85rem;">
+        </div>
+      </div>
+
+      <div style="background:var(--bg-tertiary);border-radius:8px;padding:14px;margin-bottom:16px;border:1px solid rgba(245,158,11,0.2);">
+        <p style="color:#f59e0b;font-size:0.82rem;font-weight:600;margin:0 0 10px;">Alleged Violations</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;">
+          <label style="display:flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:0.82rem;cursor:pointer;">
+            <input type="checkbox" id="tmwViol1" value="Failure to Report Income"
+              style="accent-color:#f59e0b;width:15px;height:15px;"> Failure to Report Income
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:0.82rem;cursor:pointer;">
+            <input type="checkbox" id="tmwViol2" value="False/Altered Documents"
+              style="accent-color:#f59e0b;width:15px;height:15px;"> False / Altered Documents
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:0.82rem;cursor:pointer;">
+            <input type="checkbox" id="tmwViol3" value="Unreported Securities Transactions"
+              style="accent-color:#f59e0b;width:15px;height:15px;"> Unreported Securities Transactions
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:0.82rem;cursor:pointer;">
+            <input type="checkbox" id="tmwViol4" value="Converted Note Without Disclosure"
+              style="accent-color:#f59e0b;width:15px;height:15px;"> Converted Note Without Disclosure
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:0.82rem;cursor:pointer;">
+            <input type="checkbox" id="tmwViol5" value="Failure to File 1099-A/B/OID"
+              style="accent-color:#f59e0b;width:15px;height:15px;"> Failure to File 1099-A/B/OID
+          </label>
+        </div>
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <label style="display:block;color:var(--text-secondary);font-size:0.78rem;margin-bottom:4px;">Statement of Facts</label>
+        <textarea id="tmw3949Facts" rows="6" placeholder="Auto-populates when asset is selected..."
+          style="width:100%;background:var(--bg-primary);color:var(--text-primary);border:1px solid rgba(245,158,11,0.3);border-radius:6px;padding:10px;font-size:0.82rem;resize:vertical;box-sizing:border-box;line-height:1.6;"></textarea>
+      </div>
+
+      <button onclick="tmwGen3949A()"
+        style="padding:9px 20px;background:linear-gradient(135deg,#d97706,#f59e0b);color:#0D1B2A;border:none;border-radius:6px;font-size:0.85rem;font-weight:700;cursor:pointer;margin-bottom:16px;">
+        Generate 3949-A Package
+      </button>
+
+      <div id="tmw3949Output" style="display:none;">
+        <div style="background:var(--bg-primary);border-radius:8px;padding:20px;border:1px solid rgba(245,158,11,0.3);margin-bottom:14px;">
+          <pre id="tmw3949Doc" style="color:var(--text-secondary);font-size:0.78rem;white-space:pre-wrap;margin:0;font-family:monospace;line-height:1.7;"></pre>
+        </div>
+        <button onclick="window.print()"
+          style="padding:8px 18px;background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.4);border-radius:6px;font-size:0.82rem;font-weight:600;cursor:pointer;">
+          Print 3949-A Package
+        </button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="trustOSSection" class="form-section hidden">
+  <div class="p-6 space-y-6">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <h2 class="text-2xl font-bold text-white">🏛 Trust OS — Master Binder</h2>
+        <span class="px-3 py-1 rounded-full text-xs font-bold text-white" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9);">OPERATIONAL BACKBONE</span>
+      </div>
+      <div class="flex items-center gap-3 flex-wrap">
+        <select id="tosTrustSelector" onchange="tosSelectTrust(this.value)" class="px-3 py-2 rounded-lg text-sm font-medium text-white border" style="background:#1B2A4A;border-color:#8b5cf6;min-width:200px;">
+          <option value="">— Select Trust —</option>
+        </select>
+        <button onclick="tosNewTrust()" class="px-4 py-2 rounded-lg text-sm font-bold text-white transition-all hover:opacity-90" style="background:#8b5cf6;">➕ New Trust</button>
+      </div>
+    </div>
+
+    <!-- Binder Audit Score -->
+    <div id="tosScoreBar" class="rounded-xl p-4 flex flex-col sm:flex-row items-center gap-6" style="background:#1B2A4A;border:1px solid rgba(139,92,246,0.3);">
+      <div class="flex flex-col items-center">
+        <div id="tosScoreCircle" class="w-24 h-24 rounded-full flex items-center justify-center text-2xl font-black text-white border-4" style="border-color:#6d28d9;background:#243B5E;">—</div>
+        <span class="text-xs mt-1 font-semibold" style="color:#94A3B8;">Binder Completeness</span>
+      </div>
+      <div class="flex-1 space-y-1">
+        <div id="tosScoreLabel" class="text-lg font-bold text-white">Select a trust to begin</div>
+        <div id="tosScoreBreakdown" class="text-sm grid grid-cols-2 gap-x-6 gap-y-1" style="color:#94A3B8;"></div>
+      </div>
+    </div>
+
+    <!-- Binder Tab Navigation -->
+    <div class="flex flex-wrap gap-2" id="tosTabNav">
+      <button onclick="tosSwitchTab('trust')" data-tos-tab="trust" class="tos-tab-btn px-4 py-2 rounded-full text-sm font-semibold border transition-all" style="border-color:#8b5cf6;color:#8b5cf6;background:transparent;">📋 Trust</button>
+      <button onclick="tosSwitchTab('ein')" data-tos-tab="ein" class="tos-tab-btn px-4 py-2 rounded-full text-sm font-semibold border transition-all" style="border-color:#8b5cf6;color:#8b5cf6;background:transparent;">🔑 EIN</button>
+      <button onclick="tosSwitchTab('banking')" data-tos-tab="banking" class="tos-tab-btn px-4 py-2 rounded-full text-sm font-semibold border transition-all" style="border-color:#8b5cf6;color:#8b5cf6;background:transparent;">🏦 Banking</button>
+      <button onclick="tosSwitchTab('ledgers')" data-tos-tab="ledgers" class="tos-tab-btn px-4 py-2 rounded-full text-sm font-semibold border transition-all" style="border-color:#8b5cf6;color:#8b5cf6;background:transparent;">📒 Ledgers</button>
+      <button onclick="tosSwitchTab('valuations')" data-tos-tab="valuations" class="tos-tab-btn px-4 py-2 rounded-full text-sm font-semibold border transition-all" style="border-color:#8b5cf6;color:#8b5cf6;background:transparent;">📊 Valuations</button>
+      <button onclick="tosSwitchTab('1099s')" data-tos-tab="1099s" class="tos-tab-btn px-4 py-2 rounded-full text-sm font-semibold border transition-all" style="border-color:#8b5cf6;color:#8b5cf6;background:transparent;">🧾 1099s</button>
+      <button onclick="tosSwitchTab('notices')" data-tos-tab="notices" class="tos-tab-btn px-4 py-2 rounded-full text-sm font-semibold border transition-all" style="border-color:#8b5cf6;color:#8b5cf6;background:transparent;">📬 Notices</button>
+    </div>
+
+    <!-- TAB PANELS -->
+
+    <!-- Tab: Trust -->
+    <div id="tosTab-trust" class="tos-tab-panel space-y-5 hidden">
+      <div class="rounded-xl p-5 space-y-4" style="background:#1B2A4A;border:1px solid rgba(139,92,246,0.25);">
+        <h3 class="text-base font-bold text-white">📋 Trust Instrument Details</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Trust Name</label>
+            <input id="tos_trust_name" type="text" placeholder="e.g. Smith Family Trust" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Trust Type</label>
+            <select id="tos_trust_type" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+              <option value="">— Select —</option>
+              <option value="RLT">RLT — Revocable Living Trust</option>
+              <option value="IPT">IPT — Irrevocable Private Trust</option>
+              <option value="Business">Business Trust</option>
+              <option value="Land">Land Trust</option>
+              <option value="Family">Family Trust</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Formation Date</label>
+            <input id="tos_formation_date" type="date" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">State of Formation</label>
+            <input id="tos_state" type="text" placeholder="e.g. Nevada" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Grantor Name</label>
+            <input id="tos_grantor" type="text" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Trustee Name <span class="font-normal" style="color:#6d28d9;">Sign as "By: [Name], Trustee"</span></label>
+            <input id="tos_trustee" type="text" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Successor Trustee</label>
+            <input id="tos_successor" type="text" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+          <div class="flex items-center gap-3 pt-4">
+            <label class="text-xs font-semibold" style="color:#94A3B8;">Notarized?</label>
+            <button id="tos_notarized_btn" onclick="tosToggle('tos_notarized_btn','tos_notarized')" data-value="false" class="px-4 py-1 rounded-full text-xs font-bold border transition-all" style="border-color:#ef4444;color:#ef4444;background:transparent;">❌ No</button>
+            <input type="hidden" id="tos_notarized" value="false">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Beneficiaries</label>
+          <textarea id="tos_beneficiaries" rows="3" placeholder="List beneficiaries, one per line..." class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);resize:vertical;"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Trust Purpose</label>
+          <textarea id="tos_purpose" rows="2" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);resize:vertical;"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Linked Sub-Trusts <span class="font-normal" style="color:#6d28d9;">(for IPT linked to this RLT)</span></label>
+          <textarea id="tos_sub_trusts" rows="2" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);resize:vertical;"></textarea>
+        </div>
+        <div class="flex items-center justify-between pt-2 flex-wrap gap-3">
+          <div id="tosTrustChecklist" class="flex flex-wrap gap-2 text-xs"></div>
+          <button onclick="tosSaveTrust()" class="px-5 py-2 rounded-lg text-sm font-bold text-white transition-all hover:opacity-90" style="background:#8b5cf6;">💾 Save Trust Info</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: EIN -->
+    <div id="tosTab-ein" class="tos-tab-panel space-y-5 hidden">
+      <div class="rounded-xl p-5 space-y-4" style="background:#1B2A4A;border:1px solid rgba(139,92,246,0.25);">
+        <h3 class="text-base font-bold text-white">🔑 EIN & Filing Status</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">EIN Number (XX-XXXXXXX)</label>
+            <input id="tos_ein" type="text" placeholder="12-3456789" maxlength="10" class="w-full px-3 py-2 rounded-lg text-sm text-white border font-mono" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">SS-4 Filing Date</label>
+            <input id="tos_ss4_date" type="date" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">CP-575 Status</label>
+            <select id="tos_cp575" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+              <option value="not_filed">❌ Not Filed</option>
+              <option value="pending">⏳ Pending</option>
+              <option value="received">✅ Received</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Filing Type</label>
+            <select id="tos_filing_type" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+              <option value="">— Select —</option>
+              <option value="trust_ein">Trust Uses Own EIN</option>
+              <option value="grantor_ssn">Filing Under Grantor SSN</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">IRS Account Number</label>
+            <input id="tos_irs_acct" type="text" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+        </div>
+      </div>
+
+      <!-- Form 56 Generator -->
+      <div class="rounded-xl p-5 space-y-4" style="background:#1B2A4A;border:1px solid rgba(139,92,246,0.25);">
+        <h3 class="text-base font-bold text-white">📄 Form 56 Package Generator</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Line 1a — Name of Person/Trust</label>
+            <input id="tos_f56_1a" type="text" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Line 1b — SSN/EIN of Person/Trust</label>
+            <input id="tos_f56_1b" type="text" class="w-full px-3 py-2 rounded-lg text-sm text-white border font-mono" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Line 2a — Your Name as Fiduciary</label>
+            <input id="tos_f56_2a" type="text" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Line 2b — Your SSN/EIN as Fiduciary</label>
+            <input id="tos_f56_2b" type="text" class="w-full px-3 py-2 rounded-lg text-sm text-white border font-mono" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Line 3b — Your Mailing Address</label>
+            <input id="tos_f56_3b" type="text" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Tax Period</label>
+            <input id="tos_f56_period" type="text" value="All periods past, present, and future" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+          <div class="flex items-center gap-3 pt-3">
+            <label class="text-xs font-semibold" style="color:#94A3B8;">Court-Appointed?</label>
+            <button id="tos_f56_court_btn" onclick="tosToggle('tos_f56_court_btn','tos_f56_court')" data-value="false" class="px-4 py-1 rounded-full text-xs font-bold border transition-all" style="border-color:#ef4444;color:#ef4444;background:transparent;">No</button>
+            <input type="hidden" id="tos_f56_court" value="false">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold mb-2" style="color:#94A3B8;">Tax Types</label>
+          <div class="flex flex-wrap gap-3">
+            <label class="flex items-center gap-2 text-sm text-white cursor-pointer"><input type="checkbox" id="tos_tax_income" class="accent-purple-500"> Income</label>
+            <label class="flex items-center gap-2 text-sm text-white cursor-pointer"><input type="checkbox" id="tos_tax_employment" class="accent-purple-500"> Employment</label>
+            <label class="flex items-center gap-2 text-sm text-white cursor-pointer"><input type="checkbox" id="tos_tax_estate" class="accent-purple-500"> Estate</label>
+            <label class="flex items-center gap-2 text-sm text-white cursor-pointer"><input type="checkbox" id="tos_tax_gift" class="accent-purple-500"> Gift</label>
+            <label class="flex items-center gap-2 text-sm text-white cursor-pointer"><input type="checkbox" id="tos_tax_all" class="accent-purple-500"> All</label>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-3 pt-2 items-center">
+          <div id="tosEINChecklist" class="flex flex-wrap gap-2 text-xs"></div>
+          <div class="ml-auto flex gap-2">
+            <button onclick="tosSaveEIN()" class="px-5 py-2 rounded-lg text-sm font-bold text-white transition-all hover:opacity-90" style="background:#6d28d9;">💾 Save EIN Info</button>
+            <button onclick="tosGenForm56()" class="px-5 py-2 rounded-lg text-sm font-bold text-white transition-all hover:opacity-90" style="background:#8b5cf6;">📄 Generate Form 56 Package</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Banking -->
+    <div id="tosTab-banking" class="tos-tab-panel space-y-5 hidden">
+      <div class="rounded-xl p-5 space-y-4" style="background:#1B2A4A;border:1px solid rgba(139,92,246,0.25);">
+        <h3 class="text-base font-bold text-white">🏦 Add Bank Account</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Institution Name</label>
+            <input id="tos_bank_name" type="text" placeholder="e.g. Chase" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Account # (last 4)</label>
+            <input id="tos_bank_acct" type="text" maxlength="4" placeholder="XXXX" class="w-full px-3 py-2 rounded-lg text-sm text-white border font-mono" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Account Type</label>
+            <select id="tos_bank_type" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+              <option value="Checking">Checking</option>
+              <option value="Savings">Savings</option>
+              <option value="Money Market">Money Market</option>
+              <option value="Investment">Investment</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Balance ($)</label>
+            <input id="tos_bank_balance" type="number" step="0.01" placeholder="0.00" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+          <div class="flex items-center gap-3 pt-4">
+            <label class="text-xs font-semibold" style="color:#94A3B8;">Non-Interest Bearing?</label>
+            <button id="tos_bank_nonint_btn" onclick="tosToggle('tos_bank_nonint_btn','tos_bank_nonint')" data-value="false" class="px-3 py-1 rounded-full text-xs font-bold border transition-all" style="border-color:#f59e0b;color:#f59e0b;background:transparent;">No</button>
+            <input type="hidden" id="tos_bank_nonint" value="false">
+          </div>
+          <div class="flex items-center gap-3 pt-4">
+            <label class="text-xs font-semibold" style="color:#94A3B8;">Uses Trust EIN?</label>
+            <button id="tos_bank_ein_btn" onclick="tosToggle('tos_bank_ein_btn','tos_bank_ein')" data-value="false" class="px-3 py-1 rounded-full text-xs font-bold border transition-all" style="border-color:#ef4444;color:#ef4444;background:transparent;">No</button>
+            <input type="hidden" id="tos_bank_ein" value="false">
+          </div>
+        </div>
+        <div class="flex justify-end">
+          <button onclick="tosAddAccount()" class="px-5 py-2 rounded-lg text-sm font-bold text-white transition-all hover:opacity-90" style="background:#8b5cf6;">➕ Add Account</button>
+        </div>
+      </div>
+      <div class="rounded-xl p-5 space-y-3" style="background:#1B2A4A;border:1px solid rgba(139,92,246,0.25);">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-bold text-white">Accounts</h3>
+          <div id="tosBankingChecklist" class="flex flex-wrap gap-2 text-xs"></div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs" style="border-collapse:collapse;">
+            <thead>
+              <tr style="border-bottom:1px solid rgba(139,92,246,0.3);">
+                <th class="text-left py-2 px-2 font-semibold" style="color:#94A3B8;">Institution</th>
+                <th class="text-left py-2 px-2 font-semibold" style="color:#94A3B8;">Acct #</th>
+                <th class="text-left py-2 px-2 font-semibold" style="color:#94A3B8;">Type</th>
+                <th class="text-right py-2 px-2 font-semibold" style="color:#94A3B8;">Balance</th>
+                <th class="text-center py-2 px-2 font-semibold" style="color:#94A3B8;">Non-Int</th>
+                <th class="text-center py-2 px-2 font-semibold" style="color:#94A3B8;">EIN Used</th>
+                <th class="text-center py-2 px-2 font-semibold" style="color:#94A3B8;">Status</th>
+                <th class="text-center py-2 px-2 font-semibold" style="color:#94A3B8;">Del</th>
+              </tr>
+            </thead>
+            <tbody id="tosBankTable"></tbody>
+            <tfoot>
+              <tr style="border-top:1px solid rgba(139,92,246,0.3);">
+                <td colspan="3" class="py-2 px-2 font-bold text-white text-xs">Total Trust Assets</td>
+                <td id="tosBankTotal" class="py-2 px-2 font-bold text-right" style="color:#8b5cf6;">$0.00</td>
+                <td colspan="4"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Ledgers -->
+    <div id="tosTab-ledgers" class="tos-tab-panel space-y-5 hidden">
+      <div class="rounded-xl p-5 space-y-4" style="background:#1B2A4A;border:1px solid rgba(139,92,246,0.25);">
+        <h3 class="text-base font-bold text-white">📒 Add Asset Entry</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Asset Description</label>
+            <input id="tos_led_desc" type="text" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Source (original account/institution)</label>
+            <input id="tos_led_source" type="text" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Note / Account #</label>
+            <input id="tos_led_note" type="text" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Status</label>
+            <select id="tos_led_status" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+              <option value="Acquired">Acquired</option>
+              <option value="Monetized">Monetized</option>
+              <option value="Distributed">Distributed</option>
+              <option value="Settled">Settled</option>
+              <option value="Pending">Pending</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Original Value ($)</label>
+            <input id="tos_led_orig" type="number" step="0.01" placeholder="0.00" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">FMV ($)</label>
+            <input id="tos_led_fmv" type="number" step="0.01" placeholder="0.00" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Uplift Value ($, optional)</label>
+            <input id="tos_led_uplift" type="number" step="0.01" placeholder="0.00" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold mb-2" style="color:#94A3B8;">Supporting Docs</label>
+          <div class="flex flex-wrap gap-3">
+            <label class="flex items-center gap-1 text-xs text-white cursor-pointer"><input type="checkbox" data-led-doc="Security Agreement" class="tos-led-doc accent-purple-500"> Security Agreement</label>
+            <label class="flex items-center gap-1 text-xs text-white cursor-pointer"><input type="checkbox" data-led-doc="UCC-1 Filed" class="tos-led-doc accent-purple-500"> UCC-1 Filed</label>
+            <label class="flex items-center gap-1 text-xs text-white cursor-pointer"><input type="checkbox" data-led-doc="Assignment Executed" class="tos-led-doc accent-purple-500"> Assignment Executed</label>
+            <label class="flex items-center gap-1 text-xs text-white cursor-pointer"><input type="checkbox" data-led-doc="FMV Documented" class="tos-led-doc accent-purple-500"> FMV Documented</label>
+            <label class="flex items-center gap-1 text-xs text-white cursor-pointer"><input type="checkbox" data-led-doc="Affidavit Attached" class="tos-led-doc accent-purple-500"> Affidavit Attached</label>
+            <label class="flex items-center gap-1 text-xs text-white cursor-pointer"><input type="checkbox" data-led-doc="FOIA Return" class="tos-led-doc accent-purple-500"> FOIA Return</label>
+            <label class="flex items-center gap-1 text-xs text-white cursor-pointer"><input type="checkbox" data-led-doc="Charge-off Letter" class="tos-led-doc accent-purple-500"> Charge-off Letter</label>
+            <label class="flex items-center gap-1 text-xs text-white cursor-pointer"><input type="checkbox" data-led-doc="CUSIP Confirmed" class="tos-led-doc accent-purple-500"> CUSIP Confirmed</label>
+          </div>
+        </div>
+        <div class="flex justify-end">
+          <button onclick="tosAddLedgerEntry()" class="px-5 py-2 rounded-lg text-sm font-bold text-white transition-all hover:opacity-90" style="background:#8b5cf6;">➕ Add Entry</button>
+        </div>
+      </div>
+      <div class="rounded-xl p-5 space-y-3" style="background:#1B2A4A;border:1px solid rgba(139,92,246,0.25);">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <h3 class="text-base font-bold text-white">Ledger</h3>
+          <div id="tosLedgerChecklist" class="flex flex-wrap gap-2 text-xs"></div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs" style="border-collapse:collapse;">
+            <thead>
+              <tr style="border-bottom:1px solid rgba(139,92,246,0.3);">
+                <th class="text-left py-2 px-1 font-semibold" style="color:#94A3B8;">#</th>
+                <th class="text-left py-2 px-1 font-semibold" style="color:#94A3B8;">Date</th>
+                <th class="text-left py-2 px-1 font-semibold" style="color:#94A3B8;">Asset</th>
+                <th class="text-left py-2 px-1 font-semibold" style="color:#94A3B8;">Source</th>
+                <th class="text-right py-2 px-1 font-semibold" style="color:#94A3B8;">Orig Val</th>
+                <th class="text-right py-2 px-1 font-semibold" style="color:#94A3B8;">FMV</th>
+                <th class="text-right py-2 px-1 font-semibold" style="color:#94A3B8;">Uplift</th>
+                <th class="text-center py-2 px-1 font-semibold" style="color:#94A3B8;">Status</th>
+                <th class="text-center py-2 px-1 font-semibold" style="color:#94A3B8;">Docs</th>
+                <th class="text-center py-2 px-1 font-semibold" style="color:#94A3B8;">Del</th>
+              </tr>
+            </thead>
+            <tbody id="tosLedgerTable"></tbody>
+          </table>
+        </div>
+        <div id="tosLedgerSummary" class="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2"></div>
+      </div>
+    </div>
+
+    <!-- Tab: Valuations -->
+    <div id="tosTab-valuations" class="tos-tab-panel space-y-5 hidden">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold text-white">📊 Asset Valuations</h3>
+        <div id="tosValuationsOverall" class="text-sm font-semibold" style="color:#94A3B8;"></div>
+      </div>
+      <div id="tosValuationsGrid" class="space-y-4"></div>
+    </div>
+
+    <!-- Tab: 1099s -->
+    <div id="tosTab-1099s" class="tos-tab-panel space-y-5 hidden">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <h3 class="text-base font-bold text-white">🧾 Form Chains & 1099 Status</h3>
+        <div id="tos1099Checklist" class="flex flex-wrap gap-2 text-xs"></div>
+      </div>
+      <div id="tos1099Panel" class="space-y-4"></div>
+      <div id="tos1099Totals" class="rounded-lg p-3 text-sm" style="background:#243B5E;"></div>
+    </div>
+
+    <!-- Tab: Notices -->
+    <div id="tosTab-notices" class="tos-tab-panel space-y-5 hidden">
+      <div class="rounded-xl p-5 space-y-4" style="background:#1B2A4A;border:1px solid rgba(139,92,246,0.25);">
+        <h3 class="text-base font-bold text-white">📬 Add Notice</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Notice Type</label>
+            <select id="tos_not_type" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+              <option value="Constructive Trust Declaration">Constructive Trust Declaration</option>
+              <option value="Equitable Lien Notice">Equitable Lien Notice</option>
+              <option value="Demand for Fund Accounting">Demand for Fund Accounting</option>
+              <option value="Notice of Dispute & Validation Demand">Notice of Dispute &amp; Validation Demand</option>
+              <option value="Conditional Payment Suspension">Conditional Payment Suspension</option>
+              <option value="Affidavit of Creditor Breach">Affidavit of Creditor Breach</option>
+              <option value="Form 3949-A Filed">Form 3949-A Filed</option>
+              <option value="Administrative Notice of Status">Administrative Notice of Status</option>
+              <option value="Form 56 Filed">Form 56 Filed</option>
+              <option value="UCC-1 Filed">UCC-1 Filed</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Related Asset</label>
+            <select id="tos_not_asset" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Recipient Name</label>
+            <input id="tos_not_recipient" type="text" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Recipient Address</label>
+            <input id="tos_not_address" type="text" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Date Served</label>
+            <input id="tos_not_date" type="date" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Method</label>
+            <select id="tos_not_method" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+              <option value="Certified Mail">Certified Mail</option>
+              <option value="FedEx">FedEx</option>
+              <option value="Personal Service">Personal Service</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Tracking # (Certified Mail)</label>
+            <input id="tos_not_tracking" type="text" class="w-full px-3 py-2 rounded-lg text-sm text-white border font-mono" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+          <div class="flex items-center gap-3 pt-4">
+            <label class="text-xs font-semibold" style="color:#94A3B8;">Response Received?</label>
+            <button id="tos_not_resp_btn" onclick="tosToggle('tos_not_resp_btn','tos_not_resp')" data-value="false" class="px-3 py-1 rounded-full text-xs font-bold border transition-all" style="border-color:#ef4444;color:#ef4444;background:transparent;">No</button>
+            <input type="hidden" id="tos_not_resp" value="false">
+            <input id="tos_not_resp_date" type="date" placeholder="Response date" class="px-2 py-1 rounded text-xs text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Notes</label>
+          <textarea id="tos_not_notes" rows="2" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.4);resize:vertical;"></textarea>
+        </div>
+        <div class="flex justify-end">
+          <button onclick="tosAddNotice()" class="px-5 py-2 rounded-lg text-sm font-bold text-white transition-all hover:opacity-90" style="background:#8b5cf6;">➕ Add Notice</button>
+        </div>
+      </div>
+      <div class="rounded-xl p-5 space-y-3" style="background:#1B2A4A;border:1px solid rgba(139,92,246,0.25);">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <h3 class="text-base font-bold text-white">Notices Log</h3>
+          <div id="tosNoticesChecklist" class="flex flex-wrap gap-2 text-xs"></div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs" style="border-collapse:collapse;">
+            <thead>
+              <tr style="border-bottom:1px solid rgba(139,92,246,0.3);">
+                <th class="text-left py-2 px-1 font-semibold" style="color:#94A3B8;">Type</th>
+                <th class="text-left py-2 px-1 font-semibold" style="color:#94A3B8;">Asset</th>
+                <th class="text-left py-2 px-1 font-semibold" style="color:#94A3B8;">Recipient</th>
+                <th class="text-left py-2 px-1 font-semibold" style="color:#94A3B8;">Served</th>
+                <th class="text-left py-2 px-1 font-semibold" style="color:#94A3B8;">Method</th>
+                <th class="text-left py-2 px-1 font-semibold" style="color:#94A3B8;">Tracking</th>
+                <th class="text-center py-2 px-1 font-semibold" style="color:#94A3B8;">Status</th>
+                <th class="text-left py-2 px-1 font-semibold" style="color:#94A3B8;">Notes</th>
+                <th class="text-center py-2 px-1 font-semibold" style="color:#94A3B8;">Del</th>
+              </tr>
+            </thead>
+            <tbody id="tosNoticesTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Form 56 Modal -->
+  <div id="tosF56Modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden" style="background:rgba(0,0,0,0.8);">
+    <div class="rounded-xl w-full max-w-2xl max-h-screen overflow-y-auto" style="background:#1B2A4A;border:1px solid rgba(139,92,246,0.5);">
+      <div class="flex items-center justify-between p-4 border-b" style="border-color:rgba(139,92,246,0.3);">
+        <h3 class="text-base font-bold text-white">📄 Form 56 Package</h3>
+        <div class="flex gap-2">
+          <button onclick="tosPrintF56()" class="px-4 py-1 rounded text-xs font-bold text-white" style="background:#6d28d9;">🖨 Print</button>
+          <button onclick="document.getElementById('tosF56Modal').classList.add('hidden')" class="px-4 py-1 rounded text-xs font-bold text-white" style="background:#374151;">✕ Close</button>
+        </div>
+      </div>
+      <div id="tosF56Content" class="p-6 font-mono text-xs text-white whitespace-pre-wrap leading-relaxed" style="color:#E2E8F0;"></div>
+    </div>
+  </div>
+
+</section>
 
   <!-- ═══ CPA SECTIONS ════════════════════════════════════════════════ -->
 
@@ -30976,6 +31946,1553 @@ function ev2InitEntityVerifier() {
 </div>
 <div id="autoSaveStatus" style="position: fixed; bottom: 20px; right: 20px; padding: 10px 20px; border-radius: 8px; font-size: 12px; z-index: 9999; transition: opacity 0.3s;"></div>
 
+<script>
+(function() {
+
+  /* ─── Storage helpers ───────────────────────────────────────── */
+  function tmwGetAssets() {
+    try { return JSON.parse(localStorage.getItem('TMAR_TMW_Assets') || '[]'); }
+    catch(e) { return []; }
+  }
+  function tmwGetCUSIPs() {
+    try { return JSON.parse(localStorage.getItem('TMAR_TMW_CUSIPs') || '[]'); }
+    catch(e) { return []; }
+  }
+  function tmwSetAssets(arr) {
+    localStorage.setItem('TMAR_TMW_Assets', JSON.stringify(arr));
+  }
+  function tmwSetCUSIPs(arr) {
+    localStorage.setItem('TMAR_TMW_CUSIPs', JSON.stringify(arr));
+  }
+  function tmwGetTrustName() {
+    return localStorage.getItem('gaapclaw_entity') || 'YOUR TRUST NAME';
+  }
+  function tmwFmtMoney(n) {
+    return '$' + Number(n || 0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+  function tmwFmtDate(d) {
+    if (!d) return '—';
+    var p = d.split('-');
+    if (p.length !== 3) return d;
+    return p[1] + '/' + p[2] + '/' + p[0];
+  }
+  function tmwTodayISO() {
+    return new Date().toISOString().split('T')[0];
+  }
+
+  /* ─── Init ──────────────────────────────────────────────────── */
+  window.tmwInit = function() {
+    tmwRenderAssets();
+    tmwRenderCUSIPs();
+    tmwPopulateAllDropdowns();
+    tmwSwitchTab('assets');
+  };
+
+  /* ─── Tab switching ──────────────────────────────────────────── */
+  window.tmwSwitchTab = function(name) {
+    var tabs = ['assets','cusip','uplift','chain','schedd','form3949'];
+    tabs.forEach(function(t) {
+      var panel = document.getElementById('tmw-panel-' + t);
+      var btn   = document.getElementById('tmw-tab-' + t);
+      if (!panel || !btn) return;
+      if (t === name) {
+        panel.style.display = 'block';
+        btn.style.background = 'rgba(245,158,11,0.2)';
+        btn.style.color = '#f59e0b';
+        btn.style.border = '1px solid rgba(245,158,11,0.4)';
+      } else {
+        panel.style.display = 'none';
+        btn.style.background = 'transparent';
+        btn.style.color = 'var(--text-secondary)';
+        btn.style.border = '1px solid rgba(148,163,184,0.2)';
+      }
+    });
+    if (name !== 'assets') tmwPopulateAllDropdowns();
+  };
+
+  /* ─── Populate all dropdowns from saved assets ──────────────── */
+  function tmwPopulateAllDropdowns() {
+    var assets = tmwGetAssets();
+    var ids = ['tmwCusipLinkedAsset','tmwUpliftAsset','tmwChainAsset','tmwSchedDAsset','tmw3949Asset'];
+    ids.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      var cur = el.value;
+      el.innerHTML = '<option value="">-- Select --</option>';
+      assets.forEach(function(a, i) {
+        var opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = (a.description || a.acctType) + ' — ' + (a.institution || '');
+        el.appendChild(opt);
+      });
+      if (cur !== '') el.value = cur;
+    });
+  }
+
+  /* ─── Description generator ─────────────────────────────────── */
+  window.tmwGenDescription = function() {
+    var type  = (document.getElementById('tmwAcctType') || {}).value || '';
+    var last4 = ((document.getElementById('tmwAcctLast4') || {}).value || '').trim().toUpperCase();
+    var desc  = tmwBuildDescription(type, last4);
+    var el    = document.getElementById('tmwDescOutput');
+    var cnt   = document.getElementById('tmwDescCharCount');
+    if (el) el.textContent = desc || '—';
+    if (cnt) cnt.textContent = (desc ? desc.length : 0) + ' / 30 characters';
+    return desc;
+  };
+
+  function tmwBuildDescription(type, last4) {
+    var l = last4 || '????';
+    switch(type) {
+      case 'Credit Card':   return ('TRUSTEE: CC ACCT ' + l).substring(0,30);
+      case 'Auto Loan':     return ('AUTO ACCT TRUST ' + l).substring(0,30);
+      case 'Mortgage':      return ('MORTGAGE LOAN TRUST-' + l).substring(0,30);
+      case 'Student Loan':  return ('TRUSTEE CLAIM SL ACCT ' + l).substring(0,30);
+      case 'Tax Refund':    return ('IRS CREDIT CLAIM ' + l).substring(0,30);
+      case 'CUSIP/Bond':    return ('CUSIP BENEFIT CLAIM ' + l).substring(0,30);
+      default:              return ('TRUST ACCT CLAIM ' + l).substring(0,30);
+    }
+  }
+
+  /* ─── Save asset ─────────────────────────────────────────────── */
+  window.tmwSaveAsset = function() {
+    var type    = (document.getElementById('tmwAcctType')      || {}).value || '';
+    var last4   = ((document.getElementById('tmwAcctLast4')    || {}).value || '').trim();
+    var inst    = ((document.getElementById('tmwInstitution')  || {}).value || '').trim();
+    var orig    = parseFloat((document.getElementById('tmwOrigBalance') || {}).value || '0');
+    var fmv     = parseFloat((document.getElementById('tmwFMV')         || {}).value || '0');
+    var acqDate = (document.getElementById('tmwAcqDate')        || {}).value || '';
+    var coDate  = (document.getElementById('tmwChargeOffDate')  || {}).value || '';
+    var vin     = ((document.getElementById('tmwVIN')           || {}).value || '').trim();
+    var notes   = ((document.getElementById('tmwNotes')         || {}).value || '').trim();
+
+    if (!type)    { alert('Please select an Account Type.'); return; }
+    if (!last4)   { alert('Please enter the last 4 digits.'); return; }
+    if (!inst)    { alert('Please enter an Institution Name.'); return; }
+    if (!orig)    { alert('Please enter an Original Balance.'); return; }
+    if (!acqDate) { alert('Please enter an Acquisition Date.'); return; }
+
+    var description = tmwBuildDescription(type, last4);
+    var assets = tmwGetAssets();
+    assets.push({
+      acctType: type,
+      last4: last4,
+      institution: inst,
+      origBalance: orig,
+      fmv: fmv,
+      acqDate: acqDate,
+      chargeOffDate: coDate,
+      vin: vin,
+      notes: notes,
+      description: description,
+      upliftedValue: null
+    });
+    tmwSetAssets(assets);
+    tmwRenderAssets();
+    tmwPopulateAllDropdowns();
+    tmwClearAssetForm();
+  };
+
+  window.tmwClearAssetForm = function() {
+    ['tmwAcctType','tmwAcctLast4','tmwInstitution','tmwOrigBalance','tmwFMV',
+     'tmwAcqDate','tmwChargeOffDate','tmwVIN','tmwNotes'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    var desc = document.getElementById('tmwDescOutput');
+    if (desc) desc.textContent = '—';
+    var cnt = document.getElementById('tmwDescCharCount');
+    if (cnt) cnt.textContent = '0 / 30 characters';
+  };
+
+  /* ─── Delete asset ───────────────────────────────────────────── */
+  window.tmwDeleteAsset = function(idx) {
+    if (!confirm('Delete this asset?')) return;
+    var assets = tmwGetAssets();
+    assets.splice(idx, 1);
+    tmwSetAssets(assets);
+    tmwRenderAssets();
+    tmwPopulateAllDropdowns();
+  };
+
+  /* ─── Edit asset (inline load back to form) ──────────────────── */
+  window.tmwEditAsset = function(idx) {
+    var assets = tmwGetAssets();
+    var a = assets[idx];
+    if (!a) return;
+    document.getElementById('tmwAcctType').value      = a.acctType     || '';
+    document.getElementById('tmwAcctLast4').value     = a.last4        || '';
+    document.getElementById('tmwInstitution').value   = a.institution  || '';
+    document.getElementById('tmwOrigBalance').value   = a.origBalance  || '';
+    document.getElementById('tmwFMV').value           = a.fmv          || '';
+    document.getElementById('tmwAcqDate').value       = a.acqDate      || '';
+    document.getElementById('tmwChargeOffDate').value = a.chargeOffDate || '';
+    document.getElementById('tmwVIN').value           = a.vin          || '';
+    document.getElementById('tmwNotes').value         = a.notes        || '';
+    tmwGenDescription();
+    assets.splice(idx, 1);
+    tmwSetAssets(assets);
+    tmwRenderAssets();
+    tmwPopulateAllDropdowns();
+    tmwSwitchTab('assets');
+  };
+
+  /* ─── Render asset table ─────────────────────────────────────── */
+  window.tmwRenderAssets = function() {
+    var tbody = document.getElementById('tmwAssetTbody');
+    if (!tbody) return;
+    var assets = tmwGetAssets();
+    if (!assets.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="padding:16px;text-align:center;color:var(--text-secondary);">No assets saved yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = assets.map(function(a, i) {
+      return '<tr style="border-bottom:1px solid rgba(245,158,11,0.08);">' +
+        '<td style="padding:8px 10px;color:var(--text-primary);">' + (a.acctType || '—') + '</td>' +
+        '<td style="padding:8px 10px;color:#fbbf24;font-family:monospace;font-size:0.78rem;">' + (a.description || '—') + '</td>' +
+        '<td style="padding:8px 10px;color:var(--text-secondary);">' + (a.institution || '—') + '</td>' +
+        '<td style="padding:8px 10px;color:var(--text-primary);text-align:right;">' + tmwFmtMoney(a.origBalance) + '</td>' +
+        '<td style="padding:8px 10px;color:var(--text-primary);text-align:right;">' + tmwFmtMoney(a.fmv) + '</td>' +
+        '<td style="padding:8px 10px;text-align:center;">' +
+          '<button onclick="tmwEditAsset(' + i + ')" style="padding:4px 8px;background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);border-radius:4px;font-size:0.72rem;cursor:pointer;margin-right:4px;">Edit</button>' +
+          '<button onclick="tmwDeleteAsset(' + i + ')" style="padding:4px 8px;background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.3);border-radius:4px;font-size:0.72rem;cursor:pointer;">Del</button>' +
+        '</td></tr>';
+    }).join('');
+  };
+
+  /* ─── Save CUSIP ─────────────────────────────────────────────── */
+  window.tmwSaveCUSIP = function() {
+    var num    = ((document.getElementById('tmwCusipNum')         || {}).value || '').trim();
+    var fund   = ((document.getElementById('tmwCusipFund')        || {}).value || '').trim();
+    var navDt  = (document.getElementById('tmwCusipNavDate')      || {}).value || '';
+    var nav    = parseFloat((document.getElementById('tmwCusipNAV')    || {}).value || '0');
+    var shares = parseFloat((document.getElementById('tmwCusipShares') || {}).value || '0');
+    var linked = (document.getElementById('tmwCusipLinkedAsset')  || {}).value || '';
+
+    if (!num)  { alert('Please enter a CUSIP number.'); return; }
+    if (!fund) { alert('Please enter a Fund Name.'); return; }
+
+    var cusips = tmwGetCUSIPs();
+    cusips.push({ num:num, fund:fund, navDate:navDt, nav:nav, shares:shares, linkedAsset:linked, beneficialPct:0 });
+    tmwSetCUSIPs(cusips);
+    tmwRenderCUSIPs();
+    ['tmwCusipNum','tmwCusipFund','tmwCusipNavDate','tmwCusipNAV','tmwCusipShares'].forEach(function(id){
+      var el = document.getElementById(id); if (el) el.value = '';
+    });
+  };
+
+  /* ─── Render CUSIP table ─────────────────────────────────────── */
+  window.tmwRenderCUSIPs = function() {
+    var tbody = document.getElementById('tmwCusipTbody');
+    if (!tbody) return;
+    var cusips = tmwGetCUSIPs();
+    var assets = tmwGetAssets();
+    if (!cusips.length) {
+      tbody.innerHTML = '<tr><td colspan="9" style="padding:16px;text-align:center;color:var(--text-secondary);">No CUSIPs saved yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = cusips.map(function(c, i) {
+      var totalNav = (c.nav || 0) * (c.shares || 0);
+      var estYield = totalNav * ((c.beneficialPct || 0) / 100);
+      var linkedLabel = (c.linkedAsset !== '' && assets[c.linkedAsset]) ? assets[c.linkedAsset].description : '—';
+      return '<tr style="border-bottom:1px solid rgba(245,158,11,0.08);">' +
+        '<td style="padding:8px 10px;color:#fbbf24;font-family:monospace;">' + c.num + '</td>' +
+        '<td style="padding:8px 10px;color:var(--text-primary);">' + c.fund + '</td>' +
+        '<td style="padding:8px 10px;color:var(--text-primary);text-align:right;">' + tmwFmtMoney(c.nav) + '</td>' +
+        '<td style="padding:8px 10px;color:var(--text-primary);text-align:right;">' + Number(c.shares).toLocaleString() + '</td>' +
+        '<td style="padding:8px 10px;color:var(--text-primary);text-align:right;">' + tmwFmtMoney(totalNav) + '</td>' +
+        '<td style="padding:8px 10px;text-align:center;">' +
+          '<input type="number" value="' + (c.beneficialPct||0) + '" min="0" max="100" step="0.01" ' +
+          'onchange="tmwUpdateBeneficial(' + i + ',this.value)" ' +
+          'style="width:70px;background:var(--bg-primary);color:#fbbf24;border:1px solid rgba(245,158,11,0.3);border-radius:4px;padding:3px 6px;font-size:0.78rem;text-align:center;">%' +
+        '</td>' +
+        '<td style="padding:8px 10px;color:#f59e0b;text-align:right;font-weight:600;">' + tmwFmtMoney(estYield) + '</td>' +
+        '<td style="padding:8px 10px;color:var(--text-secondary);font-size:0.78rem;">' + linkedLabel + '</td>' +
+        '<td style="padding:8px 10px;text-align:center;">' +
+          '<button onclick="tmwDeleteCUSIP(' + i + ')" style="padding:4px 8px;background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.3);border-radius:4px;font-size:0.72rem;cursor:pointer;">Del</button>' +
+        '</td></tr>';
+    }).join('');
+  };
+
+  window.tmwUpdateBeneficial = function(idx, val) {
+    var cusips = tmwGetCUSIPs();
+    if (cusips[idx]) { cusips[idx].beneficialPct = parseFloat(val) || 0; tmwSetCUSIPs(cusips); tmwRenderCUSIPs(); }
+  };
+
+  window.tmwDeleteCUSIP = function(idx) {
+    if (!confirm('Delete this CUSIP entry?')) return;
+    var cusips = tmwGetCUSIPs();
+    cusips.splice(idx, 1);
+    tmwSetCUSIPs(cusips);
+    tmwRenderCUSIPs();
+  };
+
+  /* ─── Uplift calculator ──────────────────────────────────────── */
+  window.tmwUpliftFillBase = function() {
+    var idx = (document.getElementById('tmwUpliftAsset') || {}).value;
+    if (idx === '' || idx === null) return;
+    var assets = tmwGetAssets();
+    var a = assets[parseInt(idx)];
+    if (!a) return;
+    var baseEl = document.getElementById('tmwUpliftBase');
+    if (baseEl) baseEl.value = a.origBalance || 0;
+  };
+
+  window.tmwToggleCustomMultiplier = function() {
+    var sel = (document.getElementById('tmwUpliftFactor') || {}).value;
+    var div = document.getElementById('tmwCustomMultDiv');
+    if (div) div.style.display = sel === 'custom' ? 'block' : 'none';
+  };
+
+  window.tmwCalcUplift = function() {
+    var idxEl   = document.getElementById('tmwUpliftAsset');
+    var baseEl  = document.getElementById('tmwUpliftBase');
+    var factEl  = document.getElementById('tmwUpliftFactor');
+    var custEl  = document.getElementById('tmwCustomMult');
+
+    var idx     = idxEl  ? idxEl.value  : '';
+    var base    = parseFloat(baseEl ? baseEl.value : '0') || 0;
+    var factVal = factEl ? factEl.value : '1';
+    var mult    = factVal === 'custom' ? (parseFloat(custEl ? custEl.value : '1') || 1) : parseFloat(factVal);
+
+    if (idx === '') { alert('Please select an asset.'); return; }
+    if (!base)      { alert('Base value is 0. Check the asset balance.'); return; }
+
+    var uplifted = base * mult;
+    var assets   = tmwGetAssets();
+    var a        = assets[parseInt(idx)];
+    if (!a) return;
+
+    var justIds = ['tmwJustChargeOff','tmwJustFOIA','tmwJustCUSIP','tmwJustConversion','tmwJustAbandonment','tmwJustDamages'];
+    var justs   = justIds.map(function(id) {
+      var el = document.getElementById(id);
+      return (el && el.checked) ? el.value : null;
+    }).filter(Boolean);
+
+    var today = new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
+
+    var memo = 'VALUATION MEMORANDUM\n' +
+      '══════════════════════════════════════════════════\n' +
+      'Date: ' + today + '\n' +
+      'Asset: ' + a.description + '\n' +
+      'Institution: ' + a.institution + '\n' +
+      'Original Value: ' + tmwFmtMoney(base) + '\n' +
+      'Basis for Uplift:\n' +
+      (justs.length ? justs.map(function(j){ return '  • ' + j; }).join('\n') : '  • (none selected)') + '\n' +
+      'Uplift Factor: ' + mult + '×\n' +
+      'Uplifted Value: ' + tmwFmtMoney(uplifted) + '\n' +
+      'Supporting Documentation:\n' +
+      (justs.length ? justs.map(function(j){ return '  [✓] ' + j; }).join('\n') : '  [ ] None selected') + '\n' +
+      '══════════════════════════════════════════════════\n' +
+      'Filed by: ' + tmwGetTrustName() + ' as Trustee.';
+
+    document.getElementById('tmwResBase').textContent     = tmwFmtMoney(base);
+    document.getElementById('tmwResMult').textContent     = mult + '×';
+    document.getElementById('tmwResUplifted').textContent = tmwFmtMoney(uplifted);
+    document.getElementById('tmwValMemo').textContent     = memo;
+    document.getElementById('tmwUpliftResult').style.display = 'block';
+
+    window._tmwLastUplift = { idx: parseInt(idx), uplifted: uplifted };
+  };
+
+  window.tmwSaveUpliftToLedger = function() {
+    if (!window._tmwLastUplift) { alert('Run the uplift calculation first.'); return; }
+    var assets = tmwGetAssets();
+    var a = assets[window._tmwLastUplift.idx];
+    if (!a) return;
+    a.upliftedValue = window._tmwLastUplift.uplifted;
+    tmwSetAssets(assets);
+    alert('Uplifted value of ' + tmwFmtMoney(window._tmwLastUplift.uplifted) + ' saved to asset "' + a.description + '".');
+    tmwRenderAssets();
+  };
+
+  /* ─── Form chain builder ─────────────────────────────────────── */
+  window.tmwBuildChain = function() {
+    var idxEl = document.getElementById('tmwChainAsset');
+    var idx   = idxEl ? idxEl.value : '';
+    if (idx === '') { alert('Please select an asset.'); return; }
+
+    var assets = tmwGetAssets();
+    var a      = assets[parseInt(idx)];
+    if (!a) return;
+
+    var trust  = tmwGetTrustName();
+    var today  = tmwTodayISO();
+    var fmvVal = a.fmv || a.origBalance || 0;
+    var procVal = a.upliftedValue || fmvVal;
+
+    var form1099A = {
+      title: '1099-A',
+      subtitle: 'Acquisition or Abandonment of Secured Property',
+      fields: [
+        { label: 'Date of Lender\'s Acquisition', value: tmwFmtDate(a.acqDate) },
+        { label: 'Balance of Principal Outstanding', value: tmwFmtMoney(a.origBalance) },
+        { label: 'Fair Market Value of Property', value: tmwFmtMoney(fmvVal) },
+        { label: 'Box 1a Description', value: a.description },
+        { label: 'Lender / Trustee', value: trust },
+        { label: 'Borrower / Institution', value: a.institution }
+      ]
+    };
+
+    var b1Desc = ('MONETIZATION: ' + a.description).substring(0, 40);
+    var form1099B1 = {
+      title: '1099-B #1',
+      subtitle: 'Proceeds from Broker / Barter — Monetization',
+      fields: [
+        { label: 'Gross Proceeds', value: tmwFmtMoney(procVal) },
+        { label: 'Cost Basis', value: '$0.00' },
+        { label: 'Description', value: b1Desc },
+        { label: 'Payer', value: trust },
+        { label: 'Date', value: tmwFmtDate(today) }
+      ]
+    };
+
+    var b2Desc = ('TRUST DIST: ' + a.description).substring(0, 40);
+    var form1099B2 = {
+      title: '1099-B #2',
+      subtitle: 'Proceeds from Broker / Barter — Trust Distribution',
+      fields: [
+        { label: 'Gross Proceeds', value: tmwFmtMoney(procVal) },
+        { label: 'Cost Basis', value: '$0.00' },
+        { label: 'Description', value: b2Desc },
+        { label: 'Payer EIN', value: '[TRUST EIN]' },
+        { label: 'Recipient SSN', value: '[GRANTOR SSN]' },
+        { label: 'Date', value: tmwFmtDate(today) }
+      ]
+    };
+
+    var form1096 = {
+      title: '1096',
+      subtitle: 'Annual Summary and Transmittal of U.S. Information Returns',
+      fields: [
+        { label: 'Filer Name', value: trust },
+        { label: 'Total Number of Forms', value: '3' },
+        { label: 'Total Amount Reported', value: tmwFmtMoney(procVal) },
+        { label: 'Return Type', value: '1099-B' },
+        { label: 'Date', value: tmwFmtDate(today) }
+      ]
+    };
+
+    var mismatch = false;
+    var container = document.getElementById('tmwChainForms');
+    if (container) {
+      container.innerHTML = [form1099A, form1099B1, form1099B2, form1096].map(function(f) {
+        return '<div style="background:var(--bg-primary);border:1px solid rgba(245,158,11,0.3);border-radius:8px;padding:14px;">' +
+          '<p style="color:#f59e0b;font-size:0.82rem;font-weight:700;margin:0 0 2px;">' + f.title + '</p>' +
+          '<p style="color:var(--text-secondary);font-size:0.7rem;margin:0 0 10px;">' + f.subtitle + '</p>' +
+          f.fields.map(function(fld) {
+            return '<div style="display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:1px solid rgba(245,158,11,0.08);">' +
+              '<span style="color:var(--text-secondary);font-size:0.75rem;">' + fld.label + '</span>' +
+              '<span style="color:var(--text-primary);font-size:0.75rem;font-weight:600;text-align:right;">' + fld.value + '</span>' +
+            '</div>';
+          }).join('') +
+        '</div>';
+      }).join('');
+    }
+
+    var mismatchEl = document.getElementById('tmwChainMismatch');
+    if (mismatchEl) mismatchEl.style.display = mismatch ? 'block' : 'none';
+    var outputEl = document.getElementById('tmwChainOutput');
+    if (outputEl) outputEl.style.display = 'block';
+  };
+
+  /* ─── Schedule D export ──────────────────────────────────────── */
+  window.tmwExportScheduleD = function() {
+    var idxEl = document.getElementById('tmwSchedDAsset');
+    var idx   = idxEl ? idxEl.value : '';
+    if (idx === '') { alert('Please select an asset.'); return; }
+
+    var assets = tmwGetAssets();
+    var a      = assets[parseInt(idx)];
+    if (!a) return;
+
+    var today    = tmwTodayISO();
+    var proceeds = a.upliftedValue || a.fmv || a.origBalance || 0;
+    var cost     = 0;
+    var gain     = proceeds - cost;
+
+    var acqDate = a.acqDate || '';
+    var distDate = today;
+    var term = 'Short-term';
+    if (acqDate) {
+      var acqMs  = new Date(acqDate).getTime();
+      var distMs = new Date(distDate).getTime();
+      if ((distMs - acqMs) > 365 * 24 * 60 * 60 * 1000) term = 'Long-term';
+    }
+
+    var tbody = document.getElementById('tmwSchedDTbody');
+    if (tbody) {
+      tbody.innerHTML = '<tr style="border-bottom:1px solid rgba(245,158,11,0.08);">' +
+        '<td style="padding:8px 10px;color:var(--text-primary);font-size:0.8rem;">' + (a.description || '—') + '</td>' +
+        '<td style="padding:8px 10px;color:var(--text-secondary);text-align:center;font-size:0.8rem;">' + tmwFmtDate(acqDate) + '</td>' +
+        '<td style="padding:8px 10px;color:var(--text-secondary);text-align:center;font-size:0.8rem;">' + tmwFmtDate(distDate) + '</td>' +
+        '<td style="padding:8px 10px;color:var(--text-primary);text-align:right;font-size:0.8rem;">' + tmwFmtMoney(proceeds) + '</td>' +
+        '<td style="padding:8px 10px;color:var(--text-primary);text-align:right;font-size:0.8rem;">$0.00</td>' +
+        '<td style="padding:8px 10px;text-align:right;font-size:0.8rem;color:' + (gain >= 0 ? '#34d399' : '#f87171') + ';font-weight:600;">' + tmwFmtMoney(gain) + '</td>' +
+        '<td style="padding:8px 10px;text-align:center;font-size:0.78rem;color:var(--text-secondary);">' + term + '</td>' +
+      '</tr>';
+    }
+
+    var procEl = document.getElementById('tmwSchedDProceeds');
+    var costEl = document.getElementById('tmwSchedDCost');
+    var netEl  = document.getElementById('tmwSchedDNet');
+    if (procEl) procEl.textContent = tmwFmtMoney(proceeds);
+    if (costEl) costEl.textContent = '$0.00';
+    if (netEl)  { netEl.textContent = tmwFmtMoney(gain); netEl.style.color = gain >= 0 ? '#34d399' : '#f87171'; }
+
+    var outEl = document.getElementById('tmwSchedDOutput');
+    if (outEl) outEl.style.display = 'block';
+  };
+
+  /* ─── Form 3949-A ────────────────────────────────────────────── */
+  window.tmw3949FillFields = function() {
+    var idxEl = document.getElementById('tmw3949Asset');
+    var idx   = idxEl ? idxEl.value : '';
+    if (idx === '') return;
+    var assets = tmwGetAssets();
+    var a = assets[parseInt(idx)];
+    if (!a) return;
+    var instEl = document.getElementById('tmw3949Institution');
+    if (instEl) instEl.value = a.institution || '';
+    var factsEl = document.getElementById('tmw3949Facts');
+    if (factsEl) {
+      factsEl.value = 'On or about ' + tmwFmtDate(a.acqDate) + ', ' + (a.institution || '[INSTITUTION]') +
+        ' originated and/or held a ' + (a.acctType || '[ACCOUNT TYPE]') + ' account (last four: ' + (a.last4 || '????') +
+        ') with an original balance of ' + tmwFmtMoney(a.origBalance) + ' and a fair market value of ' + tmwFmtMoney(a.fmv) + '.\n\n' +
+        'The account was securitized and/or charged off' + (a.chargeOffDate ? ' on ' + tmwFmtDate(a.chargeOffDate) : '') +
+        ' without proper disclosure to the beneficial interest holder. ' +
+        'No Form 1099-A or 1099-B was issued as required under 26 U.S.C. § 6050P and related provisions.\n\n' +
+        'The trust, acting as beneficial interest holder and fiduciary, has documented the above and requests IRS investigation of the identified violations.';
+    }
+  };
+
+  window.tmwGen3949A = function() {
+    var idxEl = document.getElementById('tmw3949Asset');
+    var idx   = idxEl ? idxEl.value : '';
+    if (idx === '') { alert('Please select an asset.'); return; }
+
+    var assets = tmwGetAssets();
+    var a = assets[parseInt(idx)];
+    if (!a) return;
+
+    var inst  = (document.getElementById('tmw3949Institution') || {}).value || a.institution || '[INSTITUTION]';
+    var facts = (document.getElementById('tmw3949Facts') || {}).value || '';
+
+    var violIds = ['tmwViol1','tmwViol2','tmwViol3','tmwViol4','tmwViol5'];
+    var viols   = violIds.map(function(id) {
+      var el = document.getElementById(id);
+      return (el && el.checked) ? el.value : null;
+    }).filter(Boolean);
+
+    var today = new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
+    var trust = tmwGetTrustName();
+
+    var doc = '════════════════════════════════════════════════════════════\n' +
+      'IRS FORM 3949-A — INFORMATION REFERRAL\n' +
+      '════════════════════════════════════════════════════════════\n' +
+      'Date Prepared: ' + today + '\n' +
+      'Prepared By:   ' + trust + ' (Trustee)\n\n' +
+      'SUBJECT ENTITY\n' +
+      '────────────────────────────────────────────────────────────\n' +
+      'Institution:   ' + inst + '\n' +
+      'Account Desc:  ' + a.description + '\n' +
+      'Account Type:  ' + a.acctType + '\n' +
+      'Last Four:     ' + a.last4 + '\n' +
+      'Orig. Balance: ' + tmwFmtMoney(a.origBalance) + '\n' +
+      'FMV:           ' + tmwFmtMoney(a.fmv) + '\n' +
+      'Acq. Date:     ' + tmwFmtDate(a.acqDate) + '\n' +
+      (a.chargeOffDate ? 'Chg-Off Date:  ' + tmwFmtDate(a.chargeOffDate) + '\n' : '') +
+      '\nALLEGED VIOLATIONS\n' +
+      '────────────────────────────────────────────────────────────\n' +
+      (viols.length
+        ? viols.map(function(v, i){ return (i+1) + '. ' + v; }).join('\n')
+        : '(No violations selected)') +
+      '\n\nSTATEMENT OF FACTS\n' +
+      '────────────────────────────────────────────────────────────\n' +
+      (facts || '(No statement provided)') +
+      '\n\nSIGNATURE BLOCK\n' +
+      '────────────────────────────────────────────────────────────\n' +
+      'Under penalty of perjury, I declare that I have examined this\n' +
+      'referral and, to the best of my knowledge, the information is\n' +
+      'true, correct, and complete.\n\n' +
+      'Signature: _______________________________   Date: ___________\n' +
+      'Printed:   ' + trust + '\n' +
+      'Capacity:  Trustee / Beneficial Interest Holder\n' +
+      '════════════════════════════════════════════════════════════';
+
+    var docEl = document.getElementById('tmw3949Doc');
+    if (docEl) docEl.textContent = doc;
+    var outEl = document.getElementById('tmw3949Output');
+    if (outEl) outEl.style.display = 'block';
+  };
+
+  /* ─── Expose globals ─────────────────────────────────────────── */
+  window.tmwGetAssets  = tmwGetAssets;
+  window.tmwGetCUSIPs  = tmwGetCUSIPs;
+
+})();
+</script>
+
+<script>
+(function() {
+
+  // ─── Constants & Keys ───────────────────────────────────────────────────────
+  const TOS_TRUSTS_KEY   = 'TMAR_TOS_Trusts';
+  const TOS_ACCOUNTS_KEY = 'TMAR_TOS_Accounts';
+  const TOS_LEDGER_KEY   = 'TMAR_TOS_Ledger';
+  const TOS_NOTICES_KEY  = 'TMAR_TOS_Notices';
+  const LED_DOCS = ['Security Agreement','UCC-1 Filed','Assignment Executed','FMV Documented','Affidavit Attached','FOIA Return','Charge-off Letter','CUSIP Confirmed'];
+
+  let _tosActiveTrustId = null;
+
+  // ─── Storage Helpers ────────────────────────────────────────────────────────
+  function tosLoad(key) {
+    try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) { return []; }
+  }
+  function tosSave(key, val) {
+    try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
+  }
+  function tosGetTrustData(arrayKey) {
+    if (!_tosActiveTrustId) return [];
+    return tosLoad(arrayKey).filter(function(r) { return r.trust_id === _tosActiveTrustId; });
+  }
+  function tosGetActiveTrust() {
+    var trusts = tosLoad(TOS_TRUSTS_KEY);
+    return trusts.find(function(t) { return t.id === _tosActiveTrustId; }) || null;
+  }
+  function tosGenId() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+  }
+
+  // ─── Toggle Helper ──────────────────────────────────────────────────────────
+  window.tosToggle = function(btnId, hidId) {
+    var btn = document.getElementById(btnId);
+    var hid = document.getElementById(hidId);
+    if (!btn || !hid) return;
+    var cur = btn.getAttribute('data-value') === 'true';
+    var next = !cur;
+    hid.value = next ? 'true' : 'false';
+    btn.setAttribute('data-value', next ? 'true' : 'false');
+    if (next) {
+      btn.style.borderColor = '#22c55e';
+      btn.style.color = '#22c55e';
+      btn.textContent = btn.id.includes('notarized') ? '✅ Yes' : 'Yes';
+    } else {
+      if (btn.id.includes('bank_ein')) {
+        btn.style.borderColor = '#ef4444'; btn.style.color = '#ef4444';
+      } else if (btn.id.includes('bank_nonint')) {
+        btn.style.borderColor = '#f59e0b'; btn.style.color = '#f59e0b';
+      } else {
+        btn.style.borderColor = '#ef4444'; btn.style.color = '#ef4444';
+      }
+      btn.textContent = btn.id.includes('notarized') ? '❌ No' : 'No';
+    }
+  };
+
+  function tosSetToggleVal(btnId, hidId, val) {
+    var btn = document.getElementById(btnId);
+    var hid = document.getElementById(hidId);
+    if (!btn || !hid) return;
+    hid.value = val ? 'true' : 'false';
+    btn.setAttribute('data-value', val ? 'true' : 'false');
+    if (val) {
+      btn.style.borderColor = '#22c55e'; btn.style.color = '#22c55e';
+      btn.textContent = btn.id.includes('notarized') ? '✅ Yes' : 'Yes';
+    } else {
+      if (btn.id.includes('bank_ein')) {
+        btn.style.borderColor = '#ef4444'; btn.style.color = '#ef4444';
+      } else if (btn.id.includes('bank_nonint')) {
+        btn.style.borderColor = '#f59e0b'; btn.style.color = '#f59e0b';
+      } else {
+        btn.style.borderColor = '#ef4444'; btn.style.color = '#ef4444';
+      }
+      btn.textContent = btn.id.includes('notarized') ? '❌ No' : 'No';
+    }
+  }
+
+  // ─── Init ────────────────────────────────────────────────────────────────────
+  window.tosInit = function() {
+    tosPopulateTrustSelector();
+    var trusts = tosLoad(TOS_TRUSTS_KEY);
+    if (trusts.length > 0 && !_tosActiveTrustId) {
+      _tosActiveTrustId = trusts[0].id;
+      var sel = document.getElementById('tosTrustSelector');
+      if (sel) sel.value = _tosActiveTrustId;
+    }
+    tosSwitchTab('trust');
+    tosRenderAll();
+  };
+
+  // ─── Trust Selector ──────────────────────────────────────────────────────────
+  function tosPopulateTrustSelector() {
+    var sel = document.getElementById('tosTrustSelector');
+    if (!sel) return;
+    var trusts = tosLoad(TOS_TRUSTS_KEY);
+    var cur = sel.value || _tosActiveTrustId || '';
+    sel.innerHTML = '<option value="">— Select Trust —</option>';
+    trusts.forEach(function(t) {
+      var opt = document.createElement('option');
+      opt.value = t.id;
+      opt.textContent = t.name || t.id;
+      if (t.id === cur) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+
+  window.tosNewTrust = function() {
+    var name = prompt('Enter new trust name:');
+    if (!name || !name.trim()) return;
+    var trusts = tosLoad(TOS_TRUSTS_KEY);
+    var t = { id: tosGenId(), name: name.trim(), created: new Date().toISOString() };
+    trusts.push(t);
+    tosSave(TOS_TRUSTS_KEY, trusts);
+    _tosActiveTrustId = t.id;
+    tosPopulateTrustSelector();
+    document.getElementById('tosTrustSelector').value = t.id;
+    tosRenderAll();
+  };
+
+  window.tosSelectTrust = function(id) {
+    _tosActiveTrustId = id || null;
+    tosRenderAll();
+  };
+
+  // ─── Tab Switching ───────────────────────────────────────────────────────────
+  window.tosSwitchTab = function(name) {
+    document.querySelectorAll('.tos-tab-panel').forEach(function(p) { p.classList.add('hidden'); });
+    document.querySelectorAll('.tos-tab-btn').forEach(function(b) {
+      var active = b.getAttribute('data-tos-tab') === name;
+      b.style.background = active ? '#8b5cf6' : 'transparent';
+      b.style.color = active ? '#fff' : '#8b5cf6';
+    });
+    var panel = document.getElementById('tosTab-' + name);
+    if (panel) panel.classList.remove('hidden');
+    if (name === 'valuations') tosRenderValuations();
+    if (name === '1099s') tosRender1099s();
+    if (name === 'notices') { tosRenderNotices(); tosPopulateNoticeAssetSelect(); }
+    if (name === 'ledgers') tosRenderLedger();
+    if (name === 'banking') tosRenderBanking();
+    if (name === 'ein') tosLoadEINFields();
+    if (name === 'trust') tosLoadTrustFields();
+  };
+
+  // ─── Render All ──────────────────────────────────────────────────────────────
+  window.tosRenderAll = function() {
+    tosLoadTrustFields();
+    tosLoadEINFields();
+    tosRenderBanking();
+    tosRenderLedger();
+    tosRenderValuations();
+    tosRender1099s();
+    tosRenderNotices();
+    tosPopulateNoticeAssetSelect();
+    tosCalcScore();
+  };
+
+  // ─── CHECKLIST BADGE HELPER ──────────────────────────────────────────────────
+  function tosCheckBadge(ok, label) {
+    return '<span class="px-2 py-0.5 rounded-full font-semibold" style="background:' +
+      (ok ? 'rgba(34,197,94,0.15);color:#22c55e;' : 'rgba(239,68,68,0.15);color:#ef4444;') + '">' +
+      (ok ? '✅ ' : '❌ ') + label + '</span>';
+  }
+
+  // ────────────────────────────────────────────────────────────────────────────
+  // TAB 1: TRUST
+  // ────────────────────────────────────────────────────────────────────────────
+  function tosLoadTrustFields() {
+    var t = tosGetActiveTrust();
+    var data = t || {};
+    var fields = ['name','type','formation_date','state','grantor','trustee','successor','beneficiaries','purpose','sub_trusts'];
+    var ids    = ['tos_trust_name','tos_trust_type','tos_formation_date','tos_state','tos_grantor','tos_trustee','tos_successor','tos_beneficiaries','tos_purpose','tos_sub_trusts'];
+    ids.forEach(function(id, i) {
+      var el = document.getElementById(id);
+      if (el) el.value = data[fields[i]] || '';
+    });
+    tosSetToggleVal('tos_notarized_btn','tos_notarized', data.notarized === true || data.notarized === 'true');
+    tosTrustChecklist(data);
+  }
+
+  function tosTrustChecklist(data) {
+    var el = document.getElementById('tosTrustChecklist');
+    if (!el) return;
+    el.innerHTML = [
+      tosCheckBadge(!!(data.name), 'Trust Name'),
+      tosCheckBadge(!!(data.type), 'Trust Type'),
+      tosCheckBadge(data.notarized === true || data.notarized === 'true', 'Notarized'),
+      tosCheckBadge(!!(data.trustee), 'Trustee Named'),
+      tosCheckBadge(!!(data.beneficiaries && data.beneficiaries.trim()), 'Beneficiaries'),
+      tosCheckBadge(!!(data.formation_date), 'Formation Date')
+    ].join('');
+  }
+
+  window.tosSaveTrust = function() {
+    if (!_tosActiveTrustId) { alert('Select or create a trust first.'); return; }
+    var trusts = tosLoad(TOS_TRUSTS_KEY);
+    var idx = trusts.findIndex(function(t) { return t.id === _tosActiveTrustId; });
+    if (idx < 0) return;
+    var t = trusts[idx];
+    t.name           = (document.getElementById('tos_trust_name') || {}).value || t.name;
+    t.type           = (document.getElementById('tos_trust_type') || {}).value || '';
+    t.formation_date = (document.getElementById('tos_formation_date') || {}).value || '';
+    t.state          = (document.getElementById('tos_state') || {}).value || '';
+    t.grantor        = (document.getElementById('tos_grantor') || {}).value || '';
+    t.trustee        = (document.getElementById('tos_trustee') || {}).value || '';
+    t.successor      = (document.getElementById('tos_successor') || {}).value || '';
+    t.beneficiaries  = (document.getElementById('tos_beneficiaries') || {}).value || '';
+    t.purpose        = (document.getElementById('tos_purpose') || {}).value || '';
+    t.sub_trusts     = (document.getElementById('tos_sub_trusts') || {}).value || '';
+    t.notarized      = (document.getElementById('tos_notarized') || {}).value === 'true';
+    trusts[idx] = t;
+    tosSave(TOS_TRUSTS_KEY, trusts);
+    tosPopulateTrustSelector();
+    document.getElementById('tosTrustSelector').value = _tosActiveTrustId;
+    tosTrustChecklist(t);
+    tosCalcScore();
+    alert('Trust info saved.');
+  };
+
+  // ────────────────────────────────────────────────────────────────────────────
+  // TAB 2: EIN
+  // ────────────────────────────────────────────────────────────────────────────
+  function tosLoadEINFields() {
+    var t = tosGetActiveTrust();
+    var data = t || {};
+    var map = {
+      tos_ein: 'ein', tos_ss4_date: 'ss4_date', tos_cp575: 'cp575',
+      tos_filing_type: 'filing_type', tos_irs_acct: 'irs_acct',
+      tos_f56_1a: 'f56_1a', tos_f56_1b: 'f56_1b', tos_f56_2a: 'f56_2a',
+      tos_f56_2b: 'f56_2b', tos_f56_3b: 'f56_3b', tos_f56_period: 'f56_period'
+    };
+    Object.keys(map).forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.value = data[map[id]] || (id === 'tos_f56_period' ? 'All periods past, present, and future' : '');
+    });
+    tosSetToggleVal('tos_f56_court_btn','tos_f56_court', data.f56_court === true || data.f56_court === 'true');
+    var taxes = data.f56_taxes || [];
+    ['income','employment','estate','gift','all'].forEach(function(k) {
+      var cb = document.getElementById('tos_tax_' + k);
+      if (cb) cb.checked = taxes.indexOf(k) >= 0;
+    });
+    tosEINChecklist(data);
+  }
+
+  function tosEINChecklist(data) {
+    var el = document.getElementById('tosEINChecklist');
+    if (!el) return;
+    el.innerHTML = [
+      tosCheckBadge(!!(data && data.ein), 'EIN Obtained'),
+      tosCheckBadge(!!(data && data.cp575 === 'received'), 'CP-575 Received'),
+      tosCheckBadge(!!(data && (data.f56_1a || data.f56_2a)), 'Form 56 Drafted'),
+      tosCheckBadge(!!(data && data.filing_type), 'Filing Type Selected')
+    ].join('');
+  }
+
+  window.tosSaveEIN = function() {
+    if (!_tosActiveTrustId) { alert('Select or create a trust first.'); return; }
+    var trusts = tosLoad(TOS_TRUSTS_KEY);
+    var idx = trusts.findIndex(function(t) { return t.id === _tosActiveTrustId; });
+    if (idx < 0) return;
+    var t = trusts[idx];
+    t.ein          = (document.getElementById('tos_ein') || {}).value || '';
+    t.ss4_date     = (document.getElementById('tos_ss4_date') || {}).value || '';
+    t.cp575        = (document.getElementById('tos_cp575') || {}).value || '';
+    t.filing_type  = (document.getElementById('tos_filing_type') || {}).value || '';
+    t.irs_acct     = (document.getElementById('tos_irs_acct') || {}).value || '';
+    t.f56_1a       = (document.getElementById('tos_f56_1a') || {}).value || '';
+    t.f56_1b       = (document.getElementById('tos_f56_1b') || {}).value || '';
+    t.f56_2a       = (document.getElementById('tos_f56_2a') || {}).value || '';
+    t.f56_2b       = (document.getElementById('tos_f56_2b') || {}).value || '';
+    t.f56_3b       = (document.getElementById('tos_f56_3b') || {}).value || '';
+    t.f56_period   = (document.getElementById('tos_f56_period') || {}).value || '';
+    t.f56_court    = (document.getElementById('tos_f56_court') || {}).value === 'true';
+    var taxes = [];
+    ['income','employment','estate','gift','all'].forEach(function(k) {
+      var cb = document.getElementById('tos_tax_' + k);
+      if (cb && cb.checked) taxes.push(k);
+    });
+    t.f56_taxes = taxes;
+    trusts[idx] = t;
+    tosSave(TOS_TRUSTS_KEY, trusts);
+    tosEINChecklist(t);
+    tosCalcScore();
+    alert('EIN info saved.');
+  };
+
+  // ─── Form 56 Generator ───────────────────────────────────────────────────────
+  window.tosGenForm56 = function() {
+    var t = tosGetActiveTrust() || {};
+    var taxes = (t.f56_taxes || []).map(function(k) { return k.charAt(0).toUpperCase() + k.slice(1); }).join(', ') || '[none selected]';
+    var court = (t.f56_court === true || t.f56_court === 'true') ? 'Yes' : 'No';
+    var today = new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
+    var trusteeName = t.f56_2a || t.trustee || '[Trustee Name]';
+    var trustName   = t.f56_1a || t.name    || '[Trust Name]';
+    var ein         = t.f56_1b || t.ein     || '[EIN]';
+
+    var content =
+'FORM 56 — NOTICE CONCERNING FIDUCIARY RELATIONSHIP\n' +
+'══════════════════════════════════════════════════════\n\n' +
+'Part I — Identifying Information\n' +
+'  1a. Name of Person/Trust for whom you are acting:\n' +
+'      ' + trustName + '\n\n' +
+'  1b. Identifying Number (EIN/SSN):\n' +
+'      ' + ein + '\n\n' +
+'  2a. Fiduciary\'s Name:\n' +
+'      ' + trusteeName + '\n\n' +
+'  2b. Fiduciary\'s Identifying Number:\n' +
+'      ' + (t.f56_2b || '[Fiduciary EIN/SSN]') + '\n\n' +
+'  3b. Fiduciary\'s Mailing Address:\n' +
+'      ' + (t.f56_3b || '[Address]') + '\n\n' +
+'──────────────────────────────────────────────────────\n' +
+'Part II — Court Proceedings\n' +
+'  4. Court-Appointed Fiduciary? ' + court + '\n\n' +
+'──────────────────────────────────────────────────────\n' +
+'Part III — Nature of Liability and Tax Notices\n' +
+'  5a. Type of Tax: ' + taxes + '\n\n' +
+'  5b. Tax Periods:\n' +
+'      ' + (t.f56_period || 'All periods past, present, and future until formally\n      terminated by IRS or fiduciary') + '\n\n' +
+'──────────────────────────────────────────────────────\n' +
+'Signature:\n\n' +
+'  By: _______________________________________\n' +
+'      ' + trusteeName + ', Trustee\n\n' +
+'  Date: ___________________\n\n' +
+'  Without Prejudice — Without Recourse\n\n' +
+'══════════════════════════════════════════════════════\n\n' +
+'ADMINISTRATIVE NOTICE OF STATUS\n' +
+'══════════════════════════════════════════════════════\n\n' +
+'I, ' + trusteeName + ', acting in fiduciary capacity as Trustee of\n' +
+trustName + ' (EIN: ' + ein + '), hereby provide\n' +
+'formal Notice that I am the lawful Grantor, Trustee, and Beneficiary\n' +
+'of all accounts, instruments, and securities created in the name\n' +
+trustName + '.\n\n' +
+'All correspondence, notices, and tax matters shall be directed to me\n' +
+'as Trustee. This notice is made pursuant to 26 U.S.C. §§ 671-677,\n' +
+'UCC Article 9, and applicable trust law.\n\n' +
+'Executed this ___ day of _____________, 20___.\n\n' +
+'By: _______________________________________\n' +
+'    ' + trusteeName + ', Trustee\n\n' +
+'Without Prejudice — Without Recourse\n\n' +
+'──────────────────────────────────────────────────────\n' +
+'NOTARIZATION\n\n' +
+'State of _______________\n' +
+'County of ______________\n\n' +
+'On this ___ day of ________, 20__, before me personally appeared\n' +
+trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
+'Trustee of ' + trustName + ', and acknowledged the foregoing\n' +
+'instrument to be the lawful act and deed of the Trust.\n\n' +
+'Notary Signature: ____________________________\n' +
+'Commission Expires: __________________________\n' +
+'[SEAL]\n';
+
+    var modal = document.getElementById('tosF56Modal');
+    var cnt   = document.getElementById('tosF56Content');
+    if (modal && cnt) { cnt.textContent = content; modal.classList.remove('hidden'); }
+  };
+
+  window.tosPrintF56 = function() {
+    var cnt = document.getElementById('tosF56Content');
+    if (!cnt) return;
+    var w = window.open('', '_blank', 'width=700,height=900');
+    w.document.write('<html><head><title>Form 56 Package</title>' +
+      '<style>body{font-family:monospace;font-size:12px;padding:2em;color:#000;white-space:pre-wrap;}</style>' +
+      '</head><body>' + cnt.innerText + '</body></html>');
+    w.document.close();
+    w.focus();
+    w.print();
+  };
+
+  // ────────────────────────────────────────────────────────────────────────────
+  // TAB 3: BANKING
+  // ────────────────────────────────────────────────────────────────────────────
+  window.tosAddAccount = function() {
+    if (!_tosActiveTrustId) { alert('Select or create a trust first.'); return; }
+    var name    = (document.getElementById('tos_bank_name') || {}).value || '';
+    var acct    = (document.getElementById('tos_bank_acct') || {}).value || '';
+    var type    = (document.getElementById('tos_bank_type') || {}).value || 'Checking';
+    var balance = parseFloat((document.getElementById('tos_bank_balance') || {}).value) || 0;
+    var nonint  = (document.getElementById('tos_bank_nonint') || {}).value === 'true';
+    var usesEIN = (document.getElementById('tos_bank_ein') || {}).value === 'true';
+    if (!name) { alert('Enter institution name.'); return; }
+    var accounts = tosLoad(TOS_ACCOUNTS_KEY);
+    accounts.push({ id: tosGenId(), trust_id: _tosActiveTrustId, name: name, acct: acct, type: type, balance: balance, nonint: nonint, usesEIN: usesEIN, created: new Date().toISOString() });
+    tosSave(TOS_ACCOUNTS_KEY, accounts);
+    ['tos_bank_name','tos_bank_acct','tos_bank_balance'].forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
+    tosSetToggleVal('tos_bank_nonint_btn','tos_bank_nonint', false);
+    tosSetToggleVal('tos_bank_ein_btn','tos_bank_ein', false);
+    tosRenderBanking();
+    tosCalcScore();
+  };
+
+  window.tosDeleteAccount = function(idx) {
+    if (!confirm('Delete this account?')) return;
+    var accounts = tosLoad(TOS_ACCOUNTS_KEY);
+    var trustAccts = accounts.filter(function(r) { return r.trust_id === _tosActiveTrustId; });
+    if (!trustAccts[idx]) return;
+    var globalIdx = accounts.indexOf(trustAccts[idx]);
+    if (globalIdx >= 0) accounts.splice(globalIdx, 1);
+    tosSave(TOS_ACCOUNTS_KEY, accounts);
+    tosRenderBanking();
+    tosCalcScore();
+  };
+
+  function tosRenderBanking() {
+    var tbody = document.getElementById('tosBankTable');
+    var totalEl = document.getElementById('tosBankTotal');
+    var checkEl = document.getElementById('tosBankingChecklist');
+    if (!tbody) return;
+    var accts = tosGetTrustData(TOS_ACCOUNTS_KEY);
+    var total = 0;
+    tbody.innerHTML = '';
+    accts.forEach(function(a, i) {
+      total += a.balance || 0;
+      var compliant = a.nonint && a.usesEIN;
+      var warn      = !a.nonint || !a.usesEIN;
+      var status, statusColor;
+      if (compliant) { status = '✅ Compliant'; statusColor = '#22c55e'; }
+      else if (!a.nonint && !a.usesEIN) { status = '❌ Non-Compliant'; statusColor = '#ef4444'; }
+      else { status = '⚠️ Review'; statusColor = '#f59e0b'; }
+      var tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid rgba(139,92,246,0.1)';
+      tr.innerHTML =
+        '<td class="py-2 px-1 text-white">' + esc(a.name) + '</td>' +
+        '<td class="py-2 px-1 font-mono" style="color:#94A3B8;">••' + esc(a.acct) + '</td>' +
+        '<td class="py-2 px-1" style="color:#94A3B8;">' + esc(a.type) + '</td>' +
+        '<td class="py-2 px-1 text-right text-white">$' + (a.balance || 0).toLocaleString('en-US',{minimumFractionDigits:2}) + '</td>' +
+        '<td class="py-2 px-1 text-center">' + (a.nonint ? '<span style="color:#22c55e;">✅</span>' : '<span style="color:#f59e0b;">⚠️</span>') + '</td>' +
+        '<td class="py-2 px-1 text-center">' + (a.usesEIN ? '<span style="color:#22c55e;">✅</span>' : '<span style="color:#ef4444;">❌</span>') + '</td>' +
+        '<td class="py-2 px-1 text-center text-xs font-bold" style="color:' + statusColor + ';">' + status + '</td>' +
+        '<td class="py-2 px-1 text-center"><button onclick="tosDeleteAccount(' + i + ')" class="text-xs px-2 py-0.5 rounded" style="background:rgba(239,68,68,0.2);color:#ef4444;">✕</button></td>';
+      tbody.appendChild(tr);
+    });
+    if (totalEl) totalEl.textContent = '$' + total.toLocaleString('en-US',{minimumFractionDigits:2});
+    if (checkEl) {
+      var hasAcct   = accts.length > 0;
+      var allEIN    = accts.length > 0 && accts.every(function(a) { return a.usesEIN; });
+      var allNonInt = accts.length > 0 && accts.every(function(a) { return a.nonint; });
+      checkEl.innerHTML = [
+        tosCheckBadge(hasAcct, 'Account Added'),
+        tosCheckBadge(allEIN, 'Trust EIN Used'),
+        tosCheckBadge(allNonInt, 'Non-Interest Bearing')
+      ].join('');
+    }
+  }
+
+  // ────────────────────────────────────────────────────────────────────────────
+  // TAB 4: LEDGERS
+  // ────────────────────────────────────────────────────────────────────────────
+  window.tosAddLedgerEntry = function() {
+    if (!_tosActiveTrustId) { alert('Select or create a trust first.'); return; }
+    var desc   = (document.getElementById('tos_led_desc') || {}).value || '';
+    var source = (document.getElementById('tos_led_source') || {}).value || '';
+    var note   = (document.getElementById('tos_led_note') || {}).value || '';
+    var status = (document.getElementById('tos_led_status') || {}).value || 'Pending';
+    var orig   = parseFloat((document.getElementById('tos_led_orig') || {}).value) || 0;
+    var fmv    = parseFloat((document.getElementById('tos_led_fmv') || {}).value) || 0;
+    var uplift = parseFloat((document.getElementById('tos_led_uplift') || {}).value) || 0;
+    var docs = [];
+    document.querySelectorAll('.tos-led-doc:checked').forEach(function(cb) { docs.push(cb.getAttribute('data-led-doc')); });
+    if (!desc) { alert('Enter asset description.'); return; }
+    var ledger = tosLoad(TOS_LEDGER_KEY);
+    ledger.push({ id: tosGenId(), trust_id: _tosActiveTrustId, desc: desc, source: source, note: note, status: status, orig: orig, fmv: fmv, uplift: uplift, docs: docs, date: new Date().toISOString(), valuation: {}, form_overrides: {} });
+    tosSave(TOS_LEDGER_KEY, ledger);
+    ['tos_led_desc','tos_led_source','tos_led_note','tos_led_orig','tos_led_fmv','tos_led_uplift'].forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
+    document.querySelectorAll('.tos-led-doc').forEach(function(cb) { cb.checked = false; });
+    tosRenderLedger();
+    tosCalcScore();
+  };
+
+  window.tosDeleteLedgerEntry = function(idx) {
+    if (!confirm('Delete this ledger entry?')) return;
+    var ledger = tosLoad(TOS_LEDGER_KEY);
+    var trust_entries = ledger.filter(function(r) { return r.trust_id === _tosActiveTrustId; });
+    if (!trust_entries[idx]) return;
+    var gIdx = ledger.indexOf(trust_entries[idx]);
+    if (gIdx >= 0) ledger.splice(gIdx, 1);
+    tosSave(TOS_LEDGER_KEY, ledger);
+    tosRenderLedger();
+    tosCalcScore();
+  };
+
+  function tosStatusColor(s) {
+    var map = { Acquired:'#8b5cf6', Monetized:'#22c55e', Distributed:'#3b82f6', Settled:'#94A3B8', Pending:'#f59e0b' };
+    return map[s] || '#94A3B8';
+  }
+
+  function tosRenderLedger() {
+    var tbody = document.getElementById('tosLedgerTable');
+    var checkEl = document.getElementById('tosLedgerChecklist');
+    var summaryEl = document.getElementById('tosLedgerSummary');
+    if (!tbody) return;
+    var entries = tosGetTrustData(TOS_LEDGER_KEY);
+    tbody.innerHTML = '';
+    entries.forEach(function(e, i) {
+      var d = new Date(e.date).toLocaleDateString();
+      var upliftFmt = e.uplift ? '$' + e.uplift.toLocaleString('en-US',{minimumFractionDigits:2}) : '—';
+      var docsCount = (e.docs || []).length;
+      var tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid rgba(139,92,246,0.08)';
+      tr.innerHTML =
+        '<td class="py-2 px-1 text-center" style="color:#94A3B8;">' + (i+1) + '</td>' +
+        '<td class="py-2 px-1" style="color:#94A3B8;">' + d + '</td>' +
+        '<td class="py-2 px-1 text-white font-medium">' + esc(e.desc) + '</td>' +
+        '<td class="py-2 px-1" style="color:#94A3B8;">' + esc(e.source) + '</td>' +
+        '<td class="py-2 px-1 text-right text-white">$' + (e.orig||0).toLocaleString('en-US',{minimumFractionDigits:2}) + '</td>' +
+        '<td class="py-2 px-1 text-right" style="color:#8b5cf6;">$' + (e.fmv||0).toLocaleString('en-US',{minimumFractionDigits:2}) + '</td>' +
+        '<td class="py-2 px-1 text-right" style="color:#22c55e;">' + upliftFmt + '</td>' +
+        '<td class="py-2 px-1 text-center text-xs font-bold" style="color:' + tosStatusColor(e.status) + ';">' + esc(e.status) + '</td>' +
+        '<td class="py-2 px-1 text-center text-xs" style="color:#94A3B8;">' + docsCount + '/8</td>' +
+        '<td class="py-2 px-1 text-center"><button onclick="tosDeleteLedgerEntry(' + i + ')" class="text-xs px-2 py-0.5 rounded" style="background:rgba(239,68,68,0.2);color:#ef4444;">✕</button></td>';
+      tbody.appendChild(tr);
+    });
+
+    // Summary
+    if (summaryEl) {
+      var totalFMV = entries.reduce(function(s,e) { return s + (e.fmv||0); }, 0);
+      var totalUplift = entries.reduce(function(s,e) { return s + (e.uplift||0); }, 0);
+      var statusCounts = {};
+      entries.forEach(function(e) { statusCounts[e.status] = (statusCounts[e.status]||0)+1; });
+      summaryEl.innerHTML =
+        '<div class="rounded-lg p-3 text-center" style="background:#243B5E;"><div class="text-xs" style="color:#94A3B8;">Total Corpus (FMV)</div><div class="text-base font-bold" style="color:#8b5cf6;">$' + totalFMV.toLocaleString('en-US',{minimumFractionDigits:2}) + '</div></div>' +
+        '<div class="rounded-lg p-3 text-center" style="background:#243B5E;"><div class="text-xs" style="color:#94A3B8;">Total Uplift</div><div class="text-base font-bold" style="color:#22c55e;">$' + totalUplift.toLocaleString('en-US',{minimumFractionDigits:2}) + '</div></div>' +
+        '<div class="rounded-lg p-3 text-center" style="background:#243B5E;"><div class="text-xs" style="color:#94A3B8;">Total Assets</div><div class="text-base font-bold text-white">' + entries.length + '</div></div>' +
+        '<div class="rounded-lg p-3 text-xs" style="background:#243B5E;color:#94A3B8;">' +
+          Object.keys(statusCounts).map(function(k) { return '<span class="font-bold" style="color:' + tosStatusColor(k) + ';">' + k + '</span>: ' + statusCounts[k]; }).join(' | ') +
+        '</div>';
+    }
+
+    if (checkEl) {
+      var hasEntry = entries.length > 0;
+      var allFMV   = entries.length > 0 && entries.every(function(e) { return e.fmv > 0; });
+      var allDocs  = entries.length > 0 && entries.every(function(e) { return (e.docs||[]).length > 0; });
+      checkEl.innerHTML = [
+        tosCheckBadge(hasEntry, 'Asset Added'),
+        tosCheckBadge(allFMV, 'All FMV Set'),
+        tosCheckBadge(allDocs, 'Docs Attached')
+      ].join('');
+    }
+  }
+
+  // ────────────────────────────────────────────────────────────────────────────
+  // TAB 5: VALUATIONS
+  // ────────────────────────────────────────────────────────────────────────────
+  window.tosUpdateValuation = function(assetIdx) {
+    var entries = tosGetTrustData(TOS_LEDGER_KEY);
+    var asset   = entries[assetIdx];
+    if (!asset) return;
+    var ledger  = tosLoad(TOS_LEDGER_KEY);
+    var gIdx    = ledger.indexOf(asset);
+
+    var just = (document.getElementById('tos_val_just_' + assetIdx) || {}).value || '';
+    var uplift = parseFloat((document.getElementById('tos_val_uplift_' + assetIdx) || {}).value) || asset.uplift || 0;
+    var checkedDocs = [];
+    LED_DOCS.forEach(function(d, di) {
+      var cb = document.getElementById('tos_val_doc_' + assetIdx + '_' + di);
+      if (cb && cb.checked) checkedDocs.push(d);
+    });
+
+    ledger[gIdx].valuation = { justification: just, docs: checkedDocs };
+    ledger[gIdx].uplift    = uplift;
+    tosSave(TOS_LEDGER_KEY, ledger);
+    tosRenderValuations();
+    tosCalcScore();
+    alert('Valuation updated.');
+  };
+
+  function tosRenderValuations() {
+    var grid = document.getElementById('tosValuationsGrid');
+    var overallEl = document.getElementById('tosValuationsOverall');
+    if (!grid) return;
+    var entries = tosGetTrustData(TOS_LEDGER_KEY);
+    if (entries.length === 0) {
+      grid.innerHTML = '<div class="text-sm py-4 text-center" style="color:#94A3B8;">No ledger assets yet. Add assets in the Ledgers tab first.</div>';
+      if (overallEl) overallEl.textContent = '';
+      return;
+    }
+    var totalPct = 0;
+    grid.innerHTML = entries.map(function(e, i) {
+      var v = e.valuation || {};
+      var vDocs = v.docs || [];
+      var factor = (e.orig && e.uplift) ? (e.uplift / e.orig).toFixed(2) + 'x' : '—';
+      var pct = Math.round((vDocs.length / LED_DOCS.length) * 100);
+      totalPct += pct;
+      var pctColor = pct >= 75 ? '#22c55e' : pct >= 50 ? '#f59e0b' : '#ef4444';
+      return '<div class="rounded-xl p-5 space-y-4" style="background:#1B2A4A;border:1px solid rgba(139,92,246,0.25);">' +
+        '<div class="flex items-center justify-between">' +
+          '<h4 class="font-bold text-white">' + esc(e.desc) + '</h4>' +
+          '<span class="text-xs px-3 py-1 rounded-full font-bold" style="background:rgba(139,92,246,0.15);color:' + pctColor + ';">' + pct + '% Complete</span>' +
+        '</div>' +
+        '<div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">' +
+          '<div class="rounded-lg p-2 text-center" style="background:#243B5E;"><div style="color:#94A3B8;">Original</div><div class="font-bold text-white">$' + (e.orig||0).toLocaleString('en-US',{minimumFractionDigits:2}) + '</div></div>' +
+          '<div class="rounded-lg p-2 text-center" style="background:#243B5E;"><div style="color:#94A3B8;">FMV</div><div class="font-bold" style="color:#8b5cf6;">$' + (e.fmv||0).toLocaleString('en-US',{minimumFractionDigits:2}) + '</div></div>' +
+          '<div class="rounded-lg p-2 text-center" style="background:#243B5E;"><div style="color:#94A3B8;">Uplift</div><input id="tos_val_uplift_' + i + '" type="number" step="0.01" value="' + (e.uplift||0) + '" class="w-full text-center font-bold rounded mt-1 px-1 py-0.5 text-xs text-white border" style="background:#0D1B2A;border-color:rgba(139,92,246,0.3);color:#22c55e;"></div>' +
+          '<div class="rounded-lg p-2 text-center" style="background:#243B5E;"><div style="color:#94A3B8;">Factor</div><div class="font-bold text-white">' + factor + '</div></div>' +
+        '</div>' +
+        '<div>' +
+          '<label class="block text-xs font-semibold mb-1" style="color:#94A3B8;">Justification</label>' +
+          '<textarea id="tos_val_just_' + i + '" rows="2" class="w-full px-3 py-2 rounded-lg text-sm text-white border" style="background:#243B5E;border-color:rgba(139,92,246,0.3);resize:vertical;">' + esc(v.justification || '') + '</textarea>' +
+        '</div>' +
+        '<div>' +
+          '<label class="block text-xs font-semibold mb-2" style="color:#94A3B8;">Audit Checklist</label>' +
+          '<div class="flex flex-wrap gap-2">' +
+            LED_DOCS.map(function(d, di) {
+              var checked = vDocs.indexOf(d) >= 0 ? 'checked' : '';
+              return '<label class="flex items-center gap-1 text-xs text-white cursor-pointer"><input type="checkbox" id="tos_val_doc_' + i + '_' + di + '" ' + checked + ' class="accent-purple-500"> ' + esc(d) + '</label>';
+            }).join('') +
+          '</div>' +
+        '</div>' +
+        '<div class="flex justify-end">' +
+          '<button onclick="tosUpdateValuation(' + i + ')" class="px-4 py-2 rounded-lg text-xs font-bold text-white" style="background:#8b5cf6;">💾 Update Valuation</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    if (overallEl) {
+      var avg = entries.length > 0 ? Math.round(totalPct / entries.length) : 0;
+      var avgColor = avg >= 75 ? '#22c55e' : avg >= 50 ? '#f59e0b' : '#ef4444';
+      overallEl.innerHTML = 'Overall Valuations Completeness: <span class="font-bold" style="color:' + avgColor + ';">' + avg + '%</span>';
+    }
+  }
+
+  // ────────────────────────────────────────────────────────────────────────────
+  // TAB 6: 1099s
+  // ────────────────────────────────────────────────────────────────────────────
+  window.tosMarkFormFiled = function(assetId, formType, date) {
+    var ledger = tosLoad(TOS_LEDGER_KEY);
+    var idx = ledger.findIndex(function(e) { return e.id === assetId; });
+    if (idx < 0) return;
+    if (!ledger[idx].form_overrides) ledger[idx].form_overrides = {};
+    ledger[idx].form_overrides[formType] = { status: 'Filed', date: date || new Date().toISOString().slice(0,10) };
+    tosSave(TOS_LEDGER_KEY, ledger);
+    tosRender1099s();
+    tosCalcScore();
+  };
+
+  function tosRender1099s() {
+    var panel = document.getElementById('tos1099Panel');
+    var totalsEl = document.getElementById('tos1099Totals');
+    var checkEl = document.getElementById('tos1099Checklist');
+    if (!panel) return;
+    var entries = tosGetTrustData(TOS_LEDGER_KEY);
+
+    // Try to pull from TMW chains
+    var tmwAssets = [];
+    try { tmwAssets = JSON.parse(localStorage.getItem('TMAR_TMW_Assets') || '[]'); } catch(e) {}
+
+    if (entries.length === 0) {
+      panel.innerHTML = '<div class="rounded-lg p-4 text-sm text-center" style="background:#1B2A4A;color:#94A3B8;">No ledger assets yet. Add assets in the Ledgers tab first.</div>';
+      if (totalsEl) totalsEl.innerHTML = '';
+      return;
+    }
+
+    var forms = ['1099-A','1099-B#1','1099-B#2','1096','Schedule D'];
+    var totalProceeds = 0;
+    var hasChain = false;
+
+    panel.innerHTML = entries.map(function(e) {
+      var overrides = e.form_overrides || {};
+      var tmw = tmwAssets.find(function(a) { return a.desc === e.desc || a.id === e.id; });
+      if (tmw) hasChain = true;
+
+      var rows = forms.map(function(f) {
+        var ov = overrides[f];
+        var baseStatus = tmw ? (tmw['form_' + f.replace('#','_').replace(' ','_')] || 'N/A') : 'N/A';
+        var status = ov ? ('Filed — ' + ov.date) : baseStatus;
+        var statusColor = ov ? '#22c55e' : (baseStatus === 'Draft' ? '#f59e0b' : baseStatus === 'Filed' ? '#22c55e' : '#94A3B8');
+        var dateId = 'tos_1099_date_' + e.id + '_' + f.replace(/[^a-z0-9]/gi,'');
+        return '<tr style="border-bottom:1px solid rgba(139,92,246,0.08);">' +
+          '<td class="py-1.5 px-2 text-xs text-white">' + esc(f) + '</td>' +
+          '<td class="py-1.5 px-2 text-xs font-semibold" style="color:' + statusColor + ';">' + esc(status) + '</td>' +
+          '<td class="py-1.5 px-2">' +
+            '<div class="flex items-center gap-2">' +
+              '<input id="' + dateId + '" type="date" class="px-1 py-0.5 rounded text-xs text-white border" style="background:#0D1B2A;border-color:rgba(139,92,246,0.3);">' +
+              '<button onclick="tosMarkFormFiled(\'' + e.id + '\',\'' + f + '\',document.getElementById(\'' + dateId + '\').value)" class="px-2 py-0.5 rounded text-xs font-bold text-white" style="background:#6d28d9;">Mark Filed</button>' +
+            '</div>' +
+          '</td>' +
+        '</tr>';
+      }).join('');
+
+      totalProceeds += e.fmv || 0;
+
+      return '<div class="rounded-xl overflow-hidden" style="background:#1B2A4A;border:1px solid rgba(139,92,246,0.25);">' +
+        '<div class="px-4 py-3 flex items-center justify-between" style="background:rgba(139,92,246,0.1);">' +
+          '<span class="font-bold text-white text-sm">' + esc(e.desc) + '</span>' +
+          '<span class="text-xs px-2 py-0.5 rounded-full" style="background:rgba(139,92,246,0.2);color:#8b5cf6;">' + esc(e.status) + '</span>' +
+        '</div>' +
+        '<div class="p-3 overflow-x-auto">' +
+          '<table class="w-full text-xs" style="border-collapse:collapse;">' +
+            '<thead><tr style="border-bottom:1px solid rgba(139,92,246,0.2);">' +
+              '<th class="text-left py-1.5 px-2 font-semibold" style="color:#94A3B8;">Form</th>' +
+              '<th class="text-left py-1.5 px-2 font-semibold" style="color:#94A3B8;">Status</th>' +
+              '<th class="text-left py-1.5 px-2 font-semibold" style="color:#94A3B8;">Action</th>' +
+            '</tr></thead>' +
+            '<tbody>' + rows + '</tbody>' +
+          '</table>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    if (!hasChain && tmwAssets.length === 0) {
+      panel.innerHTML += '<div class="rounded-lg p-4 text-sm text-center mt-3" style="background:#243B5E;color:#94A3B8;">→ Go to <strong style="color:#8b5cf6;">Trust Monetization Workflow</strong> to generate form chains linked to these assets.</div>';
+    }
+
+    if (totalsEl) {
+      totalsEl.innerHTML = '<span style="color:#94A3B8;">Total Reported Proceeds: </span><span class="font-bold" style="color:#8b5cf6;">$' + totalProceeds.toLocaleString('en-US',{minimumFractionDigits:2}) + '</span>';
+    }
+
+    if (checkEl) {
+      var allHaveChains = entries.length > 0;
+      var has1096 = entries.some(function(e) { return (e.form_overrides || {})['1096']; });
+      checkEl.innerHTML = [
+        tosCheckBadge(allHaveChains, 'Assets in Ledger'),
+        tosCheckBadge(has1096, '1096 Cover Filed')
+      ].join('');
+    }
+  }
+
+  // ────────────────────────────────────────────────────────────────────────────
+  // TAB 7: NOTICES
+  // ────────────────────────────────────────────────────────────────────────────
+  function tosPopulateNoticeAssetSelect() {
+    var sel = document.getElementById('tos_not_asset');
+    if (!sel) return;
+    var entries = tosGetTrustData(TOS_LEDGER_KEY);
+    sel.innerHTML = '<option value="">— No Specific Asset —</option>';
+    entries.forEach(function(e) {
+      var opt = document.createElement('option');
+      opt.value = e.id;
+      opt.textContent = e.desc;
+      sel.appendChild(opt);
+    });
+  }
+
+  window.tosAddNotice = function() {
+    if (!_tosActiveTrustId) { alert('Select or create a trust first.'); return; }
+    var type      = (document.getElementById('tos_not_type') || {}).value || '';
+    var assetId   = (document.getElementById('tos_not_asset') || {}).value || '';
+    var recipient = (document.getElementById('tos_not_recipient') || {}).value || '';
+    var address   = (document.getElementById('tos_not_address') || {}).value || '';
+    var date      = (document.getElementById('tos_not_date') || {}).value || '';
+    var method    = (document.getElementById('tos_not_method') || {}).value || '';
+    var tracking  = (document.getElementById('tos_not_tracking') || {}).value || '';
+    var resp      = (document.getElementById('tos_not_resp') || {}).value === 'true';
+    var respDate  = (document.getElementById('tos_not_resp_date') || {}).value || '';
+    var notes     = (document.getElementById('tos_not_notes') || {}).value || '';
+    if (!recipient || !date) { alert('Recipient and date served are required.'); return; }
+    var notices = tosLoad(TOS_NOTICES_KEY);
+    notices.push({ id: tosGenId(), trust_id: _tosActiveTrustId, type: type, assetId: assetId, recipient: recipient, address: address, date: date, method: method, tracking: tracking, resp: resp, respDate: respDate, notes: notes, created: new Date().toISOString() });
+    tosSave(TOS_NOTICES_KEY, notices);
+    ['tos_not_recipient','tos_not_address','tos_not_tracking','tos_not_notes','tos_not_resp_date'].forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
+    tosSetToggleVal('tos_not_resp_btn','tos_not_resp', false);
+    tosRenderNotices();
+    tosCalcScore();
+  };
+
+  window.tosDeleteNotice = function(idx) {
+    if (!confirm('Delete this notice?')) return;
+    var notices = tosLoad(TOS_NOTICES_KEY);
+    var trustNotices = notices.filter(function(r) { return r.trust_id === _tosActiveTrustId; });
+    if (!trustNotices[idx]) return;
+    var gIdx = notices.indexOf(trustNotices[idx]);
+    if (gIdx >= 0) notices.splice(gIdx, 1);
+    tosSave(TOS_NOTICES_KEY, notices);
+    tosRenderNotices();
+    tosCalcScore();
+  };
+
+  window.tosCheckDefaultedNotices = function() {
+    var notices = tosLoad(TOS_NOTICES_KEY);
+    var now = Date.now();
+    var changed = false;
+    notices.forEach(function(n) {
+      if (!n.resp && n.date) {
+        var served = new Date(n.date).getTime();
+        var diffDays = Math.floor((now - served) / 86400000);
+        if (diffDays > 21 && n.status !== 'Defaulted' && n.status !== 'Escalated') {
+          n.status = 'Defaulted';
+          changed = true;
+        }
+      }
+    });
+    if (changed) tosSave(TOS_NOTICES_KEY, notices);
+    return notices;
+  };
+
+  function tosNoticeStatus(n) {
+    if (n.status === 'Escalated') return { label: 'Escalated', color: '#ef4444' };
+    if (n.status === 'Defaulted') return { label: '⚠️ DEFAULT', color: '#ef4444' };
+    if (n.resp) return { label: 'Responded', color: '#22c55e' };
+    if (!n.date) return { label: 'Served-Awaiting', color: '#f59e0b' };
+    var diffDays = Math.floor((Date.now() - new Date(n.date).getTime()) / 86400000);
+    if (diffDays > 21) return { label: '⚠️ DEFAULT — Consider escalation', color: '#ef4444' };
+    return { label: 'Served-Awaiting', color: '#f59e0b' };
+  }
+
+  function tosRenderNotices() {
+    tosCheckDefaultedNotices();
+    var tbody = document.getElementById('tosNoticesTable');
+    var checkEl = document.getElementById('tosNoticesChecklist');
+    if (!tbody) return;
+    var notices = tosGetTrustData(TOS_NOTICES_KEY);
+    var ledger  = tosGetTrustData(TOS_LEDGER_KEY);
+
+    tbody.innerHTML = '';
+    notices.forEach(function(n, i) {
+      var assetName = '—';
+      if (n.assetId) {
+        var a = ledger.find(function(e) { return e.id === n.assetId; });
+        if (a) assetName = a.desc;
+      }
+      var st = tosNoticeStatus(n);
+      var tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid rgba(139,92,246,0.08)';
+      tr.innerHTML =
+        '<td class="py-2 px-1 text-xs text-white">' + esc(n.type) + '</td>' +
+        '<td class="py-2 px-1 text-xs" style="color:#94A3B8;">' + esc(assetName) + '</td>' +
+        '<td class="py-2 px-1 text-xs text-white">' + esc(n.recipient) + '</td>' +
+        '<td class="py-2 px-1 text-xs" style="color:#94A3B8;">' + (n.date || '—') + '</td>' +
+        '<td class="py-2 px-1 text-xs" style="color:#94A3B8;">' + esc(n.method) + '</td>' +
+        '<td class="py-2 px-1 text-xs font-mono" style="color:#94A3B8;">' + esc(n.tracking || '—') + '</td>' +
+        '<td class="py-2 px-1 text-center text-xs font-bold" style="color:' + st.color + ';">' + st.label + '</td>' +
+        '<td class="py-2 px-1 text-xs" style="color:#94A3B8;max-width:120px;word-break:break-word;">' + esc(n.notes) + '</td>' +
+        '<td class="py-2 px-1 text-center"><button onclick="tosDeleteNotice(' + i + ')" class="text-xs px-2 py-0.5 rounded" style="background:rgba(239,68,68,0.2);color:#ef4444;">✕</button></td>';
+      tbody.appendChild(tr);
+    });
+
+    if (checkEl) {
+      var monetized = ledger.filter(function(e) { return e.status === 'Monetized'; });
+      var coveredAssets = new Set(notices.map(function(n) { return n.assetId; }));
+      var allCovered = monetized.length === 0 || monetized.every(function(e) { return coveredAssets.has(e.id); });
+      var allTracked = notices.length === 0 || notices.every(function(n) { return n.method && n.date; });
+      checkEl.innerHTML = [
+        tosCheckBadge(notices.length > 0, 'Notice Filed'),
+        tosCheckBadge(allCovered, 'Monetized Assets Covered'),
+        tosCheckBadge(allTracked, 'All Notices Tracked')
+      ].join('');
+    }
+  }
+
+  // ────────────────────────────────────────────────────────────────────────────
+  // BINDER AUDIT SCORE
+  // ────────────────────────────────────────────────────────────────────────────
+  window.tosCalcScore = function() {
+    var circleEl   = document.getElementById('tosScoreCircle');
+    var labelEl    = document.getElementById('tosScoreLabel');
+    var breakdownEl = document.getElementById('tosScoreBreakdown');
+    if (!circleEl) return;
+
+    if (!_tosActiveTrustId) {
+      circleEl.textContent = '—';
+      if (labelEl) labelEl.textContent = 'Select a trust to begin';
+      if (breakdownEl) breakdownEl.innerHTML = '';
+      return;
+    }
+
+    var t       = tosGetActiveTrust() || {};
+    var accts   = tosGetTrustData(TOS_ACCOUNTS_KEY);
+    var ledger  = tosGetTrustData(TOS_LEDGER_KEY);
+    var notices = tosGetTrustData(TOS_NOTICES_KEY);
+
+    // Trust tab (20%)
+    var trustItems = [!!t.name, !!t.type, !!(t.notarized === true || t.notarized === 'true'), !!t.trustee, !!(t.beneficiaries && t.beneficiaries.trim()), !!t.formation_date];
+    var trustScore = (trustItems.filter(Boolean).length / 6) * 100;
+
+    // EIN tab (15%)
+    var einItems = [!!t.ein, t.cp575 === 'received', !!(t.f56_1a || t.f56_2a), !!t.filing_type];
+    var einScore = (einItems.filter(Boolean).length / 4) * 100;
+
+    // Banking tab (15%)
+    var bankScore = 0;
+    if (accts.length > 0) {
+      var bankItems = [true, accts.every(function(a) { return a.usesEIN; }), accts.every(function(a) { return a.nonint; })];
+      bankScore = (bankItems.filter(Boolean).length / 3) * 100;
+    }
+
+    // Ledgers tab (20%)
+    var ledgScore = 0;
+    if (ledger.length > 0) {
+      var allFMV  = ledger.every(function(e) { return e.fmv > 0; });
+      var allDocs = ledger.every(function(e) { return (e.docs||[]).length > 0; });
+      ledgScore = ([true, allFMV, allDocs].filter(Boolean).length / 3) * 100;
+    }
+
+    // Valuations tab (15%)
+    var valScore = 0;
+    if (ledger.length > 0) {
+      var pcts = ledger.map(function(e) {
+        var vDocs = (e.valuation && e.valuation.docs) ? e.valuation.docs.length : 0;
+        return vDocs / LED_DOCS.length;
+      });
+      var avgPct = pcts.reduce(function(s,p) { return s+p; }, 0) / pcts.length;
+      var allUplift = ledger.every(function(e) { return e.uplift > 0; });
+      var allGood75 = pcts.every(function(p) { return p >= 0.75; });
+      valScore = ([allUplift, allGood75].filter(Boolean).length / 2) * 100 * 0.5 + avgPct * 100 * 0.5;
+    }
+
+    // 1099s tab (10%)
+    var form1099Score = 0;
+    if (ledger.length > 0) {
+      var has1096 = ledger.some(function(e) { return (e.form_overrides || {})['1096']; });
+      form1099Score = ([ledger.length > 0, has1096].filter(Boolean).length / 2) * 100;
+    }
+
+    // Notices tab (5%)
+    var noticeScore = 0;
+    var monetized = ledger.filter(function(e) { return e.status === 'Monetized'; });
+    var coveredIds = new Set(notices.map(function(n) { return n.assetId; }));
+    if (notices.length > 0) {
+      var coveredAll = monetized.length === 0 || monetized.every(function(e) { return coveredIds.has(e.id); });
+      noticeScore = coveredAll ? 100 : 50;
+    }
+
+    var final = Math.round(
+      trustScore  * 0.20 +
+      einScore    * 0.15 +
+      bankScore   * 0.15 +
+      ledgScore   * 0.20 +
+      valScore    * 0.15 +
+      form1099Score * 0.10 +
+      noticeScore * 0.05
+    );
+
+    var scoreColor = final >= 95 ? '#8b5cf6' : final >= 80 ? '#22c55e' : final >= 60 ? '#f59e0b' : '#ef4444';
+    circleEl.textContent = final + '%';
+    circleEl.style.borderColor = scoreColor;
+
+    if (labelEl) {
+      if (final >= 95)     labelEl.innerHTML = '<span style="color:#8b5cf6;font-weight:700;">✅ Audit-Proof Position</span>';
+      else if (final >= 80) labelEl.innerHTML = '<span style="color:#22c55e;font-weight:700;">Strong — Audit-Ready</span>';
+      else if (final >= 60) labelEl.innerHTML = '<span style="color:#f59e0b;font-weight:700;">⚠️ Not ready to move — Complete missing items</span>';
+      else                  labelEl.innerHTML = '<span style="color:#ef4444;font-weight:700;">⚠️ Not ready to move — Critical items missing</span>';
+    }
+
+    if (breakdownEl) {
+      var items = [
+        ['📋 Trust', trustScore, 20],
+        ['🔑 EIN', einScore, 15],
+        ['🏦 Banking', bankScore, 15],
+        ['📒 Ledgers', ledgScore, 20],
+        ['📊 Valuations', valScore, 15],
+        ['🧾 1099s', form1099Score, 10],
+        ['📬 Notices', noticeScore, 5]
+      ];
+      breakdownEl.innerHTML = items.map(function(item) {
+        var c = item[1] >= 75 ? '#22c55e' : item[1] >= 50 ? '#f59e0b' : '#ef4444';
+        return '<div><span style="color:#94A3B8;">' + item[0] + ' (' + item[2] + '%)</span> <span style="color:' + c + ';font-weight:700;">' + Math.round(item[1]) + '%</span></div>';
+      }).join('');
+    }
+  };
+
+  // ─── Escape helper ───────────────────────────────────────────────────────────
+  function esc(s) {
+    if (s == null) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ─── Expose init for external tab-switching logic ────────────────────────────
+  // Call window.tosInit() when the trustOS tab is activated.
+
+})();
+</script>
+
 </body>
 
 <!-- ===== EON AI SIDEBAR ===== -->
@@ -38376,7 +40893,9 @@ function calcEonInterest() {
     cpaConsolidated:'cpaConsolidatedSection',
     irsFormGen:     'irsFormGenSection',
     settingsApi:    'settingsApiSection',
-    apiScout:       'apiScoutSection'
+    apiScout:       'apiScoutSection',
+    trustMonetize:  'trustMonetizeSection',
+    trustOS:        'trustOSSection'
   };
   if (typeof _orig !== 'function') return;
   window.switchMainTab = function(tabName) {
