@@ -29,12 +29,13 @@ jobs:
 
           # Fetch both source pages
           echo "Fetching Agent.html..."
-          curl -s --max-time 30 "https://redressright.me/Agent.html" -o /tmp/Agent.html || { echo "FETCH_FAILED=true" >> $GITHUB_ENV; exit 0; }
+          curl -fsSL --max-time 30 "https://redressright.me/Agent.html" -o /tmp/Agent.html || { echo "FETCH_FAILED=true" >> $GITHUB_ENV; echo "fetch_failed=true" >> $GITHUB_OUTPUT; exit 0; }
 
           echo "Fetching GAAP.html..."
-          curl -s --max-time 30 "https://redressright.me/GAAP.html" -o /tmp/GAAP.html || { echo "FETCH_FAILED=true" >> $GITHUB_ENV; exit 0; }
+          curl -fsSL --max-time 30 "https://redressright.me/GAAP.html" -o /tmp/GAAP.html || { echo "FETCH_FAILED=true" >> $GITHUB_ENV; echo "fetch_failed=true" >> $GITHUB_OUTPUT; exit 0; }
 
           echo "FETCH_FAILED=false" >> $GITHUB_ENV
+          echo "fetch_failed=false" >> $GITHUB_OUTPUT
 
           # Compute SHA-256 hashes of meaningful content
           # Strip timestamps/nonces that change on every load
@@ -64,7 +65,7 @@ jobs:
 
       - name: Compare against stored fingerprint
         id: compare
-        if: env.FETCH_FAILED != 'true'
+        if: steps.fingerprint.outputs.fetch_failed != 'true'
         run: |
           STORED_AGENT_HASH=$(python3 -c "import json,sys; d=json.load(open('parity-fingerprint.json')); print(d['sources']['Agent.html']['hash'])" 2>/dev/null || echo "")
           STORED_GAAP_HASH=$(python3  -c "import json,sys; d=json.load(open('parity-fingerprint.json')); print(d['sources']['GAAP.html']['hash'])"  2>/dev/null || echo "")
@@ -83,6 +84,8 @@ jobs:
 
           echo "DRIFT=$DRIFT"     >> $GITHUB_ENV
           echo "SUMMARY=$SUMMARY" >> $GITHUB_ENV
+          echo "drift=$DRIFT"     >> $GITHUB_OUTPUT
+          echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
 
           echo "Drift detected: $DRIFT"
           if [ "$DRIFT" = "true" ]; then
@@ -90,9 +93,10 @@ jobs:
           fi
 
       - name: Update parity-fingerprint.json
-        if: env.FETCH_FAILED != 'true'
+        if: steps.fingerprint.outputs.fetch_failed != 'true'
         run: |
           NOW=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          export NOW
           python3 - <<EOF
           import json, os, datetime
 
@@ -125,11 +129,10 @@ jobs:
           print("parity-fingerprint.json updated.")
           EOF
         env:
-          NOW: ${{ steps.fingerprint.outputs.now }}
           INPUT_FORCE_ISSUE: ${{ github.event.inputs.force_issue }}
 
       - name: Commit updated fingerprint
-        if: env.FETCH_FAILED != 'true'
+        if: steps.fingerprint.outputs.fetch_failed != 'true'
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -138,16 +141,45 @@ jobs:
           git push origin HEAD
 
       - name: Create GitHub Issue on drift
-        if: env.DRIFT == 'true' || github.event.inputs.force_issue == 'true'
+        if: steps.compare.outputs.drift == 'true' || github.event.inputs.force_issue == 'true'
         uses: actions/github-script@v7
         with:
           script: |
-            const summary = process.env.SUMMARY || 'No detail available.';
+            const summary = (process.env.SUMMARY || 'No detail available.').replace(/\\n/g, '\n');
             const date    = new Date().toISOString().split('T')[0];
             const agentTabs = process.env.AGENT_TABS;
             const gaapTabs  = process.env.GAAP_TABS;
             const agentVer  = process.env.AGENT_VER;
             const gaapVer   = process.env.GAAP_VER;
+
+            const openDriftIssues = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'parity-drift',
+              per_page: 100
+            });
+
+            const existing = openDriftIssues.find(issue =>
+              !issue.pull_request && issue.title.startsWith('🔔 Source parity drift detected')
+            );
+
+            if (existing) {
+              core.info(`Open drift issue already exists (#${existing.number}); skipping creation.`);
+              return;
+            }
+
+            const repoLabels = await github.paginate(github.rest.issues.listLabelsForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100
+            });
+
+            const labelNames = new Set(repoLabels.map(l => l.name));
+            const labels = ['parity-drift'];
+            if (labelNames.has('maintenance')) {
+              labels.push('maintenance');
+            }
 
             const body = [
               `## Source Parity Drift Detected — ${date}`,
@@ -181,7 +213,7 @@ jobs:
               repo:  context.repo.repo,
               title: `🔔 Source parity drift detected — ${date}`,
               body:  body,
-              labels: ['parity-drift', 'maintenance']
+              labels
             });
         env:
           SUMMARY:    ${{ env.SUMMARY }}
