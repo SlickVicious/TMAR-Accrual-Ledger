@@ -18,3 +18,12 @@ agent_scan_pages_preview.txt
 # Data exports (local only)
 *.csv
 *.xlsx
+
+# Claude Code project settings (local dev environment, not repo config)
+.claude/
+
+# Playwright MCP session snapshots (ephemeral browser tool artifacts)
+.playwright-mcp/
+
+# Runtime-generated HTML backups (vault backup, not source)
+*.bak-vault
