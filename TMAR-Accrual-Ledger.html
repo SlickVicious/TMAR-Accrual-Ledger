@@ -13745,10 +13745,15 @@
           <span style="background:rgba(16,185,129,.15);color:#10b981;padding:3px 10px;border-radius:20px;font-size:11px">Form 990</span>
           <span style="background:rgba(16,185,129,.15);color:#10b981;padding:3px 10px;border-radius:20px;font-size:11px">Form 1041</span>
           <span style="background:rgba(16,185,129,.15);color:#10b981;padding:3px 10px;border-radius:20px;font-size:11px">Form 1065</span>
-          <span style="background:rgba(16,185,129,.15);color:#10b981;padding:3px 10px;border-radius:20px;font-size:11px">Schedule M-1/M-2/M-3</span>
           <span style="background:rgba(16,185,129,.15);color:#10b981;padding:3px 10px;border-radius:20px;font-size:11px">Schedule K-1</span>
           <span style="background:rgba(16,185,129,.15);color:#10b981;padding:3px 10px;border-radius:20px;font-size:11px">Form 4562</span>
-          <span style="background:rgba(16,185,129,.15);color:#10b981;padding:3px 10px;border-radius:20px;font-size:11px">Form 4466</span>
+          <span style="background:rgba(245,158,11,.2);color:#f59e0b;padding:3px 10px;border-radius:20px;font-size:11px">Form 56</span>
+          <span style="background:rgba(245,158,11,.2);color:#f59e0b;padding:3px 10px;border-radius:20px;font-size:11px">Form 8821</span>
+          <span style="background:rgba(245,158,11,.2);color:#f59e0b;padding:3px 10px;border-radius:20px;font-size:11px">Form 2848</span>
+          <span style="background:rgba(59,130,246,.2);color:#3b82f6;padding:3px 10px;border-radius:20px;font-size:11px">W-2C</span>
+          <span style="background:rgba(59,130,246,.2);color:#3b82f6;padding:3px 10px;border-radius:20px;font-size:11px">W-9</span>
+          <span style="background:rgba(59,130,246,.2);color:#3b82f6;padding:3px 10px;border-radius:20px;font-size:11px">W-4T</span>
+          <span style="background:rgba(139,92,246,.2);color:#8b5cf6;padding:3px 10px;border-radius:20px;font-size:11px">1099 Chain A&#x2192;B&#x2192;B</span>
         </div>
       </div>
       <!-- Entity Loader -->
@@ -13792,6 +13797,19 @@
             <option value="4562">Form 4562 — Depreciation &amp; Amortization</option>
             <option value="4466">Form 4466 — Quick Refund of Overpayment</option>
             <option value="1139">Form 1139 — NOL Carryback Refund</option>
+          </optgroup>
+          <optgroup label="Fiduciary Authority">
+            <option value="56">Form 56 — Notice Concerning Fiduciary Relationship</option>
+            <option value="8821">Form 8821 — Tax Information Authorization</option>
+            <option value="2848">Form 2848 — Power of Attorney &amp; Declaration</option>
+          </optgroup>
+          <optgroup label="Employment &amp; Corrections">
+            <option value="W2C">Form W-2C — Corrected Wage &amp; Tax Statement</option>
+            <option value="W9">Form W-9 — Request for Taxpayer ID &amp; Certification</option>
+            <option value="W4T">Form W-4T — Withholding Certificate</option>
+          </optgroup>
+          <optgroup label="Filing Workflows">
+            <option value="1099chain">1099 Chain Coordinator — A &#x2192; B#1 &#x2192; B#2 (Linked Filing)</option>
           </optgroup>
         </select>
         <button onclick="irsImportFromFilings()" style="padding:10px 16px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.4);border-radius:8px;color:#f59e0b;font-size:12px;font-weight:700;cursor:pointer">📥 Import from Tax Filings</button>
@@ -41230,8 +41248,78 @@ function irsLoadFormSchema() {
     '1120': [['corporateName','Corporation Name'],['ein','EIN'],['taxYearEnd','Tax Year End (MM/DD/YYYY)'],['grossReceipts','1a Gross Receipts'],['returns','1b Returns & Allowances'],['cogs','2 Cost of Goods Sold'],['grossProfit','3 Gross Profit'],['dividends','4 Dividends'],['interest','5 Interest'],['rents','6 Gross Rents'],['royalties','7 Gross Royalties'],['capitalGains','8 Capital Gains'],['totalIncome','11 Total Income'],['compensation','12 Compensation of Officers'],['salaries','13 Salaries & Wages'],['repairs','14 Repairs'],['badDebts','15 Bad Debts'],['rentsExp','16 Rents'],['taxesPaid','17 Taxes & Licenses'],['interest2','18 Interest'],['depreciation','20 Depreciation'],['totalDeductions','28 Total Deductions'],['taxableIncome','30 Taxable Income'],['incomeAfterNol','31 Taxable Income After NOL'],['totalTax','31 Total Tax']],
     '1041': [['trustName','Name of Estate or Trust'],['ein','EIN'],['taxYear','Tax Year'],['interest','1 Interest Income'],['dividends','2a Ordinary Dividends'],['rents','3 Net Rents'],['capitalGains','4 Capital Gains'],['totalIncome','9 Total Income'],['fiduciaryFees','12 Fiduciary Fees'],['taxes','14 Taxes'],['totalDeductions','15a Total Deductions'],['incomeDistribution','18 Income Distribution Deduction'],['taxableIncome','22 Taxable Income'],['tax','23 Tax']],
     '990': [['orgName','Organization Name'],['ein','EIN'],['taxYear','Tax Year'],['missionStatement','Part I Line 1 Mission Statement'],['totalRevenue','Part I Line 12 Total Revenue'],['totalExpenses','Part I Line 17 Total Expenses'],['netAssets','Part I Line 21 Net Assets'],['numEmployees','Part V Line 2a Total # of Employees']],
-    '1065': [['partnershipName','Partnership Name'],['ein','EIN'],['taxYear','Tax Year'],['ordinaryIncome','1 Gross Receipts'],['cogs','2 Cost of Goods Sold'],['grossProfit','3 Gross Profit'],['totalIncome','8 Total Income'],['salaries','9 Salaries'],['totalDeductions','21 Total Deductions'],['ordinaryBI','22 Ordinary Business Income']]
+    '1065': [['partnershipName','Partnership Name'],['ein','EIN'],['taxYear','Tax Year'],['ordinaryIncome','1 Gross Receipts'],['cogs','2 Cost of Goods Sold'],['grossProfit','3 Gross Profit'],['totalIncome','8 Total Income'],['salaries','9 Salaries'],['totalDeductions','21 Total Deductions'],['ordinaryBI','22 Ordinary Business Income']],
+    '56':   [['fiduciaryName','Fiduciary Name'],['fiduciaryAddress','Fiduciary Street Address'],['fiduciaryCity','Fiduciary City, State, ZIP'],['fiduciaryTIN','Fiduciary TIN (SSN or EIN)'],['fiduciaryPhone','Fiduciary Phone'],['personName','Name of Person / Decedent / Ward'],['personSSN','Person SSN'],['personAddress','Person Last Known Address'],['taxYears','Tax Year(s) Covered'],['typeOfTax','Type of Tax (Estate / Income / Gift / Employment)'],['fiduciaryType','Type of Fiduciary (Executor / Trustee / Guardian / Administrator)'],['authorityDate','Date Authority Began'],['courtName','Court Name (if court-appointed)'],['courtCaseNumber','Court Case / File Number'],['terminationDate','Date Authority Terminated (leave blank if ongoing)']],
+    '8821': [['taxpayerName','1 Taxpayer Name'],['taxpayerSSN','1 Taxpayer SSN / EIN'],['taxpayerAddress','1 Taxpayer Street Address'],['taxpayerCity','1 Taxpayer City, State, ZIP'],['taxpayerPhone','1 Taxpayer Phone'],['appointeeName','2 Appointee Name / Organization'],['appointeeCAF','2 Appointee CAF Number'],['appointeeAddress','2 Appointee Street Address'],['appointeeCity','2 Appointee City, State, ZIP'],['appointeePhone','2 Appointee Phone'],['appointeeFax','2 Appointee Fax'],['taxFormNumbers','3 Tax Form Numbers (e.g. 1040, 1041)'],['taxYears','3 Tax Year(s) or Period(s)'],['taxMatters','3 Specific Tax Matters (if any)'],['specificUse','4 Specific Use Not Recorded on CAF? (Yes/No)'],['expirationDate','5 Expiration Date (if any — leave blank for none)']],
+    '2848': [['taxpayerName','1 Taxpayer Name'],['taxpayerSSN','1 Taxpayer SSN / EIN'],['taxpayerAddress','1 Taxpayer Street Address'],['taxpayerPhone','1 Taxpayer Phone'],['rep1Name','2 Representative 1 Name'],['rep1CAF','2 Representative 1 CAF Number'],['rep1PTIN','2 Representative 1 PTIN'],['rep1Address','2 Representative 1 Address'],['rep1Phone','2 Representative 1 Phone'],['rep1Fax','2 Representative 1 Fax'],['taxType','3 Tax Matter — Type of Tax'],['taxForms','3 Tax Matter — Form Numbers'],['taxYears','3 Tax Matter — Tax Year(s)'],['actsAuthorized','5a Acts Authorized (blank = all standard acts)'],['retainPriorRep','5b Retain Prior Power of Attorney? (Yes/No)'],['studentClinic','Clinic Designation (Low Income / Student Tax — if applicable)']],
+    'W2C': [['taxYear','Tax Year Being Corrected'],['employerEIN','Employer EIN'],['employerName','Employer Name'],['employerAddress','Employer Address'],['employerCity','Employer City, State, ZIP'],['employeeSSN','Employee SSN'],['employeeFirst','Employee First Name'],['employeeLast','Employee Last Name'],['employeeAddress','Employee Street Address'],['box1Prev','Box 1 Previously Reported — Wages, Tips'],['box1Corr','Box 1 Correct Amount — Wages, Tips'],['box2Prev','Box 2 Previously Reported — Federal Tax Withheld'],['box2Corr','Box 2 Correct Amount — Federal Tax Withheld'],['box3Prev','Box 3 Previously Reported — Social Security Wages'],['box3Corr','Box 3 Correct Amount — Social Security Wages'],['box4Prev','Box 4 Previously Reported — SS Tax Withheld'],['box4Corr','Box 4 Correct Amount — SS Tax Withheld'],['box5Prev','Box 5 Previously Reported — Medicare Wages'],['box5Corr','Box 5 Correct Amount — Medicare Wages'],['box6Prev','Box 6 Previously Reported — Medicare Tax Withheld'],['box6Corr','Box 6 Correct Amount — Medicare Tax Withheld'],['stateCode','State Code'],['stateWagesPrev','State Wages Previously Reported'],['stateWagesCorr','State Wages Correct Amount'],['stateTaxPrev','State Tax Previously Reported'],['stateTaxCorr','State Tax Correct Amount'],['correctionReason','Reason / Explanation for Correction']],
+    'W9':   [['name','1 Name (as shown on income tax return)'],['businessName','2 Business Name / Disregarded Entity'],['federalTaxClass','3 Federal Tax Classification (Individual/Sole Prop / C Corp / S Corp / Partnership / Trust/Estate / LLC / Other)'],['llcTaxClass','3 If LLC — Tax Classification (C / S / P)'],['exemptPayeeCode','4 Exempt Payee Code (if any)'],['fatcaExemption','4 FATCA Exemption Code (if any)'],['address','5 Street Address'],['cityStateZip','6 City, State, ZIP'],['accountNumbers','7 Account Number(s) — optional'],['ssn','Part I — Social Security Number (SSN)'],['ein','Part I — Employer Identification Number (EIN)'],['certificationDate','Part II — Date of Signature']],
+    'W4T':  [['employeeName','Step 1a Employee Name'],['employeeSSN','Step 1b Employee SSN'],['homeAddress','Step 1a Home Address'],['filingStatus','Step 1c Filing Status (Single / MFJ / HoH)'],['multipleJobs','Step 2 Multiple Jobs / Spouse Works (Yes/No)'],['dependentsAmount','Step 3 Total Dependents Amount ($)'],['otherIncome','Step 4a Other Income Not From Jobs ($)'],['deductions','Step 4b Deductions ($)'],['extraWithholding','Step 4c Extra Withholding Per Period ($)'],['exemptClaim','Claim Exempt from Withholding? (Yes/No)'],['employerName','Employer Name'],['employerEIN','Employer EIN'],['firstPayDate','First Date of Pay Period']]
   };
+  // ── 1099 Chain Coordinator (special multi-step workflow) ──────────────────
+  if (form === '1099chain') {
+    if (controls) controls.style.display = 'none';
+    render.innerHTML = [
+      '<div style="font-size:14px;font-weight:800;color:#f59e0b;margin-bottom:16px">1099 Filing Chain Coordinator — Linked A &#x2192; B#1 &#x2192; B#2</div>',
+      '<div style="font-size:11px;color:var(--text-secondary);margin-bottom:14px;padding:10px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:6px">',
+      'Every source teaches this as a coordinated 3-form filing, not three independent forms. Fill Step 1 — key values auto-populate downstream. Validate matching before export.',
+      '</div>',
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px">',
+      // Step 1: 1099-A
+      '<div style="background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:14px">',
+      '<div style="font-size:12px;font-weight:800;color:#10b981;margin-bottom:10px">STEP 1 — Form 1099-A (Acquisition)</div>',
+      _irsChainField('ca_lender','Lender / Creditor Name'),
+      _irsChainField('ca_lenderEIN','Lender EIN'),
+      _irsChainField('ca_borrower','Borrower Name'),
+      _irsChainField('ca_borrowerTIN','Borrower TIN (SSN/EIN)'),
+      _irsChainField('ca_dateAcq','Date of Acquisition / Abandonment'),
+      _irsChainField('ca_box2','Box 2 — Principal Balance Outstanding ($)','onblur="irsChainPropagate()"'),
+      _irsChainField('ca_box4','Box 4 — Fair Market Value of Property ($)'),
+      _irsChainField('ca_box5','Box 5 — Description of Property'),
+      '</div>',
+      // Step 2: 1099-B #1
+      '<div style="background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.3);border-radius:8px;padding:14px">',
+      '<div style="font-size:12px;font-weight:800;color:#3b82f6;margin-bottom:10px">STEP 2 — Form 1099-B #1 (Monetization / Uplift)</div>',
+      '<div style="font-size:10px;color:#3b82f6;margin-bottom:8px;font-style:italic">Box 1d auto-populated from Step 1 Box 2</div>',
+      _irsChainField('cb1_payer','Payer / Broker Name'),
+      _irsChainField('cb1_payerEIN','Payer EIN'),
+      _irsChainField('cb1_box1a','Box 1a — Description of Property'),
+      _irsChainField('cb1_box1b','Box 1b — Date Acquired'),
+      _irsChainField('cb1_box1c','Box 1c — Date Sold / Disposed'),
+      '<div><label style="font-size:11px;color:#3b82f6;display:block;margin-bottom:4px">Box 1d — Proceeds (&#x2190; from Step 1 Box 2)</label><input id="irs-field-cb1_box1d" readonly style="width:100%;padding:8px 10px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.4);border-radius:6px;color:#3b82f6;font-size:12px;box-sizing:border-box;font-weight:700" placeholder="Auto-populated"></div>',
+      _irsChainField('cb1_box1e','Box 1e — Cost Basis ($)'),
+      _irsChainField('cb1_upliftFactor','Uplift Factor (1× / 10× / 50× / 100×)','onchange="irsChainCalcUplift()" onblur="irsChainCalcUplift()"'),
+      _irsChainField('cb1_box13','Box 13 — Uplifted Value ($) — auto from 1d × factor','onblur="irsChainPropagate()"'),
+      _irsChainField('cb1_cusip','CUSIP Number (if applicable)'),
+      '</div>',
+      // Step 3: 1099-B #2
+      '<div style="background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.3);border-radius:8px;padding:14px">',
+      '<div style="font-size:12px;font-weight:800;color:#8b5cf6;margin-bottom:10px">STEP 3 — Form 1099-B #2 (Distribution / Liquidation)</div>',
+      '<div style="font-size:10px;color:#8b5cf6;margin-bottom:8px;font-style:italic">Box 1d auto-populated from Step 2 Box 13. Box 4 = 24% withholding.</div>',
+      _irsChainField('cb2_payer','Payer / Broker Name'),
+      _irsChainField('cb2_payerEIN','Payer EIN'),
+      _irsChainField('cb2_box1a','Box 1a — Description of Property'),
+      _irsChainField('cb2_box1b','Box 1b — Date Acquired'),
+      _irsChainField('cb2_box1c','Box 1c — Date Sold / Disposed'),
+      '<div><label style="font-size:11px;color:#8b5cf6;display:block;margin-bottom:4px">Box 1d — Proceeds (&#x2190; from Step 2 Uplifted Value)</label><input id="irs-field-cb2_box1d" readonly style="width:100%;padding:8px 10px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.4);border-radius:6px;color:#8b5cf6;font-size:12px;box-sizing:border-box;font-weight:700" placeholder="Auto-populated"></div>',
+      _irsChainField('cb2_box1e','Box 1e — Cost Basis ($)'),
+      '<div><label style="font-size:11px;color:#8b5cf6;display:block;margin-bottom:4px">Box 4 — Federal Tax Withheld (24% auto-calc)</label><input id="irs-field-cb2_box4" readonly style="width:100%;padding:8px 10px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.4);border-radius:6px;color:#8b5cf6;font-size:12px;box-sizing:border-box;font-weight:700" placeholder="Auto-calculated (24%)"></div>',
+      _irsChainField('cb2_box4override','Box 4 — Override Withholding ($, optional — leave blank for 24% auto)','onblur="irsChainPropagate()"'),
+      _irsChainField('cb2_beneficiary','Beneficiary / Recipient Name'),
+      _irsChainField('cb2_beneficiaryTIN','Beneficiary TIN'),
+      '</div>',
+      '</div>',
+      // Validation + export
+      '<div id="irsChainValidation" style="margin-top:14px;padding:12px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:12px;color:var(--text-secondary)">Fill Steps 1-2 to see chain validation.</div>',
+      '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">',
+      '<button onclick="irsChainPropagate()" style="padding:9px 16px;background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.5);border-radius:7px;color:#f59e0b;font-size:12px;font-weight:700;cursor:pointer">&#x27F3; Recalculate Chain</button>',
+      '<button onclick="irsChainExport()" style="padding:9px 16px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.5);border-radius:7px;color:#10b981;font-size:12px;font-weight:700;cursor:pointer">&#x2193; Export Full Chain Package (TXT)</button>',
+      '<button onclick="irsChainSave()" style="padding:9px 16px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.4);border-radius:7px;color:#3b82f6;font-size:12px;font-weight:700;cursor:pointer">&#x1F4BE; Save to Filings</button>',
+      '</div>'
+    ].join('');
+    document.getElementById('irsFormStatus').textContent = '1099 Chain Coordinator loaded — 3 linked forms';
+    return;
+  }
   var fields = schemas[form];
   if (!fields) { render.innerHTML = '<div style="padding:20px;color:var(--text-secondary);font-size:13px">Form ' + form + ' — fields coming soon. Use the GAAP ledger to populate and export this form.</div>'; return; }
   render.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;padding:4px">' + fields.map(function(f) {
@@ -41239,6 +41327,143 @@ function irsLoadFormSchema() {
   }).join('') + '</div>';
   if (controls) controls.style.display = 'flex';
   document.getElementById('irsFormStatus').textContent = 'Form ' + form + ' loaded — ' + fields.length + ' fields';
+}
+
+// ── 1099 Chain Coordinator helpers ──────────────────────────────────────────
+function _irsChainField(id, label, extra) {
+  return '<div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">' + label + '</label>' +
+    '<input id="irs-field-' + id + '" ' + (extra||'') + ' style="width:100%;padding:8px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box" placeholder=""></div>';
+}
+function _irsChainVal(id) {
+  var el = document.getElementById('irs-field-' + id);
+  return el ? (parseFloat(el.value.replace(/[^0-9.-]/g,'')) || 0) : 0;
+}
+function _irsChainSet(id, val) {
+  var el = document.getElementById('irs-field-' + id);
+  if (el) el.value = typeof val === 'number' ? val.toFixed(2) : val;
+}
+function irsChainCalcUplift() {
+  var base = _irsChainVal('cb1_box1d');
+  var factorEl = document.getElementById('irs-field-cb1_upliftFactor');
+  if (!factorEl) return;
+  var factorStr = (factorEl.value || '').replace(/[^0-9.]/g,'');
+  var factor = parseFloat(factorStr) || 1;
+  // Also parse common text values: "10x" → 10, "100x" → 100
+  var raw = factorEl.value.toLowerCase().replace(/[^0-9.x]/g,'');
+  var m = raw.match(/^([0-9.]+)x?$/);
+  if (m) factor = parseFloat(m[1]) || 1;
+  if (base > 0 && factor > 0) {
+    _irsChainSet('cb1_box13', base * factor);
+  }
+}
+function irsChainPropagate() {
+  // Step 1 → Step 2: A.Box2 → B1.Box1d
+  var aBox2 = _irsChainVal('ca_box2');
+  if (aBox2 > 0) _irsChainSet('cb1_box1d', aBox2);
+
+  // Recalc uplift if factor set
+  irsChainCalcUplift();
+
+  // Step 2 → Step 3: B1.Box13 (uplifted) → B2.Box1d
+  var upliftedVal = _irsChainVal('cb1_box13');
+  if (upliftedVal > 0) {
+    _irsChainSet('cb2_box1d', upliftedVal);
+    // Box 4 = 24% withholding (unless override set)
+    var overrideEl = document.getElementById('irs-field-cb2_box4override');
+    var override = overrideEl ? (parseFloat(overrideEl.value.replace(/[^0-9.-]/g,'')) || 0) : 0;
+    _irsChainSet('cb2_box4', override > 0 ? override : upliftedVal * 0.24);
+  }
+
+  // Validation summary
+  var valDiv = document.getElementById('irsChainValidation');
+  if (!valDiv) return;
+  var msgs = [];
+  var ok = true;
+  var b1d = _irsChainVal('cb1_box1d');
+  if (aBox2 > 0 && Math.abs(b1d - aBox2) > 0.01) { msgs.push('MISMATCH: Step 2 Box 1d (' + b1d.toFixed(2) + ') does not equal Step 1 Box 2 (' + aBox2.toFixed(2) + ')'); ok = false; }
+  var b2d = _irsChainVal('cb2_box1d');
+  var ul  = _irsChainVal('cb1_box13');
+  if (ul > 0 && Math.abs(b2d - ul) > 0.01) { msgs.push('MISMATCH: Step 3 Box 1d (' + b2d.toFixed(2) + ') does not equal Step 2 Uplifted Value (' + ul.toFixed(2) + ')'); ok = false; }
+  if (aBox2 <= 0) msgs.push('Enter Step 1 Box 2 (Principal Balance) to begin chain.');
+  if (ul <= 0 && aBox2 > 0) msgs.push('Enter Uplift Factor in Step 2 to calculate uplifted value.');
+  if (ok && aBox2 > 0 && ul > 0) msgs.push('Chain validated. All values match. Ready to export.');
+  valDiv.style.borderColor = ok && aBox2 > 0 ? 'rgba(16,185,129,.5)' : 'rgba(245,158,11,.5)';
+  valDiv.style.color = ok && aBox2 > 0 ? '#10b981' : '#f59e0b';
+  valDiv.innerHTML = msgs.map(function(m){ return '&#x2022; ' + m; }).join('<br>');
+}
+function irsChainExport() {
+  irsChainPropagate();
+  var now = new Date().toISOString();
+  var lines = [
+    'TMAR 1099 FILING CHAIN PACKAGE',
+    'Generated: ' + now,
+    '='.repeat(60),
+    '',
+    'FORM 1099-A — ACQUISITION / ABANDONMENT OF SECURED PROPERTY',
+    '-'.repeat(50),
+    'Lender:                ' + (document.getElementById('irs-field-ca_lender')||{}).value,
+    'Lender EIN:            ' + (document.getElementById('irs-field-ca_lenderEIN')||{}).value,
+    'Borrower:              ' + (document.getElementById('irs-field-ca_borrower')||{}).value,
+    'Borrower TIN:          ' + (document.getElementById('irs-field-ca_borrowerTIN')||{}).value,
+    'Date of Acquisition:   ' + (document.getElementById('irs-field-ca_dateAcq')||{}).value,
+    'Box 2 Principal Balance: $' + _irsChainVal('ca_box2').toFixed(2),
+    'Box 4 Fair Market Value: $' + _irsChainVal('ca_box4').toFixed(2),
+    'Box 5 Property Desc:   ' + (document.getElementById('irs-field-ca_box5')||{}).value,
+    '',
+    'FORM 1099-B #1 — MONETIZATION / UPLIFT',
+    '-'.repeat(50),
+    'Payer:                 ' + (document.getElementById('irs-field-cb1_payer')||{}).value,
+    'Payer EIN:             ' + (document.getElementById('irs-field-cb1_payerEIN')||{}).value,
+    'Box 1a Description:    ' + (document.getElementById('irs-field-cb1_box1a')||{}).value,
+    'Box 1b Date Acquired:  ' + (document.getElementById('irs-field-cb1_box1b')||{}).value,
+    'Box 1c Date Sold:      ' + (document.getElementById('irs-field-cb1_box1c')||{}).value,
+    'Box 1d Proceeds:       $' + _irsChainVal('cb1_box1d').toFixed(2) + '  [= 1099-A Box 2]',
+    'Box 1e Cost Basis:     $' + _irsChainVal('cb1_box1e').toFixed(2),
+    'Uplift Factor:         ' + (document.getElementById('irs-field-cb1_upliftFactor')||{}).value,
+    'Box 13 Uplifted Value: $' + _irsChainVal('cb1_box13').toFixed(2),
+    'CUSIP:                 ' + (document.getElementById('irs-field-cb1_cusip')||{}).value,
+    '',
+    'FORM 1099-B #2 — DISTRIBUTION / LIQUIDATION',
+    '-'.repeat(50),
+    'Payer:                 ' + (document.getElementById('irs-field-cb2_payer')||{}).value,
+    'Payer EIN:             ' + (document.getElementById('irs-field-cb2_payerEIN')||{}).value,
+    'Box 1a Description:    ' + (document.getElementById('irs-field-cb2_box1a')||{}).value,
+    'Box 1b Date Acquired:  ' + (document.getElementById('irs-field-cb2_box1b')||{}).value,
+    'Box 1c Date Sold:      ' + (document.getElementById('irs-field-cb2_box1c')||{}).value,
+    'Box 1d Proceeds:       $' + _irsChainVal('cb2_box1d').toFixed(2) + '  [= 1099-B#1 Uplifted Value]',
+    'Box 1e Cost Basis:     $' + _irsChainVal('cb2_box1e').toFixed(2),
+    'Box 4 Fed Tax Withheld: $' + _irsChainVal('cb2_box4').toFixed(2) + '  (24%)',
+    'Beneficiary:           ' + (document.getElementById('irs-field-cb2_beneficiary')||{}).value,
+    'Beneficiary TIN:       ' + (document.getElementById('irs-field-cb2_beneficiaryTIN')||{}).value,
+    '',
+    '='.repeat(60),
+    'CHAIN VALIDATION',
+    '-'.repeat(50),
+    '1099-A Box 2:          $' + _irsChainVal('ca_box2').toFixed(2),
+    '1099-B#1 Box 1d:       $' + _irsChainVal('cb1_box1d').toFixed(2) + '  (should match 1099-A Box 2)',
+    '1099-B#1 Uplift:       $' + _irsChainVal('cb1_box13').toFixed(2),
+    '1099-B#2 Box 1d:       $' + _irsChainVal('cb2_box1d').toFixed(2) + '  (should match 1099-B#1 uplift)',
+    '24% Withholding:       $' + _irsChainVal('cb2_box4').toFixed(2),
+    '',
+    'THIS DOCUMENT IS A LEGAL RECORD UNDER UNIVERSAL LAW'
+  ].join('\n');
+  var blob = new Blob([lines], {type:'text/plain'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '1099_Chain_' + now.replace(/[:.]/g,'-').slice(0,19) + '.txt';
+  a.click();
+}
+function irsChainSave() {
+  irsChainPropagate();
+  var key = 'irs_chain_' + Date.now();
+  var data = {};
+  ['ca_lender','ca_lenderEIN','ca_borrower','ca_borrowerTIN','ca_dateAcq','ca_box2','ca_box4','ca_box5',
+   'cb1_payer','cb1_payerEIN','cb1_box1a','cb1_box1b','cb1_box1c','cb1_box1d','cb1_box1e','cb1_upliftFactor','cb1_box13','cb1_cusip',
+   'cb2_payer','cb2_payerEIN','cb2_box1a','cb2_box1b','cb2_box1c','cb2_box1d','cb2_box1e','cb2_box4','cb2_box4override','cb2_beneficiary','cb2_beneficiaryTIN'
+  ].forEach(function(id){ var el=document.getElementById('irs-field-'+id); if(el) data[id]=el.value; });
+  localStorage.setItem(key, JSON.stringify({type:'1099chain',saved:new Date().toISOString(),data:data}));
+  var st = document.getElementById('irsFormStatus');
+  if (st) st.textContent = 'Chain saved to filings (' + key + ')';
 }
 
 function irsLoadEntity() { alert('Load entity data from GAAP ledger into form fields.'); }
