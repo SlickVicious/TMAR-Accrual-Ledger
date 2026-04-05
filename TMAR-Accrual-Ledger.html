@@ -9630,7 +9630,7 @@
     window.onload = function() {
       loadEntries();
       updateFilingsList();
-      
+
       // Set default date to today
       const today = new Date().toISOString().split('T')[0];
       document.getElementById('date').value = today;
@@ -9643,6 +9643,24 @@
       updateAPTable();
       updateEliminationsTable();
       updateEntitySelects();
+
+      // Restore API key into window scope from any known storage location
+      // so Transcript Transformer / Etymology / pdkbCallAnthropic work after reload
+      var _ck = (localStorage.getItem('eeon_key_claude') ||
+                 localStorage.getItem('stg_key_claude') ||
+                 localStorage.getItem('tmar_claude_key') ||
+                 localStorage.getItem('_trustApiKey') || '').trim();
+      if (_ck) {
+        window._trustApiKey = _ck;
+        // Keep all storage locations in sync
+        localStorage.setItem('eeon_key_claude', _ck);
+        localStorage.setItem('stg_key_claude', _ck);
+        localStorage.setItem('tmar_claude_key', _ck);
+        localStorage.setItem('_trustApiKey', _ck);
+        // Populate the settings field if visible
+        var _stgEl = document.getElementById('stg-api-claude');
+        if (_stgEl && !_stgEl.value) _stgEl.value = _ck;
+      }
     };
   </script>
 
@@ -40060,16 +40078,28 @@ function pdkbSelectAll(elementId) {
 }
 function pdkbCallAnthropic(prompt, options) {
   options = options || {};
-  var apiKey = window._trustApiKey || localStorage.getItem('stg_key_claude') || localStorage.getItem('tmar_claude_key') || localStorage.getItem('_trustApiKey') || '';
+  // Check all key storage locations (same priority as resolveProvider)
+  var apiKey = (
+    (window._trustApiKey || '') ||
+    (localStorage.getItem('eeon_key_claude') || '') ||
+    (localStorage.getItem('stg_key_claude') || '') ||
+    (localStorage.getItem('tmar_claude_key') || '') ||
+    (localStorage.getItem('_trustApiKey') || '')
+  ).trim();
   if (!apiKey) {
-    return Promise.resolve({ success: false, error: { type: 'no_api_key', message: 'API key not set. Enter your Anthropic key in Settings → API Keys.' } });
+    return Promise.resolve({ success: false, error: { type: 'no_api_key', message: 'API key not set. Enter your Anthropic key in Settings → API Keys, then click Save All Keys.' } });
   }
-  var model = options.model || 'claude-sonnet-4-20250514';
+  // Sync key so rest of app has it for this session
+  window._trustApiKey = apiKey;
+  var model = options.model || 'claude-sonnet-4-6';
   var maxTokens = options.maxTokens || 12000;
   var timeout = options.timeout || 120000;
+  // Use CORS proxy if configured (same pattern as callLLMStream)
+  var corsProxy = (localStorage.getItem('eeon_cors_proxy') || '').replace(/\/$/, '');
+  var endpoint = corsProxy ? corsProxy + '/v1/messages' : 'https://api.anthropic.com/v1/messages';
   var controller = new AbortController();
   var timer = setTimeout(function(){ controller.abort(); }, timeout);
-  return fetch('https://api.anthropic.com/v1/messages', {
+  return fetch(endpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
