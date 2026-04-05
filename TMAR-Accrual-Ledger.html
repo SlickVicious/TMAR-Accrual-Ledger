@@ -6860,8 +6860,9 @@
       const activeBtn = document.querySelector('[data-tab="' + tabName + '"]');
       if (activeBtn) activeBtn.classList.add('active');
 
-      // Hide every section
-      document.querySelectorAll('.form-section').forEach(s => s.classList.add('hidden'));
+      // Hide every section — also clear any inline display style set by the patch wrapper
+      // (inline style has higher specificity than the .hidden class, so both must be cleared)
+      document.querySelectorAll('.form-section').forEach(s => { s.classList.add('hidden'); s.style.display = ''; });
 
       // Show the target section
       const target = document.getElementById(tabName + 'Section');
