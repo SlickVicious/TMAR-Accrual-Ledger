@@ -1,7 +1,7 @@
 # TMAR - Trust Master Account Register
 
 **Complete Interactive Web Application + Google Sheets Integration**
-**Version:** 3.3
+**Version:** 3.4
 **Last Updated:** April 4, 2026
 **Status:** ✅ Production Ready — 246/246 Functions Verified | 211/211 GUI Elements Verified
 
@@ -145,6 +145,22 @@ npx http-server -p 8080 -o
 
 ---
 
+## 🆕 What's New in v3.4
+
+| Feature | Details |
+|---|---|
+| **GAAPCLAW Master Agent** | Dedicated streaming chat agent (`gaapAgentSection`) for all entity types — C-Corp, S-Corp, LLC, Trust, SPV, Non-Profit. 6 quick-prompts, full conversation history, calls `callLLMStream()` via active provider. |
+| **OpenClaw Page** | New EON sidebar page with Apify token + Tavily + Firecrawl key cards and a discovery search panel for live web scraping/search integration. |
+| **Tavily / Firecrawl / Mem0 Keys** | Three new API key cards in Settings → API Keys. Keys stored as `stg_key_tavily`, `stg_key_firecrawl`, `stg_key_mem0`. Vault `.env` import maps `TAVILY_API_KEY`, `FIRECRAWL_API_KEY`, `MEM0_API_KEY`. |
+| **Image Paste** | `handleChatPaste()` — intercepts clipboard paste events, converts images to base64, sends to Claude vision API as `{type:'image',source:{type:'base64',...}}`. Ctrl+V to paste screenshots directly into any chat. |
+| **Token Guard** | Session token counter in chat action bar — gray <50K, amber ⚡ <100K, red ⚠️ <180K, ⛔ at limit. Tracks send + streaming tokens. |
+| **CAMT + Buyback Tax** | Two new sub-tabs in Tax Estimator: IRC §55 Corporate AMT (15% on AFSI ≥$1B) and IRC §4501 Stock Buyback Excise (1%, $10M de minimis). |
+| **Vault Buttons** | Three quick-action buttons in Settings action row: 🔐 Load .env, 📦 Export Bundle, 📥 Import Bundle. |
+| **Model Defaults Updated** | OpenAI→`gpt-4.1-mini`, xAI→`grok-3-mini`, MiniMax→`MiniMax-Text-01`, Ernie→Qianfan v2 endpoint + `ernie-4.0-turbo-8k`, Ollama fallback→`deepseek-r1:14b`. |
+| **Dev Workflow** | Document maintenance protocol added: per-feature doc update checklist, archive criteria, stale-doc rules. Parity drift issues now include a doc-update checklist. |
+
+---
+
 ## 🆕 What's New in v3.3
 
 | Feature | Details |
@@ -213,16 +229,16 @@ TMAR/
 
 **Mac → GitHub:**
 ```bash
-git add .
-git commit -m "Your changes"
-git push origin master
+git add TMAR-Accrual-Ledger.html   # stage only what changed
+git commit -m "feat/fix/chore: description"
+git push origin master              # GitHub Pages auto-deploys
 ```
 
 **PC → Sync from GitHub:**
 ```bash
 git pull origin master
 # Make changes
-git add .
+git add TMAR-Accrual-Ledger.html
 git commit -m "PC updates"
 git push origin master
 ```
@@ -230,15 +246,53 @@ git push origin master
 ### Google Apps Script Deployment
 
 ```bash
-# Navigate to gas/ directory
 cd gas/
-
-# Push to Google Apps Script
-clasp push
-
-# Open in Apps Script editor
-clasp open
+clasp push       # deploy to Apps Script
+clasp open       # open in editor to redeploy Web App if SyncCenter.gs changed
 ```
+
+---
+
+### 📋 Document Maintenance Checklist
+
+Run this checklist on **every feature or parity-sync commit** before pushing.
+
+#### Update (when applicable)
+
+| Document | Update When |
+|---|---|
+| `README.md` | version bump, new features, tab/count changes, What's New entry |
+| `TMAR-ACCRUAL-LEDGER-DESIGN.md` | new Approved Decision rows, version header, module scope |
+| `TMAR-User-Manual.md` | any user-visible feature added or changed |
+| `parity-fingerprint.json` | auto-updated by CI — do not edit manually |
+
+#### Archive to `_archive/`
+
+Move these when they are no longer current:
+- One-time deployment records, setup completion reports (after their feature ships)
+- Superseded planning docs and gap-audit reports (after implementation)
+- Old implementation plans that are fully executed
+- Duplicate guides that have been consolidated elsewhere
+
+#### Remove
+
+- Empty stubs or placeholder files with no content
+- Files wholly superseded by a renamed/rewritten replacement
+- Temporary scratch files committed by mistake
+
+**Rule of thumb:** if you wouldn't link it from `README.md` and nothing in the codebase references it, archive or delete it before the next push.
+
+---
+
+### 🔁 Parity Sync Workflow
+
+When the weekly Actions run or `gh workflow run parity-check.yml` opens a drift issue:
+
+1. Fetch both source URLs listed in the issue
+2. Run gap audit (diff source tabs vs TMAR sidebar)
+3. Implement gaps in TMAR-Accrual-Ledger.html
+4. Follow the Document Maintenance Checklist above
+5. Commit → push → close the drift issue
 
 ---
 
@@ -337,6 +391,18 @@ clasp open
 ---
 
 ## 📈 Version History
+
+### v3.4 (April 4, 2026) — GAAPCLAW Master Agent + OpenClaw + Model Updates + Doc Workflow
+
+- ✅ **GAAPCLAW Master Agent** — dedicated streaming chat for all entity types; 6 quick-prompts; `gaapAgentSend/Clear/Q()` wired to `callLLMStream()`
+- ✅ **OpenClaw page** — Apify/Tavily/Firecrawl key cards + discovery search in EON sidebar
+- ✅ **Tavily / Firecrawl / Mem0 API keys** — settings cards + ENV_TO_LS_MAP vault import mappings
+- ✅ **Image paste** — `handleChatPaste()` on all chat inputs; Claude vision base64 block format
+- ✅ **Token Guard** — session token counter with color-coded thresholds in chat bar
+- ✅ **CAMT + Buyback Tax sub-tabs** — IRC §55 (15% AFSI ≥$1B) + IRC §4501 (1% excise, $10M de minimis)
+- ✅ **Vault quick-action buttons** — 🔐 Load .env, 📦 Export Bundle, 📥 Import Bundle in Settings row
+- ✅ **Model defaults** — OpenAI→`gpt-4.1-mini`, xAI→`grok-3-mini`, MiniMax→`MiniMax-Text-01`, Ernie→Qianfan v2, Ollama fallback→`deepseek-r1:14b`
+- ✅ **Document maintenance protocol** — per-feature checklist, archive criteria, parity issue doc checklist
 
 ### v3.2 (April 4, 2026) — Transcript Transformer YAML Fix + Audit Dashboard v2
 
