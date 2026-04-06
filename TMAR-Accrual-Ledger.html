@@ -34082,9 +34082,9 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <div class="stat"><div class="stat-label">Sessions</div><div class="stat-val" id="anSessions">0</div></div>
 <div class="stat"><div class="stat-label">Memory Topics</div><div class="stat-val" id="anMemory">0</div></div>
 </div>
-<div class="card"><div class="card-head"> Agent Usage Distribution</div>
+<div class="card"><div class="card-head">📊 Agent Usage Distribution</div>
 <div class="card-body" id="analyticsUsage" style="font-size:13px">Loading...</div></div>
-<div class="card"><div class="card-head"> Recent Activity</div>
+<div class="card"><div class="card-head">🕐 Recent Activity</div>
 <div class="card-body" id="analyticsLog" style="max-height:400px;overflow-y:auto;font-size:12px">No activity yet.</div></div>
 </div>
 
@@ -34122,15 +34122,15 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <!-- EON: BACKUP -->
   <div class="page" id="page-backup">
 <div class="card">
-<div class="card-head"> Backup &amp; Restore</div>
+<div class="card-head">💾 Backup &amp; Restore</div>
 <div class="card-body">
 <p style="font-size:12px;color:var(--text2);margin-bottom:14px">Export all data (chats, agents, keys, preferences, documents, calendar, vault) as a backup file. Restore anytime.</p>
 <div style="display:flex;gap:10px;flex-wrap:wrap">
-<button class="btn btn-primary" onclick="exportBackup()"> Export Backup</button>
-<button class="btn" onclick="document.getElementById('restoreFile').click()"> Restore</button>
+<button class="btn btn-primary" onclick="exportBackup()">💾 Export Backup</button>
+<button class="btn" onclick="document.getElementById('restoreFile').click()">📂 Restore</button>
 <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="importBackup(this)">
-<button class="btn" onclick="exportAllHistory()"> Export Chats (.txt)</button>
-<button class="btn" style="color:var(--err)" onclick="if(confirm('ERASE ALL local data? Cannot be undone.')){localStorage.clear();location.reload();}"> Factory Reset</button>
+<button class="btn" onclick="exportAllHistory()">📄 Export Chats (.txt)</button>
+<button class="btn" style="color:var(--err)" onclick="if(confirm('ERASE ALL local data? Cannot be undone.')){localStorage.clear();location.reload();}">🗑️ Factory Reset</button>
 </div>
 <div id="backupStatus" style="margin-top:12px;font-size:12px"></div>
 </div>
@@ -34344,7 +34344,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <div class="page" id="page-calendar">
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
 <div class="card">
-<div class="card-head"> Add Event / Reminder</div>
+<div class="card-head">📅 Add Event / Reminder</div>
 <div class="card-body">
 <input id="calTitle" placeholder="Event title" style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;margin-bottom:8px">
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
@@ -34355,7 +34355,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <option value="event">Event</option><option value="reminder">Reminder</option><option value="deadline">Legal Deadline</option><option value="filing">Filing Date</option><option value="court">Court Date</option>
 </select>
 <textarea id="calNotes" rows="2" placeholder="Notes..." style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;resize:vertical;font-family:inherit;margin-bottom:8px"></textarea>
-<button class="btn btn-primary" onclick="addCalEvent()"> Add Event</button>
+<button class="btn btn-primary" onclick="addCalEvent()">📅 Add Event</button>
 </div>
 </div>
 <div class="card"><div class="card-head">Upcoming Events</div>
@@ -34372,8 +34372,8 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <div id="filePreview" style="padding:0 20px;display:none;flex-wrap:wrap;gap:4px"></div>
 <!-- ACTIONS BAR -->
 <div style="padding:6px 20px;display:flex;gap:6px;flex-wrap:wrap;align-items:center" id="chatActions">
-<button class="btn btn-sm" onclick="exportChat()"> Export</button>
-<button class="btn btn-sm" onclick="shareChat()"> Share</button>
+<button class="btn btn-sm" onclick="exportChat()">📤 Export</button>
+<button class="btn btn-sm" onclick="shareChat()">🔗 Share</button>
 <span id="tokenGuard" title="Estimated session token usage — Token Guard v7.2" style="margin-left:auto;font-size:10px;font-family:'IBM Plex Mono',monospace;padding:3px 8px;background:rgba(100,116,139,.1);border:1px solid rgba(100,116,139,.25);border-radius:10px;color:#64748b;white-space:nowrap;cursor:default">0 tokens</span>
 <select id="chatProvider" onchange="eonChatProviderChange(this.value)" style="padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:12px" title="Select provider">
   <option value="claude">Claude (Anthropic)</option>
@@ -34447,7 +34447,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <!-- EON: CREATE -->
   <div class="page" id="page-create">
 <div class="card">
-<div class="card-head"> Create New Agent</div>
+<div class="card-head">➕ Create New Agent</div>
 <div class="card-body">
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
 <div><label style="font-size:13px;font-weight:700;color:var(--text-bold);display:block;margin-bottom:8px;text-shadow:0 0 8px rgba(0,229,255,.3)">Agent ID (lowercase, no spaces)</label><input id="caId" placeholder="e.g. real_estate" style="width:100%;padding:14px 18px;background:var(--input-bg);border:3px solid var(--input-border);border-radius:10px;color:var(--text);font-size:14px;font-weight:600;box-shadow:0 0 12px rgba(51,102,204,.25), inset 0 0 18px rgba(0,0,0,.3)" onfocus="this.style.borderColor='var(--input-border-focus)';this.style.boxShadow='0 0 18px rgba(0,229,255,.5), inset 0 0 25px rgba(0,229,255,.1)'" onblur="this.style.borderColor='var(--input-border)';this.style.boxShadow='0 0 12px rgba(51,102,204,.25), inset 0 0 18px rgba(0,0,0,.3)'"></div>
@@ -34460,7 +34460,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <div><label style="font-size:13px;font-weight:700;color:var(--text-bold);display:block;margin-bottom:8px;text-shadow:0 0 8px rgba(0,229,255,.3)">Capabilities (comma-separated)</label><input id="caCaps" placeholder="e.g. Title Analysis, Deed Prep" style="width:100%;padding:14px 18px;background:var(--input-bg);border:3px solid var(--input-border);border-radius:10px;color:var(--text);font-size:14px;font-weight:600;box-shadow:0 0 12px rgba(51,102,204,.25), inset 0 0 18px rgba(0,0,0,.3)" onfocus="this.style.borderColor='var(--input-border-focus)';this.style.boxShadow='0 0 18px rgba(0,229,255,.5), inset 0 0 25px rgba(0,229,255,.1)'" onblur="this.style.borderColor='var(--input-border)';this.style.boxShadow='0 0 12px rgba(51,102,204,.25), inset 0 0 18px rgba(0,0,0,.3)'"></div>
 </div>
 <div style="margin-bottom:16px"><label style="font-size:13px;font-weight:700;color:var(--text-bold);display:block;margin-bottom:8px;text-shadow:0 0 8px rgba(0,229,255,.3)">System Prompt (agent instructions)</label><textarea id="caPrompt" rows="6" placeholder="You are a specialist in [topic]. Your expertise includes..." style="width:100%;padding:14px 18px;background:var(--input-bg);border:3px solid var(--input-border);border-radius:10px;color:var(--text);font-family:inherit;font-size:14px;font-weight:600;resize:vertical;box-shadow:0 0 12px rgba(51,102,204,.25), inset 0 0 18px rgba(0,0,0,.3)" onfocus="this.style.borderColor='var(--input-border-focus)';this.style.boxShadow='0 0 18px rgba(0,229,255,.5), inset 0 0 25px rgba(0,229,255,.1)'" onblur="this.style.borderColor='var(--input-border)';this.style.boxShadow='0 0 12px rgba(51,102,204,.25), inset 0 0 18px rgba(0,0,0,.3)'"></textarea></div>
-<div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="createAgent()"> Create Agent</button><span id="caStatus" style="font-size:12px;align-self:center"></span></div>
+<div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="createAgent()">➕ Create Agent</button><span id="caStatus" style="font-size:12px;align-self:center"></span></div>
 </div>
 </div>
 </div>
@@ -34494,7 +34494,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <!-- EON: DOCS -->
   <div class="page" id="page-docs">
 <div class="card">
-<div class="card-head"> Document Manager <button class="btn btn-sm" onclick="document.getElementById('docUpload').click()"> Upload</button></div>
+<div class="card-head">📁 Document Manager <button class="btn btn-sm" onclick="document.getElementById('docUpload').click()">📤 Upload</button></div>
 <input type="file" id="docUpload" multiple accept=".txt,.md,.json,.csv,.html,.pdf,.doc,.docx,.rtf" style="display:none" onchange="uploadDocs(this)">
 <div class="card-body">
 <input id="docSearch" placeholder="Search documents..." style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;margin-bottom:12px" oninput="renderDocs()">
@@ -34547,7 +34547,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <div class="page" id="page-history">
 <div class="card">
 <div class="card-head" style="flex-wrap:wrap;gap:8px">Conversation History
-<div style="display:flex;gap:6px"><input id="histSearch" placeholder="Search..." style="padding:5px 10px;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;width:180px" oninput="renderHistory()"><button class="btn btn-sm" onclick="exportAllHistory()"> Export All</button></div>
+<div style="display:flex;gap:6px"><input id="histSearch" placeholder="Search..." style="padding:5px 10px;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;width:180px" oninput="renderHistory()"><button class="btn btn-sm" onclick="exportAllHistory()">📤 Export All</button></div>
 </div>
 <div class="card-body" id="historyList" style="max-height:600px;overflow-y:auto;font-size:13px">No history yet.</div>
 </div>
@@ -34557,7 +34557,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <!-- EON: HOWTO -->
   <div class="page" id="page-howto">
 <div class="card">
-<div class="card-head"> How-To Guide - The Firm</div>
+<div class="card-head">📖 How-To Guide — The Firm</div>
 <div class="card-body" style="font-size:13px;line-height:1.8;color:var(--text2)">
 <h4 style="color:var(--accent);margin-bottom:8px">Getting Started</h4>
 <p><b>1.</b> Go to <b>API Keys</b> select <b>Ollama (Local)</b> for free local AI, or enter a cloud provider key (DeepSeek, OpenAI, Claude, xAI, etc.)</p>
@@ -34615,11 +34615,11 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <!-- EON: NOI -->
   <div class="page" id="page-noi">
 <div class="card">
-<div class="card-head"> Noi Ask - Send to Multiple Agents</div>
+<div class="card-head">📡 Noi Ask — Send to Multiple Agents</div>
 <div class="card-body">
 <textarea id="noiInput" placeholder="Type your question - it will be sent to all selected agents simultaneously..." style="width:100%;min-height:80px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-size:13px;resize:vertical;font-family:inherit"></textarea>
 <div style="margin:10px 0;display:flex;gap:6px;flex-wrap:wrap" id="noiAgentToggles"></div>
-<button class="btn btn-primary" onclick="noiAsk()"> Ask All Selected</button>
+<button class="btn btn-primary" onclick="noiAsk()">➤ Ask All Selected</button>
 </div>
 </div>
 <div id="noiResults" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px;margin-top:16px"></div>
@@ -34629,7 +34629,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <!-- EON: PREFERENCES -->
   <div class="page" id="page-preferences">
 <div class="card">
-<div class="card-head"> User Preferences</div>
+<div class="card-head">⚙️ User Preferences</div>
 <div class="card-body">
 <div style="font-size:12px;color:var(--text2);margin-bottom:12px">These preferences personalize all agent responses. Stored in your browser.</div>
 <div class="setting-row"><span>Your Name</span><input id="prefName" placeholder="Enter your name"></div>
@@ -34642,15 +34642,15 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <option value="direct">Direct</option>
 </select>
 </div>
-<div style="margin-top:14px"><button class="btn btn-primary" onclick="savePrefs()"> Save Preferences</button> <span id="prefStatus" style="font-size:12px"></span></div>
+<div style="margin-top:14px"><button class="btn btn-primary" onclick="savePrefs()">💾 Save Preferences</button> <span id="prefStatus" style="font-size:12px"></span></div>
 </div>
 </div>
 <div class="card">
-<div class="card-head"> Memory</div>
+<div class="card-head">🧠 Memory</div>
 <div class="card-body">
 <div style="font-size:12px;color:var(--text2);margin-bottom:10px">The agent learns from your conversations. Topics discussed, preferences expressed, and patterns observed are stored locally.</div>
 <div id="memoryDisplay" style="font-size:13px;line-height:1.7;color:var(--text2)"></div>
-<div style="margin-top:12px"><button class="btn btn-sm" onclick="clearMemory()"> Clear Memory</button></div>
+<div style="margin-top:12px"><button class="btn btn-sm" onclick="clearMemory()">🗑️ Clear Memory</button></div>
 </div>
 </div>
 </div>
@@ -34920,7 +34920,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <button class="eeon-tab" onclick="eeonTab('formsched_c',this)">Schedule C</button>
   <button class="eeon-tab" onclick="eeonTab('agent',this)">&#129302; Agent</button>
   </div>
-  <div id="agent-sync-status" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;border-radius:8px;padding:7px 14px;font-size:11px;font-family:'IBM Plex Mono',monospace;background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.2);color:#60a5fa;"><span class="sync-msg"> No GAAP ledger connected - open GAAP.html in the same browser and click " PUSH TO AGENT"</span><button onclick="populateAllForms()" style="background:#10b981;color:#000;border:none;padding:3px 11px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;margin-left:auto;"> SYNC FROM GAAP</button><button onclick="generateJournalFromForms()" style="background:#f59e0b;color:#000;border:none;padding:3px 11px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;"> PUSH BACK TO GAAP</button></div>
+  <div id="agent-sync-status" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;border-radius:8px;padding:7px 14px;font-size:11px;font-family:'IBM Plex Mono',monospace;background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.2);color:#60a5fa;"><span class="sync-msg">⚡ No GAAP ledger connected - open GAAP.html in the same browser and click " PUSH TO AGENT"</span><button onclick="populateAllForms()" style="background:#10b981;color:#000;border:none;padding:3px 11px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;margin-left:auto;">⬇ SYNC FROM GAAP</button><button onclick="generateJournalFromForms()" style="background:#f59e0b;color:#000;border:none;padding:3px 11px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;">⬆ PUSH BACK TO GAAP</button></div>
   <div id="eeon-panel-form990" class="eeon-panel" style="display:none;">
   <div class="section-title">Form 990</div>
   <div class="section-sub">Return of Organization Exempt From Income Tax \'b7 Auto-populated from Ledger</div>
@@ -34931,8 +34931,8 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <option>2020</option><option>2021</option><option>2022</option><option>2023</option>
   <option value="2024" selected>2024</option><option>2025</option><option>2026</option>
   </select>
-  <button class="app-btn primary" onclick="populateAllForms()"> Sync from Ledger</button>
-  <button class="app-btn secondary" onclick="printForm('form990')"> Print Form</button>
+  <button class="app-btn primary" onclick="populateAllForms()">⬇ Sync from Ledger</button>
+  <button class="app-btn secondary" onclick="printForm('form990')">🖨️ Print Form</button>
   </div>
   <div class="irs-form-wrap" id="form990">
   <!-- HEADER -->
@@ -35148,8 +35148,8 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <div class="section-title">Form 990-EZ</div>
   <div class="section-sub">Short Form Return of Organization Exempt From Income Tax \'b7 Gross receipts &lt; $200,000 &amp; assets &lt; $500,000</div>
   <div class="year-select-bar">
-  <button class="app-btn primary" onclick="populateAllForms()"> Sync from Ledger</button>
-  <button class="app-btn secondary" onclick="printForm('form990ez')"> Print</button>
+  <button class="app-btn primary" onclick="populateAllForms()">⬇ Sync from Ledger</button>
+  <button class="app-btn secondary" onclick="printForm('form990ez')">🖨️ Print</button>
   </div>
   <div class="irs-form-wrap" id="form990ez">
   <div class="irs-header">
@@ -35313,8 +35313,8 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <div class="section-title">Form 1120-W</div>
   <div class="section-sub">Estimated Tax for Corporations \'b7 Installment Schedule</div>
   <div class="year-select-bar">
-  <button class="app-btn primary" onclick="populateAllForms()"> Sync from Ledger</button>
-  <button class="app-btn secondary" onclick="printForm('form1120w')"> Print</button>
+  <button class="app-btn primary" onclick="populateAllForms()">⬇ Sync from Ledger</button>
+  <button class="app-btn secondary" onclick="printForm('form1120w')">🖨️ Print</button>
   </div>
   <div class="irs-form-wrap" id="form1120w">
   <div class="irs-header">
@@ -35387,8 +35387,8 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   &nbsp;\'b7&nbsp;<span class="fill-swatch filled"></span><span>White = Filled / synced from ledger</span>
   </div>
   <div class="year-select-bar">
-  <button class="app-btn primary" onclick="populateAllForms()"> Sync from Ledger</button>
-  <button class="app-btn secondary" onclick="printForm('form1041')"> Print</button>
+  <button class="app-btn primary" onclick="populateAllForms()">⬇ Sync from Ledger</button>
+  <button class="app-btn secondary" onclick="printForm('form1041')">🖨️ Print</button>
   </div>
   <div class="irs-form-wrap" id="form1041">
   <!-- HEADER -->
@@ -35795,8 +35795,8 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   &nbsp;\'b7&nbsp;<span class="fill-swatch filled"></span><span>White = Filled / synced from ledger</span>
   </div>
   <div class="year-select-bar">
-  <button class="app-btn primary" onclick="populateAllForms()"> Sync from Ledger</button>
-  <button class="app-btn secondary" onclick="printForm('form3800')"> Print</button>
+  <button class="app-btn primary" onclick="populateAllForms()">⬇ Sync from Ledger</button>
+  <button class="app-btn secondary" onclick="printForm('form3800')">🖨️ Print</button>
   </div>
   <div class="irs-form-wrap" id="form3800">
   <!-- HEADER -->
@@ -36090,8 +36090,8 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   &nbsp;\'b7&nbsp;<span style="font-size:9px;color:var(--goldL);font-family:'IBM Plex Mono',monospace;"> Gold text = reason this line must be completed</span>
   </div>
   <div class="year-select-bar">
-  <button class="app-btn primary" onclick="populateAllForms()"> Sync from Ledger</button>
-  <button class="app-btn secondary" onclick="printForm('form1065-wrap')"> Print</button>
+  <button class="app-btn primary" onclick="populateAllForms()">⬇ Sync from Ledger</button>
+  <button class="app-btn secondary" onclick="printForm('form1065-wrap')">🖨️ Print</button>
   </div>
   <div class="irs-form-wrap" id="form1065-wrap">
   <!-- HEADER -->
@@ -36938,7 +36938,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   &nbsp;\'b7&nbsp;<span style="font-size:9px;color:var(--goldL);font-family:'IBM Plex Mono',monospace;"> Gold text below field = reason this line must be completed</span>
   </div>
   <div class="year-select-bar">
-  <button class="app-btn secondary" onclick="printForm('formk1-wrap')"> Print</button>
+  <button class="app-btn secondary" onclick="printForm('formk1-wrap')">🖨️ Print</button>
   </div>
   <div class="irs-form-wrap" id="formk1-wrap">
   <!-- HEADER -->
@@ -37331,8 +37331,8 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <div class="section-title">Form 1041-ES</div>
   <div class="section-sub">Estimated Income Tax for Estates and Trusts \'b7 Installment Vouchers</div>
   <div class="year-select-bar">
-  <button class="app-btn primary" onclick="populateAllForms()"> Sync from Ledger</button>
-  <button class="app-btn secondary" onclick="printForm('form1041es')"> Print</button>
+  <button class="app-btn primary" onclick="populateAllForms()">⬇ Sync from Ledger</button>
+  <button class="app-btn secondary" onclick="printForm('form1041es')">🖨️ Print</button>
   </div>
   <div class="irs-form-wrap" id="form1041es">
   <div class="irs-header">
@@ -37427,8 +37427,8 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <div class="section-title">Schedule C (Form 1040)</div>
   <div class="section-sub">Profit or Loss From Business \'b7 Sole Proprietorship \'b7 Accrual Basis \'b7 Auto-populated from Ledger</div>
   <div class="year-select-bar">
-  <button class="app-btn primary" onclick="populateAllForms()"> Sync from Ledger</button>
-  <button class="app-btn secondary" onclick="printForm('schedC')"> Print</button>
+  <button class="app-btn primary" onclick="populateAllForms()">⬇ Sync from Ledger</button>
+  <button class="app-btn secondary" onclick="printForm('schedC')">🖨️ Print</button>
   <button class="app-btn ghost" onclick="generateJournalFromForms()"> Generate Journal Entries</button>
   </div>
   <div class="irs-form-wrap" id="schedC">
@@ -37672,7 +37672,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <div style="background:var(--card);border:1px solid var(--border);border-radius:5px;padding:8px 9px;">
   <div style="font-size:7.5px;color:var(--gold);font-family:'IBM Plex Mono',monospace;font-weight:700;letter-spacing:.08em;">EEON_ACCOUNTING</div>
   <div style="font-size:8.5px;color:var(--muted);margin-top:2px;font-family:'IBM Plex Mono',monospace;line-height:1.3;">Primary tax &amp; accounting \'b7 Journal entries \'b7 IRS forms</div>
-  <div style="font-size:8px;color:var(--green);margin-top:5px;font-family:'IBM Plex Mono',monospace;"> ACTIVE</div>
+  <div style="font-size:8px;color:var(--green);margin-top:5px;font-family:'IBM Plex Mono',monospace;">✅ ACTIVE</div>
   </div>
   <div style="background:var(--card);border:1px solid var(--border);border-radius:5px;padding:8px 9px;">
   <div style="font-size:7.5px;color:var(--gold);font-family:'IBM Plex Mono',monospace;font-weight:700;letter-spacing:.08em;">EEON_COMPLIANCE</div>
@@ -37696,8 +37696,8 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   </div>
   </div>
   <div class="speech-bar">
-  <button class="speech-btn" id="agent-stt-btn" onclick="toggleAgentSTT()"> Speak</button>
-  <button class="speech-btn tts-on" id="agent-tts-btn" onclick="toggleAgentTTS()"> TTS ON</button>
+  <button class="speech-btn" id="agent-stt-btn" onclick="toggleAgentSTT()">🎤 Speak</button>
+  <button class="speech-btn tts-on" id="agent-tts-btn" onclick="toggleAgentTTS()">🔊 TTS ON</button>
   <span class="speech-status" id="agent-speech-status">Click mic to speak \'b7 Agent will read responses aloud</span>
   </div>
   <div id="memory-status" style="background:var(--card);border:1px solid var(--border);
