@@ -403,9 +403,15 @@
   --border-thick: #00e5ff;
   --glass: rgba(10,15,44,.95);
   --glass-border: rgba(0,229,255,.3);
-  --input-bg: #1a2550;
-  --input-border: #3366cc;
+  --input-bg: #1c2d6b;
+  --input-border: #4477dd;
   --input-border-focus: #00e5ff;
+  --bg-primary: #0a0f2c;
+  --bg-secondary: #1a2550;
+  --bg-tertiary: #1c2d6b;
+  --text-primary: #e2e8f0;
+  --text-secondary: #a8b8e0;
+  --border-color: rgba(68,119,221,0.5);
   --irs-bg: #1a1e2a;
   --irs-border: #8ab0e0;
   --irs-shade: #1e2535;
@@ -432,7 +438,13 @@
   --border: #a0b0d8;
   --glass: rgba(255,255,255,.92);
   --glass-border: rgba(0,104,184,.15);
-  --input-bg: #f2f5fc;
+  --input-bg: #dde4f5;
+  --bg-primary: #e8edf8;
+  --bg-secondary: #d4dcf0;
+  --bg-tertiary: #c8d4eb;
+  --text-primary: #0a0f2c;
+  --text-secondary: #3a4a72;
+  --border-color: rgba(0,104,184,0.4);
   --irs-bg: #ffffff;
   --irs-border: #000000;
   --irs-shade: #d8d0c4;
@@ -33627,7 +33639,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 </button>
 
 <!-- EON AI PAGES CONTAINER -->
-<div id="eonPagesContainer" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg-primary);z-index:99;padding-left:240px;padding-bottom:72px;overflow-y:auto">
+<div id="eonPagesContainer" data-theme="dark" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);z-index:99;padding-left:240px;padding-bottom:72px;overflow-y:auto">
 
   <!-- EON: ACCOUNTING -->
   <div class="page" id="page-accounting">
