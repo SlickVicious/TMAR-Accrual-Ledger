@@ -380,6 +380,11 @@
   display: block;
   animation: fadeIn .3s;
 }
+#page-corporation.active {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
 
 /* CSS Variables for Dark Theme - ENHANCED CONTRAST */
 [data-theme="dark"], body[data-theme="dark"], .eon-sidebar[data-theme="dark"] {
@@ -34387,7 +34392,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
 
   <!-- EON: CORPORATION -->
-  <div class="page" id="page-corporation" style="display:flex;flex-direction:column;overflow:hidden">
+  <div class="page" id="page-corporation" style="flex-direction:column;overflow:hidden">
 <div class="card" style="border-color:#6366f1;flex-shrink:0;margin:0 0 8px 0">
   <div class="card-head" style="color:#6366f1">🏢 Corporation &amp; Business Entity Specialist</div>
   <div class="card-body">
@@ -38193,18 +38198,19 @@ function toggleEonSidebar() {
 
 // Navigate between EoN AI pages
 function goEonPage(btn, page) {
-  // Hide all pages
+  // Hide all pages — explicitly force display:none to override any inline styles
   const container = document.getElementById('eonPagesContainer');
   const pages = container.querySelectorAll('.page');
-  pages.forEach(p => p.classList.remove('active'));
+  pages.forEach(p => { p.classList.remove('active'); p.style.display = 'none'; });
   
   // Remove active from all buttons
   const buttons = document.querySelectorAll('.side-btn');
   buttons.forEach(b => b.classList.remove('active'));
   
-  // Show target page
+  // Show target page — remove inline display so CSS .page.active takes over
   const target = container.querySelector('#page-' + page);
   if (target) {
+    target.style.removeProperty('display');
     target.classList.add('active');
   }
   
