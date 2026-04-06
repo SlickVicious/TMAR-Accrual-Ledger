@@ -34372,11 +34372,11 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 </div>
 <!-- INPUT AREA -->
 <div class="chat-input-area">
-<label class="voice-btn mic" id="micBtn" onclick="toggleMic()" title="Voice Input (Speech-to-Text)">🎤</label>
-<label for="fileUpload" class="voice-btn" style="background:var(--bg3);color:var(--text2);cursor:pointer" title="Upload Document">📎</label>
+<label id="micBtn" onclick="toggleMic()" title="Voice Input (Speech-to-Text)" style="width:42px;height:42px;border-radius:10px;border:1px solid rgba(139,92,246,.5);background:rgba(139,92,246,.15);color:#a78bfa;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .2s">🎤</label>
+<label for="fileUpload" title="Upload Document" style="width:42px;height:42px;border-radius:10px;border:1px solid rgba(99,102,241,.5);background:rgba(99,102,241,.15);color:#818cf8;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .2s">📎</label>
 <input type="file" id="fileUpload" multiple accept=".txt,.pdf,.doc,.docx,.csv,.json,.html,.md,.rtf,.xml,.log" style="display:none" onchange="handleFileUpload(this)">
 <textarea class="chat-input" id="chatInput" placeholder="Type your message… (Enter to send, Shift+Enter for new line, Ctrl+V to paste image)" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();eonChatSend();}" onpaste="handleChatPaste(event)"></textarea>
-<button class="chat-send" onclick="eonChatSend()"> </button>
+<button class="chat-send" onclick="eonChatSend()" title="Send">➤</button>
 </div>
 </div>
 </div>
@@ -39863,19 +39863,33 @@ async function doSearch() {
   }
 }
 
-// ── NOI Ask — full 11-agent implementation ───────────────────────
+// ── NOI Ask — full 25-agent implementation ───────────────────────
 var _NOI_AGENTS = [
-  {id:'dream_team',  label:'🏛️ The Dream Team'},
-  {id:'legal',       label:'⚖️ Legal Expert — Presumption Killer'},
-  {id:'tax',         label:'💰 Tax & Financial Expert'},
-  {id:'code',        label:'💻 Code Expert'},
-  {id:'research',    label:'📊 Research Analyst'},
-  {id:'creative',    label:'✍️ Creative Writer'},
-  {id:'html_arch',   label:'🏗️ HTML Architect'},
-  {id:'general',     label:'🤖 General Assistant'},
-  {id:'arbitration', label:'⚖ Arbitration Specialist'},
-  {id:'corporation', label:'🏢 Corporation Specialist'},
-  {id:'trust',       label:'🔐 Trust Specialist'}
+  {id:'dream_team',        label:'🏛️ The Dream Team'},
+  {id:'legal',             label:'⚖️ Legal Expert — Presumption Killer'},
+  {id:'tax',               label:'💰 Tax & Financial Expert'},
+  {id:'doc_creation',      label:'📄 Document Creation Firm'},
+  {id:'legal_analyst',     label:'🔍 Legal Analyst Firm'},
+  {id:'doc_format',        label:'📋 Document Format Firm'},
+  {id:'writs_writing',     label:'✍️ Writs Writing Firm'},
+  {id:'amicus_brief',      label:'📜 Amicus Brief Firm'},
+  {id:'dt_appeal',         label:'🏆 Dream Team Appeal Firm'},
+  {id:'presumption_killer',label:'💀 Presumption Killer Firm'},
+  {id:'fact_conclusion',   label:'📌 Fact & Conclusion of Law Firm'},
+  {id:'jurisdictional',    label:'🎯 Jurisdictional Challenge Firm'},
+  {id:'const_sovereignty', label:'🦅 Constitutional Sovereignty Firm'},
+  {id:'brainstorm',        label:'🧠 Strategic Brainstorm Firm'},
+  {id:'trial_prep',        label:'⚔️ Trial Preparation Firm'},
+  {id:'biblical',          label:'📖 Biblical Scholar'},
+  {id:'code',              label:'💻 Code Expert'},
+  {id:'research',          label:'📊 Research Analyst'},
+  {id:'creative',          label:'✍️ Creative Writer'},
+  {id:'html_arch',         label:'🏗️ HTML Architect'},
+  {id:'general',           label:'🤖 General Assistant'},
+  {id:'arbitration',       label:'⚖️ Arbitration Specialist'},
+  {id:'corporation',       label:'🏢 Corporation Specialist'},
+  {id:'trust',             label:'🔐 Trust Specialist'},
+  {id:'ledger',            label:'📒 Ledger & Accounting Expert'}
 ];
 
 (function buildNoiToggles() {
