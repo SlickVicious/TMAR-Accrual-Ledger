@@ -27,3 +27,6 @@ agent_scan_pages_preview.txt
 
 # Runtime-generated HTML backups (vault backup, not source)
 *.bak-vault
+
+# Debug logs
+firebase-debug.log
