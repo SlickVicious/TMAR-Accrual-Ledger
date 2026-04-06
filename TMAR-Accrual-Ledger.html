@@ -1025,15 +1025,7 @@
 </head>
 <body class="p-0" style="padding-bottom:80px">
 
-  <!-- ══ PARITY DRIFT NOTIFICATION BANNER ══════════════════════════════ -->
-  <div id="parityDriftBanner" style="display:none;position:sticky;top:0;z-index:9999;background:#92400e;border-bottom:2px solid #f59e0b;padding:10px 20px;font-size:13px;color:#fef3c7;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-    <span>⚠️ <strong>Source update detected</strong> — redressright.me has changed since your last sync. Your TMAR version may be missing new features.</span>
-    <div style="display:flex;gap:8px;flex-shrink:0">
-      <button onclick="parityShowDetails()" style="padding:4px 12px;background:#f59e0b;border:none;border-radius:5px;color:#1c1917;font-size:12px;font-weight:700;cursor:pointer">View Details</button>
-      <button onclick="parityDismissBanner()" style="padding:4px 12px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.3);border-radius:5px;color:#fef3c7;font-size:12px;cursor:pointer">Dismiss</button>
-    </div>
-  </div>
-  <!-- ══ END PARITY BANNER ═════════════════════════════════════════════ -->
+  <!-- ══ PARITY BANNER — handled by tmar-updater.js ═══════════════════ -->
 
   <div class="p-4 md:p-6" style="padding-bottom:72px">
   <div id="app" class="max-w-7xl mx-auto">
@@ -38884,79 +38876,7 @@ var HARD_LOCK = Object.freeze({
 try { HARD_LOCK.enforced = false; } catch(e) {}
 if (HARD_LOCK.enforced !== true) throw new Error('HARD LOCK INTEGRITY VIOLATION');
 
-// ════════════════════════════════════════════════════════════════════════════
-// PARITY DRIFT NOTIFICATION SYSTEM
-// Fetches parity-fingerprint.json from the repo and shows a banner if the
-// upstream sources (redressright.me) have changed since last sync.
-// ════════════════════════════════════════════════════════════════════════════
-var PARITY_FINGERPRINT_URL = 'https://raw.githubusercontent.com/SlickVicious/TMAR-Accrual-Ledger/master/parity-fingerprint.json';
-
-function parityCheckOnLoad() {
-  var dismissed = localStorage.getItem('TMAR_parity_dismissed');
-  if (dismissed) {
-    var ts = parseInt(dismissed, 10);
-    if (Date.now() - ts < 86400000 * 3) return; // dismiss for 3 days
-  }
-  fetch(PARITY_FINGERPRINT_URL + '?_=' + Date.now())
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (data && data.driftDetected) {
-        window._parityData = data;
-        var banner = document.getElementById('parityDriftBanner');
-        if (banner) banner.style.display = 'flex';
-      }
-    })
-    .catch(function() { /* silently ignore — offline or first deploy */ });
-}
-
-function parityCheckNow() {
-  var status = document.getElementById('parityCheckStatus');
-  if (status) status.textContent = 'Checking...';
-  fetch(PARITY_FINGERPRINT_URL + '?_=' + Date.now())
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      window._parityData = data;
-      if (data && data.driftDetected) {
-        var banner = document.getElementById('parityDriftBanner');
-        if (banner) banner.style.display = 'flex';
-        if (status) status.textContent = '⚠️ Drift detected — see banner above.';
-        localStorage.removeItem('TMAR_parity_dismissed');
-      } else {
-        var checked = data && data.lastChecked ? new Date(data.lastChecked).toLocaleDateString() : 'N/A';
-        if (status) status.textContent = '✅ Up to date as of ' + checked;
-      }
-    })
-    .catch(function() {
-      if (status) status.textContent = '❌ Could not reach fingerprint file.';
-    });
-}
-
-function parityShowDetails() {
-  var data = window._parityData || {};
-  var summary = data.driftSummary || 'No detail available.';
-  var agent = (data.sources && data.sources['Agent.html']) || {};
-  var gaap  = (data.sources && data.sources['GAAP.html'])  || {};
-  var msg = '📋 PARITY DRIFT DETAILS\n\n' +
-    'Last Checked: ' + (data.lastChecked || 'Unknown') + '\n' +
-    'Agent.html tabs: ' + (agent.tabCount || '?') + ' | Hash: ' + (agent.hash || '?').substring(0, 12) + '...\n' +
-    'GAAP.html tabs:  ' + (gaap.tabCount  || '?') + ' | Hash: ' + (gaap.hash  || '?').substring(0, 12) + '...\n\n' +
-    'Summary:\n' + summary + '\n\n' +
-    'Visit https://redressright.me/Agent.html and https://redressright.me/GAAP.html to review changes.';
-  alert(msg);
-}
-
-function parityDismissBanner() {
-  var banner = document.getElementById('parityDriftBanner');
-  if (banner) banner.style.display = 'none';
-  localStorage.setItem('TMAR_parity_dismissed', Date.now().toString());
-}
-
-// Run parity check on page load (non-blocking)
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', function() { setTimeout(parityCheckOnLoad, 3000); });
-} else {
-  setTimeout(parityCheckOnLoad, 3000);
-}
+// Parity drift notification superseded by tmar-updater.js
 
 // ── Token Budget Guard ────────────────────────────────────────────────────
 var PROVIDER_LIMITS = {
@@ -43212,6 +43132,8 @@ function uploadIRSTemplate(event) {
   reader.readAsArrayBuffer(file);
 }
 </script>
+
+<script src="tmar-updater.js"></script>
 
 </body>
 
