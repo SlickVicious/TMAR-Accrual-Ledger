@@ -373,11 +373,13 @@
 
 .page {
   display: none;
-  padding-bottom: 80px;
 }
 
 .page.active {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
   animation: fadeIn .3s;
 }
 #page-corporation.active {
@@ -33643,7 +33645,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
   <!-- EON: ACCOUNTING -->
   <div class="page" id="page-accounting">
-<div style="display:flex;height:100%">
+<div style="display:flex;flex:1;min-height:0">
   <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
     <button onclick="AP.newConv('accounting')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
     <div id="ap_sl_accounting" style="display:flex;flex-direction:column;gap:4px"></div>
@@ -33673,7 +33675,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
   <!-- EON: DOC_CREATION -->
   <div class="page" id="page-doc_creation">
-<div style="display:flex;height:100%">
+<div style="display:flex;flex:1;min-height:0">
   <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
     <button onclick="AP.newConv('doc_creation')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
     <div id="ap_sl_doc_creation" style="display:flex;flex-direction:column;gap:4px"></div>
@@ -33703,7 +33705,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
   <!-- EON: LEGAL_ANALYST -->
   <div class="page" id="page-legal_analyst">
-<div style="display:flex;height:100%">
+<div style="display:flex;flex:1;min-height:0">
   <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
     <button onclick="AP.newConv('legal_analyst')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
     <div id="ap_sl_legal_analyst" style="display:flex;flex-direction:column;gap:4px"></div>
@@ -33733,7 +33735,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
   <!-- EON: DOC_FORMAT -->
   <div class="page" id="page-doc_format">
-<div style="display:flex;height:100%">
+<div style="display:flex;flex:1;min-height:0">
   <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
     <button onclick="AP.newConv('doc_format')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
     <div id="ap_sl_doc_format" style="display:flex;flex-direction:column;gap:4px"></div>
@@ -33763,7 +33765,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
   <!-- EON: WRITS_WRITING -->
   <div class="page" id="page-writs_writing">
-<div style="display:flex;height:100%">
+<div style="display:flex;flex:1;min-height:0">
   <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
     <button onclick="AP.newConv('writs_writing')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
     <div id="ap_sl_writs_writing" style="display:flex;flex-direction:column;gap:4px"></div>
@@ -33793,7 +33795,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
   <!-- EON: AMICUS_BRIEF -->
   <div class="page" id="page-amicus_brief">
-<div style="display:flex;height:100%">
+<div style="display:flex;flex:1;min-height:0">
   <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
     <button onclick="AP.newConv('amicus_brief')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
     <div id="ap_sl_amicus_brief" style="display:flex;flex-direction:column;gap:4px"></div>
@@ -33823,7 +33825,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
   <!-- EON: DT_APPEAL -->
   <div class="page" id="page-dt_appeal">
-<div style="display:flex;height:100%">
+<div style="display:flex;flex:1;min-height:0">
   <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
     <button onclick="AP.newConv('dt_appeal')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
     <div id="ap_sl_dt_appeal" style="display:flex;flex-direction:column;gap:4px"></div>
@@ -33853,7 +33855,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
   <!-- EON: PRESUMPTION_KILLER -->
   <div class="page" id="page-presumption_killer">
-<div style="display:flex;height:100%">
+<div style="display:flex;flex:1;min-height:0">
   <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
     <button onclick="AP.newConv('presumption_killer')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
     <div id="ap_sl_presumption_killer" style="display:flex;flex-direction:column;gap:4px"></div>
@@ -33883,7 +33885,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
   <!-- EON: FACT_CONCLUSION -->
   <div class="page" id="page-fact_conclusion">
-<div style="display:flex;height:100%">
+<div style="display:flex;flex:1;min-height:0">
   <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
     <button onclick="AP.newConv('fact_conclusion')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
     <div id="ap_sl_fact_conclusion" style="display:flex;flex-direction:column;gap:4px"></div>
@@ -33913,7 +33915,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
   <!-- EON: JURISDICTIONAL -->
   <div class="page" id="page-jurisdictional">
-<div style="display:flex;height:100%">
+<div style="display:flex;flex:1;min-height:0">
   <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
     <button onclick="AP.newConv('jurisdictional')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
     <div id="ap_sl_jurisdictional" style="display:flex;flex-direction:column;gap:4px"></div>
@@ -33943,7 +33945,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
   <!-- EON: CONST_SOVEREIGNTY -->
   <div class="page" id="page-const_sovereignty">
-<div style="display:flex;height:100%">
+<div style="display:flex;flex:1;min-height:0">
   <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
     <button onclick="AP.newConv('const_sovereignty')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
     <div id="ap_sl_const_sovereignty" style="display:flex;flex-direction:column;gap:4px"></div>
@@ -33973,7 +33975,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
   <!-- EON: BRAINSTORM -->
   <div class="page" id="page-brainstorm">
-<div style="display:flex;height:100%">
+<div style="display:flex;flex:1;min-height:0">
   <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
     <button onclick="AP.newConv('brainstorm')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
     <div id="ap_sl_brainstorm" style="display:flex;flex-direction:column;gap:4px"></div>
@@ -34003,7 +34005,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
   <!-- EON: TRIAL_PREP -->
   <div class="page" id="page-trial_prep">
-<div style="display:flex;height:100%">
+<div style="display:flex;flex:1;min-height:0">
   <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
     <button onclick="AP.newConv('trial_prep')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
     <div id="ap_sl_trial_prep" style="display:flex;flex-direction:column;gap:4px"></div>
@@ -34033,7 +34035,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
   <!-- EON: BIBLICAL -->
   <div class="page" id="page-biblical">
-<div style="display:flex;height:100%">
+<div style="display:flex;flex:1;min-height:0">
   <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
     <button onclick="AP.newConv('biblical')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
     <div id="ap_sl_biblical" style="display:flex;flex-direction:column;gap:4px"></div>
@@ -34089,7 +34091,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
   <!-- EON: ARBITRATION -->
   <div class="page" id="page-arbitration">
-<div style="display:flex;height:100%">
+<div style="display:flex;flex:1;min-height:0">
   <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
     <button onclick="AP.newConv('arbitration')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
     <div id="ap_sl_arbitration" style="display:flex;flex-direction:column;gap:4px"></div>
@@ -34582,7 +34584,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
   <!-- EON: LEGAL -->
   <div class="page" id="page-legal">
-<div style="display:flex;height:100%">
+<div style="display:flex;flex:1;min-height:0">
   <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
     <button onclick="AP.newConv('legal')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
     <div id="ap_sl_legal" style="display:flex;flex-direction:column;gap:4px"></div>
@@ -34655,7 +34657,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
 
   <!-- EON: AIHUB -->
-<div class="page" id="page-aihub">
+<div class="page" id="page-aihub" style="padding:16px 20px 20px">
     <div class="stat-grid">
         <div class="stat"><div class="stat-label">NOI AI Services</div><div class="stat-val" id="aihubNoiCount">12</div></div>
         <div class="stat"><div class="stat-label">Open Source Tools</div><div class="stat-val" id="aihubOssCount">65</div></div>
@@ -34668,7 +34670,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
         <div class="card-head" style="color:var(--accent)">NOI AI Services — Quick Launch</div>
         <div class="card-body">
             <div style="font-size:12px;color:var(--text2);margin-bottom:12px">AI platforms from NOI (lencx/Noi) — click to open in a new tab or use in chat.</div>
-            <div id="noiServicesGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px"><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--glass-border)';this.style.transform='none'"><img src="https://cdn.oaistatic.com/assets/favicon-l4nq08hd.svg" style="width:24px;height:24px;border-radius:4px" onerror="this.style.display='none'"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">ChatGPT</div><div style="font-size:10px;color:var(--ok)">ASK-compatible</div></div><div style="display:flex;gap:4px"><a href="https://chatgpt.com" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:6px" onclick="event.stopPropagation()">Open</a><button style="font-size:10px;color:var(--text2);padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="event.stopPropagation();noiServiceToChat('ChatGPT')">Chat</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--glass-border)';this.style.transform='none'"><img src="https://claude.ai/favicon.ico" style="width: 24px; height: 24px; border-radius: 4px; display: none;" onerror="this.style.display='none'"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">Claude</div><div style="font-size:10px;color:var(--ok)">ASK-compatible</div></div><div style="display:flex;gap:4px"><a href="https://claude.ai" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:6px" onclick="event.stopPropagation()">Open</a><button style="font-size:10px;color:var(--text2);padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="event.stopPropagation();noiServiceToChat('Claude')">Chat</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--glass-border)';this.style.transform='none'"><img src="https://www.gstatic.com/lamda/images/gemini_sparkle_aurora_33f86dc0c0257da337c63.svg" style="width:24px;height:24px;border-radius:4px" onerror="this.style.display='none'"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">Gemini</div><div style="font-size:10px;color:var(--ok)">ASK-compatible</div></div><div style="display:flex;gap:4px"><a href="https://gemini.google.com" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:6px" onclick="event.stopPropagation()">Open</a><button style="font-size:10px;color:var(--text2);padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="event.stopPropagation();noiServiceToChat('Gemini')">Chat</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--glass-border)';this.style.transform='none'"><img src="https://grok.com/images/favicon-dark.png" style="width: 24px; height: 24px; border-radius: 4px; display: none;" onerror="this.style.display='none'"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">Grok</div><div style="font-size:10px;color:var(--ok)">ASK-compatible</div></div><div style="display:flex;gap:4px"><a href="https://grok.com" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:6px" onclick="event.stopPropagation()">Open</a><button style="font-size:10px;color:var(--text2);padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="event.stopPropagation();noiServiceToChat('Grok')">Chat</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--glass-border)';this.style.transform='none'"><img src="https://github.githubassets.com/favicons/favicon-dark.svg" style="width:24px;height:24px;border-radius:4px" onerror="this.style.display='none'"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">GitHub Copilot</div><div style="font-size:10px;color:var(--ok)">ASK-compatible</div></div><div style="display:flex;gap:4px"><a href="https://github.com/copilot" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:6px" onclick="event.stopPropagation()">Open</a><button style="font-size:10px;color:var(--text2);padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="event.stopPropagation();noiServiceToChat('GitHub Copilot')">Chat</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--glass-border)';this.style.transform='none'"><img src="https://www.gstatic.com/aistudio/ai_studio_favicon_2_256x256.png" style="width:24px;height:24px;border-radius:4px" onerror="this.style.display='none'"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">AI Studio</div><div style="font-size:10px;color:var(--ok)">ASK-compatible</div></div><div style="display:flex;gap:4px"><a href="https://aistudio.google.com" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:6px" onclick="event.stopPropagation()">Open</a><button style="font-size:10px;color:var(--text2);padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="event.stopPropagation();noiServiceToChat('AI Studio')">Chat</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--glass-border)';this.style.transform='none'"><img src="https://notebooklm.google.com/_/static/branding/v5/dark_mode/favicon/favicon.svg" style="width:24px;height:24px;border-radius:4px" onerror="this.style.display='none'"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">NotebookLM</div><div style="font-size:10px;color:var(--ok)">ASK-compatible</div></div><div style="display:flex;gap:4px"><a href="https://notebooklm.google.com" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:6px" onclick="event.stopPropagation()">Open</a><button style="font-size:10px;color:var(--text2);padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="event.stopPropagation();noiServiceToChat('NotebookLM')">Chat</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--glass-border)';this.style.transform='none'"><img src="https://www.perplexity.ai/favicon.ico" style="width: 24px; height: 24px; border-radius: 4px; display: none;" onerror="this.style.display='none'"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">Perplexity</div><div style="font-size:10px;color:var(--ok)">ASK-compatible</div></div><div style="display:flex;gap:4px"><a href="https://www.perplexity.ai" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:6px" onclick="event.stopPropagation()">Open</a><button style="font-size:10px;color:var(--text2);padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="event.stopPropagation();noiServiceToChat('Perplexity')">Chat</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--glass-border)';this.style.transform='none'"><img src="https://chat.deepseek.com/favicon.svg" style="width: 24px; height: 24px; border-radius: 4px; display: none;" onerror="this.style.display='none'"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">DeepSeek</div><div style="font-size:10px;color:var(--ok)">ASK-compatible</div></div><div style="display:flex;gap:4px"><a href="https://chat.deepseek.com" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:6px" onclick="event.stopPropagation()">Open</a><button style="font-size:10px;color:var(--text2);padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="event.stopPropagation();noiServiceToChat('DeepSeek')">Chat</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--glass-border)';this.style.transform='none'"><img src="https://g.alicdn.com/qwenweb/qwen-ai-fe/0.0.4/favicon.ico" style="width:24px;height:24px;border-radius:4px" onerror="this.style.display='none'"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">Qwen</div><div style="font-size:10px;color:var(--ok)">ASK-compatible</div></div><div style="display:flex;gap:4px"><a href="https://qwen.ai" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:6px" onclick="event.stopPropagation()">Open</a><button style="font-size:10px;color:var(--text2);padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="event.stopPropagation();noiServiceToChat('Qwen')">Chat</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--glass-border)';this.style.transform='none'"><img src="https://z-cdn.chatglm.cn/z-ai/static/logo.svg" style="width:24px;height:24px;border-radius:4px" onerror="this.style.display='none'"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">Z.ai</div><div style="font-size:10px;color:var(--ok)">ASK-compatible</div></div><div style="display:flex;gap:4px"><a href="https://chat.z.ai" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:6px" onclick="event.stopPropagation()">Open</a><button style="font-size:10px;color:var(--text2);padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="event.stopPropagation();noiServiceToChat('Z.ai')">Chat</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--glass-border)';this.style.transform='none'"><img src="https://statics.moonshot.cn/kimi-web-seo/favicon.ico" style="width:24px;height:24px;border-radius:4px" onerror="this.style.display='none'"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">Kimi</div><div style="font-size:10px;color:var(--ok)">ASK-compatible</div></div><div style="display:flex;gap:4px"><a href="https://www.kimi.com" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:6px" onclick="event.stopPropagation()">Open</a><button style="font-size:10px;color:var(--text2);padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="event.stopPropagation();noiServiceToChat('Kimi')">Chat</button></div></div></div>
+            <div id="noiServicesGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px"><div style="background:var(--glass);border:2px solid rgba(0,229,255,.4);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(0,229,255,.4)';this.style.transform='none'"><img src="https://cdn.oaistatic.com/assets/favicon-l4nq08hd.svg" style="width:24px;height:24px;border-radius:4px" onerror="this.style.display='none'"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">ChatGPT</div><div style="font-size:10px;color:var(--ok)">ASK-compatible</div></div><div style="display:flex;gap:4px"><a href="https://chatgpt.com" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:6px" onclick="event.stopPropagation()">Open</a><button style="font-size:10px;color:var(--text2);padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="event.stopPropagation();noiServiceToChat('ChatGPT')">Chat</button></div></div><div style="background:var(--glass);border:2px solid rgba(0,229,255,.4);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(0,229,255,.4)';this.style.transform='none'"><img src="https://claude.ai/favicon.ico" style="width: 24px; height: 24px; border-radius: 4px; display: none;" onerror="this.style.display='none'"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">Claude</div><div style="font-size:10px;color:var(--ok)">ASK-compatible</div></div><div style="display:flex;gap:4px"><a href="https://claude.ai" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:6px" onclick="event.stopPropagation()">Open</a><button style="font-size:10px;color:var(--text2);padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="event.stopPropagation();noiServiceToChat('Claude')">Chat</button></div></div><div style="background:var(--glass);border:2px solid rgba(0,229,255,.4);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(0,229,255,.4)';this.style.transform='none'"><img src="https://www.gstatic.com/lamda/images/gemini_sparkle_aurora_33f86dc0c0257da337c63.svg" style="width:24px;height:24px;border-radius:4px" onerror="this.style.display='none'"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">Gemini</div><div style="font-size:10px;color:var(--ok)">ASK-compatible</div></div><div style="display:flex;gap:4px"><a href="https://gemini.google.com" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:6px" onclick="event.stopPropagation()">Open</a><button style="font-size:10px;color:var(--text2);padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="event.stopPropagation();noiServiceToChat('Gemini')">Chat</button></div></div><div style="background:var(--glass);border:2px solid rgba(0,229,255,.4);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(0,229,255,.4)';this.style.transform='none'"><img src="https://grok.com/images/favicon-dark.png" style="width: 24px; height: 24px; border-radius: 4px; display: none;" onerror="this.style.display='none'"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">Grok</div><div style="font-size:10px;color:var(--ok)">ASK-compatible</div></div><div style="display:flex;gap:4px"><a href="https://grok.com" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:6px" onclick="event.stopPropagation()">Open</a><button style="font-size:10px;color:var(--text2);padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="event.stopPropagation();noiServiceToChat('Grok')">Chat</button></div></div><div style="background:var(--glass);border:2px solid rgba(0,229,255,.4);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(0,229,255,.4)';this.style.transform='none'"><img src="https://github.githubassets.com/favicons/favicon-dark.svg" style="width:24px;height:24px;border-radius:4px" onerror="this.style.display='none'"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">GitHub Copilot</div><div style="font-size:10px;color:var(--ok)">ASK-compatible</div></div><div style="display:flex;gap:4px"><a href="https://github.com/copilot" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:6px" onclick="event.stopPropagation()">Open</a><button style="font-size:10px;color:var(--text2);padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="event.stopPropagation();noiServiceToChat('GitHub Copilot')">Chat</button></div></div><div style="background:var(--glass);border:2px solid rgba(0,229,255,.4);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(0,229,255,.4)';this.style.transform='none'"><img src="https://www.gstatic.com/aistudio/ai_studio_favicon_2_256x256.png" style="width:24px;height:24px;border-radius:4px" onerror="this.style.display='none'"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">AI Studio</div><div style="font-size:10px;color:var(--ok)">ASK-compatible</div></div><div style="display:flex;gap:4px"><a href="https://aistudio.google.com" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:6px" onclick="event.stopPropagation()">Open</a><button style="font-size:10px;color:var(--text2);padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="event.stopPropagation();noiServiceToChat('AI Studio')">Chat</button></div></div><div style="background:var(--glass);border:2px solid rgba(0,229,255,.4);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(0,229,255,.4)';this.style.transform='none'"><img src="https://notebooklm.google.com/_/static/branding/v5/dark_mode/favicon/favicon.svg" style="width:24px;height:24px;border-radius:4px" onerror="this.style.display='none'"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">NotebookLM</div><div style="font-size:10px;color:var(--ok)">ASK-compatible</div></div><div style="display:flex;gap:4px"><a href="https://notebooklm.google.com" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:6px" onclick="event.stopPropagation()">Open</a><button style="font-size:10px;color:var(--text2);padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="event.stopPropagation();noiServiceToChat('NotebookLM')">Chat</button></div></div><div style="background:var(--glass);border:2px solid rgba(0,229,255,.4);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(0,229,255,.4)';this.style.transform='none'"><img src="https://www.perplexity.ai/favicon.ico" style="width: 24px; height: 24px; border-radius: 4px; display: none;" onerror="this.style.display='none'"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">Perplexity</div><div style="font-size:10px;color:var(--ok)">ASK-compatible</div></div><div style="display:flex;gap:4px"><a href="https://www.perplexity.ai" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:6px" onclick="event.stopPropagation()">Open</a><button style="font-size:10px;color:var(--text2);padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="event.stopPropagation();noiServiceToChat('Perplexity')">Chat</button></div></div><div style="background:var(--glass);border:2px solid rgba(0,229,255,.4);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(0,229,255,.4)';this.style.transform='none'"><img src="https://chat.deepseek.com/favicon.svg" style="width: 24px; height: 24px; border-radius: 4px; display: none;" onerror="this.style.display='none'"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">DeepSeek</div><div style="font-size:10px;color:var(--ok)">ASK-compatible</div></div><div style="display:flex;gap:4px"><a href="https://chat.deepseek.com" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:6px" onclick="event.stopPropagation()">Open</a><button style="font-size:10px;color:var(--text2);padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="event.stopPropagation();noiServiceToChat('DeepSeek')">Chat</button></div></div><div style="background:var(--glass);border:2px solid rgba(0,229,255,.4);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(0,229,255,.4)';this.style.transform='none'"><img src="https://g.alicdn.com/qwenweb/qwen-ai-fe/0.0.4/favicon.ico" style="width:24px;height:24px;border-radius:4px" onerror="this.style.display='none'"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">Qwen</div><div style="font-size:10px;color:var(--ok)">ASK-compatible</div></div><div style="display:flex;gap:4px"><a href="https://qwen.ai" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:6px" onclick="event.stopPropagation()">Open</a><button style="font-size:10px;color:var(--text2);padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="event.stopPropagation();noiServiceToChat('Qwen')">Chat</button></div></div><div style="background:var(--glass);border:2px solid rgba(0,229,255,.4);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(0,229,255,.4)';this.style.transform='none'"><img src="https://z-cdn.chatglm.cn/z-ai/static/logo.svg" style="width:24px;height:24px;border-radius:4px" onerror="this.style.display='none'"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">Z.ai</div><div style="font-size:10px;color:var(--ok)">ASK-compatible</div></div><div style="display:flex;gap:4px"><a href="https://chat.z.ai" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:6px" onclick="event.stopPropagation()">Open</a><button style="font-size:10px;color:var(--text2);padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="event.stopPropagation();noiServiceToChat('Z.ai')">Chat</button></div></div><div style="background:var(--glass);border:2px solid rgba(0,229,255,.4);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(0,229,255,.4)';this.style.transform='none'"><img src="https://statics.moonshot.cn/kimi-web-seo/favicon.ico" style="width:24px;height:24px;border-radius:4px" onerror="this.style.display='none'"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">Kimi</div><div style="font-size:10px;color:var(--ok)">ASK-compatible</div></div><div style="display:flex;gap:4px"><a href="https://www.kimi.com" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:6px" onclick="event.stopPropagation()">Open</a><button style="font-size:10px;color:var(--text2);padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="event.stopPropagation();noiServiceToChat('Kimi')">Chat</button></div></div></div>
         </div>
     </div>
 
@@ -34704,7 +34706,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
   <!-- EON: RESEARCH -->
   <div class="page" id="page-research">
-<div style="display:flex;height:100%">
+<div style="display:flex;flex:1;min-height:0">
   <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
     <button onclick="AP.newConv('research')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
     <div id="ap_sl_research" style="display:flex;flex-direction:column;gap:4px"></div>
@@ -34736,11 +34738,11 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <!-- EON: SEARCH -->
   <div class="page" id="page-search">
 <div class="card">
-<div class="card-head"> Search Engine</div>
+<div class="card-head">🔍 Search Engine</div>
 <div class="card-body">
 <div style="display:flex;gap:8px;margin-bottom:12px">
 <input id="searchInput" placeholder="Search query..." style="flex:1;padding:10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px" onkeydown="if(event.key==='Enter')doSearch()">
-<button class="btn btn-primary" onclick="doSearch()"> Search</button>
+<button class="btn btn-primary" onclick="doSearch()">🔍 Search</button>
 </div>
 <div id="searchResults" style="font-size:13px;line-height:1.7;white-space:pre-wrap"></div>
 </div>
@@ -34751,21 +34753,21 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <!-- EON: SETTINGS -->
   <div class="page" id="page-settings">
 <div class="card">
-<div class="card-head"> API Keys</div>
+<div class="card-head">🔑 API Keys</div>
 <div class="card-body">
 <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Keys are stored in YOUR browser only (localStorage). They never leave your computer. Green dot = key configured.</div>
 <div style="margin-bottom:10px;font-weight:600;font-size:13px;color:var(--accent)">Active Provider</div>
 <div class="setting-row"><span>Active LLM</span><select id="setActiveProvider" style="max-width:340px;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:13px"></select></div>
-<div style="margin:18px 0 10px;font-weight:600;font-size:13px;color:var(--accent)"> Provider API Keys</div>
+<div style="margin:18px 0 10px;font-weight:600;font-size:13px;color:var(--accent)">🔌 Provider API Keys</div>
 <!-- MEM0 PERSISTENT MEMORY -- openclaw-2026.3.2 -->
 <div style="border:1px solid rgba(99,179,237,.4);border-radius:8px;padding:12px;margin-bottom:12px;background:rgba(99,179,237,.06)">
-<div style="font-weight:700;font-size:13px;color:#00e68a;margin-bottom:4px"> GCMemory - Persistent Agent Memory</div>
+<div style="font-weight:700;font-size:13px;color:#00e68a;margin-bottom:4px">💾 GCMemory — Persistent Agent Memory</div>
 <div style="font-size:11px;color:var(--text2);margin-bottom:8px">Memory is stored in this browser's IndexedDB engine. <b style="color:#00e68a">No additional API key required.</b> The Claude/provider key above is the only key needed. Agents recall prior legal, financial, and case-specific exchanges across sessions automatically.</div>
 <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:rgba(0,230,138,.07);border:1px solid rgba(0,230,138,.25);border-radius:8px;margin-bottom:8px">
-<span style="color:#00e68a;font-size:16px"> </span>
+<span style="color:#00e68a;font-size:16px">✅</span>
 <span style="font-size:12px;color:#00e68a;font-weight:600">ACTIVE - Memory engine online. No key gate.</span>
 </div>
-<button class="btn btn-sm" style="margin-top:2px;font-size:11px" onclick="mem0ClearAll()"> Clear All Memories</button>
+<button class="btn btn-sm" style="margin-top:2px;font-size:11px" onclick="mem0ClearAll()">🗑️ Clear All Memories</button>
 </div>
 <div class="setting-row"><span>OpenAI <span class="key-dot off" id="kdOpenai"></span></span><input type="password" id="keyOpenai" placeholder="sk-..."></div>
 <div class="setting-row"><span>DeepSeek <span class="key-dot off" id="kdDeepseek"></span></span><input type="password" id="keyDeepseek" placeholder="sk-..."></div>
@@ -34775,7 +34777,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <div class="setting-row"><span>MiniMax <span class="key-dot off" id="kdMinimax"></span></span><input type="password" id="keyMinimax" placeholder="..."></div>
 <div class="setting-row"><span>Ernie / Baidu <span class="key-dot off" id="kdErnie"></span></span><input type="password" id="keyErnie" placeholder="..."></div>
 <div class="setting-row"><span>xAI (Grok) <span class="key-dot off" id="kdXai"></span></span><input type="password" id="keyXai" placeholder="xai-..."></div>
-<div style="margin:18px 0 10px;font-weight:600;font-size:13px;color:var(--accent)"> Ollama (Local + OpenClaw Web Search)</div>
+<div style="margin:18px 0 10px;font-weight:600;font-size:13px;color:var(--accent)">🦙 Ollama (Local + OpenClaw Web Search)</div>
 <div style="font-size:11px;color:var(--text2);margin-bottom:8px">Ollama runs models locally - no API key needed for inference. Install: <code style="background:var(--bg2);padding:2px 6px;border-radius:4px">irm https://ollama.com/install.ps1 | iex</code></div>
 <div class="setting-row"><span>Ollama URL</span><input id="keyOllamaUrl" placeholder="http://127.0.0.1:11434" value="http://127.0.0.1:11434"></div>
 <div class="setting-row"><span>Ollama Model</span>
@@ -34796,26 +34798,26 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <option value="minimax-m2.5">minimax-m2.5</option>
 </select>
 <input id="keyOllamaModelCustom" placeholder="or type custom..." style="max-width:160px;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:12px">
-<button class="btn btn-sm" onclick="refreshOllamaModels()" title="Detect installed models"> </button>
+<button class="btn btn-sm" onclick="refreshOllamaModels()" title="Detect installed models">🔄</button>
 </div>
-<div style="margin:10px 0 6px;font-size:12px;font-weight:600;color:var(--accent)"> Ollama Web Search API (OpenClaw)</div>
+<div style="margin:10px 0 6px;font-size:12px;font-weight:600;color:var(--accent)">🌐 Ollama Web Search API (OpenClaw)</div>
 <div style="font-size:11px;color:var(--text2);margin-bottom:6px">Free: 100 searches/day. Get key at <a href="\*HYPERLINK "https://ollama.com/"https://ollama.com" target="_blank" style="color:var(--accent)">ollama.com</a> Account API Keys</div>
 <div class="setting-row"><span>Ollama API Key <span class="key-dot off" id="kdOllamaApi"></span></span><input type="password" id="keyOllamaApiKey" placeholder="Enter Ollama API key for web search..."></div>
 <div class="setting-row"><span>Web Search</span><label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><input type="checkbox" id="keyOllamaWebSearch" checked> Use Ollama native web search when API key is set</label></div>
 <div style="margin:18px 0 10px;font-weight:600;font-size:13px;color:#f59e0b"> 🌐 CORS Proxy (required for GitHub Pages)</div>
 <div style="font-size:11px;color:var(--text2);margin-bottom:6px">Direct browser API calls are blocked by CORS when hosted on GitHub Pages. Deploy a free Cloudflare Worker proxy and paste its URL here. <a href="https://github.com/SlickVicious/TMAR-Accrual-Ledger#cors-proxy-setup" target="_blank" style="color:#f59e0b">Setup guide ↗</a></div>
 <div class="setting-row"><span>CORS Proxy URL</span><input id="keyCorsProxy" placeholder="https://your-worker.your-name.workers.dev" style="border-color:rgba(245,158,11,.4)"></div>
-<div style="margin:18px 0 10px;font-weight:600;font-size:13px;color:var(--accent)"> Custom Provider</div>
+<div style="margin:18px 0 10px;font-weight:600;font-size:13px;color:var(--accent)">⚙️ Custom Provider</div>
 <div class="setting-row"><span>Custom Name</span><input id="keyCustomName" placeholder="My Provider"></div>
 <div class="setting-row"><span>Custom URL</span><input id="keyCustomUrl" placeholder="https://api.example.com/v1/chat/completions"></div>
 <div class="setting-row"><span>Custom Key <span class="key-dot off" id="kdCustom"></span></span><input type="password" id="keyCustom" placeholder="..."></div>
 <div class="setting-row"><span>Custom Model</span><input id="keyCustomModel" placeholder="model-name"></div>
-<div style="margin:18px 0 10px;font-weight:600;font-size:13px;color:var(--accent)"> Channel Tokens</div>
+<div style="margin:18px 0 10px;font-weight:600;font-size:13px;color:var(--accent)">📡 Channel Tokens</div>
 <div class="setting-row"><span>Telegram Bot Token</span><input type="password" id="keyTelegram" placeholder="123456:ABC-DEF..."></div>
 <div class="setting-row"><span>Discord Bot Token</span><input type="password" id="keyDiscord" placeholder="..."></div>
 <div style="margin-top:16px;display:flex;gap:8px;align-items:center">
-<button class="btn btn-primary" onclick="saveKeys()"> Save All Keys</button>
-<button class="btn" onclick="testConnection()"> Test Connection</button>
+<button class="btn btn-primary" onclick="saveKeys()">💾 Save All Keys</button>
+<button class="btn" onclick="testConnection()">🔌 Test Connection</button>
 <span id="keyStatus" style="font-size:12px"></span>
 </div>
 </div>
@@ -34825,7 +34827,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
   <!-- EON: TAX -->
   <div class="page" id="page-tax">
-<div style="display:flex;height:100%">
+<div style="display:flex;flex:1;min-height:0">
   <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
     <button onclick="AP.newConv('tax')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
     <div id="ap_sl_tax" style="display:flex;flex-direction:column;gap:4px"></div>
@@ -37977,7 +37979,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
   <!-- EON: TRUST -->
   <div class="page" id="page-trust">
-<div style="display:flex;height:100%">
+<div style="display:flex;flex:1;min-height:0">
   <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
     <button onclick="AP.newConv('trust')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
     <div id="ap_sl_trust" style="display:flex;flex-direction:column;gap:4px"></div>
@@ -38008,11 +38010,11 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <!-- EON: VAULT -->
   <div class="page" id="page-vault">
 <div class="card">
-<div class="card-head"> Encrypted Password Vault <span class="badge badge-ok" style="font-size:10px">AES-256-GCM</span></div>
+<div class="card-head">🔐 Encrypted Password Vault <span class="badge badge-ok" style="font-size:10px">AES-256-GCM</span></div>
 <div class="card-body">
 <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Passwords encrypted locally using AES-256-GCM + PBKDF2 (600K iterations). Nothing transmitted.</p>
 <div id="vaultLocked">
-<div style="display:flex;gap:8px"><input id="vaultMaster" type="password" placeholder="Master password..." style="flex:1;padding:10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text)" onkeydown="if(event.key==='Enter')unlockVault()"><button class="btn btn-primary" onclick="unlockVault()"> Unlock</button></div>
+<div style="display:flex;gap:8px"><input id="vaultMaster" type="password" placeholder="Master password..." style="flex:1;padding:10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text)" onkeydown="if(event.key==='Enter')unlockVault()"><button class="btn btn-primary" onclick="unlockVault()">🔓 Unlock</button></div>
 </div>
 <div id="vaultUnlocked" style="display:none">
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
@@ -38021,8 +38023,8 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 </div>
 <div style="display:flex;gap:8px;margin-bottom:8px">
 <input id="vPass" type="password" placeholder="Password" style="flex:1;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px">
-<button class="btn btn-sm" onclick="genPW()"> </button>
-<button class="btn btn-primary btn-sm" onclick="addVaultEntry()"> Save</button>
+<button class="btn btn-sm" onclick="genPW()" title="Generate password">🎲</button>
+<button class="btn btn-primary btn-sm" onclick="addVaultEntry()">💾 Save</button>
 </div>
 <input id="vSearch" placeholder="Search vault..." style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;margin-bottom:8px" oninput="renderVault()">
 <div id="vaultTable" style="font-size:12px"></div>
@@ -38035,21 +38037,21 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <!-- EON: VOICE -->
   <div class="page" id="page-voice">
 <div class="card">
-<div class="card-head"> Voice Control Center</div>
+<div class="card-head">🎤 Voice Control Center</div>
 <div class="card-body">
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
 <div>
 <h4 style="margin-bottom:10px;color:var(--accent)">Speech-to-Text</h4>
 <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Click the mic to dictate. Works in Chrome/Edge.</p>
 <div style="text-align:center;padding:20px">
-<label class="voice-btn mic" id="voiceMicBtn" onclick="toggleVoiceMic()" style="width:80px;height:80px;font-size:36px;display:inline-flex"> </label>
+<label class="voice-btn mic" id="voiceMicBtn" onclick="toggleVoiceMic()" style="width:80px;height:80px;font-size:36px;display:inline-flex">🎤</label>
 <p id="voiceStatus" style="margin-top:10px;color:var(--text2);font-size:12px">Click to start</p>
 </div>
 <textarea id="voiceOutput" rows="5" placeholder="Recognized speech appears here..." style="width:100%;padding:10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;resize:vertical;font-family:inherit"></textarea>
 <div style="display:flex;gap:6px;margin-top:8px">
-<button class="btn btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('voiceOutput').value)"> Copy</button>
-<button class="btn btn-sm" onclick="document.getElementById('voiceOutput').value=''"> Clear</button>
-<button class="btn btn-sm btn-primary" onclick="document.getElementById('chatInput').value=document.getElementById('voiceOutput').value;goPage(null,'chat')"> To Chat</button>
+<button class="btn btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('voiceOutput').value)">📋 Copy</button>
+<button class="btn btn-sm" onclick="document.getElementById('voiceOutput').value=''">🗑️ Clear</button>
+<button class="btn btn-sm btn-primary" onclick="document.getElementById('chatInput').value=document.getElementById('voiceOutput').value;goPage(null,'chat')">💬 To Chat</button>
 </div>
 </div>
 <div>
@@ -38061,7 +38063,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <div><label style="font-size:11px;color:var(--text2)">Pitch</label><input type="range" id="ttsPitch" min="0" max="2" step="0.1" value="1" style="width:100%"></div>
 <div><label style="font-size:11px;color:var(--text2)">Volume</label><input type="range" id="ttsVol" min="0" max="1" step="0.1" value="1" style="width:100%"></div>
 </div>
-<div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="speakTTS()"> Speak</button><button class="btn" onclick="speechSynthesis.cancel()"> Stop</button></div>
+<div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="speakTTS()">🔊 Speak</button><button class="btn" onclick="speechSynthesis.cancel()">⏹️ Stop</button></div>
 </div>
 </div>
 </div>
@@ -38069,7 +38071,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 </div>
   <!-- EON: CODE EXPERT -->
   <div class="page" id="page-code">
-<div style="display:flex;height:100%">
+<div style="display:flex;flex:1;min-height:0">
   <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
     <button onclick="AP.newConv('code')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
     <div id="ap_sl_code" style="display:flex;flex-direction:column;gap:4px"></div>
@@ -38098,7 +38100,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
   <!-- EON: CREATIVE WRITER -->
   <div class="page" id="page-creative">
-<div style="display:flex;height:100%">
+<div style="display:flex;flex:1;min-height:0">
   <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
     <button onclick="AP.newConv('creative')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
     <div id="ap_sl_creative" style="display:flex;flex-direction:column;gap:4px"></div>
@@ -38127,7 +38129,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
   <!-- EON: HTML ARCHITECT -->
   <div class="page" id="page-html_arch">
-<div style="display:flex;height:100%">
+<div style="display:flex;flex:1;min-height:0">
   <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
     <button onclick="AP.newConv('html_arch')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
     <div id="ap_sl_html_arch" style="display:flex;flex-direction:column;gap:4px"></div>
@@ -38156,7 +38158,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
   <!-- EON: GENERAL ASSISTANT -->
   <div class="page" id="page-general">
-<div style="display:flex;height:100%">
+<div style="display:flex;flex:1;min-height:0">
   <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
     <button onclick="AP.newConv('general')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
     <div id="ap_sl_general" style="display:flex;flex-direction:column;gap:4px"></div>
