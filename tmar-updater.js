@@ -8,8 +8,18 @@
  *   2. Computes a hash to detect real changes vs. your current version
  *   3. Backs up ALL localStorage/sessionStorage data before any update
  *   4. Lets you preview a diff summary before applying
- *   5. Applies upstream code changes while preserving your local data
- *   6. Keeps a rollback snapshot so you can revert if something breaks
+ *   5. Injects ONLY net-new functions/CSS — never removes or replaces existing code
+ *   6. Offers a "Download Merged" option for a persistent, git-deployable merged file
+ *   7. Keeps a rollback snapshot so you can revert injected additions
+ *
+ * IMPORTANT — Update Modes:
+ *   "Inject New Functions" — Additively injects net-new functions from upstream into
+ *     the current browser session only. Your customizations are untouched. Injections
+ *     are NOT persistent — they disappear on next page load.
+ *
+ *   "Download Merged File" — Generates a full merged HTML file (your TMAR + upstream
+ *     additions) for download. Review it, then deploy via git for a persistent update.
+ *     This is the recommended workflow.
  *
  * Configuration — edit these constants to match your setup:
  */
@@ -32,18 +42,10 @@ const TMAR_UPDATER_CONFIG = {
   storagePrefix: 'tmar_updater_',
 
   // How often to auto-check (ms). 0 = manual only.
-  autoCheckInterval: 0, // e.g. 3600000 = 1 hour
+  autoCheckInterval: 0,
 
-  // Selectors for content zones to update (vs. replace entire page)
-  // If null, the updater replaces the full <html> innerHTML.
-  // If set, only matched sections are swapped (safer for customizations).
-  selectiveSelectors: null, // e.g. ['#app-scripts', 'style', '.tab-content']
-
-  // CSS selectors for YOUR custom sections to PRESERVE during update
-  preserveSelectors: [
-    '#trust-entity-header',   // your trust name / EIN display
-    '.custom-branding',       // any custom branding you added
-  ],
+  // Filename for downloaded merged files
+  mergedFilename: 'TMAR-Accrual-Ledger-merged.html',
 };
 
 
@@ -182,7 +184,6 @@ class TmarUpdater {
     const backup = {};
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      // Skip updater's own keys from the backup payload
       if (!key.startsWith(this.config.storagePrefix + 'backup_')) {
         backup[key] = localStorage.getItem(key);
       }
@@ -190,8 +191,6 @@ class TmarUpdater {
 
     const backupKey = this.config.storagePrefix + 'backup_' + Date.now();
     localStorage.setItem(backupKey, JSON.stringify(backup));
-
-    // Also store a "latest" pointer
     localStorage.setItem(this.config.storagePrefix + 'backup_latest', backupKey);
 
     console.log(`[TMAR Updater] Backed up ${Object.keys(backup).length} localStorage entries → ${backupKey}`);
@@ -206,7 +205,6 @@ class TmarUpdater {
     const backup = JSON.parse(localStorage.getItem(key));
     if (!backup) throw new Error('Backup data is empty or corrupted.');
 
-    // Clear current non-updater keys, then restore
     const updaterKeys = [];
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
@@ -215,13 +213,11 @@ class TmarUpdater {
 
     localStorage.clear();
 
-    // Restore updater keys
     updaterKeys.forEach(k => {
       const val = backup[k] || null;
       if (val) localStorage.setItem(k, val);
     });
 
-    // Restore user data
     Object.entries(backup).forEach(([k, v]) => {
       localStorage.setItem(k, v);
     });
@@ -229,126 +225,278 @@ class TmarUpdater {
     console.log('[TMAR Updater] Restored from backup:', key);
   }
 
-  // --- Store rollback snapshot (the current page before update) ---
+  // --- Save rollback snapshot (current page before any injection) ---
   saveRollbackSnapshot() {
-    const snapshot = document.documentElement.outerHTML;
-    localStorage.setItem(this.config.storagePrefix + 'rollback_html', snapshot);
+    localStorage.setItem(this.config.storagePrefix + 'rollback_html', document.documentElement.outerHTML);
     localStorage.setItem(this.config.storagePrefix + 'rollback_time', new Date().toISOString());
   }
 
-  // --- Apply the upstream update ---
-  async applyUpdate() {
-    if (!this.upstreamHTML) {
-      await this.fetchUpstream();
+  // ---------------------------------------------------------------
+  //  FUNCTION EXTRACTION HELPERS
+  // ---------------------------------------------------------------
+
+  // Extract all top-level named function declarations from a script string
+  _extractFunctionNames(scriptText) {
+    const names = new Set();
+    const re = /(?:^|\n)[ \t]*(?:async[ \t]+)?function[ \t]+(\w+)[ \t]*\(/gm;
+    let m;
+    while ((m = re.exec(scriptText)) !== null) {
+      names.add(m[1]);
     }
+    return names;
+  }
 
-    // 1. Back up local data
+  // Extract the full source of a named function from a script string.
+  // Returns null if not found or brace-balancing fails.
+  _extractFunctionBody(scriptText, name) {
+    const searchRe = new RegExp(
+      '(?:^|\\n)([ \\t]*(?:async[ \\t]+)?function[ \\t]+' + name + '[ \\t]*\\()',
+      'm'
+    );
+    const m = searchRe.exec(scriptText);
+    if (!m) return null;
+
+    const lineStart = m.index === 0 ? 0 : m.index + 1; // skip the \n
+    const braceIdx = scriptText.indexOf('{', lineStart + m[1].length);
+    if (braceIdx < 0) return null;
+
+    let depth = 0;
+    let i = braceIdx;
+    for (; i < scriptText.length; i++) {
+      if (scriptText[i] === '{') depth++;
+      else if (scriptText[i] === '}') {
+        depth--;
+        if (depth === 0) break;
+      }
+    }
+    if (depth !== 0) return null;
+
+    return scriptText.slice(lineStart, i + 1).trim();
+  }
+
+  // Return array of { name, code } for functions in upstreamText not present in localText
+  _findNewFunctions(upstreamScriptText, localScriptText) {
+    const upstreamNames = this._extractFunctionNames(upstreamScriptText);
+    const localNames = this._extractFunctionNames(localScriptText);
+
+    const results = [];
+    for (const name of upstreamNames) {
+      if (!localNames.has(name)) {
+        const code = this._extractFunctionBody(upstreamScriptText, name);
+        if (code) results.push({ name, code });
+      }
+    }
+    return results;
+  }
+
+  // Return CSS variable declarations from upstreamText not present in localText
+  _findNewCssVars(upstreamStyleText, localStyleText) {
+    const varRe = /(--[\w-]+)\s*:/g;
+    const localVars = new Set();
+    let m;
+    while ((m = varRe.exec(localStyleText)) !== null) localVars.add(m[1]);
+
+    const newLines = [];
+    const lineRe = /^\s*(--[\w-]+\s*:[^;]+;)/gm;
+    while ((m = lineRe.exec(upstreamStyleText)) !== null) {
+      const varName = m[1].match(/^(--[\w-]+)/)[1];
+      if (!localVars.has(varName)) {
+        newLines.push(m[1].trim());
+      }
+    }
+    return newLines;
+  }
+
+  // ---------------------------------------------------------------
+  //  ADDITIVE INJECTION (session-only)
+  // ---------------------------------------------------------------
+
+  /**
+   * Injects net-new functions and CSS variables from upstream into the
+   * current browser session. NEVER removes or replaces existing code.
+   *
+   * ⚠️ SESSION ONLY — changes disappear on next page reload.
+   * Use downloadMerged() for a persistent update.
+   */
+  async injectNewFunctions() {
+    if (!this.upstreamHTML) await this.fetchUpstream();
+
     this.backupLocalData();
-
-    // 2. Save rollback snapshot
     this.saveRollbackSnapshot();
 
-    // 3. Extract and preserve custom sections
-    const preserved = {};
-    if (this.config.preserveSelectors) {
-      this.config.preserveSelectors.forEach(sel => {
-        const el = document.querySelector(sel);
-        if (el) preserved[sel] = el.outerHTML;
-      });
+    const parser = new DOMParser();
+    const upstreamDoc = parser.parseFromString(this.upstreamHTML, 'text/html');
+
+    // Gather all inline script text from upstream and local
+    const upstreamScriptText = Array.from(upstreamDoc.querySelectorAll('script:not([src])'))
+      .map(s => s.textContent).join('\n');
+    const localScriptText = Array.from(document.querySelectorAll('script:not([src])'))
+      .map(s => s.textContent).join('\n');
+
+    const newFunctions = this._findNewFunctions(upstreamScriptText, localScriptText);
+
+    // Gather CSS vars
+    const upstreamStyleText = Array.from(upstreamDoc.querySelectorAll('style'))
+      .map(s => s.textContent).join('\n');
+    const localStyleText = Array.from(document.querySelectorAll('style'))
+      .map(s => s.textContent).join('\n');
+    const newCssVars = this._findNewCssVars(upstreamStyleText, localStyleText);
+
+    // Inject new CSS vars
+    if (newCssVars.length > 0) {
+      const styleEl = document.createElement('style');
+      styleEl.id = 'tmar-upstream-css-' + Date.now();
+      styleEl.textContent = `/* TMAR upstream CSS additions — ${new Date().toISOString()} */\n:root {\n  ${newCssVars.join('\n  ')}\n}`;
+      document.head.appendChild(styleEl);
     }
 
-    // 4. Apply the update
-    if (this.config.selectiveSelectors) {
-      // Selective mode: only replace specific sections
-      const parser = new DOMParser();
-      const upstreamDoc = parser.parseFromString(this.upstreamHTML, 'text/html');
-
-      this.config.selectiveSelectors.forEach(sel => {
-        const upstreamEl = upstreamDoc.querySelector(sel);
-        const localEl = document.querySelector(sel);
-        if (upstreamEl && localEl) {
-          localEl.outerHTML = upstreamEl.outerHTML;
-        }
-      });
-    } else {
-      // Full replace — write the upstream HTML, then reload
-      document.open();
-      document.write(this.upstreamHTML);
-      document.close();
+    // Inject new functions
+    if (newFunctions.length > 0) {
+      const scriptEl = document.createElement('script');
+      scriptEl.id = 'tmar-upstream-js-' + Date.now();
+      scriptEl.textContent =
+        `// TMAR upstream additions — ${new Date().toISOString()}\n` +
+        `// New functions: ${newFunctions.map(f => f.name).join(', ')}\n\n` +
+        newFunctions.map(f => f.code).join('\n\n');
+      document.body.appendChild(scriptEl);
     }
 
-    // 5. Re-inject preserved custom sections
-    Object.entries(preserved).forEach(([sel, html]) => {
-      const target = document.querySelector(sel);
-      if (target) target.outerHTML = html;
-    });
+    // Record
+    localStorage.setItem(this.config.storagePrefix + 'appliedHash', this.upstreamHash || '');
+    localStorage.setItem(this.config.storagePrefix + 'lastUpdate', JSON.stringify({
+      timestamp: new Date().toISOString(),
+      mode: 'additive-inject',
+      newFunctions: newFunctions.map(f => f.name),
+      newCssVars: newCssVars.length,
+    }));
 
-    // 6. Record update metadata
-    localStorage.setItem(
-      this.config.storagePrefix + 'lastUpdate',
-      JSON.stringify({
-        timestamp: new Date().toISOString(),
-        fromHash: this.currentHash,
-        toHash: this.upstreamHash,
-      })
-    );
-
-    // Store applied hash for parity fingerprint comparison
-    if (this.upstreamHash) {
-      localStorage.setItem(this.config.storagePrefix + 'appliedHash', this.upstreamHash);
-    }
-
-    console.log('[TMAR Updater] Update applied successfully.');
-    return true;
+    console.log(`[TMAR Updater] Injected: ${newFunctions.length} new functions, ${newCssVars.length} new CSS vars`);
+    return { newFunctions, newCssVars };
   }
 
-  // --- Rollback to previous version ---
+  // ---------------------------------------------------------------
+  //  DOWNLOAD MERGED (persistent update workflow)
+  // ---------------------------------------------------------------
+
+  /**
+   * Generates a merged HTML file combining current TMAR + net-new
+   * upstream additions, then triggers a browser download.
+   *
+   * The downloaded file preserves 100% of your customizations.
+   * Review it, then deploy via git for a persistent update:
+   *   git add TMAR-Accrual-Ledger.html && git commit && git push
+   */
+  async downloadMerged() {
+    if (!this.upstreamHTML) await this.fetchUpstream();
+
+    const parser = new DOMParser();
+    const upstreamDoc = parser.parseFromString(this.upstreamHTML, 'text/html');
+
+    const upstreamScriptText = Array.from(upstreamDoc.querySelectorAll('script:not([src])'))
+      .map(s => s.textContent).join('\n');
+    const localScriptText = Array.from(document.querySelectorAll('script:not([src])'))
+      .map(s => s.textContent).join('\n');
+
+    const newFunctions = this._findNewFunctions(upstreamScriptText, localScriptText);
+
+    const upstreamStyleText = Array.from(upstreamDoc.querySelectorAll('style'))
+      .map(s => s.textContent).join('\n');
+    const localStyleText = Array.from(document.querySelectorAll('style'))
+      .map(s => s.textContent).join('\n');
+    const newCssVars = this._findNewCssVars(upstreamStyleText, localStyleText);
+
+    // Build injection block
+    const ts = new Date().toISOString();
+    let injection = `\n<!-- ═══ TMAR Upstream Merge — ${ts} ═══\n     Source: ${this.config.upstreamURL}\n     New functions: ${newFunctions.length} | New CSS vars: ${newCssVars.length}\n═══════════════════════════════════════════ -->\n`;
+
+    if (newCssVars.length > 0) {
+      injection += `<style id="tmar-upstream-css">\n/* Upstream CSS additions */\n:root {\n  ${newCssVars.join('\n  ')}\n}\n</style>\n`;
+    }
+
+    if (newFunctions.length > 0) {
+      injection +=
+        `<script id="tmar-upstream-js">\n` +
+        `// Upstream additions — ${ts}\n` +
+        `// New functions: ${newFunctions.map(f => f.name).join(', ')}\n\n` +
+        newFunctions.map(f => f.code).join('\n\n') +
+        `\n<\/script>\n`;
+    }
+
+    // Inject before </body> in the current page's outerHTML
+    const currentHTML = document.documentElement.outerHTML;
+    const merged = currentHTML.includes('</body>')
+      ? currentHTML.replace('</body>', injection + '</body>')
+      : currentHTML + injection;
+
+    // Trigger download
+    const blob = new Blob([merged], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = this.config.mergedFilename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+
+    console.log(`[TMAR Updater] Merged file downloaded: ${newFunctions.length} new functions, ${newCssVars.length} new CSS vars`);
+    return { newFunctions, newCssVars };
+  }
+
+  // --- Rollback injected additions (removes tmar-upstream-* elements) ---
   rollback() {
-    const snapshot = localStorage.getItem(this.config.storagePrefix + 'rollback_html');
-    if (!snapshot) throw new Error('No rollback snapshot available.');
-
+    let removed = 0;
+    document.querySelectorAll('[id^="tmar-upstream-"]').forEach(el => {
+      el.remove();
+      removed++;
+    });
     this.restoreFromBackup();
-    document.open();
-    document.write(snapshot);
-    document.close();
-    console.log('[TMAR Updater] Rolled back to previous version.');
+    localStorage.removeItem(this.config.storagePrefix + 'appliedHash');
+    console.log(`[TMAR Updater] Rolled back — removed ${removed} injected element(s).`);
+    return removed;
   }
 
-  // --- Generate a simple diff summary ---
+  // --- Generate a diff summary ---
   getDiffSummary() {
     if (!this.upstreamHTML) return null;
 
-    const currentLines = document.documentElement.outerHTML.split('\n');
-    const upstreamLines = this.upstreamHTML.split('\n');
+    const parser = new DOMParser();
+    const upstreamDoc = parser.parseFromString(this.upstreamHTML, 'text/html');
 
-    let added = 0, removed = 0, changed = 0;
-    const maxLen = Math.max(currentLines.length, upstreamLines.length);
+    const upstreamScriptText = Array.from(upstreamDoc.querySelectorAll('script:not([src])'))
+      .map(s => s.textContent).join('\n');
+    const localScriptText = Array.from(document.querySelectorAll('script:not([src])'))
+      .map(s => s.textContent).join('\n');
 
-    for (let i = 0; i < maxLen; i++) {
-      if (i >= currentLines.length) { added++; continue; }
-      if (i >= upstreamLines.length) { removed++; continue; }
-      if (currentLines[i] !== upstreamLines[i]) changed++;
-    }
+    const newFunctions = this._findNewFunctions(upstreamScriptText, localScriptText);
+
+    const upstreamStyleText = Array.from(upstreamDoc.querySelectorAll('style'))
+      .map(s => s.textContent).join('\n');
+    const localStyleText = Array.from(document.querySelectorAll('style'))
+      .map(s => s.textContent).join('\n');
+    const newCssVars = this._findNewCssVars(upstreamStyleText, localStyleText);
+
+    const currentLines = document.documentElement.outerHTML.split('\n').length;
+    const upstreamLines = this.upstreamHTML.split('\n').length;
 
     return {
-      currentLines: currentLines.length,
-      upstreamLines: upstreamLines.length,
-      linesAdded: added,
-      linesRemoved: removed,
-      linesChanged: changed,
+      currentLines,
+      upstreamLines,
+      newFunctions: newFunctions.map(f => f.name),
+      newFunctionsCount: newFunctions.length,
+      newCssVarsCount: newCssVars.length,
     };
   }
 }
 
 
 // ============================================================
-//  UI COMPONENT — Drop-in Update Banner + Button
+//  UI COMPONENT — Update Banner
 // ============================================================
 
 function initTmarUpdaterUI() {
   const updater = new TmarUpdater();
 
-  // Inject styles
   const style = document.createElement('style');
   style.textContent = `
     #tmar-update-banner {
@@ -357,7 +505,7 @@ function initTmarUpdaterUI() {
       left: 0;
       right: 0;
       z-index: 99999;
-      background: linear-gradient(135deg, #b45309, #d97706);
+      background: linear-gradient(135deg, #1e3a5f, #1a5276);
       color: #fff;
       padding: 12px 20px;
       font-family: system-ui, -apple-system, sans-serif;
@@ -365,99 +513,110 @@ function initTmarUpdaterUI() {
       display: none;
       align-items: center;
       gap: 12px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+      border-bottom: 1px solid rgba(0,229,255,0.3);
     }
     #tmar-update-banner.visible { display: flex; flex-wrap: wrap; }
-    #tmar-update-banner .msg { flex: 1; min-width: 200px; }
-    #tmar-update-banner .msg strong { color: #fef3c7; }
+    #tmar-update-banner .msg { flex: 1; min-width: 200px; line-height: 1.4; }
+    #tmar-update-banner .msg strong { color: #7fdbff; }
+    #tmar-update-banner .msg small { display: block; font-size: 11px; color: #a9cce3; margin-top: 2px; }
     #tmar-update-banner button {
-      padding: 8px 16px;
+      padding: 7px 14px;
       border: none;
       border-radius: 6px;
       cursor: pointer;
       font-weight: 600;
-      font-size: 13px;
+      font-size: 12px;
       transition: all 0.2s;
+      white-space: nowrap;
     }
-    #tmar-update-btn {
-      background: #065f46;
-      color: #d1fae5;
-    }
-    #tmar-update-btn:hover { background: #047857; }
-    #tmar-preview-btn {
-      background: rgba(255,255,255,0.15);
-      color: #fff;
-    }
-    #tmar-preview-btn:hover { background: rgba(255,255,255,0.25); }
-    #tmar-dismiss-btn {
-      background: rgba(255,255,255,0.1);
-      color: #fde68a;
-    }
-    #tmar-dismiss-btn:hover { background: rgba(255,255,255,0.2); }
+    #tmar-download-btn { background: #0e6655; color: #a9dfbf; }
+    #tmar-download-btn:hover { background: #117a65; }
+    #tmar-inject-btn { background: rgba(255,255,255,0.12); color: #d6eaf8; border: 1px solid rgba(255,255,255,0.2); }
+    #tmar-inject-btn:hover { background: rgba(255,255,255,0.2); }
+    #tmar-preview-btn { background: rgba(255,255,255,0.08); color: #aed6f1; border: 1px solid rgba(255,255,255,0.15); }
+    #tmar-preview-btn:hover { background: rgba(255,255,255,0.15); }
+    #tmar-dismiss-btn { background: transparent; color: #85c1e9; font-size: 18px; padding: 4px 8px; }
+    #tmar-dismiss-btn:hover { color: #fff; }
     #tmar-rollback-btn {
       position: fixed;
-      bottom: 20px;
+      bottom: 80px;
       right: 20px;
       z-index: 99998;
-      background: #991b1b;
-      color: #fecaca;
-      padding: 10px 16px;
+      background: #7b241c;
+      color: #f5b7b1;
+      padding: 9px 14px;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
       display: none;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+    #tmar-diff-overlay {
+      position: fixed; inset: 0; z-index: 99999;
+      background: rgba(0,0,0,0.65); display: none;
     }
     #tmar-diff-modal {
       position: fixed;
-      top: 50%;
-      left: 50%;
+      top: 50%; left: 50%;
       transform: translate(-50%, -50%);
       z-index: 100000;
-      background: #1a1a2e;
+      background: #0f1923;
       color: #e2e8f0;
       padding: 24px;
       border-radius: 12px;
-      max-width: 400px;
-      width: 90%;
+      max-width: 460px;
+      width: 92%;
       display: none;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+      border: 1px solid rgba(0,229,255,0.2);
       font-family: system-ui, sans-serif;
     }
-    #tmar-diff-modal h3 { margin: 0 0 16px; color: #fbbf24; }
-    #tmar-diff-modal .stat { 
-      display: flex; justify-content: space-between; 
-      padding: 8px 0; border-bottom: 1px solid #334155;
+    #tmar-diff-modal h3 { margin: 0 0 4px; color: #7fdbff; font-size: 15px; }
+    #tmar-diff-modal .subtitle { color: #7f8c8d; font-size: 11px; margin: 0 0 16px; }
+    #tmar-diff-modal .stat {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 7px 0; border-bottom: 1px solid #1c2e3e; font-size: 13px;
     }
-    #tmar-diff-modal .stat .label { color: #94a3b8; }
-    #tmar-diff-modal .actions { margin-top: 16px; display: flex; gap: 8px; }
-    #tmar-diff-overlay {
-      position: fixed; inset: 0; z-index: 99999;
-      background: rgba(0,0,0,0.6); display: none;
+    #tmar-diff-modal .stat .label { color: #7fb3d3; }
+    #tmar-diff-modal .fn-list {
+      font-size: 11px; color: #5d6d7e; max-height: 80px;
+      overflow-y: auto; margin-top: 4px; font-family: monospace;
+    }
+    #tmar-diff-modal .mode-note {
+      margin-top: 14px; padding: 10px 12px;
+      background: rgba(255,193,7,0.08); border-left: 3px solid #f39c12;
+      border-radius: 4px; font-size: 11px; color: #f0b27a; line-height: 1.5;
+    }
+    #tmar-diff-modal .actions { margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+    #tmar-diff-modal .actions button {
+      padding: 8px 14px; border: none; border-radius: 6px;
+      cursor: pointer; font-weight: 600; font-size: 12px;
     }
   `;
   document.head.appendChild(style);
 
-  // Inject banner HTML
+  // Banner
   const banner = document.createElement('div');
   banner.id = 'tmar-update-banner';
   banner.innerHTML = `
     <div class="msg">
-      ⚠️ <strong>Source update detected</strong> — redressright.me has changed since your last sync.
-      <span id="tmar-diff-hint"></span>
+      🔄 <strong>Upstream update available</strong> — redressright.me/GAAP.html has new content.
+      <small id="tmar-diff-hint">Checking what's new…</small>
     </div>
     <button id="tmar-preview-btn">📋 Preview</button>
-    <button id="tmar-update-btn">🔄 Apply Update</button>
-    <button id="tmar-dismiss-btn">✕ Dismiss</button>
+    <button id="tmar-download-btn">⬇️ Download Merged</button>
+    <button id="tmar-inject-btn">💉 Inject (session)</button>
+    <button id="tmar-dismiss-btn">✕</button>
   `;
   document.body.prepend(banner);
 
-  // Rollback button (shown after update)
+  // Rollback button
   const rollbackBtn = document.createElement('button');
   rollbackBtn.id = 'tmar-rollback-btn';
-  rollbackBtn.textContent = '↩️ Undo Update';
+  rollbackBtn.textContent = '↩️ Undo Injection';
   document.body.appendChild(rollbackBtn);
 
   // Diff modal
@@ -468,70 +627,118 @@ function initTmarUpdaterUI() {
   const modal = document.createElement('div');
   modal.id = 'tmar-diff-modal';
   modal.innerHTML = `
-    <h3>📊 Update Summary</h3>
+    <h3>📊 Upstream Diff Summary</h3>
+    <p class="subtitle">What's new in upstream vs. your current TMAR build</p>
     <div id="tmar-diff-stats"></div>
+    <div class="mode-note">
+      <strong>⬇️ Download Merged</strong> — Recommended. Generates a merged HTML file with upstream
+      additions appended. Your customizations are fully preserved. Deploy the downloaded file via git.<br><br>
+      <strong>💉 Inject (session only)</strong> — Adds new functions to this browser session only.
+      Disappears on next page load. Good for previewing new features before committing.
+    </div>
     <div class="actions">
-      <button id="tmar-modal-apply" style="background:#065f46;color:#d1fae5;padding:8px 16px;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Apply Update</button>
-      <button id="tmar-modal-close" style="background:#334155;color:#e2e8f0;padding:8px 16px;border:none;border-radius:6px;cursor:pointer;">Close</button>
+      <button id="tmar-modal-download" style="background:#0e6655;color:#a9dfbf;">⬇️ Download Merged</button>
+      <button id="tmar-modal-inject" style="background:#1a5276;color:#aed6f1;">💉 Inject (session)</button>
+      <button id="tmar-modal-close" style="background:#1c2e3e;color:#85c1e9;">Close</button>
     </div>
   `;
   document.body.appendChild(modal);
 
-  // --- Event Handlers ---
-
-  document.getElementById('tmar-dismiss-btn').onclick = () => {
-    banner.classList.remove('visible');
+  // --- Helpers ---
+  const closeModal = () => {
+    overlay.style.display = 'none';
+    modal.style.display = 'none';
   };
+  overlay.onclick = closeModal;
+  document.getElementById('tmar-modal-close').onclick = closeModal;
+  document.getElementById('tmar-dismiss-btn').onclick = () => banner.classList.remove('visible');
 
-  document.getElementById('tmar-preview-btn').onclick = async () => {
-    const diff = updater.getDiffSummary();
-    if (!diff) return;
+  const showDiffModal = (diff) => {
     const statsEl = document.getElementById('tmar-diff-stats');
+    const fnListHtml = diff.newFunctionsCount > 0
+      ? `<div class="fn-list">${diff.newFunctions.join(', ')}</div>`
+      : '';
     statsEl.innerHTML = `
-      <div class="stat"><span class="label">Your version</span><span>${diff.currentLines.toLocaleString()} lines</span></div>
-      <div class="stat"><span class="label">Upstream version</span><span>${diff.upstreamLines.toLocaleString()} lines</span></div>
-      <div class="stat"><span class="label">Lines added</span><span style="color:#34d399;">+${diff.linesAdded}</span></div>
-      <div class="stat"><span class="label">Lines removed</span><span style="color:#f87171;">-${diff.linesRemoved}</span></div>
-      <div class="stat"><span class="label">Lines changed</span><span style="color:#fbbf24;">~${diff.linesChanged}</span></div>
+      <div class="stat"><span class="label">Your build</span><span>${diff.currentLines.toLocaleString()} lines</span></div>
+      <div class="stat"><span class="label">Upstream</span><span>${diff.upstreamLines.toLocaleString()} lines</span></div>
+      <div class="stat">
+        <span class="label">New functions to add</span>
+        <span style="color:#52be80;">+${diff.newFunctionsCount}</span>
+      </div>
+      ${fnListHtml}
+      <div class="stat"><span class="label">New CSS variables</span><span style="color:#52be80;">+${diff.newCssVarsCount}</span></div>
+      <div class="stat" style="border:none;padding-top:10px;font-size:11px;color:#5d6d7e;">
+        Existing TMAR code and customizations: untouched
+      </div>
     `;
     overlay.style.display = 'block';
     modal.style.display = 'block';
   };
 
-  overlay.onclick = () => {
-    overlay.style.display = 'none';
-    modal.style.display = 'none';
-  };
-
-  document.getElementById('tmar-modal-close').onclick = () => {
-    overlay.style.display = 'none';
-    modal.style.display = 'none';
-  };
-
-  const doApply = async () => {
-    if (!confirm('Apply upstream update? Your data will be backed up and preserved.')) return;
+  // --- Preview button ---
+  document.getElementById('tmar-preview-btn').onclick = async () => {
+    const diff = updater.getDiffSummary();
+    if (diff) {
+      showDiffModal(diff);
+      return;
+    }
+    // Need to fetch first
     try {
-      await updater.applyUpdate();
-      banner.classList.remove('visible');
-      rollbackBtn.style.display = 'block';
-      overlay.style.display = 'none';
-      modal.style.display = 'none';
-      alert('✅ Update applied! Your ledger data has been preserved.');
-    } catch (e) {
-      alert('❌ Update failed: ' + e.message);
+      await updater.fetchUpstream();
+      const diff2 = updater.getDiffSummary();
+      if (diff2) showDiffModal(diff2);
+    } catch(e) {
+      alert('Could not fetch upstream: ' + e.message);
     }
   };
 
-  document.getElementById('tmar-update-btn').onclick = doApply;
-  document.getElementById('tmar-modal-apply').onclick = doApply;
-
-  rollbackBtn.onclick = () => {
-    if (!confirm('Revert to previous version?')) return;
+  // --- Download Merged ---
+  const doDownload = async () => {
     try {
-      updater.rollback();
+      const result = await updater.downloadMerged();
+      banner.classList.remove('visible');
+      closeModal();
+      const fns = result.newFunctions.length;
+      const css = result.newCssVars.length;
+      alert(`✅ Merged file downloaded!\n\n+${fns} new function${fns!==1?'s':''}, +${css} new CSS variable${css!==1?'s':''}.\n\nReview the file, then replace TMAR-Accrual-Ledger.html and deploy via git.`);
+    } catch(e) {
+      alert('❌ Download failed: ' + e.message);
+    }
+  };
+  document.getElementById('tmar-download-btn').onclick = doDownload;
+  document.getElementById('tmar-modal-download').onclick = doDownload;
+
+  // --- Inject (session only) ---
+  const doInject = async () => {
+    if (!confirm('Inject new upstream functions into this session?\n\nThis is temporary (session only) and will not affect the saved file. Your customizations are untouched.')) return;
+    try {
+      const result = await updater.injectNewFunctions();
+      banner.classList.remove('visible');
+      closeModal();
+      rollbackBtn.style.display = 'block';
+      const fns = result.newFunctions.length;
+      const css = result.newCssVars.length;
+      if (fns === 0 && css === 0) {
+        alert('ℹ️ No new functions or CSS variables found in upstream. Your TMAR is already up to date with upstream additions.');
+        rollbackBtn.style.display = 'none';
+      } else {
+        alert(`✅ Injected for this session:\n+${fns} new function${fns!==1?'s':''}: ${result.newFunctions.map(f=>f.name).join(', ') || '—'}\n+${css} new CSS variable${css!==1?'s':''}\n\nUse ↩️ Undo to revert, or Download Merged for a persistent update.`);
+      }
+    } catch(e) {
+      alert('❌ Injection failed: ' + e.message);
+    }
+  };
+  document.getElementById('tmar-inject-btn').onclick = doInject;
+  document.getElementById('tmar-modal-inject').onclick = doInject;
+
+  // --- Rollback ---
+  rollbackBtn.onclick = () => {
+    if (!confirm('Remove injected upstream additions from this session?')) return;
+    try {
+      const removed = updater.rollback();
       rollbackBtn.style.display = 'none';
-      alert('✅ Rolled back successfully.');
-    } catch (e) {
+      alert(`✅ Removed ${removed} injected element(s). Session restored.`);
+    } catch(e) {
       alert('❌ Rollback failed: ' + e.message);
     }
   };
@@ -542,20 +749,21 @@ function initTmarUpdaterUI() {
       const result = await updater.checkForUpdate();
       if (result.hasUpdate) {
         banner.classList.add('visible');
+        // Try to build diff hint if we have the upstream already
         const diff = updater.getDiffSummary();
+        const hintEl = document.getElementById('tmar-diff-hint');
         if (diff) {
-          document.getElementById('tmar-diff-hint').textContent =
-            ` (+${diff.linesAdded} / -${diff.linesRemoved} / ~${diff.linesChanged} lines)`;
+          hintEl.textContent = `+${diff.newFunctionsCount} new function${diff.newFunctionsCount!==1?'s':''}, +${diff.newCssVarsCount} new CSS vars detected.`;
+        } else {
+          hintEl.textContent = 'Click Preview to see what\'s new.';
         }
       }
-    } catch (e) {
+    } catch(e) {
       console.warn('[TMAR Updater] Auto-check failed:', e.message);
     }
   })();
 
-  // Expose globally for console access
   window.tmarUpdater = updater;
-
   return updater;
 }
 
