@@ -1,7 +1,7 @@
 # TMAR - Trust Master Account Register
 
 **Complete Interactive Web Application + Google Sheets Integration**
-**Version:** 3.6
+**Version:** 3.7
 **Last Updated:** April 6, 2026
 **Status:** ✅ Production Ready — 246/246 Functions Verified | 211/211 GUI Elements Verified
 
@@ -33,11 +33,15 @@ http://localhost:8080/TMAR-Accrual-Ledger.html
 
 Direct browser API calls to Anthropic are blocked by CORS when using the app from GitHub Pages. A free Cloudflare Worker proxy solves this.
 
+**Current worker:** `cloudflare-worker-v2.js` — dual mode:
+- `/v1/*` → Anthropic API proxy (strips `Origin`/`Referer`, injects `anthropic-dangerous-direct-browser-access`)
+- `?url=<encoded>` → Generic CORS proxy for `redressright.me` only (used by `tmar-updater.js`)
+
 ### Deploy (one-time, ~3 minutes)
 
 1. Go to [workers.cloudflare.com](https://workers.cloudflare.com) — create a free account
 2. Click **Create Worker**
-3. Select all default code, delete it, paste the full contents of [`cors-proxy-worker.js`](./cors-proxy-worker.js)
+3. Select all default code, delete it, paste the full contents of [`cloudflare-worker-v2.js`](./cloudflare-worker-v2.js)
 4. Click **Deploy** — copy the worker URL (e.g. `https://your-worker.yourname.workers.dev`)
 
 ### Configure in TMAR
@@ -142,6 +146,17 @@ npx http-server -p 8080 -o
 2. Select an agent (Legal, Tax, Accounting, etc.)
 3. Type your question
 4. Click **⚡ Analyze**
+
+---
+
+## 🆕 What's New in v3.7
+
+| Feature | Details |
+|---|---|
+| **tmar-updater.js** | New standalone auto-update module (`TmarUpdater` class). Fetches upstream `redressright.me/GAAP.html` via CORS proxy, diffs against local version, presents update/rollback UI. Replaces the old inline `parityCheckOnLoad` / `parityDriftBanner` system (~75 lines removed). Loaded via `<script src="tmar-updater.js">` before `</body>`. |
+| **Cloudflare Worker v2** | Updated worker (`cloudflare-worker-v2.js`) adds a second route: `?url=<encoded>` generic CORS proxy limited to `redressright.me` / `www.redressright.me`. The existing `/v1/*` Anthropic API proxy is unchanged. Required by `tmar-updater.js` to fetch upstream source. |
+| **EON portal blank-page fix** | `.page.active` now uses `height: calc(100vh - 72px); max-height: calc(100vh - 72px); box-sizing: border-box` — resolves percentage-height failure inside `overflow-y:auto` scroll container. AP inner wrapper divs changed from `height:100%` to `flex:1;min-height:0` (23 occurrences). |
+| **Icons restored (12 pages)** | Stripped Font Awesome glyphs replaced with emoji equivalents on: Backup & Restore, Chat, Tax Forms (sync/print/TTS), NOI Ask, Vault, Voice Center, Search, Settings (API Keys, Provider Keys, GCMemory, Ollama, Web Search, Custom Provider, Channel Tokens). |
 
 ---
 
