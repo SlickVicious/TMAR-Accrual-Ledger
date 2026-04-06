@@ -29915,8 +29915,11 @@ function ev2ImportCache() {
   var input = document.createElement('input');
   input.type = 'file';
   input.accept = '.json';
+  input.style.display = 'none';
+  document.body.appendChild(input);
   input.onchange = function(e) {
     var file = e.target.files[0];
+    document.body.removeChild(input);
     if (!file) return;
     var reader = new FileReader();
     reader.onload = function(evt) {
@@ -38922,8 +38925,11 @@ function importEnvFile() {
   var input = document.createElement('input');
   input.type = 'file';
   input.accept = '.env,.env.production,.env.development,.txt';
+  input.style.display = 'none';
+  document.body.appendChild(input);
   input.onchange = function(e) {
     var file = e.target.files[0];
+    document.body.removeChild(input);
     if (!file) return;
     var reader = new FileReader();
     reader.onload = function(ev) {
@@ -38993,6 +38999,8 @@ function importVaultBundle() {
   var input = document.createElement('input');
   input.type = 'file';
   input.accept = '.enc,.txt';
+  input.style.display = 'none';
+  document.body.appendChild(input);
   input.onchange = async function(e) {
     var file = e.target.files[0];
     if (!file) return;
@@ -39021,6 +39029,7 @@ function importVaultBundle() {
     } catch(err) {
       alert('Decryption failed — wrong passphrase or corrupted file.\n\n' + err.message);
     }
+    document.body.removeChild(input);
   };
   input.click();
 }
