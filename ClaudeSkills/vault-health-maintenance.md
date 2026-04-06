@@ -30,7 +30,7 @@ aliases:
 
 ## Overview
 
-Comprehensive health monitoring, cleanup, and maintenance system for the Legal Document Generator (LDG) Obsidian vault at `/Users/animatedastronaut/Documents/Legal Document Generator`. This vault contains ~2,600 files across legal documents, course content, templates, and development tools.
+Comprehensive health monitoring, cleanup, and maintenance system for the Legal Document Generator (LDG) Obsidian vault at `C:\Users\rhyme\Documents\Legal-Document-Generator`. This vault contains ~2,600 files across legal documents, course content, templates, and development tools.
 
 ## Quick Reference
 
@@ -47,7 +47,7 @@ Comprehensive health monitoring, cleanup, and maintenance system for the Legal D
 ## Vault Architecture
 
 ```
-Root Vault: /Users/animatedastronaut/Documents/Legal Document Generator
+Root Vault: C:\Users\rhyme\Documents\Legal-Document-Generator
 ├── 00 NoteLab/              — Inbox (new files land here)
 ├── 01 Claude/               — Claude agent configuration
 ├── 06 Toolkit/              — Templates, scripts, dev tools, images
@@ -76,7 +76,7 @@ Check for exposed secrets in plugin configs:
 
 ```bash
 grep -r "sk-ant-\|sk-svcacct-\|AIzaSy\|sk-proj-\|ghp_\|gho_" \
-  "/Users/animatedastronaut/Documents/Legal Document Generator/.obsidian/" \
+  "/c/Users/rhyme/Documents/Legal-Document-Generator/.obsidian/" \
   --include="*.json" -l
 ```
 
@@ -87,7 +87,7 @@ grep -r "sk-ant-\|sk-svcacct-\|AIzaSy\|sk-proj-\|ghp_\|gho_" \
 Compare installed vs registered plugins:
 
 ```bash
-VAULT="/Users/animatedastronaut/Documents/Legal Document Generator"
+VAULT="/c/Users/rhyme/Documents/Legal-Document-Generator"
 ls -1 "$VAULT/.obsidian/plugins/" | sort > /tmp/installed_plugins.txt
 cat "$VAULT/.obsidian/community-plugins.json" | python3 -c "
 import json, sys
@@ -104,7 +104,7 @@ comm -13 /tmp/installed_plugins.txt /tmp/registered_plugins.txt
 Templates exist across 4+ locations. Audit all:
 
 ```bash
-VAULT="/Users/animatedastronaut/Documents/Legal Document Generator"
+VAULT="/c/Users/rhyme/Documents/Legal-Document-Generator"
 echo "=== PRIMARY (Templater target) ==="
 find "$VAULT/06 Toolkit/Templates" -name "*.md" -type f | wc -l
 echo "=== Root templates/ ==="

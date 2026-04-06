@@ -105,7 +105,7 @@ The 1099 Filing Chain tab tracks multi-step filing sequences through stages A, B
 ## Workbook Regeneration
 
 ```bash
-cd "/Users/animatedastronaut/Documents/Legal Document Generator/Digital File Cabinet/Financials/Master-Account-Register"
+cd "/c/Users/rhyme/Documents/Legal-Document-Generator/Digital File Cabinet/Financials/Master-Account-Register"
 python3 generate_unified_workbook.py
 ```
 
