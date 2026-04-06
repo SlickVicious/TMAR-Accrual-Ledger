@@ -33560,6 +33560,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <button class="side-btn" onclick="goEonPage(this,'tax')"><i class="fas fa-calculator" style="width:18px"></i> Tax Expert</button>
   <button class="side-btn" onclick="goEonPage(this,'taxforms')" style="border-left:3px solid #22c55e"><i class="fas fa-file-invoice-dollar" style="width:18px;color:#22c55e"></i> Tax Forms (1120/Year)</button>
   <button class="side-btn" onclick="goEonPage(this,'taxestimator')" style="border-left:3px solid #f87171"><i class="fas fa-calculator" style="width:18px;color:#f87171"></i> Tax Estimator</button>
+  <button class="side-btn" onclick="goEonPage(this,'eeon_suite')" style="border-left:3px solid #00e5ff"><i class="fas fa-layer-group" style="width:18px;color:#00e5ff"></i> EEON Full Suite</button>
   <button class="side-btn" onclick="goEonPage(this,'arbitration')"><i class="fas fa-scale-balanced" style="width:18px"></i> Arbitration</button>
 
   <div class="sidebar-title">LEGAL FIRMS</div>
@@ -33645,7 +33646,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_accounting" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <textarea id="ap_in_accounting" placeholder="Ask your accounting question — GAAP, journal entries, financials, payment orders..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #f59e0b;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('accounting');}"></textarea>
-      <button onclick="AP.send('accounting')" style="padding:10px 20px;background:#f59e0b;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+      <label onclick="apAttachFile('accounting')" title="Upload Document" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:var(--text,#e2e8f0);font-size:16px;cursor:pointer;vertical-align:middle;margin-right:6px">📎</label><button onclick="AP.send('accounting')" style="padding:10px 20px;background:#f59e0b;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
     </div>
   </div>
 </div>
@@ -33675,7 +33676,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_doc_creation" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <textarea id="ap_in_doc_creation" placeholder="Describe the legal document you need — motion, complaint, petition, notice, affidavit, declaration..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #f97316;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('doc_creation');}"></textarea>
-      <button onclick="AP.send('doc_creation')" style="padding:10px 20px;background:#f97316;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+      <label onclick="apAttachFile('doc_creation')" title="Upload Document" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:var(--text,#e2e8f0);font-size:16px;cursor:pointer;vertical-align:middle;margin-right:6px">📎</label><button onclick="AP.send('doc_creation')" style="padding:10px 20px;background:#f97316;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
     </div>
   </div>
 </div>
@@ -33705,7 +33706,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_legal_analyst" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <textarea id="ap_in_legal_analyst" placeholder="Ask for deep legal analysis — case law, statutory interpretation, precedent research, legal reasoning..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #0ea5e9;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('legal_analyst');}"></textarea>
-      <button onclick="AP.send('legal_analyst')" style="padding:10px 20px;background:#0ea5e9;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+      <label onclick="apAttachFile('legal_analyst')" title="Upload Document" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:var(--text,#e2e8f0);font-size:16px;cursor:pointer;vertical-align:middle;margin-right:6px">📎</label><button onclick="AP.send('legal_analyst')" style="padding:10px 20px;background:#0ea5e9;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
     </div>
   </div>
 </div>
@@ -33735,7 +33736,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_doc_format" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <textarea id="ap_in_doc_format" placeholder="Submit a document for formatting — proper legal structure, Bluebook citations, court filing format..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #d97706;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('doc_format');}"></textarea>
-      <button onclick="AP.send('doc_format')" style="padding:10px 20px;background:#d97706;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+      <label onclick="apAttachFile('doc_format')" title="Upload Document" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:var(--text,#e2e8f0);font-size:16px;cursor:pointer;vertical-align:middle;margin-right:6px">📎</label><button onclick="AP.send('doc_format')" style="padding:10px 20px;background:#d97706;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
     </div>
   </div>
 </div>
@@ -33765,7 +33766,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_writs_writing" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <textarea id="ap_in_writs_writing" placeholder="Describe your writ — mandamus, habeas corpus, certiorari, prohibition, coram nobis, quo warranto..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #eab308;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('writs_writing');}"></textarea>
-      <button onclick="AP.send('writs_writing')" style="padding:10px 20px;background:#eab308;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+      <label onclick="apAttachFile('writs_writing')" title="Upload Document" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:var(--text,#e2e8f0);font-size:16px;cursor:pointer;vertical-align:middle;margin-right:6px">📎</label><button onclick="AP.send('writs_writing')" style="padding:10px 20px;background:#eab308;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
     </div>
   </div>
 </div>
@@ -33795,7 +33796,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_amicus_brief" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <textarea id="ap_in_amicus_brief" placeholder="Describe the case and your amicus position — issue, interest of amicus, arguments, relief requested..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #ef4444;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('amicus_brief');}"></textarea>
-      <button onclick="AP.send('amicus_brief')" style="padding:10px 20px;background:#ef4444;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+      <label onclick="apAttachFile('amicus_brief')" title="Upload Document" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:var(--text,#e2e8f0);font-size:16px;cursor:pointer;vertical-align:middle;margin-right:6px">📎</label><button onclick="AP.send('amicus_brief')" style="padding:10px 20px;background:#ef4444;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
     </div>
   </div>
 </div>
@@ -33825,7 +33826,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_dt_appeal" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <textarea id="ap_in_dt_appeal" placeholder="Describe your appeal — lower court ruling, grounds for appeal, appellate arguments, relief sought..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #fbbf24;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('dt_appeal');}"></textarea>
-      <button onclick="AP.send('dt_appeal')" style="padding:10px 20px;background:#fbbf24;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+      <label onclick="apAttachFile('dt_appeal')" title="Upload Document" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:var(--text,#e2e8f0);font-size:16px;cursor:pointer;vertical-align:middle;margin-right:6px">📎</label><button onclick="AP.send('dt_appeal')" style="padding:10px 20px;background:#fbbf24;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
     </div>
   </div>
 </div>
@@ -33855,7 +33856,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_presumption_killer" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <textarea id="ap_in_presumption_killer" placeholder="State the presumption to destroy — describe the legal presumption, the contrary evidence, and the rebuttal strategy..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #dc2626;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('presumption_killer');}"></textarea>
-      <button onclick="AP.send('presumption_killer')" style="padding:10px 20px;background:#dc2626;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+      <label onclick="apAttachFile('presumption_killer')" title="Upload Document" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:var(--text,#e2e8f0);font-size:16px;cursor:pointer;vertical-align:middle;margin-right:6px">📎</label><button onclick="AP.send('presumption_killer')" style="padding:10px 20px;background:#dc2626;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
     </div>
   </div>
 </div>
@@ -33885,7 +33886,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_fact_conclusion" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <textarea id="ap_in_fact_conclusion" placeholder="Describe your facts and the legal question — state facts, identify applicable law, request a conclusion of law..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #06b6d4;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('fact_conclusion');}"></textarea>
-      <button onclick="AP.send('fact_conclusion')" style="padding:10px 20px;background:#06b6d4;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+      <label onclick="apAttachFile('fact_conclusion')" title="Upload Document" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:var(--text,#e2e8f0);font-size:16px;cursor:pointer;vertical-align:middle;margin-right:6px">📎</label><button onclick="AP.send('fact_conclusion')" style="padding:10px 20px;background:#06b6d4;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
     </div>
   </div>
 </div>
@@ -33915,7 +33916,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_jurisdictional" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <textarea id="ap_in_jurisdictional" placeholder="Describe the court and jurisdictional issue — subject matter jurisdiction, personal jurisdiction, standing, venue..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #10b981;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('jurisdictional');}"></textarea>
-      <button onclick="AP.send('jurisdictional')" style="padding:10px 20px;background:#10b981;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+      <label onclick="apAttachFile('jurisdictional')" title="Upload Document" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:var(--text,#e2e8f0);font-size:16px;cursor:pointer;vertical-align:middle;margin-right:6px">📎</label><button onclick="AP.send('jurisdictional')" style="padding:10px 20px;background:#10b981;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
     </div>
   </div>
 </div>
@@ -33945,7 +33946,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_const_sovereignty" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <textarea id="ap_in_const_sovereignty" placeholder="State your constitutional sovereignty issue — rights violations, governmental overreach, constitutional limitations, sovereignty arguments..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #ec4899;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('const_sovereignty');}"></textarea>
-      <button onclick="AP.send('const_sovereignty')" style="padding:10px 20px;background:#ec4899;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+      <label onclick="apAttachFile('const_sovereignty')" title="Upload Document" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:var(--text,#e2e8f0);font-size:16px;cursor:pointer;vertical-align:middle;margin-right:6px">📎</label><button onclick="AP.send('const_sovereignty')" style="padding:10px 20px;background:#ec4899;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
     </div>
   </div>
 </div>
@@ -33975,7 +33976,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_brainstorm" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <textarea id="ap_in_brainstorm" placeholder="Describe your legal situation for strategic brainstorming — facts, opponents, objectives, constraints..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #f43f5e;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('brainstorm');}"></textarea>
-      <button onclick="AP.send('brainstorm')" style="padding:10px 20px;background:#f43f5e;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+      <label onclick="apAttachFile('brainstorm')" title="Upload Document" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:var(--text,#e2e8f0);font-size:16px;cursor:pointer;vertical-align:middle;margin-right:6px">📎</label><button onclick="AP.send('brainstorm')" style="padding:10px 20px;background:#f43f5e;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
     </div>
   </div>
 </div>
@@ -34005,7 +34006,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_trial_prep" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <textarea id="ap_in_trial_prep" placeholder="Describe your trial — charges/claims, witnesses, evidence, motions in limine, voir dire strategy, opening/closing..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #e11d48;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('trial_prep');}"></textarea>
-      <button onclick="AP.send('trial_prep')" style="padding:10px 20px;background:#e11d48;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+      <label onclick="apAttachFile('trial_prep')" title="Upload Document" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:var(--text,#e2e8f0);font-size:16px;cursor:pointer;vertical-align:middle;margin-right:6px">📎</label><button onclick="AP.send('trial_prep')" style="padding:10px 20px;background:#e11d48;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
     </div>
   </div>
 </div>
@@ -34035,7 +34036,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_biblical" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <textarea id="ap_in_biblical" placeholder="Ask your biblical or ecclesiastical question — scripture citations, biblical law, covenant principles, theological arguments..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #7c3aed;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('biblical');}"></textarea>
-      <button onclick="AP.send('biblical')" style="padding:10px 20px;background:#7c3aed;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+      <label onclick="apAttachFile('biblical')" title="Upload Document" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:var(--text,#e2e8f0);font-size:16px;cursor:pointer;vertical-align:middle;margin-right:6px">📎</label><button onclick="AP.send('biblical')" style="padding:10px 20px;background:#7c3aed;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
     </div>
   </div>
 </div>
@@ -34091,7 +34092,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_arbitration" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <textarea id="ap_in_arbitration" placeholder="Describe your arbitration matter — Federal Arbitration Act 1925, contract review, award issuance..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #14b8a6;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('arbitration');}"></textarea>
-      <button onclick="AP.send('arbitration')" style="padding:10px 20px;background:#14b8a6;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+      <label onclick="apAttachFile('arbitration')" title="Upload Document" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:var(--text,#e2e8f0);font-size:16px;cursor:pointer;vertical-align:middle;margin-right:6px">📎</label><button onclick="AP.send('arbitration')" style="padding:10px 20px;background:#14b8a6;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
     </div>
   </div>
 </div>
@@ -34416,7 +34417,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_corporation" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <textarea id="ap_in_corporation" placeholder="Ask your corporate or business entity question — formation, governance, SPV, religious corp, tax elections..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #6366f1;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('corporation');}"></textarea>
-      <button onclick="AP.send('corporation')" style="padding:10px 20px;background:#6366f1;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+      <label onclick="apAttachFile('corporation')" title="Upload Document" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:var(--text,#e2e8f0);font-size:16px;cursor:pointer;vertical-align:middle;margin-right:6px">📎</label><button onclick="AP.send('corporation')" style="padding:10px 20px;background:#6366f1;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
     </div>
   </div>
 </div>
@@ -34584,7 +34585,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_legal" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <textarea id="ap_in_legal" placeholder="Ask your legal question — full conversation remembered..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #ffc107;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('legal');}"></textarea>
-      <button onclick="AP.send('legal')" style="padding:10px 20px;background:#ffc107;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+      <label onclick="apAttachFile('legal')" title="Upload Document" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:var(--text,#e2e8f0);font-size:16px;cursor:pointer;vertical-align:middle;margin-right:6px">📎</label><button onclick="AP.send('legal')" style="padding:10px 20px;background:#ffc107;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
     </div>
   </div>
 </div>
@@ -34706,7 +34707,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_research" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <textarea id="ap_in_research" placeholder="Enter research topic — deep analysis with source verification and cross-referencing..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #8b5cf6;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('research');}"></textarea>
-      <button onclick="AP.send('research')" style="padding:10px 20px;background:#8b5cf6;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+      <label onclick="apAttachFile('research')" title="Upload Document" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:var(--text,#e2e8f0);font-size:16px;cursor:pointer;vertical-align:middle;margin-right:6px">📎</label><button onclick="AP.send('research')" style="padding:10px 20px;background:#8b5cf6;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
     </div>
   </div>
 </div>
@@ -34827,11 +34828,61 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_tax" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <textarea id="ap_in_tax" placeholder="Ask your tax or financial question — federal tax, NOLs, IRS defense, Revenue Acts, Statutes at Large..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #22c55e;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('tax');}"></textarea>
-      <button onclick="AP.send('tax')" style="padding:10px 20px;background:#22c55e;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+      <label onclick="apAttachFile('tax')" title="Upload Document" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:var(--text,#e2e8f0);font-size:16px;cursor:pointer;vertical-align:middle;margin-right:6px">📎</label><button onclick="AP.send('tax')" style="padding:10px 20px;background:#22c55e;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
     </div>
   </div>
 </div>
 <div id="taxResult" style="display:none"></div>
+</div>
+
+
+  <!-- EON: EEON FULL SUITE -->
+  <div class="page" id="page-eeon_suite">
+<div class="card" style="border-color:#00e5ff;margin-bottom:16px">
+  <div class="card-head" style="color:#00e5ff">&#x26A1; EEON Full Suite — Accrual Ledger Runtime</div>
+  <div class="card-body">
+    <p style="color:var(--text2);font-size:13px;margin-bottom:14px">The EEON Full Suite is the TMAR Accrual Ledger — the complete financial accounting and legal document management system running right now in this browser. Use the tabs below to access the full suite, or click Open Full Screen to launch it in a dedicated tab.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+      <button class="btn" style="background:#00e5ff;color:#000;font-weight:700" onclick="document.getElementById('eonSidebar').style.left='-280px';document.getElementById('eonSidebar').classList.remove('open');window.scrollTo(0,0)">&#x2190; Return to Ledger</button>
+      <button class="btn" style="border:1px solid #00e5ff;color:#00e5ff" onclick="window.open(window.location.href,'_blank')">&#x1F5D4; Open Full Screen</button>
+    </div>
+    <div class="stat-grid" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr))">
+      <div class="stat"><div class="stat-label">System</div><div class="stat-val" style="font-size:13px">TMAR v3.0</div></div>
+      <div class="stat"><div class="stat-label">Protocol</div><div class="stat-val" style="font-size:13px">SYPHER v7.1</div></div>
+      <div class="stat"><div class="stat-label">Security</div><div class="stat-val" style="color:var(--ok);font-size:13px">HARD_LOCK</div></div>
+      <div class="stat"><div class="stat-label">Key Vault</div><div class="stat-val" style="color:var(--ok);font-size:13px">AES-256</div></div>
+    </div>
+  </div>
+</div>
+<div class="card" style="border-color:var(--border)">
+  <div class="card-head">&#x1F4CA; Suite Modules</div>
+  <div class="card-body" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">
+    <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;cursor:pointer;transition:all .2s" onclick="document.getElementById('eonSidebar').style.left='-280px';document.getElementById('eonSidebar').classList.remove('open');document.querySelector('[data-tab=\"accrual\"]')&&document.querySelector('[data-tab=\"accrual\"]').click()">
+      <div style="font-weight:700;font-size:13px;color:#00e5ff;margin-bottom:4px">&#x1F4B0; Accrual Ledger</div>
+      <div style="font-size:11px;color:var(--text2)">Journal entries, GAAP accounting, accrual tracking</div>
+    </div>
+    <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;cursor:pointer;transition:all .2s" onclick="document.getElementById('eonSidebar').style.left='-280px';document.getElementById('eonSidebar').classList.remove('open')">
+      <div style="font-weight:700;font-size:13px;color:#22c55e;margin-bottom:4px">&#x1F4CB; Tax Forms</div>
+      <div style="font-size:11px;color:var(--text2)">1120, 1040, Schedule D, form generation</div>
+    </div>
+    <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;cursor:pointer;transition:all .2s" onclick="goEonPage(null,'taxforms')">
+      <div style="font-weight:700;font-size:13px;color:#ffc107;margin-bottom:4px">&#x1F4C5; Tax Year (1120)</div>
+      <div style="font-size:11px;color:var(--text2)">Annual corporate tax preparation and filing</div>
+    </div>
+    <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;cursor:pointer;transition:all .2s" onclick="goEonPage(null,'taxestimator')">
+      <div style="font-weight:700;font-size:13px;color:#f87171;margin-bottom:4px">&#x1F9EE; Tax Estimator</div>
+      <div style="font-size:11px;color:var(--text2)">Estimate tax liability and optimize strategy</div>
+    </div>
+    <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;cursor:pointer;transition:all .2s" onclick="goEonPage(null,'openclaw')">
+      <div style="font-weight:700;font-size:13px;color:#e8a020;margin-bottom:4px">&#x2696;&#xFE0F; OpenClaw</div>
+      <div style="font-size:11px;color:var(--text2)">Legal & research API directory (76 APIs)</div>
+    </div>
+    <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;cursor:pointer;transition:all .2s" onclick="goEonPage(null,'aihub')">
+      <div style="font-weight:700;font-size:13px;color:var(--accent);margin-bottom:4px">&#x1F916; AI Hub</div>
+      <div style="font-size:11px;color:var(--text2)">NOI AI services, open source tools directory</div>
+    </div>
+  </div>
+</div>
 </div>
 
 
@@ -37929,7 +37980,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_trust" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <textarea id="ap_in_trust" placeholder="Ask your trust question — C.L.O.C.E.S.T., Mega Trust Constitution, trust res, spendthrift provisions..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #a855f7;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('trust');}"></textarea>
-      <button onclick="AP.send('trust')" style="padding:10px 20px;background:#a855f7;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+      <label onclick="apAttachFile('trust')" title="Upload Document" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:var(--text,#e2e8f0);font-size:16px;cursor:pointer;vertical-align:middle;margin-right:6px">📎</label><button onclick="AP.send('trust')" style="padding:10px 20px;background:#a855f7;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
     </div>
   </div>
 </div>
@@ -38021,7 +38072,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_code" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <textarea id="ap_in_code" placeholder="Describe code to write — HTML/CSS/JS, Python, APIs, full-stack apps, debugging, architecture..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #3b82f6;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('code');}"></textarea>
-      <button onclick="AP.send('code')" style="padding:10px 20px;background:#3b82f6;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+      <label onclick="apAttachFile('code')" title="Upload Document" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:var(--text,#e2e8f0);font-size:16px;cursor:pointer;vertical-align:middle;margin-right:6px">📎</label><button onclick="AP.send('code')" style="padding:10px 20px;background:#3b82f6;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
     </div>
   </div>
 </div>
@@ -38050,7 +38101,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_creative" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <textarea id="ap_in_creative" placeholder="Describe your creative project — stories, essays, scripts, blog posts, poetry, marketing copy..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #ec4899;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('creative');}"></textarea>
-      <button onclick="AP.send('creative')" style="padding:10px 20px;background:#ec4899;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+      <label onclick="apAttachFile('creative')" title="Upload Document" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:var(--text,#e2e8f0);font-size:16px;cursor:pointer;vertical-align:middle;margin-right:6px">📎</label><button onclick="AP.send('creative')" style="padding:10px 20px;background:#ec4899;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
     </div>
   </div>
 </div>
@@ -38079,7 +38130,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_html_arch" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <textarea id="ap_in_html_arch" placeholder="Describe the HTML/CSS layout, component, or web page to design — structure, responsive design, animations, dark mode..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #f97316;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('html_arch');}"></textarea>
-      <button onclick="AP.send('html_arch')" style="padding:10px 20px;background:#f97316;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+      <label onclick="apAttachFile('html_arch')" title="Upload Document" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:var(--text,#e2e8f0);font-size:16px;cursor:pointer;vertical-align:middle;margin-right:6px">📎</label><button onclick="AP.send('html_arch')" style="padding:10px 20px;background:#f97316;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
     </div>
   </div>
 </div>
@@ -38108,7 +38159,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_general" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <textarea id="ap_in_general" placeholder="Ask anything — questions, calculations, translations, summaries, research, general help..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #06b6d4;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('general');}"></textarea>
-      <button onclick="AP.send('general')" style="padding:10px 20px;background:#06b6d4;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+      <label onclick="apAttachFile('general')" title="Upload Document" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:var(--text,#e2e8f0);font-size:16px;cursor:pointer;vertical-align:middle;margin-right:6px">📎</label><button onclick="AP.send('general')" style="padding:10px 20px;background:#06b6d4;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
     </div>
   </div>
 </div>
@@ -41557,6 +41608,36 @@ function noiServiceToChat(serviceName) {
     input.value = 'Tell me about ' + serviceName + ' and how I can use it effectively.';
     eonChatSend();
   }
+}
+// ─────────────────────────────────────────────────────────────────
+
+// ── AP File Attachment ────────────────────────────────────────────
+function apAttachFile(agentId) {
+  var input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.txt,.pdf,.doc,.docx,.csv,.json,.html,.md,.rtf,.xml,.log';
+  input.style.display = 'none';
+  document.body.appendChild(input);
+  input.onchange = function(e) {
+    var file = e.target.files[0];
+    document.body.removeChild(input);
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      var content = ev.target.result;
+      var ta = document.getElementById('ap_in_' + agentId);
+      if (!ta) return;
+      var prefix = '[Attached: ' + file.name + ']\n' + content.slice(0, 8000) + '\n\n';
+      ta.value = prefix + (ta.value || '');
+      ta.focus();
+    };
+    if (file.type && file.type.startsWith('text')) {
+      reader.readAsText(file);
+    } else {
+      reader.readAsText(file); // best effort for doc/pdf
+    }
+  };
+  input.click();
 }
 // ─────────────────────────────────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════
