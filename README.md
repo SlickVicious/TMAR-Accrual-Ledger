@@ -1,8 +1,8 @@
 # TMAR - Trust Master Account Register
 
 **Complete Interactive Web Application + Google Sheets Integration**
-**Version:** 3.4
-**Last Updated:** April 4, 2026
+**Version:** 3.6
+**Last Updated:** April 6, 2026
 **Status:** ✅ Production Ready — 246/246 Functions Verified | 211/211 GUI Elements Verified
 
 ---
@@ -142,6 +142,20 @@ npx http-server -p 8080 -o
 2. Select an agent (Legal, Tax, Accounting, etc.)
 3. Type your question
 4. Click **⚡ Analyze**
+
+---
+
+## 🆕 What's New in v3.6
+
+| Feature | Details |
+|---|---|
+| **Analytics stat cards** | Added HARD_LOCK (v3.0) and Key Vault (AES-256) stats to Analytics page; SYPHER Active now shows ✓ (was blank). |
+| **Corporation feature section** | OG-style description card with 5 feature badges (Corporate Formation, Governance, SPV, Tax Compliance, Religious Corp) added above AP conversation interface. |
+| **AI Hub** | New first entry in TOOLS sidebar. Full page includes NOI Quick Launch (12 AI services), NOI Developer Tools, Free LLM API Resources, and Open Source AI curated directory. Adds `goPage`, `aiHubAskAgent()`, `noiServiceToChat()` JS functions. |
+| **AP file upload (all 24 agents)** | 📎 button added to every AP conversation page. Uses DOM-attached file input pattern; reads content and prepends to textarea. Covers all LEGAL, LEGAL FIRMS, SPECIALISTS, and TOOLS agent pages. |
+| **EEON Full Suite** | New sidebar entry + dedicated page. Describes TMAR as the full financial suite; includes Return to Ledger, Open Full Screen, and module quick-launch cards (Tax Forms, OpenClaw, AI Hub, Tax Estimator). |
+| **Dream Team button icons** | Restored blank send (➤), upload (📎), and mic (🎤) icons that had been stripped. |
+| **Page overlap fix** | `goEonPage()` now force-sets `display:none` on all pages before switching, preventing inline `style` overrides from ghost-rendering deactivated pages. Added `#page-corporation.active { display:flex }` CSS rule. |
 
 ---
 
