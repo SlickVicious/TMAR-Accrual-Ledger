@@ -378,8 +378,10 @@
 .page.active {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: calc(100vh - 72px);
+  max-height: calc(100vh - 72px);
   overflow-y: auto;
+  box-sizing: border-box;
   animation: fadeIn .3s;
 }
 #page-corporation.active {
