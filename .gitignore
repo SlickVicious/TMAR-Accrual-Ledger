@@ -30,3 +30,11 @@ agent_scan_pages_preview.txt
 
 # Debug logs
 firebase-debug.log
+
+# Audit/test session artifacts
+screenshot-*.png
+tt-screenshots/
+tt-page-audit.cjs
+tt-test-output.md
+tt-test-runner.py
+tt-test.html
