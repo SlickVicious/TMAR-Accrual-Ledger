@@ -1,0 +1,422 @@
+<script>
+/* ============================================================
+   EON PAGE FIXES — Override stub functions with real implementations
+   Inserted last so these definitions win over all duplicates
+   ============================================================ */
+
+// ── VAULT ────────────────────────────────────────────────────
+
+var _vaultKey = null;  // CryptoKey after unlock
+
+async function _vaultDeriveKey(password, salt) {
+  var enc = new TextEncoder();
+  var mat = await crypto.subtle.importKey(
+    'raw', enc.encode(password), {name:'PBKDF2'}, false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    {name:'PBKDF2', salt:salt, iterations:600000, hash:'SHA-256'},
+    mat, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
+}
+async function _vaultEncrypt(key, obj) {
+  var iv = crypto.getRandomValues(new Uint8Array(12));
+  var enc = new TextEncoder();
+  var ct = await crypto.subtle.encrypt({name:'AES-GCM', iv:iv}, key, enc.encode(JSON.stringify(obj)));
+  return {iv: Array.from(iv), ct: Array.from(new Uint8Array(ct))};
+}
+async function _vaultDecrypt(key, blob) {
+  var iv = new Uint8Array(blob.iv);
+  var ct = new Uint8Array(blob.ct);
+  var pt = await crypto.subtle.decrypt({name:'AES-GCM', iv:iv}, key, ct);
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+function _vaultGetSalt() {
+  var s = localStorage.getItem('vault_salt');
+  if (s) return new Uint8Array(JSON.parse(s));
+  var fresh = crypto.getRandomValues(new Uint8Array(16));
+  localStorage.setItem('vault_salt', JSON.stringify(Array.from(fresh)));
+  return fresh;
+}
+async function _vaultLoad() {
+  var raw = localStorage.getItem('vault_entries');
+  if (!raw || !_vaultKey) return [];
+  try { return await _vaultDecrypt(_vaultKey, JSON.parse(raw)); } catch(e) { return []; }
+}
+async function _vaultSave(entries) {
+  if (!_vaultKey) return;
+  var blob = await _vaultEncrypt(_vaultKey, entries);
+  localStorage.setItem('vault_entries', JSON.stringify(blob));
+}
+
+async function unlockVault() {
+  var pw = document.getElementById('vaultMaster');
+  if (!pw || !pw.value.trim()) { alert('Enter your master password.'); return; }
+  try {
+    var salt = _vaultGetSalt();
+    _vaultKey = await _vaultDeriveKey(pw.value, salt);
+    // Test decryption
+    var stored = localStorage.getItem('vault_entries');
+    if (stored) { await _vaultDecrypt(_vaultKey, JSON.parse(stored)); }
+    // Success — show unlocked UI
+    var locked = document.getElementById('vaultLocked');
+    var unlocked = document.getElementById('vaultUnlocked');
+    if (locked) locked.style.display = 'none';
+    if (unlocked) unlocked.style.display = 'block';
+    renderVault();
+  } catch(e) {
+    alert('❌ Wrong password or corrupted vault.');
+    _vaultKey = null;
+  }
+}
+
+async function addVaultEntry() {
+  if (!_vaultKey) { alert('Unlock vault first.'); return; }
+  var site = (document.getElementById('vSite')||{}).value||'';
+  var user = (document.getElementById('vUser')||{}).value||'';
+  var pass = (document.getElementById('vPass')||{}).value||'';
+  if (!site || !pass) { alert('Site and password are required.'); return; }
+  var entries = await _vaultLoad();
+  entries.push({id: Date.now(), site:site, user:user, pass:pass, created: new Date().toLocaleDateString()});
+  await _vaultSave(entries);
+  ['vSite','vUser','vPass'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  renderVault();
+}
+
+async function renderVault() {
+  var tbl = document.getElementById('vaultTable');
+  if (!tbl || !_vaultKey) return;
+  var q = ((document.getElementById('vSearch')||{}).value||'').toLowerCase();
+  var entries = await _vaultLoad();
+  if (!entries.length) { tbl.innerHTML = '<p style="color:var(--text2);padding:10px 0">No entries yet.</p>'; return; }
+  var filtered = q ? entries.filter(function(e){ return (e.site+e.user).toLowerCase().includes(q); }) : entries;
+  tbl.innerHTML = filtered.map(function(e) {
+    return '<div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:center;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.04));border:1px solid var(--border,rgba(255,255,255,.1));border-radius:6px;margin-bottom:6px;font-size:12px">' +
+      '<span style="font-weight:700;color:var(--text)">' + e.site + '</span>' +
+      '<span style="color:var(--text2)">' + (e.user||'—') + '</span>' +
+      '<span style="font-family:monospace;color:var(--text2)">••••••••</span>' +
+      '<div style="display:flex;gap:4px">' +
+        '<button onclick="navigator.clipboard.writeText(\'' + e.pass.replace(/'/g,"\\'") + '\').then(function(){alert(\'✅ Copied\');})" style="padding:3px 7px;font-size:11px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;color:var(--text);cursor:pointer">📋</button>' +
+        '<button onclick="vaultDelete(' + e.id + ')" style="padding:3px 7px;font-size:11px;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);border-radius:4px;color:#ef4444;cursor:pointer">🗑️</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+async function vaultDelete(id) {
+  if (!_vaultKey) return;
+  var entries = await _vaultLoad();
+  entries = entries.filter(function(e){ return e.id !== id; });
+  await _vaultSave(entries);
+  renderVault();
+}
+
+function genPW() {
+  var chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+[]';
+  var pw = Array.from(crypto.getRandomValues(new Uint8Array(20))).map(function(b){ return chars[b % chars.length]; }).join('');
+  var el = document.getElementById('vPass');
+  if (el) { el.type = 'text'; el.value = pw; setTimeout(function(){ el.type = 'password'; }, 2000); }
+  navigator.clipboard.writeText(pw).catch(function(){});
+}
+
+// ── CALENDAR ─────────────────────────────────────────────────
+
+function addCalEvent() {
+  var title = (document.getElementById('calTitle')||{}).value||'';
+  if (!title.trim()) { alert('Enter an event title.'); return; }
+  var date  = (document.getElementById('calDate')||{}).value||'';
+  var time  = (document.getElementById('calTime')||{}).value||'';
+  var type  = (document.getElementById('calType')||{}).value||'event';
+  var notes = (document.getElementById('calNotes')||{}).value||'';
+  var events = JSON.parse(localStorage.getItem('cal_events')||'[]');
+  events.push({id:Date.now(), title:title, date:date, time:time, type:type, notes:notes});
+  events.sort(function(a,b){ return (a.date+a.time).localeCompare(b.date+b.time); });
+  localStorage.setItem('cal_events', JSON.stringify(events));
+  ['calTitle','calDate','calTime','calNotes'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  renderCalendarList();
+}
+
+function renderCalendarList() {
+  var list = document.getElementById('calList');
+  if (!list) return;
+  var events = JSON.parse(localStorage.getItem('cal_events')||'[]');
+  if (!events.length) { list.innerHTML = '<p style="color:var(--text2)">No events.</p>'; return; }
+  var typeColors = {event:'#3b82f6',reminder:'#f59e0b',deadline:'#ef4444',filing:'#22c55e',court:'#a855f7'};
+  list.innerHTML = events.map(function(ev) {
+    var color = typeColors[ev.type]||'#94a3b8';
+    return '<div style="padding:8px 10px;border-left:3px solid '+color+';background:rgba(255,255,255,.03);border-radius:0 6px 6px 0;margin-bottom:8px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center">' +
+        '<strong style="font-size:13px;color:var(--text)">' + ev.title + '</strong>' +
+        '<button onclick="calDelete('+ev.id+')" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:14px">✕</button>' +
+      '</div>' +
+      (ev.date ? '<div style="font-size:11px;color:var(--text2);margin-top:2px">📅 '+ev.date+(ev.time?' at '+ev.time:'')+'</div>' : '') +
+      (ev.notes ? '<div style="font-size:11px;color:var(--text2);margin-top:4px">'+ev.notes+'</div>' : '') +
+    '</div>';
+  }).join('');
+}
+
+function calDelete(id) {
+  var events = JSON.parse(localStorage.getItem('cal_events')||'[]');
+  localStorage.setItem('cal_events', JSON.stringify(events.filter(function(e){ return e.id !== id; })));
+  renderCalendarList();
+}
+
+// ── HISTORY ───────────────────────────────────────────────────
+
+function renderHistory() {
+  var list = document.getElementById('historyList');
+  if (!list) return;
+  var q = ((document.getElementById('histSearch')||{}).value||'').toLowerCase();
+  var agents = ['legal','trust','tax','arbitration','corporation','research','code','creative',
+                'html_arch','general','accounting','dream_team','doc_creation','legal_analyst',
+                'doc_format','writs_writing','amicus_brief','dt_appeal','presumption_killer',
+                'fact_conclusion','jurisdictional','const_sovereignty','brainstorm','trial_prep','biblical'];
+  var all = [];
+  agents.forEach(function(id) {
+    try {
+      var raw = localStorage.getItem('ap_conv_' + id);
+      if (!raw) return;
+      var store = JSON.parse(raw);
+      Object.keys(store.sessions||{}).forEach(function(sk) {
+        var sess = store.sessions[sk];
+        var msgs = sess.messages || [];
+        var preview = '';
+        for (var i = 0; i < msgs.length; i++) {
+          if (msgs[i].role === 'user') { preview = msgs[i].content.substring(0,120); break; }
+        }
+        all.push({agent:id, id:sk, title:sess.title||sk, preview:preview, ts:sess.created||0, count:msgs.length});
+      });
+    } catch(e) {}
+  });
+  // Also include dream team sessions
+  try {
+    var dt = JSON.parse(localStorage.getItem('dt_sessions')||'{}');
+    Object.keys(dt).forEach(function(sk) {
+      var sess = dt[sk];
+      all.push({agent:'dream_team_dt', id:sk, title:sess.title||'Dream Team', preview:'', ts:sess.created||0, count:(sess.messages||[]).length});
+    });
+  } catch(e) {}
+  all.sort(function(a,b){ return b.ts - a.ts; });
+  if (q) all = all.filter(function(s){ return (s.title+s.preview+s.agent).toLowerCase().includes(q); });
+  if (!all.length) { list.innerHTML = '<p style="color:var(--text2)">No history yet.</p>'; return; }
+  list.innerHTML = all.map(function(s) {
+    return '<div style="padding:10px 12px;border:1px solid var(--border,rgba(255,255,255,.1));border-radius:8px;margin-bottom:8px;cursor:pointer;transition:background .15s" onmouseover="this.style.background=\'rgba(255,255,255,.05)\'" onmouseout="this.style.background=\'transparent\'" onclick="goEonPage(null,\''+s.agent+'\')">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">' +
+        '<strong style="font-size:13px;color:var(--text)">' + (s.title||s.id).substring(0,60) + '</strong>' +
+        '<span style="font-size:10px;color:var(--text2)">'+s.agent.replace(/_/g,' ')+'</span>' +
+      '</div>' +
+      (s.preview ? '<div style="font-size:12px;color:var(--text2);overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+s.preview+'</div>' : '') +
+      '<div style="font-size:10px;color:var(--text2);margin-top:4px">'+s.count+' messages'+(s.ts?' · '+ new Date(s.ts).toLocaleDateString():'')+'</div>' +
+    '</div>';
+  }).join('');
+}
+
+function exportAllHistory() {
+  var agents = ['legal','trust','tax','arbitration','corporation','research','code','creative',
+                'html_arch','general','accounting','dream_team','doc_creation','legal_analyst',
+                'doc_format','writs_writing','amicus_brief','dt_appeal','presumption_killer',
+                'fact_conclusion','jurisdictional','const_sovereignty','brainstorm','trial_prep','biblical'];
+  var dump = {};
+  agents.forEach(function(id) {
+    var raw = localStorage.getItem('ap_conv_' + id);
+    if (raw) try { dump[id] = JSON.parse(raw); } catch(e) {}
+  });
+  var blob = new Blob([JSON.stringify(dump, null, 2)], {type:'application/json'});
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'tmar-history-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+}
+
+// ── DOCUMENTS ─────────────────────────────────────────────────
+
+var _docs = JSON.parse(localStorage.getItem('eon_docs') || '[]');
+
+function uploadDocs(input) {
+  if (!input || !input.files || !input.files.length) return;
+  var docList = document.getElementById('docList') || document.querySelector('#page-docs .card-body');
+  Array.from(input.files).forEach(function(file) {
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      var doc = {id: Date.now() + Math.random(), name: file.name, size: file.size,
+                 type: file.type, content: ev.target.result, added: new Date().toLocaleDateString()};
+      _docs.push(doc);
+      try { localStorage.setItem('eon_docs', JSON.stringify(_docs.map(function(d){ return {id:d.id,name:d.name,size:d.size,type:d.type,added:d.added}; }))); } catch(e) {}
+      renderDocList();
+    };
+    if (file.type.startsWith('text') || file.name.match(/\.(json|csv|html|md|xml|log)$/i)) {
+      reader.readAsText(file);
+    } else {
+      reader.readAsDataURL(file);
+    }
+  });
+  input.value = '';
+}
+
+function renderDocList() {
+  var wrap = document.querySelector('#page-docs .card-body');
+  if (!wrap) return;
+  var docDiv = document.getElementById('docListDiv');
+  if (!docDiv) {
+    docDiv = document.createElement('div');
+    docDiv.id = 'docListDiv';
+    wrap.appendChild(docDiv);
+  }
+  if (!_docs.length) { docDiv.innerHTML = '<p style="color:var(--text2);font-size:13px">No documents uploaded yet.</p>'; return; }
+  docDiv.innerHTML = _docs.map(function(d) {
+    var kb = d.size ? (d.size/1024).toFixed(1)+'KB' : '';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg-tertiary,rgba(255,255,255,.04));border:1px solid var(--border);border-radius:6px;margin-bottom:6px">' +
+      '<div>' +
+        '<div style="font-size:13px;font-weight:600;color:var(--text)">📄 ' + d.name + '</div>' +
+        '<div style="font-size:11px;color:var(--text2)">' + kb + (d.added ? ' · Added '+d.added : '') + '</div>' +
+      '</div>' +
+      '<button onclick="docDelete('+d.id+')" style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);border-radius:4px;color:#ef4444;font-size:11px;padding:3px 8px;cursor:pointer">Remove</button>' +
+    '</div>';
+  }).join('');
+}
+
+function docDelete(id) {
+  _docs = _docs.filter(function(d){ return d.id !== id; });
+  try { localStorage.setItem('eon_docs', JSON.stringify(_docs)); } catch(e) {}
+  renderDocList();
+}
+
+// ── CHAT EXPORT / SHARE ───────────────────────────────────────
+
+function exportChat() {
+  var msgs = document.getElementById('chatMsgs');
+  if (!msgs || !msgs.children.length) { alert('No messages to export.'); return; }
+  var text = Array.from(msgs.children).map(function(el) {
+    var role = el.classList.contains('user-msg') ? 'YOU' : 'AGENT';
+    return role + ': ' + (el.innerText||'');
+  }).join('\n\n');
+  var blob = new Blob([text], {type:'text/plain'});
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'chat-export-' + new Date().toISOString().slice(0,10) + '.txt';
+  a.click();
+}
+
+function shareChat() {
+  var url = window.location.href.split('#')[0] + '#chat';
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(function(){ alert('✅ Chat link copied to clipboard'); });
+  } else { prompt('Copy this link:', url); }
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────
+
+function updateDashboard() {
+  var agents = ['legal','trust','tax','arbitration','corporation','research','code','creative',
+                'html_arch','general','accounting','dream_team'];
+  var totalMsgs = 0;
+  agents.forEach(function(id) {
+    try {
+      var raw = localStorage.getItem('ap_conv_' + id);
+      if (!raw) return;
+      var store = JSON.parse(raw);
+      Object.values(store.sessions||{}).forEach(function(s) {
+        totalMsgs += (s.messages||[]).filter(function(m){ return m.role === 'user'; }).length;
+      });
+    } catch(e) {}
+  });
+  var el = document.getElementById('sMsgs');
+  if (el) el.textContent = totalMsgs;
+  var prov = localStorage.getItem('eeon_provider') || localStorage.getItem('llm_provider') || '—';
+  var provEl = document.getElementById('sProvider');
+  if (provEl) provEl.textContent = prov;
+  // Count set API keys
+  var keyCount = ['eeon_anthropic_key','eeon_openai_key','eeon_deepseek_key','eeon_ollama_url']
+    .filter(function(k){ return !!localStorage.getItem(k); }).length;
+  var keysEl = document.getElementById('sKeys');
+  if (keysEl) keysEl.textContent = keyCount;
+  // LLM status
+  var statusEl = document.getElementById('llmStatus');
+  if (statusEl) {
+    if (keyCount > 0) {
+      statusEl.innerHTML = '✅ Provider <b>' + prov + '</b> configured. ' + keyCount + ' key(s) set.';
+    } else {
+      statusEl.innerHTML = 'No API keys configured. Go to <b>API Keys</b> to get started.';
+    }
+  }
+}
+
+// ── CREATE AGENT ──────────────────────────────────────────────
+
+function createAgent() {
+  var id    = (document.getElementById('caId')||{}).value||'';
+  var name  = (document.getElementById('caName')||{}).value||'';
+  var role  = (document.getElementById('caRole')||{}).value||'';
+  var desc  = (document.getElementById('caDesc')||{}).value||'';
+  var kw    = (document.getElementById('caKeywords')||{}).value||'';
+  var caps  = (document.getElementById('caCaps')||{}).value||'';
+  var prompt= (document.getElementById('caPrompt')||{}).value||'';
+  var status = document.getElementById('caStatus');
+  if (!id.trim() || !name.trim()) {
+    if (status) status.innerHTML = '<span style="color:#ef4444">Agent ID and Name are required.</span>';
+    return;
+  }
+  if (!/^[a-z0-9_]+$/.test(id)) {
+    if (status) status.innerHTML = '<span style="color:#ef4444">ID must be lowercase letters, numbers, underscores only.</span>';
+    return;
+  }
+  var registry = JSON.parse(localStorage.getItem('custom_agents') || '[]');
+  if (registry.find(function(a){ return a.id === id; })) {
+    if (status) status.innerHTML = '<span style="color:#ef4444">Agent ID already exists.</span>';
+    return;
+  }
+  registry.push({id:id, name:name, role:role, desc:desc, keywords:kw.split(',').map(function(s){return s.trim();}),
+                 capabilities:caps.split(',').map(function(s){return s.trim();}), systemPrompt:prompt, created:Date.now()});
+  localStorage.setItem('custom_agents', JSON.stringify(registry));
+  if (status) status.innerHTML = '<span style="color:#22c55e">✅ Agent "'+name+'" created!</span>';
+  ['caId','caName','caRole','caDesc','caKeywords','caCaps','caPrompt'].forEach(function(elId){
+    var el = document.getElementById(elId); if (el) el.value = '';
+  });
+  // Refresh agents grid if visible
+  if (typeof renderAgents === 'function') renderAgents();
+}
+
+// ── DREAM TEAM FILE UPLOAD ────────────────────────────────────
+
+function dtHandleFiles(input) {
+  if (!input || !input.files || !input.files.length) return;
+  var preview = document.getElementById('dtFilePreview');
+  if (preview) {
+    preview.style.display = 'flex';
+    Array.from(input.files).forEach(function(file) {
+      var chip = document.createElement('div');
+      chip.style.cssText = 'padding:4px 10px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);border-radius:20px;font-size:11px;color:#ffd700;display:flex;align-items:center;gap:5px';
+      chip.innerHTML = '📎 ' + file.name.substring(0,30) + (file.name.length>30?'…':'') +
+        ' <span onclick="this.parentElement.remove()" style="cursor:pointer;color:#ef4444;font-size:14px">×</span>';
+      preview.appendChild(chip);
+    });
+  }
+  // Read first file and append to input context
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    var input = document.getElementById('dtInput');
+    if (input) {
+      input.value = (input.value ? input.value + '\n\n' : '') +
+        '[Attached: ' + Array.from(input.files||[]).map(function(f){return f.name;}).join(', ') + ']\n' +
+        (ev.target.result||'').substring(0,2000);
+    }
+  };
+  if (input.files[0].type.startsWith('text') || input.files[0].name.match(/\.(txt|md|json|csv|html|log)$/i)) {
+    reader.readAsText(input.files[0]);
+  }
+}
+
+// ── PAGE INIT HOOKS ───────────────────────────────────────────
+
+var _origInitEonPage = (typeof initEonPage === 'function') ? initEonPage : function(){};
+function initEonPage(page) {
+  _origInitEonPage(page);
+  if (page === 'history') renderHistory();
+  else if (page === 'calendar') renderCalendarList();
+  else if (page === 'docs') renderDocList();
+  else if (page === 'dashboard') updateDashboard();
+}
+
+// Init calendar list on page load if already on that page
+document.addEventListener('DOMContentLoaded', function() {
+  renderCalendarList();
+  renderDocList();
+});
+
+console.log('✅ EON page fixes loaded — vault, history, calendar, docs, dashboard, create-agent');
+</script>

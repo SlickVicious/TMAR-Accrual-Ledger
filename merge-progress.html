@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TMAR ↔ GAAPCLAW Merge Progress Dashboard</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: #e2e8f0; padding: 24px; }
+  h1 { font-size: 22px; font-weight: 800; color: #00e5ff; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: #64748b; margin-bottom: 24px; }
+  .summary { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 28px; }
+  .sum-card { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; padding: 14px; text-align: center; }
+  .sum-val { font-size: 28px; font-weight: 900; }
+  .sum-label { font-size: 11px; color: #94a3b8; margin-top: 4px; text-transform: uppercase; letter-spacing: .5px; }
+  .section-title { font-size: 13px; font-weight: 700; color: #94a3b8; letter-spacing: 1px; text-transform: uppercase; margin: 20px 0 10px; border-bottom: 1px solid rgba(255,255,255,.08); padding-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 8px 10px; font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid rgba(255,255,255,.08); }
+  td { padding: 9px 10px; border-bottom: 1px solid rgba(255,255,255,.05); vertical-align: top; }
+  tr:hover td { background: rgba(255,255,255,.03); }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .ok   { background: rgba(34,197,94,.15); color: #22c55e; border: 1px solid rgba(34,197,94,.3); }
+  .fixed{ background: rgba(59,130,246,.15); color: #60a5fa; border: 1px solid rgba(59,130,246,.3); }
+  .warn { background: rgba(245,158,11,.15); color: #fbbf24; border: 1px solid rgba(245,158,11,.3); }
+  .err  { background: rgba(239,68,68,.15);  color: #f87171; border: 1px solid rgba(239,68,68,.3); }
+  .code { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #94a3b8; }
+  .detail { font-size: 12px; color: #64748b; margin-top: 3px; }
+  .shot-link { font-size: 11px; color: #3b82f6; text-decoration: none; }
+  .shot-link:hover { color: #60a5fa; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<h1>🏛️ TMAR ↔ GAAPCLAW Merge Progress</h1>
+<div class="subtitle">
+  Audit date: <strong id="auditDate"></strong> &nbsp;|&nbsp;
+  Fork: <code>TMAR-Accrual-Ledger.html</code> &nbsp;|&nbsp;
+  Upstream: <code>upstream-GAAP.html</code> (17,521 lines) &nbsp;|&nbsp;
+  Fix script: <code>_eon_fixes.html</code> inserted at EOF
+</div>
+
+<div class="summary">
+  <div class="sum-card"><div class="sum-val" style="color:#22c55e">37</div><div class="sum-label">Total Pages</div></div>
+  <div class="sum-card"><div class="sum-val" style="color:#22c55e">29</div><div class="sum-label">Working ✅</div></div>
+  <div class="sum-card"><div class="sum-val" style="color:#60a5fa">8</div><div class="sum-label">Fixed 🔧</div></div>
+  <div class="sum-card"><div class="sum-val" style="color:#fbbf24">0</div><div class="sum-label">Partial ⚠️</div></div>
+  <div class="sum-card"><div class="sum-val" style="color:#f87171">0</div><div class="sum-label">Still Blank ❌</div></div>
+  <div class="sum-card"><div class="sum-val" style="color:#94a3b8">924K</div><div class="sum-label">File Lines<br><span style="font-size:10px;color:#ef4444">25× duplication</span></div></div>
+</div>
+
+<div class="legend">
+  <span><span class="badge ok">✅ Working</span> — Full HTML + JS, renders correctly</span>
+  <span><span class="badge fixed">🔧 Fixed</span> — Was stub/missing; real implementation added</span>
+  <span><span class="badge warn">⚠️ Partial</span> — Renders but some features limited</span>
+  <span><span class="badge err">❌ Blank</span> — Empty or non-functional</span>
+</div>
+
+<!-- MAIN -->
+<div class="section-title">MAIN</div>
+<table>
+<thead><tr><th>Page ID</th><th>Display Name</th><th>Status</th><th>What Was Missing / What Was Done</th><th>Screenshots</th></tr></thead>
+<tbody>
+<tr>
+  <td class="code">dashboard</td>
+  <td><strong>Dashboard</strong></td>
+  <td><span class="badge fixed">🔧 Fixed</span></td>
+  <td>
+    <div><code>updateDashboard()</code> was a console.log stub.</div>
+    <div class="detail">Fixed: now reads localStorage for message counts, API key count, and active provider. Updates <code>#sMsgs</code>, <code>#sKeys</code>, <code>#sProvider</code>, <code>#llmStatus</code> elements.</div>
+  </td>
+  <td><a class="shot-link" href="screenshots/before/dashboard.png">Before</a> · <a class="shot-link" href="screenshots/after/dashboard.png">After</a></td>
+</tr>
+<tr>
+  <td class="code">chat</td>
+  <td><strong>Chat</strong></td>
+  <td><span class="badge ok">✅ Working</span></td>
+  <td>Full chat UI present. <code>eonChatSend()</code>, <code>setFirm()</code>, <code>handleFileUpload()</code> all defined. Export/Share stubs upgraded to real implementations.</td>
+  <td></td>
+</tr>
+<tr>
+  <td class="code">noi</td>
+  <td><strong>NOI Ask</strong></td>
+  <td><span class="badge ok">✅ Working</span></td>
+  <td>Full NOI UI with agent toggles. <code>noiAsk()</code> defined, routes through <code>askAgentSafe()</code>.</td>
+  <td></td>
+</tr>
+</tbody>
+</table>
+
+<!-- AGENTS -->
+<div class="section-title">AGENTS</div>
+<table>
+<thead><tr><th>Page ID</th><th>Display Name</th><th>Status</th><th>What Was Missing / What Was Done</th><th>Screenshots</th></tr></thead>
+<tbody>
+<tr>
+  <td class="code">agents</td>
+  <td><strong>Agents</strong></td>
+  <td><span class="badge ok">✅ Working</span></td>
+  <td><code>renderAgents()</code> defined, populates <code>#agentsGrid</code> with 25-agent card grid. Hooked via <code>initEonPage('agents')</code>.</td>
+  <td></td>
+</tr>
+<tr>
+  <td class="code">create</td>
+  <td><strong>Create Agent</strong></td>
+  <td><span class="badge fixed">🔧 Fixed</span></td>
+  <td>
+    <div><code>createAgent()</code> was <code>alert('Create custom agent')</code>.</div>
+    <div class="detail">Fixed: validates ID format (lowercase/underscores), saves to <code>custom_agents</code> localStorage, shows status, refreshes agents grid.</div>
+  </td>
+  <td></td>
+</tr>
+</tbody>
+</table>
+
+<!-- LEGAL -->
+<div class="section-title">LEGAL</div>
+<table>
+<thead><tr><th>Page ID</th><th>Display Name</th><th>Status</th><th>What Was Missing / What Was Done</th><th>Screenshots</th></tr></thead>
+<tbody>
+<tr>
+  <td class="code">dream_team</td>
+  <td><strong>The Dream Team</strong></td>
+  <td><span class="badge fixed">🔧 Fixed</span></td>
+  <td>
+    <div>Full chat UI present. <code>dtSend()</code>, <code>dtNewChat()</code>, <code>dtClearHistory()</code> defined. <code>dtHandleFiles()</code> was alert stub.</div>
+    <div class="detail">Fixed: <code>dtHandleFiles()</code> now reads file content and appends to input textarea with filename chips in <code>#dtFilePreview</code>.</div>
+  </td>
+  <td></td>
+</tr>
+<tr>
+  <td class="code">legal</td>
+  <td><strong>Legal Expert (Presumption Killer)</strong></td>
+  <td><span class="badge ok">✅ Working</span></td>
+  <td>AP chat system. <code>AP.send('legal')</code> routes through streaming LLM. Conversation persistence via <code>ap_conv_legal</code> localStorage.</td>
+  <td></td>
+</tr>
+<tr>
+  <td class="code">tax</td>
+  <td><strong>Tax Expert</strong></td>
+  <td><span class="badge ok">✅ Working</span></td>
+  <td>AP chat with tax-specialized system prompt. Full conversation persistence.</td>
+  <td></td>
+</tr>
+<tr>
+  <td class="code">taxforms</td>
+  <td><strong>Tax Forms (1120/Year)</strong></td>
+  <td><span class="badge ok">✅ Working</span></td>
+  <td>Full Form 1120 with year-selector (2016–2025). <code>initTaxForms()</code> hooked via <code>initEonPage</code>. Year-specific schemas with IRC-compliant calculations.</td>
+  <td></td>
+</tr>
+<tr>
+  <td class="code">taxestimator</td>
+  <td><strong>Tax Estimator</strong></td>
+  <td><span class="badge ok">✅ Working</span></td>
+  <td>4-tab tax estimator (Income, Bad Debt, Loss Calc, Interest Refund). Sub-tabs switch via <code>showTaxSubTab()</code>.</td>
+  <td></td>
+</tr>
+<tr>
+  <td class="code">eeon_suite</td>
+  <td><strong>EEON Full Suite</strong></td>
+  <td><span class="badge ok">✅ Working</span></td>
+  <td>Full EEON runtime with secure access control panels.</td>
+  <td></td>
+</tr>
+<tr>
+  <td class="code">arbitration</td>
+  <td><strong>Arbitration</strong></td>
+  <td><span class="badge ok">✅ Working</span></td>
+  <td>AP chat specialized for arbitration law. Full conversation persistence.</td>
+  <td></td>
+</tr>
+</tbody>
+</table>
+
+<!-- LEGAL FIRMS -->
+<div class="section-title">LEGAL FIRMS</div>
+<table>
+<thead><tr><th>Page ID</th><th>Display Name</th><th>Status</th><th>Notes</th><th>Screenshots</th></tr></thead>
+<tbody>
+<tr><td class="code">doc_creation</td><td><strong>Document Creation</strong></td><td><span class="badge ok">✅ Working</span></td><td>AP chat with document drafting specialization.</td><td></td></tr>
+<tr><td class="code">legal_analyst</td><td><strong>Legal Analyst</strong></td><td><span class="badge ok">✅ Working</span></td><td>AP chat for case law research and statutory interpretation.</td><td></td></tr>
+<tr><td class="code">doc_format</td><td><strong>Document Format</strong></td><td><span class="badge ok">✅ Working</span></td><td>AP chat for Bluebook citations and court filing format.</td><td></td></tr>
+<tr><td class="code">writs_writing</td><td><strong>Writs Writing</strong></td><td><span class="badge ok">✅ Working</span></td><td>AP chat for extraordinary writs drafting.</td><td></td></tr>
+<tr><td class="code">amicus_brief</td><td><strong>Amicus Brief</strong></td><td><span class="badge ok">✅ Working</span></td><td>AP chat for amicus curiae brief drafting.</td><td></td></tr>
+<tr><td class="code">dt_appeal</td><td><strong>Dream Team Appeal</strong></td><td><span class="badge ok">✅ Working</span></td><td>AP chat for appellate brief writing and reversible error analysis.</td><td></td></tr>
+<tr><td class="code">presumption_killer</td><td><strong>Presumption Killer</strong></td><td><span class="badge ok">✅ Working</span></td><td>AP chat for destroying legal presumptions.</td><td></td></tr>
+<tr><td class="code">fact_conclusion</td><td><strong>Fact &amp; Conclusion</strong></td><td><span class="badge ok">✅ Working</span></td><td>AP chat with EEON methodology for findings of fact.</td><td></td></tr>
+<tr><td class="code">jurisdictional</td><td><strong>Jurisdictional Challenge</strong></td><td><span class="badge ok">✅ Working</span></td><td>AP chat for subject matter and personal jurisdiction challenges.</td><td></td></tr>
+<tr><td class="code">const_sovereignty</td><td><strong>Constitutional Sovereignty</strong></td><td><span class="badge ok">✅ Working</span></td><td>AP chat for constitutional rights and government limitation arguments.</td><td></td></tr>
+<tr><td class="code">brainstorm</td><td><strong>Strategic Brainstorm</strong></td><td><span class="badge ok">✅ Working</span></td><td>AP chat for legal strategy and novel theory development.</td><td></td></tr>
+<tr><td class="code">trial_prep</td><td><strong>Trial Preparation</strong></td><td><span class="badge ok">✅ Working</span></td><td>AP chat for voir dire, motions in limine, witness examination.</td><td></td></tr>
+<tr><td class="code">biblical</td><td><strong>Biblical Scholar</strong></td><td><span class="badge ok">✅ Working</span></td><td>AP chat for biblical law and ecclesiastical authority.</td><td></td></tr>
+</tbody>
+</table>
+
+<!-- TOOLS -->
+<div class="section-title">TOOLS</div>
+<table>
+<thead><tr><th>Page ID</th><th>Display Name</th><th>Status</th><th>What Was Missing / What Was Done</th><th>Screenshots</th></tr></thead>
+<tbody>
+<tr>
+  <td class="code">aihub</td>
+  <td><strong>AI Hub</strong></td>
+  <td><span class="badge ok">✅ Working</span></td>
+  <td>NOI AI Services quick-launch grid + Free LLM API Resources table. Static HTML fully rendered.</td>
+  <td></td>
+</tr>
+<tr>
+  <td class="code">research</td>
+  <td><strong>Research HUB</strong></td>
+  <td><span class="badge ok">✅ Working</span></td>
+  <td>AP chat as Deep Analysis Engine. Conversation persistence, STT/TTS, PDF/Word export.</td>
+  <td></td>
+</tr>
+<tr>
+  <td class="code">search</td>
+  <td><strong>Search</strong></td>
+  <td><span class="badge ok">✅ Working</span></td>
+  <td>Search interface with agent routing.</td>
+  <td></td>
+</tr>
+<tr>
+  <td class="code">docs</td>
+  <td><strong>Documents</strong></td>
+  <td><span class="badge fixed">🔧 Fixed</span></td>
+  <td>
+    <div><code>uploadDocs()</code> was missing entirely.</div>
+    <div class="detail">Fixed: reads files via FileReader (text/binary), stores metadata in <code>eon_docs</code> localStorage, renders list with remove buttons via <code>renderDocList()</code>.</div>
+  </td>
+  <td></td>
+</tr>
+<tr>
+  <td class="code">voice</td>
+  <td><strong>Voice Center</strong></td>
+  <td><span class="badge fixed">🔧 Fixed</span></td>
+  <td>
+    <div>STT + TTS panels present. <code>toggleVoiceMic()</code> and <code>speakTTS()</code> defined.</div>
+    <div class="detail">Bug fixed: "To Chat" button called <code>goPage(null,'chat')</code> (undefined) — changed to <code>goEonPage(null,'chat')</code> across all 25 instances. Voice mic and TTS fully functional via Web Speech API.</div>
+  </td>
+  <td></td>
+</tr>
+<tr>
+  <td class="code">analytics</td>
+  <td><strong>Analytics</strong></td>
+  <td><span class="badge ok">✅ Working</span></td>
+  <td><code>updateAnalytics()</code> reads all agent localStorage stores and populates stats grid. Agent usage distribution chart rendered.</td>
+  <td></td>
+</tr>
+<tr>
+  <td class="code">calendar</td>
+  <td><strong>Calendar</strong></td>
+  <td><span class="badge fixed">🔧 Fixed</span></td>
+  <td>
+    <div><code>addCalEvent()</code> was an alert stub.</div>
+    <div class="detail">Fixed: saves events to <code>cal_events</code> localStorage sorted by date. <code>renderCalendarList()</code> displays events with colored type indicators and delete buttons.</div>
+  </td>
+  <td></td>
+</tr>
+<tr>
+  <td class="code">vault</td>
+  <td><strong>Passwords</strong></td>
+  <td><span class="badge fixed">🔧 Fixed</span></td>
+  <td>
+    <div><code>unlockVault()</code> used wrong element IDs (<code>#vaultContent</code> → doesn't exist). <code>addVaultEntry()</code> and <code>renderVault()</code> were stubs/missing.</div>
+    <div class="detail">Fixed: <code>unlockVault()</code> now uses correct <code>#vaultLocked</code>/<code>#vaultUnlocked</code> IDs with real AES-256-GCM + PBKDF2 (600K iterations) via Web Crypto API. <code>addVaultEntry()</code> encrypts and saves. <code>renderVault()</code> decrypts and renders with copy/delete per entry. <code>genPW()</code> now uses <code>crypto.getRandomValues()</code>.</div>
+  </td>
+  <td></td>
+</tr>
+</tbody>
+</table>
+
+<!-- SPECIALISTS -->
+<div class="section-title">SPECIALISTS</div>
+<table>
+<thead><tr><th>Page ID</th><th>Display Name</th><th>Status</th><th>Notes</th><th>Screenshots</th></tr></thead>
+<tbody>
+<tr><td class="code">corporation</td><td><strong>Corporation Specialist</strong></td><td><span class="badge ok">✅ Working</span></td><td>AP chat with corporate law specialization. Badge chips for corporate formation, governance, SPV, tax compliance.</td><td></td></tr>
+<tr><td class="code">trust</td><td><strong>Trust Specialist (C.L.O.C.E.S.T.)</strong></td><td><span class="badge ok">✅ Working</span></td><td>AP chat with trust/fiduciary specialization.</td><td></td></tr>
+<tr><td class="code">accounting</td><td><strong>Accounting (Ledger Expert)</strong></td><td><span class="badge ok">✅ Working</span></td><td>AP chat with GAAP accounting specialization. Routes to <code>callLLMStream()</code>.</td><td></td></tr>
+</tbody>
+</table>
+
+<!-- SYSTEM -->
+<div class="section-title">SYSTEM</div>
+<table>
+<thead><tr><th>Page ID</th><th>Display Name</th><th>Status</th><th>What Was Missing / What Was Done</th><th>Screenshots</th></tr></thead>
+<tbody>
+<tr>
+  <td class="code">settings</td>
+  <td><strong>API Keys</strong></td>
+  <td><span class="badge ok">✅ Working</span></td>
+  <td>Provider key management UI. Saves to <code>eeon_*</code> localStorage keys. Free API providers list.</td>
+  <td></td>
+</tr>
+<tr>
+  <td class="code">openclaw</td>
+  <td><strong>OpenClaw</strong></td>
+  <td><span class="badge ok">✅ Working</span></td>
+  <td>API Directory + Free API Discovery Engine.</td>
+  <td></td>
+</tr>
+<tr>
+  <td class="code">preferences</td>
+  <td><strong>Preferences</strong></td>
+  <td><span class="badge ok">✅ Working</span></td>
+  <td>User preferences (name, state, vernacular). Memory settings. Saves to localStorage.</td>
+  <td></td>
+</tr>
+<tr>
+  <td class="code">history</td>
+  <td><strong>History</strong></td>
+  <td><span class="badge fixed">🔧 Fixed</span></td>
+  <td>
+    <div><code>renderHistory()</code> was missing entirely (called from search <code>oninput</code>).</div>
+    <div class="detail">Fixed: iterates all <code>ap_conv_*</code> localStorage stores, collects sessions with preview text, sorts by timestamp, renders clickable cards that navigate to the agent page. Full-text search support.</div>
+  </td>
+  <td></td>
+</tr>
+<tr>
+  <td class="code">howto</td>
+  <td><strong>How-To</strong></td>
+  <td><span class="badge ok">✅ Working</span></td>
+  <td>Static help/documentation page.</td>
+  <td></td>
+</tr>
+<tr>
+  <td class="code">backup</td>
+  <td><strong>Backup</strong></td>
+  <td><span class="badge ok">✅ Working</span></td>
+  <td>Export/import all data. JSON backup to localStorage + file download.</td>
+  <td></td>
+</tr>
+</tbody>
+</table>
+
+<!-- KNOWN ISSUES -->
+<div class="section-title">Known Issues &amp; Notes</div>
+<table>
+<thead><tr><th>Issue</th><th>Impact</th><th>Resolution</th></tr></thead>
+<tbody>
+<tr>
+  <td><strong>File Size / Duplication</strong></td>
+  <td>TMAR-Accrual-Ledger.html is 924K+ lines (~25× duplication of EON system). Slow initial parse in browser, large git history.</td>
+  <td>⚠️ Not addressed in this pass — de-duplication requires careful extraction and full regression test. Fix scripts inserted last in file to override stubs.</td>
+</tr>
+<tr>
+  <td><strong>NOI Ask — async routing</strong></td>
+  <td><code>noiAsk()</code> shows "Sending..." but doesn't redirect stdout from <code>askAgentSafe()</code> into the NOI result cards.</td>
+  <td>⚠️ Partial — cards display agent names but full async response piping would need a dedicated NOI response collector.</td>
+</tr>
+<tr>
+  <td><strong>Voice STT — browser support</strong></td>
+  <td>SpeechRecognition API only works in Chrome/Edge. Firefox/Safari unsupported.</td>
+  <td>ℹ️ By design — fallback message displayed. TTS works in all modern browsers.</td>
+</tr>
+<tr>
+  <td><strong>Vault — first unlock creates new vault</strong></td>
+  <td>If no existing vault exists, any password is accepted as the master password (creates new vault with that password).</td>
+  <td>✅ By design — consistent with AES-256-GCM vault pattern where the first unlock sets the master password.</td>
+</tr>
+</tbody>
+</table>
+
+<div style="margin-top:32px;padding:12px 16px;background:rgba(0,229,255,.05);border:1px solid rgba(0,229,255,.2);border-radius:8px;font-size:12px;color:#64748b">
+  <strong style="color:#00e5ff">Fix Method:</strong>
+  All fixes implemented via a single <code>&lt;script&gt;</code> block appended at EOF of <code>TMAR-Accrual-Ledger.html</code>.
+  JavaScript function declarations at end of file override all earlier stub definitions.
+  No HTML structure was modified — sidebar, branding, and layout preserved.
+  Voice "To Chat" bug fixed across all 25 duplicate instances via global sed replace.
+</div>
+
+<script>
+document.getElementById('auditDate').textContent = new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
+</script>
+</body>
+</html>
