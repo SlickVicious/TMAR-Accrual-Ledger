@@ -44346,7 +44346,7 @@ function spvCurrSymbol(code) {
   function showPayrollCalc() { document.getElementById('prEmpName').focus(); }
 
   // ─── INVENTORY MODULE ─────────────────────────────────────────────────
-  let inventoryItems = [];
+  inventoryItems = [];
 
   function initInventory() {
     inventoryItems = JSON.parse(localStorage.getItem('TMAR_Inventory') || '[]');
@@ -54737,13 +54737,13 @@ function dtHandleFiles(input) {
 // ── PAGE INIT HOOKS ───────────────────────────────────────────
 
 var _origInitEonPage = (typeof initEonPage === 'function') ? initEonPage : function(){};
-function initEonPage(page) {
+initEonPage = function(page) {
   _origInitEonPage(page);
   if (page === 'history') renderHistory();
   else if (page === 'calendar') renderCalendarList();
   else if (page === 'docs') renderDocList();
   else if (page === 'dashboard') updateDashboard();
-}
+};
 
 // Init calendar list on page load if already on that page
 document.addEventListener('DOMContentLoaded', function() {
