@@ -45044,8 +45044,8 @@ function spvCurrSymbol(code) {
   }
 
   // ─── PAYMENT ORDERS MODULE ────────────────────────────────────────────
-  let paymentOrders = [];
-  let poCounter = 3000;
+  paymentOrders = [];
+  poCounter = 3000;
 
   function initPaymentOrders() {
     paymentOrders = JSON.parse(localStorage.getItem('TMAR_PaymentOrders') || '[]');
@@ -45208,13 +45208,13 @@ function spvCurrSymbol(code) {
   }
 
   // ─── BILLS OF EXCHANGE MODULE ─────────────────────────────────────────
-  let billsOfExchange = [];
-  let boeSignatureData = null;
-  let boeStrokeHistory = [];
-  let boeIsDrawing = false;
-  let boeCurrentStroke = [];
-  let boeCanvas = null;
-  let boeCtx = null;
+  billsOfExchange = [];
+  boeSignatureData = null;
+  boeStrokeHistory = [];
+  boeIsDrawing = false;
+  boeCurrentStroke = [];
+  boeCanvas = null;
+  boeCtx = null;
 
   // ── Serial Generator (Fisher-Yates shuffle) ────────────────────────
   function generateBOESerial() {
