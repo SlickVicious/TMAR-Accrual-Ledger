@@ -39,6 +39,7 @@ Navigate to the relevant page and trigger the function via its button or program
 
 ## Change Log
 - **2026-03-09**: Initial implementation (v1.0)
+- **2026-04-07**: v1.1 — calls `_vaultInjectApiKeys([entry])` after saving new entry; vault credentials are automatically written to matching `eeon_key_*` / `stg_key_*` localStorage slots and backed up to IndexedDB. Claude key mirrored to all 5 aliases.
 - **Status**: ✅ Confirmed working
 
 ---

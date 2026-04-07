@@ -39,6 +39,7 @@ Navigate to the relevant page and trigger the function via its button or program
 
 ## Change Log
 - **2026-03-09**: Initial implementation (v1.0)
+- **2026-04-07**: v1.1 — after successful AES-256-GCM decryption, calls `_vaultInjectApiKeys(entries)` before rendering the vault UI. All stored credentials are injected into `eeon_key_*` / `stg_key_*` localStorage slots on every unlock so `resolveProvider()` has live keys without any manual copy-paste.
 - **Status**: ✅ Confirmed working
 
 ---

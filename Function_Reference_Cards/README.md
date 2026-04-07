@@ -1,9 +1,9 @@
 # TMAR Custom Functions - Reference Card Index
 
-**Total Functions:** 17  
+**Total Functions:** 22  
 **All Implemented:** ✅  
 **Coverage:** 100%  
-**Last Updated:** March 9, 2026
+**Last Updated:** April 7, 2026
 
 ---
 
@@ -33,8 +33,17 @@
 ### Utilities (4)
 14. [genPW()](./14_genPW.md) - Generate secure password
 15. [addCalEvent()](./15_addCalEvent.md) - Create calendar events
-16. [addVaultEntry()](./16_addVaultEntry.md) - Add encrypted vault entries
-17. [unlockVault()](./17_unlockVault.md) - Unlock vault with password
+16. [addVaultEntry()](./16_addVaultEntry.md) - Add encrypted vault entries (+ key injection v1.1)
+17. [unlockVault()](./17_unlockVault.md) - Unlock vault with password (+ key injection v1.1)
+
+### API Key Management (1)
+18. [TmarKeyManager (tmar-key-manager.js)](./18_tmarKeyManager.md) - Standalone floating key manager panel
+
+### Digital File Cabinet (4)
+19. [dfcTab()](./19_dfcTab.md) - Switch between Vault/Sheets/Local tabs
+20. [dfcSyncSheets()](./20_dfcSyncSheets.md) - Pull Google Sheets workbook data via GAS
+21. [dfcShowSheetInPanel()](./21_dfcShowSheetInPanel.md) - Navigate to DFC Sheets tab from other pages
+22. [dfcRenderVault()](./22_dfcRenderVault.md) - Render expandable Obsidian vault tree
 
 ---
 
@@ -71,8 +80,13 @@ Each reference card contains:
 | addCalEvent | ✅ | Medium | 1 |
 | addVaultEntry | ✅ | High | 1 |
 | unlockVault | ✅ | High | 1 |
+| TmarKeyManager | ✅ | High | external module |
+| dfcTab | ✅ | Medium | 3 |
+| dfcSyncSheets | ✅ | High | 2 |
+| dfcShowSheetInPanel | ✅ | Medium | 2 |
+| dfcRenderVault | ✅ | Medium | 2 |
 
-**Total:** 17/17 (100%)
+**Total:** 22/22 (100%)
 
 ---
 
@@ -98,5 +112,10 @@ TMAR/
 │   ├── 14_genPW.md
 │   ├── 15_addCalEvent.md
 │   ├── 16_addVaultEntry.md
-│   └── 17_unlockVault.md
+│   ├── 17_unlockVault.md
+│   ├── 18_tmarKeyManager.md
+│   ├── 19_dfcTab.md
+│   ├── 20_dfcSyncSheets.md
+│   ├── 21_dfcShowSheetInPanel.md
+│   └── 22_dfcRenderVault.md
 ```

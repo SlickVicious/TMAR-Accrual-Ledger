@@ -1,8 +1,8 @@
 # TMAR - Trust Master Account Register
 
 **Complete Interactive Web Application + Google Sheets Integration**
-**Version:** 3.7
-**Last Updated:** April 6, 2026
+**Version:** 3.8
+**Last Updated:** April 7, 2026
 **Status:** ✅ Production Ready — 246/246 Functions Verified | 211/211 GUI Elements Verified
 
 ---
@@ -149,6 +149,21 @@ npx http-server -p 8080 -o
 
 ---
 
+## 🆕 What's New in v3.8
+
+| Feature | Details |
+|---|---|
+| **tmar-key-manager.js** | New standalone floating 🔐 API key manager panel. Loaded via `<script src="tmar-key-manager.js">` before `</body>`. 10 provider slots (Claude, OpenAI, DeepSeek, Gemini, Perplexity, OpenRouter, xAI, HuggingFace, GitHub, DataGov). Per-key ⚡ live test, Test All, 👁 reveal/hide, `.env` import, IDB backup, and red-pulse alert when required keys are missing. |
+| **Vault → `eeon_key_*` injection bridge** | `_vaultInjectApiKeys(entries)` — called on both `unlockVault()` and `addVaultEntry()`. On unlock the full vault entry array is iterated; each `site` field is mapped via `_VAULT_SITE_MAP` to the correct `eeon_key_*` / `stg_key_*` localStorage slot. Claude key is mirrored to all 5 aliases (`eeon_key_claude`, `_trustApiKey`, `TMAR_trustApiKey`, `tmar_claude_key`, `stg_key_claude`). IDB backup fires after injection. |
+| **Digital File Cabinet (`page-docs`)** | Full 3-tab panel replacing the stub: **Vault Browser** (expandable static `VAULT_INDEX` tree from Obsidian vault dir, with search), **Sheets Data** (live GAS sync via `dfcSyncSheets()` — renders headers + rows for 3 workbook GIDs as scrollable tables), **Local Docs** (placeholder for local file links). `dfcShowSheetInPanel(context)` called from Accounting and Trust toolbar buttons. |
+| **Google Sheets workbook integration** | GAS `SyncCenter.gs` gains two new actions: `listWorkbookTabs` (returns all tab names + GIDs from workbook `1CYg4fwQoLARD9y3bQbn8W8HO5jI89osj`) and `pullWorkbookSheets` (returns headers + up to 200 rows each for GIDs 779167554, 1677909637, 1870452300). `SyncBridge` client updated with matching methods. |
+| **Obsidian vault static index** | `VAULT_INDEX` JS object embedded in HTML — full tree of `C:\Users\rhyme\Documents\Legal Document Generator\Digital File Cabinet\` (5 categories: Master Binder System, Generated Documents, Financials, Legal Reference Library, Gov Forms). Rendered as interactive accordion in Vault Browser tab. |
+| **`.chat-wrap` flex fix** | `height: calc(100vh - 142px - 40px)` → `flex: 1; min-height: 0` — chat panels now fill EON overlay correctly without hard-coded viewport offsets. |
+| **Duplicate 📎 icon removal** | 24 legacy `apAttachFile()` `<label>` elements removed from all AP agent input rows, eliminating phantom "double send button" appearance. |
+| **`.voice-btn` CSS** | Added missing `.voice-btn` definition (used on `page-voice`) — button now renders correctly with hover/active states. |
+
+---
+
 ## 🆕 What's New in v3.7
 
 | Feature | Details |
@@ -219,7 +234,8 @@ npx http-server -p 8080 -o
 
 ```
 TMAR/
-├── TMAR-Accrual-Ledger.html          # Main web application (v3.3)
+├── TMAR-Accrual-Ledger.html          # Main web application (v3.8)
+├── tmar-key-manager.js               # Standalone floating API key manager (v1.0)
 ├── TMAR-User-Manual.md               # Complete user manual (v3.3, ~3,600 lines)
 ├── parity-fingerprint.json           # Source parity baseline (auto-updated weekly by CI)
 ├── TMAR-System-Status-Dashboard.html # GUI element status dashboard (211 elements)
@@ -234,7 +250,7 @@ TMAR/
 │   ├── COMPLETE_IMPLEMENTATION_GUIDE.md
 │   ├── 01_sendQuick.md               # Individual function cards
 │   ├── 02_eeonSendChat.md
-│   └── ... (17 total reference cards)
+│   └── ... (22 total reference cards)
 │
 ├── gas/                              # Google Apps Script files
 │   ├── Code.gs                       # Main GAS code
