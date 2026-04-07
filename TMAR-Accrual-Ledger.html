@@ -40621,34 +40621,7 @@ function addCalEvent() {
   alert('Calendar event creation - Feature coming soon');
 }
 
-// Vault: add entry
-function addVaultEntry() {
-  console.log('🗄️ Add vault entry');
-  alert('Vault entry creation - Feature coming soon');
-}
-
-// Vault: unlock
-function unlockVault() {
-  console.log('🔓 Unlock vault');
-  var password = prompt('Enter vault password:');
-  if (password) {
-    // Simple localStorage check (replace with actual authentication)
-    var storedPW = localStorage.getItem('vaultPassword');
-    if (!storedPW) {
-      localStorage.setItem('vaultPassword', password);
-      alert('✅ Vault password set');
-    } else if (password === storedPW) {
-      alert('✅ Vault unlocked');
-      // Enable vault UI
-      var vaultContent = document.getElementById('vaultContent');
-      if (vaultContent) {
-        vaultContent.style.display = 'block';
-      }
-    } else {
-      alert('❌ Incorrect password');
-    }
-  }
-}
+// Vault stubs removed — real implementations are below (unlockVault / addVaultEntry)
 
 // Voice/Speech functions
 function toggleVoiceMic() {
@@ -54237,6 +54210,63 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
 var _vaultKey = null;  // CryptoKey after unlock
 
+// Maps vault entry site names → localStorage keys used by resolveProvider()
+var _VAULT_SITE_MAP = {
+  'claude':       'eeon_key_claude',
+  'anthropic':    'eeon_key_claude',
+  'openai':       'eeon_key_openai',
+  'chatgpt':      'eeon_key_openai',
+  'deepseek':     'eeon_key_deepseek',
+  'xai':          'eeon_key_xai',
+  'grok':         'eeon_key_xai',
+  'gemini':       'eeon_key_zai',
+  'zai':          'eeon_key_zai',
+  'openrouter':   'eeon_key_openrouter',
+  'groq':         'eeon_key_groq',
+  'cerebras':     'eeon_key_cerebras',
+  'perplexity':   'eeon_key_perplexity',
+  'huggingface':  'eeon_key_huggingface',
+  'cohere':       'eeon_key_cohere',
+  'brave':        'eeon_key_brave',
+  'kimi':         'eeon_key_kimi',
+  'minimax':      'eeon_key_minimax',
+  'ernie':        'eeon_key_ernie',
+  'supabase':     'eeon_key_supabase',
+  'github':       'eeon_key_github',
+  'pinecone':     'eeon_key_pinecone',
+  'n8n':          'eeon_key_n8n',
+  'postman':      'eeon_key_postman',
+  'tavily':       'stg_key_tavily',
+  'firecrawl':    'stg_key_firecrawl',
+  'mem0':         'stg_key_mem0'
+};
+
+// Called after unlock or save — injects API keys from vault into the localStorage
+// slots that resolveProvider() and all agents read from.
+function _vaultInjectApiKeys(entries) {
+  var injected = 0;
+  entries.forEach(function(e) {
+    var siteLc = (e.site || '').toLowerCase().trim();
+    var lsKey = _VAULT_SITE_MAP[siteLc];
+    var keyVal = (e.pass || '').trim();
+    if (lsKey && keyVal) {
+      localStorage.setItem(lsKey, keyVal);
+      injected++;
+      // Claude / Anthropic: mirror to all legacy key names agents may read
+      if (lsKey === 'eeon_key_claude') {
+        window._trustApiKey = keyVal;
+        localStorage.setItem('_trustApiKey', keyVal);
+        localStorage.setItem('stg_key_claude', keyVal);
+        localStorage.setItem('tmar_claude_key', keyVal);
+      }
+    }
+  });
+  if (injected > 0) {
+    backupKeysToIDB(); // keep IDB snapshot current
+    console.log('[Vault] Injected ' + injected + ' API key(s) into localStorage.');
+  }
+}
+
 async function _vaultDeriveKey(password, salt) {
   var enc = new TextEncoder();
   var mat = await crypto.subtle.importKey(
@@ -54281,10 +54311,11 @@ async function unlockVault() {
   try {
     var salt = _vaultGetSalt();
     _vaultKey = await _vaultDeriveKey(pw.value, salt);
-    // Test decryption
-    var stored = localStorage.getItem('vault_entries');
-    if (stored) { await _vaultDecrypt(_vaultKey, JSON.parse(stored)); }
-    // Success — show unlocked UI
+    // Decrypt and load entries
+    var entries = await _vaultLoad();
+    // Inject any API keys into localStorage so resolveProvider() can find them
+    _vaultInjectApiKeys(entries);
+    // Show unlocked UI
     var locked = document.getElementById('vaultLocked');
     var unlocked = document.getElementById('vaultUnlocked');
     if (locked) locked.style.display = 'none';
@@ -54303,8 +54334,11 @@ async function addVaultEntry() {
   var pass = (document.getElementById('vPass')||{}).value||'';
   if (!site || !pass) { alert('Site and password are required.'); return; }
   var entries = await _vaultLoad();
-  entries.push({id: Date.now(), site:site, user:user, pass:pass, created: new Date().toLocaleDateString()});
+  var entry = {id: Date.now(), site:site, user:user, pass:pass, created: new Date().toLocaleDateString()};
+  entries.push(entry);
   await _vaultSave(entries);
+  // Immediately inject into localStorage if this is a known API provider
+  _vaultInjectApiKeys([entry]);
   ['vSite','vUser','vPass'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
   renderVault();
 }
