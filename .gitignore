@@ -38,3 +38,20 @@ tt-page-audit.cjs
 tt-test-output.md
 tt-test-runner.py
 tt-test.html
+
+.env*
+.flaskenv*
+!.env.project
+
+# Local IDE / editor settings
+.vscode/
+
+# Merge artifacts and pre-dedup backups
+TMAR-Accrual-Ledger-merged.html
+*.bak-predeup
+
+# Local debug screenshots
+eon-*.png
+
+# Local GAS setup helpers (not deployed)
+gas/env-vault-setup/
