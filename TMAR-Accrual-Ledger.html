@@ -6395,7 +6395,7 @@
         court: '',
         address: '',
         grantor: '',
-        gasWebAppUrl: '',
+        gasWebAppUrl: 'https://script.google.com/macros/s/AKfycbwdLljh2fsOv--_8Ik3PKVAnXRflpkSkmB8zi-JZeVwdvZaKbLNk843kgK9R3V2V_2C/exec',
         lastSyncTimestamp: null,
         googleClientId: '',
         spreadsheetId: ''
@@ -6415,6 +6415,8 @@
           const merged = { ...defaultAppData, ...parsed };
           merged.filings = { ...defaultAppData.filings, ...(parsed.filings || {}) };
           merged.settings = { ...defaultAppData.settings, ...(parsed.settings || {}) };
+          // Migrate: backfill GAS URL if it was saved as empty
+          if (!merged.settings.gasWebAppUrl) merged.settings.gasWebAppUrl = defaultAppData.settings.gasWebAppUrl;
           if (!merged.syncLog) merged.syncLog = [];
           return merged;
         }
