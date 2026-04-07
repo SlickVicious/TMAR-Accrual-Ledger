@@ -38437,6 +38437,11 @@ function toggleEonSidebar() {
     sidebar.style.display = 'block';
     container.style.display = 'block';
     document.body.style.paddingLeft = '240px';
+    // Restore active page — after any goEonPage call all pages get display:none inline.
+    // If nothing is active, default to dashboard so the content area never shows black.
+    if (!container.querySelector('.page.active')) {
+      goEonPage(null, 'dashboard');
+    }
   }
 }
 
