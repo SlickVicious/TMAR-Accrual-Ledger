@@ -29,6 +29,20 @@ Google Sheet ←→ GAS Web App ←→ fetch() ←→ appData.{} ←→ localSto
                                           UI Tab renders
 ```
 
+### Digital File Cabinet pull (added v3.8)
+
+```
+Wimberly Financial Workbook (GID 779167554 / 1677909637 / 1870452300)
+        ↓ pullWorkbookSheets action
+GAS Web App (SyncCenter.gs)
+        ↓ JSON {sheets:[{name, headers, rows}]}
+dfcSyncSheets() → _dfcSheetsCache (5-min TTL)
+        ↓
+page-docs → Sheets Data tab (scrollable tables)
+        ↑
+dfcShowSheetInPanel('accounting'|'trust') — called from toolbar buttons
+```
+
 **Everything lives in `localStorage`** under the `appData` object. There is no separate "Payables" tab — the Sync Center button labeled "Payables" writes to `appData.payables` which is rendered by the **📤 A/P** tab. The naming mismatch between the button labels ("Accounts", "Obligations", "Payables") and the actual UI tabs ("Entities", "A/P") is confusing. Want me to rename the Sync Center button labels to match the actual tab names so it's clear where data lands?
 
 ## Labels Updated
