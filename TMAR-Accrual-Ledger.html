@@ -1020,117 +1020,8 @@
 
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<style id="_tmar_sc_css">.streaming-cursor{display:inline-block;width:2px;height:1em;background:currentColor;animation:scBlink .7s step-end infinite;vertical-align:text-bottom;margin-left:2px}@keyframes scBlink{50%{opacity:0}}</style><style>
-    #tmar-update-banner {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 99999;
-      background: linear-gradient(135deg, #1e3a5f, #1a5276);
-      color: #fff;
-      padding: 12px 20px;
-      font-family: system-ui, -apple-system, sans-serif;
-      font-size: 14px;
-      display: none;
-      align-items: center;
-      gap: 12px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.4);
-      border-bottom: 1px solid rgba(0,229,255,0.3);
-    }
-    #tmar-update-banner.visible { display: flex; flex-wrap: wrap; }
-    #tmar-update-banner .msg { flex: 1; min-width: 200px; line-height: 1.4; }
-    #tmar-update-banner .msg strong { color: #7fdbff; }
-    #tmar-update-banner .msg small { display: block; font-size: 11px; color: #a9cce3; margin-top: 2px; }
-    #tmar-update-banner button {
-      padding: 7px 14px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 12px;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-    #tmar-download-btn { background: #0e6655; color: #a9dfbf; }
-    #tmar-download-btn:hover { background: #117a65; }
-    #tmar-inject-btn { background: rgba(255,255,255,0.12); color: #d6eaf8; border: 1px solid rgba(255,255,255,0.2); }
-    #tmar-inject-btn:hover { background: rgba(255,255,255,0.2); }
-    #tmar-preview-btn { background: rgba(255,255,255,0.08); color: #aed6f1; border: 1px solid rgba(255,255,255,0.15); }
-    #tmar-preview-btn:hover { background: rgba(255,255,255,0.15); }
-    #tmar-dismiss-btn { background: transparent; color: #85c1e9; font-size: 18px; padding: 4px 8px; }
-    #tmar-dismiss-btn:hover { color: #fff; }
-    #tmar-rollback-btn {
-      position: fixed;
-      bottom: 80px;
-      right: 20px;
-      z-index: 99998;
-      background: #7b241c;
-      color: #f5b7b1;
-      padding: 9px 14px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 600;
-      display: none;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-    }
-    #tmar-diff-overlay {
-      position: fixed; inset: 0; z-index: 99999;
-      background: rgba(0,0,0,0.65); display: none;
-    }
-    #tmar-diff-modal {
-      position: fixed;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 100000;
-      background: #0f1923;
-      color: #e2e8f0;
-      padding: 24px;
-      border-radius: 12px;
-      max-width: 460px;
-      width: 92%;
-      display: none;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-      border: 1px solid rgba(0,229,255,0.2);
-      font-family: system-ui, sans-serif;
-    }
-    #tmar-diff-modal h3 { margin: 0 0 4px; color: #7fdbff; font-size: 15px; }
-    #tmar-diff-modal .subtitle { color: #7f8c8d; font-size: 11px; margin: 0 0 16px; }
-    #tmar-diff-modal .stat {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 7px 0; border-bottom: 1px solid #1c2e3e; font-size: 13px;
-    }
-    #tmar-diff-modal .stat .label { color: #7fb3d3; }
-    #tmar-diff-modal .fn-list {
-      font-size: 11px; color: #5d6d7e; max-height: 80px;
-      overflow-y: auto; margin-top: 4px; font-family: monospace;
-    }
-    #tmar-diff-modal .mode-note {
-      margin-top: 14px; padding: 10px 12px;
-      background: rgba(255,193,7,0.08); border-left: 3px solid #f39c12;
-      border-radius: 4px; font-size: 11px; color: #f0b27a; line-height: 1.5;
-    }
-    #tmar-diff-modal .actions { margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
-    #tmar-diff-modal .actions button {
-      padding: 8px 14px; border: none; border-radius: 6px;
-      cursor: pointer; font-weight: 600; font-size: 12px;
-    }
-  </style></head>
-<body class="p-0" style="padding-bottom:80px"><div id="tmar-update-banner" class="visible">
-    <div class="msg">
-      🔄 <strong>Upstream update available</strong> — redressright.me/GAAP.html has new content.
-      <small id="tmar-diff-hint">+143 new functions, +0 new CSS vars detected.</small>
-    </div>
-    <button id="tmar-preview-btn">📋 Preview</button>
-    <button id="tmar-download-btn">⬇️ Download Merged</button>
-    <button id="tmar-inject-btn">💉 Inject (session)</button>
-    <button id="tmar-dismiss-btn">✕</button>
-  </div>
-
-  <!-- ══ PARITY BANNER — handled by tmar-updater.js ═══════════════════ -->
-
+<style id="_tmar_sc_css">.streaming-cursor{display:inline-block;width:2px;height:1em;background:currentColor;animation:scBlink .7s step-end infinite;vertical-align:text-bottom;margin-left:2px}@keyframes scBlink{50%{opacity:0}}</style></head>
+<body class="p-0" style="padding-bottom:80px">
   <div class="p-4 md:p-6" style="padding-bottom:72px">
   <div id="app" class="max-w-7xl mx-auto">
     <!-- Header -->
@@ -43374,7 +43265,7 @@ function uploadIRSTemplate(event) {
 }
 </script>
 
-<script src="tmar-updater.js"></script>
+
 <script>
 /* GAAP modal helpers — were missing script wrapper */
 function closeModal() { document.getElementById('modalContainer').innerHTML = ''; }
@@ -43388,22 +43279,7 @@ function showWideModal(content) {
 
 
 
-</div><button id="tmar-rollback-btn">↩️ Undo Injection</button><div id="tmar-diff-overlay"></div><div id="tmar-diff-modal">
-    <h3>📊 Upstream Diff Summary</h3>
-    <p class="subtitle">What's new in upstream vs. your current TMAR build</p>
-    <div id="tmar-diff-stats"></div>
-    <div class="mode-note">
-      <strong>⬇️ Download Merged</strong> — Recommended. Generates a merged HTML file with upstream
-      additions appended. Your customizations are fully preserved. Deploy the downloaded file via git.<br><br>
-      <strong>💉 Inject (session only)</strong> — Adds new functions to this browser session only.
-      Disappears on next page load. Good for previewing new features before committing.
-    </div>
-    <div class="actions">
-      <button id="tmar-modal-download" style="background:#0e6655;color:#a9dfbf;">⬇️ Download Merged</button>
-      <button id="tmar-modal-inject" style="background:#1a5276;color:#aed6f1;">💉 Inject (session)</button>
-      <button id="tmar-modal-close" style="background:#1c2e3e;color:#85c1e9;">Close</button>
-    </div>
-  </div></body><!-- ===== EON AI SIDEBAR ===== --></html>
+</div></body><!-- ===== EON AI SIDEBAR ===== --></html>
 
 <script>
 /* upstream functions: fillFromPreset, autoRegisterJEAccounts, editJournalEntry, spvCurrSymbol */
