@@ -36,7 +36,7 @@ const TMAR_UPDATER_CONFIG = {
 
   // GitHub repo parity fingerprint — shared source of truth with
   // your GitHub Actions parity-check workflow
-  parityFingerprintURL: 'https://raw.githubusercontent.com/SlickVicious/TMAR-Accrual-Ledger/main/parity-fingerprint.json',
+  parityFingerprintURL: 'https://raw.githubusercontent.com/SlickVicious/TMAR-Accrual-Ledger/master/parity-fingerprint.json',
 
   // localStorage key prefix for updater metadata
   storagePrefix: 'tmar_updater_',
