@@ -31538,6 +31538,8 @@ function ev2InitEntityVerifier() {
   SyncBridge.prototype.pullRawTab = function(tabName) {
     return this.request('pullRawTab&tab=' + encodeURIComponent(tabName));
   };
+  SyncBridge.prototype.listWorkbookTabs = function() { return this.request('listWorkbookTabs'); };
+  SyncBridge.prototype.pullWorkbookSheets = function() { return this.request('pullWorkbookSheets'); };
 
   // Push methods (POST)
   SyncBridge.prototype.pushEntities = function(data) {
@@ -33791,6 +33793,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-color,rgba(255,255,255,.1));flex-wrap:wrap;gap:6px">
       <span style="font-weight:700;font-size:14px;color:#f59e0b">📒 Ledger &amp; Accounting Expert</span>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="dfcShowSheetInPanel('accounting')" style="padding:5px 10px;font-size:12px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);border-radius:6px;color:#22c55e;cursor:pointer">📊 Sheets Data</button>
         <button onclick="AP.toggleSTT('accounting')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🎤 Speak</button>
         <button onclick="AP.speakLast('accounting')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔊 Listen</button>
         <button onclick="AP.printConv('accounting')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🖨️ Print</button>
@@ -34637,13 +34640,43 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
   <!-- EON: DOCS -->
   <div class="page" id="page-docs">
-<div class="card">
-<div class="card-head">📁 Document Manager <button class="btn btn-sm" onclick="document.getElementById('docUpload').click()">📤 Upload</button></div>
-<input type="file" id="docUpload" multiple="" accept=".txt,.md,.json,.csv,.html,.pdf,.doc,.docx,.rtf" style="display:none" onchange="uploadDocs(this)">
-<div class="card-body">
-<input id="docSearch" placeholder="Search documents..." style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;margin-bottom:12px" oninput="renderDocs()">
-<div id="docsList" style="max-height:500px;overflow-y:auto"></div>
+<div style="display:flex;flex-direction:column;height:100%;gap:0">
+
+<!-- Header bar -->
+<div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:var(--bg2)">
+  <span style="font-weight:700;font-size:14px">🗄️ Digital File Cabinet</span>
+  <div style="display:flex;gap:6px;flex-wrap:wrap">
+    <button class="btn btn-sm" onclick="document.getElementById('docUpload').click()">📤 Upload Doc</button>
+    <button class="btn btn-sm" onclick="dfcSyncSheets()" id="dfcSyncBtn">🔄 Sync Sheets</button>
+    <input type="file" id="docUpload" multiple="" accept=".txt,.md,.json,.csv,.html,.pdf,.doc,.docx,.rtf" style="display:none" onchange="uploadDocs(this)">
+  </div>
 </div>
+
+<!-- Tab bar -->
+<div style="display:flex;border-bottom:1px solid var(--border);background:var(--bg2)">
+  <button id="dfc-tab-vault" onclick="dfcTab('vault')" style="padding:8px 16px;font-size:12px;font-weight:600;border:none;background:var(--accent);color:#fff;cursor:pointer;border-bottom:2px solid var(--accent)">📁 Vault Browser</button>
+  <button id="dfc-tab-sheets" onclick="dfcTab('sheets')" style="padding:8px 16px;font-size:12px;font-weight:600;border:none;background:transparent;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent">📊 Sheets Data</button>
+  <button id="dfc-tab-local" onclick="dfcTab('local')" style="padding:8px 16px;font-size:12px;font-weight:600;border:none;background:transparent;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent">📋 Local Docs</button>
+</div>
+
+<!-- Vault Browser panel -->
+<div id="dfc-panel-vault" style="flex:1;overflow-y:auto;padding:14px">
+  <input id="vaultSearch" placeholder="Search vault index…" oninput="dfcVaultSearch(this.value)" style="width:100%;padding:7px 10px;background:var(--input-bg);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:12px;margin-bottom:12px">
+  <div id="vaultTree"></div>
+</div>
+
+<!-- Sheets Data panel -->
+<div id="dfc-panel-sheets" style="flex:1;overflow-y:auto;padding:14px;display:none">
+  <div id="dfcSheetsStatus" style="font-size:12px;color:var(--text2);margin-bottom:10px">Not synced yet — click <b>Sync Sheets</b> to load workbook data.</div>
+  <div id="dfcSheetsContent"></div>
+</div>
+
+<!-- Local Docs panel -->
+<div id="dfc-panel-local" style="flex:1;overflow-y:auto;padding:14px;display:none">
+  <input id="docSearch" placeholder="Search uploaded documents..." style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;margin-bottom:12px" oninput="renderDocs()">
+  <div id="docsList"></div>
+</div>
+
 </div>
 </div>
 
@@ -38129,6 +38162,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-color,rgba(255,255,255,.1));flex-wrap:wrap;gap:6px">
       <span style="font-weight:700;font-size:14px;color:#a855f7">🔐 Common-Law Trust Specialist — C.L.O.C.E.S.T.</span>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="dfcShowSheetInPanel('trust')" style="padding:5px 10px;font-size:12px;background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.3);border-radius:6px;color:#a855f7;cursor:pointer">📊 Trust Ledger</button>
         <button onclick="AP.toggleSTT('trust')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🎤 Speak</button>
         <button onclick="AP.speakLast('trust')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔊 Listen</button>
         <button onclick="AP.printConv('trust')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🖨️ Print</button>
@@ -54378,6 +54412,202 @@ function genPW() {
   if (el) { el.type = 'text'; el.value = pw; setTimeout(function(){ el.type = 'password'; }, 2000); }
   navigator.clipboard.writeText(pw).catch(function(){});
 }
+
+// ── DIGITAL FILE CABINET ─────────────────────────────────────
+
+// Static index built from Obsidian vault: C:\Users\rhyme\Documents\Legal Document Generator\Digital File Cabinet
+var VAULT_INDEX = {
+  'Master Binder System': {
+    icon: '🗂️', color: '#f59e0b',
+    sections: {
+      '01 Trust Instrument':   { icon: '📜', items: ['Clinton Wimberly IV Revocable Living Trust','Certificate of Trust','General Assignment of Personal Property','Trust Amendments','Restatements'] },
+      '02 Recorded Documents': { icon: '📌', items: ['UCC Filings','Property Transfers','Certificate Recordings','Recording Receipts'] },
+      '03 Banking':            { icon: '🏦', items: ['Bank of America ****0672 — Statements 2022, Deposits 2022-2025','PayPal — Statements 2024-2025','Account Opening Documents','ACH Setup','Wire Transfer Records'] },
+      '04 Tax Forms':          { icon: '🧾', items: ['Federal Returns (2023, 2024)','NC State Return (2024)','W-2 Transcripts (2016-2021)','1099 Forms — Fidelity/Webull','5498 Forms — Fidelity','1095-C — InterTechnologies','IRS Correspondence'] },
+      '05 Minutes & Resolutions': { icon: '📋', items: ['Annual Trust Reviews','Trustee Meetings','Trustee Resolutions','Beneficiary Communications'] },
+      '06 Account Register':   { icon: '📒', items: ['Master Account Register CSV','10 Financial Accounts','4 Employment Records','3 Government Records','20+ Subscriptions'] },
+      '07 Source Documents':   { icon: '📁', items: ['BankOfAmerica_0672','Fidelity_7819','InterTechnologies_7965','KinstonArts_Council','BoysGirlsClub_Wayne','LenoirCC','PayPal','Vanguard','Webull'] }
+    }
+  },
+  'Generated Documents': {
+    icon: '📄', color: '#22c55e',
+    sections: {
+      'Trusts':           { icon: '🛡️', items: ['Revocable Living Trust (RLT)','Irrevocable Land Trust (ILT)','Trust Agreements','Amendments','Restatements','Invoices'] },
+      'Notices':          { icon: '📢', items: ['Legal Notices','Notice of Presentment','OnNotice Flow'] },
+      'Affidavits':       { icon: '✍️', items: ['Sworn Affidavits','Affidavit of Fact'] },
+      'Bills of Exchange':{ icon: '💱', items: ['Bills of Exchange'] },
+      'UCC Filings':      { icon: '📎', items: ['UCC-1 Financing Statements','UCC-3 Amendments'] },
+      'Cover Sheets':     { icon: '📋', items: ['Cover Sheets'] },
+      'Invoices':         { icon: '🧾', items: ['Commercial Invoices'] },
+      'Property Transfers':{ icon: '🏠', items: ['Deeds','Assignments'] },
+      'Identity Documents':{ icon: '🪪', items: ['Identification Documents'] },
+      'Case Law Outlines': { icon: '⚖️', items: ['Case Law Research','Court Precedent Outlines'] }
+    }
+  },
+  'Financials': {
+    icon: '💰', color: '#06b6d4',
+    sections: {
+      'Accounts — Banking':     { icon: '🏦', items: ['BankOfAmerica_0672','PayPal'] },
+      'Accounts — Investment':  { icon: '📈', items: ['Fidelity_7819 (1099s, 5498s 2020-2024)','Vanguard (Statements)','Webull (Statements, 1099s 2021-2023)'] },
+      'Accounts — Employment':  { icon: '💼', items: ['Boys & Girls Club Wayne — Clint','Inter-Technologies Corp #80 — Clint (Paystubs 2023-2025)','Kinston Arts Council — Syrina (Paystubs 2025, W2s 2020-2024)','Lenoir Community College — Syrina (W2 2021)'] },
+      'Government Records':     { icon: '🏛️', items: ['IRS — W2 Transcripts 2016-2021, Returns 2023-2024','NC DOR — State Return 2024','SSA — Earnings Record, Benefit Statements'] },
+      'Subscriptions':          { icon: '📱', items: ['AI: Anthropic, Cline, OpenAI, Perplexity','Tech: Apple, Google, Microsoft','Software: Adobe, Dropbox, GitHub, Notion, Obsidian, Slack, Zoom','Streaming: Disney+, HBO Max, Hulu, Netflix, Spotify'] },
+      'Trust Records':          { icon: '🔐', items: ['Trust Account Records'] }
+    }
+  },
+  'Legal Reference Library': {
+    icon: '📚', color: '#8b5cf6',
+    sections: {
+      'Trust Law':    { icon: '⚖️', items: ["Bogert's Handbook of Trust Law (1921)","Hudson — Understanding Equity & Trusts","Restatement of Trust Law","Express Trust Under Common Law","Natural Law Trust eBook","Gilbert's Law Summaries on Trusts","Equity Trust Law Notes"] },
+      'Legal Maxims': { icon: '📜', items: ['Collection of Legal Maxims in Law and Equity','An Etymological Dictionary of the Latin Language'] },
+      'Sovereignty':  { icon: '🏛️', items: ['Art of Passing the Buck Vol 1 & 2','The Redemption Manual','Discharge That Shit Path 2 Freedom','Christian Walters Explains Trusts'] },
+      "Black's Law":  { icon: '📕', items: ["Black's Law Dictionary 4th Ed (1968)","Black's Law Dictionary 5th Ed (1979)","Black's Law Dictionary 6th Ed (1990)"] },
+      'Government':   { icon: '🏛️', items: ['GPO Style Manual 2016','The Rockefeller Files'] }
+    }
+  },
+  'Gov Forms': {
+    icon: '📝', color: '#ef4444',
+    sections: {
+      'IRS Forms':    { icon: '🧾', items: ['1099-A/B/C Templates','W-2/W-9 Templates','Form 1040/1120 Templates','POA Forms'] },
+      'UCC Templates':{ icon: '📎', items: ['UCC-1 Financing Statement','Express Trust Templates','SF Forms'] },
+      'Filing Guides':{ icon: '📋', items: ['Filing Examples','FF Examples'] }
+    }
+  }
+};
+
+// Workbook sheets cache
+var _dfcSheetsCache = null;
+var _dfcSheetsCacheTime = null;
+
+function dfcTab(name) {
+  ['vault','sheets','local'].forEach(function(t) {
+    var btn = document.getElementById('dfc-tab-' + t);
+    var panel = document.getElementById('dfc-panel-' + t);
+    var active = (t === name);
+    if (btn) {
+      btn.style.background = active ? 'var(--accent)' : 'transparent';
+      btn.style.color = active ? '#fff' : 'var(--text2)';
+      btn.style.borderBottom = active ? '2px solid var(--accent)' : '2px solid transparent';
+    }
+    if (panel) panel.style.display = active ? 'block' : 'none';
+  });
+  if (name === 'vault' && !document.getElementById('vaultTree').innerHTML) dfcRenderVault('');
+  if (name === 'local') renderDocs();
+}
+
+function dfcRenderVault(q) {
+  var tree = document.getElementById('vaultTree');
+  if (!tree) return;
+  q = (q || '').toLowerCase();
+  var html = '';
+  Object.keys(VAULT_INDEX).forEach(function(cat) {
+    var catData = VAULT_INDEX[cat];
+    var catHtml = '';
+    Object.keys(catData.sections).forEach(function(sec) {
+      var secData = catData.sections[sec];
+      var itemsHtml = secData.items.filter(function(item) {
+        return !q || item.toLowerCase().includes(q) || sec.toLowerCase().includes(q) || cat.toLowerCase().includes(q);
+      }).map(function(item) {
+        return '<div style="padding:3px 0 3px 16px;font-size:11px;color:var(--text2);border-left:1px solid rgba(255,255,255,.08);margin-left:8px">' + item + '</div>';
+      }).join('');
+      if (!itemsHtml && q) return;
+      catHtml += '<div style="margin-bottom:4px">' +
+        '<div style="display:flex;align-items:center;gap:6px;padding:5px 8px;background:rgba(255,255,255,.04);border-radius:5px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text)" onclick="this.nextSibling.style.display=this.nextSibling.style.display===\'none\'?\'block\':\'none\'">' +
+        secData.icon + ' ' + sec + '<span style="margin-left:auto;color:var(--text2);font-size:10px">' + secData.items.length + '</span></div>' +
+        '<div style="display:none">' + itemsHtml + '</div>' +
+      '</div>';
+    });
+    if (!catHtml && q) return;
+    html += '<div style="margin-bottom:12px">' +
+      '<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(255,255,255,.06);border-left:3px solid ' + catData.color + ';border-radius:6px;font-size:13px;font-weight:700;color:var(--text);cursor:pointer;margin-bottom:6px" onclick="var s=this.nextSibling;s.style.display=s.style.display===\'none\'?\'block\':\'none\'">' +
+      catData.icon + ' ' + cat + '</div>' +
+      '<div>' + catHtml + '</div>' +
+    '</div>';
+  });
+  tree.innerHTML = html || '<p style="color:var(--text2);font-size:12px">No results for "' + q + '"</p>';
+}
+
+function dfcVaultSearch(q) { dfcRenderVault(q); }
+
+function dfcSyncSheets() {
+  var bridge = getSyncBridge();
+  if (!bridge) { alert('Configure your GAS Web App URL in Settings → Sync Center first.'); return; }
+  var btn = document.getElementById('dfcSyncBtn');
+  var status = document.getElementById('dfcSheetsStatus');
+  if (btn) btn.textContent = '⏳ Syncing…';
+  if (status) status.innerHTML = '🔄 Fetching workbook sheets…';
+  dfcTab('sheets');
+  bridge.pullWorkbookSheets().then(function(res) {
+    if (btn) btn.textContent = '✅ Synced';
+    setTimeout(function(){ if(btn) btn.textContent = '🔄 Sync Sheets'; }, 3000);
+    if (res.status !== 'ok') { if(status) status.innerHTML = '❌ ' + (res.message||'Error'); return; }
+    _dfcSheetsCache = res.sheets;
+    _dfcSheetsCacheTime = new Date().toLocaleString();
+    dfcRenderSheets();
+  }).catch(function(err) {
+    if (btn) btn.textContent = '🔄 Sync Sheets';
+    if (status) status.innerHTML = '❌ ' + (err.message||String(err));
+  });
+}
+
+function dfcRenderSheets() {
+  var container = document.getElementById('dfcSheetsContent');
+  var status = document.getElementById('dfcSheetsStatus');
+  if (!container || !_dfcSheetsCache) return;
+  if (status) status.innerHTML = '✅ Last synced: ' + _dfcSheetsCacheTime + ' &nbsp;|&nbsp; <b>' + Object.keys(_dfcSheetsCache).length + '</b> sheets loaded';
+  var html = '';
+  Object.keys(_dfcSheetsCache).forEach(function(name) {
+    var sheet = _dfcSheetsCache[name];
+    var headers = sheet.headers || [];
+    var rows = sheet.rows || [];
+    html += '<div style="margin-bottom:16px;border:1px solid var(--border);border-radius:8px;overflow:hidden">' +
+      '<div style="padding:8px 12px;background:var(--bg2);font-weight:700;font-size:13px;display:flex;justify-content:space-between">' +
+        '<span>📊 ' + name + '</span><span style="font-size:11px;color:var(--text2);font-weight:400">' + rows.length + ' rows</span>' +
+      '</div>' +
+      (rows.length === 0 ? '<div style="padding:10px;font-size:12px;color:var(--text2)">No data rows</div>' :
+      '<div style="overflow-x:auto;max-height:260px;overflow-y:auto">' +
+        '<table style="width:100%;border-collapse:collapse;font-size:11px">' +
+          '<thead><tr>' + headers.filter(function(h){return h;}).map(function(h){
+            return '<th style="padding:5px 8px;background:var(--bg3,rgba(0,0,0,.2));color:var(--text2);text-align:left;white-space:nowrap;border-bottom:1px solid var(--border);position:sticky;top:0">' + h + '</th>';
+          }).join('') + '</tr></thead>' +
+          '<tbody>' + rows.slice(0,200).map(function(row,ri){
+            return '<tr style="background:' + (ri%2?'rgba(255,255,255,.02)':'transparent') + '">' +
+              headers.filter(function(h){return h;}).map(function(h){
+                return '<td style="padding:4px 8px;border-bottom:1px solid rgba(255,255,255,.04);white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis" title="' + (row[h]||'') + '">' + (row[h]||'') + '</td>';
+              }).join('') +
+            '</tr>';
+          }).join('') +
+          (rows.length > 200 ? '<tr><td colspan="' + headers.length + '" style="padding:6px;color:var(--text2);font-size:11px;text-align:center">… ' + (rows.length-200) + ' more rows (sync to refresh)</td></tr>' : '') +
+        '</tbody></table>' +
+      '</div>') +
+    '</div>';
+  });
+  container.innerHTML = html || '<p style="color:var(--text2);font-size:12px">No sheet data returned.</p>';
+}
+
+// Called from Accounting / Trust toolbar buttons — jumps to Docs → Sheets tab
+function dfcShowSheetInPanel(context) {
+  goEonPage(null, 'docs');
+  setTimeout(function() {
+    dfcTab('sheets');
+    if (_dfcSheetsCache) { dfcRenderSheets(); } else { dfcSyncSheets(); }
+  }, 120);
+}
+
+// Auto-render vault on first open
+(function() {
+  var orig = window.goEonPage;
+  if (typeof orig === 'function') {
+    window.goEonPage = function(btn, page) {
+      orig(btn, page);
+      if (page === 'docs') {
+        setTimeout(function() {
+          if (!document.getElementById('vaultTree').innerHTML) dfcRenderVault('');
+        }, 80);
+      }
+    };
+  }
+})();
 
 // ── CALENDAR ─────────────────────────────────────────────────
 

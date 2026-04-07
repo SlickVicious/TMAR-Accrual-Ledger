@@ -448,6 +448,10 @@ function importLedger1099s(filings) {
 /** Spreadsheet ID for Web App context (getActiveSpreadsheet() won't work in doGet/doPost) */
 var TMAR_SPREADSHEET_ID_ = '1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ';
 
+/** Wimberly Unified Master Register — workbook tabs to pull into TMAR */
+var WORKBOOK_ID_ = '1CYg4fwQoLARD9y3bQbn8W8HO5jI89osj';
+var WORKBOOK_TARGET_GIDS_ = [779167554, 1677909637, 1870452300];
+
 /**
  * Open the TMAR spreadsheet by ID (for Web App context).
  * In sidebar context, getActiveSpreadsheet() works. In Web App, it doesn't.
@@ -748,8 +752,51 @@ function doGet(e) {
         }
         return jsonResponse_({ status: 'ok', action: 'pullRawTab', tab: tabName, headers: rawHeaders, rows: rawRows });
 
+      // ─── Workbook Sheet Integration (Wimberly Unified Master Register) ──
+      case 'listWorkbookTabs': {
+        var wbSS = SpreadsheetApp.openById(WORKBOOK_ID_);
+        var wbTabs = wbSS.getSheets().map(function(s) {
+          return { name: s.getName(), gid: s.getSheetId(), hidden: s.isSheetHidden() };
+        });
+        return jsonResponse_({ status: 'ok', action: 'listWorkbookTabs', spreadsheetId: WORKBOOK_ID_, tabs: wbTabs });
+      }
+
+      case 'pullWorkbookSheets': {
+        var wbSS2 = SpreadsheetApp.openById(WORKBOOK_ID_);
+        var sheetData = {};
+        wbSS2.getSheets().forEach(function(sheet) {
+          var gid = sheet.getSheetId();
+          if (WORKBOOK_TARGET_GIDS_.indexOf(gid) === -1) return;
+          var lastRow = sheet.getLastRow();
+          var lastCol = sheet.getLastColumn();
+          if (lastRow < 1 || lastCol < 1) {
+            sheetData[sheet.getName()] = { gid: gid, headers: [], rows: [] };
+            return;
+          }
+          var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0].map(function(h) {
+            return (h !== null && h !== undefined) ? String(h).trim() : '';
+          });
+          var rows = [];
+          if (lastRow > 1) {
+            sheet.getRange(2, 1, lastRow - 1, lastCol).getValues().forEach(function(row) {
+              var hasData = row.some(function(c) { return c !== '' && c !== null && c !== undefined; });
+              if (!hasData) return;
+              var obj = {};
+              headers.forEach(function(h, i) {
+                var v = row[i];
+                if (v instanceof Date) v = v.toISOString().slice(0, 10);
+                obj[h || ('col' + (i + 1))] = (v !== null && v !== undefined) ? String(v) : '';
+              });
+              rows.push(obj);
+            });
+          }
+          sheetData[sheet.getName()] = { gid: gid, headers: headers, rows: rows };
+        });
+        return jsonResponse_({ status: 'ok', action: 'pullWorkbookSheets', sheets: sheetData, timestamp: new Date().toISOString() });
+      }
+
       default:
-        return errorResponse_('Unknown action: ' + action + '. Valid: ping, pullAccounts, pullTransactions, pullObligations, pull1099, pullValidation, listSheetTabs, pullRawTab');
+        return errorResponse_('Unknown action: ' + action + '. Valid: ping, pullAccounts, pullTransactions, pullObligations, pull1099, pullValidation, listSheetTabs, pullRawTab, listWorkbookTabs, pullWorkbookSheets');
     }
 
   } catch (err) {
