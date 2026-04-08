@@ -5,9 +5,10 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>TMAR Universal Accrual Ledger</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><text y=%2228%22 font-size=%2228%22>⚖️</text></svg>">
   <meta name="description" content="TMAR-Aligned Universal Accrual Ledger - Trust accounting, double-entry journal, tax forms, financial statements">
   <meta name="author" content="Clinton Wimberly IV">
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" crossorigin="anonymous">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
@@ -81,7 +82,7 @@
       background: rgba(16, 185, 129, 0.1);
     }
     .form-section {
-      animation: fadeIn 0.4s ease-out;
+      animation: fadeIn 0.4s ease-out forwards;
       padding-bottom: 100px;
     }
     @keyframes fadeIn {
@@ -170,7 +171,7 @@
       align-items: center;
       justify-content: center;
       z-index: 1000;
-      animation: fadeIn 0.2s ease-out;
+      animation: fadeIn 0.2s ease-out forwards;
     }
     .modal-content {
       background: var(--bg-secondary);
@@ -380,7 +381,8 @@
   max-height: calc(100vh - 72px);
   overflow-y: auto;
   box-sizing: border-box;
-  animation: fadeIn .3s;
+  opacity: 1;
+  animation: fadeIn .3s ease-out forwards;
 }
 #page-corporation.active {
   display: flex;
@@ -621,7 +623,7 @@
   display: flex;
   gap: 12px;
   margin-bottom: 16px;
-  animation: fadeIn .3s;
+  animation: fadeIn .3s ease-out forwards;
 }
 
 .msg-avatar {
@@ -1039,7 +1041,7 @@
 }
 
   </style>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
 <style id="_tmar_sc_css">.streaming-cursor{display:inline-block;width:2px;height:1em;background:currentColor;animation:scBlink .7s step-end infinite;vertical-align:text-bottom;margin-left:2px}@keyframes scBlink{50%{opacity:0}}</style></head>
 <body class="p-0" style="padding-bottom:80px">
   <div class="p-4 md:p-6" style="padding-bottom:72px">
@@ -34884,6 +34886,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
             <div id="awesomeOSAIGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px"><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#ef4444'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">PyTorch</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#ef4444;white-space:nowrap">Frameworks</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Dynamic computation graphs, Pythonic API, dominant in research and production.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/pytorch/pytorch" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('PyTorch','Frameworks')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#ef4444'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">TensorFlow</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#ef4444;white-space:nowrap">Frameworks</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">End-to-end platform with excellent production deployment and TPU support.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/tensorflow/tensorflow" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('TensorFlow','Frameworks')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#ef4444'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">JAX + Flax</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#ef4444;white-space:nowrap">Frameworks</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">High-performance numerical computing with composable transformations.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/jax-ml/jax" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('JAX + Flax','Frameworks')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#ef4444'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">Keras</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#ef4444;white-space:nowrap">Frameworks</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">High-level API running on multiple backends (TensorFlow, JAX, PyTorch).</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/keras-team/keras" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('Keras','Frameworks')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#f97316'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">Burn</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#f97316;white-space:nowrap">Rust ML</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Next-gen deep learning framework in Rust. Backend-agnostic with CPU/GPU/WASM.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/tracel-ai/burn" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('Burn','Rust ML')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#f97316'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">Candle (HF)</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#f97316;white-space:nowrap">Rust ML</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Minimalist ML framework for Rust with PyTorch-like API.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/huggingface/candle" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('Candle (HF)','Rust ML')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#8b5cf6'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">Transformers (HF)</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#8b5cf6;white-space:nowrap">NLP</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">De facto standard for pretrained NLP models. 1M+ models available.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/huggingface/transformers" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('Transformers (HF)','NLP')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#8b5cf6'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">sentence-transformers</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#8b5cf6;white-space:nowrap">NLP</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Classic library for sentence and image embeddings.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/UKPLab/sentence-transformers" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('sentence-transformers','NLP')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#06b6d4'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">Polars</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#06b6d4;white-space:nowrap">Data</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Blazing-fast DataFrame library (Rust backend) for large-scale workloads.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/pola-rs/polars" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('Polars','Data')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#14b8a6'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">scikit-learn</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#14b8a6;white-space:nowrap">Classical ML</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Industry-standard library for traditional ML: classification, regression, clustering.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/scikit-learn/scikit-learn" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('scikit-learn','Classical ML')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#14b8a6'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">XGBoost</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#14b8a6;white-space:nowrap">Classical ML</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Scalable gradient boosting. Dominates Kaggle and tabular competitions.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/dmlc/xgboost" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('XGBoost','Classical ML')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#22c55e'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">Optuna</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#22c55e;white-space:nowrap">AutoML</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Modern hyperparameter optimization with pruning and visualizations.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/optuna/optuna" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('Optuna','Au" "toml')"="">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#22c55e'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">AutoGluon</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#22c55e;white-space:nowrap">AutoML</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">AWS AutoML for tabular, image, text, and multimodal data.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/autogluon/autogluon" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('AutoGluon','AutoML')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#3b82f6'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">DeepSpeed</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#3b82f6;white-space:nowrap">Training</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Microsoft deep learning optimization for extreme-scale training (ZeRO, offloading).</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/microsoft/DeepSpeed" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('DeepSpeed','Training')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#3b82f6'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">FlashAttention</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#3b82f6;white-space:nowrap">Training</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Fast exact attention kernels reducing memory and accelerating transformers.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/Dao-AILab/flash-attention" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('FlashAttention','Training')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#3b82f6'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">PyTorch Lightning</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#3b82f6;white-space:nowrap">Training</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">High-level PyTorch wrapper removing boilerplate and adding best practices.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/Lightning-AI/lightning" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('PyTorch Lightning','Training')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#ffd700'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">Qwen3.5 (Alibaba)</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#ffd700;white-space:nowrap">Models</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Multimodal open series 0.8B-122B. Strong in coding, math, vision.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/QwenLM/Qwen" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('Qwen3.5 (Alibaba)','Models')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#ffd700'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">DeepSeek-V3.2 / R1</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#ffd700;white-space:nowrap">Models</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">MoE family with exceptional reasoning, math, and efficient inference.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/deepseek-ai/DeepSeek-V3" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('DeepSeek-V3.2 / R1','Models')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#ffd700'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">Gemma 3 (Google)</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#ffd700;white-space:nowrap">Models</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Lightweight powerful open models with 100+ language support.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/google-deepmind/gemma" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('Gemma 3 (Google)','Models')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#ffd700'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">MiniMax-M2.1</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#ffd700;white-space:nowrap">Models</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Open-weight model line for long-context reasoning and agentic tasks.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/MiniMax-AI/MiniMax-M1" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('MiniMax-M2.1','Models')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#ffd700'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">Kimi K2.5 (Moonshot)</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#ffd700;white-space:nowrap">Models</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Frontier open-weight MoE with 256K context, strong coding and reasoning.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/MoonshotAI/Kimi-K2.5" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('Kimi K2.5 (Moonshot)','Models')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#ffd700'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">OLMo 2 (Allen AI)</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#ffd700;white-space:nowrap">Models</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Fully open-source LLMs (1B-32B) with complete transparency.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/allenai/OLMo" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('OLMo 2 (Allen AI)','Models')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#ec4899'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">DeepSeek-Coder-V2</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#ec4899;white-space:nowrap">Code Models</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Best-in-class open coding model (236B MoE).</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/deepseek-ai/DeepSeek-Coder" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('DeepSeek-Coder-V2','Code Models')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#ec4899'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">Qwen3-Coder-Next</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#ec4899;white-space:nowrap">Code Models</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Leading open coding model for cost-effective agent deployment.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/QwenLM/Qwen3-Coder" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('Qwen3-Coder-Next','Code Models')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#ec4899'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">StarCoder2</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#ec4899;white-space:nowrap">Code Models</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">15B model trained on 600+ programming languages.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/bigcode-project/starcoder2" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('StarCoder2','Code Models')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#a855f7'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">Qwen3-VL</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#a855f7;white-space:nowrap">Vision</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Flagship VLM with 256K context, visual agent capabilities, 3D grounding.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/QwenLM/Qwen3-VL" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('Qwen3-VL','Vision')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#a855f7'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">InternVL3</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#a855f7;white-space:nowrap">Vision</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Native multimodal pretraining with superior perception and reasoning.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/OpenGVLab/InternVL" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('InternVL3','Vision')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#a855f7'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">LLaVA-OneVision</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#a855f7;white-space:nowrap">Vision</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Expanded capabilities across vision-language tasks.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/LLaVA-VL/LLaVA-NeXT" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('LLaVA-OneVision','Vision')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#f59e0b'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">Whisper (OpenAI)</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#f59e0b;white-space:nowrap">Audio</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Gold-standard open speech-to-text model.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/openai/whisper" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('Whisper (OpenAI)','Audio')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#f59e0b'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">Fish Speech</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#f59e0b;white-space:nowrap">Audio</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Zero-shot TTS with excellent voice cloning.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/fishaudio/fish-speech" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('Fish Speech','Audio')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#f59e0b'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">VibeVoice (Microsoft)</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#f59e0b;white-space:nowrap">Audio</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Frontier voice AI with expressive longform conversational speech synthesis.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/microsoft/VibeVoice" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('VibeVoice (Microsoft)','Audio')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#dc2626'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">Open-Sora</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#dc2626;white-space:nowrap">Video</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Fully open video generation model rivaling closed systems.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/hpcaitech/Open-Sora" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('Open-Sora','Video')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#dc2626'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">CogVideoX</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#dc2626;white-space:nowrap">Video</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">High-quality open text-to-video model (5B-12B).</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/THUDM/CogVideo" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('CogVideoX','Video')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#10b981'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">vLLM</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#10b981;white-space:nowrap">Inference</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">High-throughput LLM serving with PagedAttention. Production standard.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/vllm-project/vllm" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('vLLM','Inference')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#10b981'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">llama.cpp</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#10b981;white-space:nowrap">Inference</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">CPU/GPU inference in C/C++ with GGUF quantization. Runs anywhere.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/ggml-org/llama.cpp" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('llama.cpp','Inference')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#10b981'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">Ollama</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#10b981;white-space:nowrap">Inference</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">One-command local model deployment. The Docker of LLMs.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/ollama/ollama" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('Ollama','Inference')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#10b981'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">TGI (HF)</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#10b981;white-space:nowrap">Inference</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Production-grade serving with continuous batching and tensor parallelism.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/huggingface/text-generation-inference" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('TGI (HF)','Inference')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#10b981'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">SGLang</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#10b981;white-space:nowrap">Inference</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Structured generation language for fast, controllable LLM programs.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/sgl-project/sglang" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('SGLang','Inference')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#6366f1'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">LangChain</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#6366f1;white-space:nowrap">Agents</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Dominant agent and chain orchestration framework.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/langchain-ai/langchain" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('LangChain','Agents')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#6366f1'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">LlamaIndex</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#6366f1;white-space:nowrap">Agents</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Data framework connecting LLMs to external data sources.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/run-llama/llama_index" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('LlamaIndex','Agents')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#6366f1'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">CrewAI</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#6366f1;white-space:nowrap">Agents</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Role-based multi-agent orchestration framework.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/crewAIInc/crewAI" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('CrewAI','Agents')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#6366f1'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">AutoGen (Microsoft)</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#6366f1;white-space:nowrap">Agents</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Multi-agent conversation framework for complex task solving.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/microsoft/autogen" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('AutoGen (Microsoft)','Agents')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#6366f1'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">smolagents (HF)</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#6366f1;white-space:nowrap">Agents</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Lightweight library for building agentic AI systems.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/huggingface/smolagents" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('smolagents (HF)','Agents')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#6366f1'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">OpenAI Agents SDK</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#6366f1;white-space:nowrap">Agents</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Official SDK for building production multi-agent workflows.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/openai/openai-agents-python" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('OpenAI Agents SDK','Agents')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#0ea5e9'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">RAGFlow</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#0ea5e9;white-space:nowrap">RAG</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Deep document understanding RAG engine with chunk-free parsing.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/infiniflow/ragflow" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('RAGFlow','RAG')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#0ea5e9'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">Haystack</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#0ea5e9;white-space:nowrap">RAG</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">End-to-end NLP/RAG framework with modular pipeline architecture.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/deepset-ai/haystack" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('Haystack','RAG')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#0ea5e9'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">Chroma</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#0ea5e9;white-space:nowrap">RAG</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">AI-native embedding database. Simple and fast.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/chroma-core/chroma" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('Chroma','RAG')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#0ea5e9'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">Milvus</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#0ea5e9;white-space:nowrap">RAG</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Cloud-native vector database built for billion-scale similarity search.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/milvus-io/milvus" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('Milvus','RAG')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#0ea5e9'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">FAISS (Meta)</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#0ea5e9;white-space:nowrap">RAG</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Efficient similarity search and clustering of dense vectors.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/facebookresearch/faiss" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('FAISS (Meta)','RAG')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#f472b6'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">ComfyUI</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#f472b6;white-space:nowrap">Media</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Node-based Stable Diffusion GUI. Industry standard for image generation.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/comfyanonymous/ComfyUI" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('ComfyUI','Media')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#f472b6'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">Stable Diffusion (SD3.5)</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#f472b6;white-space:nowrap">Media</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Open image generation models with community fine-tunes.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/Stability-AI/StableDiffusion3" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('Stable Diffusion (SD3.5)','Media')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#f472b6'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">FLUX.1 (Black Forest)</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#f472b6;white-space:nowrap">Media</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">State-of-the-art image generation from ex-Stable Diffusion creators.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/black-forest-labs/flux" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('FLUX.1 (Black Forest)','Media')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#84cc16'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">MLflow</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#84cc16;white-space:nowrap">MLOps</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Experiment tracking, model registry, and deployment platform.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/mlflow/mlflow" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('MLflow','MLOps')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#84cc16'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">Weights &amp; Biases</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#84cc16;white-space:nowrap">MLOps</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">ML experiment tracking, visualization, and collaboration.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/wandb/wandb" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('Weights &amp; Biases','MLOps')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#84cc16'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">Label Studio</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#84cc16;white-space:nowrap">MLOps</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Multi-type data labeling and annotation tool.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/HumanSignal/label-studio" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('Label Studio','MLOps')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#06b6d4'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">Open WebUI</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#06b6d4;white-space:nowrap">Interfaces</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Self-hosted ChatGPT-like interface for local models.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/open-webui/open-webui" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('Open WebUI','Interfaces')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#06b6d4'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">LibreChat</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#06b6d4;white-space:nowrap">Interfaces</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Multi-provider chat interface supporting OpenAI, Anthropic, Ollama.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/danny-avila/LibreChat" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('LibreChat','Interfaces')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#06b6d4'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">AnythingLLM</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#06b6d4;white-space:nowrap">Interfaces</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">All-in-one desktop AI app with RAG, agents, and multi-model support.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/Mintplex-Labs/anything-llm" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('AnythingLLM','Interfaces')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#06b6d4'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">Dify</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#06b6d4;white-space:nowrap">Interfaces</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">LLM app development platform with visual prompt engineering.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/langgenius/dify" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('Dify','Interfaces')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#06b6d4'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">Flowise</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#06b6d4;white-space:nowrap">Interfaces</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Drag-and-drop LLM flow builder for LangChain apps.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/FlowiseAI/Flowise" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('Flowise','Interfaces')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#ef4444'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">Guardrails AI</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#ef4444;white-space:nowrap">Safety</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Structured output validation and safety rails for LLM applications.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/guardrails-ai/guardrails" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('Guardrails AI','Safety')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#ef4444'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">NeMo Guardrails</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#ef4444;white-space:nowrap">Safety</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">NVIDIA toolkit for controllable and safe LLM applications.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/NVIDIA/NeMo-Guardrails" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('NeMo Guardrails','Safety')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#8b5cf6'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">Aider</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#8b5cf6;white-space:nowrap">Dev Tools</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">AI pair programming in your terminal. Works with any LLM.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/paul-gauthier/aider" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('Aider','Dev Tools')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#8b5cf6'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font-weight:700;font-size:13px">Continue</div><span style="font-size:9px;padding:2px 8px;border-radius:12px;font-weight:600;color:#fff;background:#8b5cf6;white-space:nowrap">Dev Tools</span></div><div style="font-size:12px;color:var(--text2);line-height:1.6">Open-source AI code assistant for VS Code and JetBrains.</div><div style="display:flex;gap:6px;margin-top:4px"><a href="https://github.com/continuedev/continue" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:var(--accent);text-decoration:none">GitHub</a><button style="font-size:10px;color:var(--text2);padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;cursor:pointer" onclick="aiHubAskAgent('Continue','Dev Tools')">Ask Agent</button></div></div><div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all .2s" onmouseover="this.style.borderColor='#8b5cf6'" onmouseout="this.style.borderColor='var(--glass-border)'"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style<="" div=""></div></div></div></div></div></div>
 
 
+</div>
   <!-- EON: RESEARCH -->
   <div class="page" id="page-research">
 <div style="display:flex;flex:1;min-height:0">
@@ -38375,7 +38378,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
         </div>
         <div class="card-body" style="padding:10px;">
             <div id="eeonfull-status" style="font-size:12px;color:var(--text2);margin-bottom:8px;">Loading merged EEON full app...</div>
-            <iframe id="eeonfull-iframe" title="EEON Full Suite" style="width:100%;height:78vh;border:1px solid var(--border);border-radius:10px;background:#fff;" sandbox="allow-scripts allow-forms allow-modals allow-downloads allow-popups allow-popups-to-escape-sandbox allow-same-origin"></iframe>
+            <iframe id="eeonfull-iframe" title="EEON Full Suite" style="width:100%;height:78vh;border:1px solid var(--border);border-radius:10px;background:#fff;" sandbox="allow-scripts allow-forms allow-modals allow-downloads allow-popups allow-popups-to-escape-sandbox"></iframe>
         </div>
     </div>
 </div>
@@ -39024,6 +39027,669 @@ function dtHandleFiles() { alert('Dream Team file upload'); }
 
 /* STATE */
 var EEON_STATE={activeAgent:"EEON_ACCOUNTING",year:2026,agentTtsEnabled:true,ttsEnabled:true,chatMessages:[]};
+
+/* ── Form 1120 Builder Helpers ── */
+function getFormEra(year) {
+  if (year <= 2017) return 'pre-tcja';
+  if (year <= 2019) return 'tcja-initial';
+  if (year <= 2021) return 'cares-act';
+  if (year <= 2023) return 'camt-era';
+  return 'current';  // 2024+
+}
+
+function computeGraduatedTax(taxableIncome) {
+  // IRC §11(b) graduated rates effective for tax years BEFORE 2018
+  // Source: IRS Form 1120 (2016) Schedule J instructions
+  if (taxableIncome <= 0) return 0;
+  if (taxableIncome <= 50000)      return taxableIncome * 0.15;
+  if (taxableIncome <= 75000)      return 7500  + (taxableIncome - 50000)  * 0.25;
+  if (taxableIncome <= 100000)     return 13750 + (taxableIncome - 75000)  * 0.34;
+  if (taxableIncome <= 335000)     return 22250 + (taxableIncome - 100000) * 0.39;
+  if (taxableIncome <= 10000000)   return 113900 + (taxableIncome - 335000) * 0.34;
+  if (taxableIncome <= 15000000)   return 3400000 + (taxableIncome - 10000000) * 0.35;
+  if (taxableIncome <= 18333333)   return 5150000 + (taxableIncome - 15000000) * 0.38;
+  return taxableIncome * 0.35; // flat 35% above $18,333,333
+}
+
+function irsRow(num, label, id, opts) {
+  opts = opts || {};
+  const shade = opts.shade ? 'background:var(--irs-shade2);' : '';
+  const bold  = opts.bold  ? 'font-weight:700;' : '';
+  const color = opts.green ? 'color:var(--green);' : (opts.greenBg ? 'color:var(--green);' : '');
+  const bg    = opts.greenBg ? 'background:#e8ffe8;' : (opts.redBg ? 'background:#ffe8e8;' : shade);
+  const why   = opts.why  || '';
+  const whyHtml = (id && why) ? `<span class="field-why">▲ ${why}</span>` : '';
+  return `<div class="irs-row two-col" style="${bg}">
+    <div class="irs-cell num" style="${bold}">${num}</div>
+    <div class="irs-cell" style="flex:1;justify-content:space-between;align-items:flex-start;${bold}">
+      <span style="flex:1;padding-right:6px;">${label}</span>
+      ${id ? `<div class="field-wrap-why"><input class="irs-amount-field" id="${id}" style="width:110px;${bold}${color}" placeholder="0.00"/>${whyHtml}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+function irsSectionHeader(title) {
+  return `<div class="irs-section-header">${title}</div>`;
+}
+
+function irs1120Header(year) {
+  const prevYear = year - 1;
+  const nextYear = year + 1;
+  const ombNos = {
+    2016:'1545-0123', 2017:'1545-0123', 2018:'1545-0123',
+    2019:'1545-0123', 2020:'1545-0123', 2021:'1545-0123',
+    2022:'1545-0123', 2023:'1545-0123', 2024:'1545-0123'
+  };
+  const catNos = {
+    2016:'11450Q', 2017:'11450Q', 2018:'11450Q',
+    2019:'11450Q', 2020:'11450Q', 2021:'11450Q',
+    2022:'11450Q', 2023:'11450Q', 2024:'11450Q'
+  };
+  const omb = ombNos[year] || '1545-0123';
+  const cat = catNos[year] || '11450Q';
+  return `
+    <div class="irs-header">
+      <div><div class="irs-form-num">Form <b>1120</b></div>
+        <div class="irs-form-subtitle">Department of the Treasury<br/>Internal Revenue Service</div></div>
+      <div class="irs-omb">OMB No. ${omb}<br/><b>${year}</b></div>
+    </div>
+    <div class="irs-title-bar">
+      <div class="irs-main-title">U.S. Corporation Income Tax Return</div>
+      <div class="irs-sub">For calendar year ${year} or tax year beginning ______, ${year}, ending ______, 20__<br/>
+        ▶ Information about Form 1120 and its separate instructions is at <i>www.irs.gov/form1120</i>.</div>
+    </div>
+    <div style="padding:4px 8px;border-bottom:1px solid var(--irs-border);background:var(--irs-shade2);
+      display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:8.5px;color:var(--irs-border);">
+      <div>
+        <div>A Check if: &nbsp;
+          <input type="checkbox"/> <small>1 Consolidated return</small> &nbsp;
+          <input type="checkbox"/> <small>2 Personal holding co.</small> &nbsp;
+          <input type="checkbox"/> <small>3 Personal service corp.</small> &nbsp;
+          <input type="checkbox"/> <small>4 Sch M-3 attached</small>
+        </div>
+        <div style="margin-top:3px;">Name: <input class="irs-field-inline" value="EEON FOUNDATION" style="font-weight:700;width:180px;"/></div>
+        <div>Number/Street: <input class="irs-field-inline" style="width:220px;"/></div>
+        <div>City/State/ZIP: <input class="irs-field-inline" style="width:220px;"/></div>
+      </div>
+      <div>
+        <div>B &nbsp;EIN: <input class="irs-field-inline" id="f1120-ein" style="width:100px;" placeholder="XX-XXXXXXX"/></div>
+        <div>C &nbsp;Date incorporated: <input class="irs-field-inline" id="f1120-incdate" value="2016-01-01" style="width:90px;"/></div>
+        <div>D &nbsp;Total assets (see instructions): $ <input class="irs-amount-field" id="f1120-assets" style="width:110px;" placeholder="0.00"/></div>
+        <div style="margin-top:3px;">E Check if:
+          <input type="checkbox"/> <small>(1) Initial return</small> &nbsp;
+          <input type="checkbox"/> <small>(2) Final return</small> &nbsp;
+          <input type="checkbox"/> <small>(3) Name change</small> &nbsp;
+          <input type="checkbox"/> <small>(4) Address change</small>
+        </div>
+      </div>
+    </div>`;
+}
+
+function incomeSection(year) {
+  return `
+    ${irsSectionHeader('Income')}
+    ${irsRow('1a','Gross receipts or sales','f1120-1a',{why:'Enter total gross receipts/sales. IRC §61 — all income from whatever source derived. This is the top-line revenue number that begins the return.'})}
+    ${irsRow('1b','Returns and allowances','f1120-1b',{why:'Enter refunds, returns, and allowances given to customers. Reduces gross receipts on Line 1c. IRC §61.'})}
+    ${irsRow('1c','Balance. Subtract line 1b from line 1a','f1120-1c',{shade:true})}
+    ${irsRow('2','Cost of goods sold (attach Form 1125-A)','f1120-2',{why:'Direct cost of producing goods sold. Reduces gross profit on Line 3. Requires Form 1125-A if applicable. IRC §263A.'})}
+    ${irsRow('3','Gross profit. Subtract line 2 from line 1c','f1120-3',{shade:true})}
+    ${irsRow('4','Dividends (Schedule C, line 19' + (year>=2018?'':'') + ')','f1120-4')}
+    ${irsRow('5','Interest','f1120-5',{why:'Enter interest income earned. IRC §61(a)(4) — interest is includible in gross income. Carries to Line 11 Total Income.'})}
+    ${irsRow('6','Gross rents','f1120-6',{why:'Enter gross rental income received. IRC §61(a)(5) — rents are includible gross income. Carries to Line 11.'})}
+    ${irsRow('7','Gross royalties','f1120-7')}
+    ${irsRow('8','Capital gain net income (attach Schedule D (Form 1120))','f1120-8')}
+    ${irsRow('9','Net gain or (loss) from Form 4797, Part II, line 17 (attach Form 4797)','f1120-9')}
+    ${irsRow('10','Other income (see instructions — attach statement)','f1120-10',{why:'Any income not listed on Lines 1–9. Attach statement. Under Glenshaw Glass (348 U.S. 426), all accessions to wealth are income. Carries to Line 11.'})}
+    ${irsRow('11','<b>Total income.</b> Add lines 3 through 10','f1120-11',{shade:true,bold:true})}`;
+}
+
+function deductionsSection(year) {
+  // Line 25 differs between pre-TCJA (DPAD §199) and post-TCJA
+  const line25 = year <= 2017
+    ? `${irsRow('25','Domestic production activities deduction (attach Form 8903) — IRC §199','f1120-25')}
+       <div style="padding:2px 8px 2px 28px;font-size:7.5px;font-style:italic;color:var(--muted);
+         border-left:3px solid #c4830a;margin-left:20px;">
+         IRC §199 DPAD: Deduction equal to 9% of lesser of qualified production activities income or taxable income.
+         <b>REPEALED by Tax Cuts and Jobs Act (TCJA), P.L. 115-97, effective for tax years beginning after 12/31/2017.</b>
+       </div>`
+    : year <= 2021
+    ? `${irsRow('25','Reserved for future use','f1120-25')}
+       <div style="padding:2px 8px 2px 28px;font-size:7.5px;font-style:italic;color:var(--muted);
+         border-left:3px solid #666;margin-left:20px;">
+         Line 25 reserved — DPAD (IRC §199) repealed by TCJA effective tax years beginning after 12/31/2017.
+       </div>`
+    : `${irsRow('25','Energy efficient commercial buildings deduction (attach Form 7205) — IRC §179D','f1120-25')}
+       <div style="padding:2px 8px 2px 28px;font-size:7.5px;font-style:italic;color:var(--muted);
+         border-left:3px solid #1a6b3a;margin-left:20px;">
+         IRC §179D: Deduction for energy efficient commercial building property. Form 7205 required.
+         Expanded by Inflation Reduction Act (IRA), P.L. 117-169, effective 2023.
+       </div>`;
+
+  return `
+    ${irsSectionHeader('Deductions (see instructions for limitations on deductions)')}
+    ${irsRow('12','Compensation of officers (see instructions — attach Form 1125-E)','f1120-12',{why:'Officer compensation is deductible under IRC §162(a)(1) as ordinary and necessary business expense. Attach Form 1125-E if gross receipts ≥ $500,000.'})}
+    ${irsRow('13','Salaries and wages (less employment credits)','f1120-13',{why:'Deductible wages paid to employees under IRC §162(a)(1). Reduce by any employment tax credits claimed.'})}
+    ${irsRow('14','Repairs and maintenance','f1120-14',{why:'Deductible repairs under IRC §162. Must be ordinary & necessary. Do not include capital improvements (those go on Form 4562).'})}
+    ${irsRow('15','Bad debts','f1120-15')}
+    ${irsRow('16','Rents','f1120-16')}
+    ${irsRow('17','Taxes and licenses','f1120-17',{why:'State/local taxes, payroll taxes, and licenses deductible under IRC §164. Federal income tax is NOT deductible here.'})}
+    ${irsRow('18','Interest (see instructions)','f1120-18',{why:'Business interest expense deductible under IRC §163. Subject to IRC §163(j) limitation for large taxpayers. See instructions.'})}
+    ${irsRow('19','Charitable contributions','f1120-19',{why:'Deductible under IRC §170. Corporate charitable deductions limited to 10% of taxable income (pre-contribution). Excess carries forward 5 years.'})}
+    ${irsRow('20','Depreciation from Form 4562 not claimed on Form 1125-A or elsewhere on return (attach Form 4562)','f1120-20')}
+    ${irsRow('21','Depletion','f1120-21')}
+    ${irsRow('22','Advertising','f1120-22',{why:'Ordinary and necessary advertising costs deductible under IRC §162. Must be directly connected to the business.'})}
+    ${irsRow('23','Pension, profit-sharing, etc., plans','f1120-23')}
+    ${irsRow('24','Employee benefit programs','f1120-24')}
+    ${line25}
+    ${irsRow('26','Other deductions (attach statement)','f1120-26',{why:'All other ordinary and necessary business deductions under IRC §162 not listed above. Must attach a detailed statement itemizing each deduction.'})}
+    ${irsRow('27','<b>Total deductions.</b> Add lines 12 through 26','f1120-27',{shade:true,bold:true})}`;
+}
+
+function nolSection(year) {
+  // Pre-TCJA: unlimited NOL offset, 2-year carryback
+  // Post-TCJA: 80% limitation, no carryback (except CARES Act 2020-2021)
+  if (year <= 2017) {
+    return `
+    ${irsSectionHeader('Taxable Income')}
+    ${irsRow('28','Taxable income before net operating loss deduction and special deductions. Subtract line 27 from line 11','f1120-28',{shade:true})}
+    <div class="irs-row two-col">
+      <div class="irs-cell num">29a</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>Net operating loss (NOL) deduction (see instructions)<br/>
+          <span style="font-size:7.5px;color:var(--muted);font-style:italic;">
+            Pre-TCJA: Unlimited offset — no 80% limitation. 2-year carryback / 20-year carryforward (IRC §172, pre-amendment).
+            Enter available NOL: <input class="irs-amount-field" id="f1120-nol-avail" style="width:90px;" placeholder="0.00"/>
+          </span>
+        </span>
+        <input class="irs-amount-field" id="f1120-29a" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    ${irsRow('29b','Special deductions (Schedule C, line 20)','f1120-29b')}
+    ${irsRow('29c','Add lines 29a and 29b','f1120-29c',{shade:true})}
+    ${irsRow('30','<b>Taxable income.</b> Subtract line 29c from line 28. See instructions','f1120-30',{bold:true,shade:true})}`;
+  }
+
+  if (year <= 2019) {
+    return `
+    ${irsSectionHeader('Taxable Income')}
+    ${irsRow('28','Taxable income before net operating loss deduction and special deductions. Subtract line 27 from line 11','f1120-28',{shade:true})}
+    <div class="irs-row two-col">
+      <div class="irs-cell num">29a</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>Net operating loss (NOL) deduction — see instructions<br/>
+          <span style="font-size:7.5px;color:#8b5e00;font-style:italic;font-weight:700;">
+            POST-TCJA: IRC §172(a)(2) — Limited to 80% of line 28. No carryback.
+            Indefinite carryforward (IRC §172(b)(1)(A)(ii)).
+            Enter available NOL: <input class="irs-amount-field" id="f1120-nol-avail" style="width:90px;" placeholder="0.00"/>
+          </span>
+        </span>
+        <input class="irs-amount-field" id="f1120-29a" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    ${irsRow('29b','Special deductions (Schedule C, line 24)','f1120-29b')}
+    ${irsRow('29c','Add lines 29a and 29b','f1120-29c',{shade:true})}
+    ${irsRow('30','<b>Taxable income.</b> Subtract line 29c from line 28. See instructions','f1120-30',{bold:true,shade:true})}`;
+  }
+
+  if (year <= 2021) {
+    return `
+    ${irsSectionHeader('Taxable Income')}
+    ${irsRow('28','Taxable income before net operating loss deduction and special deductions. Subtract line 27 from line 11','f1120-28',{shade:true})}
+    <div class="irs-row two-col">
+      <div class="irs-cell num">29a</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>Net operating loss (NOL) deduction — see instructions<br/>
+          <span style="font-size:7.5px;color:#1a3a6b;font-style:italic;font-weight:700;">
+            CARES ACT (P.L. 116-136): 80% limitation SUSPENDED for tax years 2018-2020.
+            5-year carryback RESTORED for losses arising in tax years 2018, 2019, 2020.
+            For ${year} losses: <input type="checkbox"/> Carry back 5 years &nbsp; <input type="checkbox"/> Waive carryback
+            Enter available NOL: <input class="irs-amount-field" id="f1120-nol-avail" style="width:90px;" placeholder="0.00"/>
+          </span>
+        </span>
+        <input class="irs-amount-field" id="f1120-29a" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    ${irsRow('29b','Special deductions (Schedule C, line 24)','f1120-29b')}
+    ${irsRow('29c','Add lines 29a and 29b','f1120-29c',{shade:true})}
+    ${irsRow('30','<b>Taxable income.</b> Subtract line 29c from line 28. See instructions','f1120-30',{bold:true,shade:true})}`;
+  }
+
+  // 2022+ — CAMT era, 80% back in full effect
+  return `
+    ${irsSectionHeader('Taxable Income')}
+    ${irsRow('28','Taxable income before net operating loss deduction and special deductions. Subtract line 27 from line 11','f1120-28',{shade:true})}
+    <div class="irs-row two-col">
+      <div class="irs-cell num">29a</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>Net operating loss (NOL) deduction — see instructions<br/>
+          <span style="font-size:7.5px;color:#8b5e00;font-style:italic;font-weight:700;">
+            IRC §172(a)(2): Limited to 80% of line 28. No carryback. Indefinite carryforward.
+            Enter available NOL: <input class="irs-amount-field" id="f1120-nol-avail" style="width:90px;" placeholder="0.00"/>
+          </span>
+        </span>
+        <input class="irs-amount-field" id="f1120-29a" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    ${irsRow('29b','Special deductions (Schedule C, line 24)','f1120-29b')}
+    ${irsRow('29c','Add lines 29a and 29b','f1120-29c',{shade:true})}
+    ${irsRow('30','<b>Taxable income.</b> Subtract line 29c from line 28. See instructions','f1120-30',{bold:true,shade:true})}`;
+}
+
+function scheduleJ(year) {
+  const era = getFormEra(year);
+  const prevYear = year - 1;
+  const nextYear = year + 1;
+
+  // ── 2016-2017: GRADUATED RATES + AMT ──
+  if (year <= 2017) {
+    return `
+    <div style="padding:4px 8px;border:2px solid var(--irs-border);background:var(--irs-shade);
+      font-size:9.5px;font-weight:700;color:var(--irs-border);margin-top:8px;">
+      Schedule J — Tax Computation and Payment (see instructions)
+    </div>
+    ${irsSectionHeader("Part I — Tax Computation")}
+    <div class="irs-row two-col">
+      <div class="irs-cell num">1</div>
+      <div class="irs-cell" style="flex:1;">
+        <span>Check if the corporation is a member of a controlled group (attach Schedule O (Form 1120)) <input type="checkbox"/></span>
+      </div>
+    </div>
+    <div class="irs-row two-col">
+      <div class="irs-cell num">2</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span><b>Income tax</b> — Graduated rates per IRC §11(b) (pre-TCJA) — Check if qualified personal service corporation (flat 35%) <input type="checkbox"/><br/>
+          <span style="font-size:7.5px;font-style:italic;color:var(--muted);">
+            Rate schedule: $0–$50,000 = 15% · $50,001–$75,000 = 25% · $75,001–$100,000 = 34%
+            · $100,001–$335,000 = 39% · $335,001–$10M = 34% · $10M–$15M = 35% · $15M–$18.33M = 38% · Over $18.33M = 35%
+          </span>
+        </span>
+        <input class="irs-amount-field" id="f1120-sj2" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    <div class="irs-row two-col">
+      <div class="irs-cell num">3</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>Alternative minimum tax (attach Form 4626) — IRC §55 (applicable to corporations prior to TCJA)<br/>
+          <span style="font-size:7.5px;font-style:italic;color:var(--muted);">
+            AMT rate: 20% on AMTI over exemption. Exemption: $40,000 for most corps. Phase-out: $150,000+.
+          </span>
+        </span>
+        <input class="irs-amount-field" id="f1120-sj3" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    ${irsRow('4','Add lines 2 and 3','f1120-sj4',{shade:true,bold:true})}
+    ${irsSectionHeader("Credits")}
+    <div class="irs-row two-col" style="font-size:8.5px;">
+      <div class="irs-cell num">5a</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>Foreign tax credit (attach Form 1118)</span>
+        <input class="irs-amount-field" id="f1120-sj5a" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    <div class="irs-row two-col" style="font-size:8.5px;">
+      <div class="irs-cell num">5b</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>Credit from Form 8834 (see instructions)</span>
+        <input class="irs-amount-field" id="f1120-sj5b" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    <div class="irs-row two-col" style="font-size:8.5px;">
+      <div class="irs-cell num">5c</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span><b>General business credit (attach Form 3800) — IRC §38 — flows from Form 3800 Line 38</b></span>
+        <input class="irs-amount-field" id="f1120-sj5c" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    <div class="irs-row two-col" style="font-size:8.5px;">
+      <div class="irs-cell num">5d</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>Credit for prior year minimum tax (attach Form 8827)</span>
+        <input class="irs-amount-field" id="f1120-sj5d" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    <div class="irs-row two-col" style="font-size:8.5px;">
+      <div class="irs-cell num">5e</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>Bond credits from Form 8912</span>
+        <input class="irs-amount-field" id="f1120-sj5e" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    ${irsRow('6','Total credits. Add lines 5a through 5e','f1120-sj6',{shade:true,bold:true})}
+    ${irsRow('7','Subtract line 6 from line 4','f1120-sj7')}
+    ${irsSectionHeader("Other Taxes")}
+    <div class="irs-row two-col" style="font-size:8.5px;">
+      <div class="irs-cell num">8</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>Personal holding company tax (attach Schedule PH (Form 1120))</span>
+        <input class="irs-amount-field" id="f1120-sj8" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    <div class="irs-row two-col" style="font-size:8.5px;">
+      <div class="irs-cell num">9a</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>Recapture of investment credit (attach Form 4255)</span>
+        <input class="irs-amount-field" id="f1120-sj9a" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    <div class="irs-row two-col" style="font-size:8.5px;">
+      <div class="irs-cell num">9e</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>Alternative tax on qualified timber gains (IRC §1201(b)) — see instructions</span>
+        <input class="irs-amount-field" id="f1120-sj9e" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    ${irsRow('10','Total. Add lines 9a through 9f','f1120-sj10')}
+    ${irsRow('11','<b>Total tax.</b> Add lines 7, 8, and 10. Enter here and on page 1, line 31','f1120-sj11',{bold:true,shade:true})}
+    ${irsSectionHeader("Part II — Payments and Refundable Credits")}
+    <div class="irs-row two-col" style="font-size:8.5px;">
+      <div class="irs-cell num">12</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>${year-1} overpayment credited to ${year}</span>
+        <input class="irs-amount-field" id="f1120-sj12" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    <div class="irs-row two-col" style="font-size:8.5px;">
+      <div class="irs-cell num">13</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>${year} estimated tax payments (Form 1120-W quarterly installments — IRC §6655)</span>
+        <input class="irs-amount-field" id="f1120-sj13" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    <div class="irs-row two-col" style="font-size:8.5px;">
+      <div class="irs-cell num">14</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>${year} refund applied for on Form 4466</span>
+        <input class="irs-amount-field" id="f1120-sj14a" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    <div class="irs-row two-col" style="font-size:8.5px;">
+      <div class="irs-cell num">15</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>Tax deposited with Form 7004 (extension payment)</span>
+        <input class="irs-amount-field" id="f1120-sj15" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    <div class="irs-row two-col" style="font-size:8.5px;">
+      <div class="irs-cell num">16</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>Withholding (see instructions)</span>
+        <input class="irs-amount-field" id="f1120-sj16" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    <div class="irs-row two-col" style="font-size:8.5px;">
+      <div class="irs-cell num">17</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>Reserved (see instructions)</span>
+        <input class="irs-amount-field" id="f1120-sj17" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    <div class="irs-row two-col" style="font-size:8.5px;">
+      <div class="irs-cell num">18</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>Tax paid with Form 2439 (undistributed capital gains)</span>
+        <input class="irs-amount-field" id="f1120-sj18" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    <div class="irs-row two-col" style="font-size:8.5px;">
+      <div class="irs-cell num">19</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>Credit for federal tax on fuels and other refundable credits (attach Form 4136)</span>
+        <input class="irs-amount-field" id="f1120-sj19" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    ${irsRow('20','Total refundable credits. Add lines 18 and 19','f1120-sj20',{shade:true})}
+    ${irsRow('21','<b>Total payments. Add lines 12 through 20. Enter here and on page 1, line 32</b>','f1120-sj21',{bold:true,shade:true})}`;
+  }
+
+  // ── 2018-2024: FLAT 21% + ERA-SPECIFIC NOTES ──
+  const beatNote = (year >= 2018 && year <= 2019)
+    ? `<div style="padding:2px 8px;font-size:7.5px;color:var(--muted);font-style:italic;border-left:3px solid #4a7fd5;margin-left:20px;">
+         BEAT (Base Erosion and Anti-Abuse Tax): IRC §59A — minimum 10% tax. Form 8991 if applicable. Large multinational corps.
+       </div>` : '';
+
+  const camtNote = (year >= 2022)
+    ? `<div class="irs-row two-col" style="background:#e8f0ff;">
+         <div class="irs-cell num">3</div>
+         <div class="irs-cell" style="flex:1;justify-content:space-between;">
+           <span>Corporate alternative minimum tax (CAMT) — attach Form 4626 — IRC §55 as amended by IRA<br/>
+             <span style="font-size:7.5px;color:#1a3a6b;font-style:italic;">
+               CAMT = 15% of adjusted financial statement income. Applies to corps with avg. book income ≥ $1 billion.
+               Effective for tax years beginning after 12/31/2022. Inflation Reduction Act, P.L. 117-169.
+             </span>
+           </span>
+           <input class="irs-amount-field" id="f1120-sj3" style="width:110px;" placeholder="0.00"/>
+         </div>
+       </div>` : irsRow('3','Alternative minimum tax — <i style="font-size:8px;color:var(--muted);">Corporate AMT repealed by TCJA for tax years beginning after 12/31/2017. Reserved.</i>','');
+
+  const buybackNote = (year >= 2023)
+    ? `<div class="irs-row two-col" style="background:#f0f0ff;font-size:8.5px;">
+         <div class="irs-cell num">9b</div>
+         <div class="irs-cell" style="flex:1;justify-content:space-between;">
+           <span>Excise tax on repurchase of corporate stock (attach Form 7208) — IRC §4501<br/>
+             <span style="font-size:7.5px;color:var(--muted);font-style:italic;">
+               1% excise tax on fair market value of stock repurchased by covered corporation.
+               Effective for repurchases after 12/31/2022. Inflation Reduction Act, P.L. 117-169.
+             </span>
+           </span>
+           <input class="irs-amount-field" id="f1120-sj9b" style="width:110px;" placeholder="0.00"/>
+         </div>
+       </div>` : '';
+
+  const totalTaxLine = (year >= 2022) ? '12' : '11';
+  const paymentsRefLine = (year >= 2018) ? '23' : '21';
+
+  return `
+    <div style="padding:4px 8px;border:2px solid var(--irs-border);background:var(--irs-shade);
+      font-size:9.5px;font-weight:700;color:var(--irs-border);margin-top:8px;">
+      Schedule J — Tax Computation and Payment (see instructions)
+    </div>
+    ${irsSectionHeader("Part I — Tax Computation")}
+    <div class="irs-row two-col">
+      <div class="irs-cell num">1</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span><b>Income tax — Flat 21% rate per IRC §11(b)</b> as amended by TCJA, P.L. 115-97, effective for tax years beginning after 12/31/2017<br/>
+          Check if a member of controlled group: <input type="checkbox"/> (attach Schedule O (Form 1120))
+          ${beatNote}
+        </span>
+        <input class="irs-amount-field" id="f1120-sj2" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    ${camtNote}
+    ${irsRow('4','Add lines 1 through 3','f1120-sj4',{shade:true,bold:true})}
+    <div style="font-size:8px;color:var(--muted);padding:2px 8px;font-style:italic;">
+      Tax Credits (lines 5a–5e)
+    </div>
+    ${irsRow('5a','Foreign tax credit (attach Form 1118)','f1120-sj5a')}
+    ${irsRow('5b','Credit from Form 8834 (see instructions)','f1120-sj5b')}
+    ${irsRow('5c','<b>General business credit (attach Form 3800) — IRC §38 — Form 3800 Line 38 → Schedule J Line 5c</b>','f1120-sj5c')}
+    ${irsRow('5d','Credit for prior year minimum tax (attach Form 8827)','f1120-sj5d')}
+    ${irsRow('5e','Bond credits from Form 8912','f1120-sj5e')}
+    ${irsRow('6','Total credits. Add lines 5a through 5e','f1120-sj6',{shade:true,bold:true})}
+    ${irsRow('7','Subtract line 6 from line 4','f1120-sj7')}
+    <div class="irs-row two-col" style="font-size:8.5px;">
+      <div class="irs-cell num">8</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>Personal holding company tax (attach Schedule PH (Form 1120))</span>
+        <input class="irs-amount-field" id="f1120-sj8" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    <div class="irs-row two-col" style="font-size:8.5px;">
+      <div class="irs-cell num">9a</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>Recapture of investment credit (attach Form 4255) and other taxes — see instructions</span>
+        <input class="irs-amount-field" id="f1120-sj9a" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    ${buybackNote}
+    ${irsRow('10','Total. Add lines 9a through 9z','f1120-sj10')}
+    ${irsRow('11','Total tax before deferred taxes. Add lines 7, 8, and 10','f1120-sj11',{shade:true})}
+    ${irsRow('12','<b>Total tax.</b> Enter here and on page 1, line 31','f1120-sj12',{bold:true,shade:true})}
+    ${irsSectionHeader("Part II — Payments")}
+    <div class="irs-row two-col" style="font-size:8.5px;">
+      <div class="irs-cell num">13</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>${year-1} overpayment credited to ${year}</span>
+        <input class="irs-amount-field" id="f1120-sj13" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    <div class="irs-row two-col" style="font-size:8.5px;">
+      <div class="irs-cell num">14</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>${year} estimated tax payments (IRC §6655 quarterly installments)</span>
+        <input class="irs-amount-field" id="f1120-sj14" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    <div class="irs-row two-col" style="font-size:8.5px;">
+      <div class="irs-cell num">15</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>${year} quick refund applied for on Form 4466</span>
+        <input class="irs-amount-field" id="f1120-sj15" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    <div class="irs-row two-col" style="font-size:8.5px;">
+      <div class="irs-cell num">17</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>Tax deposited with Form 7004 (extension payment)</span>
+        <input class="irs-amount-field" id="f1120-sj17" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    <div class="irs-row two-col" style="font-size:8.5px;">
+      <div class="irs-cell num">18</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>Withholding (see instructions)</span>
+        <input class="irs-amount-field" id="f1120-sj18" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    <div class="irs-row two-col" style="font-size:8.5px;">
+      <div class="irs-cell num">20a</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>Tax paid with Form 2439</span>
+        <input class="irs-amount-field" id="f1120-sj20a" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    <div class="irs-row two-col" style="font-size:8.5px;">
+      <div class="irs-cell num">20b</div>
+      <div class="irs-cell" style="flex:1;justify-content:space-between;">
+        <span>Credit for federal tax on fuels (Form 4136)</span>
+        <input class="irs-amount-field" id="f1120-sj20b" style="width:110px;" placeholder="0.00"/>
+      </div>
+    </div>
+    ${irsRow('21','Total refundable credits. Add lines 20a through 20z','f1120-sj21',{shade:true})}
+    ${irsRow('23','<b>Total payments and credits. Add lines 13 through 21. Enter here and on page 1, line 33</b>','f1120-sj23',{bold:true,shade:true})}`;
+}
+
+function taxPaymentsSection(year) {
+  const prevYear = year - 1;
+  const nextYear = year + 1;
+
+  // Pre-TCJA (2016-2017): different line numbers and structure
+  if (year <= 2017) {
+    return `
+    ${irsSectionHeader('Tax, Refundable Credits, and Payments')}
+    ${irsRow('31','Total tax (Schedule J, Part I, line 11)','f1120-31',{bold:true})}
+    ${irsRow('32','Total payments and refundable credits (Schedule J, Part II, line 21)','f1120-32')}
+    ${irsRow('33','Estimated tax penalty. See instructions. Check if Form 2220 is attached <input type="checkbox"/>','f1120-33')}
+    ${irsRow('34','Amount owed. If line 32 is smaller than the total of lines 31 and 33, enter amount owed','f1120-34',{redBg:true})}
+    ${irsRow('35','<b>Overpayment.</b> If line 32 is larger than the total of lines 31 and 33, enter amount overpaid','f1120-35',{greenBg:true,bold:true})}
+    <div class="irs-row two-col" style="background:#e8ffe8;">
+      <div class="irs-cell num" style="font-weight:700;">36</div>
+      <div class="irs-cell" style="flex:1;font-weight:700;">
+        <span>Enter amount from line 35 you want:</span>
+        <span>Credited to ${nextYear} estimated tax <input class="irs-amount-field" id="f1120-36a" style="width:90px;" placeholder="0.00"/>
+          &nbsp; Refunded <input class="irs-amount-field" id="f1120-36b" style="width:90px;" placeholder="0.00"/></span>
+      </div>
+    </div>
+    <div style="padding:3px 8px;font-size:7.5px;color:#1a6b3a;font-style:italic;border-left:3px solid #1a6b3a;margin:2px 0;">
+      IRC §6402(a): Secretary SHALL, within the applicable period of limitations, refund any overpayment of tax. Mandatory — no discretion.
+    </div>`;
+  }
+
+  // 2018+: standard current format
+  return `
+    ${irsSectionHeader('Tax, Refundable Credits, and Payments')}
+    ${irsRow('31','Total tax (Schedule J, Part I, line 12)','f1120-31',{bold:true})}
+    ${year >= 2025 ? irsRow('32','First installment of section 1062 applicable net tax liability (Form 1062, line 15)','f1120-32') : ''}
+    ${irsRow('33','Total payments and credits (Schedule J, Part II, line 23)','f1120-33')}
+    ${irsRow('34','Estimated tax penalty. See instructions. Check if Form 2220 is attached <input type="checkbox"/>','f1120-34')}
+    ${irsRow('35','Amount owed. If line 33 is smaller than lines 31 + 32 + 34, enter amount owed','f1120-35',{redBg:true})}
+    ${irsRow('36','<b>Overpayment.</b> If line 33 is larger than lines 31 + 32 + 34, enter amount overpaid','f1120-36',{greenBg:true,bold:true})}
+    <div class="irs-row two-col" style="background:#e8ffe8;">
+      <div class="irs-cell num" style="font-weight:700;">37a</div>
+      <div class="irs-cell" style="flex:1;font-weight:700;">
+        <span>Enter amount from line 36 you want:</span>
+        <span>Credited to ${nextYear} estimated tax <input class="irs-amount-field" id="f1120-37a" style="width:90px;" placeholder="0.00"/>
+          &nbsp; <b>Refunded ▶</b> <input class="irs-amount-field" id="f1120-37" style="width:90px;color:var(--green);" placeholder="0.00"/></span>
+      </div>
+    </div>
+    <div style="padding:3px 8px;font-size:7.5px;color:#1a6b3a;font-weight:700;border-left:3px solid #1a6b3a;margin:2px 0;">
+      IRC §6402(a): In the case of any overpayment, the Secretary SHALL credit the amount against any
+      liability and SHALL refund any balance to such person. MANDATORY — no discretion — no exception.
+    </div>`;
+}
+
+function scheduleLM1(year) {
+  const prevYear = year - 1;
+  return `
+    <div style="padding:4px 8px;border-top:2px solid var(--irs-border);border-bottom:1px solid var(--irs-border);
+      font-size:9.5px;font-weight:700;color:var(--irs-border);background:var(--irs-shade);margin-top:8px;">
+      Schedule L — Balance Sheet per Books — Beginning: 1/1/${year} · End: 12/31/${year}
+    </div>
+    <div style="font-size:7.5px;color:var(--muted);padding:3px 8px;font-style:italic;">
+      Note: Not required if total receipts &lt; $250,000 AND total assets &lt; $250,000. See Schedule K item 6.
+    </div>
+    <div style="display:grid;grid-template-columns:3fr 1fr 1fr;font-size:8.5px;padding:3px 8px;
+      border-bottom:1px solid var(--irs-border);font-weight:700;background:var(--irs-shade2);">
+      <div>Assets</div><div style="text-align:right;">Beginning of tax year</div><div style="text-align:right;">End of tax year</div>
+    </div>
+    <div style="display:grid;grid-template-columns:3fr 1fr 1fr;font-size:8.5px;padding:2px 8px;border-bottom:1px solid #ddd;">
+      <div>1 Cash</div>
+      <div style="text-align:right;"><input class="irs-amount-field" style="width:85px;" placeholder="0.00"/></div>
+      <div style="text-align:right;"><input class="irs-amount-field" id="f1120-l1" style="width:85px;" placeholder="0.00"/></div>
+    </div>
+    <div style="display:grid;grid-template-columns:3fr 1fr 1fr;font-size:8.5px;padding:2px 8px;border-bottom:1px solid #ddd;background:var(--irs-shade2);">
+      <div>2a Trade notes and accounts receivable</div>
+      <div style="text-align:right;"><input class="irs-amount-field" style="width:85px;" placeholder="0.00"/></div>
+      <div style="text-align:right;"><input class="irs-amount-field" id="f1120-l2a" style="width:85px;" placeholder="0.00"/></div>
+    </div>
+    <div style="display:grid;grid-template-columns:3fr 1fr 1fr;font-size:8.5px;padding:2px 8px;border-bottom:1px solid #ddd;">
+      <div>5 Other investments (NOL financial asset)</div>
+      <div style="text-align:right;"><input class="irs-amount-field" style="width:85px;" placeholder="0.00"/></div>
+      <div style="text-align:right;"><input class="irs-amount-field" id="f1120-l5" style="width:85px;" placeholder="0.00"/></div>
+    </div>
+    <div style="display:grid;grid-template-columns:3fr 1fr 1fr;font-size:8.5px;padding:2px 8px;border-bottom:1px solid #ddd;background:var(--irs-shade2);">
+      <div>6 Buildings &amp; other depreciable assets (net)</div>
+      <div style="text-align:right;"><input class="irs-amount-field" style="width:85px;" placeholder="0.00"/></div>
+      <div style="text-align:right;"><input class="irs-amount-field" id="f1120-l6" style="width:85px;" placeholder="0.00"/></div>
+    </div>
+    <div style="display:grid;grid-template-columns:3fr 1fr 1fr;font-size:8.5px;padding:3px 8px;border-bottom:2px solid var(--irs-border);background:var(--irs-shade2);font-weight:700;">
+      <div>15 Total assets</div>
+      <div style="text-align:right;"><input class="irs-amount-field" style="width:85px;" placeholder="0.00"/></div>
+      <div style="text-align:right;"><input class="irs-amount-field" id="f1120-l15" style="width:85px;font-weight:700;" placeholder="0.00"/></div>
+    </div>
+    <div style="display:grid;grid-template-columns:3fr 1fr 1fr;font-size:8.5px;padding:2px 8px;border-bottom:1px solid #ddd;">
+      <div>16 Accounts payable</div>
+      <div style="text-align:right;"><input class="irs-amount-field" style="width:85px;" placeholder="0.00"/></div>
+      <div style="text-align:right;"><input class="irs-amount-field" id="f1120-l16" style="width:85px;" placeholder="0.00"/></div>
+    </div>
+    <div style="display:grid;grid-template-columns:3fr 1fr 1fr;font-size:8.5px;padding:3px 8px;border-bottom:2px solid var(--irs-border);background:var(--irs-shade2);font-weight:700;">
+      <div>26 Total liabilities &amp; stockholders' equity</div>
+      <div style="text-align:right;"><input class="irs-amount-field" style="width:85px;" placeholder="0.00"/></div>
+      <div style="text-align:right;"><input class="irs-amount-field" id="f1120-l28" style="width:85px;font-weight:700;" placeholder="0.00"/></div>
+    </div>
+    <div style="padding:4px 8px;border-bottom:1px solid var(--irs-border);border-top:2px solid var(--irs-border);
+      font-size:9.5px;font-weight:700;color:var(--irs-border);background:var(--irs-shade);">
+      Schedule M-1 — Reconciliation of Income (Loss) per Books With Income per Return
+    </div>
+    <div style="font-size:7.5px;color:var(--muted);padding:3px 8px;font-style:italic;">
+      Note: The corporation is not required to complete Schedules M-1 and M-2 if the total receipts for the year are less than $250,000
+      AND the total assets at the end of the year are less than $250,000.
+    </div>
+    ${irsRow('1','Net income (loss) per books','f1120-m1')}
+    ${irsRow('2','Federal income tax per books','f1120-m2')}
+    ${irsRow('5','Income recorded on books this year not included on this return (itemize)','f1120-m5')}
+    ${irsRow('10','Income (line 30, page 1) — should equal line 10, Schedule M-1','f1120-m10',{shade:true,bold:true})}`;
+}
+
 
 /* ── buildForm1120(year) ──────────────────────────────────────────────────── */
 function buildForm1120(year) {
@@ -43994,7 +44660,8 @@ function showWideModal(content) {
 
 
 
-</div></body><!-- ===== EON AI SIDEBAR ===== --></html>
+</div>
+</body><!-- ===== EON AI SIDEBAR ===== --></html>
 
 <script>
 /* upstream functions: fillFromPreset, autoRegisterJEAccounts, editJournalEntry, spvCurrSymbol */
@@ -47417,4 +48084,5 @@ console.log('✅ EON page fixes loaded — vault, history, calendar, docs, dashb
 </script>
 
 <script src="tmar-key-manager.js"></script>
-</div></body><!-- ===== EON AI SIDEBAR ===== --></html>
+</div>
+</body><!-- ===== EON AI SIDEBAR ===== --></html>
