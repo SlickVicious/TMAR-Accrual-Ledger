@@ -33721,6 +33721,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <button class="side-btn" onclick="goEonPage(this,'taxforms')" style="border-left:3px solid #22c55e"><i class="fas fa-file-invoice-dollar" style="width:18px;color:#22c55e"></i> Tax Forms (1120/Year)</button>
   <button class="side-btn" onclick="goEonPage(this,'taxestimator')" style="border-left:3px solid #f87171"><i class="fas fa-calculator" style="width:18px;color:#f87171"></i> Tax Estimator</button>
   <button class="side-btn" onclick="goEonPage(this,'eeon_suite')" style="border-left:3px solid #00e5ff"><i class="fas fa-layer-group" style="width:18px;color:#00e5ff"></i> EEON Full Suite</button>
+  <button class="side-btn" onclick="goEonPage(this,'eeonfull')" style="border-left:3px solid #f5a623"><i class="fas fa-rocket" style="width:18px;color:#f5a623"></i> EEON Runtime (Merged)</button>
   <button class="side-btn" onclick="goEonPage(this,'arbitration')"><i class="fas fa-scale-balanced" style="width:18px"></i> Arbitration</button>
 
   <div class="sidebar-title">LEGAL FIRMS</div>
@@ -38362,6 +38363,23 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <div id="generalResult" style="display:none"></div>
 </div>
 
+<!-- ═══ EEON FULL SUITE (MERGED) ═══ -->
+<div class="page" id="page-eeonfull">
+    <div class="card" style="border-color:#f5a623">
+        <div class="card-head" style="color:#f5a623;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+            <span>EEON Foundation Tax System — Full Runtime (Merged)</span>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button class="btn btn-sm" onclick="eeonReloadEmbeddedSuite()">↻ Reload Full Suite</button>
+                <button class="btn btn-primary btn-sm" onclick="eeonOpenEmbeddedSuiteInNewTab()">⤢ Open Full Screen</button>
+            </div>
+        </div>
+        <div class="card-body" style="padding:10px;">
+            <div id="eeonfull-status" style="font-size:12px;color:var(--text2);margin-bottom:8px;">Loading merged EEON full app...</div>
+            <iframe id="eeonfull-iframe" title="EEON Full Suite" style="width:100%;height:78vh;border:1px solid var(--border);border-radius:10px;background:#fff;" sandbox="allow-scripts allow-forms allow-modals allow-downloads allow-popups allow-popups-to-escape-sandbox allow-same-origin"></iframe>
+        </div>
+    </div>
+</div>
+
 <!-- ── Bottom clearance spacer for all EON pages ── -->
 <div style="height:80px;width:100%;display:block;flex-shrink:0;pointer-events:none"></div>
 
@@ -38516,6 +38534,11 @@ function initEonPage(page) {
     initChat();
   } else if (page === 'taxforms') {
     initTaxForms();
+    // Ensure Form 1120 renders its year-specific content on first visit
+    var w = document.getElementById('form1120-year-content');
+    if (w && !w.querySelector('.irs-form-wrap')) onYearChange(EEON_STATE.year);
+  } else if (page === 'eeonfull') {
+    initEmbeddedEeonSuite();
   }
 }
 
@@ -38804,16 +38827,13 @@ async function dtSend() {
 }
 
 // Tax forms
-function eeonTab(formId, btn) {
-  // Hide all panels
-  document.querySelectorAll('.eeon-panel').forEach(p => p.style.display = 'none');
-  // Remove active from all tabs
-  document.querySelectorAll('.eeon-tab').forEach(t => t.classList.remove('active'));
-  // Show selected panel
-  const panel = document.getElementById('eeon-panel-' + formId);
-  if (panel) panel.style.display = 'block';
-  // Activate tab
-  if (btn) btn.classList.add('active');
+function eeonTab(panelId,btn){
+  document.querySelectorAll('.eeon-panel').forEach(function(p){p.style.display='none';});
+  document.querySelectorAll('.eeon-tab').forEach(function(b){b.classList.remove('active');});
+  var p=document.getElementById('eeon-panel-'+panelId);
+  if(p)p.style.display='block';
+  if(btn)btn.classList.add('active');
+  if(panelId==='form1120'){var w=document.getElementById('form1120-year-content');if(w&&!w.querySelector('.irs-form-wrap'))onYearChange(EEON_STATE.year);}
 }
 
 // Placeholder functions
@@ -38995,9 +39015,675 @@ function calcBuyback() {
 }
 
 function dtHandleFiles() { alert('Dream Team file upload'); }
-function populateAllForms() { alert('Sync from GAAP ledger'); }
-function generateJournalFromForms() { alert('Push back to GAAP'); }
-function onYearChange() { console.log('Year changed'); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   EEON FOUNDATION TAX SYSTEM — STATE + FORM BUILDER + SYNC BRIDGE
+   Merged from OpenClaw.html — EEON_STATE, buildForm1120, _populate* helpers,
+   onYearChange, populateAllForms, generateJournalFromForms
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* STATE */
+var EEON_STATE={activeAgent:"EEON_ACCOUNTING",year:2026,agentTtsEnabled:true,ttsEnabled:true,chatMessages:[]};
+
+/* ── buildForm1120(year) ──────────────────────────────────────────────────── */
+function buildForm1120(year) {
+  const era = getFormEra(year);
+  const prevYear = year - 1;
+  const dueDate = year <= 2015 ? 'March 15, ' + (year+1) : 'April 15, ' + (year+1);
+
+  // Era banner at top of form
+  const eraBanner = {
+    'pre-tcja':      `<div style="background:#fff3cd;border:1px solid #8b5e00;padding:5px 8px;font-size:8px;font-weight:700;color:#5a3a00;margin-bottom:6px;">
+                       ⚠ TAX YEAR ${year} — PRE-TCJA FORM: Graduated rates (15%/25%/34%/35%) · DPAD deduction (IRC §199) · Corporate AMT · No 80% NOL limit · 2-year carryback available
+                       · Due date: ${dueDate} (15th day of 4th month after year-end per IRC §6072(b))
+                     </div>`,
+    'tcja-initial':  `<div style="background:#d4edda;border:1px solid #1a6b3a;padding:5px 8px;font-size:8px;font-weight:700;color:#0d3d1f;margin-bottom:6px;">
+                       ✓ TAX YEAR ${year} — POST-TCJA: Flat 21% rate · DPAD repealed · Corporate AMT repealed · 80% NOL limit · No carryback · BEAT (IRC §59A) for large multinationals
+                       · Due date: ${dueDate}
+                     </div>`,
+    'cares-act':     `<div style="background:#cce5ff;border:1px solid #1a3a6b;padding:5px 8px;font-size:8px;font-weight:700;color:#0a1e3a;margin-bottom:6px;">
+                       📋 TAX YEAR ${year} — CARES ACT MODIFICATIONS: P.L. 116-136 · 80% NOL limitation SUSPENDED for 2018-2020 losses · 5-year carryback RESTORED for 2018-2020 losses
+                       · Flat 21% rate applies · Due date: ${dueDate}
+                     </div>`,
+    'camt-era':      `<div style="background:#f0e8ff;border:1px solid #4a1a6b;padding:5px 8px;font-size:8px;font-weight:700;color:#2a0a4a;margin-bottom:6px;">
+                       🏛 TAX YEAR ${year} — CAMT ERA: Inflation Reduction Act, P.L. 117-169 · Corporate AMT (CAMT) reinstated at 15% for corps with avg. book income ≥ $1B · Form 4626 required
+                       ${year >= 2023 ? '· Stock buyback excise tax: 1% on repurchases (IRC §4501, Form 7208)' : ''} · Due date: ${dueDate}
+                     </div>`,
+    'current':       `<div style="background:#e8f4fd;border:1px solid #1a3a6b;padding:5px 8px;font-size:8px;font-weight:700;color:#0a1e3a;margin-bottom:6px;">
+                       📄 TAX YEAR ${year} — CURRENT FORM: Flat 21% rate · CAMT effective · Stock buyback excise tax · IRC §179D energy deduction · 80% NOL limit · Due date: ${dueDate}
+                     </div>`
+  };
+
+  return `
+    <div id="form1120-era-banner">${eraBanner[era]}</div>
+    <div class="irs-form-wrap" id="form1120">
+      ${irs1120Header(year)}
+      ${incomeSection(year)}
+      ${deductionsSection(year)}
+      ${nolSection(year)}
+      ${taxPaymentsSection(year)}
+      ${scheduleJ(year)}
+      ${scheduleLM1(year)}
+      <div class="irs-sign-row">
+        <div>
+          <div class="irs-sign-field">Sign Here — Signature of Officer ___________________________</div>
+          <div class="irs-sign-field">Date _______________ Title ______________________</div>
+        </div>
+        <div>
+          <div class="irs-sign-field">Preparer's name ________________________________</div>
+          <div class="irs-sign-field">PTIN _______________________ Date _______________</div>
+        </div>
+      </div>
+      <div class="irs-footer">Cat. No. 11450Q &nbsp;&nbsp; Form <b>1120</b> (${year})</div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+      <button class="app-btn primary" onclick="populateAllForms()">↻ Sync from Ledger</button>
+      <button class="app-btn primary" onclick="generateJournalFromForms()">📋 Generate Journal Entries from This Return</button>
+      <button class="app-btn secondary" onclick="showSection('journaldoc');generateJournalDocument('forms')">📄 Generate Full Journal Document</button>
+      <button class="app-btn ghost" onclick="printForm('form1120')">🖨 Print</button>
+    </div>`;
+}
+
+/* ── onYearChange(year) ──────────────────────────────────────────────────── */
+function onYearChange(year) {
+  year = parseInt(year) || 2026;
+  if (typeof EEON_STATE !== 'undefined') EEON_STATE.year = year;
+  // Update year badge display elements
+  var badge = document.getElementById('eeon-ybadge');
+  if (badge) badge.textContent = 'TY ' + year;
+  var globalSel = document.getElementById('eeon-tax-year');
+  if (globalSel) globalSel.value = String(year);
+  // Sync year selector if present
+  var sel = document.getElementById('eeon-f1120-year');
+  if (sel) sel.value = year;
+  // Rebuild Form 1120 with correct year
+  var wrap = document.getElementById('form1120-year-content');
+  if (wrap) wrap.innerHTML = buildForm1120(year);
+  // Update year spans in other forms
+  ['e-990-yr','e-1041-yr','e-1041-yr2','e-k1-yr','e-k1-yr2'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = year;
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Agent ↔ GAAPCLAW  BIDIRECTIONAL SYNC BRIDGE  v2.0
+   Shared key:  'GAAPCLAW_AgentSync'  (localStorage)
+
+   populateAllForms()         — reads GAAP ledger → fills every EEON tax form field
+   generateJournalFromForms() — reads form fields → writes journal entries to GAAP
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+var AGENT_SYNC_KEY   = 'GAAPCLAW_AgentSync';
+var _syncTimestamp   = null;
+
+/* ── Helpers ─────────────────────────────────────────────────────────── */
+function _fmtNum(n) {
+  var v = parseFloat(n) || 0;
+  return v === 0 ? '' : v.toFixed(2);
+}
+
+function _setField(id, value) {
+  var el = document.getElementById(id);
+  if (!el) return false;
+  var numVal = parseFloat(value) || 0;
+  el.value = numVal === 0 ? '' : numVal.toFixed(2);
+  // Fire events so any calc listeners trigger
+  ['input','change'].forEach(function(evt) {
+    el.dispatchEvent(new Event(evt, {bubbles:true}));
+  });
+  // Gold flash — visually confirms field was populated from GAAP
+  el.style.transition = 'background-color 0.3s ease';
+  el.style.backgroundColor = 'rgba(245,166,35,0.35)';
+  setTimeout(function() { el.style.backgroundColor = ''; }, 1400);
+  return true;
+}
+
+function _getField(id) {
+  var el = document.getElementById(id);
+  return el ? (parseFloat(el.value) || 0) : 0;
+}
+
+function _syncBanner(msg, type) {
+  var bar = document.getElementById('agent-sync-status');
+  if (!bar) return;
+  var colors = {ok:'#10b981', warn:'#f59e0b', error:'#ef4444', info:'#60a5fa'};
+  var col = colors[type] || '#9ca3af';
+  bar.style.cssText = [
+    'background:' + col + '11',
+    'border:1px solid ' + col + '44',
+    'border-radius:8px',
+    'padding:7px 14px',
+    'font-size:11px',
+    'font-family:"IBM Plex Mono",monospace',
+    'color:' + col,
+    'margin-bottom:10px',
+    'display:flex',
+    'align-items:center',
+    'gap:8px',
+    'flex-wrap:wrap'
+  ].join(';');
+  var span = bar.querySelector('.sync-msg');
+  if (span) span.textContent = msg;
+  else bar.innerHTML = '<span class="sync-msg">' + msg + '</span>' +
+    '<button onclick="populateAllForms()" style="background:#10b981;color:#000;border:none;padding:3px 11px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;margin-left:auto;">↻ SYNC</button>' +
+    '<button onclick="generateJournalFromForms()" style="background:#f59e0b;color:#000;border:none;padding:3px 11px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;">⇄ PUSH BACK</button>';
+}
+
+/* ── READ GAAP DATA ──────────────────────────────────────────────────── */
+function _getGAAPData() {
+  var raw; try { raw = localStorage.getItem(AGENT_SYNC_KEY); } catch(e){}
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch(e) { return null; }
+}
+
+/* ── populateAllForms() ──────────────────────────────────────────────── */
+function populateAllForms() {
+  var payload = _getGAAPData();
+  if (!payload) {
+    _syncBanner('⚠ No GAAP data found. Open GAAP.html and click "⇄ PUSH TO AGENT".', 'warn');
+    return;
+  }
+
+  var fin = payload.financials || {};
+  var yr  = parseInt(payload.taxYear) || new Date().getFullYear();
+
+  // Update year selector if present
+  var yrSel = document.getElementById('eeon-f1120-year');
+  if (yrSel) { yrSel.value = yr; }
+  if (typeof onYearChange === 'function') onYearChange(yr);
+
+  // Wait for dynamic form render and retry a few times for year-rebuilt Form 1120
+  var applySync = function(attempt) {
+    _populateForm1120(fin);
+    _populateForm990(fin, yr);
+    _populateForm1041(fin);
+    _populateForm1065(fin);
+    _populateForm1120W(fin);
+    _populateForm3800(fin);
+    _populateFormSchedC(fin);
+
+    // Update entity name in header fields if present
+    ['f1120-name','f990-name','f1041-name','f1065-name'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el && payload.entityName) el.value = payload.entityName;
+    });
+    ['f1120-taxyear','f990-taxyear','f1041-taxyear'].forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) el.value = yr;
+    });
+
+    if (attempt < 4 && !document.getElementById('f1120-31')) {
+      setTimeout(function() { applySync(attempt + 1); }, 280);
+      return;
+    }
+
+    _syncTimestamp = payload.timestamp;
+    var ts = new Date(payload.timestamp).toLocaleTimeString();
+    var cnt = payload.entryCount || 0;
+    var rev = '$' + Math.round(fin.grossReceipts||fin.revenue||0).toLocaleString();
+    var ni  = '$' + Math.round(Math.abs((fin.normalizedNetIncome !== undefined && fin.normalizedNetIncome !== null) ? fin.normalizedNetIncome : (fin.netIncome||0))).toLocaleString();
+    _syncBanner(
+      '⇄ SYNCED from GAAP — ' + cnt + ' entries · ' + rev + ' revenue · ' + ni +
+      ' net income' + (payload.entityName ? ' · ' + payload.entityName : '') + ' · TY ' + yr + ' · ' + ts,
+      'ok'
+    );
+  };
+  setTimeout(function() { applySync(1); }, 350);
+}
+
+/* ── FORM 1120  U.S. Corporation Income Tax Return ──────────────────── */
+function _populateForm1120(fin) {
+  var yr = parseInt((document.getElementById('eeon-f1120-year') || {}).value || (fin.taxYear || new Date().getFullYear()), 10) || new Date().getFullYear();
+  var gr   = fin.grossReceipts || fin.revenue || 0;
+  var exp  = fin.totalDeductions || fin.expenses || 0;
+  var pay  = fin.salariesWages || 0;
+  var ni   = (fin.normalizedNetIncome !== undefined && fin.normalizedNetIncome !== null) ? fin.normalizedNetIncome : (fin.netIncome || 0);
+  var charitable = fin.charitableContributions || 0;
+  var depr = fin.accumDepreciation || 0;
+  var otherDed = (fin.otherDeductions !== undefined && fin.otherDeductions !== null)
+    ? fin.otherDeductions
+    : Math.max(0, exp - pay - charitable - depr);
+  var totalDeductions = Math.max(0, pay + charitable + depr + otherDed);
+  var ti = (fin.taxableIncome !== undefined && fin.taxableIncome !== null)
+    ? Math.max(0, fin.taxableIncome)
+    : Math.max(0, gr - totalDeductions);
+  var tax  = (fin.corporateTax !== undefined && fin.corporateTax !== null)
+    ? Math.max(0, fin.corporateTax)
+    : Math.max(0, ti * 0.21);
+  var ast  = fin.assets || 0;
+  var liab = fin.liabilities || 0;
+  var payments = fin.taxPayments || fin.federalWithholding || 0;
+  var amountOwed = Math.max(0, tax - payments);
+  var overpay = Math.max(0, payments - tax);
+
+  // Income section
+  _setField('f1120-1a', gr);
+  _setField('f1120-1b', 0);
+  _setField('f1120-1c', gr);
+  _setField('f1120-2',  0);
+  _setField('f1120-3',  gr);
+  _setField('f1120-5',  0);
+  _setField('f1120-10', 0);
+  _setField('f1120-11', gr);
+
+  // Deductions section
+  _setField('f1120-12', 0);
+  _setField('f1120-13', pay);
+  _setField('f1120-14', 0);
+  _setField('f1120-15', 0);
+  _setField('f1120-16', 0);
+  _setField('f1120-17', 0);
+  _setField('f1120-18', 0);
+  _setField('f1120-19', charitable);
+  _setField('f1120-20', depr);
+  _setField('f1120-21', 0);
+  _setField('f1120-22', 0);
+  _setField('f1120-23', 0);
+  _setField('f1120-24', 0);
+  _setField('f1120-26', otherDed);      // Other deductions
+  _setField('f1120-27', totalDeductions); // Total deductions
+
+  // Taxable income section
+  _setField('f1120-28', ti);
+  _setField('f1120-29a', 0);
+  _setField('f1120-29b', 0);
+  _setField('f1120-29c', 0);
+  _setField('f1120-30', ti);
+
+  // Schedule J
+  _setField('f1120-sj4',  tax);
+  _setField('f1120-sj6',  0);
+  _setField('f1120-sj7',  0);
+  _setField('f1120-sj10', tax);
+  _setField('f1120-sj11', tax);
+  _setField('f1120-sj12', tax);
+  _setField('f1120-sj13', payments);
+  _setField('f1120-sj14', 0);
+  _setField('f1120-sj14a', 0);
+  _setField('f1120-sj20a', 0);
+  if (yr <= 2017) {
+    _setField('f1120-sj21', payments);
+  } else {
+    _setField('f1120-sj23', payments);
+  }
+
+  // Page 1 payments/refund lines (year-dependent)
+  _setField('f1120-31', tax);
+  if (yr <= 2017) {
+    _setField('f1120-32', payments);
+    _setField('f1120-33', 0);
+    _setField('f1120-34', amountOwed);
+    _setField('f1120-35', overpay);
+    _setField('f1120-36a', 0);
+    _setField('f1120-36b', overpay);
+  } else {
+    _setField('f1120-32', 0);
+    _setField('f1120-33', payments);
+    _setField('f1120-34', 0);
+    _setField('f1120-35', amountOwed);
+    _setField('f1120-36', overpay);
+    _setField('f1120-37a', 0);
+    _setField('f1120-37', overpay);
+  }
+
+  // Schedule L (fix prior line-mapping mismatches)
+  _setField('f1120-l1',  0);
+  _setField('f1120-l2a', 0);
+  _setField('f1120-l5',  fin.fixedAssets || 0);
+  _setField('f1120-l6',  fin.netBookValue || fin.fixedAssets || 0);
+  _setField('f1120-l15', ast);  // Total assets
+  _setField('f1120-l16', liab); // Accounts payable / liabilities proxy
+  _setField('f1120-l28', ast);  // Total liabilities + equity
+
+  // Schedule M-1
+  _setField('f1120-m1', ni);
+  _setField('f1120-m2', tax);
+  _setField('f1120-assets', ast);
+}
+
+/* ── FORM 990  Return of Organization Exempt From Income Tax ────────── */
+function _populateForm990(fin, yr) {
+  var rev  = fin.revenue || fin.grossReceipts || 0;
+  var exp  = fin.expenses || 0;
+  var ni   = fin.netIncome || 0;
+  var ast  = fin.assets || 0;
+  var liab = fin.liabilities || 0;
+  var eq   = fin.equity || 0;
+
+  var yrEl = document.getElementById('f990-year');
+  if (yrEl) yrEl.value = String(yr).slice(-2);
+  _setField('f990-taxyear',  yr);
+  _setField('f990-grossrec', rev);
+  _setField('f990-line1',    rev);
+  _setField('f990-line2',    0);    // Government grants
+  _setField('f990-line3',    0);    // Other contributions
+  _setField('f990-line4',    0);    // Investment income
+  _setField('f990-line5',    rev);  // Total revenue (Part VIII total)
+  _setField('f990-totalrev', rev);
+  _setField('f990-line13',   exp);  // Grants
+  _setField('f990-line17',   exp);  // Total expenses
+  _setField('f990-totalexp', exp);
+  _setField('f990-netinc',   ni);
+  _setField('f990-totassets',ast);
+  _setField('f990-totliab',  liab);
+  _setField('f990-netassets',eq);
+}
+
+/* ── FORM 1041  Estate/Trust Income Tax Return ──────────────────────── */
+function _populateForm1041(fin) {
+  var rev  = fin.revenue || 0;
+  var exp  = fin.expenses || 0;
+  var ni   = fin.netIncome || 0;
+  var ti   = fin.taxableIncome || 0;
+  var tax  = fin.corporateTax || 0;
+
+  _setField('f1041-1',   rev);   // Interest income
+  _setField('f1041-2a',  rev);   // Ordinary dividends
+  _setField('f1041-2b',  0);     // Qualified dividends
+  _setField('f1041-3',   ni);    // Net business income
+  _setField('f1041-4',   0);     // Net capital gain
+  _setField('f1041-5',   0);     // Rents, royalties, partnerships
+  _setField('f1041-8',   rev);   // Total income
+  _setField('f1041-11',  0);     // Fiduciary fees
+  _setField('f1041-12',  fin.charitableContributions||0); // Charitable deduction
+  _setField('f1041-14',  0);     // Attorney & accountant fees
+  _setField('f1041-15a', 0);     // Other deductions — A
+  _setField('f1041-15b', 0);     // Other deductions — B
+  _setField('f1041-16',  exp);   // Total deductions
+  _setField('f1041-17',  ni);    // Adjusted total income
+  _setField('f1041-18',  ti);    // Income distribution deduction
+  _setField('f1041-19',  0);     // Estate tax deduction
+  _setField('f1041-20',  0);     // Exemption
+  _setField('f1041-21',  ti);    // Taxable income
+  _setField('f1041-22',  ti);    // Tax
+  _setField('f1041-24',  tax);   // Tax (Schedule G)
+  _setField('f1041-27',  tax);   // Total tax
+  _setField('f1041-29',  0);     // Payments
+  _setField('f1041-30',  tax);   // Tax due
+
+  // Schedule G
+  _setField('f1041-g1',  ti);
+  _setField('f1041-g3',  ti * 0.37); // Max trust rate
+  _setField('f1041-g7',  tax);
+}
+
+/* ── FORM 1065  U.S. Return of Partnership Income ───────────────────── */
+function _populateForm1065(fin) {
+  var rev  = fin.revenue || fin.grossReceipts || 0;
+  var exp  = fin.expenses || 0;
+  var ni   = fin.netIncome || 0;
+  var ast  = fin.assets || 0;
+  var liab = fin.liabilities || 0;
+  var eq   = fin.equity || 0;
+
+  _setField('f1065-1a', rev);    // Gross receipts
+  _setField('f1065-1b', 0);      // Returns
+  _setField('f1065-1c', rev);    // Balance
+  _setField('f1065-2',  0);      // COGS
+  _setField('f1065-3',  rev);    // Gross profit
+  _setField('f1065-7',  0);      // Other income
+  _setField('f1065-8',  rev);    // Total income
+  _setField('f1065-9',  fin.salariesWages||0); // Salaries
+  _setField('f1065-10', 0);      // Guaranteed payments
+  _setField('f1065-13', 0);      // Repairs
+  _setField('f1065-14', 0);      // Bad debts
+  _setField('f1065-15', 0);      // Rent
+  _setField('f1065-16a',0);      // Taxes & licenses
+  _setField('f1065-19', 0);      // Employee benefits
+  _setField('f1065-20', 0);      // Other deductions
+  _setField('f1065-22', exp);    // Total deductions
+  _setField('f1065-k1', rev);    // Ordinary business income
+  _setField('f1065-k2', ni);     // Net rental real estate
+  _setField('f1065-k3', 0);      // Other net rental income
+  _setField('f1065-k4a',fin.charitableContributions||0); // Charitable contributions
+
+  // Schedule L — Balance Sheet
+  _setField('f1065-l1b', 0);     // Cash (end)
+  _setField('f1065-l6b', ast);   // Total assets (end)
+  _setField('f1065-l15b',liab);  // Total liabilities (end)
+  _setField('f1065-l22b',eq);    // Partners capital (end)
+
+  // Schedule M-1
+  _setField('f1065-m1', ni);
+  _setField('f1065-m3', 0);
+  _setField('f1065-m5', ni);
+  _setField('f1065-m6', 0);
+  _setField('f1065-m7', ni);
+}
+
+/* ── FORM 1120-W  Estimated Tax for Corporations ────────────────────── */
+function _populateForm1120W(fin) {
+  var ti  = fin.taxableIncome || 0;
+  var tax = fin.corporateTax  || 0;
+  _setField('f1120w-1', ti);
+  _setField('f1120w-2', tax);
+  _setField('f1120w-7', tax);
+  _setField('f1120w-8', tax);
+  // Estimated installments (quarterly = tax/4)
+  var q = tax / 4;
+  _setField('f1120w-inst1', q);
+  _setField('f1120w-inst2', q);
+  _setField('f1120w-inst3', q);
+  _setField('f1120w-inst4', q);
+}
+
+/* ── FORM 3800  General Business Credit ─────────────────────────────── */
+function _populateForm3800(fin) {
+  var tax = fin.corporateTax || 0;
+  _setField('f3800-1',  tax);    // Regular tax before credits
+  _setField('f3800-2',  tax);    // Net income tax
+  _setField('f3800-3',  tax * 0.25); // Net regular tax × 25%
+  _setField('f3800-4',  tax);
+  _setField('f3800-5',  0);      // Tentative minimum tax
+  _setField('f3800-6',  tax);    // Net income tax minus TMT
+  _setField('f3800-38', 0);      // General business credit carryback
+  _setField('f3800-39', 0);      // Carryforward
+  _setField('f3800-40', 0);      // Allowable credit
+}
+
+/* ── SCHEDULE C  Profit or Loss from Business ───────────────────────── */
+function _populateFormSchedC(fin) {
+  var rev = fin.revenue || fin.grossReceipts || 0;
+  var exp = fin.expenses || 0;
+  var ni  = fin.netIncome || 0;
+
+  _setField('schedC-1',  rev);   // Gross receipts
+  _setField('schedC-2',  0);     // Returns
+  _setField('schedC-3',  rev);   // Gross profit
+  _setField('schedC-5',  0);     // COGS
+  _setField('schedC-7',  rev);   // Gross income
+  _setField('schedC-8',  fin.salariesWages||0); // Advertising (map to wages)
+  _setField('schedC-28', exp);   // Total expenses
+  _setField('schedC-31', ni);    // Net profit/loss
+}
+
+/* ── generateJournalFromForms() ──────────────────────────────────────── */
+function generateJournalFromForms() {
+  var today = new Date().toISOString().slice(0,10);
+  var yr = parseInt((document.getElementById('eeon-f1120-year') || {}).value || new Date().getFullYear(), 10) || new Date().getFullYear();
+
+  var grossReceipts = _getField('f1120-1a') || _getField('f1120-1c') || _getField('f990-grossrec') || _getField('f1065-1a') || 0;
+  var totalExp      = _getField('f1120-27') || _getField('f1120-26') || _getField('f990-totalexp') || _getField('f1065-22') || 0;
+  var salaries      = _getField('f1120-13') || _getField('f1065-9') || 0;
+  var corporateTax  = _getField('f1120-31') || _getField('f1120-sj12') || _getField('f1120-sj11') || 0;
+  var assets        = _getField('f1120-l15') || _getField('f1120-l6') || _getField('f1065-l6b') || 0;
+  var liabilities   = _getField('f1120-l16') || _getField('f1065-l15b') || 0;
+  var l28           = _getField('f1120-l28') || 0;
+  var equity        = l28 ? Math.max(0, l28 - liabilities) : (_getField('f1065-l22b') || 0);
+  var charitable    = _getField('f1120-19') || _getField('f1065-k4a') || 0;
+
+  var taxPayments = 0;
+  if (yr <= 2017) {
+    taxPayments = _getField('f1120-32') || _getField('f1120-sj21') || 0;
+  } else {
+    taxPayments = _getField('f1120-33') || _getField('f1120-sj23') || 0;
+  }
+
+  var entries = [];
+
+  if (grossReceipts > 0) entries.push({
+    date: today, description: '[Agent→GAAP] Gross Receipts / Revenue from Form 1120 Line 1a',
+    category: 'Income', debit: 0, credit: grossReceipts, source: 'Agent'
+  });
+  if (salaries > 0) entries.push({
+    date: today, description: '[Agent→GAAP] Salaries & Wages from Form 1120 Line 13',
+    category: 'Payroll Expense', debit: salaries, credit: 0, source: 'Agent'
+  });
+  if (totalExp > salaries && totalExp > 0) entries.push({
+    date: today, description: '[Agent→GAAP] Other Deductions from Form 1120 (total deductions less payroll)',
+    category: 'Business Expense', debit: totalExp - salaries, credit: 0, source: 'Agent'
+  });
+  if (corporateTax > 0) entries.push({
+    date: today, description: '[Agent→GAAP] Corporate Income Tax Accrual 21% — IRC §11',
+    category: 'Business Expense', debit: corporateTax, credit: 0, source: 'Agent'
+  });
+  if (charitable > 0) entries.push({
+    date: today, description: '[Agent→GAAP] Charitable Contributions — IRC §170',
+    category: 'Charitable Contribution', debit: charitable, credit: 0, source: 'Agent'
+  });
+  if (assets > 0) entries.push({
+    date: today, description: '[Agent→GAAP] Total Assets — Balance Sheet',
+    category: 'Asset', debit: assets, credit: 0, source: 'Agent'
+  });
+  if (liabilities > 0) entries.push({
+    date: today, description: '[Agent→GAAP] Total Liabilities — Balance Sheet',
+    category: 'Liability', debit: 0, credit: liabilities, source: 'Agent'
+  });
+  if (taxPayments > 0) entries.push({
+    date: today, description: '[Agent→GAAP] Tax payments/credits from Form 1120 payment lines',
+    category: 'Asset', debit: taxPayments, credit: 0, source: 'Agent'
+  });
+
+  if (!entries.length) {
+    _syncBanner('⚠ No form data found to push back. Fill the tax forms first.', 'warn');
+    return;
+  }
+
+  // Write back into sync payload
+  var raw; try { raw = localStorage.getItem(AGENT_SYNC_KEY); } catch(e){}
+  var payload = {}; try { payload = JSON.parse(raw||'{}'); } catch(e){}
+  payload.agentJournalEntries    = entries;
+  payload.agentJournalTimestamp  = new Date().toISOString();
+  localStorage.setItem(AGENT_SYNC_KEY, JSON.stringify(payload));
+
+  _syncBanner(
+    '✅ Pushed ' + entries.length + ' journal entries to GAAP — open GAAP.html and click "⇄ PULL FROM AGENT"',
+    'ok'
+  );
+}
+
+/* ── Auto-listen for GAAP pushing updates ─────────────────────────── */
+window.addEventListener('storage', function(e) {
+  if (e.key !== AGENT_SYNC_KEY || !e.newValue) return;
+  try {
+    var payload = JSON.parse(e.newValue);
+    if (payload.timestamp === _syncTimestamp) return; // same data, skip
+    // Show live update notice
+    _syncBanner(
+      '⇄ GAAP updated — ' + (payload.entryCount||0) + ' entries — click ↻ SYNC to populate forms',
+      'warn'
+    );
+    // Auto-populate if taxforms tab is currently active
+    var tfPage = document.getElementById('page-taxforms');
+    if (tfPage && tfPage.classList && tfPage.classList.contains('active')) {
+      populateAllForms();
+    }
+  } catch(err){}
+});
+
+/* ── On load: check for existing GAAP data ────────────────────────── */
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(function() {
+    try {
+      var raw = localStorage.getItem(AGENT_SYNC_KEY);
+      if (!raw) return;
+      var payload = JSON.parse(raw);
+      if (!payload || !payload.timestamp) return;
+      var cnt = payload.entryCount || 0;
+      var ts  = new Date(payload.timestamp).toLocaleDateString();
+      _syncBanner(
+        '⇄ GAAP ledger available — ' + cnt + ' entries from ' + ts +
+        (payload.entityName ? ' · ' + payload.entityName : '') +
+        ' — click ↻ SYNC to populate forms',
+        'info'
+      );
+    } catch(err) {}
+  }, 800);
+});
+// ── EEON Full Suite Embedded Iframe Helpers ──────────────────────────────────
+var EEON_FULL_SUITE_BLOB_URL = null;
+var _eeonFullSuiteUrl = null;
+
+function eeonDecodeUtf8FromBase64(b64) {
+  try {
+    return decodeURIComponent(escape(atob(b64)));
+  } catch(e) {
+    try { return atob(b64); } catch(e2) { return ''; }
+  }
+}
+
+function eeonGetFullSuiteBlobUrl() {
+  // Return cached blob URL if available
+  if (EEON_FULL_SUITE_BLOB_URL) return EEON_FULL_SUITE_BLOB_URL;
+  // Try to load from EonFullSuite.html if hosted alongside this file
+  if (_eeonFullSuiteUrl) return _eeonFullSuiteUrl;
+  // If EEON_FULL_SUITE_B64 is defined (injected externally), decode it
+  if (typeof EEON_FULL_SUITE_B64 !== 'undefined' && EEON_FULL_SUITE_B64) {
+    var html = eeonDecodeUtf8FromBase64(EEON_FULL_SUITE_B64);
+    if (html) {
+      EEON_FULL_SUITE_BLOB_URL = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+      return EEON_FULL_SUITE_BLOB_URL;
+    }
+  }
+  // Fall back to relative URL for same-origin hosting
+  var basePath = window.location.href.replace(/\/[^\/]*$/, '/');
+  return basePath + 'EonFullSuite.html';
+}
+
+function initEmbeddedEeonSuite() {
+  var frame = document.getElementById('eeonfull-iframe');
+  var status = document.getElementById('eeonfull-status');
+  if (!frame) return;
+  var url = eeonGetFullSuiteBlobUrl();
+  if (!url) {
+    if (status) status.textContent = 'Could not load EEON full suite payload.';
+    return;
+  }
+  if (frame.getAttribute('data-loaded') === '1' && frame.src === url) {
+    if (status) status.textContent = 'EEON full suite ready.';
+    return;
+  }
+  if (status) status.textContent = 'Booting EEON full suite...';
+  frame.onload = function() {
+    frame.setAttribute('data-loaded', '1');
+    if (status) status.textContent = 'EEON full suite loaded.';
+  };
+  frame.onerror = function() {
+    if (status) status.textContent = '⚠ Could not load EEON full suite. Ensure EonFullSuite.html is in the same directory.';
+  };
+  frame.src = url;
+}
+
+function eeonReloadEmbeddedSuite() {
+  var frame = document.getElementById('eeonfull-iframe');
+  var status = document.getElementById('eeonfull-status');
+  if (!frame) return;
+  frame.removeAttribute('data-loaded');
+  var url = eeonGetFullSuiteBlobUrl();
+  if (url) {
+    frame.src = url;
+    if (status) status.textContent = 'Reloading EEON full suite...';
+  }
+}
+
+function eeonOpenEmbeddedSuiteInNewTab() {
+  var url = eeonGetFullSuiteBlobUrl();
+  if (!url) return;
+  window.open(url, '_blank', 'noopener,noreferrer');
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 function printForm(formId) {
   var formEl = document.getElementById(formId);
   if (!formEl) { window.print(); return; }
