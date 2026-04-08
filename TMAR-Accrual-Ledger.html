@@ -35045,7 +35045,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <div class="card-body">
     <p style="color:var(--text2);font-size:13px;margin-bottom:14px">The EEON Full Suite is the TMAR Accrual Ledger — the complete financial accounting and legal document management system running right now in this browser. Use the tabs below to access the full suite, or click Open Full Screen to launch it in a dedicated tab.</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
-      <button class="btn" style="background:#00e5ff;color:#000;font-weight:700" onclick="document.getElementById('eonSidebar').style.left='-280px';document.getElementById('eonSidebar').classList.remove('open');window.scrollTo(0,0)">← Return to Ledger</button>
+      <button class="btn" style="background:#00e5ff;color:#000;font-weight:700" onclick="toggleEonSidebar()">← Return to Ledger</button>
       <button class="btn" style="border:1px solid #00e5ff;color:#00e5ff" onclick="window.open(window.location.href,'_blank')">🗔 Open Full Screen</button>
     </div>
     <div class="stat-grid" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr))">
@@ -35063,7 +35063,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
       <div style="font-weight:700;font-size:13px;color:#00e5ff;margin-bottom:4px">💰 Accrual Ledger</div>
       <div style="font-size:11px;color:var(--text2)">Journal entries, GAAP accounting, accrual tracking</div>
     </div>
-    <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;cursor:pointer;transition:all .2s" onclick="document.getElementById('eonSidebar').style.left='-280px';document.getElementById('eonSidebar').classList.remove('open')">
+    <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:14px;cursor:pointer;transition:all .2s" onclick="goEonPage(null,'taxforms')">
       <div style="font-weight:700;font-size:13px;color:#22c55e;margin-bottom:4px">📋 Tax Forms</div>
       <div style="font-size:11px;color:var(--text2)">1120, 1040, Schedule D, form generation</div>
     </div>
@@ -38378,7 +38378,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
         </div>
         <div class="card-body" style="padding:10px;">
             <div id="eeonfull-status" style="font-size:12px;color:var(--text2);margin-bottom:8px;">Loading merged EEON full app...</div>
-            <iframe id="eeonfull-iframe" title="EEON Full Suite" style="width:100%;height:78vh;border:1px solid var(--border);border-radius:10px;background:#fff;" sandbox="allow-scripts allow-forms allow-modals allow-downloads allow-popups allow-popups-to-escape-sandbox"></iframe>
+            <iframe id="eeonfull-iframe" title="EEON Full Suite" style="width:100%;height:78vh;border:1px solid var(--border);border-radius:10px;background:#fff;" sandbox="allow-scripts allow-forms allow-modals allow-downloads allow-popups allow-popups-to-escape-sandbox allow-same-origin"></iframe>
         </div>
     </div>
 </div>
@@ -40304,7 +40304,7 @@ function eeonGetFullSuiteBlobUrl() {
   }
   // Fall back to relative URL for same-origin hosting
   var basePath = window.location.href.replace(/\/[^\/]*$/, '/');
-  return basePath + 'EonFullSuite.html';
+  return basePath + 'gas/E-Longmire%20Estate%20%E2%80%94%20Tax%20Accounting%20System.html';
 }
 
 function initEmbeddedEeonSuite() {
@@ -40326,7 +40326,7 @@ function initEmbeddedEeonSuite() {
     if (status) status.textContent = 'EEON full suite loaded.';
   };
   frame.onerror = function() {
-    if (status) status.textContent = '⚠ Could not load EEON full suite. Ensure EonFullSuite.html is in the same directory.';
+    if (status) status.textContent = '⚠ Could not load E-Longmire Tax System. Ensure gas/E-Longmire Estate — Tax Accounting System.html exists.';
   };
   frame.src = url;
 }
