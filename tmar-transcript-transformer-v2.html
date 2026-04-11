@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tmar Transcript Transformer V2</title>
+<style>
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans",
+               Helvetica, Arial, sans-serif, "Apple Color Emoji";
+  font-size: 16px;
+  line-height: 1.5;
+  color: #1f2328;
+  background: #ffffff;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 45px;
+}
+
+@media (max-width: 767px) { body { padding: 15px; } }
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 24px;
+  margin-bottom: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+h1 { font-size: 2em; padding-bottom: 0.3em; border-bottom: 1px solid #d1d9e0; }
+h2 { font-size: 1.5em; padding-bottom: 0.3em; border-bottom: 1px solid #d1d9e0; }
+h3 { font-size: 1.25em; }
+h4 { font-size: 1em; }
+h5 { font-size: 0.875em; }
+h6 { font-size: 0.85em; color: #59636e; }
+
+/* Links */
+a { color: #0969da; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Paragraphs */
+p { margin-top: 0; margin-bottom: 16px; }
+
+/* Blockquote */
+blockquote {
+  margin: 0 0 16px 0;
+  padding: 0 1em;
+  color: #59636e;
+  border-left: 4px solid #d1d9e0;
+}
+blockquote > :first-child { margin-top: 0; }
+blockquote > :last-child  { margin-bottom: 0; }
+
+/* Code */
+code {
+  padding: 0.2em 0.4em;
+  margin: 0;
+  font-size: 85%;
+  white-space: break-spaces;
+  background-color: #eff1f3;
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+               "Liberation Mono", monospace;
+}
+
+pre {
+  margin-top: 0;
+  margin-bottom: 16px;
+  padding: 16px;
+  overflow: auto;
+  font-size: 85%;
+  line-height: 1.45;
+  color: #1f2328;
+  background-color: #f6f8fa;
+  border-radius: 6px;
+  border: 1px solid #d1d9e0;
+}
+pre code {
+  padding: 0;
+  margin: 0;
+  font-size: 100%;
+  white-space: pre;
+  background: transparent;
+  border: 0;
+  word-break: normal;
+}
+
+/* Tables */
+table {
+  border-spacing: 0;
+  border-collapse: collapse;
+  display: block;
+  max-width: 100%;
+  overflow: auto;
+  margin-bottom: 16px;
+}
+table th {
+  padding: 6px 13px;
+  border: 1px solid #d1d9e0;
+  font-weight: 600;
+  background-color: #f6f8fa;
+}
+table td {
+  padding: 6px 13px;
+  border: 1px solid #d1d9e0;
+}
+table tr { background-color: #ffffff; border-top: 1px solid #d1d9e0; }
+table tr:nth-child(2n) { background-color: #f6f8fa; }
+
+/* Lists */
+ul, ol { margin-top: 0; margin-bottom: 16px; padding-left: 2em; }
+li > p { margin-top: 16px; }
+li + li { margin-top: 0.25em; }
+
+/* Horizontal rule */
+hr {
+  height: 0.25em;
+  padding: 0;
+  margin: 24px 0;
+  background-color: #d1d9e0;
+  border: 0;
+}
+
+/* Images */
+img { max-width: 100%; box-sizing: border-box; }
+
+/* Task list */
+.task-list-item { list-style-type: none; }
+.task-list-item input[type="checkbox"] {
+  margin: 0 0.2em 0.25em -1.4em;
+  vertical-align: middle;
+}
+
+/* TOC */
+.toc { background: #f6f8fa; border: 1px solid #d1d9e0; border-radius: 6px; padding: 16px 24px; margin-bottom: 24px; }
+.toc ul { margin-bottom: 0; }
+
+/* Print */
+@media print {
+  body { max-width: 100%; padding: 20px; font-size: 12pt; }
+  pre  { white-space: pre-wrap; word-wrap: break-word; }
+  h1, h2 { page-break-after: avoid; }
+  table  { page-break-inside: avoid; }
+}
+
+/* Pygments syntax highlighting */
+pre { line-height: 125%; }
+td.linenos .normal { color: #6e7681; background-color: #0d1117; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #6e7681; background-color: #0d1117; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #e6edf3; background-color: #6e7681; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #e6edf3; background-color: #6e7681; padding-left: 5px; padding-right: 5px; }
+.codehilite .hll { background-color: #6e7681 }
+.codehilite { background: #0d1117; color: #E6EDF3 }
+.codehilite .c { color: #8B949E; font-style: italic } /* Comment */
+.codehilite .err { color: #F85149 } /* Error */
+.codehilite .esc { color: #E6EDF3 } /* Escape */
+.codehilite .g { color: #E6EDF3 } /* Generic */
+.codehilite .k { color: #FF7B72 } /* Keyword */
+.codehilite .l { color: #A5D6FF } /* Literal */
+.codehilite .n { color: #E6EDF3 } /* Name */
+.codehilite .o { color: #FF7B72; font-weight: bold } /* Operator */
+.codehilite .x { color: #E6EDF3 } /* Other */
+.codehilite .p { color: #E6EDF3 } /* Punctuation */
+.codehilite .ch { color: #8B949E; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #8B949E; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #8B949E; font-weight: bold; font-style: italic } /* Comment.Preproc */
+.codehilite .cpf { color: #8B949E; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #8B949E; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #8B949E; font-weight: bold; font-style: italic } /* Comment.Special */
+.codehilite .gd { color: #FFA198; background-color: #490202 } /* Generic.Deleted */
+.codehilite .ge { color: #E6EDF3; font-style: italic } /* Generic.Emph */
+.codehilite .ges { color: #E6EDF3; font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.codehilite .gr { color: #FFA198 } /* Generic.Error */
+.codehilite .gh { color: #79C0FF; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #56D364; background-color: #0F5323 } /* Generic.Inserted */
+.codehilite .go { color: #8B949E } /* Generic.Output */
+.codehilite .gp { color: #8B949E } /* Generic.Prompt */
+.codehilite .gs { color: #E6EDF3; font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #79C0FF } /* Generic.Subheading */
+.codehilite .gt { color: #FF7B72 } /* Generic.Traceback */
+.codehilite .g-Underline { color: #E6EDF3; text-decoration: underline } /* Generic.Underline */
+.codehilite .kc { color: #79C0FF } /* Keyword.Constant */
+.codehilite .kd { color: #FF7B72 } /* Keyword.Declaration */
+.codehilite .kn { color: #FF7B72 } /* Keyword.Namespace */
+.codehilite .kp { color: #79C0FF } /* Keyword.Pseudo */
+.codehilite .kr { color: #FF7B72 } /* Keyword.Reserved */
+.codehilite .kt { color: #FF7B72 } /* Keyword.Type */
+.codehilite .ld { color: #79C0FF } /* Literal.Date */
+.codehilite .m { color: #A5D6FF } /* Literal.Number */
+.codehilite .s { color: #A5D6FF } /* Literal.String */
+.codehilite .na { color: #E6EDF3 } /* Name.Attribute */
+.codehilite .nb { color: #E6EDF3 } /* Name.Builtin */
+.codehilite .nc { color: #F0883E; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #79C0FF; font-weight: bold } /* Name.Constant */
+.codehilite .nd { color: #D2A8FF; font-weight: bold } /* Name.Decorator */
+.codehilite .ni { color: #FFA657 } /* Name.Entity */
+.codehilite .ne { color: #F0883E; font-weight: bold } /* Name.Exception */
+.codehilite .nf { color: #D2A8FF; font-weight: bold } /* Name.Function */
+.codehilite .nl { color: #79C0FF; font-weight: bold } /* Name.Label */
+.codehilite .nn { color: #FF7B72 } /* Name.Namespace */
+.codehilite .nx { color: #E6EDF3 } /* Name.Other */
+.codehilite .py { color: #79C0FF } /* Name.Property */
+.codehilite .nt { color: #7EE787 } /* Name.Tag */
+.codehilite .nv { color: #79C0FF } /* Name.Variable */
+.codehilite .ow { color: #FF7B72; font-weight: bold } /* Operator.Word */
+.codehilite .pm { color: #E6EDF3 } /* Punctuation.Marker */
+.codehilite .w { color: #6E7681 } /* Text.Whitespace */
+.codehilite .mb { color: #A5D6FF } /* Literal.Number.Bin */
+.codehilite .mf { color: #A5D6FF } /* Literal.Number.Float */
+.codehilite .mh { color: #A5D6FF } /* Literal.Number.Hex */
+.codehilite .mi { color: #A5D6FF } /* Literal.Number.Integer */
+.codehilite .mo { color: #A5D6FF } /* Literal.Number.Oct */
+.codehilite .sa { color: #79C0FF } /* Literal.String.Affix */
+.codehilite .sb { color: #A5D6FF } /* Literal.String.Backtick */
+.codehilite .sc { color: #A5D6FF } /* Literal.String.Char */
+.codehilite .dl { color: #79C0FF } /* Literal.String.Delimiter */
+.codehilite .sd { color: #A5D6FF } /* Literal.String.Doc */
+.codehilite .s2 { color: #A5D6FF } /* Literal.String.Double */
+.codehilite .se { color: #79C0FF } /* Literal.String.Escape */
+.codehilite .sh { color: #79C0FF } /* Literal.String.Heredoc */
+.codehilite .si { color: #A5D6FF } /* Literal.String.Interpol */
+.codehilite .sx { color: #A5D6FF } /* Literal.String.Other */
+.codehilite .sr { color: #79C0FF } /* Literal.String.Regex */
+.codehilite .s1 { color: #A5D6FF } /* Literal.String.Single */
+.codehilite .ss { color: #A5D6FF } /* Literal.String.Symbol */
+.codehilite .bp { color: #E6EDF3 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #D2A8FF; font-weight: bold } /* Name.Function.Magic */
+.codehilite .vc { color: #79C0FF } /* Name.Variable.Class */
+.codehilite .vg { color: #79C0FF } /* Name.Variable.Global */
+.codehilite .vi { color: #79C0FF } /* Name.Variable.Instance */
+.codehilite .vm { color: #79C0FF } /* Name.Variable.Magic */
+.codehilite .il { color: #A5D6FF } /* Literal.Number.Integer.Long */
+.codehilite { background: #0d1117; border-radius: 6px; border: 1px solid #30363d; }
+.codehilite pre { background: transparent; color: #e6edf3; border: none; margin: 0; }
+.codehilite .hll { background-color: #6e7681; }
+</style>
+</head>
+<body>
+<h1 id="tmar-transcript-transformer-v200">TMAR Transcript Transformer v2.0.0<a class="headerlink" href="#tmar-transcript-transformer-v200" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>Export pipeline: Audio → MacWhisper → Transcript Transformer → md-github-exporter → Styled HTML + PDF</p>
+</blockquote>
+<hr />
+<h2 id="deliverables">Deliverables<a class="headerlink" href="#deliverables" title="Permanent link">&para;</a></h2>
+<h3 id="md-github-exporterskill"><code>md-github-exporter.skill</code><a class="headerlink" href="#md-github-exporterskill" title="Permanent link">&para;</a></h3>
+<p>Install in Claude Desktop or Claude.ai. Triggers automatically when you mention:<br />
+- Exporting markdown<br />
+- GitHub styling<br />
+- Transcript export<br />
+- &ldquo;export it&rdquo; / &ldquo;GitHub style&rdquo;</p>
+<p>Drop it in your skills folder and it&rsquo;s live.</p>
+<hr />
+<h3 id="md2github_exportpy"><code>md2github_export.py</code><a class="headerlink" href="#md2github_exportpy" title="Permanent link">&para;</a></h3>
+<p>Standalone script. Works on <strong>Windows PC</strong> and <strong>MacBook</strong>.</p>
+<p><strong>Three ways to run it:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Default — outputs both HTML + PDF</span>
+python<span class="w"> </span>md2github_export.py<span class="w"> </span>yourfile.md
+
+<span class="c1"># HTML only (faster, no Playwright)</span>
+python<span class="w"> </span>md2github_export.py<span class="w"> </span>yourfile.md<span class="w"> </span>--html-only
+
+<span class="c1"># Custom output path</span>
+python<span class="w"> </span>md2github_export.py<span class="w"> </span>yourfile.md<span class="w"> </span>custom_output.pdf
+</code></pre></div>
+
+<hr />
+<h3 id="github-readme-printcss"><code>github-readme-print.css</code><a class="headerlink" href="#github-readme-printcss" title="Permanent link">&para;</a></h3>
+<p>Obsidian snippet for <strong>Better Export PDF</strong>.</p>
+<p><strong>Install:</strong> Drop in <code>.obsidian/snippets/</code><br />
+<strong>Enable:</strong> Settings → Appearance → CSS Snippets → toggle on</p>
+<hr />
+<h3 id="html-pdf-exports">HTML &amp; PDF Exports<a class="headerlink" href="#html-pdf-exports" title="Permanent link">&para;</a></h3>
+<p>Fresh exports from the final pipeline with all fixes applied.</p>
+<hr />
+<h2 id="pipeline-flow">Pipeline Flow<a class="headerlink" href="#pipeline-flow" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="n">Audio</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">MacWhisper</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">Raw</span><span class="w"> </span><span class="n">Transcript</span>
+<span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">Transcript</span><span class="w"> </span><span class="n">Transformer</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">Structured</span><span class="w"> </span><span class="n">Outline</span><span class="w"> </span><span class="p">(</span><span class="o">.</span><span class="n">md</span><span class="p">)</span>
+<span class="w">    </span><span class="err">→</span><span class="w"> </span><span class="n">md</span><span class="o">-</span><span class="n">github</span><span class="o">-</span><span class="n">exporter</span><span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">Styled</span><span class="w"> </span><span class="n">HTML</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">PDF</span>
+</code></pre></div>
+
+<p>The skill docs reference this integration pattern.<br />
+When running Transcript Transformer and wanting the export step — say <strong>&ldquo;export it&rdquo;</strong> or <strong>&ldquo;GitHub style&rdquo;</strong> and the skill kicks in automatically.</p>
+<hr />
+<h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>
+<p>Install once on each machine:</p>
+<div class="codehilite"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>markdown<span class="w"> </span>pygments<span class="w"> </span>playwright
+python<span class="w"> </span>-m<span class="w"> </span>playwright<span class="w"> </span>install<span class="w"> </span>chromium
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>markdown</code></td>
+<td>Parse and render <code>.md</code> → HTML</td>
+</tr>
+<tr>
+<td><code>pygments</code></td>
+<td>Syntax highlighting for code blocks</td>
+</tr>
+<tr>
+<td><code>playwright</code></td>
+<td>Headless Chromium for PDF rendering</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="file-locations">File Locations<a class="headerlink" href="#file-locations" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Path</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Skill</td>
+<td><code>~/.claude/commands/md-github-exporter.md</code></td>
+</tr>
+<tr>
+<td>Script</td>
+<td><code>~/Documents/TMAR-Accrual-Ledger/md2github_export.py</code></td>
+</tr>
+<tr>
+<td>CSS snippet</td>
+<td><code>~/Documents/TMAR-Accrual-Ledger/github-readme-print.css</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>Generated: TMAR Accrual Ledger — April 2026</em></p>
+</body>
+</html>

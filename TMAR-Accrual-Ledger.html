@@ -6230,6 +6230,54 @@
           </div>
         </div>
       </div>
+      <!-- CSV Import Panel -->
+      <div class="border border-yellow-500/30 rounded-xl p-5 mb-5 bg-yellow-500/5">
+        <h3 class="text-sm font-bold text-yellow-400 mb-2">📂 Import Transactions from CSV</h3>
+        <p class="text-xs text-gray-400 mb-3">Accepts <code>ALL_transactions_combined.csv</code> or any per-bank CSV with columns: <code>date, type, amount, description, source</code>.</p>
+        <div class="flex flex-wrap gap-3 items-end">
+          <div>
+            <label class="block text-xs text-gray-400 mb-1">Statement CSV File</label>
+            <input type="file" accept=".csv" id="reconCSVFile" onchange="reconImportCSV(this)" class="text-xs text-gray-300 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:bg-yellow-600 file:text-black file:font-bold file:text-xs cursor-pointer">
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 mb-1">Filter by Source/Bank</label>
+            <select id="reconSourceFilter" class="border border-gray-600 p-2 rounded-lg bg-gray-700 text-white text-sm" onchange="reconApplySourceFilter()">
+              <option value="">-- All Sources --</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 mb-1">Date From</label>
+            <input type="date" id="reconFilterFrom" class="border border-gray-600 p-2 rounded-lg bg-gray-700 text-white text-sm" onchange="reconApplySourceFilter()">
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 mb-1">Date To</label>
+            <input type="date" id="reconFilterTo" class="border border-gray-600 p-2 rounded-lg bg-gray-700 text-white text-sm" onchange="reconApplySourceFilter()">
+          </div>
+          <button onclick="reconAutoFill()" class="bg-yellow-600 hover:bg-yellow-500 text-black px-4 py-2 rounded-lg font-bold text-sm">⚡ Auto-Fill Balances</button>
+        </div>
+        <div id="reconImportSummary" class="mt-3 text-xs text-gray-400"></div>
+        <div id="reconTxTableWrap" class="mt-4 hidden">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-xs font-bold text-gray-300">Transaction Detail</span>
+            <input type="text" id="reconTxSearch" placeholder="Search description…" oninput="reconFilterTxTable()" class="text-xs border border-gray-600 bg-gray-700 text-white px-2 py-1 rounded w-48">
+          </div>
+          <div class="overflow-y-auto" style="max-height:220px">
+            <table class="min-w-full border-collapse text-xs" id="reconTxTable">
+              <thead class="sticky top-0 bg-gray-800">
+                <tr>
+                  <th class="border border-gray-600 px-2 py-1 text-left">Date</th>
+                  <th class="border border-gray-600 px-2 py-1 text-left">Source</th>
+                  <th class="border border-gray-600 px-2 py-1 text-left">Type</th>
+                  <th class="border border-gray-600 px-2 py-1 text-right">Amount</th>
+                  <th class="border border-gray-600 px-2 py-1 text-left">Description</th>
+                </tr>
+              </thead>
+              <tbody id="reconTxBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
       <!-- Reconciliation Results -->
       <div class="border border-gray-600 rounded-xl p-5 mb-5" id="reconResultsPanel">
         <h3 class="text-base font-bold text-white mb-4">⚖️ Reconciliation Results</h3>
@@ -12325,6 +12373,151 @@ function exportFilingPDF(formType, data) {
     }).join('');
   }
   function deleteRecon(i){reconciliations.splice(i,1);localStorage.setItem('TMAR_Reconciliations',JSON.stringify(reconciliations));renderReconHistory();}
+
+  // -- Bank Recon CSV Import Engine -----------------------------------------
+  var _reconAllRows = [];
+  var _reconFilteredRows = [];
+
+  if (!window._tmarParseCSVLine) {
+    window._tmarParseCSVLine = function(line) {
+      var result = [], cur = "", inQ = false;
+      for (var i = 0; i < line.length; i++) {
+        var ch = line[i];
+        if (ch === '"') { inQ = !inQ; }
+        else if (ch === ',' && !inQ) { result.push(cur.trim()); cur = ''; }
+        else { cur += ch; }
+      }
+      result.push(cur.trim());
+      return result;
+    };
+  }
+
+  function reconImportCSV(fileInput) {
+    if (!fileInput || !fileInput.files || !fileInput.files[0]) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var lines = e.target.result.split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
+      if (lines.length < 2) { showAlert('CSV appears empty.', 'Import Error'); return; }
+      var hdr = lines[0].toLowerCase().split(',').map(function(h){ return h.replace(/"/g,'').trim(); });
+      var di = hdr.indexOf('date'), ti = hdr.indexOf('type'), ai = hdr.indexOf('amount'),
+          desi = hdr.indexOf('description'), si = hdr.indexOf('source');
+      if (di < 0 || ai < 0) {
+        showAlert('CSV must contain: date, amount (optionally type, description, source).', 'Import Error');
+        return;
+      }
+      _reconAllRows = [];
+      for (var i = 1; i < lines.length; i++) {
+        var cols = window._tmarParseCSVLine(lines[i]);
+        if (!cols.length) continue;
+        _reconAllRows.push({
+          date:   cols[di]  || '',
+          type:   ti  >= 0 ? (cols[ti]  || '') : '',
+          amount: parseFloat(cols[ai]) || 0,
+          desc:   desi >= 0 ? (cols[desi] || '') : '',
+          source: si  >= 0 ? (cols[si]  || 'Imported') : 'Imported'
+        });
+      }
+      var sources = [];
+      _reconAllRows.forEach(function(r){ if (sources.indexOf(r.source) < 0) sources.push(r.source); });
+      sources.sort();
+      var sel = document.getElementById('reconSourceFilter');
+      if (sel) {
+        sel.innerHTML = '<option value="">-- All Sources --</option>' +
+          sources.map(function(s){ return '<option value="'+s+'">'+s+'</option>'; }).join('');
+      }
+      reconApplySourceFilter();
+      var sumEl = document.getElementById('reconImportSummary');
+      if (sumEl) sumEl.textContent = 'Loaded ' + _reconAllRows.length.toLocaleString() + ' transactions from: ' + sources.join(', ');
+    };
+    reader.readAsText(fileInput.files[0]);
+  }
+
+  function reconApplySourceFilter() {
+    var src  = (document.getElementById('reconSourceFilter') || {}).value || '';
+    var from = (document.getElementById('reconFilterFrom')   || {}).value || '';
+    var to   = (document.getElementById('reconFilterTo')     || {}).value || '';
+    function normD(d) {
+      if (!d) return '';
+      if (d.indexOf('/') >= 0) { var p=d.split('/'); if(p.length===3) return p[2]+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0'); }
+      return d;
+    }
+    _reconFilteredRows = _reconAllRows.filter(function(r) {
+      if (src && r.source !== src) return false;
+      var rd = normD(r.date);
+      if (from && rd < from) return false;
+      if (to   && rd > to)   return false;
+      return true;
+    });
+    renderReconTxTable(_reconFilteredRows);
+  }
+
+  function renderReconTxTable(rows) {
+    var wrap  = document.getElementById('reconTxTableWrap');
+    var tbody = document.getElementById('reconTxBody');
+    if (!wrap || !tbody) return;
+    if (!rows.length) { wrap.classList.add('hidden'); return; }
+    wrap.classList.remove('hidden');
+    var credits = 0, debits = 0;
+    tbody.innerHTML = rows.map(function(r) {
+      var isCredit = r.type.toLowerCase() === 'credit';
+      if (isCredit) credits += r.amount; else debits += r.amount;
+      var color = isCredit ? '#34d399' : '#f87171';
+      var esc = r.desc.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      return '<tr style="border-top:1px solid #374151">'
+        + '<td style="padding:3px 6px;font-size:11px">' + r.date + '</td>'
+        + '<td style="padding:3px 6px;font-size:11px;color:#67e8f9">' + r.source + '</td>'
+        + '<td style="padding:3px 6px;font-size:11px;color:' + color + '">' + r.type + '</td>'
+        + '<td style="padding:3px 6px;font-size:11px;text-align:right;font-family:monospace;color:' + color + '">' + fmtMoney(r.amount) + '</td>'
+        + '<td style="padding:3px 6px;font-size:11px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc+'">'+esc+'</td>'
+        + '</tr>';
+    }).join('');
+    var sumEl = document.getElementById('reconImportSummary');
+    if (sumEl) sumEl.innerHTML = '<strong>' + rows.length.toLocaleString() + '</strong> transactions &nbsp;|&nbsp;'
+      + '<span style="color:#34d399"> Credits: ' + fmtMoney(credits) + '</span> &nbsp;|&nbsp;'
+      + '<span style="color:#f87171"> Debits: ' + fmtMoney(debits) + '</span>';
+  }
+
+  function reconFilterTxTable() {
+    var q = ((document.getElementById('reconTxSearch') || {}).value || '').toLowerCase();
+    if (!q) { renderReconTxTable(_reconFilteredRows); return; }
+    renderReconTxTable(_reconFilteredRows.filter(function(r) {
+      return r.desc.toLowerCase().indexOf(q) >= 0 || r.source.toLowerCase().indexOf(q) >= 0 || r.date.indexOf(q) >= 0;
+    }));
+  }
+
+  function reconAutoFill() {
+    var rows = _reconFilteredRows.length ? _reconFilteredRows : _reconAllRows;
+    if (!rows.length) { showAlert('Import a CSV file first, then click Auto-Fill.', 'No Data'); return; }
+    var credits = 0, debits = 0;
+    rows.forEach(function(r) {
+      if (r.type.toLowerCase() === 'credit') credits += r.amount; else debits += r.amount;
+    });
+    var net = credits - debits;
+    var bbEl = document.getElementById('reconBankBalance');
+    if (bbEl) bbEl.value = net.toFixed(2);
+    var src = (document.getElementById('reconSourceFilter') || {}).value || 'Imported';
+    var acctEl = document.getElementById('reconAcctName');
+    if (acctEl && !acctEl.value) acctEl.value = src;
+    function normD(d) {
+      if (!d) return '';
+      if (d.indexOf('/') >= 0) { var p=d.split('/'); if(p.length===3) return p[2]+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0'); }
+      return d;
+    }
+    var dates = rows.map(function(r){ return normD(r.date); }).filter(Boolean).sort();
+    var stmtEl = document.getElementById('reconStmtDate');
+    if (stmtEl && dates.length) stmtEl.value = dates[dates.length - 1];
+    calcReconciliation();
+    showAlert(
+      'Bank balance auto-filled from ' + rows.length.toLocaleString() + ' transactions.\n\n'
+      + 'Credits (deposits): ' + fmtMoney(credits) + '\n'
+      + 'Debits  (payments): ' + fmtMoney(debits)  + '\n'
+      + 'Net balance:        ' + fmtMoney(net)      + '\n\n'
+      + 'Enter Book Balance + outstanding items to complete reconciliation.',
+      'Auto-Fill Applied'
+    );
+  }
+  // -- End Bank Recon CSV Import Engine -------------------------------------
+
   function printReconciliation(){
     var acct=document.getElementById('reconAcctName').value;
     var date=document.getElementById('reconStmtDate').value;
@@ -12842,6 +13035,14 @@ function exportFilingPDF(formType, data) {
         <button onclick="tmwClearAssetForm()" style="padding:9px 16px;background:transparent;color:var(--text-secondary);border:1px solid rgba(148,163,184,0.3);border-radius:6px;font-size:0.85rem;cursor:pointer;">
           Clear Form
         </button>
+        <button onclick="document.getElementById('tmwCreditorFile').click()" style="padding:9px 16px;background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.4);border-radius:6px;font-size:0.85rem;cursor:pointer;" title="Import Creditor Detail CSV">
+          &#128203; Import Creditor CSV
+        </button>
+        <input type="file" id="tmwCreditorFile" accept=".csv" style="display:none" onchange="tmwImportCreditorCSV(this)">
+        <button onclick="document.getElementById('tmw1099BFile').click()" style="padding:9px 16px;background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.4);border-radius:6px;font-size:0.85rem;cursor:pointer;" title="Import IRIS 1099-B CSV">
+          &#128196; Import 1099-B CSV
+        </button>
+        <input type="file" id="tmw1099BFile" accept=".csv" style="display:none" onchange="tmwImport1099B(this)">
       </div>
 
       <h4 style="color:#f59e0b;font-size:0.9rem;font-weight:600;margin:0 0 10px;">Saved Assets</h4>
@@ -18925,6 +19126,7 @@ Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height
               <button onclick="ttCopyOutput()" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(16,185,129,0.4);background:rgba(16,185,129,0.1);color:#10b981;cursor:pointer;font-size:11px;font-weight:600">📋 Copy</button>
               <button onclick="ttSelectOutput()" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#9ca3af;cursor:pointer;font-size:11px">Select</button>
               <button onclick="ttDownloadOutput()" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(59,130,246,0.4);background:rgba(59,130,246,0.1);color:#3b82f6;cursor:pointer;font-size:11px;font-weight:600">⬇ .md</button>
+              <button onclick="ttExportHtml()" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(168,85,247,0.4);background:rgba(168,85,247,0.1);color:#a855f7;cursor:pointer;font-size:11px;font-weight:600">🌐 Export HTML</button>
             </div>
           </div>
           <div id="tt-output-panel" style="min-height:400px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:rgba(0,0,0,0.2);padding:16px;overflow:auto;max-height:600px">
@@ -32735,6 +32937,173 @@ function ev2InitEntityVerifier() {
   window.tmwGetAssets  = tmwGetAssets;
   window.tmwGetCUSIPs  = tmwGetCUSIPs;
 
+  /* ─── CSV Import: Creditor Detail ──────────────────────────────── */
+  window.tmwImportCreditorCSV = function(fileInput) {
+    if (!fileInput || !fileInput.files || !fileInput.files[0]) return;
+    var parseCSV = window._tmarParseCSVLine || function(line) {
+      var result = [], cur = '', inQ = false;
+      for (var i = 0; i < line.length; i++) {
+        var ch = line[i];
+        if (ch === '"') { inQ = !inQ; }
+        else if (ch === ',' && !inQ) { result.push(cur.trim()); cur = ''; }
+        else { cur += ch; }
+      }
+      result.push(cur.trim());
+      return result;
+    };
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var rawLines = e.target.result.split('\n').map(function(l){ return l.trim(); });
+      // Find header row (contains 'creditor' or 'tab')
+      var hdrIdx = -1;
+      for (var i = 0; i < Math.min(rawLines.length, 10); i++) {
+        var low = rawLines[i].toLowerCase();
+        if (low.indexOf('creditor') >= 0 || low.indexOf('tab #') >= 0) { hdrIdx = i; break; }
+      }
+      if (hdrIdx < 0) { showAlert('Could not find header row. Expected columns: Tab #, Creditor / Entity, EIN', 'Parse Error'); return; }
+      var hdrs = parseCSV(rawLines[hdrIdx]).map(function(h){ return h.replace(/"/g,'').trim().toLowerCase(); });
+      function fi(fragment) { return hdrs.findIndex(function(h){ return h.indexOf(fragment.toLowerCase()) >= 0; }); }
+      var tabI    = fi('tab');
+      var payerI  = fi('payer');
+      var credI   = fi('creditor');
+      var einI    = fi('ein');
+      var addrI   = fi('address');
+      var cityI   = fi('city');
+      var stateI  = fi('state');
+      var assets = tmwGetAssets();
+      var added = 0;
+      for (var i = hdrIdx + 1; i < rawLines.length; i++) {
+        if (!rawLines[i]) continue;
+        var cols = parseCSV(rawLines[i]);
+        var creditor = credI >= 0 ? (cols[credI] || '').trim() : '';
+        if (!creditor) continue;
+        var payer   = payerI  >= 0 ? (cols[payerI]  || '').trim() : '';
+        var ein     = einI    >= 0 ? (cols[einI]    || '').trim() : '';
+        var tab     = tabI    >= 0 ? (cols[tabI]    || '').trim() : '';
+        var addr    = addrI   >= 0 ? (cols[addrI]   || '').trim() : '';
+        var city    = cityI   >= 0 ? (cols[cityI]   || '').trim() : '';
+        var state   = stateI  >= 0 ? (cols[stateI]  || '').trim() : '';
+        var desc = ('CREDIT ACCT ' + tab).toUpperCase().substring(0, 30);
+        assets.push({
+          id: 'cred_' + Date.now() + '_' + i,
+          type: 'Credit Card',
+          last4: tab.replace(/[^0-9]/g,'').slice(-4) || '',
+          institution: creditor,
+          origBalance: 0,
+          fmv: 0,
+          acqDate: '',
+          chargeOffDate: '',
+          vin: '',
+          notes: 'Payer: ' + payer + ' | EIN: ' + ein + (addr ? ' | ' + addr : '') + (city ? ' ' + city : '') + (state ? ', ' + state : ''),
+          desc: desc
+        });
+        added++;
+      }
+      tmwSetAssets(assets);
+      window.tmwRenderAssets();
+      showAlert('Imported ' + added + ' creditor entries as assets.', 'Import Complete');
+      fileInput.value = '';
+    };
+    reader.readAsText(fileInput.files[0]);
+  };
+
+  /* ─── CSV Import: IRIS 1099-B ───────────────────────────────────── */
+  window.tmwImport1099B = function(fileInput) {
+    if (!fileInput || !fileInput.files || !fileInput.files[0]) return;
+    var parseCSV = window._tmarParseCSVLine || function(line) {
+      var result = [], cur = '', inQ = false;
+      for (var i = 0; i < line.length; i++) {
+        var ch = line[i];
+        if (ch === '"') { inQ = !inQ; }
+        else if (ch === ',' && !inQ) { result.push(cur.trim()); cur = ''; }
+        else { cur += ch; }
+      }
+      result.push(cur.trim());
+      return result;
+    };
+    function irs2iso(d) {
+      if (!d || d.indexOf('/') < 0) return '';
+      var p = d.split('/');
+      if (p.length !== 3) return '';
+      return p[2] + '-' + p[0].padStart(2,'0') + '-' + p[1].padStart(2,'0');
+    }
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var rawLines = e.target.result.split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
+      if (rawLines.length < 2) { showAlert('File appears empty.', 'Import Error'); return; }
+      var hdrs = parseCSV(rawLines[0]).map(function(h){ return h.replace(/"/g,'').trim().toLowerCase(); });
+      function fi(fragment) { return hdrs.findIndex(function(h){ return h.indexOf(fragment.toLowerCase()) >= 0; }); }
+      var payerNameI  = fi('payer business or entity name line 1');
+      if (payerNameI < 0) payerNameI = fi('payer name');
+      var acctI       = fi('form account number');
+      if (acctI < 0) acctI = fi('account number');
+      var desc1aI     = fi('box 1a');
+      var dateAcqI    = fi('box 1b');
+      var dateSoldI   = fi('box 1c');
+      var proceedsI   = fi('box 1d');
+      var costI       = fi('box 1e');
+      var cusipI      = fi('cusip');
+      var taxYearI    = fi('tax year');
+      var assets = tmwGetAssets();
+      var cusips = tmwGetCUSIPs();
+      var addedA = 0, addedC = 0;
+      for (var i = 1; i < rawLines.length; i++) {
+        var cols = parseCSV(rawLines[i]);
+        if (!cols.length) continue;
+        var payerName = payerNameI >= 0 ? (cols[payerNameI] || '').trim() : '';
+        if (!payerName) continue;
+        var acct     = acctI      >= 0 ? (cols[acctI]      || '').trim() : '';
+        var desc1a   = desc1aI    >= 0 ? (cols[desc1aI]    || '').trim() : '';
+        var dateAcq  = dateAcqI   >= 0 ? (cols[dateAcqI]   || '').trim() : '';
+        var dateSold = dateSoldI  >= 0 ? (cols[dateSoldI]  || '').trim() : '';
+        var proceeds = proceedsI  >= 0 ? parseFloat(cols[proceedsI] || 0) || 0 : 0;
+        var cost     = costI      >= 0 ? parseFloat(cols[costI]     || 0) || 0 : 0;
+        var cusip    = cusipI     >= 0 ? (cols[cusipI]     || '').trim() : '';
+        var taxYear  = taxYearI   >= 0 ? (cols[taxYearI]   || '').trim() : '';
+        var desc30 = (desc1a || ('ACCT ' + acct)).toUpperCase().substring(0, 30);
+        var last4 = acct.replace(/[^0-9]/g,'').slice(-4) || '';
+        assets.push({
+          id: 'b_' + Date.now() + '_' + i,
+          type: cusip ? 'CUSIP/Bond' : 'Credit Card',
+          last4: last4,
+          institution: payerName,
+          origBalance: cost || proceeds,
+          fmv: proceeds,
+          acqDate: irs2iso(dateAcq),
+          chargeOffDate: irs2iso(dateSold),
+          vin: '',
+          notes: 'TaxYr:' + taxYear + ' | Proceeds:' + proceeds + ' | Cost:' + cost + (cusip?' | CUSIP:'+cusip:''),
+          desc: desc30
+        });
+        addedA++;
+        if (cusip && cusip.length >= 9) {
+          var exists = cusips.some(function(c){ return c.cusip === cusip; });
+          if (!exists) {
+            cusips.push({
+              id: 'cusip_' + Date.now() + '_' + i,
+              cusip: cusip,
+              fund: desc1a || payerName,
+              navDate: irs2iso(dateSold) || irs2iso(dateAcq),
+              nav: '',
+              shares: '',
+              totalValue: proceeds || 0,
+              notes: 'TaxYr:' + taxYear + ' | ' + payerName
+            });
+            addedC++;
+          }
+        }
+      }
+      tmwSetAssets(assets);
+      if (addedC) tmwSetCUSIPs(cusips);
+      window.tmwRenderAssets();
+      if (addedC && window.tmwRenderCUSIPs) window.tmwRenderCUSIPs();
+      showAlert('Imported ' + addedA + ' assets' + (addedC ? ' + ' + addedC + ' CUSIP entries' : '') + ' from 1099-B CSV.', 'Import Complete');
+      fileInput.value = '';
+    };
+    reader.readAsText(fileInput.files[0]);
+  };
+
+
 })();
 </script>
 
@@ -38431,7 +38800,11 @@ function goEonPage(btn, page) {
     target.classList.add('active');
   }
   
-  // Activate button
+  // Activate button — if btn not passed, find it by page name in sidebar
+  if (!btn) {
+    var sidebar = document.getElementById('eonSidebar');
+    if (sidebar) { btn = sidebar.querySelector("button[onclick*=\"goEonPage(this,'" + page + "')\"]"); }
+  }
   if (btn) {
     btn.classList.add('active');
   }
@@ -42263,7 +42636,10 @@ function ttChunkTranscript(text, maxChunkSize) {
 function ttBuildPrompt(content, sourceUrl, isChunk, chunkInfo) {
   var dateCreated = new Date().toISOString().split('T')[0];
   var chunkNote = isChunk ? '\n\n**NOTE**: This is PART ' + chunkInfo.index + ' of ' + chunkInfo.total + ' of a longer transcript.\n' : '';
-  return 'Transform this transcript into a COMPREHENSIVE README.md that merges both actionable guidance AND educational context.' + chunkNote + '\n\n## CRITICAL: YAML FRONTMATTER FORMAT\n\nYour response MUST start with raw YAML frontmatter. Do NOT wrap it in code blocks or backticks.\n\nStart your response EXACTLY like this:\n---\ndate_created: ' + dateCreated + '\nsource_url: \'' + (sourceUrl || 'Not specified') + '\'\npurpose: >-\n  [Extract the main purpose in 1-2 sentences — be specific about the subject matter covered]\ntransformation_mode: comprehensive' + (isChunk ? '\nchunk: ' + chunkInfo.index + ' of ' + chunkInfo.total : '') + '\nartifact_version: v2.0.0\ngenerator: Transcript Transformer\ntags:\n  - relevant-tag\n  - topic-tag\n  - additional-tag\n---\n\nThen continue with the markdown content.\n\n## DOCUMENT STRUCTURE\n\n### Section Pattern for Each Major Topic:\n1. Header with emoji + timestamp range -> **[MM:SS-MM:SS]**\n2. Brief explanatory paragraph (2-3 sentences of context)\n3. Actionable checklist items with individual timestamps\n4. Key quote or critical point highlighted\n5. Transition to next section\n\n### Required Sections (in order):\nA. Overview with purpose statement\nB. Key Timestamps Reference\nC. Prerequisites as checklist items\nD. Warnings/Outdated Methods\nE. Core Content Sections\nF. Step-by-Step Protocols with timestamps AND explanations\nG. Common Misconceptions\nH. Glossary of specialized terms\nI. Next Steps checklist\n\n### Formatting Rules:\n- Checklists: - [ ] **[MM:SS]** Action item with context\n- Blockquotes for key statements\n- Tables for comparisons\n- Casual speech -> Professional tone\n- Every timestamp appears somewhere\n- No information from transcript is lost\n\n---\n\nTRANSCRIPT TO TRANSFORM:\n' + content + '\n\nREMEMBER: Start with raw YAML frontmatter (three dashes, properties, three dashes) - NO code block wrapper.';
+  var chunkField = isChunk ? '\nchunk: ' + chunkInfo.index + ' of ' + chunkInfo.total : '';
+  var safeUrl = (sourceUrl || 'Not specified').replace(/'/g, '"');
+
+  return 'Transform this transcript into a COMPREHENSIVE README.md that merges both actionable guidance AND educational context.' + chunkNote + '\n\n## CRITICAL: YAML FRONTMATTER RULES\n\nYour response MUST start with raw YAML frontmatter. Do NOT wrap it in code blocks or backticks.\n\nALL of the following rules are MANDATORY — not suggestions:\n\n1. The opening `---` must be the VERY FIRST line — no blank lines, no whitespace before it.\n2. Each property MUST be on its own dedicated line. Never put multiple key-value pairs on one line.\n3. List items MUST each be on their own line with the `-` prefix, indented under the parent key.\n4. Values containing colons (:), commas (,), or pipe symbols (|) MUST be wrapped in double quotes.\n5. The closing `---` MUST be on its own line with nothing else on it.\n6. After the closing `---` there MUST be one blank line before the first `#` heading.\n\nStart your response EXACTLY like this (copy the structure precisely):\n---\ndate_created: ' + dateCreated + '\nsource_url: \'' + safeUrl + '\'\npurpose: "[Extract the main purpose in 1-2 sentences — be specific about subject matter covered]"\ntransformation_mode: comprehensive' + chunkField + '\nartifact_version: v2.0.0\ngenerator: Transcript Transformer\nsession_type: "[Q&A Zoom Call | Bootcamp | Class Session | Workshop — pick the most accurate]"\nparticipants:\n  - "[Host/instructor name and role]"\n  - "[Co-host or admin name and role if present]"\n  - Community Members\ntags:\n  - relevant-tag\n  - topic-tag\n  - additional-tag\n  - add-more-as-needed\n---\n\n# [Title Here]\n\nContent starts here.\n\n## ANTI-PATTERNS — NEVER generate these:\n\n❌ Multiple properties on one line: `date_created: 2025-12-21 source_url: Not specified`\n❌ List items mixed with property declarations: `- Item One\\n- Item Two tags:\\n- tag-one`\n❌ Missing blank line after closing `---`\n❌ Closing `---` not on its own line\n❌ YAML wrapped in a code block\n\n## VALIDATION — Before outputting, mentally check:\n[ ] Is `---` the very first line with nothing before it?\n[ ] Is every property on its own line?\n[ ] Are all list items indented with `-` on separate lines?\n[ ] Is the closing `---` alone on its line?\n[ ] Is there a blank line between `---` and the first `#` heading?\nIf ANY answer is no, fix the frontmatter first.\n\n## DOCUMENT STRUCTURE\n\n### Section Pattern for Each Major Topic:\n1. Header with emoji + timestamp range -> **[MM:SS-MM:SS]**\n2. Brief explanatory paragraph (2-3 sentences of context)\n3. Actionable checklist items with individual timestamps\n4. Key quote or critical point highlighted\n5. Transition to next section\n\n### Required Sections (in order):\nA. Overview with purpose statement\nB. Key Timestamps Reference\nC. Prerequisites as checklist items\nD. Warnings/Outdated Methods\nE. Core Content Sections\nF. Step-by-Step Protocols with timestamps AND explanations\nG. Common Misconceptions\nH. Glossary of specialized terms\nI. Next Steps checklist\n\n### Formatting Rules:\n- Checklists: - [ ] **[MM:SS]** Action item with context\n- Blockquotes for key statements\n- Tables for comparisons\n- Casual speech -> Professional tone\n- Every timestamp appears somewhere\n- No information from transcript is lost\n\n---\n\nTRANSCRIPT TO TRANSFORM:\n' + content + '\n\nFINAL REMINDER: Output raw YAML frontmatter first (no code block), blank line after closing ---, then markdown content.';
 }
 
 // Live streaming preview — updates output panel as tokens arrive
@@ -42346,6 +42722,169 @@ function ttRenderOutput() {
 function ttCopyOutput() { pdkbCopyToClipboard(ttState.output).then(function(ok) { alert(ok ? 'Copied!' : 'Copy failed'); }); }
 function ttSelectOutput() { pdkbSelectAll('tt-output-pre'); }
 function ttDownloadOutput() { pdkbDownloadFile(ttState.output, 'README_' + new Date().toISOString().split('T')[0] + '.md'); }
+
+function ttExportHtml() {
+  if (!ttState.output) return alert('No output to export');
+  var md = ttState.output;
+  var dateSlug = new Date().toISOString().split('T')[0];
+
+  // ── Strip YAML frontmatter and extract metadata ──────────────────────────
+  var meta = {};
+  var mdBody = md;
+  var fmMatch = md.match(/^---\n([\s\S]*?)\n---\n?/);
+  if (fmMatch) {
+    mdBody = md.slice(fmMatch[0].length).replace(/^\n/, '');
+    fmMatch[1].split('\n').forEach(function(line) {
+      var kv = line.match(/^([\w_]+):\s*(.+)/);
+      if (kv) meta[kv[1]] = kv[2].replace(/^['"]|['"]$/g, '');
+    });
+  }
+  var titleMatch = mdBody.match(/^#\s+(.+)$/m);
+  var title = titleMatch ? titleMatch[1] : ('Transcript Export ' + dateSlug);
+
+  // ── Inline markdown → HTML ───────────────────────────────────────────────
+  function inline(text) {
+    return text
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/`([^`]+)`/g,'<code>$1</code>')
+      .replace(/\*\*\*(.+?)\*\*\*/g,'<strong><em>$1</em></strong>')
+      .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g,'<em>$1</em>')
+      .replace(/~~(.+?)~~/g,'<del>$1</del>')
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2">$1</a>');
+  }
+
+  // ── Block converter — H2/H3 become collapsible <details> ────────────────
+  function mdToHtml(text) {
+    var lines = text.split('\n');
+    var out = [], inFence = false, fenceLang = '', preLines = [];
+    var openStack = []; // tracks currently open detail levels
+
+    function closeDetailsDownTo(level) {
+      while (openStack.length && openStack[openStack.length - 1] >= level) {
+        out.push('</div></details>');
+        openStack.pop();
+      }
+    }
+
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i];
+
+      // Fenced code blocks
+      if (!inFence && /^```/.test(line)) {
+        inFence = true; fenceLang = line.replace(/^```/, '').trim(); preLines = []; continue;
+      }
+      if (inFence) {
+        if (/^```$/.test(line.trim())) {
+          inFence = false;
+          var esc = preLines.join('\n').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+          out.push('<pre><code' + (fenceLang ? ' class="lang-' + fenceLang + '"' : '') + '>' + esc + '</code></pre>');
+        } else { preLines.push(line); }
+        continue;
+      }
+
+      var hm = line.match(/^(#{1,6})\s+(.+)/);
+      if (hm) {
+        var hl = hm[1].length;
+        var htxt = inline(hm[2]);
+        if (hl === 1) {
+          closeDetailsDownTo(2);
+          out.push('<h1>' + htxt + '</h1>');
+        } else if (hl === 2) {
+          closeDetailsDownTo(2);
+          out.push('<details open><summary><span class="caret"></span><h2>' + htxt + '</h2></summary><div class="db">');
+          openStack.push(2);
+        } else if (hl === 3) {
+          closeDetailsDownTo(3);
+          out.push('<details open><summary><span class="caret"></span><h3>' + htxt + '</h3></summary><div class="db">');
+          openStack.push(3);
+        } else {
+          out.push('<h' + hl + '>' + htxt + '</h' + hl + '>');
+        }
+        continue;
+      }
+
+      if (/^---+$/.test(line.trim())) { out.push('<hr>'); continue; }
+      if (/^>\s?/.test(line)) { out.push('<blockquote>' + inline(line.replace(/^>\s?/,'')) + '</blockquote>'); continue; }
+
+      var tlm = line.match(/^(\s*)[-*]\s+\[( |x)\]\s+(.+)/);
+      if (tlm) { var chk = tlm[2]==='x'; out.push('<li class="task"><input type="checkbox"' + (chk?' checked':'') + ' disabled> ' + inline(tlm[3]) + '</li>'); continue; }
+
+      var ulm = line.match(/^(\s*)[-*+]\s+(.+)/);
+      if (ulm) { out.push('<li>' + inline(ulm[2]) + '</li>'); continue; }
+
+      var olm = line.match(/^\d+\.\s+(.+)/);
+      if (olm) { out.push('<li>' + inline(olm[1]) + '</li>'); continue; }
+
+      if (!line.trim()) { out.push('<p></p>'); continue; }
+      out.push('<p>' + inline(line) + '</p>');
+    }
+    closeDetailsDownTo(0);
+    return out.join('\n');
+  }
+
+  // ── Metadata panel from frontmatter ─────────────────────────────────────
+  var metaHtml = '';
+  var metaKeys = ['date_created','source_url','session_type','transformation_mode','artifact_version','generator'];
+  var metaRows = [];
+  metaKeys.forEach(function(k) {
+    if (meta[k]) metaRows.push('<tr><td class="mk">' + k.replace(/_/g,' ') + '</td><td>' + meta[k].replace(/</g,'&lt;') + '</td></tr>');
+  });
+  if (metaRows.length) metaHtml = '<table class="mtbl">' + metaRows.join('') + '</table>';
+
+  var body = mdToHtml(mdBody);
+
+  var css = [
+    '*,*::before,*::after{box-sizing:border-box}',
+    'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",Helvetica,Arial,sans-serif;font-size:16px;line-height:1.5;color:#1f2328;background:#fff;max-width:980px;margin:0 auto;padding:45px}',
+    'h1{font-size:2em;padding-bottom:.3em;border-bottom:1px solid #d1d9e0;margin:0 0 16px;font-weight:600}',
+    'h2,h3{margin:0;padding:0;border:none;font-weight:600}',
+    'h2{font-size:1.5em}h3{font-size:1.2em}',
+    'h4,h5,h6{margin-top:20px;margin-bottom:12px;font-weight:600}',
+    'p{margin-top:0;margin-bottom:16px}',
+    'a{color:#0969da;text-decoration:none}a:hover{text-decoration:underline}',
+    'blockquote{margin:0 0 16px;padding:0 1em;color:#59636e;border-left:4px solid #d1d9e0}',
+    'code{padding:.2em .4em;font-size:85%;background:#eff1f3;border-radius:6px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}',
+    'pre{margin:0 0 16px;padding:16px;overflow:auto;font-size:85%;line-height:1.45;background:#f6f8fa;border-radius:6px;border:1px solid #d1d9e0}',
+    'pre code{padding:0;background:transparent;font-size:100%;white-space:pre}',
+    'ul,ol{margin:0 0 16px;padding-left:2em}li+li{margin-top:.25em}',
+    'li.task{list-style:none;margin-left:-1.4em}',
+    'hr{height:.25em;padding:0;margin:24px 0;background:#d1d9e0;border:0}',
+    'table{border-spacing:0;border-collapse:collapse;display:table;width:100%;margin-bottom:16px}',
+    'th{padding:6px 13px;border:1px solid #d1d9e0;font-weight:600;background:#f6f8fa}',
+    'td{padding:6px 13px;border:1px solid #d1d9e0}',
+    'tr{background:#fff;border-top:1px solid #d1d9e0}tr:nth-child(2n){background:#f6f8fa}',
+    /* collapsible details */
+    'details{border:1px solid #d1d9e0;border-radius:8px;margin-bottom:10px}',
+    'details>summary{list-style:none;display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;background:#f6f8fa;user-select:none;border-radius:8px}',
+    'details[open]>summary{border-radius:8px 8px 0 0;border-bottom:1px solid #d1d9e0}',
+    'details>summary::-webkit-details-marker{display:none}',
+    '.caret{display:inline-block;font-size:10px;color:#59636e;transition:transform .18s;flex-shrink:0}',
+    '.caret::before{content:"▶"}',
+    'details[open]>.summary .caret,.caret{transform:none}',
+    'details[open]>summary .caret{transform:rotate(90deg)}',
+    'details>summary:hover{background:#eaecf0}',
+    '.db{padding:14px 16px}',
+    /* metadata table */
+    '.mtbl{margin-bottom:24px;font-size:13px;width:100%}',
+    '.mtbl td{padding:4px 10px;border:1px solid #d1d9e0}',
+    '.mk{font-weight:600;background:#f6f8fa;width:150px;white-space:nowrap}',
+    /* controls */
+    '.ttctrl{display:flex;gap:8px;margin-bottom:20px}',
+    '.ttctrl button{padding:5px 14px;border-radius:6px;border:1px solid #d1d9e0;background:#f6f8fa;color:#1f2328;font-size:12px;font-weight:600;cursor:pointer}',
+    '.ttctrl button:hover{background:#eaecf0}',
+    '@media print{body{max-width:100%;padding:20px;font-size:12pt}details{border:none}details>summary{background:none;padding:0}details:not([open])>.db{display:block}pre{white-space:pre-wrap}}'
+  ].join('\n');
+
+  var toggleJs = '<script>function ttToggle(o){document.querySelectorAll("details").forEach(function(d){o?d.setAttribute("open",""):d.removeAttribute("open")})}<\/script>';
+
+  var controls = '<div class="ttctrl"><button onclick="ttToggle(true)">&#9660; Expand All</button><button onclick="ttToggle(false)">&#9654; Collapse All</button></div>';
+
+  var html = '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>' + title.replace(/</g,'&lt;') + '</title>\n<style>\n' + css + '\n</style>\n' + toggleJs + '\n</head>\n<body>\n' + controls + '\n' + metaHtml + body + '\n</body>\n</html>';
+
+  pdkbDownloadFile(html, 'README_' + dateSlug + '.html');
+}
+
 function ttClearAll() {
   document.getElementById('tt-input').value = '';
   document.getElementById('tt-source-url').value = '';
