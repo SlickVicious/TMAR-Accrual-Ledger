@@ -42759,8 +42759,14 @@ function ttExportHtml() {
     var lines = text.split('\n');
     var out = [], inFence = false, fenceLang = '', preLines = [];
     var openStack = []; // tracks currently open detail levels
+    var listType = null; // 'ul' | 'ol' | null
+
+    function closeList() {
+      if (listType) { out.push('</' + listType + '>'); listType = null; }
+    }
 
     function closeDetailsDownTo(level) {
+      closeList();
       while (openStack.length && openStack[openStack.length - 1] >= level) {
         out.push('</div></details>');
         openStack.pop();
@@ -42772,7 +42778,7 @@ function ttExportHtml() {
 
       // Fenced code blocks
       if (!inFence && /^```/.test(line)) {
-        inFence = true; fenceLang = line.replace(/^```/, '').trim(); preLines = []; continue;
+        closeList(); inFence = true; fenceLang = line.replace(/^```/, '').trim(); preLines = []; continue;
       }
       if (inFence) {
         if (/^```$/.test(line.trim())) {
@@ -42799,24 +42805,39 @@ function ttExportHtml() {
           out.push('<details open><summary><span class="caret"></span><h3>' + htxt + '</h3></summary><div class="db">');
           openStack.push(3);
         } else {
+          closeList();
           out.push('<h' + hl + '>' + htxt + '</h' + hl + '>');
         }
         continue;
       }
 
-      if (/^---+$/.test(line.trim())) { out.push('<hr>'); continue; }
-      if (/^>\s?/.test(line)) { out.push('<blockquote>' + inline(line.replace(/^>\s?/,'')) + '</blockquote>'); continue; }
+      if (/^---+$/.test(line.trim())) { closeList(); out.push('<hr>'); continue; }
+      if (/^>\s?/.test(line)) { closeList(); out.push('<blockquote>' + inline(line.replace(/^>\s?/,'')) + '</blockquote>'); continue; }
 
+      // Task list item
       var tlm = line.match(/^(\s*)[-*]\s+\[( |x)\]\s+(.+)/);
-      if (tlm) { var chk = tlm[2]==='x'; out.push('<li class="task"><input type="checkbox"' + (chk?' checked':'') + ' disabled> ' + inline(tlm[3]) + '</li>'); continue; }
+      if (tlm) {
+        var chk = tlm[2]==='x';
+        if (listType !== 'ul') { closeList(); out.push('<ul class="task-list">'); listType = 'ul'; }
+        out.push('<li class="task"><input type="checkbox"' + (chk?' checked':'') + ' disabled><span>' + inline(tlm[3]) + '</span></li>'); continue;
+      }
 
+      // Unordered list
       var ulm = line.match(/^(\s*)[-*+]\s+(.+)/);
-      if (ulm) { out.push('<li>' + inline(ulm[2]) + '</li>'); continue; }
+      if (ulm) {
+        if (listType !== 'ul') { closeList(); out.push('<ul>'); listType = 'ul'; }
+        out.push('<li>' + inline(ulm[2]) + '</li>'); continue;
+      }
 
+      // Ordered list
       var olm = line.match(/^\d+\.\s+(.+)/);
-      if (olm) { out.push('<li>' + inline(olm[1]) + '</li>'); continue; }
+      if (olm) {
+        if (listType !== 'ol') { closeList(); out.push('<ol>'); listType = 'ol'; }
+        out.push('<li>' + inline(olm[1]) + '</li>'); continue;
+      }
 
-      if (!line.trim()) { out.push('<p></p>'); continue; }
+      if (!line.trim()) { closeList(); out.push(''); continue; }
+      closeList();
       out.push('<p>' + inline(line) + '</p>');
     }
     closeDetailsDownTo(0);
@@ -42848,7 +42869,10 @@ function ttExportHtml() {
     'pre{margin:0 0 16px;padding:16px;overflow:auto;font-size:85%;line-height:1.45;background:#f6f8fa;border-radius:6px;border:1px solid #d1d9e0}',
     'pre code{padding:0;background:transparent;font-size:100%;white-space:pre}',
     'ul,ol{margin:0 0 16px;padding-left:2em}li+li{margin-top:.25em}',
-    'li.task{list-style:none;margin-left:-1.4em}',
+    'ul.task-list{list-style:none;padding-left:0.5em}',
+    'li.task{list-style:none;display:flex;align-items:baseline;gap:0.5em}',
+    'li.task input[type="checkbox"]{flex-shrink:0;margin:0;position:relative;top:1px}',
+    'li.task span{flex:1}',
     'hr{height:.25em;padding:0;margin:24px 0;background:#d1d9e0;border:0}',
     'table{border-spacing:0;border-collapse:collapse;display:table;width:100%;margin-bottom:16px}',
     'th{padding:6px 13px;border:1px solid #d1d9e0;font-weight:600;background:#f6f8fa}',
@@ -42861,7 +42885,6 @@ function ttExportHtml() {
     'details>summary::-webkit-details-marker{display:none}',
     '.caret{display:inline-block;font-size:10px;color:#59636e;transition:transform .18s;flex-shrink:0}',
     '.caret::before{content:"▶"}',
-    'details[open]>.summary .caret,.caret{transform:none}',
     'details[open]>summary .caret{transform:rotate(90deg)}',
     'details>summary:hover{background:#eaecf0}',
     '.db{padding:14px 16px}',
@@ -42876,9 +42899,9 @@ function ttExportHtml() {
     '@media print{body{max-width:100%;padding:20px;font-size:12pt}details{border:none}details>summary{background:none;padding:0}details:not([open])>.db{display:block}pre{white-space:pre-wrap}}'
   ].join('\n');
 
-  var toggleJs = '<script>function ttToggle(o){document.querySelectorAll("details").forEach(function(d){o?d.setAttribute("open",""):d.removeAttribute("open")})}<\/script>';
+  var toggleJs = '<script>function ttToggle(){var all=document.querySelectorAll("details");var anyOpen=Array.prototype.some.call(all,function(d){return d.open});all.forEach(function(d){anyOpen?d.removeAttribute("open"):d.setAttribute("open","")});var btn=document.getElementById("tt-tog");if(btn)btn.innerHTML=anyOpen?"&#9654; Expand All":"&#9660; Collapse All";}<\/script>';
 
-  var controls = '<div class="ttctrl"><button onclick="ttToggle(true)">&#9660; Expand All</button><button onclick="ttToggle(false)">&#9654; Collapse All</button></div>';
+  var controls = '<div class="ttctrl"><button id="tt-tog" onclick="ttToggle()">&#9660; Collapse All</button></div>';
 
   var html = '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>' + title.replace(/</g,'&lt;') + '</title>\n<style>\n' + css + '\n</style>\n' + toggleJs + '\n</head>\n<body>\n' + controls + '\n' + metaHtml + body + '\n</body>\n</html>';
 
