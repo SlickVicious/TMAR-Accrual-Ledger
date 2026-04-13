@@ -3807,7 +3807,7 @@ function pdkbCallAnthropic(prompt, options, onProgress) {
 // TRANSCRIPT TRANSFORMER
 // ═══════════════════════════════════════════════════════════════
 
-var ttState = { mode: 'auto', output: '', stats: null };
+var ttState = { mode: 'auto', output: '', stats: null, sourceUrl: '' };
 
 function ttSetMode(mode) {
   ttState.mode = mode;
@@ -3894,6 +3894,7 @@ function ttStreamPreview(partialText) {
 async function ttTransform() {
   var input = document.getElementById('tt-input').value;
   var sourceUrl = document.getElementById('tt-source-url').value;
+  ttState.sourceUrl = sourceUrl;
   if (!input.trim()) return alert('Paste a transcript first');
   var apiKey = window._trustApiKey || localStorage.getItem('eeon_key_claude') || localStorage.getItem('stg_key_claude') || localStorage.getItem('tmar_claude_key') || localStorage.getItem('_trustApiKey') || '';
   if (!apiKey) return alert('API key required. Enter your Anthropic key in Settings \u2192 API Keys, then Save All Keys.');
@@ -3917,7 +3918,7 @@ async function ttTransform() {
         var chunkInfo = { index: i + 1, total: chunks.length };
         var prompt = ttBuildPrompt(chunks[i].content, sourceUrl, true, chunkInfo);
         var chunkBase = combinedOutput;
-        var result = await pdkbCallAnthropic(prompt, {}, function(partial) {
+        var result = await pdkbCallAnthropic(prompt, { maxTokens: 16000 }, function(partial) {
           ttStreamPreview(chunkBase + (chunkBase ? '\n\n---\n\n' : '') + partial);
         });
         if (!result.success) {
@@ -3930,7 +3931,7 @@ async function ttTransform() {
       ttState.output = combinedOutput;
     } else {
       var prompt = ttBuildPrompt(input, sourceUrl);
-      var result = await pdkbCallAnthropic(prompt, {}, ttStreamPreview);
+      var result = await pdkbCallAnthropic(prompt, { maxTokens: 16000 }, ttStreamPreview);
       if (!result.success) { ttShowError(result.error); btn.disabled = false; btn.textContent = '\u26a1 Transform'; return; }
       ttState.output = result.result;
     }
@@ -3958,7 +3959,47 @@ function ttRenderOutput() {
 
 function ttCopyOutput() { pdkbCopyToClipboard(ttState.output).then(function(ok) { alert(ok ? 'Copied!' : 'Copy failed'); }); }
 function ttSelectOutput() { pdkbSelectAll('tt-output-pre'); }
-function ttDownloadOutput() { pdkbDownloadFile(ttState.output, 'README_' + new Date().toISOString().split('T')[0] + '.md'); }
+
+// Derive a clean filename slug from the source URL or the H1 title of the output.
+// Priority: URL path segment → H1 from output → date-based fallback.
+function ttDeriveFilename(ext) {
+  var dateSlug = new Date().toISOString().split('T')[0];
+  var slug = '';
+  // 1. Source URL path slug
+  var rawUrl = (ttState.sourceUrl || '').trim();
+  if (rawUrl) {
+    try {
+      var u = new URL(rawUrl);
+      var parts = u.pathname.split('/').filter(function(p) { return p.trim(); });
+      var seg = parts.length ? parts[parts.length - 1] : '';
+      seg = seg.replace(/\.[^.]+$/, ''); // strip file extension
+      // Skip generic one-word path segments that aren't meaningful titles
+      var SKIP = { watch: 1, video: 1, embed: 1, player: 1, play: 1, view: 1, index: 1, page: 1 };
+      if (seg.length >= 4 && !SKIP[seg.toLowerCase()]) {
+        slug = seg.replace(/[^a-zA-Z0-9_-]+/g, '_').replace(/^_+|_+$/g, '');
+      }
+    } catch(e) {
+      // Not a parseable URL — strip domain manually and use what's left
+      var stripped = rawUrl.replace(/^https?:\/\/[^/]+\//i, '').replace(/\.[^.]+$/, '');
+      if (stripped && stripped.length >= 4) {
+        slug = stripped.replace(/[^a-zA-Z0-9_-]+/g, '_').replace(/^_+|_+$/g, '').substring(0, 80);
+      }
+    }
+  }
+  // 2. H1 title from the transformed output
+  if (!slug && ttState.output) {
+    var titleMatch = ttState.output.match(/^#\s+(.+)$/m);
+    if (titleMatch) {
+      slug = titleMatch[1].replace(/[^a-zA-Z0-9\s_-]/g, '').trim()
+        .replace(/\s+/g, '_').substring(0, 80).replace(/^_+|_+$/g, '');
+    }
+  }
+  // 3. Generic fallback
+  if (!slug) slug = 'README_' + dateSlug;
+  return slug + '_' + dateSlug + '.' + ext;
+}
+
+function ttDownloadOutput() { pdkbDownloadFile(ttState.output, ttDeriveFilename('md')); }
 
 function ttExportHtml() {
   if (!ttState.output) return alert('No output to export');
@@ -3970,12 +4011,18 @@ function ttExportHtml() {
   // Minimal inline markdown → HTML converter (headings, bold, italic, code, lists, hr, blockquote, links)
   function mdToHtml(text) {
     var lines = text.split('\n');
-    var out = [], inPre = false, preLines = [], inFence = false, fenceLang = '';
+    var out = [], preLines = [], inFence = false, fenceLang = '';
+    var listType = null; // 'ul' | 'ol' | null
+
+    function closeList() {
+      if (listType) { out.push('</' + listType + '>'); listType = null; }
+    }
+
     for (var i = 0; i < lines.length; i++) {
       var line = lines[i];
       // Fenced code blocks
       if (!inFence && /^```/.test(line)) {
-        inFence = true; fenceLang = line.replace(/^```/, '').trim(); preLines = []; continue;
+        closeList(); inFence = true; fenceLang = line.replace(/^```/, '').trim(); preLines = []; continue;
       }
       if (inFence) {
         if (/^```/.test(line)) {
@@ -3987,23 +4034,36 @@ function ttExportHtml() {
       }
       // Headings
       var hm = line.match(/^(#{1,6})\s+(.+)/);
-      if (hm) { var hl = hm[1].length; out.push('<h' + hl + '>' + inline(hm[2]) + '</h' + hl + '>'); continue; }
+      if (hm) { closeList(); var hl = hm[1].length; out.push('<h' + hl + '>' + inline(hm[2]) + '</h' + hl + '>'); continue; }
       // HR
-      if (/^---+$/.test(line.trim())) { out.push('<hr>'); continue; }
+      if (/^---+$/.test(line.trim())) { closeList(); out.push('<hr>'); continue; }
       // Blockquote
-      if (/^>\s?/.test(line)) { out.push('<blockquote>' + inline(line.replace(/^>\s?/,'')) + '</blockquote>'); continue; }
-      // Unordered list
+      if (/^>\s?/.test(line)) { closeList(); out.push('<blockquote>' + inline(line.replace(/^>\s?/,'')) + '</blockquote>'); continue; }
+      // Task list item: - [ ] or - [x]
       var ulm = line.match(/^(\s*)[-*]\s+\[( |x)\]\s+(.+)/);
-      if (ulm) { var checked = ulm[2]==='x'; out.push('<li class="task"><input type="checkbox"' + (checked?' checked':'') + ' disabled> ' + inline(ulm[3]) + '</li>'); continue; }
+      if (ulm) {
+        var checked = ulm[2]==='x';
+        if (listType !== 'ul') { closeList(); out.push('<ul class="task-list">'); listType = 'ul'; }
+        out.push('<li class="task"><input type="checkbox"' + (checked?' checked':'') + ' disabled><span>' + inline(ulm[3]) + '</span></li>'); continue;
+      }
+      // Unordered list
       var ulm2 = line.match(/^(\s*)[-*]\s+(.+)/);
-      if (ulm2) { out.push('<li>' + inline(ulm2[2]) + '</li>'); continue; }
+      if (ulm2) {
+        if (listType !== 'ul') { closeList(); out.push('<ul>'); listType = 'ul'; }
+        out.push('<li>' + inline(ulm2[2]) + '</li>'); continue;
+      }
       // Ordered list
       var olm = line.match(/^\d+\.\s+(.+)/);
-      if (olm) { out.push('<li>' + inline(olm[1]) + '</li>'); continue; }
+      if (olm) {
+        if (listType !== 'ol') { closeList(); out.push('<ol>'); listType = 'ol'; }
+        out.push('<li>' + inline(olm[1]) + '</li>'); continue;
+      }
       // Blank line
-      if (!line.trim()) { out.push('<p></p>'); continue; }
+      if (!line.trim()) { closeList(); out.push(''); continue; }
+      closeList();
       out.push('<p>' + inline(line) + '</p>');
     }
+    closeList();
     return out.join('\n');
   }
 
@@ -4033,7 +4093,10 @@ function ttExportHtml() {
     'pre{margin:0 0 16px;padding:16px;overflow:auto;font-size:85%;line-height:1.45;background:#f6f8fa;border-radius:6px;border:1px solid #d1d9e0}',
     'pre code{padding:0;background:transparent;font-size:100%;white-space:pre}',
     'ul,ol{margin-top:0;margin-bottom:16px;padding-left:2em}li+li{margin-top:.25em}',
-    'li.task{list-style:none;margin-left:-1.4em}',
+    'ul.task-list{list-style:none;padding-left:0.5em}',
+    'li.task{list-style:none;display:flex;align-items:baseline;gap:0.5em;margin-left:0}',
+    'li.task input[type="checkbox"]{flex-shrink:0;margin:0;position:relative;top:1px}',
+    'li.task span{flex:1}',
     'hr{height:.25em;padding:0;margin:24px 0;background:#d1d9e0;border:0}',
     'table{border-spacing:0;border-collapse:collapse;display:block;max-width:100%;overflow:auto;margin-bottom:16px}',
     'th{padding:6px 13px;border:1px solid #d1d9e0;font-weight:600;background:#f6f8fa}',
@@ -4044,7 +4107,7 @@ function ttExportHtml() {
 
   var html = '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>' + title.replace(/</g,'&lt;') + '</title>\n<style>\n' + css + '\n</style>\n</head>\n<body>\n' + body + '\n</body>\n</html>';
 
-  pdkbDownloadFile(html, 'README_' + dateSlug + '.html');
+  pdkbDownloadFile(html, ttDeriveFilename('html'));
 }
 
 function ttClearAll() {
@@ -4055,7 +4118,7 @@ function ttClearAll() {
   document.getElementById('tt-error').style.display = 'none';
   document.getElementById('tt-output-actions').style.display = 'none';
   document.getElementById('tt-output-panel').innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:rgba(255,255,255,0.3)"><div style="font-size:32px;margin-bottom:8px;opacity:0.3">📝</div><p>Paste transcript and click Transform</p></div>';
-  ttState.output = ''; ttState.stats = null;
+  ttState.output = ''; ttState.stats = null; ttState.sourceUrl = '';
 }
 
 // ═══════════════════════════════════════════════════════════════
