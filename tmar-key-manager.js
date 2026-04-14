@@ -357,7 +357,7 @@
 
   // ── Test runners ───────────────────────────────────────────────────────────
   function runTest(p, key) {
-    var corsProxy = (localStorage.getItem('eeon_cors_proxy') || '').replace(/\/$/, '');
+    var corsProxy = (localStorage.getItem('eeon_cors_proxy') || 'https://crimson-recipe-cdfd.rhymeminded.workers.dev').replace(/\/$/, '');
     switch (p.testType) {
       case 'anthropic': return testAnthropic(key, corsProxy);
       case 'gemini':    return testGemini(key);

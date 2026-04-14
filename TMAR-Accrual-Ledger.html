@@ -41054,6 +41054,10 @@ function resolveProvider() {
     if (key) { p = PROVIDERS['claude']; pid = 'claude'; url = p.url; model = p.model; }
     else return null;
   }
+  // Guard: if key is an Anthropic key but provider is not Anthropic, force claude
+  if (key && key.startsWith('sk-ant-') && p.auth !== 'anthropic') {
+    p = PROVIDERS['claude']; pid = 'claude'; url = p.url; model = p.model;
+  }
   return { pid: pid, provider: p, key: key, url: url, model: model };
 }
 
