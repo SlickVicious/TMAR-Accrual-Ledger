@@ -15073,7 +15073,8 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
       if (!apiKey) {
         throw new Error('api_key missing — enter your Anthropic key in Settings → API Keys');
       }
-      var response = await fetch('https://api.anthropic.com/v1/messages', {
+      var _taProxy = (localStorage.getItem('eeon_cors_proxy') || 'https://crimson-recipe-cdfd.rhymeminded.workers.dev').replace(/\/$/, '');
+      var response = await fetch(_taProxy + '/v1/messages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -19674,7 +19675,8 @@ e.g., jurat, affiant, notary" style="width:100%;min-height:80px;padding:10px;bor
       return;
     }
     addChatMsg('agent','Processing query via Trust Accounting Agent...');
-    fetch('https://api.anthropic.com/v1/messages', {
+    var _vcProxy = (localStorage.getItem('eeon_cors_proxy') || 'https://crimson-recipe-cdfd.rhymeminded.workers.dev').replace(/\/$/, '');
+    fetch(_vcProxy + '/v1/messages', {
       method:'POST',
       headers:{
         'Content-Type':'application/json',
@@ -41195,8 +41197,8 @@ async function callLLMStream(agentSystemPrompt, userMessage, mem0Memories, onTok
 
     // ── Anthropic ─────────────────────────────────────────────────────────
     if (p.auth === 'anthropic') {
-      var corsProxy = (localStorage.getItem('eeon_cors_proxy') || '').replace(/\/$/, '');
-      if (corsProxy) { url = corsProxy + '/v1/messages'; }
+      var corsProxy = (localStorage.getItem('eeon_cors_proxy') || 'https://crimson-recipe-cdfd.rhymeminded.workers.dev').replace(/\/$/, '');
+      url = corsProxy + '/v1/messages';
       headers['x-api-key'] = key;
       headers['anthropic-version'] = '2023-06-01';
       headers['anthropic-dangerous-request-allow-browser-headers'] = 'true';
@@ -41457,8 +41459,8 @@ async function testConnection() {
 
     if (provider === 'claude' || provider === 'anthropic') {
       apiKey = localStorage.getItem('eeon_key_claude') || window._trustApiKey || '';
-      var corsProxy = (localStorage.getItem('eeon_cors_proxy') || '').replace(/\/$/, '');
-      testEndpoint = corsProxy ? corsProxy + '/v1/messages' : 'https://api.anthropic.com/v1/messages';
+      var corsProxy = (localStorage.getItem('eeon_cors_proxy') || 'https://crimson-recipe-cdfd.rhymeminded.workers.dev').replace(/\/$/, '');
+      testEndpoint = corsProxy + '/v1/messages';
       testHeaders = {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
@@ -41705,7 +41707,8 @@ async function doResearch() {
       systemPrompt = 'You are a Research Analyst providing fact-based analysis. Cite sources and provide clear, structured findings.';
     }
 
-    var response = await fetch('https://api.anthropic.com/v1/messages', {
+    var _rhProxy = (localStorage.getItem('eeon_cors_proxy') || 'https://crimson-recipe-cdfd.rhymeminded.workers.dev').replace(/\/$/, '');
+    var response = await fetch(_rhProxy + '/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -41786,7 +41789,8 @@ async function doSearch() {
       throw new Error('API key missing — please configure your API key in Settings');
     }
 
-    var response = await fetch('https://api.anthropic.com/v1/messages', {
+    var _srProxy = (localStorage.getItem('eeon_cors_proxy') || 'https://crimson-recipe-cdfd.rhymeminded.workers.dev').replace(/\/$/, '');
+    var response = await fetch(_srProxy + '/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -42995,23 +42999,33 @@ function etymBuildPrompt(content, dictionaries, chainDepth) {
 async function etymAnalyze() {
   var input = document.getElementById('etym-input').value;
   if (!input.trim()) return alert('Enter legal terms to analyze');
-  var apiKey = window._trustApiKey || localStorage.getItem('stg_key_claude') || localStorage.getItem('tmar_claude_key') || localStorage.getItem('_trustApiKey') || '';
+  var apiKey = window._trustApiKey || localStorage.getItem('eeon_key_claude') || localStorage.getItem('stg_key_claude') || localStorage.getItem('tmar_claude_key') || localStorage.getItem('_trustApiKey') || '';
   if (!apiKey) return alert('API key required. Enter your Anthropic key in Settings → API Keys, then Save.');
 
   var btn = document.getElementById('etym-analyze-btn');
   btn.disabled = true; btn.textContent = '⏳ Analyzing...';
   var depth = parseInt(document.getElementById('etym-depth').value);
 
+  // Show streaming output as tokens arrive (mirrors Transcript Transformer behaviour)
+  var panel = document.getElementById('etym-output-panel');
+  panel.innerHTML = '<pre id="etym-output-pre" style="white-space:pre-wrap;font-size:12px;color:#e2e8f0;user-select:text"></pre>';
+  function etymStreamPreview(partial) {
+    var pre = document.getElementById('etym-output-pre');
+    if (pre) { pre.textContent = partial; panel.scrollTop = panel.scrollHeight; }
+  }
+
   try {
     var prompt = etymBuildPrompt(input, etymState.dicts, depth);
-    var result = await pdkbCallAnthropic(prompt);
+    var result = await pdkbCallAnthropic(prompt, {}, etymStreamPreview);
     if (!result.success) {
-      alert('Analysis failed: ' + (result.error.message || 'Unknown error'));
+      panel.innerHTML = '<div style="color:#f87171;padding:16px"><strong>Analysis failed:</strong><br><pre style="white-space:pre-wrap;font-size:11px;margin-top:8px">' + (result.error.message || 'Unknown error') + '</pre></div>';
       btn.disabled = false; btn.textContent = '⚡ Analyze Etymology'; return;
     }
     etymState.output = result.result;
     etymRenderOutput();
-  } catch(err) { alert('Error: ' + err.message); }
+  } catch(err) {
+    panel.innerHTML = '<div style="color:#f87171;padding:16px"><strong>Error:</strong> ' + err.message + '</div>';
+  }
   btn.disabled = false; btn.textContent = '⚡ Analyze Etymology';
 }
 
