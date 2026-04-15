@@ -14136,6 +14136,9 @@ function exportFilingPDF(formType, data) {
           <span style="background:rgba(59,130,246,.2);color:#3b82f6;padding:3px 10px;border-radius:20px;font-size:11px">W-9</span>
           <span style="background:rgba(59,130,246,.2);color:#3b82f6;padding:3px 10px;border-radius:20px;font-size:11px">W-4T</span>
           <span style="background:rgba(139,92,246,.2);color:#8b5cf6;padding:3px 10px;border-radius:20px;font-size:11px">1099 Chain A→B→B</span>
+          <span style="background:rgba(239,68,68,.2);color:#ef4444;padding:3px 10px;border-radius:20px;font-size:11px">Form 4852</span>
+          <span style="background:rgba(239,68,68,.2);color:#ef4444;padding:3px 10px;border-radius:20px;font-size:11px">Form 8275-R</span>
+          <span style="background:rgba(239,68,68,.2);color:#ef4444;padding:3px 10px;border-radius:20px;font-size:11px">W-2 Correction Packet</span>
         </div>
       </div>
       <!-- Entity Loader -->
@@ -14192,6 +14195,11 @@ function exportFilingPDF(formType, data) {
           </optgroup>
           <optgroup label="Filing Workflows">
             <option value="1099chain">1099 Chain Coordinator — A → B#1 → B#2 (Linked Filing)</option>
+          </optgroup>
+          <optgroup label="W-2 Correction &amp; Disclosures">
+            <option value="4852">Form 4852 — Substitute for Form W-2 (IRC § 3401)</option>
+            <option value="8275R">Form 8275-R — Regulation Disclosure Statement</option>
+            <option value="w2correction">W-2 Correction Packet — 4852 ×2 + 8275-R + Sch 1 + RT</option>
           </optgroup>
         </select>
         <button onclick="irsImportFromFilings()" style="padding:10px 16px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.4);border-radius:8px;color:#f59e0b;font-size:12px;font-weight:700;cursor:pointer">📥 Import from Tax Filings</button>
@@ -34176,6 +34184,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
         <button onclick="AP.exportPDF('accounting')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
         <button onclick="AP.exportWord('accounting')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
         <button onclick="AP.shareLink('accounting')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+        <button onclick="AP.clearConv('accounting')" style="padding:5px 10px;font-size:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;cursor:pointer">🗑 Clear</button>
       </div>
     </div>
     <div id="ap_msgs_accounting" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"><div style="margin:auto;text-align:center;color:var(--text2,#94a3b8);font-size:13px;padding:40px"><div style="font-size:40px;margin-bottom:12px">💬</div>Start a conversation or select one from the left.</div></div>
@@ -34206,6 +34215,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
         <button onclick="AP.exportPDF('doc_creation')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
         <button onclick="AP.exportWord('doc_creation')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
         <button onclick="AP.shareLink('doc_creation')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+        <button onclick="AP.clearConv('doc_creation')" style="padding:5px 10px;font-size:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;cursor:pointer">🗑 Clear</button>
       </div>
     </div>
     <div id="ap_msgs_doc_creation" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
@@ -34236,6 +34246,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
         <button onclick="AP.exportPDF('legal_analyst')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
         <button onclick="AP.exportWord('legal_analyst')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
         <button onclick="AP.shareLink('legal_analyst')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+        <button onclick="AP.clearConv('legal_analyst')" style="padding:5px 10px;font-size:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;cursor:pointer">🗑 Clear</button>
       </div>
     </div>
     <div id="ap_msgs_legal_analyst" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
@@ -34266,6 +34277,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
         <button onclick="AP.exportPDF('doc_format')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
         <button onclick="AP.exportWord('doc_format')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
         <button onclick="AP.shareLink('doc_format')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+        <button onclick="AP.clearConv('doc_format')" style="padding:5px 10px;font-size:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;cursor:pointer">🗑 Clear</button>
       </div>
     </div>
     <div id="ap_msgs_doc_format" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
@@ -34296,6 +34308,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
         <button onclick="AP.exportPDF('writs_writing')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
         <button onclick="AP.exportWord('writs_writing')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
         <button onclick="AP.shareLink('writs_writing')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+        <button onclick="AP.clearConv('writs_writing')" style="padding:5px 10px;font-size:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;cursor:pointer">🗑 Clear</button>
       </div>
     </div>
     <div id="ap_msgs_writs_writing" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
@@ -34326,6 +34339,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
         <button onclick="AP.exportPDF('amicus_brief')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
         <button onclick="AP.exportWord('amicus_brief')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
         <button onclick="AP.shareLink('amicus_brief')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+        <button onclick="AP.clearConv('amicus_brief')" style="padding:5px 10px;font-size:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;cursor:pointer">🗑 Clear</button>
       </div>
     </div>
     <div id="ap_msgs_amicus_brief" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
@@ -34356,6 +34370,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
         <button onclick="AP.exportPDF('dt_appeal')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
         <button onclick="AP.exportWord('dt_appeal')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
         <button onclick="AP.shareLink('dt_appeal')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+        <button onclick="AP.clearConv('dt_appeal')" style="padding:5px 10px;font-size:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;cursor:pointer">🗑 Clear</button>
       </div>
     </div>
     <div id="ap_msgs_dt_appeal" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
@@ -34386,6 +34401,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
         <button onclick="AP.exportPDF('presumption_killer')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
         <button onclick="AP.exportWord('presumption_killer')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
         <button onclick="AP.shareLink('presumption_killer')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+        <button onclick="AP.clearConv('presumption_killer')" style="padding:5px 10px;font-size:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;cursor:pointer">🗑 Clear</button>
       </div>
     </div>
     <div id="ap_msgs_presumption_killer" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
@@ -34416,6 +34432,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
         <button onclick="AP.exportPDF('fact_conclusion')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
         <button onclick="AP.exportWord('fact_conclusion')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
         <button onclick="AP.shareLink('fact_conclusion')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+        <button onclick="AP.clearConv('fact_conclusion')" style="padding:5px 10px;font-size:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;cursor:pointer">🗑 Clear</button>
       </div>
     </div>
     <div id="ap_msgs_fact_conclusion" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
@@ -34446,6 +34463,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
         <button onclick="AP.exportPDF('jurisdictional')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
         <button onclick="AP.exportWord('jurisdictional')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
         <button onclick="AP.shareLink('jurisdictional')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+        <button onclick="AP.clearConv('jurisdictional')" style="padding:5px 10px;font-size:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;cursor:pointer">🗑 Clear</button>
       </div>
     </div>
     <div id="ap_msgs_jurisdictional" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
@@ -34476,6 +34494,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
         <button onclick="AP.exportPDF('const_sovereignty')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
         <button onclick="AP.exportWord('const_sovereignty')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
         <button onclick="AP.shareLink('const_sovereignty')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+        <button onclick="AP.clearConv('const_sovereignty')" style="padding:5px 10px;font-size:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;cursor:pointer">🗑 Clear</button>
       </div>
     </div>
     <div id="ap_msgs_const_sovereignty" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
@@ -34506,6 +34525,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
         <button onclick="AP.exportPDF('brainstorm')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
         <button onclick="AP.exportWord('brainstorm')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
         <button onclick="AP.shareLink('brainstorm')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+        <button onclick="AP.clearConv('brainstorm')" style="padding:5px 10px;font-size:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;cursor:pointer">🗑 Clear</button>
       </div>
     </div>
     <div id="ap_msgs_brainstorm" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
@@ -34536,6 +34556,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
         <button onclick="AP.exportPDF('trial_prep')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
         <button onclick="AP.exportWord('trial_prep')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
         <button onclick="AP.shareLink('trial_prep')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+        <button onclick="AP.clearConv('trial_prep')" style="padding:5px 10px;font-size:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;cursor:pointer">🗑 Clear</button>
       </div>
     </div>
     <div id="ap_msgs_trial_prep" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
@@ -34566,6 +34587,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
         <button onclick="AP.exportPDF('biblical')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
         <button onclick="AP.exportWord('biblical')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
         <button onclick="AP.shareLink('biblical')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+        <button onclick="AP.clearConv('biblical')" style="padding:5px 10px;font-size:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;cursor:pointer">🗑 Clear</button>
       </div>
     </div>
     <div id="ap_msgs_biblical" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
@@ -34622,6 +34644,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
         <button onclick="AP.exportPDF('arbitration')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
         <button onclick="AP.exportWord('arbitration')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
         <button onclick="AP.shareLink('arbitration')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+        <button onclick="AP.clearConv('arbitration')" style="padding:5px 10px;font-size:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;cursor:pointer">🗑 Clear</button>
       </div>
     </div>
     <div id="ap_msgs_arbitration" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"><div style="margin:auto;text-align:center;color:var(--text2,#94a3b8);font-size:13px;padding:40px"><div style="font-size:40px;margin-bottom:12px">💬</div>Start a conversation or select one from the left.</div></div>
@@ -34954,6 +34977,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
         <button onclick="AP.exportPDF('corporation')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
         <button onclick="AP.exportWord('corporation')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
         <button onclick="AP.shareLink('corporation')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+        <button onclick="AP.clearConv('corporation')" style="padding:5px 10px;font-size:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;cursor:pointer">🗑 Clear</button>
       </div>
     </div>
     <div id="ap_msgs_corporation" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"><div style="margin:auto;text-align:center;color:var(--text2,#94a3b8);font-size:13px;padding:40px"><div style="font-size:40px;margin-bottom:12px">💬</div>Start a conversation or select one from the left.</div></div>
@@ -35152,6 +35176,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
         <button onclick="AP.exportPDF('legal')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
         <button onclick="AP.exportWord('legal')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
         <button onclick="AP.shareLink('legal')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+        <button onclick="AP.clearConv('legal')" style="padding:5px 10px;font-size:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;cursor:pointer">🗑 Clear</button>
       </div>
     </div>
     <div id="ap_msgs_legal" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"><div style="max-width:85%;align-self:flex-end;padding:10px 14px;border-radius:10px;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.25);font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word"><div style="font-size:10px;color:var(--text2,#94a3b8);margin-bottom:4px">You</div>test<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;justify-content:flex-end"><button title="Copy" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('legal',0,'copy')">⧉ Copy</button><button title="Speak aloud" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('legal',0,'speak')">🔊 Speak</button><button title="Resend this message" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('legal',0,'regen')">↩ Resend</button><button title="Save to file" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('legal',0,'save')">💾 Save</button><button title="Message info" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('legal',0,'info')">ℹ Info</button></div></div><div style="max-width:85%;align-self:flex-start;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word"><div style="font-size:10px;color:var(--text2,#94a3b8);margin-bottom:4px">Agent</div>[ERROR] No API key configured. Go to Settings → API Keys and configure a provider.<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;justify-content:flex-start"><button title="Copy" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('legal',1,'copy')">⧉ Copy</button><button title="Speak aloud" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('legal',1,'speak')">🔊 Speak</button><button title="Regenerate response" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('legal',1,'regen')">🔄 Regen</button><button title="Save to file" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('legal',1,'save')">💾 Save</button><button title="Message info" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('legal',1,'info')">ℹ Info</button></div></div><div style="max-width:85%;align-self:flex-end;padding:10px 14px;border-radius:10px;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.25);font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word"><div style="font-size:10px;color:var(--text2,#94a3b8);margin-bottom:4px">You</div>asdfgas<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;justify-content:flex-end"><button title="Copy" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('legal',2,'copy')">⧉ Copy</button><button title="Speak aloud" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('legal',2,'speak')">🔊 Speak</button><button title="Resend this message" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('legal',2,'regen')">↩ Resend</button><button title="Save to file" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('legal',2,'save')">💾 Save</button><button title="Message info" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('legal',2,'info')">ℹ Info</button></div></div><div style="max-width:85%;align-self:flex-start;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word"><div style="font-size:10px;color:var(--text2,#94a3b8);margin-bottom:4px">Agent</div>[ERROR — Anthropic] HTTP 401: invalid x-api-key<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;justify-content:flex-start"><button title="Copy" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('legal',3,'copy')">⧉ Copy</button><button title="Speak aloud" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('legal',3,'speak')">🔊 Speak</button><button title="Regenerate response" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('legal',3,'regen')">🔄 Regen</button><button title="Save to file" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('legal',3,'save')">💾 Save</button><button title="Message info" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('legal',3,'info')">ℹ Info</button></div></div></div>
@@ -35275,6 +35300,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
         <button onclick="AP.exportPDF('research')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
         <button onclick="AP.exportWord('research')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
         <button onclick="AP.shareLink('research')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+        <button onclick="AP.clearConv('research')" style="padding:5px 10px;font-size:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;cursor:pointer">🗑 Clear</button>
       </div>
     </div>
     <div id="ap_msgs_research" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"><div style="margin:auto;text-align:center;color:var(--text2,#94a3b8);font-size:13px;padding:40px"><div style="font-size:40px;margin-bottom:12px">💬</div>Start a conversation or select one from the left.</div></div>
@@ -35396,6 +35422,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
         <button onclick="AP.exportPDF('tax')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
         <button onclick="AP.exportWord('tax')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
         <button onclick="AP.shareLink('tax')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+        <button onclick="AP.clearConv('tax')" style="padding:5px 10px;font-size:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;cursor:pointer">🗑 Clear</button>
       </div>
     </div>
     <div id="ap_msgs_tax" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"><div style="max-width:85%;align-self:flex-end;padding:10px 14px;border-radius:10px;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.25);font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word"><div style="font-size:10px;color:var(--text2,#94a3b8);margin-bottom:4px">You</div>Generate outlines detailing each of these four filings with the statues and codes that support them<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;justify-content:flex-end"><button title="Copy" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('tax',0,'copy')">⧉ Copy</button><button title="Speak aloud" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('tax',0,'speak')">🔊 Speak</button><button title="Resend this message" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('tax',0,'regen')">↩ Resend</button><button title="Save to file" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('tax',0,'save')">💾 Save</button><button title="Message info" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('tax',0,'info')">ℹ Info</button></div></div><div style="max-width:85%;align-self:flex-start;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word"><div style="font-size:10px;color:var(--text2,#94a3b8);margin-bottom:4px">Agent</div>[ERROR — Anthropic] HTTP 502: HTTP 502<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;justify-content:flex-start"><button title="Copy" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('tax',1,'copy')">⧉ Copy</button><button title="Speak aloud" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('tax',1,'speak')">🔊 Speak</button><button title="Regenerate response" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('tax',1,'regen')">🔄 Regen</button><button title="Save to file" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('tax',1,'save')">💾 Save</button><button title="Message info" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('tax',1,'info')">ℹ Info</button></div></div></div>
@@ -38546,6 +38573,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
         <button onclick="AP.exportPDF('trust')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
         <button onclick="AP.exportWord('trust')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
         <button onclick="AP.shareLink('trust')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+        <button onclick="AP.clearConv('trust')" style="padding:5px 10px;font-size:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;cursor:pointer">🗑 Clear</button>
       </div>
     </div>
     <div id="ap_msgs_trust" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"><div style="max-width:85%;align-self:flex-end;padding:10px 14px;border-radius:10px;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.25);font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word"><div style="font-size:10px;color:var(--text2,#94a3b8);margin-bottom:4px">You</div>test<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;justify-content:flex-end"><button title="Copy" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('trust',0,'copy')">⧉ Copy</button><button title="Speak aloud" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('trust',0,'speak')">🔊 Speak</button><button title="Resend this message" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('trust',0,'regen')">↩ Resend</button><button title="Save to file" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('trust',0,'save')">💾 Save</button><button title="Message info" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('trust',0,'info')">ℹ Info</button></div></div><div style="max-width:85%;align-self:flex-start;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word"><div style="font-size:10px;color:var(--text2,#94a3b8);margin-bottom:4px">Agent</div>[ERROR — Anthropic] HTTP 401: invalid x-api-key<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;justify-content:flex-start"><button title="Copy" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('trust',1,'copy')">⧉ Copy</button><button title="Speak aloud" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('trust',1,'speak')">🔊 Speak</button><button title="Regenerate response" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('trust',1,'regen')">🔄 Regen</button><button title="Save to file" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('trust',1,'save')">💾 Save</button><button title="Message info" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('trust',1,'info')">ℹ Info</button></div></div></div>
@@ -38638,6 +38666,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
         <button onclick="AP.exportPDF('code')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
         <button onclick="AP.exportWord('code')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
         <button onclick="AP.shareLink('code')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+        <button onclick="AP.clearConv('code')" style="padding:5px 10px;font-size:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;cursor:pointer">🗑 Clear</button>
       </div>
     </div>
     <div id="ap_msgs_code" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"><div style="margin:auto;text-align:center;color:var(--text2,#94a3b8);font-size:13px;padding:40px"><div style="font-size:40px;margin-bottom:12px">💬</div>Start a conversation or select one from the left.</div></div>
@@ -38667,6 +38696,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
         <button onclick="AP.exportPDF('creative')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
         <button onclick="AP.exportWord('creative')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
         <button onclick="AP.shareLink('creative')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+        <button onclick="AP.clearConv('creative')" style="padding:5px 10px;font-size:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;cursor:pointer">🗑 Clear</button>
       </div>
     </div>
     <div id="ap_msgs_creative" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"><div style="margin:auto;text-align:center;color:var(--text2,#94a3b8);font-size:13px;padding:40px"><div style="font-size:40px;margin-bottom:12px">💬</div>Start a conversation or select one from the left.</div></div>
@@ -38696,6 +38726,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
         <button onclick="AP.exportPDF('html_arch')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
         <button onclick="AP.exportWord('html_arch')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
         <button onclick="AP.shareLink('html_arch')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+        <button onclick="AP.clearConv('html_arch')" style="padding:5px 10px;font-size:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;cursor:pointer">🗑 Clear</button>
       </div>
     </div>
     <div id="ap_msgs_html_arch" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"><div style="margin:auto;text-align:center;color:var(--text2,#94a3b8);font-size:13px;padding:40px"><div style="font-size:40px;margin-bottom:12px">💬</div>Start a conversation or select one from the left.</div></div>
@@ -38725,6 +38756,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
         <button onclick="AP.exportPDF('general')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
         <button onclick="AP.exportWord('general')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
         <button onclick="AP.shareLink('general')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+        <button onclick="AP.clearConv('general')" style="padding:5px 10px;font-size:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;cursor:pointer">🗑 Clear</button>
       </div>
     </div>
     <div id="ap_msgs_general" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"><div style="margin:auto;text-align:center;color:var(--text2,#94a3b8);font-size:13px;padding:40px"><div style="font-size:40px;margin-bottom:12px">💬</div>Start a conversation or select one from the left.</div></div>
@@ -42688,7 +42720,7 @@ async function ttTransform() {
         var chunkInfo = { index: i + 1, total: chunks.length };
         var prompt = ttBuildPrompt(chunks[i].content, sourceUrl, true, chunkInfo);
         var chunkBase = combinedOutput;
-        var result = await pdkbCallAnthropic(prompt, {}, function(partial) {
+        var result = await pdkbCallAnthropic(prompt, { maxTokens: 16000 }, function(partial) {
           ttStreamPreview(chunkBase + (chunkBase ? '\n\n---\n\n' : '') + partial);
         });
         if (!result.success) {
@@ -42701,7 +42733,7 @@ async function ttTransform() {
       ttState.output = combinedOutput;
     } else {
       var prompt = ttBuildPrompt(input, sourceUrl);
-      var result = await pdkbCallAnthropic(prompt, {}, ttStreamPreview);
+      var result = await pdkbCallAnthropic(prompt, { maxTokens: 16000 }, ttStreamPreview);
       if (!result.success) { ttShowError(result.error); btn.disabled = false; btn.textContent = '\u26a1 Transform'; return; }
       ttState.output = result.result;
     }
@@ -44049,7 +44081,9 @@ function irsLoadFormSchema() {
     '2848': [['taxpayerName','1 Taxpayer Name'],['taxpayerSSN','1 Taxpayer SSN / EIN'],['taxpayerAddress','1 Taxpayer Street Address'],['taxpayerPhone','1 Taxpayer Phone'],['rep1Name','2 Representative 1 Name'],['rep1CAF','2 Representative 1 CAF Number'],['rep1PTIN','2 Representative 1 PTIN'],['rep1Address','2 Representative 1 Address'],['rep1Phone','2 Representative 1 Phone'],['rep1Fax','2 Representative 1 Fax'],['taxType','3 Tax Matter — Type of Tax'],['taxForms','3 Tax Matter — Form Numbers'],['taxYears','3 Tax Matter — Tax Year(s)'],['actsAuthorized','5a Acts Authorized (blank = all standard acts)'],['retainPriorRep','5b Retain Prior Power of Attorney? (Yes/No)'],['studentClinic','Clinic Designation (Low Income / Student Tax — if applicable)']],
     'W2C': [['taxYear','Tax Year Being Corrected'],['employerEIN','Employer EIN'],['employerName','Employer Name'],['employerAddress','Employer Address'],['employerCity','Employer City, State, ZIP'],['employeeSSN','Employee SSN'],['employeeFirst','Employee First Name'],['employeeLast','Employee Last Name'],['employeeAddress','Employee Street Address'],['box1Prev','Box 1 Previously Reported — Wages, Tips'],['box1Corr','Box 1 Correct Amount — Wages, Tips'],['box2Prev','Box 2 Previously Reported — Federal Tax Withheld'],['box2Corr','Box 2 Correct Amount — Federal Tax Withheld'],['box3Prev','Box 3 Previously Reported — Social Security Wages'],['box3Corr','Box 3 Correct Amount — Social Security Wages'],['box4Prev','Box 4 Previously Reported — SS Tax Withheld'],['box4Corr','Box 4 Correct Amount — SS Tax Withheld'],['box5Prev','Box 5 Previously Reported — Medicare Wages'],['box5Corr','Box 5 Correct Amount — Medicare Wages'],['box6Prev','Box 6 Previously Reported — Medicare Tax Withheld'],['box6Corr','Box 6 Correct Amount — Medicare Tax Withheld'],['stateCode','State Code'],['stateWagesPrev','State Wages Previously Reported'],['stateWagesCorr','State Wages Correct Amount'],['stateTaxPrev','State Tax Previously Reported'],['stateTaxCorr','State Tax Correct Amount'],['correctionReason','Reason / Explanation for Correction']],
     'W9':   [['name','1 Name (as shown on income tax return)'],['businessName','2 Business Name / Disregarded Entity'],['federalTaxClass','3 Federal Tax Classification (Individual/Sole Prop / C Corp / S Corp / Partnership / Trust/Estate / LLC / Other)'],['llcTaxClass','3 If LLC — Tax Classification (C / S / P)'],['exemptPayeeCode','4 Exempt Payee Code (if any)'],['fatcaExemption','4 FATCA Exemption Code (if any)'],['address','5 Street Address'],['cityStateZip','6 City, State, ZIP'],['accountNumbers','7 Account Number(s) — optional'],['ssn','Part I — Social Security Number (SSN)'],['ein','Part I — Employer Identification Number (EIN)'],['certificationDate','Part II — Date of Signature']],
-    'W4T':  [['employeeName','Step 1a Employee Name'],['employeeSSN','Step 1b Employee SSN'],['homeAddress','Step 1a Home Address'],['filingStatus','Step 1c Filing Status (Single / MFJ / HoH)'],['multipleJobs','Step 2 Multiple Jobs / Spouse Works (Yes/No)'],['dependentsAmount','Step 3 Total Dependents Amount ($)'],['otherIncome','Step 4a Other Income Not From Jobs ($)'],['deductions','Step 4b Deductions ($)'],['extraWithholding','Step 4c Extra Withholding Per Period ($)'],['exemptClaim','Claim Exempt from Withholding? (Yes/No)'],['employerName','Employer Name'],['employerEIN','Employer EIN'],['firstPayDate','First Date of Pay Period']]
+    'W4T':  [['employeeName','Step 1a Employee Name'],['employeeSSN','Step 1b Employee SSN'],['homeAddress','Step 1a Home Address'],['filingStatus','Step 1c Filing Status (Single / MFJ / HoH)'],['multipleJobs','Step 2 Multiple Jobs / Spouse Works (Yes/No)'],['dependentsAmount','Step 3 Total Dependents Amount ($)'],['otherIncome','Step 4a Other Income Not From Jobs ($)'],['deductions','Step 4b Deductions ($)'],['extraWithholding','Step 4c Extra Withholding Per Period ($)'],['exemptClaim','Claim Exempt from Withholding? (Yes/No)'],['employerName','Employer Name'],['employerEIN','Employer EIN'],['firstPayDate','First Date of Pay Period']],
+    '4852': [['taxYear','Tax Year'],['yourName','Your Name'],['yourSSN','Your SSN'],['employerName','Employer Name'],['employerEIN','Employer EIN (if known)'],['employerAddress','Employer Address'],['employerCityStateZip','Employer City, State, ZIP'],['box1Wages','Line 7a — Reported Wages (W-2 Box 1)'],['box2Fed','Line 7b — Federal Tax Withheld'],['box3SS','Line 7c — Social Security Wages'],['box4SS','Line 7d — SS Tax Withheld'],['box5Med','Line 7e — Medicare Wages'],['box6Med','Line 7f — Medicare Tax Withheld'],['boxStateTax','Line 7i — State Tax Withheld (KEEP)'],['boxStateCode','State Code'],['corr1Wages','Line 7a CORRECTED Wages (IRC § 3401 — enter 1.00)'],['corr3SS','Line 7c CORRECTED SS Wages (enter 0.00)'],['corr5Med','Line 7e CORRECTED Medicare Wages (enter 0.00)'],['line9Explanation','Line 9 — Why W-2 Is Incorrect (IRC § 3401(a))'],['line10Explanation','Line 10 — Erroneous Payments (26 USC § 3503)']],
+    '8275R': [['taxpayerName','Taxpayer Name'],['taxpayerSSN','Taxpayer SSN'],['taxYear','Tax Year'],['reg1','Regulation 1 (e.g. 31.3121(A)-1)'],['reg2','Regulation 2 (e.g. 31.3401(A)-1)'],['itemGroup','Item / Group (e.g. INCOME)'],['detailedDesc','Detailed Description (e.g. SUBSTITUTE W-2 / PAYER DATA ERROR)'],['formSchedule','Form / Schedule (e.g. 4852)'],['lineNo','Line No. (e.g. 25A)'],['amount','Amount ($) — Total corrected wages'],['part2Explanation','Part II — Explanation Contrary to Regulations']]
   };
   // ── 1099 Chain Coordinator (special multi-step workflow) ──────────────────
   if (form === '1099chain') {
@@ -44115,10 +44149,162 @@ function irsLoadFormSchema() {
     document.getElementById('irsFormStatus').textContent = '1099-B Chain Coordinator loaded (IRIS 2-form)';
     return;
   }
+  // ── W-2 Correction Packet ──────────────────────────────────────────────────
+  if (form === 'w2correction') {
+    if (controls) controls.style.display = 'none';
+    render.innerHTML = [
+      '<div style="font-size:14px;font-weight:800;color:#ef4444;margin-bottom:10px">&#x1F9FE; W-2 CORRECTION PACKET &#x2014; Form 4852 &#xD7;2 + Form 8275-R + Schedule 1 Supporting Statement + RT Agreement</div>',
+      '<div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.4);border-radius:7px;padding:11px 14px;margin-bottom:12px;font-size:11px;line-height:1.8">',
+      '<strong style="color:#ef4444">&#x2696;&#xFE0F; LEGAL BASIS</strong><br>',
+      '&#x2022; <strong>Form 4852</strong> &#x2014; Substitute for W-2 under IRC &#x00A7; 3401(a) (wages definition) + 26 USC &#x00A7; 3503 (erroneous payments)<br>',
+      '&#x2022; <strong>Form 8275-R</strong> &#x2014; Reg disclosure: 31.3121(A)-1 + 31.3401(A)-1; no employer-employee relationship; no wages (IRC 26)<br>',
+      '&#x2022; <strong>Schedule 1 Other Income</strong> &#x2014; 31 USC &#x00A7;&#x00A7; 5103, 5115, 5118 offset entries neutralize employer-reported amounts<br>',
+      '&#x2022; <strong>IRC &#x00A7; 3402(N)</strong> &#x2014; Exception from withholding for persons incurring no income tax liability',
+      '</div>',
+      // Taxpayer Info
+      '<div style="background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.3);border-radius:8px;padding:14px;margin-bottom:12px">',
+      '<div style="font-size:12px;font-weight:800;color:#3b82f6;margin-bottom:10px">&#x1F464; TAXPAYER INFORMATION</div>',
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px">',
+      _w2cField('tp_name','Taxpayer Name'),
+      _w2cField('tp_ssn','Taxpayer SSN (XXX-XX-XXXX)'),
+      _w2cField('tp_spouse','Spouse Name (if MFJ)'),
+      _w2cField('tp_spouseSsn','Spouse SSN (if MFJ)'),
+      _w2cField('tp_address','Address'),
+      _w2cField('tp_cityStateZip','City, State, ZIP'),
+      _w2cField('tp_taxYear','Tax Year','value="2025"'),
+      _w2cField('tp_filingStatus','Filing Status (MFJ / Single / HoH)','value="MFJ"'),
+      '</div></div>',
+      // Employer 1
+      '<div style="background:rgba(16,185,129,.06);border:2px solid rgba(16,185,129,.4);border-radius:8px;padding:14px;margin-bottom:12px">',
+      '<div style="font-size:12px;font-weight:800;color:#10b981;margin-bottom:10px">&#x1F3E2; EMPLOYER 1 &#x2014; Form 4852</div>',
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px">',
+      _w2cField('e1_name','Employer Name'),
+      _w2cField('e1_ein','Employer EIN'),
+      _w2cField('e1_address','Employer Address'),
+      _w2cField('e1_cityStateZip','Employer City, State, ZIP'),
+      _w2cField('e1_who','Employee (Taxpayer or Spouse)','value="Taxpayer"'),
+      '</div>',
+      '<div style="font-size:11px;font-weight:700;color:#10b981;margin:10px 0 6px">W-2 Reported Amounts:</div>',
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px">',
+      _w2cField('e1_box1','Box 1 — Reported Wages ($)','oninput="w2cAutoCalc()"'),
+      _w2cField('e1_box2','Box 2 — Federal Tax Withheld ($)'),
+      _w2cField('e1_box3','Box 3 — SS Wages ($)'),
+      _w2cField('e1_box4','Box 4 — SS Tax Withheld ($)'),
+      _w2cField('e1_box5','Box 5 — Medicare Wages ($)'),
+      _w2cField('e1_box6','Box 6 — Medicare Tax Withheld ($)'),
+      _w2cField('e1_boxState','State Tax Withheld ($) &#x2014; KEEP'),
+      _w2cField('e1_boxStateCode','State Code'),
+      '</div>',
+      '<div style="font-size:11px;font-weight:700;color:#f59e0b;margin:10px 0 6px">&#x2192; Corrected Amounts (IRC &#x00A7; 3401(a)):</div>',
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px">',
+      '<div><label style="font-size:11px;color:#f59e0b;font-weight:700;display:block;margin-bottom:4px">Box 1 CORRECTED Wages ($)</label><input id="w2c-e1_corr1" value="1.00" style="width:100%;padding:8px 10px;background:rgba(245,158,11,.1);border:2px solid rgba(245,158,11,.5);border-radius:6px;color:#f59e0b;font-size:12px;font-weight:800;box-sizing:border-box"></div>',
+      '<div><label style="font-size:11px;color:#f59e0b;font-weight:700;display:block;margin-bottom:4px">Box 3 CORRECTED SS Wages ($)</label><input id="w2c-e1_corr3" value="0.00" style="width:100%;padding:8px 10px;background:rgba(245,158,11,.1);border:2px solid rgba(245,158,11,.5);border-radius:6px;color:#f59e0b;font-size:12px;font-weight:800;box-sizing:border-box"></div>',
+      '<div><label style="font-size:11px;color:#f59e0b;font-weight:700;display:block;margin-bottom:4px">Box 5 CORRECTED Medicare Wages ($)</label><input id="w2c-e1_corr5" value="0.00" style="width:100%;padding:8px 10px;background:rgba(245,158,11,.1);border:2px solid rgba(245,158,11,.5);border-radius:6px;color:#f59e0b;font-size:12px;font-weight:800;box-sizing:border-box"></div>',
+      '</div>',
+      '<div style="margin-top:10px"><label style="font-size:11px;color:#10b981;font-weight:700;display:block;margin-bottom:4px">Form 4852 Line 9 &#x2014; Why W-2 Is Incorrect:</label>',
+      '<textarea id="w2c-e1_line9" rows="2" style="width:100%;padding:8px 10px;background:var(--bg-tertiary);border:1px solid rgba(16,185,129,.3);border-radius:6px;color:var(--text-primary);font-size:11px;box-sizing:border-box;resize:vertical">LINE 7(A)(B)(C) AND (D) WERE CORRECTED AS I DID NOT RECEIVE ANY WAGES AS DEFINED IN IRC SECTION 3401(A)</textarea></div>',
+      '<div style="margin-top:8px"><label style="font-size:11px;color:#10b981;font-weight:700;display:block;margin-bottom:4px">Form 4852 Line 10 &#x2014; Erroneous Payments (26 USC &#x00A7; 3503):</label>',
+      '<textarea id="w2c-e1_line10" rows="2" style="width:100%;padding:8px 10px;background:var(--bg-tertiary);border:1px solid rgba(16,185,129,.3);border-radius:6px;color:var(--text-primary);font-size:11px;box-sizing:border-box;resize:vertical">26 USC 3503 ERRONEOUS PAYMENTS</textarea></div>',
+      '</div>',
+      // Employer 2
+      '<div style="background:rgba(139,92,246,.06);border:2px solid rgba(139,92,246,.4);border-radius:8px;padding:14px;margin-bottom:12px">',
+      '<div style="font-size:12px;font-weight:800;color:#8b5cf6;margin-bottom:10px">&#x1F3E2; EMPLOYER 2 &#x2014; Form 4852</div>',
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px">',
+      _w2cField('e2_name','Employer Name'),
+      _w2cField('e2_ein','Employer EIN'),
+      _w2cField('e2_address','Employer Address'),
+      _w2cField('e2_cityStateZip','Employer City, State, ZIP'),
+      _w2cField('e2_who','Employee (Taxpayer or Spouse)','value="Spouse"'),
+      '</div>',
+      '<div style="font-size:11px;font-weight:700;color:#8b5cf6;margin:10px 0 6px">W-2 Reported Amounts:</div>',
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px">',
+      _w2cField('e2_box1','Box 1 — Reported Wages ($)','oninput="w2cAutoCalc()"'),
+      _w2cField('e2_box2','Box 2 — Federal Tax Withheld ($)'),
+      _w2cField('e2_box3','Box 3 — SS Wages ($)'),
+      _w2cField('e2_box4','Box 4 — SS Tax Withheld ($)'),
+      _w2cField('e2_box5','Box 5 — Medicare Wages ($)'),
+      _w2cField('e2_box6','Box 6 — Medicare Tax Withheld ($)'),
+      _w2cField('e2_boxState','State Tax Withheld ($) &#x2014; KEEP'),
+      _w2cField('e2_boxStateCode','State Code'),
+      '</div>',
+      '<div style="font-size:11px;font-weight:700;color:#f59e0b;margin:10px 0 6px">&#x2192; Corrected Amounts (IRC &#x00A7; 3401(a)):</div>',
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px">',
+      '<div><label style="font-size:11px;color:#f59e0b;font-weight:700;display:block;margin-bottom:4px">Box 1 CORRECTED Wages ($)</label><input id="w2c-e2_corr1" value="1.00" style="width:100%;padding:8px 10px;background:rgba(245,158,11,.1);border:2px solid rgba(245,158,11,.5);border-radius:6px;color:#f59e0b;font-size:12px;font-weight:800;box-sizing:border-box"></div>',
+      '<div><label style="font-size:11px;color:#f59e0b;font-weight:700;display:block;margin-bottom:4px">Box 3 CORRECTED SS Wages ($)</label><input id="w2c-e2_corr3" value="0.00" style="width:100%;padding:8px 10px;background:rgba(245,158,11,.1);border:2px solid rgba(245,158,11,.5);border-radius:6px;color:#f59e0b;font-size:12px;font-weight:800;box-sizing:border-box"></div>',
+      '<div><label style="font-size:11px;color:#f59e0b;font-weight:700;display:block;margin-bottom:4px">Box 5 CORRECTED Medicare Wages ($)</label><input id="w2c-e2_corr5" value="0.00" style="width:100%;padding:8px 10px;background:rgba(245,158,11,.1);border:2px solid rgba(245,158,11,.5);border-radius:6px;color:#f59e0b;font-size:12px;font-weight:800;box-sizing:border-box"></div>',
+      '</div>',
+      '<div style="margin-top:10px"><label style="font-size:11px;color:#8b5cf6;font-weight:700;display:block;margin-bottom:4px">Form 4852 Line 9 &#x2014; Why W-2 Is Incorrect:</label>',
+      '<textarea id="w2c-e2_line9" rows="2" style="width:100%;padding:8px 10px;background:var(--bg-tertiary);border:1px solid rgba(139,92,246,.3);border-radius:6px;color:var(--text-primary);font-size:11px;box-sizing:border-box;resize:vertical">LINE 7(A)(B)(C) AND (D) WERE CORRECTED AS I DID NOT RECEIVE ANY WAGES AS DEFINED IN IRC SECTION 3401(A)</textarea></div>',
+      '<div style="margin-top:8px"><label style="font-size:11px;color:#8b5cf6;font-weight:700;display:block;margin-bottom:4px">Form 4852 Line 10 &#x2014; Erroneous Payments:</label>',
+      '<textarea id="w2c-e2_line10" rows="2" style="width:100%;padding:8px 10px;background:var(--bg-tertiary);border:1px solid rgba(139,92,246,.3);border-radius:6px;color:var(--text-primary);font-size:11px;box-sizing:border-box;resize:vertical">26 USC 3503 ERRONEOUS PAYMENTS</textarea></div>',
+      '</div>',
+      // Schedule 1 Other Income Supporting Statement
+      '<div style="background:rgba(245,158,11,.06);border:2px solid rgba(245,158,11,.4);border-radius:8px;padding:14px;margin-bottom:12px">',
+      '<div style="font-size:12px;font-weight:800;color:#f59e0b;margin-bottom:6px">&#x1F4CB; SCHEDULE 1 &#x2014; OTHER INCOME SUPPORTING STATEMENT (31 USC &#x00A7;&#x00A7; 5103, 5115, 5118)</div>',
+      '<div style="font-size:11px;color:var(--text-secondary);margin-bottom:10px">Auto-generated from employer wage amounts above. Each employer creates a negative legal-tender offset entry. Totals auto-sum to line 8z.</div>',
+      '<div id="w2cSch1Preview" style="background:var(--bg-tertiary);border:1px solid rgba(245,158,11,.3);border-radius:6px;padding:12px;font-family:monospace;font-size:11px;line-height:1.8;color:#f59e0b;white-space:pre-wrap;min-height:80px">Click Recalculate to generate Schedule 1 statement.</div>',
+      '</div>',
+      // Form 8275-R
+      '<div style="background:rgba(239,68,68,.06);border:2px solid rgba(239,68,68,.4);border-radius:8px;padding:14px;margin-bottom:12px">',
+      '<div style="font-size:12px;font-weight:800;color:#ef4444;margin-bottom:10px">&#x1F6AB; FORM 8275-R &#x2014; REGULATION DISCLOSURE STATEMENT</div>',
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px">',
+      '<div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">Regulation 1</label><input id="w2c-r_reg1" value="31.3121(A)-1" style="width:100%;padding:8px 10px;background:var(--bg-tertiary);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>',
+      '<div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">Regulation 2</label><input id="w2c-r_reg2" value="31.3401(A)-1" style="width:100%;padding:8px 10px;background:var(--bg-tertiary);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>',
+      '<div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">Item / Group</label><input id="w2c-r_item" value="INCOME" style="width:100%;padding:8px 10px;background:var(--bg-tertiary);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>',
+      '<div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">Detailed Description</label><input id="w2c-r_desc" value="SUBSTITUTE W-2 / PAYER DATA ERROR" style="width:100%;padding:8px 10px;background:var(--bg-tertiary);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>',
+      '<div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">Form / Schedule</label><input id="w2c-r_form" value="4852" style="width:100%;padding:8px 10px;background:var(--bg-tertiary);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>',
+      '<div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">Line No.</label><input id="w2c-r_line" value="25A" style="width:100%;padding:8px 10px;background:var(--bg-tertiary);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>',
+      '<div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">Total Amount ($) &#x2014; auto-calc</label><input id="w2c-r_amount" readonly style="width:100%;padding:8px 10px;background:rgba(239,68,68,.1);border:2px solid rgba(239,68,68,.5);border-radius:6px;color:#ef4444;font-size:13px;font-weight:800;box-sizing:border-box" placeholder="Auto-calculated"></div>',
+      '</div>',
+      '<div style="margin-top:10px"><label style="font-size:11px;color:#ef4444;font-weight:700;display:block;margin-bottom:4px">Part II &#x2014; Explanation of Position Contrary to Regulations:</label>',
+      '<textarea id="w2c-r_part2" rows="3" style="width:100%;padding:8px 10px;background:var(--bg-tertiary);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:var(--text-primary);font-size:11px;box-sizing:border-box;resize:vertical">NO EMPLOYER-EMPLOYEE RELATIONSHIP; NO WAGES (IRC 26)</textarea></div>',
+      '</div>',
+      // IRC § 3402(N) Regulatory Explanation
+      '<div style="background:rgba(6,182,212,.06);border:2px solid rgba(6,182,212,.4);border-radius:8px;padding:14px;margin-bottom:12px">',
+      '<div style="font-size:12px;font-weight:800;color:#06b6d4;margin-bottom:6px">&#x1F4DC; IRC &#x00A7; 3402(N) REGULATORY EXPLANATION (Return Attachment)</div>',
+      '<div style="margin-bottom:8px"><button onclick="w2cPopulateRegExpl()" style="padding:7px 14px;background:rgba(6,182,212,.2);border:1px solid rgba(6,182,212,.5);border-radius:6px;color:#06b6d4;font-size:11px;font-weight:700;cursor:pointer">&#x1F504; Auto-Populate from Taxpayer Data</button></div>',
+      '<textarea id="w2c-regExpl" rows="9" style="width:100%;padding:10px 12px;background:var(--bg-tertiary);border:1px solid rgba(6,182,212,.3);border-radius:6px;color:var(--text-primary);font-size:11px;line-height:1.8;box-sizing:border-box;resize:vertical;font-family:monospace">Click Auto-Populate to generate regulatory explanation.</textarea>',
+      '</div>',
+      // Election Explanation
+      '<div style="background:rgba(16,185,129,.06);border:2px solid rgba(16,185,129,.4);border-radius:8px;padding:14px;margin-bottom:12px">',
+      '<div style="font-size:12px;font-weight:800;color:#10b981;margin-bottom:6px">&#x1F5F3;&#xFE0F; ELECTION EXPLANATION &#x2014; Erroneous Withholding Claim (Line 35a)</div>',
+      '<div style="margin-bottom:8px"><button onclick="w2cPopulateElection()" style="padding:7px 14px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.5);border-radius:6px;color:#10b981;font-size:11px;font-weight:700;cursor:pointer">&#x1F504; Auto-Populate from Taxpayer Data</button></div>',
+      '<textarea id="w2c-electExpl" rows="9" style="width:100%;padding:10px 12px;background:var(--bg-tertiary);border:1px solid rgba(16,185,129,.3);border-radius:6px;color:var(--text-primary);font-size:11px;line-height:1.8;box-sizing:border-box;resize:vertical;font-family:monospace">Click Auto-Populate to generate election explanation.</textarea>',
+      '</div>',
+      // RT Agreement Fee Calculator
+      '<div style="background:rgba(168,85,247,.06);border:2px solid rgba(168,85,247,.4);border-radius:8px;padding:14px;margin-bottom:12px">',
+      '<div style="font-size:12px;font-weight:800;color:#a855f7;margin-bottom:10px">&#x1F4B3; RT AGREEMENT / SBTPG FEE CALCULATOR (Refund Transfer)</div>',
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px">',
+      _w2cField('rt_refund','Expected Refund Amount ($)','oninput="w2cCalcRT()"'),
+      _w2cField('rt_rtFee','RT Base Fee ($)','value="59.90" oninput="w2cCalcRT()"'),
+      _w2cField('rt_prepFee','Preparation Fee ($)','value="1000.00" oninput="w2cCalcRT()"'),
+      _w2cField('rt_docFee','Doc Prep Fee ($)','value="160.00" oninput="w2cCalcRT()"'),
+      _w2cField('rt_txFee','Transmission Fee ($)','value="285.00" oninput="w2cCalcRT()"'),
+      _w2cField('rt_otherFee','Other Fees ($)','value="0.00" oninput="w2cCalcRT()"'),
+      '</div>',
+      '<div id="w2cRTSummary" style="margin-top:10px;padding:12px;background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.4);border-radius:6px;font-size:12px;color:#a855f7;font-weight:700;display:none"></div>',
+      '</div>',
+      // Action buttons
+      '<div style="display:flex;gap:8px;flex-wrap:wrap">',
+      '<button onclick="w2cAutoCalc()" style="padding:9px 16px;background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.5);border-radius:7px;color:#f59e0b;font-size:12px;font-weight:700;cursor:pointer">&#x27F3; Recalculate All</button>',
+      '<button onclick="w2cPopulateAll()" style="padding:9px 16px;background:rgba(6,182,212,.2);border:1px solid rgba(6,182,212,.5);border-radius:7px;color:#06b6d4;font-size:12px;font-weight:700;cursor:pointer">&#x1F504; Auto-Populate Explanations</button>',
+      '<button onclick="w2cExport()" style="padding:9px 16px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.5);border-radius:7px;color:#10b981;font-size:12px;font-weight:700;cursor:pointer">&#x2193; Export Full Packet (TXT)</button>',
+      '<button onclick="w2cSaveToFilings()" style="padding:9px 16px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.4);border-radius:7px;color:#3b82f6;font-size:12px;font-weight:700;cursor:pointer">&#x1F4BE; Save to Filings</button>',
+      '</div>'
+    ].join('');
+    document.getElementById('irsFormStatus').textContent = 'W-2 Correction Packet loaded — 4852 \xD72 + 8275-R + Sch 1 + RT';
+    return;
+  }
   var fields = schemas[form];
   if (!fields) { render.innerHTML = '<div style="padding:20px;color:var(--text-secondary);font-size:13px">Form ' + form + ' — fields coming soon. Use the GAAP ledger to populate and export this form.</div>'; return; }
+  var irsFormDefaults = {
+    '4852': { 'line9Explanation': 'LINE 7(A)(B)(C) AND (D) WERE CORRECTED AS I DID NOT RECEIVE ANY WAGES AS DEFINED IN IRC SECTION 3401(A)', 'line10Explanation': '26 USC 3503 ERRONEOUS PAYMENTS', 'corr1Wages': '1.00', 'corr3SS': '0.00', 'corr5Med': '0.00' },
+    '8275R': { 'reg1': '31.3121(A)-1', 'reg2': '31.3401(A)-1', 'itemGroup': 'INCOME', 'detailedDesc': 'SUBSTITUTE W-2 / PAYER DATA ERROR', 'formSchedule': '4852', 'lineNo': '25A', 'part2Explanation': 'NO EMPLOYER-EMPLOYEE RELATIONSHIP; NO WAGES (IRC 26)' }
+  };
+  var defaults = irsFormDefaults[form] || {};
   render.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;padding:4px">' + fields.map(function(f) {
-    return '<div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">' + f[1] + '</label><input id="irs-field-' + f[0] + '" style="width:100%;padding:8px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box" placeholder=""></div>';
+    var dv = defaults[f[0]] || '';
+    return '<div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">' + f[1] + '</label><input id="irs-field-' + f[0] + '" value="' + dv.replace(/"/g,'&quot;') + '" style="width:100%;padding:8px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box" placeholder=""></div>';
   }).join('') + '</div>';
   if (controls) controls.style.display = 'flex';
   document.getElementById('irsFormStatus').textContent = 'Form ' + form + ' loaded — ' + fields.length + ' fields';
@@ -44274,6 +44460,266 @@ function irsChainSave() {
   localStorage.setItem(key, JSON.stringify({type:'1099chain_iris',saved:new Date().toISOString(),data:data}));
   var st = document.getElementById('irsFormStatus');
   if (st) st.textContent = 'Chain saved (' + key + ')';
+}
+
+// ── W-2 Correction Packet helpers ───────────────────────────────────────────
+function _w2cField(id, label, extra) {
+  return '<div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">' + label + '</label>' +
+    '<input id="w2c-' + id + '" ' + (extra||'') + ' style="width:100%;padding:8px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box" placeholder=""></div>';
+}
+function _w2cGet(id) { var el=document.getElementById('w2c-'+id); return el ? el.value : ''; }
+function _w2cNum(id) { var el=document.getElementById('w2c-'+id); return el ? (parseFloat((el.value||'').replace(/[^0-9.-]/g,''))||0) : 0; }
+function _w2cSet(id, val) { var el=document.getElementById('w2c-'+id); if(el) el.value = typeof val==='number' ? val.toFixed(2) : val; }
+
+function w2cAutoCalc() {
+  var e1Wages = _w2cNum('e1_box1');
+  var e2Wages = _w2cNum('e2_box1');
+  // Schedule 1 Other Income Supporting Statement
+  var sch1El = document.getElementById('w2cSch1Preview');
+  if (sch1El) {
+    var totalOffset = -1; // BR1 entry
+    var col = 56;
+    var pad = function(s, n){ s = String(s); while(s.length < n) s += ' '; return s; };
+    var lines = [
+      'SCHEDULE 1 — OTHER INCOME SUPPORTING STATEMENT',
+      'Attachment to Form 1040, Line 8z — SEE STATEMENT',
+      '',
+      pad('Description', 46) + 'Amount',
+      '\u2500'.repeat(col)
+    ];
+    lines.push(pad('BR1  -1', 46) + '($1.00)');
+    if (e1Wages > 0) {
+      var e1n = (_w2cGet('e1_name') || 'EMPLOYER 1').toUpperCase().substring(0,18);
+      lines.push(pad('31 USC \u00A7\u00A7 5103, 5115, 5118 [' + e1n + ']', 46) + '($' + e1Wages.toFixed(2) + ')');
+      totalOffset -= e1Wages;
+    }
+    if (e2Wages > 0) {
+      var e2n = (_w2cGet('e2_name') || 'EMPLOYER 2').toUpperCase().substring(0,18);
+      lines.push(pad('31 USC \u00A7\u00A7 5103, 5115, 5118 [' + e2n + ']', 46) + '($' + e2Wages.toFixed(2) + ')');
+      totalOffset -= e2Wages;
+    }
+    lines.push('\u2500'.repeat(col));
+    lines.push(pad('TOTAL OTHER INCOME (Line 8z)', 46) + '($' + Math.abs(totalOffset).toFixed(2) + ')');
+    sch1El.textContent = lines.join('\n');
+  }
+  // Form 8275-R total amount
+  _w2cSet('r_amount', e1Wages + e2Wages);
+  w2cCalcRT();
+}
+
+function w2cCalcRT() {
+  var refund   = _w2cNum('rt_refund');
+  var rt       = _w2cNum('rt_rtFee');
+  var prep     = _w2cNum('rt_prepFee');
+  var doc      = _w2cNum('rt_docFee');
+  var tx       = _w2cNum('rt_txFee');
+  var other    = _w2cNum('rt_otherFee');
+  var totalFees = rt + prep + doc + tx + other;
+  var net = refund - totalFees;
+  var sumEl = document.getElementById('w2cRTSummary');
+  if (!sumEl) return;
+  if (refund <= 0) { sumEl.style.display = 'none'; return; }
+  sumEl.style.display = 'block';
+  var rows = [
+    ['Expected Refund', refund, false],
+    ['RT Fee', rt, true],
+    ['Preparation Fee', prep, true],
+    ['Doc Prep Fee', doc, true],
+    ['Transmission Fee', tx, true]
+  ];
+  if (other > 0) rows.push(['Other Fees', other, true]);
+  rows.push(['TOTAL FEES', totalFees, true]);
+  var html = '<div style="display:grid;grid-template-columns:1fr auto;gap:4px 12px;font-size:12px">';
+  rows.forEach(function(r) {
+    html += '<span>' + r[0] + ':</span><span style="text-align:right">' + (r[2]?'(':'') + '$' + r[1].toFixed(2) + (r[2]?')':'') + '</span>';
+  });
+  html += '<span style="font-size:14px;font-weight:900;padding-top:6px;border-top:1px solid rgba(168,85,247,.5)">NET DISBURSEMENT:</span>';
+  html += '<span style="font-size:14px;font-weight:900;padding-top:6px;border-top:1px solid rgba(168,85,247,.5);text-align:right">$' + net.toFixed(2) + '</span>';
+  html += '</div>';
+  sumEl.innerHTML = html;
+}
+
+function w2cPopulateRegExpl() {
+  var name     = _w2cGet('tp_name')    || '[TAXPAYER NAME]';
+  var ssn      = _w2cGet('tp_ssn')     || '[SSN]';
+  var taxYear  = _w2cGet('tp_taxYear') || '2025';
+  var e1Wages  = _w2cNum('e1_box1');
+  var e2Wages  = _w2cNum('e2_box1');
+  var total    = e1Wages + e2Wages;
+  var el = document.getElementById('w2c-regExpl');
+  if (!el) return;
+  el.value = [
+    'REGULATORY EXPLANATION — IRC \u00A7 3402(N)',
+    'Taxpayer: ' + name + '  |  SSN: ' + ssn + '  |  Tax Year: ' + taxYear,
+    '',
+    'Pursuant to IRC \u00A7 3402(n), taxpayer is exempt from withholding because taxpayer incurred no',
+    'income tax liability for the preceding taxable year and reasonably expects to incur no income',
+    'tax liability for the current taxable year.',
+    '',
+    'The amounts reported on Forms W-2 have been corrected on Forms 4852 (Substitute for Form W-2)',
+    'pursuant to IRC \u00A7 3401(a), which defines "wages" for withholding purposes as remuneration for',
+    '"services performed by an employee for his employer." No employer-employee relationship as defined',
+    'under 26 CFR \u00A7 31.3401(c)-1 existed during tax year ' + taxYear + '.',
+    '',
+    'Pursuant to IRC \u00A7\u00A7 3121(a) and 3121(b), the amounts previously reported do not constitute',
+    '"wages" for FICA purposes as no covered employment relationship existed within the meaning of',
+    'those sections. See 26 CFR \u00A7\u00A7 31.3121(a)-1 and 31.3401(a)-1.',
+    '',
+    'Total wages corrected: $' + total.toFixed(2) + ' (per IRC \u00A7 3401(a) definition).',
+    '26 USC \u00A7 3503 — Erroneous payments: amounts withheld were not authorized by law.',
+    '',
+    'Pursuant to IRC \u00A7 31(a), a credit for amounts of federal income tax withheld is established.',
+    'Pursuant to IRC \u00A7 6401(a), the withheld amounts in excess of the correct tax constitute an',
+    'overpayment of tax. Refund is hereby claimed pursuant to IRC \u00A7\u00A7 6402(a) and 6511.',
+    '',
+    'The Schedule 1 Other Income Supporting Statement (Line 8z) reflects offsets under',
+    '31 USC \u00A7\u00A7 5103, 5115, and 5118 (Federal Reserve notes as legal tender) applied to',
+    'neutralize employer-reported wage amounts.',
+    '',
+    'This return is filed pursuant to IRC \u00A7\u00A7 6011 and 6012. Declaration under IRC \u00A7 6065.',
+    'See also: IRM 4.19.3.20.1 (erroneous W-2); IRM 25.1.1.3 (examination of returns).'
+  ].join('\n');
+}
+
+function w2cPopulateElection() {
+  var name      = _w2cGet('tp_name')    || '[TAXPAYER NAME]';
+  var ssn       = _w2cGet('tp_ssn')     || '[SSN]';
+  var taxYear   = _w2cGet('tp_taxYear') || '2025';
+  var e1Fed     = _w2cNum('e1_box2');
+  var e2Fed     = _w2cNum('e2_box2');
+  var totalFed  = e1Fed + e2Fed;
+  var e1State   = _w2cNum('e1_boxState');
+  var e2State   = _w2cNum('e2_boxState');
+  var e1Code    = _w2cGet('e1_boxStateCode') || 'N/A';
+  var e2Code    = _w2cGet('e2_boxStateCode') || 'N/A';
+  var el = document.getElementById('w2c-electExpl');
+  if (!el) return;
+  el.value = [
+    'ELECTION EXPLANATION — ERRONEOUS WITHHOLDING CLAIM',
+    'Taxpayer: ' + name + '  |  SSN: ' + ssn + '  |  Tax Year: ' + taxYear,
+    '',
+    'Pursuant to IRC \u00A7 3402(n) and the filing provisions of IRC \u00A7\u00A7 6011 and 6012, taxpayer hereby',
+    'elects to claim a full refund of all amounts erroneously withheld as "income tax" during',
+    'tax year ' + taxYear + '. See Form 1040, Line 35a.',
+    '',
+    'BASIS FOR ELECTION:',
+    '1. IRC \u00A7 3401(a) — Wages defined as remuneration in an employer-employee relationship.',
+    '   No such relationship existed. Corrected via Form 4852 (26 USC \u00A7 3503).',
+    '2. IRC \u00A7\u00A7 3121(a)/(b) — FICA wage definitions; corrected accordingly (Forms 4852).',
+    '3. 26 CFR \u00A7\u00A7 31.3121(A)-1 + 31.3401(A)-1 — Regulatory definitions; disclosed on Form 8275-R.',
+    '4. IRC \u00A7 31(a) — Credit for withheld federal income tax established.',
+    '5. IRC \u00A7 6401(a) — Excess withholding constitutes an overpayment of tax.',
+    '6. IRC \u00A7\u00A7 6402(a) and 6511 — Refund and credit of overpayments; statute of limitations met.',
+    '7. 31 USC \u00A7\u00A7 5103, 5115, 5118 — Federal Reserve notes as legal tender; applied as',
+    '   Schedule 1 Other Income offsets (Line 8z — See Statement).',
+    '',
+    'Total federal withholding claimed as refund (Line 35a): $' + totalFed.toFixed(2),
+    '',
+    'State withholding retained (not subject to this election):',
+    '  Employer 1 — $' + e1State.toFixed(2) + ' (' + e1Code + ')',
+    '  Employer 2 — $' + e2State.toFixed(2) + ' (' + e2Code + ')',
+    '',
+    'This election is made in accordance with IRM 25.1.1.3.',
+    'Declaration under IRC \u00A7 6065. Filed pursuant to IRC \u00A7\u00A7 6011 and 6012.'
+  ].join('\n');
+}
+
+function w2cPopulateAll() {
+  w2cAutoCalc();
+  w2cPopulateRegExpl();
+  w2cPopulateElection();
+}
+
+function w2cExport() {
+  w2cAutoCalc();
+  var now     = new Date().toISOString();
+  var name    = _w2cGet('tp_name')    || '[TAXPAYER]';
+  var taxYear = _w2cGet('tp_taxYear') || '2025';
+  var totalFees = _w2cNum('rt_rtFee') + _w2cNum('rt_prepFee') + _w2cNum('rt_docFee') + _w2cNum('rt_txFee') + _w2cNum('rt_otherFee');
+  var lines = [
+    'TMAR W-2 CORRECTION PACKET — FULL FILING SHEET',
+    'Generated: ' + now,
+    'Taxpayer: ' + name + '  |  Tax Year: ' + taxYear,
+    '='.repeat(70), '',
+    'SECTION 1: FORM 4852 — EMPLOYER 1', '-'.repeat(50),
+    'Employer:  ' + _w2cGet('e1_name') + '  |  EIN: ' + _w2cGet('e1_ein'),
+    'Address:   ' + _w2cGet('e1_address') + ', ' + _w2cGet('e1_cityStateZip'),
+    'Employee:  ' + _w2cGet('e1_who'), '',
+    'Box 1  Reported Wages:          $' + _w2cNum('e1_box1').toFixed(2),
+    'Box 1  CORRECTED Wages:         $' + _w2cNum('e1_corr1').toFixed(2) + '  [IRC \u00A7 3401(a)]',
+    'Box 2  Fed Tax Withheld:        $' + _w2cNum('e1_box2').toFixed(2),
+    'Box 3  SS Wages Reported:       $' + _w2cNum('e1_box3').toFixed(2),
+    'Box 3  SS Wages CORRECTED:      $' + _w2cNum('e1_corr3').toFixed(2),
+    'Box 4  SS Tax Withheld:         $' + _w2cNum('e1_box4').toFixed(2),
+    'Box 5  Medicare Wages Reported: $' + _w2cNum('e1_box5').toFixed(2),
+    'Box 5  Medicare Wages CORRECTED:$' + _w2cNum('e1_corr5').toFixed(2),
+    'Box 6  Medicare Tax Withheld:   $' + _w2cNum('e1_box6').toFixed(2),
+    'State  Tax Withheld (KEEP):     $' + _w2cNum('e1_boxState').toFixed(2) + ' (' + _w2cGet('e1_boxStateCode') + ')', '',
+    'Line 9:  ' + _w2cGet('e1_line9'),
+    'Line 10: ' + _w2cGet('e1_line10'), '',
+    'SECTION 2: FORM 4852 — EMPLOYER 2', '-'.repeat(50),
+    'Employer:  ' + _w2cGet('e2_name') + '  |  EIN: ' + _w2cGet('e2_ein'),
+    'Address:   ' + _w2cGet('e2_address') + ', ' + _w2cGet('e2_cityStateZip'),
+    'Employee:  ' + _w2cGet('e2_who'), '',
+    'Box 1  Reported Wages:          $' + _w2cNum('e2_box1').toFixed(2),
+    'Box 1  CORRECTED Wages:         $' + _w2cNum('e2_corr1').toFixed(2) + '  [IRC \u00A7 3401(a)]',
+    'Box 2  Fed Tax Withheld:        $' + _w2cNum('e2_box2').toFixed(2),
+    'Box 3  SS Wages Reported:       $' + _w2cNum('e2_box3').toFixed(2),
+    'Box 3  SS Wages CORRECTED:      $' + _w2cNum('e2_corr3').toFixed(2),
+    'Box 4  SS Tax Withheld:         $' + _w2cNum('e2_box4').toFixed(2),
+    'Box 5  Medicare Wages Reported: $' + _w2cNum('e2_box5').toFixed(2),
+    'Box 5  Medicare Wages CORRECTED:$' + _w2cNum('e2_corr5').toFixed(2),
+    'Box 6  Medicare Tax Withheld:   $' + _w2cNum('e2_box6').toFixed(2),
+    'State  Tax Withheld (KEEP):     $' + _w2cNum('e2_boxState').toFixed(2) + ' (' + _w2cGet('e2_boxStateCode') + ')', '',
+    'Line 9:  ' + _w2cGet('e2_line9'),
+    'Line 10: ' + _w2cGet('e2_line10'), '',
+    'SECTION 3: SCHEDULE 1 OTHER INCOME SUPPORTING STATEMENT', '-'.repeat(50),
+    (document.getElementById('w2cSch1Preview') || {}).textContent || '(run Recalculate to generate)', '',
+    'SECTION 4: FORM 8275-R — REGULATION DISCLOSURE', '-'.repeat(50),
+    'Regulation 1:   ' + _w2cGet('r_reg1'),
+    'Regulation 2:   ' + _w2cGet('r_reg2'),
+    'Item/Group:     ' + _w2cGet('r_item'),
+    'Description:    ' + _w2cGet('r_desc'),
+    'Form/Schedule:  ' + _w2cGet('r_form') + '  |  Line: ' + _w2cGet('r_line'),
+    'Amount:         $' + _w2cNum('r_amount').toFixed(2),
+    'Part II:        ' + _w2cGet('r_part2'), '',
+    'SECTION 5: IRC \u00A7 3402(N) REGULATORY EXPLANATION', '-'.repeat(50),
+    (document.getElementById('w2c-regExpl') || {}).value || '(not generated)', '',
+    'SECTION 6: ELECTION EXPLANATION', '-'.repeat(50),
+    (document.getElementById('w2c-electExpl') || {}).value || '(not generated)', '',
+    'SECTION 7: RT AGREEMENT / FEE SUMMARY', '-'.repeat(50),
+    'Expected Refund:   $' + _w2cNum('rt_refund').toFixed(2),
+    'RT Fee:           ($' + _w2cNum('rt_rtFee').toFixed(2) + ')',
+    'Preparation Fee:  ($' + _w2cNum('rt_prepFee').toFixed(2) + ')',
+    'Doc Prep Fee:     ($' + _w2cNum('rt_docFee').toFixed(2) + ')',
+    'Transmission Fee: ($' + _w2cNum('rt_txFee').toFixed(2) + ')',
+    'Other Fees:       ($' + _w2cNum('rt_otherFee').toFixed(2) + ')',
+    'Total Fees:       ($' + totalFees.toFixed(2) + ')',
+    'NET DISBURSEMENT:  $' + (_w2cNum('rt_refund') - totalFees).toFixed(2)
+  ];
+  var blob = new Blob([lines.join('\n')], {type:'text/plain'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'W2-Correction-Packet-' + name.replace(/\s+/g,'-') + '-' + taxYear + '.txt';
+  a.click();
+}
+
+function w2cSaveToFilings() {
+  var name    = _w2cGet('tp_name')    || 'Unknown';
+  var taxYear = _w2cGet('tp_taxYear') || '2025';
+  var existing = [];
+  try { existing = JSON.parse(localStorage.getItem('tmar_w2correction_filings') || '[]'); } catch(e){}
+  existing.push({
+    date: new Date().toISOString().split('T')[0],
+    type: 'W-2 Correction Packet',
+    taxpayer: name, taxYear: taxYear,
+    employer1: _w2cGet('e1_name'), e1Wages: _w2cNum('e1_box1'),
+    employer2: _w2cGet('e2_name'), e2Wages: _w2cNum('e2_box1'),
+    rtExpected: _w2cNum('rt_refund')
+  });
+  localStorage.setItem('tmar_w2correction_filings', JSON.stringify(existing));
+  var st = document.getElementById('irsFormStatus');
+  if (st) st.textContent = 'Saved to W-2 correction filings (' + existing.length + ' total)';
 }
 
 function irsLoadEntity() { alert('Load entity data from GAAP ledger into form fields.'); }
@@ -44900,6 +45346,16 @@ const AP = {
     if (preview && !preview.querySelector('[id^="ap_pill_"]')) preview.style.display = 'none';
   },
 
+  clearConv: function(page) {
+    if (!confirm('Clear this conversation?')) return;
+    var data = this._load(page);
+    if (data.current && data.sessions[data.current]) {
+      data.sessions[data.current].messages = [];
+      this._save(page);
+      this._renderMsgs(page);
+    }
+  },
+
   init: function(page) {
     var data = this._load(page);
     if (Object.keys(data.sessions).length === 0) {
@@ -44920,12 +45376,15 @@ const AP = {
 // Initialize all AP agent pages on load
 document.addEventListener('DOMContentLoaded', function() {
   ['legal','tax','arbitration','corporation','trust','accounting','research',
-   'code','creative','html_arch','general'].forEach(function(p) {
+   'code','creative','html_arch','general',
+   'doc_creation','legal_analyst','doc_format','writs_writing','amicus_brief',
+   'dt_appeal','presumption_killer','fact_conclusion','jurisdictional',
+   'const_sovereignty','brainstorm','trial_prep','biblical'].forEach(function(p) {
     AP.init(p);
   });
 });
 
-console.log('✅ AP Agent Portal object loaded — 11 persistent conversation agents ready');
+console.log('✅ AP Agent Portal object loaded — 24 persistent conversation agents ready');
 </script>
 
 <footer style="text-align:center;padding:18px 20px;margin-top:40px;margin-bottom:42px;font-size:11px;color:var(--text-secondary);border-top:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.3);letter-spacing:.5px">
