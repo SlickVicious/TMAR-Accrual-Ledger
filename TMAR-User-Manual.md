@@ -1612,33 +1612,49 @@ Each agent page follows the same three-panel layout:
 **Center column (chat panel):**
 
 - Agent title bar with the agent's name and color
-- **Toolbar buttons:** Speak (STT input), Listen (TTS output of last response), Print, PDF, Word, Share Link
+- **Toolbar buttons:** Speak (STT input), Listen (TTS output of last response), Print, PDF, Word, Share Link, **🗑 Clear** (clears the active session's messages after confirmation)
 - Message display area — shows the conversation history with user messages on the right and agent responses on the left
 - Input textarea with placeholder text describing the agent's specialty
 - **Send button** — Submits the message. Pressing Enter (without Shift) also sends.
+- **📎 File upload button** — Attaches PDF or text files to the next message. Appears inline after the Send button in the input bar.
 
-**The 11 agent specialists:**
+**The 24 AP agent specialists:**
 
-| Agent                  | Color  | System Prompt Focus                                                              |
-| ---------------------- | ------ | -------------------------------------------------------------------------------- |
-| Dream Team             | Gold   | Full-spectrum legal: 600-attorney panel covering all law areas                   |
-| Legal Expert           | Amber  | Constitutional, UCC, criminal, civil, securities, bankruptcy, trust, foreclosure |
-| Tax Expert             | Green  | IRC, IRS rules, Treasury procedures, tax authority citations                     |
-| Trust Specialist       | Purple | Trust administration, fiduciary duty, Restatement Third of Trusts                |
-| Corporation Specialist | Indigo | Corporate structure, Delaware GCL, Model Business Corporation Act                |
-| Arbitration Specialist | Teal   | Federal Arbitration Act (9 U.S.C.), arbitration awards                           |
-| Research Analyst       | Purple | Deep investigation, source verification, government and financial data           |
-| Accounting Expert      | Amber  | GAAP, ASC codes, FASB standards                                                  |
-| Code Expert            | Blue   | HTML, CSS, JavaScript, Python, SQL, REST APIs                                    |
-| Creative Writer        | Pink   | Stories, essays, scripts, marketing copy                                         |
-| HTML Architect         | Orange | Web design, responsive layouts, CSS architecture                                 |
-| General Assistant      | Cyan   | Any topic — calculations, summaries, research, translation                      |
+| Agent                          | Color  | System Prompt Focus                                                              |
+| ------------------------------ | ------ | -------------------------------------------------------------------------------- |
+| Dream Team                     | Gold   | Full-spectrum legal: 600-attorney panel covering all law areas                   |
+| Legal Expert                   | Amber  | Constitutional, UCC, criminal, civil, securities, bankruptcy, trust, foreclosure |
+| Tax Expert                     | Green  | IRC, IRS rules, Treasury procedures, tax authority citations                     |
+| Trust Specialist               | Purple | Trust administration, fiduciary duty, Restatement Third of Trusts                |
+| Corporation Specialist         | Indigo | Corporate structure, Delaware GCL, Model Business Corporation Act                |
+| Arbitration Specialist         | Teal   | Federal Arbitration Act (9 U.S.C.), arbitration awards                           |
+| Research Analyst               | Purple | Deep investigation, source verification, government and financial data           |
+| Accounting Expert              | Amber  | GAAP, ASC codes, FASB standards                                                  |
+| Code Expert                    | Blue   | HTML, CSS, JavaScript, Python, SQL, REST APIs                                    |
+| Creative Writer                | Pink   | Stories, essays, scripts, marketing copy                                         |
+| HTML Architect                 | Orange | Web design, responsive layouts, CSS architecture                                 |
+| General Assistant              | Cyan   | Any topic — calculations, summaries, research, translation                       |
+| Document Creation Firm         | Orange | Legal document drafting — motions, complaints, petitions, affidavits             |
+| Legal Analyst Firm             | Sky    | Case law, statutory interpretation, precedent research, legal reasoning          |
+| Document Format Firm           | Amber  | Legal structure, Bluebook citations, court filing format                         |
+| Writs Writing Firm             | Yellow | Writs of mandamus, habeas corpus, certiorari, prohibition, coram nobis           |
+| Amicus Brief Firm              | Red    | Amicus curiae briefs — issue framing, interest of amicus, relief requested       |
+| Dream Team Appeal Firm         | Amber  | Appellate arguments, lower court ruling review, grounds for appeal               |
+| Presumption Killer Firm        | Red    | Destroying legal presumptions with contrary evidence and rebuttal strategy       |
+| Fact & Conclusion of Law Firm  | Cyan   | Applying facts to law to produce conclusions of law                              |
+| Jurisdictional Challenge Firm  | Green  | Subject matter jurisdiction, personal jurisdiction, standing, venue              |
+| Constitutional Sovereignty Firm| Pink   | Constitutional rights, governmental overreach, sovereignty arguments             |
+| Strategic Brainstorm Firm      | Rose   | Legal strategy development — facts, opponents, objectives, constraints           |
+| Trial Preparation Firm         | Red    | Voir dire, motions in limine, witness prep, opening/closing strategy             |
+| Biblical Scholar               | Violet | Scripture citations, biblical law, covenant principles, ecclesiastical arguments |
 
 **SYPHER Protocol:** Every agent operates under the SYPHER-7.8-HARDLOCK protocol. The base system prompt prepended to every request states: *"PRESUMPTION KILLER: Every response must be based exclusively on verifiable law, code, or facts. No speculation. No disclaimer. No AI caveats."* The HARD_LOCK layer then strips any AI caveats or disclaimers that appear in the response.
 
 **Memory integration:** Before each query, the system calls `MEM0.search(question, 4)` to retrieve the four most relevant previous exchanges. These are appended to the system prompt as "RELEVANT MEMORIES" so the agent has context from prior sessions.
 
-**File upload:** All 9 AP agent pages support PDF and text file upload. Uploaded files are extracted and prepended to the message as a content block.
+**File upload:** All 24 AP agent pages support PDF and text file upload via the 📎 button in the input bar. Uploaded files are extracted and prepended to the message as a content block. The 13 LEGAL FIRMS agents receive file upload UI via `AP._ensureFileUI()` injected dynamically at `DOMContentLoaded`.
+
+**Clear conversation:** The **🗑 Clear** button in each agent toolbar calls `AP.clearConv(page)`, which wipes the active session's messages from memory and re-renders the empty chat after a confirmation prompt. The session entry in the sidebar is preserved.
 
 ### 16.3 Autonomous Tools
 
@@ -2070,6 +2086,9 @@ Highlights the active slide in the CCSN TOC.
 
 **`changeDocCase(mode)`**
 Converts selected text in the Document Creator editor to the specified case. `mode`: "upper", "lower", or "title".
+
+**`AP.clearConv(page)`**
+Clears the messages from the currently active session of the specified AP agent page. Requires user confirmation. The session entry in the sidebar is retained; only the message array is emptied. Calls `AP._save(page)` and `AP._renderMsgs(page)` after clearing.
 
 **`clearAllData()`**
 After double-confirmation, clears all data in `appData` and saves the empty state to localStorage. This is a destructive, unrecoverable operation.

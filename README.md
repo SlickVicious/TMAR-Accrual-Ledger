@@ -1,8 +1,8 @@
 # TMAR - Trust Master Account Register
 
 **Complete Interactive Web Application + Google Sheets Integration**
-**Version:** 3.8
-**Last Updated:** April 7, 2026
+**Version:** 3.9
+**Last Updated:** April 14, 2026
 **Status:** ✅ Production Ready — 246/246 Functions Verified | 211/211 GUI Elements Verified
 
 ---
@@ -146,6 +146,15 @@ npx http-server -p 8080 -o
 2. Select an agent (Legal, Tax, Accounting, etc.)
 3. Type your question
 4. Click **⚡ Analyze**
+
+---
+
+## 🆕 What's New in v3.9
+
+| Feature | Details |
+|---|---|
+| **🗑 Clear button — all 24 AP agents** | `AP.clearConv(page)` method added to the AP object. Clears messages from the active session (with confirm prompt) without deleting the session. Red-tinted button appears in every agent toolbar after the 🔗 Share button. |
+| **📎 File upload — 13 legacy AP agents** | The 13 LEGAL FIRMS agents (`doc_creation`, `legal_analyst`, `doc_format`, `writs_writing`, `amicus_brief`, `dt_appeal`, `presumption_killer`, `fact_conclusion`, `jurisdictional`, `const_sovereignty`, `brainstorm`, `trial_prep`, `biblical`) are now added to the `AP.init()` array. `_ensureFileUI()` dynamically injects the hidden file input + 📎 label into each input bar on page load. All 24 AP agents now have full file upload support. |
 
 ---
 
