@@ -522,6 +522,7 @@
 }
 
 .agent-card {
+  position: relative;
   background: var(--callout-bg);
   border: 3px solid var(--callout-border);
   border-radius: 14px;
@@ -38987,16 +38988,70 @@ function renderAgents() {
 
   const keywordHTML = (kw) => '<span class="badge-warn" style="font-size:10px;padding:3px 8px;background:rgba(255,193,7,.15);color:var(--legal);border-radius:12px;font-weight:600">' + kw + '</span>';
 
-  grid.innerHTML = agents.map(a =>
-    '<div class="agent-card" onclick="goEonPage(null, \'' + (a.page || a.id) + '\')" style="border-color: ' + a.color + '">' +
+  const customAgents = JSON.parse(localStorage.getItem('custom_agents') || '[]').map(function(a) {
+    return {
+      id: a.id,
+      name: a.name,
+      role: a.role || a.desc || '',
+      icon: '🤖',
+      color: '#818cf8',
+      keywords: Array.isArray(a.keywords) ? a.keywords.slice(0, 6) : [],
+      _custom: true,
+      _systemPrompt: a.systemPrompt || ''
+    };
+  });
+
+  const allAgents = agents.concat(customAgents);
+
+  grid.innerHTML = allAgents.map(a =>
+    '<div class="agent-card" onclick="' + (a._custom ? 'openCustomAgent(\'' + a.id + '\')' : 'goEonPage(null, \'' + (a.page || a.id) + '\')') + '" style="border-color: ' + a.color + '">' +
+      (a._custom ? '<div style="position:absolute;top:8px;right:8px;font-size:10px;background:rgba(129,140,248,.25);color:#818cf8;padding:2px 7px;border-radius:10px;font-weight:700">CUSTOM</div>' : '') +
       '<div style="font-size:32px;margin-bottom:10px">' + a.icon + '</div>' +
       '<h3>' + a.name + '</h3>' +
       '<p>' + a.role + '</p>' +
       '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px">' +
         a.keywords.map(keywordHTML).join('') +
       '</div>' +
+      (a._custom ? '<div style="margin-top:10px;display:flex;gap:8px"><button onclick="event.stopPropagation();deleteCustomAgent(\'' + a.id + '\')" style="flex:1;padding:4px 8px;background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.3);border-radius:6px;cursor:pointer;font-size:11px">Delete</button></div>' : '') +
     '</div>'
   ).join('');
+}
+
+function openCustomAgent(id) {
+  var registry = JSON.parse(localStorage.getItem('custom_agents') || '[]');
+  var agent = registry.find(function(a){ return a.id === id; });
+  if (!agent) return;
+  // Store active custom agent so the chat page can pick it up
+  localStorage.setItem('eeon_custom_agent_active', JSON.stringify(agent));
+  // Navigate to chat with this agent pre-loaded
+  var chatPage = document.getElementById('page-chat');
+  if (!chatPage) { alert('Chat page not found. Open the Chat tab and select this agent.'); return; }
+  goEonPage(null, 'chat');
+  // Inject agent name and system prompt into chat UI if elements exist
+  setTimeout(function() {
+    var titleEl = document.getElementById('chatAgentTitle') || document.getElementById('chatTitle');
+    if (titleEl) titleEl.textContent = agent.name;
+    var systemInput = document.getElementById('chatSystemPrompt') || document.getElementById('agentSystemPrompt');
+    if (systemInput) systemInput.value = agent.systemPrompt || '';
+    // Show a banner indicating which custom agent is active
+    var banner = document.getElementById('customAgentBanner');
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'customAgentBanner';
+      banner.style.cssText = 'position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#1e1b4b;border:1px solid #818cf8;color:#c7d2fe;padding:8px 20px;border-radius:20px;font-size:13px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.4)';
+      document.body.appendChild(banner);
+    }
+    banner.innerHTML = '🤖 Active Agent: <strong>' + agent.name + '</strong> &nbsp;<span onclick="document.getElementById(\'customAgentBanner\').remove();localStorage.removeItem(\'eeon_custom_agent_active\')" style="cursor:pointer;opacity:.6">✕</span>';
+    banner.style.display = 'block';
+  }, 150);
+}
+
+function deleteCustomAgent(id) {
+  if (!confirm('Delete this custom agent?')) return;
+  var registry = JSON.parse(localStorage.getItem('custom_agents') || '[]');
+  registry = registry.filter(function(a){ return a.id !== id; });
+  localStorage.setItem('custom_agents', JSON.stringify(registry));
+  renderAgents();
 }
 
 // Update dashboard stats
