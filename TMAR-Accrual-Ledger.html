@@ -1045,6 +1045,29 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
 <style id="_tmar_sc_css">.streaming-cursor{display:inline-block;width:2px;height:1em;background:currentColor;animation:scBlink .7s step-end infinite;vertical-align:text-bottom;margin-left:2px}@keyframes scBlink{50%{opacity:0}}</style></head>
 <body class="p-0" style="padding-bottom:80px">
+  <!-- PARITY DRIFT BANNER — shown when parity-fingerprint.json reports driftDetected:true -->
+  <div id="parityDriftBanner" style="display:none;position:sticky;top:0;z-index:9999;background:#92400e;border-bottom:2px solid #f59e0b;padding:10px 16px;font-size:13px;color:#fef3c7;align-items:center;gap:10px;flex-wrap:wrap">
+    <span>⚠️ <strong>Source update detected</strong> — redressright.me has changed since your last sync.</span>
+    <button onclick="parityShowDetails()" style="padding:3px 10px;background:#f59e0b;border:none;border-radius:5px;color:#000;font-weight:700;cursor:pointer;font-size:12px">View Details</button>
+    <button onclick="parityDismissBanner()" style="padding:3px 10px;background:transparent;border:1px solid #f59e0b;border-radius:5px;color:#fef3c7;cursor:pointer;font-size:12px">Dismiss</button>
+    <span id="parityBannerDate" style="font-size:11px;opacity:.7;margin-left:auto"></span>
+  </div>
+  <!-- PARITY DRIFT DETAILS MODAL -->
+  <div id="parityDriftModal" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.7);align-items:center;justify-content:center">
+    <div style="background:#1e293b;border:1px solid #f59e0b;border-radius:12px;padding:24px;max-width:540px;width:92%;max-height:80vh;overflow-y:auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <h3 style="color:#f59e0b;margin:0;font-size:16px">⚠️ Parity Drift Details</h3>
+        <button onclick="document.getElementById('parityDriftModal').style.display='none'" style="background:transparent;border:none;color:#94a3b8;font-size:20px;cursor:pointer">✕</button>
+      </div>
+      <pre id="parityDriftDetails" style="font-size:12px;color:#cbd5e1;line-height:1.6;white-space:pre-wrap;background:#0f172a;padding:12px;border-radius:8px;margin:0"></pre>
+      <div style="margin-top:16px;font-size:11px;color:#94a3b8">
+        Review <a href="https://redressright.me/Agent.html" target="_blank" rel="noopener" style="color:#60a5fa">Agent.html</a> and
+        <a href="https://redressright.me/GAAP.html" target="_blank" rel="noopener" style="color:#60a5fa">GAAP.html</a> for what changed.
+        Track updates in
+        <a href="https://github.com/SlickVicious/TMAR-Accrual-Ledger/issues?q=label%3Aparity-drift" target="_blank" rel="noopener" style="color:#60a5fa">GitHub Issues</a>.
+      </div>
+    </div>
+  </div>
   <div class="p-4 md:p-6" style="padding-bottom:72px">
   <div id="app" class="max-w-7xl mx-auto">
     <!-- Header -->
@@ -15083,7 +15106,9 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
         throw new Error('api_key missing — enter your Anthropic key in Settings → API Keys');
       }
       var _taProxy = (localStorage.getItem('eeon_cors_proxy') || 'https://crimson-recipe-cdfd.rhymeminded.workers.dev').replace(/\/$/, '');
-      var response = await fetch(_taProxy + '/v1/messages', {
+      // === API DISABLED — Trust Agent calls disabled to save credits ===
+      throw new Error('⚡ Trust Agent API calls disabled. Use Claude chat instead, or configure Ollama in Settings.');
+      var response = await fetch(_taProxy + '/v1/messages', { // DISABLED
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -19685,7 +19710,10 @@ e.g., jurat, affiant, notary" style="width:100%;min-height:80px;padding:10px;bor
     }
     addChatMsg('agent','Processing query via Trust Accounting Agent...');
     var _vcProxy = (localStorage.getItem('eeon_cors_proxy') || 'https://crimson-recipe-cdfd.rhymeminded.workers.dev').replace(/\/$/, '');
-    fetch(_vcProxy + '/v1/messages', {
+    // === API DISABLED ===
+    addChatMsg('system','⚡ API calls disabled to save credits. Use Claude chat for trust accounting queries, or configure Ollama in Settings → API Keys.');
+    return;
+    fetch(_vcProxy + '/v1/messages', { // DISABLED
       method:'POST',
       headers:{
         'Content-Type':'application/json',
@@ -22471,7 +22499,78 @@ e.g., jurat, affiant, notary" style="width:100%;min-height:80px;padding:10px;bor
   function deployBuiltCode() { alert('Deploy feature: Connect your Git repository or hosting provider to enable one-click deployment.'); }
   function reconcileApps() {
     var log = document.getElementById('eon-reconcile-log');
-    if (log) { log.style.display = 'block'; log.textContent = '[' + new Date().toLocaleTimeString() + '] Reconciliation started...\n[' + new Date().toLocaleTimeString() + '] Scanning GAAP journal entries...\n[' + new Date().toLocaleTimeString() + '] Cross-referencing SYPHER ledger...\n[' + new Date().toLocaleTimeString() + '] ✓ No discrepancies found. Ledgers balanced.'; }
+    var gaapResult = document.getElementById('gaapReconcileResult');
+    var lines = [];
+    var t = function(msg) { lines.push('[' + new Date().toLocaleTimeString() + '] ' + msg); };
+
+    t('Reconciliation started…');
+
+    // Read GAAP sync payload
+    var gaapData = null;
+    try {
+      var raw = localStorage.getItem('GAAPCLAW_AgentSync');
+      if (raw) gaapData = JSON.parse(raw);
+    } catch(e) {}
+
+    // Read local ledger
+    var localData = null;
+    try {
+      if (typeof appData !== 'undefined') {
+        localData = appData;
+      } else {
+        var lraw = localStorage.getItem('TMAR_AccrualLedger_Data');
+        if (lraw) localData = JSON.parse(lraw);
+      }
+    } catch(e) {}
+
+    var localEntries = (localData && (localData.ledgerEntries || localData.transactions)) || [];
+    var localCount = localEntries.length;
+    t('Local ledger: ' + localCount + ' entr' + (localCount === 1 ? 'y' : 'ies'));
+
+    if (gaapData && gaapData.timestamp) {
+      var gaapCount = gaapData.entryCount || 0;
+      var gaapTs = new Date(gaapData.timestamp).toLocaleString();
+      t('GAAP data: ' + gaapCount + ' entr' + (gaapCount === 1 ? 'y' : 'ies') + ' · last pushed ' + gaapTs);
+      if (gaapData.entityName) t('Entity: ' + gaapData.entityName);
+
+      // Find entries created after last GAAP sync
+      var syncTime = new Date(gaapData.timestamp).getTime();
+      var unsyncedCount = localEntries.filter(function(e) {
+        var d = e.date || e.createdAt || '';
+        return d ? new Date(d).getTime() > syncTime : false;
+      }).length;
+
+      if (unsyncedCount > 0) {
+        t('⚠ ' + unsyncedCount + ' local entr' + (unsyncedCount === 1 ? 'y' : 'ies') + ' added after last GAAP sync');
+      }
+
+      // Check if agent pushed back entries
+      if (gaapData.agentJournalEntries && gaapData.agentJournalEntries.length) {
+        t('Agent journal entries pending GAAP pull: ' + gaapData.agentJournalEntries.length);
+      }
+
+      var fin = gaapData.financials || {};
+      var gaapRev = fin.grossReceipts || fin.revenue || 0;
+      var localCredit = localEntries.reduce(function(s, e) { return s + (parseFloat(e.credit) || 0); }, 0);
+      var delta = Math.abs(gaapRev - localCredit);
+
+      if (delta < 1) {
+        t('✓ Revenue agrees: $' + gaapRev.toFixed(2));
+      } else if (delta < gaapRev * 0.05) {
+        t('~ Revenue differs by $' + delta.toFixed(2) + ' (<5% — likely rounding)');
+      } else if (gaapRev > 0) {
+        t('⚠ Revenue mismatch — GAAP: $' + gaapRev.toFixed(2) + ' · local credits: $' + localCredit.toFixed(2));
+      }
+
+      t(unsyncedCount === 0 && delta < 1 ? '✅ Ledgers balanced — no discrepancies found.' : '⚠ Review items above before filing.');
+    } else {
+      t('No GAAP sync data found — open GAAP.html and click "⇄ PUSH TO AGENT" first.');
+      t('Local ledger has ' + localCount + ' entr' + (localCount === 1 ? 'y' : 'ies') + '.');
+    }
+
+    var output = lines.join('\n');
+    if (log) { log.style.display = 'block'; log.textContent = output; }
+    if (gaapResult) gaapResult.innerHTML = '<pre style="margin:0;font-size:10.5px;line-height:1.6;white-space:pre-wrap">' + output + '</pre>';
   }
 
   // ── EON: API Scout ───────────────────────────────────────────
@@ -35396,6 +35495,12 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <div style="margin:18px 0 10px;font-weight:600;font-size:13px;color:var(--accent)">📡 Channel Tokens</div>
 <div class="setting-row"><span>Telegram Bot Token</span><input type="password" id="keyTelegram" placeholder="123456:ABC-DEF..."></div>
 <div class="setting-row"><span>Discord Bot Token</span><input type="password" id="keyDiscord" placeholder="..."></div>
+<div style="margin:18px 0 10px;font-weight:600;font-size:13px;color:#60a5fa">🔄 Parity Drift Check</div>
+<div style="font-size:11px;color:var(--text2);margin-bottom:8px">Check whether the upstream redressright.me source has changed since the last recorded fingerprint.</div>
+<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+  <button onclick="parityCheckNow()" style="padding:7px 14px;background:#1e40af;border:1px solid #3b82f6;border-radius:6px;color:#bfdbfe;font-size:12px;font-weight:700;cursor:pointer">🔍 Check Now</button>
+  <span id="parityCheckStatus" style="font-size:12px;color:#94a3b8"></span>
+</div>
 <div style="margin-top:16px;display:flex;gap:8px;align-items:center">
 <button class="btn btn-primary" onclick="saveKeys()">💾 Save All Keys</button>
 <button class="btn" onclick="testConnection()">🔌 Test Connection</button>
@@ -40701,6 +40806,44 @@ function generateJournalFromForms() {
   );
 }
 
+/* ── forceSyncFromGAAP() — "⬇ Pull GAAP" button ─────────────────── */
+function forceSyncFromGAAP() {
+  var result = document.getElementById('gaapReconcileResult');
+  var data = _getGAAPData();
+  if (data && data.timestamp) {
+    // GAAP data is available in the shared localStorage key — populate forms
+    populateAllForms();
+    if (result) {
+      var ts = new Date(data.timestamp).toLocaleString();
+      var cnt = data.entryCount || 0;
+      var entity = data.entityName ? ' · ' + data.entityName : '';
+      result.innerHTML =
+        '<span style="color:#22c55e">✅ Pulled ' + cnt + ' entr' + (cnt===1?'y':'ies') +
+        ' from GAAP' + entity + ' · synced ' + ts + '</span>';
+    }
+    return;
+  }
+  // No shared key data — check if GAS URL is configured
+  var gasUrl = (typeof appData !== 'undefined' && appData.settings && appData.settings.gasWebAppUrl)
+    ? appData.settings.gasWebAppUrl : '';
+  if (gasUrl) {
+    if (result) result.innerHTML = '<span style="color:#60a5fa">⏳ No GAAP.html sync data found — pulling from Sheets via Sync Center…</span>';
+    if (typeof syncPullAll === 'function') {
+      syncPullAll();
+    }
+    return;
+  }
+  // Nothing configured
+  var msg = '⚠ No GAAP data available. To sync:\n' +
+    '① Open GAAP.html → click "⇄ PUSH TO AGENT"\n' +
+    '② Or go to Sync Center and configure a GAS Web App URL.';
+  if (result) {
+    result.innerHTML = '<span style="color:#f59e0b;white-space:pre-line">' + msg + '</span>';
+  } else {
+    alert(msg);
+  }
+}
+
 /* ── Auto-listen for GAAP pushing updates ─────────────────────────── */
 window.addEventListener('storage', function(e) {
   if (e.key !== AGENT_SYNC_KEY || !e.newValue) return;
@@ -41214,6 +41357,12 @@ async function callLLMStream(agentSystemPrompt, userMessage, mem0Memories, onTok
   }
 
   var p = r.provider, url = r.url, model = r.model, key = r.key, pid = r.pid;
+    // === CLOUD API DISABLED — only Ollama allowed ===
+    if (p.auth !== 'ollama') {
+      var offlineMsg = '[OFFLINE] ⚡ Cloud API calls disabled to save credits. Switch to Ollama in Settings → API Keys, or use Claude chat. Ollama runs free on your local RTX 4060 Ti.';
+      if (onToken) onToken(offlineMsg);
+      return offlineMsg;
+    }
   var headers = { 'Content-Type': 'application/json' };
   var canStream = (p.auth === 'anthropic' || p.auth === 'bearer');
   if (p.auth === 'ernie') canStream = false;
@@ -41799,7 +41948,9 @@ async function doResearch() {
     }
 
     var _rhProxy = (localStorage.getItem('eeon_cors_proxy') || 'https://crimson-recipe-cdfd.rhymeminded.workers.dev').replace(/\/$/, '');
-    var response = await fetch(_rhProxy + '/v1/messages', {
+    // === API DISABLED ===
+    throw new Error('⚡ Research HUB API calls disabled to save credits. Use Claude chat or Deep Research instead.');
+    var response = await fetch(_rhProxy + '/v1/messages', { // DISABLED
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -41881,7 +42032,9 @@ async function doSearch() {
     }
 
     var _srProxy = (localStorage.getItem('eeon_cors_proxy') || 'https://crimson-recipe-cdfd.rhymeminded.workers.dev').replace(/\/$/, '');
-    var response = await fetch(_srProxy + '/v1/messages', {
+    // === API DISABLED ===
+    throw new Error('⚡ Search API calls disabled to save credits. Use Claude chat or web search instead.');
+    var response = await fetch(_srProxy + '/v1/messages', { // DISABLED
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -42594,7 +42747,9 @@ function pdkbCallAnthropic(prompt, options, onProgress) {
   // Long timeout — streaming keeps connection alive so we just need to handle stalls
   var timeout = options.timeout || 300000;
   var corsProxy = (localStorage.getItem('eeon_cors_proxy') || '').replace(/\/$/, '');
-  var endpoint = corsProxy ? corsProxy + '/v1/messages' : 'https://api.anthropic.com/v1/messages';
+  // === API DISABLED — use Claude chat or connect Ollama ===
+    return Promise.resolve({ success: false, error: { type: 'api_offline', message: '⚡ API calls disabled to save credits. Use Claude chat for Transcript Transformer and Etymology Analyzer, or configure Ollama in Settings → API Keys → Ollama.' } });
+    var endpoint = corsProxy ? corsProxy + '/v1/messages' : 'https://api.anthropic.com/v1/messages'; // DISABLED
   var controller = new AbortController();
   var timer = setTimeout(function(){ controller.abort(); }, timeout);
 
@@ -49173,6 +49328,105 @@ document.addEventListener('DOMContentLoaded', function() {
   renderCalendarList();
   renderDocList();
 });
+
+// ─── Parity Drift Notification (2B) ──────────────────────────────────────────
+(function() {
+  var FINGERPRINT_URL = 'https://raw.githubusercontent.com/SlickVicious/TMAR-Accrual-Ledger/master/parity-fingerprint.json';
+  var DISMISS_KEY = 'TMAR_parity_dismissed';
+  var STALE_DAYS = 7;
+
+  function shouldShowBanner(data) {
+    if (!data || !data.driftDetected) return false;
+    // Check dismiss timestamp
+    var dismissed = parseInt(localStorage.getItem(DISMISS_KEY) || '0', 10);
+    var checkedAt = data.lastChecked ? new Date(data.lastChecked).getTime() : 0;
+    // If user dismissed after the last check, stay hidden
+    if (dismissed > checkedAt) return false;
+    // Only show if lastChecked is within STALE_DAYS days
+    if (checkedAt && (Date.now() - checkedAt) > STALE_DAYS * 86400000) return false;
+    return true;
+  }
+
+  function showBanner(data) {
+    var banner = document.getElementById('parityDriftBanner');
+    if (!banner) return;
+    banner.style.display = 'flex';
+    banner.style.flexWrap = 'wrap';
+    banner.style.alignItems = 'center';
+    var dateEl = document.getElementById('parityBannerDate');
+    if (dateEl && data.lastChecked) {
+      dateEl.textContent = 'Detected ' + new Date(data.lastChecked).toLocaleDateString();
+    }
+    // Store data for the details modal
+    banner.dataset.parityData = JSON.stringify(data);
+  }
+
+  window.parityShowDetails = function() {
+    var banner = document.getElementById('parityDriftBanner');
+    var modal = document.getElementById('parityDriftModal');
+    var pre = document.getElementById('parityDriftDetails');
+    if (!modal || !pre || !banner) return;
+    try {
+      var data = JSON.parse(banner.dataset.parityData || '{}');
+      var lines = [];
+      lines.push('Last checked: ' + (data.lastChecked ? new Date(data.lastChecked).toLocaleString() : 'unknown'));
+      if (data.driftSummary) lines.push('\nChanges:\n' + data.driftSummary.replace(/\\n/g, '\n'));
+      if (data.sources) {
+        lines.push('\nCurrent source state:');
+        Object.keys(data.sources).forEach(function(src) {
+          var s = data.sources[src];
+          lines.push('  ' + src + ' — tabs: ' + s.tabCount + ', version: ' + (s.version || 'unknown'));
+        });
+      }
+      pre.textContent = lines.join('\n');
+    } catch(e) {
+      pre.textContent = 'No detail available.';
+    }
+    modal.style.display = 'flex';
+  };
+
+  window.parityDismissBanner = function() {
+    var banner = document.getElementById('parityDriftBanner');
+    if (banner) banner.style.display = 'none';
+    localStorage.setItem(DISMISS_KEY, Date.now().toString());
+  };
+
+  window.parityCheckNow = function() {
+    var statusEl = document.getElementById('parityCheckStatus');
+    if (statusEl) statusEl.textContent = '⏳ Checking…';
+    fetch(FINGERPRINT_URL + '?_=' + Date.now())
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var banner = document.getElementById('parityDriftBanner');
+        if (banner) banner.dataset.parityData = JSON.stringify(data);
+        if (shouldShowBanner(data)) {
+          // Clear dismiss so banner shows again
+          localStorage.removeItem(DISMISS_KEY);
+          showBanner(data);
+          if (statusEl) statusEl.innerHTML = '<span style="color:#f59e0b">⚠️ Drift detected — see banner.</span>';
+        } else if (data.driftDetected) {
+          if (statusEl) statusEl.innerHTML = '<span style="color:#f59e0b">⚠️ Drift on record but check is >7 days old.</span>';
+        } else {
+          if (banner) banner.style.display = 'none';
+          if (statusEl) statusEl.innerHTML = '<span style="color:#22c55e">✅ No drift — TMAR is in sync.</span>';
+        }
+      })
+      .catch(function(e) {
+        if (statusEl) statusEl.innerHTML = '<span style="color:#ef4444">❌ Could not reach fingerprint URL.</span>';
+      });
+  };
+
+  // On load: silently fetch and show banner if needed
+  document.addEventListener('DOMContentLoaded', function() {
+    fetch(FINGERPRINT_URL + '?_=' + Date.now())
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (shouldShowBanner(data)) showBanner(data);
+      })
+      .catch(function() { /* silent — banner stays hidden on network error */ });
+  });
+})();
+// ─────────────────────────────────────────────────────────────────────────────
 
 console.log('✅ EON page fixes loaded — vault, history, calendar, docs, dashboard, create-agent');
 </script>
