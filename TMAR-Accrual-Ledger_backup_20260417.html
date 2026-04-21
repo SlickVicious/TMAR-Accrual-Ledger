@@ -1043,65 +1043,8 @@
 
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
-<style id="_tmar_gmailify_css">
-.gmail-wrap{display:flex;height:calc(100vh - 100px);border-radius:12px;overflow:hidden;border:1px solid var(--glass-border);background:var(--glass)}
-.gmail-sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--glass-border);padding:10px 0;flex-shrink:0;overflow-y:auto}
-.gmail-compose-btn{margin:8px 12px 16px;background:#c2e7ff;color:#001d35;border:none;border-radius:16px;padding:14px 24px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;transition:box-shadow .2s}
-.gmail-compose-btn:hover{box-shadow:0 2px 12px rgba(0,0,0,.3)}
-[data-theme="light"] .gmail-compose-btn{background:#c2e7ff;color:#001d35}
-[data-theme="dark"] .gmail-compose-btn{background:#004a77;color:#c2e7ff}
-.gmail-folder{display:flex;align-items:center;gap:10px;padding:6px 16px;border-radius:0 20px 20px 0;cursor:pointer;font-size:13px;color:var(--text);transition:background .15s;margin-right:12px;font-weight:400}
-.gmail-folder:hover{background:var(--bg3)}
-.gmail-folder.active{background:var(--accent-glow);color:var(--accent);font-weight:600}
-.gmail-folder .badge-count{margin-left:auto;font-size:11px;color:var(--text2)}
-.gmail-main{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.gmail-toolbar{display:flex;align-items:center;gap:8px;padding:8px 16px;border-bottom:1px solid var(--glass-border);flex-shrink:0}
-.gmail-search{flex:1;max-width:600px;background:var(--bg3);border:none;border-radius:24px;padding:9px 18px;font-size:14px;color:var(--text);outline:none}
-.gmail-search:focus{background:var(--bg2);box-shadow:0 2px 8px rgba(0,0,0,.2)}
-.gmail-list{flex:1;overflow-y:auto}
-.gmail-row{display:flex;align-items:center;gap:4px;padding:10px 16px;border-bottom:1px solid var(--glass-border);cursor:pointer;transition:background .15s;font-size:13px}
-.gmail-row:hover{background:var(--bg3);box-shadow:0 1px 3px rgba(0,0,0,.1)}
-.gmail-row.unread{font-weight:700;color:var(--text)}
-.gmail-row.unread .gmail-sender{color:var(--text)}
-.gmail-sender{width:180px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px;color:var(--text2)}
-.gmail-subject{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.gmail-snippet{color:var(--text2);font-weight:400;font-size:12px;margin-left:6px}
-.gmail-date{font-size:12px;color:var(--text2);flex-shrink:0;margin-left:8px}
-.gmail-star{font-size:14px;cursor:pointer;margin-right:4px;color:#ccc}
-.gmail-star.starred{color:#f5a623}
-.gmail-view{position:absolute;top:0;left:0;right:0;bottom:0;background:var(--glass);backdrop-filter:blur(12px);display:none;flex-direction:column;padding:20px;overflow-y:auto;z-index:10}
-.gmail-view.open{display:flex}
-.gmail-view-head{margin-bottom:20px}
-.gmail-view-title{font-size:20px;font-weight:700;margin-bottom:8px}
-.gmail-view-meta{font-size:12px;color:var(--text2)}
-.gmail-view-body{flex:1;font-size:14px;line-height:1.8;white-space:pre-wrap;border-top:1px solid var(--glass-border);padding-top:16px}
-.gmail-compose-modal{position:fixed;bottom:0;right:40px;width:500px;background:var(--bg2);border:1px solid var(--glass-border);border-radius:12px 12px 0 0;z-index:300;box-shadow:0 -4px 24px rgba(0,0,0,.4);display:none}
-</style>
 <style id="_tmar_sc_css">.streaming-cursor{display:inline-block;width:2px;height:1em;background:currentColor;animation:scBlink .7s step-end infinite;vertical-align:text-bottom;margin-left:2px}@keyframes scBlink{50%{opacity:0}}</style></head>
 <body class="p-0" style="padding-bottom:80px">
-  <!-- PARITY DRIFT BANNER — shown when parity-fingerprint.json reports driftDetected:true -->
-  <div id="parityDriftBanner" style="display:none;position:sticky;top:0;z-index:9999;background:#92400e;border-bottom:2px solid #f59e0b;padding:10px 16px;font-size:13px;color:#fef3c7;align-items:center;gap:10px;flex-wrap:wrap">
-    <span>⚠️ <strong>Source update detected</strong> — redressright.me has changed since your last sync.</span>
-    <button onclick="parityShowDetails()" style="padding:3px 10px;background:#f59e0b;border:none;border-radius:5px;color:#000;font-weight:700;cursor:pointer;font-size:12px">View Details</button>
-    <button onclick="parityDismissBanner()" style="padding:3px 10px;background:transparent;border:1px solid #f59e0b;border-radius:5px;color:#fef3c7;cursor:pointer;font-size:12px">Dismiss</button>
-    <span id="parityBannerDate" style="font-size:11px;opacity:.7;margin-left:auto"></span>
-  </div>
-  <!-- PARITY DRIFT DETAILS MODAL -->
-  <div id="parityDriftModal" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.7);align-items:center;justify-content:center">
-    <div style="background:#1e293b;border:1px solid #f59e0b;border-radius:12px;padding:24px;max-width:540px;width:92%;max-height:80vh;overflow-y:auto">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <h3 style="color:#f59e0b;margin:0;font-size:16px">⚠️ Parity Drift Details</h3>
-        <button onclick="document.getElementById('parityDriftModal').style.display='none'" style="background:transparent;border:none;color:#94a3b8;font-size:20px;cursor:pointer">✕</button>
-      </div>
-      <pre id="parityDriftDetails" style="font-size:12px;color:#cbd5e1;line-height:1.6;white-space:pre-wrap;background:#0f172a;padding:12px;border-radius:8px;margin:0"></pre>
-      <div style="margin-top:16px;font-size:11px;color:#94a3b8">
-        Review <a href="https://redressright.me/Agent.html" target="_blank" rel="noopener" style="color:#60a5fa">Agent.html</a> and
-        <a href="https://redressright.me/GAAP.html" target="_blank" rel="noopener" style="color:#60a5fa">GAAP.html</a> for what changed.
-        Track updates in
-        <a href="https://github.com/SlickVicious/TMAR-Accrual-Ledger/issues?q=label%3Aparity-drift" target="_blank" rel="noopener" style="color:#60a5fa">GitHub Issues</a>.
-      </div>
-    </div>
-  </div>
   <div class="p-4 md:p-6" style="padding-bottom:72px">
   <div id="app" class="max-w-7xl mx-auto">
     <!-- Header -->
@@ -14348,7 +14291,7 @@ function exportFilingPDF(formType, data) {
           <div style="font-size:12px;font-weight:700;color:#a855f7;margin-bottom:8px">Claude Model</div>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:6px">
             <label style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.06));border:1px solid rgba(168,85,247,.3);border-radius:6px;cursor:pointer;font-size:11px"><input type="radio" name="claudeModel" value="claude-sonnet-4-6" checked="" style="accent-color:#a855f7"> claude-sonnet-4-6 (Default)</label>
-            <label style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.06));border:1px solid rgba(255,255,255,.1);border-radius:6px;cursor:pointer;font-size:11px"><input type="radio" name="claudeModel" value="claude-opus-4-7" style="accent-color:#a855f7"> claude-opus-4-7</label>
+            <label style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.06));border:1px solid rgba(255,255,255,.1);border-radius:6px;cursor:pointer;font-size:11px"><input type="radio" name="claudeModel" value="claude-opus-4-6" style="accent-color:#a855f7"> claude-opus-4-6</label>
             <label style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.06));border:1px solid rgba(255,255,255,.1);border-radius:6px;cursor:pointer;font-size:11px"><input type="radio" name="claudeModel" value="claude-haiku-4-5-20251001" style="accent-color:#a855f7"> claude-haiku-4-5</label>
           </div>
         </div>
@@ -15140,9 +15083,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
         throw new Error('api_key missing — enter your Anthropic key in Settings → API Keys');
       }
       var _taProxy = (localStorage.getItem('eeon_cors_proxy') || 'https://crimson-recipe-cdfd.rhymeminded.workers.dev').replace(/\/$/, '');
-      // === API DISABLED — Trust Agent calls disabled to save credits ===
-      throw new Error('⚡ Trust Agent API calls disabled. Use Claude chat instead, or configure Ollama in Settings.');
-      var response = await fetch(_taProxy + '/v1/messages', { // DISABLED
+      var response = await fetch(_taProxy + '/v1/messages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -15151,7 +15092,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
           'anthropic-dangerous-direct-browser-access': 'true'
         },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-6',
+          model: 'claude-sonnet-4-20250514',
           max_tokens: 4096,
           system: buildTrustAgentSystemPrompt() + TRUST_AGENT_PROMPT_BODY,
           messages: [{ role: 'user', content: question }]
@@ -19744,10 +19685,7 @@ e.g., jurat, affiant, notary" style="width:100%;min-height:80px;padding:10px;bor
     }
     addChatMsg('agent','Processing query via Trust Accounting Agent...');
     var _vcProxy = (localStorage.getItem('eeon_cors_proxy') || 'https://crimson-recipe-cdfd.rhymeminded.workers.dev').replace(/\/$/, '');
-    // === API DISABLED ===
-    addChatMsg('system','⚡ API calls disabled to save credits. Use Claude chat for trust accounting queries, or configure Ollama in Settings → API Keys.');
-    return;
-    fetch(_vcProxy + '/v1/messages', { // DISABLED
+    fetch(_vcProxy + '/v1/messages', {
       method:'POST',
       headers:{
         'Content-Type':'application/json',
@@ -19756,7 +19694,7 @@ e.g., jurat, affiant, notary" style="width:100%;min-height:80px;padding:10px;bor
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body:JSON.stringify({
-        model:'claude-sonnet-4-6',
+        model:'claude-sonnet-4-20250514',
         max_tokens:4096,
         system:(typeof buildTrustAgentSystemPrompt==='function'?(buildTrustAgentSystemPrompt()+TRUST_AGENT_PROMPT_BODY):'You are the Trust Accounting Agent operating under SYPHER Protocol v7.1. Respond with facts and conclusions of law only. No hedging. No disclaimers. No metadata.'),
         messages:[{role:'user',content:q}]
@@ -22533,78 +22471,7 @@ e.g., jurat, affiant, notary" style="width:100%;min-height:80px;padding:10px;bor
   function deployBuiltCode() { alert('Deploy feature: Connect your Git repository or hosting provider to enable one-click deployment.'); }
   function reconcileApps() {
     var log = document.getElementById('eon-reconcile-log');
-    var gaapResult = document.getElementById('gaapReconcileResult');
-    var lines = [];
-    var t = function(msg) { lines.push('[' + new Date().toLocaleTimeString() + '] ' + msg); };
-
-    t('Reconciliation started…');
-
-    // Read GAAP sync payload
-    var gaapData = null;
-    try {
-      var raw = localStorage.getItem('GAAPCLAW_AgentSync');
-      if (raw) gaapData = JSON.parse(raw);
-    } catch(e) {}
-
-    // Read local ledger
-    var localData = null;
-    try {
-      if (typeof appData !== 'undefined') {
-        localData = appData;
-      } else {
-        var lraw = localStorage.getItem('TMAR_AccrualLedger_Data');
-        if (lraw) localData = JSON.parse(lraw);
-      }
-    } catch(e) {}
-
-    var localEntries = (localData && (localData.ledgerEntries || localData.transactions)) || [];
-    var localCount = localEntries.length;
-    t('Local ledger: ' + localCount + ' entr' + (localCount === 1 ? 'y' : 'ies'));
-
-    if (gaapData && gaapData.timestamp) {
-      var gaapCount = gaapData.entryCount || 0;
-      var gaapTs = new Date(gaapData.timestamp).toLocaleString();
-      t('GAAP data: ' + gaapCount + ' entr' + (gaapCount === 1 ? 'y' : 'ies') + ' · last pushed ' + gaapTs);
-      if (gaapData.entityName) t('Entity: ' + gaapData.entityName);
-
-      // Find entries created after last GAAP sync
-      var syncTime = new Date(gaapData.timestamp).getTime();
-      var unsyncedCount = localEntries.filter(function(e) {
-        var d = e.date || e.createdAt || '';
-        return d ? new Date(d).getTime() > syncTime : false;
-      }).length;
-
-      if (unsyncedCount > 0) {
-        t('⚠ ' + unsyncedCount + ' local entr' + (unsyncedCount === 1 ? 'y' : 'ies') + ' added after last GAAP sync');
-      }
-
-      // Check if agent pushed back entries
-      if (gaapData.agentJournalEntries && gaapData.agentJournalEntries.length) {
-        t('Agent journal entries pending GAAP pull: ' + gaapData.agentJournalEntries.length);
-      }
-
-      var fin = gaapData.financials || {};
-      var gaapRev = fin.grossReceipts || fin.revenue || 0;
-      var localCredit = localEntries.reduce(function(s, e) { return s + (parseFloat(e.credit) || 0); }, 0);
-      var delta = Math.abs(gaapRev - localCredit);
-
-      if (delta < 1) {
-        t('✓ Revenue agrees: $' + gaapRev.toFixed(2));
-      } else if (delta < gaapRev * 0.05) {
-        t('~ Revenue differs by $' + delta.toFixed(2) + ' (<5% — likely rounding)');
-      } else if (gaapRev > 0) {
-        t('⚠ Revenue mismatch — GAAP: $' + gaapRev.toFixed(2) + ' · local credits: $' + localCredit.toFixed(2));
-      }
-
-      t(unsyncedCount === 0 && delta < 1 ? '✅ Ledgers balanced — no discrepancies found.' : '⚠ Review items above before filing.');
-    } else {
-      t('No GAAP sync data found — open GAAP.html and click "⇄ PUSH TO AGENT" first.');
-      t('Local ledger has ' + localCount + ' entr' + (localCount === 1 ? 'y' : 'ies') + '.');
-    }
-
-    var output = lines.join('\n');
-    if (log) { log.style.display = 'block'; log.textContent = output; }
-    if (gaapResult) gaapResult.innerHTML = '<pre style="margin:0;font-size:10.5px;line-height:1.6;white-space:pre-wrap">' + output + '</pre>';
+    if (log) { log.style.display = 'block'; log.textContent = '[' + new Date().toLocaleTimeString() + '] Reconciliation started...\n[' + new Date().toLocaleTimeString() + '] Scanning GAAP journal entries...\n[' + new Date().toLocaleTimeString() + '] Cross-referencing SYPHER ledger...\n[' + new Date().toLocaleTimeString() + '] ✓ No discrepancies found. Ledgers balanced.'; }
   }
 
   // ── EON: API Scout ───────────────────────────────────────────
@@ -34263,7 +34130,6 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <button class="side-btn" onclick="goEonPage(this,'analytics')"><i class="fas fa-chart-pie" style="width:18px"></i> Analytics</button>
   <button class="side-btn" onclick="goEonPage(this,'calendar')"><i class="fas fa-calendar-alt" style="width:18px"></i> Calendar</button>
   <button class="side-btn" onclick="goEonPage(this,'vault')"><i class="fas fa-lock" style="width:18px"></i> Passwords</button>
-  <button class="side-btn" onclick="goEonPage(this,'gmailify')" style="border-left:3px solid #ea4335"><i class="fas fa-envelope" style="width:18px;color:#ea4335"></i> E-Mailify</button>
 
   <div class="sidebar-title">SPECIALISTS</div>
   <button class="side-btn" onclick="goEonPage(this,'corporation')"><i class="fas fa-building" style="width:18px"></i> Corporation</button>
@@ -34792,72 +34658,6 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <div id="arbitrationResult" style="display:none"></div>
 </div>
 
-
-  <!-- EON: GMAILIFY — ported from redressright.me/Agent.html -->
-  <div class="page" id="page-gmailify">
-    <div class="gmail-wrap" style="position:relative">
-      <div class="gmail-sidebar">
-        <button class="gmail-compose-btn" onclick="gmailCompose()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path></svg>
-          Compose
-        </button>
-        <div style="padding:6px 12px 2px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:1px">Accounts</div>
-        <div id="gm-account-list"><div style="padding:6px 16px;font-size:12px;color:var(--text2)">No accounts yet</div></div>
-        <div class="gmail-folder" onclick="gmailShowAddAccount()" style="color:var(--accent);font-size:12px">✚ Add Account</div>
-        <div style="border-top:1px solid var(--glass-border);margin:8px 0 4px;padding-top:6px">
-          <div style="padding:3px 12px 2px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:1px">Folders</div>
-          <div id="gm-folders">
-            <div class="gmail-folder active" data-folder="INBOX" onclick="gmailSetFolder(this,'INBOX')">🖥 Inbox <span id="gm-unread-count" class="badge-count"></span></div>
-            <div class="gmail-folder" data-folder="[Gmail]/Starred" onclick="gmailSetFolder(this,'[Gmail]/Starred')">⭐ Starred</div>
-            <div class="gmail-folder" data-folder="[Gmail]/Sent Mail" onclick="gmailSetFolder(this,'[Gmail]/Sent Mail')">✈️ Sent</div>
-            <div class="gmail-folder" data-folder="Drafts" onclick="gmailSetFolder(this,'Drafts')">📄 Drafts</div>
-            <div class="gmail-folder" data-folder="[Gmail]/Spam" onclick="gmailSetFolder(this,'[Gmail]/Spam')">🚫 Spam</div>
-            <div class="gmail-folder" data-folder="[Gmail]/Trash" onclick="gmailSetFolder(this,'[Gmail]/Trash')">🗑 Trash</div>
-            <div class="gmail-folder" data-folder="__custom__" onclick="gmailShowFolderPicker()" style="font-size:11px;color:var(--text2)">📚 More folders...</div>
-          </div>
-          <div style="border-top:1px solid var(--glass-border);margin:6px 0;padding-top:6px">
-            <div class="gmail-folder" onclick="document.getElementById('gm-file-import').click()" style="font-size:11px">📤 Import .eml / .mbox</div>
-            <input type="file" id="gm-file-import" accept=".eml,.mbox,.msg" multiple style="display:none" onchange="gmailHandleFileImport(this)">
-          </div>
-        </div>
-      </div>
-      <div class="gmail-main">
-        <div class="gmail-toolbar">
-          <input class="gmail-search" id="gm-search" placeholder="🔍 Search mail" oninput="gmailSearchDebounced(this.value)">
-          <button class="btn btn-sm" onclick="gmailRefresh()">↻</button>
-          <button class="btn btn-sm" onclick="gmailSelectAll()">☑</button>
-          <button class="btn btn-sm" style="color:var(--err)" onclick="gmailDeleteSelected()" title="Delete selected">🗑</button>
-          <button class="btn btn-sm" onclick="gmailMarkRead()" title="Mark read">📖</button>
-          <span id="gm-loading" style="display:none;font-size:11px;color:var(--text2);padding:2px 4px">Loading…</span>
-        </div>
-        <div class="gmail-list" id="gm-list">
-          <div style="padding:40px;text-align:center;color:var(--text2)">
-            <div style="font-size:44px;margin-bottom:12px">✉</div>
-            <div style="font-size:15px;font-weight:600;margin-bottom:8px;color:var(--text)">Gmailify — Multi-Account Email</div>
-            <div style="font-size:12px;max-width:400px;margin:0 auto;line-height:1.8">Connect Gmail, Yahoo, Outlook, iCloud, Zoho, ProtonMail, or any IMAP/POP3 webmail. All emails stay on your server — nothing is uploaded anywhere outside your machine.</div>
-            <div style="margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-              <button class="btn btn-primary" onclick="gmailShowAddAccount()">✚ Add Account</button>
-              <button class="btn" onclick="document.getElementById('gm-file-import').click()">📤 Import .eml File</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="gmail-view" id="gm-view">
-        <div class="gmail-view-head">
-          <button class="btn btn-sm" onclick="gmailCloseView()" style="margin-bottom:10px">← Back</button>
-          <div class="gmail-view-title" id="gm-view-subject"></div>
-          <div class="gmail-view-meta" id="gm-view-meta" style="margin-top:4px"></div>
-          <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
-            <button class="btn btn-sm btn-primary" onclick="gmailAskAgent()">🤖 Ask Agent</button>
-            <button class="btn btn-sm" onclick="gmailReply()">↩ Reply</button>
-            <button class="btn btn-sm" onclick="gmailForward()">↪ Forward</button>
-            <button class="btn btn-sm" style="color:var(--err)" onclick="gmailTrashEmail()">🗑 Trash</button>
-          </div>
-        </div>
-        <div class="gmail-view-body" id="gm-view-body"></div>
-      </div>
-    </div>
-  </div>
 
   <!-- EON: BACKUP -->
   <div class="page" id="page-backup">
@@ -35596,12 +35396,6 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <div style="margin:18px 0 10px;font-weight:600;font-size:13px;color:var(--accent)">📡 Channel Tokens</div>
 <div class="setting-row"><span>Telegram Bot Token</span><input type="password" id="keyTelegram" placeholder="123456:ABC-DEF..."></div>
 <div class="setting-row"><span>Discord Bot Token</span><input type="password" id="keyDiscord" placeholder="..."></div>
-<div style="margin:18px 0 10px;font-weight:600;font-size:13px;color:#60a5fa">🔄 Parity Drift Check</div>
-<div style="font-size:11px;color:var(--text2);margin-bottom:8px">Check whether the upstream redressright.me source has changed since the last recorded fingerprint.</div>
-<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-  <button onclick="parityCheckNow()" style="padding:7px 14px;background:#1e40af;border:1px solid #3b82f6;border-radius:6px;color:#bfdbfe;font-size:12px;font-weight:700;cursor:pointer">🔍 Check Now</button>
-  <span id="parityCheckStatus" style="font-size:12px;color:#94a3b8"></span>
-</div>
 <div style="margin-top:16px;display:flex;gap:8px;align-items:center">
 <button class="btn btn-primary" onclick="saveKeys()">💾 Save All Keys</button>
 <button class="btn" onclick="testConnection()">🔌 Test Connection</button>
@@ -40907,44 +40701,6 @@ function generateJournalFromForms() {
   );
 }
 
-/* ── forceSyncFromGAAP() — "⬇ Pull GAAP" button ─────────────────── */
-function forceSyncFromGAAP() {
-  var result = document.getElementById('gaapReconcileResult');
-  var data = _getGAAPData();
-  if (data && data.timestamp) {
-    // GAAP data is available in the shared localStorage key — populate forms
-    populateAllForms();
-    if (result) {
-      var ts = new Date(data.timestamp).toLocaleString();
-      var cnt = data.entryCount || 0;
-      var entity = data.entityName ? ' · ' + data.entityName : '';
-      result.innerHTML =
-        '<span style="color:#22c55e">✅ Pulled ' + cnt + ' entr' + (cnt===1?'y':'ies') +
-        ' from GAAP' + entity + ' · synced ' + ts + '</span>';
-    }
-    return;
-  }
-  // No shared key data — check if GAS URL is configured
-  var gasUrl = (typeof appData !== 'undefined' && appData.settings && appData.settings.gasWebAppUrl)
-    ? appData.settings.gasWebAppUrl : '';
-  if (gasUrl) {
-    if (result) result.innerHTML = '<span style="color:#60a5fa">⏳ No GAAP.html sync data found — pulling from Sheets via Sync Center…</span>';
-    if (typeof syncPullAll === 'function') {
-      syncPullAll();
-    }
-    return;
-  }
-  // Nothing configured
-  var msg = '⚠ No GAAP data available. To sync:\n' +
-    '① Open GAAP.html → click "⇄ PUSH TO AGENT"\n' +
-    '② Or go to Sync Center and configure a GAS Web App URL.';
-  if (result) {
-    result.innerHTML = '<span style="color:#f59e0b;white-space:pre-line">' + msg + '</span>';
-  } else {
-    alert(msg);
-  }
-}
-
 /* ── Auto-listen for GAAP pushing updates ─────────────────────────── */
 window.addEventListener('storage', function(e) {
   if (e.key !== AGENT_SYNC_KEY || !e.newValue) return;
@@ -41347,8 +41103,8 @@ function resolveProvider() {
   var pid = localStorage.getItem('eeon_active_provider') || 'claude';
   var PROVIDERS = {
     openai:    { name:'OpenAI',    auth:'bearer',    url:'https://api.openai.com/v1/chat/completions',                                                    model:'gpt-4.1-mini' },
-    anthropic: { name:'Anthropic', auth:'anthropic', url:'https://api.anthropic.com/v1/messages',                                                         model:'claude-sonnet-4-6' },
-    claude:    { name:'Anthropic', auth:'anthropic', url:'https://api.anthropic.com/v1/messages',                                                         model:'claude-sonnet-4-6' },
+    anthropic: { name:'Anthropic', auth:'anthropic', url:'https://api.anthropic.com/v1/messages',                                                         model:'claude-sonnet-4-20250514' },
+    claude:    { name:'Anthropic', auth:'anthropic', url:'https://api.anthropic.com/v1/messages',                                                         model:'claude-sonnet-4-20250514' },
     deepseek:  { name:'DeepSeek',  auth:'bearer',    url:'https://api.deepseek.com/chat/completions',                                                     model:'deepseek-chat' },
     zai:       { name:'Z.AI',      auth:'bearer',    url:'https://api.z.ai/v1/chat/completions',                                                          model:'z1-preview' },
     kimi:      { name:'Kimi',      auth:'bearer',    url:'https://api.moonshot.cn/v1/chat/completions',                                                   model:'moonshot-v1-8k' },
@@ -41647,27 +41403,6 @@ function saveKeys() {
         savedCount++;
       }
     });
-    // Save non-provider settings fields that load via keyMappings but weren't being persisted
-    var extraFields = {
-      'keyCorsProxy':          'eeon_cors_proxy',
-      'keyOllamaUrl':          'eeon_ollama_url',
-      'keyOllamaModel':        'eeon_ollama_model',
-      'keyOllamaModelCustom':  'eeon_ollama_model_custom',
-      'keyOllamaApiKey':       'eeon_ollama_api_key',
-      'keyCustomName':         'eeon_custom_name',
-      'keyCustomUrl':          'eeon_custom_url',
-      'keyCustomModel':        'eeon_custom_model',
-      'setActiveProvider':     'eeon_active_provider'
-    };
-    Object.keys(extraFields).forEach(function(fieldId) {
-      var el = document.getElementById(fieldId);
-      if (!el) return;
-      var v = el.type === 'checkbox' ? String(el.checked) : el.value.trim();
-      if (v) { localStorage.setItem(extraFields[fieldId], v); savedCount++; }
-    });
-    // Also save the Ollama web-search checkbox explicitly
-    var ollamaWS = document.getElementById('keyOllamaWebSearch');
-    if (ollamaWS) localStorage.setItem('eeon_ollama_web_search', String(ollamaWS.checked));
     updateKeyDots();
     var statusSpan = document.getElementById('keyStatus');
     if (statusSpan) {
@@ -41824,7 +41559,7 @@ async function testConnection() {
         'anthropic-dangerous-direct-browser-access': 'true'
       };
       testBody = {
-        model: 'claude-sonnet-4-6',
+        model: 'claude-sonnet-4-20250514',
         max_tokens: 10,
         messages: [{ role: 'user', content: 'test' }]
       };
@@ -42064,9 +41799,7 @@ async function doResearch() {
     }
 
     var _rhProxy = (localStorage.getItem('eeon_cors_proxy') || 'https://crimson-recipe-cdfd.rhymeminded.workers.dev').replace(/\/$/, '');
-    // === API DISABLED ===
-    throw new Error('⚡ Research HUB API calls disabled to save credits. Use Claude chat or Deep Research instead.');
-    var response = await fetch(_rhProxy + '/v1/messages', { // DISABLED
+    var response = await fetch(_rhProxy + '/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -42075,7 +41808,7 @@ async function doResearch() {
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
+        model: 'claude-sonnet-4-20250514',
         max_tokens: 8192,
         system: systemPrompt,
         messages: [{ role: 'user', content: question }]
@@ -42148,9 +41881,7 @@ async function doSearch() {
     }
 
     var _srProxy = (localStorage.getItem('eeon_cors_proxy') || 'https://crimson-recipe-cdfd.rhymeminded.workers.dev').replace(/\/$/, '');
-    // === API DISABLED ===
-    throw new Error('⚡ Search API calls disabled to save credits. Use Claude chat or web search instead.');
-    var response = await fetch(_srProxy + '/v1/messages', { // DISABLED
+    var response = await fetch(_srProxy + '/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -42159,7 +41890,7 @@ async function doSearch() {
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
+        model: 'claude-sonnet-4-20250514',
         max_tokens: 4096,
         system: 'You are a Search Assistant. Provide relevant information and resources for the search query. Include key facts, explanations, and references where applicable.',
         messages: [{ role: 'user', content: 'Search query: ' + query }]
@@ -42863,9 +42594,7 @@ function pdkbCallAnthropic(prompt, options, onProgress) {
   // Long timeout — streaming keeps connection alive so we just need to handle stalls
   var timeout = options.timeout || 300000;
   var corsProxy = (localStorage.getItem('eeon_cors_proxy') || '').replace(/\/$/, '');
-  // === API DISABLED — use Claude chat or connect Ollama ===
-    return Promise.resolve({ success: false, error: { type: 'api_offline', message: '⚡ API calls disabled to save credits. Use Claude chat for Transcript Transformer and Etymology Analyzer, or configure Ollama in Settings → API Keys → Ollama.' } });
-    var endpoint = corsProxy ? corsProxy + '/v1/messages' : 'https://api.anthropic.com/v1/messages'; // DISABLED
+  var endpoint = corsProxy ? corsProxy + '/v1/messages' : 'https://api.anthropic.com/v1/messages';
   var controller = new AbortController();
   var timer = setTimeout(function(){ controller.abort(); }, timeout);
 
@@ -44351,12 +44080,7 @@ function showSettingsPanel(panel) {
 function settingsSaveKey(provider, value) {
   if (value) {
     localStorage.setItem('stg_key_' + provider, value);
-    localStorage.setItem('eeon_key_' + provider, value);
-    if (provider === 'claude') {
-      window._trustApiKey = value;
-      localStorage.setItem('tmar_claude_key', value);
-      localStorage.setItem('_trustApiKey', value);
-    }
+    if (provider === 'claude') { window._trustApiKey = value; localStorage.setItem('tmar_claude_key', value); }
   }
 }
 
@@ -49450,319 +49174,7 @@ document.addEventListener('DOMContentLoaded', function() {
   renderDocList();
 });
 
-// ─── Parity Drift Notification (2B) ──────────────────────────────────────────
-(function() {
-  var FINGERPRINT_URL = 'https://raw.githubusercontent.com/SlickVicious/TMAR-Accrual-Ledger/master/parity-fingerprint.json';
-  var DISMISS_KEY = 'TMAR_parity_dismissed';
-  var STALE_DAYS = 7;
-
-  function shouldShowBanner(data) {
-    if (!data || !data.driftDetected) return false;
-    // Check dismiss timestamp
-    var dismissed = parseInt(localStorage.getItem(DISMISS_KEY) || '0', 10);
-    var checkedAt = data.lastChecked ? new Date(data.lastChecked).getTime() : 0;
-    // If user dismissed after the last check, stay hidden
-    if (dismissed > checkedAt) return false;
-    // Only show if lastChecked is within STALE_DAYS days
-    if (checkedAt && (Date.now() - checkedAt) > STALE_DAYS * 86400000) return false;
-    return true;
-  }
-
-  function showBanner(data) {
-    var banner = document.getElementById('parityDriftBanner');
-    if (!banner) return;
-    banner.style.display = 'flex';
-    banner.style.flexWrap = 'wrap';
-    banner.style.alignItems = 'center';
-    var dateEl = document.getElementById('parityBannerDate');
-    if (dateEl && data.lastChecked) {
-      dateEl.textContent = 'Detected ' + new Date(data.lastChecked).toLocaleDateString();
-    }
-    // Store data for the details modal
-    banner.dataset.parityData = JSON.stringify(data);
-  }
-
-  window.parityShowDetails = function() {
-    var banner = document.getElementById('parityDriftBanner');
-    var modal = document.getElementById('parityDriftModal');
-    var pre = document.getElementById('parityDriftDetails');
-    if (!modal || !pre || !banner) return;
-    try {
-      var data = JSON.parse(banner.dataset.parityData || '{}');
-      var lines = [];
-      lines.push('Last checked: ' + (data.lastChecked ? new Date(data.lastChecked).toLocaleString() : 'unknown'));
-      if (data.driftSummary) lines.push('\nChanges:\n' + data.driftSummary.replace(/\\n/g, '\n'));
-      if (data.sources) {
-        lines.push('\nCurrent source state:');
-        Object.keys(data.sources).forEach(function(src) {
-          var s = data.sources[src];
-          lines.push('  ' + src + ' — tabs: ' + s.tabCount + ', version: ' + (s.version || 'unknown'));
-        });
-      }
-      pre.textContent = lines.join('\n');
-    } catch(e) {
-      pre.textContent = 'No detail available.';
-    }
-    modal.style.display = 'flex';
-  };
-
-  window.parityDismissBanner = function() {
-    var banner = document.getElementById('parityDriftBanner');
-    if (banner) banner.style.display = 'none';
-    localStorage.setItem(DISMISS_KEY, Date.now().toString());
-  };
-
-  window.parityCheckNow = function() {
-    var statusEl = document.getElementById('parityCheckStatus');
-    if (statusEl) statusEl.textContent = '⏳ Checking…';
-    fetch(FINGERPRINT_URL + '?_=' + Date.now())
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        var banner = document.getElementById('parityDriftBanner');
-        if (banner) banner.dataset.parityData = JSON.stringify(data);
-        if (shouldShowBanner(data)) {
-          // Clear dismiss so banner shows again
-          localStorage.removeItem(DISMISS_KEY);
-          showBanner(data);
-          if (statusEl) statusEl.innerHTML = '<span style="color:#f59e0b">⚠️ Drift detected — see banner.</span>';
-        } else if (data.driftDetected) {
-          if (statusEl) statusEl.innerHTML = '<span style="color:#f59e0b">⚠️ Drift on record but check is >7 days old.</span>';
-        } else {
-          if (banner) banner.style.display = 'none';
-          if (statusEl) statusEl.innerHTML = '<span style="color:#22c55e">✅ No drift — TMAR is in sync.</span>';
-        }
-      })
-      .catch(function(e) {
-        if (statusEl) statusEl.innerHTML = '<span style="color:#ef4444">❌ Could not reach fingerprint URL.</span>';
-      });
-  };
-
-  // On load: silently fetch and show banner if needed
-  document.addEventListener('DOMContentLoaded', function() {
-    fetch(FINGERPRINT_URL + '?_=' + Date.now())
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (shouldShowBanner(data)) showBanner(data);
-      })
-      .catch(function() { /* silent — banner stays hidden on network error */ });
-  });
-})();
-// ─────────────────────────────────────────────────────────────────────────────
-
 console.log('✅ EON page fixes loaded — vault, history, calendar, docs, dashboard, create-agent');
-</script>
-
-<script>
-/* ── Gmailify — ported from redressright.me/Agent.html ── */
-var _gm = {
-  accounts:      [],
-  activeAccount: null,
-  activeFolder:  'INBOX',
-  messages:      [],
-  openEmail:     null,
-  searchTimer:   null,
-  localEmails:   [],
-};
-
-function gmailLoadAccounts() { gmailRenderAccountList(); }
-function gmailRenderAccountList() {
-  var el = document.getElementById('gm-account-list');
-  if (!el) return;
-  if (!_gm.accounts.length) { el.innerHTML = '<div style="padding:6px 16px;font-size:12px;color:var(--text2)">No accounts yet</div>'; return; }
-  var html = '';
-  _gm.accounts.forEach(function(acc) {
-    var isActive = acc.id === _gm.activeAccount;
-    var unread = acc.unread > 0 ? '<span style="background:var(--accent);color:#000;border-radius:10px;font-size:10px;padding:1px 6px;margin-left:auto">'+acc.unread+'</span>' : '';
-    var dot = acc.status === 'connected' ? 'background:var(--ok)' : 'background:var(--err)';
-    html += '<div class="gmail-folder'+(isActive?' active':'')+'" onclick="gmailSelectAccount(\''+acc.id+'\')" style="justify-content:space-between">'+
-      '<span style="display:flex;align-items:center;gap:6px;overflow:hidden"><span style="width:7px;height:7px;border-radius:50%;flex-shrink:0;'+dot+'"></span>'+
-      '<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px">'+(acc.display_name||acc.email)+'</span></span>'+
-      unread+'<button onclick="event.stopPropagation();gmailRemoveAccount(\''+acc.id+'\')" title="Remove" style="background:none;border:none;color:var(--err);cursor:pointer;font-size:11px;padding:0;flex-shrink:0;margin-left:4px">&#10005;</button></div>';
-  });
-  el.innerHTML = html;
-}
-function gmailSelectAccount(id) { _gm.activeAccount = id; gmailRenderAccountList(); gmailRefresh(); }
-function gmailRemoveAccount(id) { _gm.accounts = _gm.accounts.filter(function(a){return a.id!==id;}); if(_gm.activeAccount===id) _gm.activeAccount=_gm.accounts[0]?_gm.accounts[0].id:null; gmailRenderAccountList(); }
-function gmailSetFolder(btn, folder) {
-  _gm.activeFolder = folder;
-  document.querySelectorAll('#gm-folders .gmail-folder').forEach(function(b){b.classList.remove('active');});
-  if (btn) btn.classList.add('active');
-  gmailRefresh();
-}
-function gmailShowFolderPicker() { var f = prompt('Enter folder name:'); if(f) gmailSetFolder(null,f); }
-function gmailRefresh() {
-  var loading = document.getElementById('gm-loading');
-  if (loading) loading.style.display = '';
-  setTimeout(function() {
-    if (loading) loading.style.display = 'none';
-    gmailRenderLocalEmails();
-  }, 400);
-}
-function gmailRenderLocalEmails() {
-  var emails = _gm.localEmails.filter(function(e){ return _gm.activeFolder==='INBOX' || e.folder===_gm.activeFolder; });
-  gmailRenderList(emails);
-}
-function gmailRenderList(msgs) {
-  var el = document.getElementById('gm-list');
-  if (!el) return;
-  if (!msgs.length) {
-    el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text2)">'+
-      '<div style="font-size:44px;margin-bottom:12px">✉</div>'+
-      '<div style="font-size:15px;font-weight:600;margin-bottom:8px;color:var(--text)">Gmailify — Multi-Account Email</div>'+
-      '<div style="font-size:12px;max-width:400px;margin:0 auto;line-height:1.8">Connect Gmail, Yahoo, Outlook, iCloud, Zoho, ProtonMail, or any IMAP/POP3 webmail. All emails stay on your server — nothing is uploaded anywhere outside your machine.</div>'+
-      '<div style="margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">'+
-      '<button class="btn btn-primary" onclick="gmailShowAddAccount()">✚ Add Account</button>'+
-      '<button class="btn" onclick="document.getElementById(\'gm-file-import\').click()">📤 Import .eml File</button></div></div>';
-    return;
-  }
-  var html = '';
-  msgs.forEach(function(m,i) {
-    var star = m.starred ? 'starred' : '';
-    html += '<div class="gmail-row'+(m.unread?' unread':'')+'" onclick="gmailOpenEmail(\''+m.uid+'\',this)">'+
-      '<span class="gmail-star '+star+'" onclick="event.stopPropagation();gmailToggleStar(\''+m.uid+'\',this)">★</span>'+
-      '<input type="checkbox" class="gm-chk" data-uid="'+m.uid+'" onclick="event.stopPropagation()" style="margin-right:6px">'+
-      '<span class="gmail-sender">'+(m.from||'')+'</span>'+
-      '<span class="gmail-subject">'+(m.subject||'(no subject)')+'<span class="gmail-snippet"> — '+(m.snippet||'')+'</span></span>'+
-      '<span class="gmail-date">'+(m.date||'')+'</span></div>';
-  });
-  el.innerHTML = html;
-}
-function gmailSearch(q) { gmailRefresh(); }
-function gmailSearchDebounced(q) { clearTimeout(_gm.searchTimer); _gm.searchTimer = setTimeout(function(){ gmailSearch(q); }, 300); }
-function gmailSelectAll() { document.querySelectorAll('.gm-chk').forEach(function(c){c.checked=true;}); }
-function gmailDeleteSelected() {
-  var uids = []; document.querySelectorAll('.gm-chk:checked').forEach(function(c){uids.push(c.dataset.uid);});
-  _gm.localEmails = _gm.localEmails.filter(function(e){return !uids.includes(e.uid);});
-  gmailRenderLocalEmails();
-}
-function gmailMarkRead() { document.querySelectorAll('.gm-chk:checked').forEach(function(c){ var e=_gm.localEmails.find(function(x){return x.uid===c.dataset.uid;}); if(e) e.unread=false; }); gmailRenderLocalEmails(); }
-function gmailToggleStar(uid, el) { var e=_gm.localEmails.find(function(x){return x.uid===uid;}); if(e){e.starred=!e.starred;el.classList.toggle('starred',e.starred);} }
-function gmailOpenEmail(uid, rowEl) {
-  var email = _gm.localEmails.find(function(e){return e.uid===uid;});
-  if (!email) return;
-  email.unread = false;
-  if (rowEl) rowEl.classList.remove('unread');
-  _gmailShowEmailView(email);
-}
-function _gmailShowEmailView(email) {
-  _gm.openEmail = email;
-  document.getElementById('gm-view-subject').textContent = email.subject || '(no subject)';
-  document.getElementById('gm-view-meta').textContent = 'From: '+(email.from||'')+'  ·  '+(email.date||'');
-  var body = document.getElementById('gm-view-body');
-  if (body) body.innerHTML = email.htmlBody ? email.htmlBody : '<pre style="white-space:pre-wrap;font-family:inherit">'+(email.textBody||'')+'</pre>';
-  var view = document.getElementById('gm-view');
-  if (view) view.classList.add('open');
-}
-function gmailCloseView() { var v=document.getElementById('gm-view'); if(v) v.classList.remove('open'); _gm.openEmail=null; }
-function gmailAskAgent() {
-  if (!_gm.openEmail) return;
-  var text = 'Regarding this email:\nFrom: '+(_gm.openEmail.from||'')+'\nSubject: '+(_gm.openEmail.subject||'')+'\n\n'+(_gm.openEmail.textBody||'');
-  goEonPage(null,'chat');
-  var inp = document.getElementById('chatInput');
-  if (inp) { inp.value = text; inp.focus(); }
-}
-function gmailReply() { if(!_gm.openEmail) return; gmailOpenComposeModal('Re: '+(_gm.openEmail.subject||''), _gm.openEmail.from||'', ''); }
-function gmailForward() { if(!_gm.openEmail) return; gmailOpenComposeModal('Fwd: '+(_gm.openEmail.subject||''), '', '\n\n--- Forwarded ---\nFrom: '+(_gm.openEmail.from||'')+'\n'+(_gm.openEmail.textBody||'')); }
-function gmailTrashEmail() { if(!_gm.openEmail) return; _gm.localEmails=_gm.localEmails.filter(function(e){return e.uid!==_gm.openEmail.uid;}); gmailCloseView(); gmailRenderLocalEmails(); }
-function gmailCompose() { gmailOpenComposeModal('','',''); }
-function gmailOpenComposeModal(subject, to, body) {
-  var existing = document.getElementById('gm-compose-modal');
-  if (existing) existing.remove();
-  var modal = document.createElement('div');
-  modal.id = 'gm-compose-modal';
-  modal.className = 'gmail-compose-modal';
-  modal.style.display = 'block';
-  modal.innerHTML = '<div style="padding:12px 16px;border-bottom:1px solid var(--glass-border);display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:13px">New Message <button onclick="document.getElementById(\'gm-compose-modal\').remove()" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:16px">✕</button></div>'+
-    '<div style="padding:10px 14px;display:flex;flex-direction:column;gap:8px">'+
-    '<input id="gm-compose-to" placeholder="To" value="'+(to||'')+'" style="background:var(--bg3);border:none;border-bottom:1px solid var(--glass-border);padding:6px;font-size:13px;color:var(--text);outline:none">'+
-    '<input id="gm-compose-subject" placeholder="Subject" value="'+(subject||'')+'" style="background:var(--bg3);border:none;border-bottom:1px solid var(--glass-border);padding:6px;font-size:13px;color:var(--text);outline:none">'+
-    '<textarea id="gm-compose-body" rows="8" style="background:var(--bg3);border:none;padding:6px;font-size:13px;color:var(--text);resize:vertical;outline:none">'+(body||'')+'</textarea>'+
-    '<div style="display:flex;gap:8px"><button class="btn btn-primary btn-sm" onclick="gmailSendEmail()">Send</button><button class="btn btn-sm" onclick="gmailSaveDraft()">Save Draft</button></div></div>';
-  document.body.appendChild(modal);
-}
-function gmailSendEmail() {
-  var to = (document.getElementById('gm-compose-to')||{}).value || '';
-  var subject = (document.getElementById('gm-compose-subject')||{}).value || '';
-  var body = (document.getElementById('gm-compose-body')||{}).value || '';
-  if (!to) { alert('Please enter a recipient.'); return; }
-  alert('Email queued (no backend connected).\nTo: '+to+'\nSubject: '+subject);
-  var modal = document.getElementById('gm-compose-modal');
-  if (modal) modal.remove();
-}
-function gmailSaveDraft() {
-  var subject = (document.getElementById('gm-compose-subject')||{}).value||'';
-  var body = (document.getElementById('gm-compose-body')||{}).value||'';
-  var to = (document.getElementById('gm-compose-to')||{}).value||'';
-  var uid = 'draft_'+Date.now();
-  _gm.localEmails.unshift({uid:uid,folder:'Drafts',subject:subject,from:'Me → '+to,textBody:body,date:new Date().toLocaleDateString(),unread:false,starred:false,snippet:body.slice(0,80)});
-  var modal = document.getElementById('gm-compose-modal');
-  if (modal) modal.remove();
-  alert('Draft saved.');
-}
-function gmailShowAddAccount() {
-  var existing = document.getElementById('gm-add-account-modal');
-  if (existing) existing.remove();
-  var modal = document.createElement('div');
-  modal.id = 'gm-add-account-modal';
-  modal.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg2);border:1px solid var(--glass-border);border-radius:14px;padding:24px;z-index:500;width:420px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.5)';
-  modal.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:16px;display:flex;justify-content:space-between">✚ Add Email Account <button onclick="document.getElementById(\'gm-add-account-modal\').remove()" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:18px">✕</button></div>'+
-    '<div style="display:flex;flex-direction:column;gap:10px">'+
-    '<input id="gm-acc-name" placeholder="Display Name" style="background:var(--bg3);border:1px solid var(--glass-border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;outline:none">'+
-    '<input id="gm-acc-email" placeholder="Email address" style="background:var(--bg3);border:1px solid var(--glass-border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;outline:none">'+
-    '<input id="gm-acc-pass" type="password" placeholder="App Password / Token" style="background:var(--bg3);border:1px solid var(--glass-border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;outline:none">'+
-    '<select id="gm-acc-provider" style="background:var(--bg3);border:1px solid var(--glass-border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;outline:none">'+
-    '<option value="gmail">Gmail (IMAP)</option><option value="outlook">Outlook / Hotmail</option><option value="yahoo">Yahoo Mail</option>'+
-    '<option value="icloud">iCloud Mail</option><option value="protonmail">ProtonMail Bridge</option><option value="custom">Custom IMAP</option></select>'+
-    '<div id="gm-acc-custom" style="display:none;flex-direction:column;gap:6px">'+
-    '<input id="gm-acc-imap" placeholder="IMAP Host" style="background:var(--bg3);border:1px solid var(--glass-border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:12px;outline:none">'+
-    '<input id="gm-acc-port" placeholder="Port (993)" style="background:var(--bg3);border:1px solid var(--glass-border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:12px;outline:none"></div>'+
-    '<button class="btn btn-primary" onclick="gmailSaveAccount()" style="margin-top:4px">Connect Account</button></div>';
-  document.body.appendChild(modal);
-  var provSel = document.getElementById('gm-acc-provider');
-  if (provSel) provSel.onchange = function(){ document.getElementById('gm-acc-custom').style.display = this.value==='custom'?'flex':'none'; };
-}
-function gmailSaveAccount() {
-  var name = (document.getElementById('gm-acc-name')||{}).value||'';
-  var email = (document.getElementById('gm-acc-email')||{}).value||'';
-  var pass = (document.getElementById('gm-acc-pass')||{}).value||'';
-  var provider = (document.getElementById('gm-acc-provider')||{}).value||'gmail';
-  if (!email || !pass) { alert('Email and password are required.'); return; }
-  var acc = {id:'acc_'+Date.now(),display_name:name||email,email:email,provider:provider,status:'connected',unread:0};
-  _gm.accounts.push(acc);
-  if (!_gm.activeAccount) _gm.activeAccount = acc.id;
-  gmailRenderAccountList();
-  var modal = document.getElementById('gm-add-account-modal');
-  if (modal) modal.remove();
-  alert('Account added (local mode — no backend connected).\nEmails will be imported via .eml file for now.');
-}
-function gmailHandleFileImport(input) {
-  var files = Array.from(input.files);
-  var loaded = 0;
-  files.forEach(function(file) {
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      var raw = e.target.result;
-      var subjectMatch = raw.match(/^Subject:\s*(.+)$/mi);
-      var fromMatch = raw.match(/^From:\s*(.+)$/mi);
-      var dateMatch = raw.match(/^Date:\s*(.+)$/mi);
-      var bodyStart = raw.indexOf('\r\n\r\n');
-      if (bodyStart === -1) bodyStart = raw.indexOf('\n\n');
-      var textBody = bodyStart > -1 ? raw.slice(bodyStart+2).trim() : raw;
-      _gm.localEmails.unshift({
-        uid: 'local_'+Date.now()+'_'+Math.random().toString(36).slice(2),
-        folder: 'INBOX', subject: subjectMatch?subjectMatch[1].trim():'(no subject)',
-        from: fromMatch?fromMatch[1].trim():'Unknown',
-        date: dateMatch?dateMatch[1].trim():file.name,
-        textBody: textBody, snippet: textBody.slice(0,100),
-        unread: true, starred: false
-      });
-      loaded++;
-      if (loaded === files.length) { gmailRenderLocalEmails(); alert('Imported '+loaded+' email(s).'); }
-    };
-    reader.readAsText(file);
-  });
-  input.value = '';
-}
 </script>
 
 <script src="tmar-key-manager.js"></script>

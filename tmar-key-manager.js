@@ -291,10 +291,13 @@
   window.tkmTest = function (id) {
     var p = providerById(id);
     if (!p) return;
-    var key = localStorage.getItem(p.lsKey) || '';
     var inp = document.getElementById('tkm-inp-' + id);
-    if (inp && inp.value.trim()) key = inp.value.trim();
+    var key = (inp && inp.value.trim()) ? inp.value.trim() : (localStorage.getItem(p.lsKey) || '');
     if (!key) { setStatus(id, '⚠️ No key — save first', 'err'); return; }
+    // Persist to localStorage before testing so all consumers read the same key
+    localStorage.setItem(p.lsKey, key);
+    if (p.aliases) p.aliases.forEach(function (a) { localStorage.setItem(a, key); });
+    if (id === 'claude') window._trustApiKey = key;
     setStatus(id, '⏳ Testing…', 'info');
     runTest(p, key).then(function (msg) {
       setStatus(id, msg.ok ? '✅ ' + msg.text : '❌ ' + msg.text, msg.ok ? 'ok' : 'err');
