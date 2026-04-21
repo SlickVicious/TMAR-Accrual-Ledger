@@ -41532,8 +41532,9 @@ async function callLLMStream(agentSystemPrompt, userMessage, mem0Memories, onTok
 
     // ── Anthropic ─────────────────────────────────────────────────────────
     if (p.auth === 'anthropic') {
-      var corsProxy = (localStorage.getItem('eeon_cors_proxy') || 'https://crimson-recipe-cdfd.rhymeminded.workers.dev').replace(/\/$/, '');
-      url = corsProxy + '/v1/messages';
+      var _isLocal = (location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+      var corsProxy = (localStorage.getItem('eeon_cors_proxy') || '').replace(/\/$/, '');
+      url = (_isLocal || !corsProxy) ? 'https://api.anthropic.com/v1/messages' : corsProxy + '/v1/messages';
       headers['x-api-key'] = key;
       headers['anthropic-version'] = '2023-06-01';
       headers['anthropic-dangerous-request-allow-browser-headers'] = 'true';
@@ -41647,8 +41648,19 @@ function saveKeys() {
         savedCount++;
       }
     });
-    // Save non-provider settings fields that load via keyMappings but weren't being persisted
-    var extraFields = {
+    // Save ALL keyMappings fields (same map used by loadSavedKeys — single source of truth)
+    var keyMappings = {
+      'keyClaude':             'eeon_key_claude',
+      'keyOpenai':             'eeon_key_openai',
+      'keyDeepseek':           'eeon_key_deepseek',
+      'keyZai':                'eeon_key_zai',
+      'keyKimi':               'eeon_key_kimi',
+      'keyMinimax':            'eeon_key_minimax',
+      'keyErnie':              'eeon_key_ernie',
+      'keyXai':                'eeon_key_xai',
+      'keyCustom':             'eeon_key_custom',
+      'keyTelegram':           'eeon_key_telegram',
+      'keyDiscord':            'eeon_key_discord',
       'keyCorsProxy':          'eeon_cors_proxy',
       'keyOllamaUrl':          'eeon_ollama_url',
       'keyOllamaModel':        'eeon_ollama_model',
@@ -41659,13 +41671,21 @@ function saveKeys() {
       'keyCustomModel':        'eeon_custom_model',
       'setActiveProvider':     'eeon_active_provider'
     };
-    Object.keys(extraFields).forEach(function(fieldId) {
+    Object.keys(keyMappings).forEach(function(fieldId) {
       var el = document.getElementById(fieldId);
       if (!el) return;
       var v = el.type === 'checkbox' ? String(el.checked) : el.value.trim();
-      if (v) { localStorage.setItem(extraFields[fieldId], v); savedCount++; }
+      if (!v) return;
+      localStorage.setItem(keyMappings[fieldId], v);
+      // Claude key — sync all aliases
+      if (fieldId === 'keyClaude') {
+        window._trustApiKey = v;
+        localStorage.setItem('stg_key_claude', v);
+        localStorage.setItem('tmar_claude_key', v);
+        localStorage.setItem('_trustApiKey', v);
+      }
+      savedCount++;
     });
-    // Also save the Ollama web-search checkbox explicitly
     var ollamaWS = document.getElementById('keyOllamaWebSearch');
     if (ollamaWS) localStorage.setItem('eeon_ollama_web_search', String(ollamaWS.checked));
     updateKeyDots();
@@ -41815,8 +41835,11 @@ async function testConnection() {
 
     if (provider === 'claude' || provider === 'anthropic') {
       apiKey = localStorage.getItem('eeon_key_claude') || window._trustApiKey || '';
-      var corsProxy = (localStorage.getItem('eeon_cors_proxy') || 'https://crimson-recipe-cdfd.rhymeminded.workers.dev').replace(/\/$/, '');
-      testEndpoint = corsProxy + '/v1/messages';
+      var isLocal = (location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+      var corsProxy = (localStorage.getItem('eeon_cors_proxy') || '').replace(/\/$/, '');
+      testEndpoint = (isLocal || !corsProxy)
+        ? 'https://api.anthropic.com/v1/messages'
+        : corsProxy + '/v1/messages';
       testHeaders = {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
