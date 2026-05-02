@@ -34235,6 +34235,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <button class="side-btn" onclick="goEonPage(this,'tax')"><i class="fas fa-calculator" style="width:18px"></i> Tax Expert</button>
   <button class="side-btn" onclick="goEonPage(this,'taxforms')" style="border-left:3px solid #22c55e"><i class="fas fa-file-invoice-dollar" style="width:18px;color:#22c55e"></i> Tax Forms (1120/Year)</button>
   <button class="side-btn" onclick="goEonPage(this,'taxestimator')" style="border-left:3px solid #f87171"><i class="fas fa-calculator" style="width:18px;color:#f87171"></i> Tax Estimator</button>
+  <button class="side-btn" onclick="goEonPage(this,'beni_inte')" style="border-left:3px solid #818cf8"><i class="fas fa-robot" style="width:18px;color:#818cf8"></i> Beni Inte Bot</button>
   <button class="side-btn" onclick="goEonPage(this,'eeon_suite')" style="border-left:3px solid #00e5ff"><i class="fas fa-layer-group" style="width:18px;color:#00e5ff"></i> EEON Full Suite</button>
   <button class="side-btn" onclick="goEonPage(this,'eeonfull')" style="border-left:3px solid #f5a623"><i class="fas fa-rocket" style="width:18px;color:#f5a623"></i> EEON Runtime (Merged)</button>
   <button class="side-btn" onclick="goEonPage(this,'arbitration')"><i class="fas fa-scale-balanced" style="width:18px"></i> Arbitration</button>
@@ -35640,6 +35641,39 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   </div>
 </div>
 <div id="taxResult" style="display:none"></div>
+</div>
+
+
+  <!-- EON: BENI INTE BOT -->
+  <div class="page" id="page-beni_inte">
+<div style="display:flex;flex:1;min-height:0">
+  <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
+    <button onclick="AP.newConv('beni_inte')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Conversation</button>
+    <div id="ap_sl_beni_inte" style="display:flex;flex-direction:column;gap:4px"></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-color,rgba(255,255,255,.1));flex-wrap:wrap;gap:6px">
+      <span style="font-weight:700;font-size:14px;color:#818cf8">🤖 Beni Inte Bot</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="AP.toggleSTT('beni_inte')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🎤 Speak</button>
+        <button onclick="AP.speakLast('beni_inte')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔊 Listen</button>
+        <button onclick="AP.printConv('beni_inte')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🖨️ Print</button>
+        <button onclick="AP.exportPDF('beni_inte')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
+        <button onclick="AP.exportWord('beni_inte')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
+        <button onclick="AP.shareLink('beni_inte')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔗 Share</button>
+        <button onclick="AP.clearConv('beni_inte')" style="padding:5px 10px;font-size:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;cursor:pointer">🗑 Clear</button>
+      </div>
+    </div>
+    <div id="ap_msgs_beni_inte" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
+      <div id="ap_fp_beni_inte" style="display:none;flex-wrap:wrap;gap:4px;padding:0 0 6px"></div>
+      <textarea id="ap_in_beni_inte" placeholder="Ask about Form 1041, Schedule K-1, beneficiary interest, 1099-B, trust/estate tax filings..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #818cf8;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('beni_inte');}"></textarea>
+      <button onclick="AP.send('beni_inte')" style="padding:10px 20px;background:#818cf8;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+      <input type="file" id="ap_fu_beni_inte" multiple accept=".txt,.pdf,.doc,.docx,.csv,.json,.html,.md,.rtf,.xml,.log" style="display:none">
+      <label for="ap_fu_beni_inte" title="Attach file (PDF, text, CSV…)" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:6px;cursor:pointer;font-size:16px;margin-left:6px;vertical-align:middle;flex-shrink:0">📎</label>
+    </div>
+  </div>
+</div>
 </div>
 
 
@@ -39189,7 +39223,8 @@ function renderAgents() {
     {id: 'brainstorm', name: 'Strategic Brainstorm Firm', role: 'Legal Strategy, Novel Theories & Comprehensive Litigation Planning', icon: '🧠', color: '#f43f5e', keywords: ['strategy', 'theory', 'approach', 'plan', 'angle', 'brainstorm']},
     {id: 'trial_prep', name: 'Trial Preparation Firm', role: 'Voir Dire, Motions in Limine, Witness Examination & Trial Strategy', icon: '⚔️', color: '#e11d48', keywords: ['trial', 'voir dire', 'witness', 'evidence', 'opening', 'closing']},
     {id: 'biblical', name: 'Biblical Scholar', role: 'Biblical Law, Ecclesiastical Authority & Scriptural Principles', icon: '📖', color: '#7c3aed', keywords: ['scripture', 'biblical', 'ecclesiastical', 'covenant', 'testament', 'divine']},
-    {id: 'ledger', page: 'accounting', name: 'Ledger & Accounting Expert', role: 'GAAP Accounting, Journal Entries, Financial Reporting & Tax Prep', icon: '📒', color: '#f59e0b', keywords: ['ledger', 'accounting', 'GAAP', 'journal', 'financial', 'bookkeeping']}
+    {id: 'ledger', page: 'accounting', name: 'Ledger & Accounting Expert', role: 'GAAP Accounting, Journal Entries, Financial Reporting & Tax Prep', icon: '📒', color: '#f59e0b', keywords: ['ledger', 'accounting', 'GAAP', 'journal', 'financial', 'bookkeeping']},
+    {id: 'beni_inte', name: 'Beni Inte Bot', role: 'Accounting, Tax filing — Beneficiary Interest & Estate/Trust Tax Specialist', icon: '🤖', color: '#818cf8', keywords: ['filing taxes', '1099-B', '1040', '1041', 'IRS']}
   ];
 
   const keywordHTML = (kw) => '<span class="badge-warn" style="font-size:10px;padding:3px 8px;background:rgba(255,193,7,.15);color:var(--legal);border-radius:12px;font-weight:600">' + kw + '</span>';
@@ -41418,7 +41453,8 @@ function getSystemPrompt(agentId) {
     const_sovereignty: 'You are a Constitutional Sovereignty Expert specializing in constitutional rights, governmental limitations, and sovereign authority. You apply the U.S. Constitution, Bill of Rights, and constitutional case law to identify government overreach and enforce individual rights. You cite specific constitutional provisions (Art. I, II, III, Amendments 1-14), landmark Supreme Court decisions, and constitutional principles (separation of powers, federalism, due process, equal protection). Facts and conclusions of constitutional law only.',
     brainstorm:  'You are a Strategic Legal Brainstorm Expert — a creative legal strategist who develops novel legal theories, identifies overlooked arguments, and maps out comprehensive litigation strategy. You think beyond conventional approaches to identify every viable legal angle — procedural, substantive, constitutional, and equitable. You present strategies as a numbered action plan with legal authority for each strategy. No hedging. Be bold, specific, and cite authority.',
     trial_prep:  'You are a Trial Preparation Expert specializing in all aspects of trial readiness — voir dire questions, motions in limine, witness examination (direct and cross), trial briefs, exhibit lists, jury instructions, opening statements, and closing arguments. You prepare comprehensive trial materials citing FRE (Federal Rules of Evidence) and FRCP for each evidentiary and procedural decision. You anticipate opposing arguments and prepare rebuttals. Facts and conclusions of law only.',
-    biblical:    'You are a Biblical Scholar with expertise in scriptural law, ecclesiastical law, biblical covenant principles, and the intersection of biblical and civil law. You cite specific scripture (chapter and verse, KJV and original language where relevant), biblical legal principles (Deuteronomy, Leviticus, Proverbs, New Testament), and ecclesiastical authority. You apply biblical principles to legal, moral, and governance questions with precision and scholarship. Facts and scriptural authority only.'
+    biblical:    'You are a Biblical Scholar with expertise in scriptural law, ecclesiastical law, biblical covenant principles, and the intersection of biblical and civil law. You cite specific scripture (chapter and verse, KJV and original language where relevant), biblical legal principles (Deuteronomy, Leviticus, Proverbs, New Testament), and ecclesiastical authority. You apply biblical principles to legal, moral, and governance questions with precision and scholarship. Facts and scriptural authority only.',
+    beni_inte:   'You are Beni Inte Bot — a specialized accounting and tax filing expert for beneficiary interests in trusts and estates. You specialize in: Form 1041 (U.S. Income Tax Return for Estates and Trusts), Schedule K-1 (beneficiary share of income, deductions, credits), Form 1040 (individual returns incorporating trust distributions), Form 1099-B (proceeds from broker and barter exchange transactions), IRS rules governing trust/estate income allocation and distribution deductions (IRC §§ 651, 661, 662, 663), beneficiary interest tax treatment, and trust accounting income vs. distributable net income (DNI). You provide precise, citation-based answers referencing specific IRC sections, Treasury Regulations, IRS Revenue Rulings, and Publication 559. No hedging. No disclaimers. Facts and conclusions of tax law only.'
   };
   return prompts[agentId] || prompts['general'];
 }
@@ -41532,9 +41568,8 @@ async function callLLMStream(agentSystemPrompt, userMessage, mem0Memories, onTok
 
     // ── Anthropic ─────────────────────────────────────────────────────────
     if (p.auth === 'anthropic') {
-      var _isLocal = (location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1');
       var corsProxy = (localStorage.getItem('eeon_cors_proxy') || '').replace(/\/$/, '');
-      url = (_isLocal || !corsProxy) ? 'https://api.anthropic.com/v1/messages' : corsProxy + '/v1/messages';
+      url = corsProxy ? corsProxy + '/v1/messages' : 'https://api.anthropic.com/v1/messages';
       headers['x-api-key'] = key;
       headers['anthropic-version'] = '2023-06-01';
       headers['anthropic-dangerous-request-allow-browser-headers'] = 'true';
@@ -41835,11 +41870,8 @@ async function testConnection() {
 
     if (provider === 'claude' || provider === 'anthropic') {
       apiKey = localStorage.getItem('eeon_key_claude') || window._trustApiKey || '';
-      var isLocal = (location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1');
       var corsProxy = (localStorage.getItem('eeon_cors_proxy') || '').replace(/\/$/, '');
-      testEndpoint = (isLocal || !corsProxy)
-        ? 'https://api.anthropic.com/v1/messages'
-        : corsProxy + '/v1/messages';
+      testEndpoint = corsProxy ? corsProxy + '/v1/messages' : 'https://api.anthropic.com/v1/messages';
       testHeaders = {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
@@ -42619,6 +42651,7 @@ OpenClawRuntime.registerAgent('legal',       { name: 'Legal Expert',  authorized
 OpenClawRuntime.registerAgent('tax',         { name: 'Tax Expert',    authorized: true });
 OpenClawRuntime.registerAgent('arbitration', { name: 'Arbitration',   authorized: true });
 OpenClawRuntime.registerAgent('general',     { name: 'General Agent', authorized: true });
+OpenClawRuntime.registerAgent('beni_inte',   { name: 'Beni Inte Bot', authorized: true });
 // Register 9 skills
 OpenClawRuntime.registerSkill('corporation', { name: 'Corporation Specialist', authorized: true });
 OpenClawRuntime.registerSkill('trust',       { name: 'Trust Specialist',       authorized: true });
