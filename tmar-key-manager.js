@@ -360,9 +360,11 @@
 
   // ── Test runners ───────────────────────────────────────────────────────────
   function runTest(p, key) {
-    var corsProxy = (localStorage.getItem('eeon_cors_proxy') || 'https://crimson-recipe-cdfd.rhymeminded.workers.dev').replace(/\/$/, '');
+    var _isLocal = (location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+    var corsProxy = (localStorage.getItem('eeon_cors_proxy') || '').replace(/\/$/, '');
+    var proxy = (_isLocal || !corsProxy) ? '' : corsProxy;
     switch (p.testType) {
-      case 'anthropic': return testAnthropic(key, corsProxy);
+      case 'anthropic': return testAnthropic(key, proxy);
       case 'gemini':    return testGemini(key);
       case 'hf':        return testHF(key);
       case 'github':    return testGitHub(key);

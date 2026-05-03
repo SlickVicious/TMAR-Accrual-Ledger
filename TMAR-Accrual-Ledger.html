@@ -39198,34 +39198,7 @@ function renderAgents() {
   const grid = document.getElementById('agentsGrid');
   if (!grid) return;
 
-  const agents = [
-    {id: 'dream_team', name: 'The Dream Team', role: 'Full-Spectrum Legal: Contract, Litigation, Dispute & Arbitration — 600 Attorneys', icon: '🏛️', color: '#ffd700', keywords: ['law', 'legal', 'court', 'judge', 'statute', 'constitution']},
-    {id: 'legal', name: 'Legal Expert — Presumption Killer', role: 'Legal Analysis & Document Preparation', icon: '⚖️', color: '#f5a623', keywords: ['law', 'legal', 'court', 'judge', 'statute', 'constitution']},
-    {id: 'tax', name: 'Tax & Financial Expert', role: 'Tax Law, Financial Assets & Property-Based Payment', icon: '💰', color: '#22c55e', keywords: ['tax', 'irs', 'revenue', 'income', 'deduction', 'nol']},
-    {id: 'code', name: 'Code Expert', role: 'Software Development & Web Design', icon: '💻', color: '#3b82f6', keywords: ['code', 'program', 'script', 'html', 'css', 'javascript']},
-    {id: 'research', name: 'Research Analyst', role: 'Information Gathering & Deep Analysis', icon: '📊', color: '#8b5cf6', keywords: ['research', 'analyze', 'study', 'compare', 'investigate', 'data']},
-    {id: 'creative', name: 'Creative Writer', role: 'Content Creation & Creative Tasks', icon: '✍️', color: '#ec4899', keywords: ['write', 'story', 'essay', 'creative', 'blog', 'article']},
-    {id: 'html_arch', name: 'HTML Architect', role: 'Web Design & HTML/CSS Expert', icon: '🏗️', color: '#f97316', keywords: ['html', 'css', 'layout', 'design', 'responsive', 'webpage']},
-    {id: 'general', name: 'General Assistant', role: 'General Purpose Helper', icon: '🤖', color: '#06b6d4', keywords: ['help', 'general', 'question', 'info', 'calculate', 'translate']},
-    {id: 'arbitration', name: 'Arbitration Specialist', role: 'Arbitration Law & Award Determination', icon: '⚖', color: '#14b8a6', keywords: ['arbitration', 'arbitrator', 'award', 'dispute', 'federal arbitration act', 'quasi-judicial']},
-    {id: 'corporation', name: 'Corporation Specialist', role: 'Corporate Structure & Business Law', icon: '🏢', color: '#6366f1', keywords: ['corporation', 'llc', 'business', 'incorporate', 'bylaws', 'shares']},
-    {id: 'trust', name: 'Trust Specialist', role: 'Trust Law & Fiduciary Duty', icon: '🔐', color: '#a855f7', keywords: ['trust', 'trustee', 'beneficiary', 'fiduciary', 'settlor', 'grantor']},
-    {id: 'doc_creation', name: 'Document Creation Firm', role: 'Legal Document Drafting — Motions, Complaints, Petitions & Filings', icon: '📄', color: '#f97316', keywords: ['motion', 'complaint', 'petition', 'affidavit', 'declaration', 'filing']},
-    {id: 'legal_analyst', name: 'Legal Analyst Firm', role: 'Deep Legal Analysis, Case Law Research & Statutory Interpretation', icon: '🔍', color: '#0ea5e9', keywords: ['analyze', 'precedent', 'statutory', 'case law', 'interpret', 'authority']},
-    {id: 'doc_format', name: 'Document Format Firm', role: 'Legal Document Structure, Bluebook Citations & Court Filing Format', icon: '📋', color: '#d97706', keywords: ['format', 'bluebook', 'citation', 'structure', 'style', 'court rules']},
-    {id: 'writs_writing', name: 'Writs Writing Firm', role: 'Extraordinary Writs — Mandamus, Habeas Corpus, Certiorari, Prohibition', icon: '✍️', color: '#eab308', keywords: ['writ', 'mandamus', 'habeas', 'certiorari', 'prohibition', 'extraordinary']},
-    {id: 'amicus_brief', name: 'Amicus Brief Firm', role: 'Amicus Curiae Brief Drafting for Appellate Courts', icon: '📜', color: '#ef4444', keywords: ['amicus', 'curiae', 'appellate', 'brief', 'friend of court', 'FRAP']},
-    {id: 'dt_appeal', name: 'Dream Team Appeal Firm', role: 'Appellate Law, Brief Writing & Reversible Error Analysis — 600 Attorneys', icon: '🏛️', color: '#fbbf24', keywords: ['appeal', 'appellate', 'reversible', 'circuit', 'error', 'brief']},
-    {id: 'presumption_killer', name: 'Presumption Killer Firm', role: 'Destroying Legal Presumptions with Evidence & Rebuttal Arguments', icon: '💀', color: '#dc2626', keywords: ['presumption', 'rebut', 'rebuttal', 'burden', 'evidence', 'SYPHER']},
-    {id: 'fact_conclusion', name: 'Fact & Conclusion of Law Firm', role: 'Findings of Fact, Conclusions of Law & EEON Methodology', icon: '🎯', color: '#06b6d4', keywords: ['findings', 'conclusions', 'fact', 'law', 'EEON', 'judgment']},
-    {id: 'jurisdictional', name: 'Jurisdictional Challenge Firm', role: 'Subject Matter Jurisdiction, Personal Jurisdiction & Standing Challenges', icon: '⚡', color: '#10b981', keywords: ['jurisdiction', 'standing', 'venue', 'mootness', 'ripeness', 'diversity']},
-    {id: 'const_sovereignty', name: 'Constitutional Sovereignty Firm', role: 'Constitutional Rights, Government Limitations & Sovereignty Arguments', icon: '🦅', color: '#ec4899', keywords: ['constitutional', 'sovereignty', 'rights', 'amendment', 'overreach', 'liberty']},
-    {id: 'brainstorm', name: 'Strategic Brainstorm Firm', role: 'Legal Strategy, Novel Theories & Comprehensive Litigation Planning', icon: '🧠', color: '#f43f5e', keywords: ['strategy', 'theory', 'approach', 'plan', 'angle', 'brainstorm']},
-    {id: 'trial_prep', name: 'Trial Preparation Firm', role: 'Voir Dire, Motions in Limine, Witness Examination & Trial Strategy', icon: '⚔️', color: '#e11d48', keywords: ['trial', 'voir dire', 'witness', 'evidence', 'opening', 'closing']},
-    {id: 'biblical', name: 'Biblical Scholar', role: 'Biblical Law, Ecclesiastical Authority & Scriptural Principles', icon: '📖', color: '#7c3aed', keywords: ['scripture', 'biblical', 'ecclesiastical', 'covenant', 'testament', 'divine']},
-    {id: 'ledger', page: 'accounting', name: 'Ledger & Accounting Expert', role: 'GAAP Accounting, Journal Entries, Financial Reporting & Tax Prep', icon: '📒', color: '#f59e0b', keywords: ['ledger', 'accounting', 'GAAP', 'journal', 'financial', 'bookkeeping']},
-    {id: 'beni_inte', name: 'Beni Inte Bot', role: 'Accounting, Tax filing — Beneficiary Interest & Estate/Trust Tax Specialist', icon: '🤖', color: '#818cf8', keywords: ['filing taxes', '1099-B', '1040', '1041', 'IRS']}
-  ];
+  const agents = window.TMAR_AGENTS || [];
 
   const keywordHTML = (kw) => '<span class="badge-warn" style="font-size:10px;padding:3px 8px;background:rgba(255,193,7,.15);color:var(--legal);border-radius:12px;font-weight:600">' + kw + '</span>';
 
