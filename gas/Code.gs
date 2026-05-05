@@ -551,7 +551,11 @@ function onOpen() {
       .addItem('Add Obligation Entry...', 'showAddObligationDialog')
       .addItem('Add Subscription Entry...', 'showAddSubscriptionDialog')
       .addSeparator()
-      .addItem('Import from Accrual Ledger...', 'showLedgerImportDialog'))
+      .addItem('Import from Accrual Ledger...', 'showLedgerImportDialog')
+      .addSeparator()
+      .addItem('📥 Import Clinton Credit Report', 'importClintCreditReportAccounts')
+      .addItem('📥 Import Syrina Auto Loan (Kia)', 'importSyrinaAutoLoan')
+      .addItem('📥 Import ALL Credit Reports', 'importAllCreditReportAccounts'))
 
 
     .addSubMenu(ui.createMenu('Setup & Administration')
@@ -579,6 +583,16 @@ function onOpen() {
       .addItem('🩺 Run Health Audit', 'runFormattingHealthAudit')
       .addItem('🔧 Fix All Issues', 'fixAllFormattingIssues')
       .addItem('🔍 Diagnose Legend Issues', 'diagnoseLegendAndAttribution'))
+
+    .addSubMenu(ui.createMenu('🏦 TMAR Engine')
+      .addItem('⚖️ Calculate DNI...', 'calculateDNI')
+      .addItem('📊 View Trial Balance', 'viewTrialBalance')
+      .addSeparator()
+      .addItem('🚨 View Overdue Tasks', 'viewOverdueTasks')
+      .addItem('📅 View Upcoming Tasks (30d)', 'viewUpcomingTasks')
+      .addItem('🔄 Refresh Compliance Sheet', 'refreshComplianceSheet')
+      .addSeparator()
+      .addItem('📁 Refresh Document List', 'refreshDocumentList'))
 
     .addSeparator()
 

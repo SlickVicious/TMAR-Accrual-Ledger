@@ -4,3 +4,6 @@ backup_*/**
 backup_20260228/**
 **/.DS_Store
 *.md
+# Node.js / local-only files — not valid GAS
+env-vault-setup/**
+*.bak*

@@ -786,6 +786,312 @@ function colorCodeMasterRegisterRows_(sheet) {
 }
 
 
+// ─── CLINTON CREDIT REPORT DATA ─────────────────────────────────────────────
+
+function getClintCreditReportAccounts_() {
+  const today = new Date().toISOString().slice(0, 10);
+
+  return [
+    // ═══════════════════════════════════════════════════════════════════
+    // ACTIVE ACCOUNTS
+    // ═══════════════════════════════════════════════════════════════════
+    {
+      provider:     'ECSI (Educational Computer Systems)',
+      ein:          '',
+      acctNumber:   '*R24A',
+      acctType:     'Student Loan',
+      acctSubtype:  'Education Loan',
+      status:       'Active',
+      opened:       '09/13/1994',
+      closed:       '',
+      balance:      186,
+      highBal:      3071,
+      monthlyPmt:   40,
+      primaryUser:  'Clint',
+      creditStatus: 'Current — Paying as Agreed',
+      removalDate:  '',
+      taxRelevance: 'Student loan interest deductible up to $2,500/yr (Form 1040 Sch 1 L21). Request 1098-E.',
+      notes:        'Oldest active account (30+ yrs). ~5 months to payoff at $40/mo. Contact: (412) 788-3900.',
+      source:       'Credit Report Sheets 2025-2026',
+    },
+    {
+      provider:     'Elan Financial Services / Fidelity',
+      ein:          '',
+      acctNumber:   '',
+      acctType:     'Credit Card',
+      acctSubtype:  'Flexible Spending',
+      status:       'Active',
+      opened:       '09/2025',
+      closed:       '',
+      balance:      0,
+      highBal:      1500,
+      monthlyPmt:   0,
+      primaryUser:  'Clint',
+      creditStatus: 'Current — $0 Balance',
+      removalDate:  '',
+      taxRelevance: 'No tax impact — revolving credit. Keep utilization under 30% ($450 max).',
+      notes:        '$1,500 limit. Keep utilization under 30%. Pay in full monthly to build payment history.',
+      source:       'Credit Report Sheets 2025-2026',
+    },
+
+    // ═══════════════════════════════════════════════════════════════════
+    // ADVERSE ACCOUNTS — Collection
+    // ═══════════════════════════════════════════════════════════════════
+    {
+      provider:     'US Dept of Education / Perkins Loans',
+      ein:          '',
+      acctNumber:   '6473XXXX',
+      acctType:     'Student Loan',
+      acctSubtype:  'Perkins Loan',
+      status:       'Active',
+      opened:       '01/13/2025',
+      closed:       '',
+      balance:      191,
+      highBal:      187,
+      monthlyPmt:   0,
+      primaryUser:  'Clint',
+      creditStatus: 'Collection — Cannot Locate Consumer',
+      removalDate:  '11/2030',
+      taxRelevance: 'Collection interest not deductible. Pay immediately; request pay-for-delete. Possible 1099-C if >$600 forgiven (unlikely at $191).',
+      notes:        'Removes 11/2030. Address: 3130 Fairview Park Dr Ste 800, Falls Church VA. Call 1-800-4-FED-AID.',
+      source:       'Credit Report Sheets 2025-2026',
+    },
+
+    // ═══════════════════════════════════════════════════════════════════
+    // CLOSED / PAID ACCOUNTS
+    // ═══════════════════════════════════════════════════════════════════
+    {
+      provider:     'Capital One (Clinton)',
+      ein:          '',
+      acctNumber:   '517805XXXX',
+      acctType:     'Credit Card',
+      acctSubtype:  'Paid/Closed',
+      status:       'Closed',
+      opened:       '09/2017',
+      closed:       '02/2023',
+      balance:      0,
+      highBal:      626,
+      monthlyPmt:   0,
+      primaryUser:  'Clint',
+      creditStatus: 'Paid/Closed',
+      removalDate:  '',
+      taxRelevance: 'No tax impact — paid in full. Limit was $500.',
+      notes:        'Closed Feb 2023. High balance $626. PO Box 31293, Salt Lake City UT 84131.',
+      source:       'Credit Report Sheets 2025-2026',
+    },
+    {
+      provider:     'Cornerstone / UT Higher Ed Authority',
+      ein:          '',
+      acctNumber:   '7656099424KU0****',
+      acctType:     'Student Loan',
+      acctSubtype:  'Federal — Transferred',
+      status:       'Closed',
+      opened:       '01/2009',
+      closed:       '11/2020',
+      balance:      0,
+      highBal:      6567,
+      monthlyPmt:   0,
+      primaryUser:  'Clint',
+      creditStatus: 'Transferred — Servicer 1 of 3',
+      removalDate:  '',
+      taxRelevance: 'Part of single-loan transfer chain (Cornerstone → FedLoan → MOHELA). $0 owed.',
+      notes:        'Transferred to FedLoan Servicing 11/2020. POB 145122, Salt Lake City UT 84114.',
+      source:       'Credit Report Sheets 2025-2026',
+    },
+    {
+      provider:     'FedLoan Servicing (PHEAA)',
+      ein:          '',
+      acctNumber:   '7656099424FD0****',
+      acctType:     'Student Loan',
+      acctSubtype:  'Federal — Transferred',
+      status:       'Closed',
+      opened:       '01/2009',
+      closed:       '10/2021',
+      balance:      0,
+      highBal:      6567,
+      monthlyPmt:   0,
+      primaryUser:  'Clint',
+      creditStatus: 'Transferred — Servicer 2 of 3',
+      removalDate:  '',
+      taxRelevance: 'Transferred to MOHELA 10/2021. Same underlying loan as Cornerstone entry.',
+      notes:        'Received from Cornerstone, transferred to MOHELA. POB 60610, Harrisburg PA 17106.',
+      source:       'Credit Report Sheets 2025-2026',
+    },
+    {
+      provider:     'MOHELA / MO Higher Ed Loan Auth',
+      ein:          '',
+      acctNumber:   '241950XXXX',
+      acctType:     'Student Loan',
+      acctSubtype:  'Federal — Paid/Closed',
+      status:       'Closed',
+      opened:       '01/2009',
+      closed:       '10/2021',
+      balance:      0,
+      highBal:      9592,
+      monthlyPmt:   0,
+      primaryUser:  'Clint',
+      creditStatus: 'Paid/Closed — Final Servicer',
+      removalDate:  '',
+      taxRelevance: 'Loan fully paid. Servicer 3 of 3 in transfer chain. $0 owed.',
+      notes:        'Final servicer — loan paid in full. 633 Spirit Dr, Chesterfield MO 63005. (888) 866-4352.',
+      source:       'Credit Report Sheets 2025-2026',
+    },
+    {
+      provider:     'WebBank / Fingerhut',
+      ein:          '',
+      acctNumber:   '636992XXXX',
+      acctType:     'Credit Card',
+      acctSubtype:  'Charge Account — Paid/Closed',
+      status:       'Closed',
+      opened:       '03/2018',
+      closed:       '04/2020',
+      balance:      0,
+      highBal:      652,
+      monthlyPmt:   0,
+      primaryUser:  'Clint',
+      creditStatus: 'Paid/Closed',
+      removalDate:  '',
+      taxRelevance: 'No tax impact — fully paid. Limit was $1,000.',
+      notes:        '6250 Ridgewood Rd, St Cloud MN 56301. Phone: 866-734-0342.',
+      source:       'Credit Report Sheets 2025-2026',
+    },
+    {
+      provider:     'SyncB / CareCredit',
+      ein:          '',
+      acctNumber:   '*8786',
+      acctType:     'Credit Card',
+      acctSubtype:  'Charge Account — Paid/Closed',
+      status:       'Closed',
+      opened:       '06/2012',
+      closed:       '08/2013',
+      balance:      0,
+      highBal:      1000,
+      monthlyPmt:   0,
+      primaryUser:  'Clint',
+      creditStatus: 'Paid/Closed',
+      removalDate:  '',
+      taxRelevance: 'No tax impact — fully paid. Equifax only.',
+      notes:        'PO Box 71757, Philadelphia PA 19176. Phone: 866-396-8254. Equifax only.',
+      source:       'Credit Report Sheets 2025-2026',
+    },
+
+    // ═══════════════════════════════════════════════════════════════════
+    // ASSETS / INVESTMENT ACCOUNTS
+    // ═══════════════════════════════════════════════════════════════════
+    {
+      provider:     'Fidelity Investments (Rollover IRA)',
+      ein:          '04-3523567',
+      acctNumber:   '244-057897',
+      acctType:     'Investment',
+      acctSubtype:  'Rollover IRA',
+      status:       'Active',
+      opened:       '2022',
+      closed:       '',
+      balance:      12866.66,
+      highBal:      13000,
+      monthlyPmt:   0,
+      primaryUser:  'Clint',
+      creditStatus: 'Active — IRA Asset',
+      removalDate:  '',
+      taxRelevance: 'Rollover IRA — tax-deferred. No required distributions yet. Designate beneficiary at Fidelity.com/beneficiary. Trustee TIN: 04-3523567 (National Financial Services LLC).',
+      notes:        'FMV $12,866.66 as of 12/31/2022. Rollover contribution: $13,000. Update beneficiary. (800) 544-6666.',
+      source:       'Credit Report Sheets 2025-2026',
+    },
+  ];
+}
+
+
+// ─── SYRINA MISSING ACCOUNT — Capital One Auto (added 2026) ─────────────────
+// Run importSyrinaAutoLoan() to add the Kia Sorento loan (missing from original import)
+
+function importSyrinaAutoLoan() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const accounts = [
+    {
+      provider:     'Capital One Auto Finance',
+      ein:          '',
+      acctNumber:   '',
+      acctType:     'Auto Loan',
+      acctSubtype:  'Secured — Vehicle',
+      status:       'Active',
+      opened:       '02/2026',
+      closed:       '',
+      balance:      31440,
+      highBal:      31440,
+      monthlyPmt:   624,
+      primaryUser:  'Syrina',
+      creditStatus: 'Current',
+      removalDate:  '',
+      taxRelevance: 'Auto loan interest NOT deductible (personal vehicle). APR 12.39%. Total interest over life: $13,506.97.',
+      notes:        '2026 Kia Sorento LX FWD. VIN: SXYRGAJCXTG432063. 72 mo @ $624.27. First pmt 03/29/2026. Dealer: Kia of Kinston / Deacon Jones.',
+      source:       'Credit Report Sheets 2025-2026',
+    },
+  ];
+  const mrResult = importToMasterRegister_(ss, accounts);
+  const alResult = importToAcctLedger_(ss, accounts);
+  SpreadsheetApp.getUi().alert(
+    'Syrina Auto Loan Import:\nMaster Register: ' + mrResult.added + ' added, ' + mrResult.skipped + ' skipped\n' +
+    'Acct Ledger: ' + alResult.added + ' added, ' + alResult.skipped + ' skipped'
+  );
+}
+
+
+// ─── CLINTON IMPORT ENTRY POINT ──────────────────────────────────────────────
+
+function importClintCreditReportAccounts() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const accounts = getClintCreditReportAccounts_();
+  const mrResult = importToMasterRegister_(ss, accounts);
+  const alResult = importToAcctLedger_(ss, accounts);
+  const msg =
+    'Clinton Credit Report Import Complete!\n\n' +
+    'Master Register: ' + mrResult.added + ' added, ' + mrResult.skipped + ' skipped\n' +
+    'Acct Ledger: '     + alResult.added + ' added, ' + alResult.skipped + ' skipped';
+  SpreadsheetApp.getUi().alert(msg);
+  Logger.log(msg);
+}
+
+
+// ─── COMBINED IMPORT (Syrina + Clinton + Auto) ───────────────────────────────
+
+function importAllCreditReportAccounts() {
+  const ss  = SpreadsheetApp.getActiveSpreadsheet();
+  const all = [
+    ...getSyrinaCreditReportAccounts_(),
+    ...getClintCreditReportAccounts_(),
+    // Syrina's auto loan (added after original Syrina import)
+    {
+      provider:     'Capital One Auto Finance',
+      ein:          '',
+      acctNumber:   '',
+      acctType:     'Auto Loan',
+      acctSubtype:  'Secured — Vehicle',
+      status:       'Active',
+      opened:       '02/2026',
+      closed:       '',
+      balance:      31440,
+      highBal:      31440,
+      monthlyPmt:   624,
+      primaryUser:  'Syrina',
+      creditStatus: 'Current',
+      removalDate:  '',
+      taxRelevance: 'Auto loan interest NOT deductible (personal vehicle). APR 12.39%. Total interest over life: $13,506.97.',
+      notes:        '2026 Kia Sorento LX FWD. VIN: SXYRGAJCXTG432063. 72 mo @ $624.27. First pmt 03/29/2026.',
+      source:       'Credit Report Sheets 2025-2026',
+    },
+  ];
+
+  const mrResult = importToMasterRegister_(ss, all);
+  const alResult = importToAcctLedger_(ss, all);
+  const msg =
+    'Full Credit Report Import Complete!\n\n' +
+    'Master Register: ' + mrResult.added + ' added, ' + mrResult.skipped + ' skipped (already exist)\n' +
+    'Acct Ledger: '     + alResult.added + ' added, ' + alResult.skipped + ' skipped (already exist)';
+  SpreadsheetApp.getUi().alert(msg);
+  Logger.log(msg);
+}
+
+
 // ─── STANDALONE ACCT LEDGER POPULATION ──────────────────────────────────────
 // Run this if you only want to populate the Acct Ledger without Master Register
 
