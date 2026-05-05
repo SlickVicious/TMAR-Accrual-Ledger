@@ -34236,6 +34236,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <button class="side-btn" onclick="goEonPage(this,'taxforms')" style="border-left:3px solid #22c55e"><i class="fas fa-file-invoice-dollar" style="width:18px;color:#22c55e"></i> Tax Forms (1120/Year)</button>
   <button class="side-btn" onclick="goEonPage(this,'taxestimator')" style="border-left:3px solid #f87171"><i class="fas fa-calculator" style="width:18px;color:#f87171"></i> Tax Estimator</button>
   <button class="side-btn" onclick="goEonPage(this,'beni_inte')" style="border-left:3px solid #818cf8"><i class="fas fa-robot" style="width:18px;color:#818cf8"></i> Beni Inte Bot</button>
+  <button class="side-btn" onclick="goEonPage(this,'irs_lab')" style="border-left:3px solid #f97316"><i class="fas fa-balance-scale" style="width:18px;color:#f97316"></i> IRS &amp; Law Lab</button>
   <button class="side-btn" onclick="goEonPage(this,'eeon_suite')" style="border-left:3px solid #00e5ff"><i class="fas fa-layer-group" style="width:18px;color:#00e5ff"></i> EEON Full Suite</button>
   <button class="side-btn" onclick="goEonPage(this,'eeonfull')" style="border-left:3px solid #f5a623"><i class="fas fa-rocket" style="width:18px;color:#f5a623"></i> EEON Runtime (Merged)</button>
   <button class="side-btn" onclick="goEonPage(this,'arbitration')"><i class="fas fa-scale-balanced" style="width:18px"></i> Arbitration</button>
@@ -35671,6 +35672,313 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
       <button onclick="AP.send('beni_inte')" style="padding:10px 20px;background:#818cf8;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
       <input type="file" id="ap_fu_beni_inte" multiple accept=".txt,.pdf,.doc,.docx,.csv,.json,.html,.md,.rtf,.xml,.log" style="display:none">
       <label for="ap_fu_beni_inte" title="Attach file (PDF, text, CSV…)" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:6px;cursor:pointer;font-size:16px;margin-left:6px;vertical-align:middle;flex-shrink:0">📎</label>
+    </div>
+  </div>
+</div>
+</div>
+
+
+  <!-- EON: IRS & LAW PROCESS LAB -->
+  <div class="page" id="page-irs_lab">
+<div style="display:flex;flex:1;min-height:0">
+  <div style="width:175px;min-width:175px;border-right:1px solid var(--border-color);padding:10px;display:flex;flex-direction:column;gap:6px;overflow-y:auto">
+    <button onclick="AP.newConv('irs_lab')" style="width:100%;padding:8px;background:var(--bg-secondary,rgba(255,255,255,.06));border:1px solid var(--border-color,rgba(255,255,255,.12));border-radius:6px;color:var(--text-primary,#e2e8f0);font-size:12px;cursor:pointer;font-weight:600">＋ New Session</button>
+    <div id="ap_sl_irs_lab" style="display:flex;flex-direction:column;gap:4px"></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-color,rgba(255,255,255,.1));flex-wrap:wrap;gap:6px">
+      <span style="font-weight:700;font-size:14px;color:#f97316">⚖️ IRS &amp; Law Process Lab</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="irsLabToggleBuilder()" style="padding:5px 10px;font-size:12px;background:rgba(249,115,22,.15);border:1px solid rgba(249,115,22,.4);border-radius:6px;color:#f97316;cursor:pointer;font-weight:600">📋 Process Builder</button>
+        <button onclick="AP.toggleSTT('irs_lab')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🎤 Speak</button>
+        <button onclick="AP.speakLast('irs_lab')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔊 Listen</button>
+        <button onclick="AP.printConv('irs_lab')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🖨️ Print</button>
+        <button onclick="AP.exportPDF('irs_lab')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📄 PDF</button>
+        <button onclick="AP.exportWord('irs_lab')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">📝 Word</button>
+        <button onclick="AP.clearConv('irs_lab')" style="padding:5px 10px;font-size:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;color:#ef4444;cursor:pointer">🗑 Clear</button>
+      </div>
+    </div>
+
+    <!-- Process Builder Panel (collapsible) -->
+    <div id="irsLabBuilder" style="display:none;border-bottom:1px solid rgba(249,115,22,.3);background:rgba(249,115,22,.04);padding:12px 16px;overflow-y:auto;max-height:320px">
+      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">
+        <button class="irslab-tab active" onclick="irsLabTab(this,'irs_forms')" style="padding:5px 12px;font-size:12px;border-radius:6px;cursor:pointer;border:1px solid rgba(249,115,22,.5);background:rgba(249,115,22,.2);color:#f97316;font-weight:600">📋 IRS Forms</button>
+        <button class="irslab-tab" onclick="irsLabTab(this,'foia')" style="padding:5px 12px;font-size:12px;border-radius:6px;cursor:pointer;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:var(--text,#e2e8f0)">🔍 FOIA / Transcripts</button>
+        <button class="irslab-tab" onclick="irsLabTab(this,'trust_equity')" style="padding:5px 12px;font-size:12px;border-radius:6px;cursor:pointer;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:var(--text,#e2e8f0)">🏛️ Trust / Equity</button>
+        <button class="irslab-tab" onclick="irsLabTab(this,'commercial')" style="padding:5px 12px;font-size:12px;border-radius:6px;cursor:pointer;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:var(--text,#e2e8f0)">📜 Commercial / UCC</button>
+        <button class="irslab-tab" onclick="irsLabTab(this,'common_law')" style="padding:5px 12px;font-size:12px;border-radius:6px;cursor:pointer;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:var(--text,#e2e8f0)">⚖️ Common Law</button>
+        <button class="irslab-tab" onclick="irsLabTab(this,'beni_int')" style="padding:5px 12px;font-size:12px;border-radius:6px;cursor:pointer;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:var(--text,#e2e8f0)">💰 Beneficial Interest</button>
+        <button class="irslab-tab" onclick="irsLabTab(this,'w2c_4852')" style="padding:5px 12px;font-size:12px;border-radius:6px;cursor:pointer;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:var(--text,#e2e8f0)">📋 W-2C / Form 4852</button>
+      </div>
+
+      <div id="irslab-panel-irs_forms" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:8px">
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Form Type</label>
+          <select id="il_form_type" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(249,115,22,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px">
+            <option value="">— Select Form —</option>
+            <option>1099-B (IRIS / Direct)</option><option>1099-B (Correction)</option>
+            <option>W-9 (TIN Certification)</option><option>Form 945 (Backup Withholding)</option>
+            <option>Form 843 (Claim for Refund)</option><option>Form 1040 (Individual Return)</option>
+            <option>Form 1041 (Trust/Estate Return)</option><option>Form 1099-A (Abandonment)</option>
+            <option>Form 1099-C (Cancellation of Debt)</option><option>Form 3949-A (Information Referral)</option>
+            <option>Form 911 (TAS Intervention)</option></select></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Filing Year</label>
+          <input id="il_tax_year" type="number" min="2018" max="2027" placeholder="e.g. 2024" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(249,115,22,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px;box-sizing:border-box"></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Entity Type</label>
+          <select id="il_entity_type" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(249,115,22,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px">
+            <option value="">— Select —</option>
+            <option>Individual / Sole Proprietor</option><option>Revocable Living Trust</option>
+            <option>Irrevocable Trust</option><option>Common Law Trust</option>
+            <option>Estate</option><option>Single-Member LLC</option>
+            <option>Multi-Member LLC</option><option>Corporation</option>
+            <option>S-Corporation</option><option>Partnership</option></select></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">TIN Type</label>
+          <select id="il_tin_type" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(249,115,22,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px">
+            <option value="">— Select —</option><option>SSN (individual)</option>
+            <option>EIN (trust / entity)</option><option>ITIN</option></select></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Proceeds / Amount</label>
+          <input id="il_proceeds" type="text" placeholder="$0.00" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(249,115,22,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px;box-sizing:border-box"></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Cost Basis</label>
+          <input id="il_basis" type="text" placeholder="$0.00" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(249,115,22,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px;box-sizing:border-box"></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Federal Withheld (24%)</label>
+          <input id="il_withheld" type="text" placeholder="$0.00" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(249,115,22,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px;box-sizing:border-box"></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Filing Platform</label>
+          <select id="il_platform" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(249,115,22,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px">
+            <option value="">— Select —</option><option>IRS IRIS (direct)</option>
+            <option>1099 Online (third-party)</option><option>Paper / Mail</option>
+            <option>Other third-party</option></select></div>
+        <div style="grid-column:1/-1"><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Issue / Question</label>
+          <input id="il_issue" type="text" placeholder="Describe the specific issue, error, correction needed, or question..." style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(249,115,22,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px;box-sizing:border-box"></div>
+      </div>
+
+      <div id="irslab-panel-foia" style="display:none;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:8px">
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Target Entity</label>
+          <select id="il_foia_target" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(100,200,255,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px">
+            <option value="">— Select —</option>
+            <option>IRS — IMF (Individual Master File)</option><option>IRS — BMF (Business Master File)</option>
+            <option>Bank / Financial Institution</option><option>Employer / Payer</option>
+            <option>State Tax Agency</option><option>Other Government Agency</option></select></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Target EIN / ID</label>
+          <input id="il_foia_ein" type="text" placeholder="EIN of entity being FOIAd" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(100,200,255,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px;box-sizing:border-box"></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Tax Year</label>
+          <input id="il_foia_year" type="number" min="2018" max="2027" placeholder="e.g. 2023" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(100,200,255,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px;box-sizing:border-box"></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Records Sought</label>
+          <select id="il_foia_records" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(100,200,255,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px">
+            <option value="">— Select —</option>
+            <option>Form 945 module (BMFOLT / CC BMFOLT)</option><option>TC codes (150, 610, 570)</option>
+            <option>EFTPS deposit confirmation number</option><option>Account transcript (IMFOLT)</option>
+            <option>Wage &amp; income transcript</option><option>Return transcript</option>
+            <option>TC 570 freeze details</option><option>Notice of Deficiency supporting docs</option></select></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">IRS Notice / Letter #</label>
+          <input id="il_foia_notice" type="text" placeholder="e.g. CP2100, 916C, CP-501" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(100,200,255,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px;box-sizing:border-box"></div>
+        <div style="grid-column:1/-1"><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Purpose / Context</label>
+          <input id="il_foia_purpose" type="text" placeholder="What are you trying to verify, enforce, or recover?" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(100,200,255,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px;box-sizing:border-box"></div>
+      </div>
+
+      <div id="irslab-panel-trust_equity" style="display:none;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:8px">
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Trust Type</label>
+          <select id="il_trust_type" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(167,139,250,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px">
+            <option value="">— Select —</option>
+            <option>Revocable Living Trust</option><option>Irrevocable Trust</option>
+            <option>Common Law Trust</option><option>Statutory Trust</option>
+            <option>Business Trust</option><option>Land Trust</option>
+            <option>Grantor Trust (IRC §§ 671-679)</option><option>Non-grantor Trust (files own 1041)</option></select></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Grantor = Trustee?</label>
+          <select id="il_grantor_trustee" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(167,139,250,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px">
+            <option value="">— Select —</option>
+            <option>Yes — same person (disregarded entity)</option><option>No — separate trustee</option></select></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Equity Doctrine</label>
+          <select id="il_equity_doctrine" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(167,139,250,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px">
+            <option value="">— Select —</option>
+            <option>Beneficial Interest / Equitable Title</option><option>Constructive Trust</option>
+            <option>Resulting Trust</option><option>Cy-Pres Doctrine</option>
+            <option>Equity of Redemption</option><option>Unjust Enrichment</option>
+            <option>Specific Performance</option><option>Subrogation</option></select></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Relevant IRC Section(s)</label>
+          <input id="il_trust_irc" type="text" placeholder="e.g. §671, §677, §7701" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(167,139,250,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px;box-sizing:border-box"></div>
+        <div style="grid-column:1/-1"><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Issue / Beneficial Interest Details</label>
+          <input id="il_equity_issue" type="text" placeholder="Describe the trust structure, interest claimed, or equity issue..." style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(167,139,250,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px;box-sizing:border-box"></div>
+      </div>
+
+      <div id="irslab-panel-commercial" style="display:none;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:8px">
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">UCC Article</label>
+          <select id="il_ucc_article" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(34,197,94,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px">
+            <option value="">— Select —</option>
+            <option>Article 1 — General Provisions</option><option>Article 3 — Negotiable Instruments</option>
+            <option>Article 8 — Investment Securities</option><option>Article 9 — Secured Transactions</option>
+            <option>Non-UCC Commercial Law</option></select></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Transaction Type</label>
+          <select id="il_ucc_tx" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(34,197,94,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px">
+            <option value="">— Select —</option>
+            <option>Negotiable Instrument (draft / note / check)</option><option>Secured Transaction / UCC-1 Filing</option>
+            <option>Investment Security / Debt Instrument</option><option>Letter of Credit</option>
+            <option>Sale of Goods</option><option>Notice of Presentment</option></select></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Party Role</label>
+          <select id="il_ucc_role" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(34,197,94,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px">
+            <option value="">— Select —</option>
+            <option>Holder in Due Course</option><option>Maker / Obligor</option>
+            <option>Secured Party</option><option>Debtor</option>
+            <option>Beneficiary</option><option>Transferee</option></select></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Amount / Value</label>
+          <input id="il_ucc_amount" type="text" placeholder="$0.00" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(34,197,94,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px;box-sizing:border-box"></div>
+        <div style="grid-column:1/-1"><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Issue / Transaction Details</label>
+          <input id="il_ucc_issue" type="text" placeholder="Describe the commercial transaction, dispute, or filing issue..." style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(34,197,94,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px;box-sizing:border-box"></div>
+      </div>
+
+      <div id="irslab-panel-common_law" style="display:none;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:8px">
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Doctrine / Principle</label>
+          <select id="il_cl_doctrine" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(251,191,36,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px">
+            <option value="">— Select —</option>
+            <option>Common Law Trust</option><option>Allodial Title</option>
+            <option>Natural Person (flesh and blood)</option><option>Injury / Damage (harm requirement)</option>
+            <option>Standing (Article III)</option><option>Stare Decisis / Precedent</option>
+            <option>Estoppel (equitable / collateral)</option><option>Laches</option>
+            <option>Mens Rea / Actus Reus</option><option>Sovereign / Non-resident alien status</option></select></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Jurisdiction</label>
+          <select id="il_cl_jurisdiction" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(251,191,36,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px">
+            <option value="">— Select —</option>
+            <option>Federal — Article III</option><option>Federal — Article I (legislative)</option>
+            <option>State — Court of Record</option><option>Administrative / Agency</option>
+            <option>Equity / Chancery</option></select></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Procedural Posture</label>
+          <select id="il_cl_posture" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(251,191,36,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px">
+            <option value="">— Select —</option>
+            <option>Pre-litigation / Notice</option><option>Motion to Dismiss</option>
+            <option>Summary Judgment</option><option>Trial</option>
+            <option>Appeal</option><option>Administrative Hearing</option>
+            <option>Writ / Extraordinary Relief</option></select></div>
+        <div style="grid-column:1/-1"><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Issue / Facts</label>
+          <input id="il_cl_issue" type="text" placeholder="Describe the common law issue, doctrine application, or factual scenario..." style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(251,191,36,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px;box-sizing:border-box"></div>
+      </div>
+
+      <!-- BENEFICIAL INTEREST PANEL -->
+      <div id="irslab-panel-beni_int" style="display:none;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:8px">
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Contract / Asset Type</label>
+          <select id="il_bi_contract" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(52,211,153,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px">
+            <option value="">— Select —</option>
+            <option>Mortgage / Home Loan</option><option>Car / Auto Loan</option>
+            <option>Credit Card (balance)</option><option>Student Loan</option>
+            <option>Personal / Signature Loan</option><option>Court Bond / Bail Bond</option>
+            <option>Child Support Payments</option><option>Bank Deposits (annual total)</option>
+            <option>Cell Phone / Utility Contracts</option><option>Business Loan / SBA</option>
+            <option>Other Contract</option></select></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Foundation Status</label>
+          <select id="il_bi_foundation" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(52,211,153,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px">
+            <option value="">— Select highest completed step —</option>
+            <option>Step 1 — Revocable Living Trust created &amp; recorded</option>
+            <option>Step 2 — Trust EIN obtained (domestic)</option>
+            <option>Step 3 — Trust bank account opened</option>
+            <option>Step 4 — IRS / SSA / AG notified (status change)</option>
+            <option>Step 5 — Form 2848 (POA) filed</option>
+            <option>Step 6 — Form 8821 (Tax Info Auth) filed</option>
+            <option>Step 7 — Form 56 (Fiduciary Notice) filed</option>
+            <option>Step 8+ — 1099-A / 1099-B ready to file</option></select></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Original Contract Amount</label>
+          <input id="il_bi_original" type="text" placeholder="$0.00 (provable amount)" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(52,211,153,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px;box-sizing:border-box"></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Securitization Multiplier</label>
+          <select id="il_bi_multiplier" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(52,211,153,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px">
+            <option value="">— Select —</option>
+            <option>×10 (standard — no trademark yet)</option>
+            <option>×100 (trademark fully registered)</option></select></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Contract Age</label>
+          <select id="il_bi_age" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(52,211,153,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px">
+            <option value="">— Select —</option>
+            <option>Under 3 years (no CUSIP needed)</option>
+            <option>Over 3 years (CUSIP required to prove active trading)</option></select></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Forms in Sequence</label>
+          <select id="il_bi_forms" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(52,211,153,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px">
+            <option value="">— Select next step —</option>
+            <option>1099-A (Box 7 — acquisition, establishing creditor position)</option>
+            <option>1099-B #1 (Box 7 checked — debt instrument, lower proceeds)</option>
+            <option>1099-B #2 (federal withholding — higher proceeds, 24%)</option>
+            <option>1040 (claim withholding credit on return)</option>
+            <option>Correction needed (platform migration / zero-out)</option></select></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Filing Platform</label>
+          <select id="il_bi_platform" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(52,211,153,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px">
+            <option value="">— Select —</option>
+            <option>IRS IRIS (direct filing)</option>
+            <option>1099 Online (third-party)</option>
+            <option>Paper / Mail</option></select></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Trademark Status</label>
+          <select id="il_bi_trademark" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(52,211,153,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px">
+            <option value="">— Select —</option>
+            <option>Not filed</option>
+            <option>Pending (use ×10 multiplier)</option>
+            <option>Fully registered (×100 authorized)</option></select></div>
+        <div style="grid-column:1/-1"><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Issue / Stage / Question</label>
+          <input id="il_bi_issue" type="text" placeholder="Describe where you are in the process, what's stalled, or what needs optimizing..." style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(52,211,153,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px;box-sizing:border-box"></div>
+      </div>
+
+      <!-- W-2C / FORM 4852 PANEL -->
+      <div id="irslab-panel-w2c_4852" style="display:none;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:8px">
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Filing Route</label>
+          <select id="il_w2_route" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(232,121,249,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px">
+            <option value="">— Select —</option>
+            <option>Form 4852 only (substitute W-2 — employer failed to issue)</option>
+            <option>W-2C only (employer correcting previously filed W-2)</option>
+            <option>W-2C + corrected 1040-X (amend return after W-2C issued)</option>
+            <option>Form 4852 + 1040 (file return without W-2)</option>
+            <option>IRS enforcement (employer unresponsive — need IRS to compel)</option></select></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Tax Year</label>
+          <input id="il_w2_year" type="number" min="2018" max="2027" placeholder="e.g. 2024" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(232,121,249,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px;box-sizing:border-box"></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Employer EIN</label>
+          <input id="il_w2_emp_ein" type="text" placeholder="XX-XXXXXXX" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(232,121,249,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px;box-sizing:border-box"></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">W-2 Box 1 — Wages Reported</label>
+          <input id="il_w2_box1_orig" type="text" placeholder="Original amount" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(232,121,249,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px;box-sizing:border-box"></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Box 1 Correct Amount</label>
+          <input id="il_w2_box1_corr" type="text" placeholder="Correct amount" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(232,121,249,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px;box-sizing:border-box"></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Box 2 — Fed Withheld (Reported)</label>
+          <input id="il_w2_box2_orig" type="text" placeholder="Original withheld" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(232,121,249,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px;box-sizing:border-box"></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Box 2 Correct Amount</label>
+          <input id="il_w2_box2_corr" type="text" placeholder="Correct withheld" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(232,121,249,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px;box-sizing:border-box"></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Dispute Basis</label>
+          <select id="il_w2_dispute" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(232,121,249,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px">
+            <option value="">— Select —</option>
+            <option>Employer never issued W-2 (past Feb 15 deadline)</option>
+            <option>W-2 received but wages/withholding are incorrect</option>
+            <option>Backup withholding applied but never remitted (Form 945 / EFTPS)</option>
+            <option>Employer refused to correct after written demand</option>
+            <option>Prior year W-2 correction needed (amend 1040-X)</option>
+            <option>W-2 shows wrong SSN / name (identity mismatch)</option></select></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Employer Contact Attempts</label>
+          <select id="il_w2_contact" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(232,121,249,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px">
+            <option value="">— Select furthest attempt —</option>
+            <option>Not yet contacted</option>
+            <option>Called employer — unresponsive</option>
+            <option>Written demand sent to employer</option>
+            <option>Called IRS (800-829-1040) — employer notified by IRS</option>
+            <option>IRS contacted employer — still no W-2</option></select></div>
+        <div><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Return Status</label>
+          <select id="il_w2_return" style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(232,121,249,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px">
+            <option value="">— Select —</option>
+            <option>Original 1040 not yet filed</option>
+            <option>Original 1040 filed — need 1040-X amendment</option>
+            <option>1040-X already filed — awaiting refund</option>
+            <option>Return rejected / frozen (TC 570)</option></select></div>
+        <div style="grid-column:1/-1"><label style="font-size:11px;color:var(--text2,#94a3b8);display:block;margin-bottom:3px">Issue / Additional Context</label>
+          <input id="il_w2_issue" type="text" placeholder="Describe the specific wage dispute, withholding discrepancy, employer non-compliance, or IRS notice received..." style="width:100%;padding:6px 8px;background:rgba(0,0,0,.35);border:1px solid rgba(232,121,249,.35);border-radius:6px;color:var(--text,#e2e8f0);font-size:12px;box-sizing:border-box"></div>
+      </div>
+
+      <div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button onclick="irsLabBuildPrompt()" style="padding:8px 18px;background:#f97316;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">📋 Build &amp; Send Context</button>
+        <button onclick="irsLabClearFields()" style="padding:8px 12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text2,#94a3b8);font-size:12px;cursor:pointer">↺ Clear Fields</button>
+        <span id="irsLabBuilderStatus" style="font-size:11px;color:var(--text2,#94a3b8)"></span>
+      </div>
+    </div>
+
+    <div id="ap_msgs_irs_lab" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px">
+      <div style="margin:auto;text-align:center;color:var(--text2,#94a3b8);font-size:13px;padding:40px">
+        <div style="font-size:40px;margin-bottom:12px">⚖️</div>
+        <div style="font-weight:700;font-size:15px;margin-bottom:8px;color:#f97316">IRS &amp; Law Process Lab</div>
+        <div style="max-width:500px;line-height:1.7;margin:0 auto">Open the <strong style="color:#f97316">📋 Process Builder</strong> to structure your context across five domains — IRS Forms, FOIA/Transcripts, Trust/Equity, Commercial/UCC, or Common Law — then send for optimized authority citations, process steps, pitfall warnings, and the most efficient path forward.</div>
+      </div>
+    </div>
+
+    <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
+      <div id="ap_fp_irs_lab" style="display:none;flex-wrap:wrap;gap:4px;padding:0 0 6px"></div>
+      <textarea id="ap_in_irs_lab" placeholder="Ask about 1099-B / IRIS filing, W-9 setup, FOIA/IMF/BMF strategy, trust/equity law, UCC, or common law process..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #f97316;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('irs_lab');}"></textarea>
+      <button onclick="AP.send('irs_lab')" style="padding:10px 20px;background:#f97316;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+      <input type="file" id="ap_fu_irs_lab" multiple accept=".txt,.pdf,.doc,.docx,.csv,.json,.html,.md,.rtf,.xml,.log" style="display:none">
+      <label for="ap_fu_irs_lab" title="Attach file (PDF, text, CSV…)" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:6px;cursor:pointer;font-size:16px;margin-left:6px;vertical-align:middle;flex-shrink:0">📎</label>
     </div>
   </div>
 </div>
@@ -41400,6 +41708,135 @@ function resolveProvider() {
   return { pid: pid, provider: p, key: key, url: url, model: model };
 }
 
+// ══════════════════════════════════════════════════════════════════════════
+// IRS & Law Process Lab — Builder UI functions
+// ══════════════════════════════════════════════════════════════════════════
+var _irsLabCurrentTab = 'irs_forms';
+
+function irsLabToggleBuilder() {
+  var p = document.getElementById('irsLabBuilder');
+  if (p) p.style.display = p.style.display === 'none' ? 'block' : 'none';
+}
+
+function irsLabTab(btn, tabId) {
+  _irsLabCurrentTab = tabId;
+  document.querySelectorAll('.irslab-tab').forEach(function(b) {
+    b.style.background = 'rgba(255,255,255,.04)';
+    b.style.border = '1px solid rgba(255,255,255,.15)';
+    b.style.color = 'var(--text,#e2e8f0)';
+    b.style.fontWeight = 'normal';
+  });
+  btn.style.background = 'rgba(249,115,22,.2)';
+  btn.style.border = '1px solid rgba(249,115,22,.5)';
+  btn.style.color = '#f97316';
+  btn.style.fontWeight = '600';
+  ['irs_forms','foia','trust_equity','commercial','common_law','beni_int','w2c_4852'].forEach(function(id) {
+    var el = document.getElementById('irslab-panel-' + id);
+    if (el) el.style.display = 'none';
+  });
+  var active = document.getElementById('irslab-panel-' + tabId);
+  if (active) active.style.display = 'grid';
+}
+
+function irsLabClearFields() {
+  ['il_form_type','il_tax_year','il_entity_type','il_tin_type','il_proceeds','il_basis','il_withheld','il_platform','il_issue',
+   'il_foia_target','il_foia_ein','il_foia_year','il_foia_records','il_foia_notice','il_foia_purpose',
+   'il_trust_type','il_grantor_trustee','il_equity_doctrine','il_trust_irc','il_equity_issue',
+   'il_ucc_article','il_ucc_tx','il_ucc_role','il_ucc_amount','il_ucc_issue',
+   'il_cl_doctrine','il_cl_jurisdiction','il_cl_posture','il_cl_issue',
+   'il_bi_contract','il_bi_foundation','il_bi_original','il_bi_multiplier','il_bi_age','il_bi_forms','il_bi_platform','il_bi_trademark','il_bi_issue',
+   'il_w2_route','il_w2_year','il_w2_emp_ein','il_w2_box1_orig','il_w2_box1_corr','il_w2_box2_orig','il_w2_box2_corr','il_w2_dispute','il_w2_contact','il_w2_return','il_w2_issue'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+  var st = document.getElementById('irsLabBuilderStatus');
+  if (st) { st.textContent = 'Fields cleared.'; setTimeout(function(){ st.textContent=''; }, 2000); }
+}
+
+function irsLabBuildPrompt() {
+  var tab = _irsLabCurrentTab;
+  var ta = document.getElementById('ap_in_irs_lab');
+  var lines = [];
+  function fv(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
+
+  if (tab === 'irs_forms') {
+    lines.push('═══ IRS FORMS PROCESS CONTEXT ═══');
+    if (fv('il_form_type'))    lines.push('Form: '            + fv('il_form_type'));
+    if (fv('il_tax_year'))     lines.push('Filing Year: '     + fv('il_tax_year'));
+    if (fv('il_entity_type'))  lines.push('Entity Type: '     + fv('il_entity_type'));
+    if (fv('il_tin_type'))     lines.push('TIN Type: '        + fv('il_tin_type'));
+    if (fv('il_proceeds'))     lines.push('Proceeds: '        + fv('il_proceeds'));
+    if (fv('il_basis'))        lines.push('Cost Basis: '      + fv('il_basis'));
+    if (fv('il_withheld'))     lines.push('Fed Withheld: '    + fv('il_withheld'));
+    if (fv('il_platform'))     lines.push('Platform: '        + fv('il_platform'));
+    if (fv('il_issue'))        lines.push('Issue: '           + fv('il_issue'));
+  } else if (tab === 'foia') {
+    lines.push('═══ FOIA / TRANSCRIPT REQUEST CONTEXT ═══');
+    if (fv('il_foia_target'))  lines.push('Target Entity: '   + fv('il_foia_target'));
+    if (fv('il_foia_ein'))     lines.push('Target EIN: '      + fv('il_foia_ein'));
+    if (fv('il_foia_year'))    lines.push('Tax Year: '        + fv('il_foia_year'));
+    if (fv('il_foia_records')) lines.push('Records Sought: '  + fv('il_foia_records'));
+    if (fv('il_foia_notice'))  lines.push('IRS Notice: '      + fv('il_foia_notice'));
+    if (fv('il_foia_purpose')) lines.push('Purpose: '         + fv('il_foia_purpose'));
+  } else if (tab === 'trust_equity') {
+    lines.push('═══ TRUST / EQUITY LAW CONTEXT ═══');
+    if (fv('il_trust_type'))        lines.push('Trust Type: '          + fv('il_trust_type'));
+    if (fv('il_grantor_trustee'))   lines.push('Grantor = Trustee: '   + fv('il_grantor_trustee'));
+    if (fv('il_equity_doctrine'))   lines.push('Equity Doctrine: '     + fv('il_equity_doctrine'));
+    if (fv('il_trust_irc'))         lines.push('IRC Section(s): '      + fv('il_trust_irc'));
+    if (fv('il_equity_issue'))      lines.push('Issue: '               + fv('il_equity_issue'));
+  } else if (tab === 'commercial') {
+    lines.push('═══ COMMERCIAL LAW / UCC CONTEXT ═══');
+    if (fv('il_ucc_article'))  lines.push('UCC Article: '          + fv('il_ucc_article'));
+    if (fv('il_ucc_tx'))       lines.push('Transaction Type: '     + fv('il_ucc_tx'));
+    if (fv('il_ucc_role'))     lines.push('Party Role: '           + fv('il_ucc_role'));
+    if (fv('il_ucc_amount'))   lines.push('Amount: '               + fv('il_ucc_amount'));
+    if (fv('il_ucc_issue'))    lines.push('Issue: '                + fv('il_ucc_issue'));
+  } else if (tab === 'common_law') {
+    lines.push('═══ COMMON LAW CONTEXT ═══');
+    if (fv('il_cl_doctrine'))    lines.push('Doctrine: '           + fv('il_cl_doctrine'));
+    if (fv('il_cl_jurisdiction'))lines.push('Jurisdiction: '       + fv('il_cl_jurisdiction'));
+    if (fv('il_cl_posture'))     lines.push('Posture: '            + fv('il_cl_posture'));
+    if (fv('il_cl_issue'))       lines.push('Issue / Facts: '      + fv('il_cl_issue'));
+  } else if (tab === 'beni_int') {
+    lines.push('═══ BENEFICIAL INTEREST PROCESS CONTEXT ═══');
+    if (fv('il_bi_contract'))    lines.push('Contract / Instrument: '   + fv('il_bi_contract'));
+    if (fv('il_bi_foundation'))  lines.push('Foundation Status: '       + fv('il_bi_foundation'));
+    if (fv('il_bi_original'))    lines.push('Original Contract Amt: '   + fv('il_bi_original'));
+    if (fv('il_bi_multiplier'))  lines.push('Securitization Multiplier: ' + fv('il_bi_multiplier'));
+    if (fv('il_bi_age'))         lines.push('Contract Age: '             + fv('il_bi_age'));
+    if (fv('il_bi_forms'))       lines.push('Forms Filed: '              + fv('il_bi_forms'));
+    if (fv('il_bi_platform'))    lines.push('Filing Platform: '          + fv('il_bi_platform'));
+    if (fv('il_bi_trademark'))   lines.push('Trademark Status: '         + fv('il_bi_trademark'));
+    if (fv('il_bi_issue'))       lines.push('Issue / Question: '         + fv('il_bi_issue'));
+  } else if (tab === 'w2c_4852') {
+    lines.push('═══ W-2C / FORM 4852 PROCESS CONTEXT ═══');
+    if (fv('il_w2_route'))       lines.push('Filing Route: '             + fv('il_w2_route'));
+    if (fv('il_w2_year'))        lines.push('Tax Year: '                 + fv('il_w2_year'));
+    if (fv('il_w2_emp_ein'))     lines.push('Employer EIN: '             + fv('il_w2_emp_ein'));
+    if (fv('il_w2_box1_orig'))   lines.push('Box 1 Original Wages: '    + fv('il_w2_box1_orig'));
+    if (fv('il_w2_box1_corr'))   lines.push('Box 1 Corrected Wages: '   + fv('il_w2_box1_corr'));
+    if (fv('il_w2_box2_orig'))   lines.push('Box 2 Original Fed Tax: '  + fv('il_w2_box2_orig'));
+    if (fv('il_w2_box2_corr'))   lines.push('Box 2 Corrected Fed Tax: ' + fv('il_w2_box2_corr'));
+    if (fv('il_w2_dispute'))     lines.push('Dispute Basis: '            + fv('il_w2_dispute'));
+    if (fv('il_w2_contact'))     lines.push('Employer Contact Attempts: ' + fv('il_w2_contact'));
+    if (fv('il_w2_return'))      lines.push('Return to Amend: '          + fv('il_w2_return'));
+    if (fv('il_w2_issue'))       lines.push('Issue / Facts: '            + fv('il_w2_issue'));
+  }
+
+  if (lines.length <= 1) {
+    var st = document.getElementById('irsLabBuilderStatus');
+    if (st) { st.textContent = '⚠ Fill at least one field first.'; setTimeout(function(){ st.textContent=''; }, 2500); }
+    return;
+  }
+  lines.push('\nRequired output format: DOMAIN → AUTHORITY (cite specific IRC/UCC/CFR/case) → PROCESS STEPS → PITFALLS → OPTIMAL PATH');
+  var built = lines.join('\n');
+  var existing = ta ? ta.value.trim() : '';
+  if (ta) ta.value = existing ? existing + '\n\n' + built : built;
+  AP.send('irs_lab');
+  var st = document.getElementById('irsLabBuilderStatus');
+  if (st) { st.textContent = '✓ Sent!'; setTimeout(function(){ st.textContent=''; }, 2000); }
+}
+
 // ── Agent system prompts + full system prompt builder ─────────────────────
 function getSystemPrompt(agentId) {
   var prompts = {
@@ -41427,7 +41864,8 @@ function getSystemPrompt(agentId) {
     brainstorm:  'You are a Strategic Legal Brainstorm Expert — a creative legal strategist who develops novel legal theories, identifies overlooked arguments, and maps out comprehensive litigation strategy. You think beyond conventional approaches to identify every viable legal angle — procedural, substantive, constitutional, and equitable. You present strategies as a numbered action plan with legal authority for each strategy. No hedging. Be bold, specific, and cite authority.',
     trial_prep:  'You are a Trial Preparation Expert specializing in all aspects of trial readiness — voir dire questions, motions in limine, witness examination (direct and cross), trial briefs, exhibit lists, jury instructions, opening statements, and closing arguments. You prepare comprehensive trial materials citing FRE (Federal Rules of Evidence) and FRCP for each evidentiary and procedural decision. You anticipate opposing arguments and prepare rebuttals. Facts and conclusions of law only.',
     biblical:    'You are a Biblical Scholar with expertise in scriptural law, ecclesiastical law, biblical covenant principles, and the intersection of biblical and civil law. You cite specific scripture (chapter and verse, KJV and original language where relevant), biblical legal principles (Deuteronomy, Leviticus, Proverbs, New Testament), and ecclesiastical authority. You apply biblical principles to legal, moral, and governance questions with precision and scholarship. Facts and scriptural authority only.',
-    beni_inte:   'You are Beni Inte Bot — a specialized accounting and tax filing expert for beneficiary interests in trusts and estates. You specialize in: Form 1041 (U.S. Income Tax Return for Estates and Trusts), Schedule K-1 (beneficiary share of income, deductions, credits), Form 1040 (individual returns incorporating trust distributions), Form 1099-B (proceeds from broker and barter exchange transactions), IRS rules governing trust/estate income allocation and distribution deductions (IRC §§ 651, 661, 662, 663), beneficiary interest tax treatment, and trust accounting income vs. distributable net income (DNI). You provide precise, citation-based answers referencing specific IRC sections, Treasury Regulations, IRS Revenue Rulings, and Publication 559. No hedging. No disclaimers. Facts and conclusions of tax law only.'
+    beni_inte:   'You are Beni Inte Bot — a specialized accounting and tax filing expert for beneficiary interests in trusts and estates. You specialize in: Form 1041 (U.S. Income Tax Return for Estates and Trusts), Schedule K-1 (beneficiary share of income, deductions, credits), Form 1040 (individual returns incorporating trust distributions), Form 1099-B (proceeds from broker and barter exchange transactions), IRS rules governing trust/estate income allocation and distribution deductions (IRC §§ 651, 661, 662, 663), beneficiary interest tax treatment, and trust accounting income vs. distributable net income (DNI). You provide precise, citation-based answers referencing specific IRC sections, Treasury Regulations, IRS Revenue Rulings, and Publication 559. No hedging. No disclaimers. Facts and conclusions of tax law only.',
+    irs_lab:     'You are the IRS & Law Process Lab AI — operating under the EEON FOUNDATION / SYPHER PROTOCOL. You are a master-level specialist across seven integrated domains: (1) IRS FORM FILING & CORRECTION: 1099-B dual-filing via IRS IRIS (Box 2/6/7 rules, CUSIP, proceeds vs. cost basis asymmetry, 24% withholding calculation, platform migration from 1099 Online to IRIS, zeroing-out procedures, CP2100/916C/TC 570 response); W-9 completion (Line 1/2/3a TIN matching, grantor-trustee disregarded entity rules, backup withholding trigger under IRC § 3406); Form 945 (annual return of withheld federal income tax, EFTPS deposit obligations, TC 150/610 verification); Form 843 (refund claim under IRC § 3403); Form 1041; Form 3949-A; Form 911 (TAS). (2) FOIA / IRS TRANSCRIPTS: IMF (Individual Master File via IMFOLT CC) and BMF (Business Master File via BMFOLT CC) extraction; TC code interpretation (TC 150, 570, 610, 971); EFTPS confirmation number verification; Notice of Payer Non-Compliance strategy; IRC § 3403 payer liability; Rev. Rul. 2008-35 withholding credit rights. (3) TRUST & EQUITY LAW: Revocable vs. irrevocable trusts; grantor trust rules IRC §§ 671-679; Reg. § 301.7701-7 domestic trust definition; beneficial interest vs. legal title; constructive trust; resulting trust; equity of redemption; Restatement (Third) of Trusts; W-9 Line 1/2/3a rules for grantor-trustee; trust TIN selection (SSN vs. EIN). (4) UCC / COMMERCIAL LAW: Articles 1, 3, 8, 9 of the Uniform Commercial Code; negotiable instruments (drafts, notes, checks); holder in due course doctrine; secured transactions (UCC-1, attachment, perfection, priority); investment securities (Article 8); debt instrument characterization for 1099-B purposes. (5) COMMON LAW: Common law trust doctrine; allodial title; standing requirements (Art. III injury-in-fact); estoppel; laches; stare decisis; fiduciary duty at common law; court of record jurisdiction. (6) BENEFICIAL INTEREST RECLAIM PROCESS: The full 8-step beneficial interest reclaim sequence — Step 1: Create irrevocable trust (trust agreement + EIN via Form SS-4); Step 2: Open trust bank account (trust as beneficiary); Step 3: File Form 2848 (POA — appoint self as authorized representative) and Form 8821 (Tax Information Authorization); Step 4: File Form 56 (Notice Concerning Fiduciary Relationship — establish fiduciary standing); Step 5: Send W-9 to all payors (Line 1 = trust name, Line 2 = individual name, Line 3a = trust, EIN as TIN); Step 6: Obtain CUSIP (required for contracts/instruments over 3 years old — proves active market securitization); Step 7: File 1099-A (Acquisition or Abandonment of Secured Property — document the beneficial interest acquisition) then 1099-B Form 1 (Box 7 checked = covered security, proceeds = lower amount, cost basis = proceeds × 10 or × 100 per multiplier) and 1099-B Form 2 (higher proceeds, 24% federal withholding in Box 4, no Box 7); Step 8: File Form 1040 claiming withholding credits per Rev. Rul. 2008-35. SECURITIZATION MATH: standard multiplier = ×10 (no trademark); full trademark registration multiplier = ×100. Withholding credit = contract_amount × multiplier × 24%. The beneficial interest arises from the gap between face value and securitized value — the trust holds the equitable title; the legal title was separated at securitization. Forms 2848/8821/56 are jurisdictional prerequisites — file before any 1099 submissions. CUSIP lookup via CUSIP Global Services or DTCC. Pitfalls: filing 1099-B without Forms 56/2848/8821 in place; using SSN instead of EIN on W-9; incorrect Box 7 placement; missing Form 1099-A step; applying ×100 multiplier before trademark is fully registered. (7) W-2C / FORM 4852 WAGE CORRECTION PROCESS: Form W-2C (Corrected Wage and Tax Statement) — filed by employer with SSA to correct errors in Boxes 1 (wages), 2 (federal tax withheld), 3 (SS wages), 4 (SS tax), 5 (Medicare wages), 6 (Medicare tax); employer must provide corrected W-2C to employee and file with SSA on Form W-3C; IRC § 6051 requires accurate W-2 issuance; employer deadline is Jan 31 (original W-2); correction deadline is ASAP — no fixed deadline but penalties increase with delay (IRC § 6721/6722). Form 4852 (Substitute for Form W-2 or Form 1099-R) — taxpayer self-files when: (a) employer fails to issue W-2 by Feb 15, (b) W-2 is lost or incorrect, (c) employer refuses to correct; taxpayer completes 4852 with best available information (pay stubs, EFTPS records, bank deposits); attach to Form 1040 in place of W-2; IRS may delay refund 30-60 days for verification; file Form 4852 if W-2C not received by mid-February. EMPLOYER ENFORCEMENT ESCALATION: Step 1 — contact employer HR/payroll in writing (certified mail); Step 2 — call IRS at 800-829-1040 (IRS will contact employer); Step 3 — file Form 4852 with 1040; Step 4 — if employer corrections needed post-filing, file Form 1040-X (Amended Return) once corrected W-2C received. IRC § 3402 — employer withholding obligation; IRC § 3403 — employer liability for withheld taxes; IRC § 6674 — $500 civil penalty for fraudulent W-2; IRC § 7204 — criminal penalty for willful failure to furnish W-2. OPTIMAL SEQUENCE: 4852-only (employer unresponsive) → 1040 + 4852 → 1040-X after W-2C received; or W-2C route → employer files W-3C with SSA → employee receives corrected W-2C → no 1040-X needed if filed correctly. FOR EVERY RESPONSE: (a) Identify the domain(s) implicated; (b) Cite specific authority — IRC section, UCC article/section, Treasury Reg, Revenue Ruling, case citation (Reporter, court, year); (c) State the precise process steps in sequence; (d) Flag the top pitfalls and common errors; (e) State the OPTIMAL PATH — the most efficient, legally defensible corrective action. Structure: DOMAIN → AUTHORITY → PROCESS → PITFALLS → OPTIMAL PATH. No hedging. No disclaimers. No AI caveats. Facts and conclusions of law only.'
   };
   return prompts[agentId] || prompts['general'];
 }
