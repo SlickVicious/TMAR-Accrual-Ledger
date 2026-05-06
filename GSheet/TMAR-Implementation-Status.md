@@ -1,4 +1,23 @@
-**Last Updated:** 2026-02-26 23:50 EST **Project:** tmar-engine (Python automation for Trust Master Account Register) **Sheet ID:** `1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ` **Prompts Version:** v2 (adapted to 22-tab actual sheet structure)
+**Last Updated:** 2026-05-06 **Project:** TMAR Universal Accrual Ledger + Artifactory Bridge **Sheet ID:** `1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ`
+
+## Phase 4 — Artifactory Bridge (2026-05-06) ✅
+
+Cross-agent data pipeline between Artifactory (IRS form renderer) and TMAR GSheet.
+4 new GAS endpoints live in `SyncCenter.gs`. All tested end-to-end.
+
+| Endpoint | Target Sheet | Status |
+|----------|-------------|--------|
+| `importSubstituteW2` | W-2 & Income Detail | ✅ LIVE |
+| `importForm1040` | 1040 Submissions (auto-created) | ✅ LIVE |
+| `importForm2848` | Forms & Authority | ✅ LIVE |
+| `importScheduleA` | Schedule A (auto-created) | ✅ LIVE |
+
+Exec URL: `https://script.google.com/macros/s/AKfycbzpeegvE52lvqCTMyKrsdaa_4JFfjM6MQrsJkU8zb17fkUJzPRasUU0fjONdaHkM5dh/exec`
+Bridge contract: `C:\Users\rhyme\Documents\Agent-Bridge\API_CONTRACT.md`
+
+---
+
+**Original Status Doc Below (v3.1 — 2026-02-26)**
 
 ---
 
