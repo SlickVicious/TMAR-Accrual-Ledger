@@ -24,6 +24,13 @@
 // Using current calendar year so the script stays year-agnostic.
 const DEFAULT_YEAR_ = new Date().getFullYear();
 
+// ── FileCabinet base path — machine-specific, change only here when switching machines.
+// Document Registry col H stores paths RELATIVE to this root (e.g. "Taxes/RobinHoodReturns/2025_Form1040.pdf").
+// PC (Windows): C:\Users\rhyme\Desktop\FileCabinet
+// Mac:          /Users/animatedastronaut/Downloads/FileCabinet
+// GDrive mount: /Volumes/GoogleDrive/My Drive/FileCabinet  (if GDrive desktop is active)
+const FILECABINET_BASE_PATH_ = 'C:\\Users\\rhyme\\Desktop\\FileCabinet';
+
 // ─── MAIN ENTRY POINT ──────────────────────────────────────────────────────
 
 function applyAllFormatting() {
@@ -532,6 +539,11 @@ function onOpen() {
       .addSeparator()
       .addItem('View Last Report', 'navigateToGapReport')
       .addItem('View Document Registry', 'navigateToDocRegistry')
+      .addSeparator()
+      .addItem('Install Auto-ID & Date Trigger', 'installDocRegistryTrigger')
+      .addItem('Remove Auto-ID & Date Trigger', 'removeDocRegistryTrigger')
+      .addSeparator()
+      .addItem('Migrate Paths to Relative (run once)', 'migrateDocRegistryPaths')
       .addItem('Email Gap Report...', 'emailGapReport'))
 
     .addSubMenu(ui.createMenu('CPA Questions')
@@ -1811,7 +1823,7 @@ function updateYearReferences_(oldYear, newYear) {
     'Forms & Authority':        ['A', 'D', 'L'],
     'Proof of Mailing':         ['A', 'B'],
     'Document Inventory':       ['A', 'Q'],
-    'Document Registry':        ['A'],
+    'Document Registry':        ['A', 'B', 'C', 'D', 'H'],
   };
 
   for (const [sheetName, cols] of Object.entries(scanTargets)) {
@@ -1951,9 +1963,17 @@ function getDocumentRegistry_() {
   const regSheet = ss.getSheetByName('Document Registry');
   const result = { byMRAccount: {}, byDocType: {}, byPerson: {}, byYear: {}, allDocs: [] };
 
-  if (!regSheet || regSheet.getLastRow() < 3) return result;
+  if (!regSheet) return result;
 
-  const data = regSheet.getRange(3, 1, regSheet.getLastRow() - 2, 10).getValues();
+  // Anchor on last DOC-XXXX row — ignores phantom formatting/blank rows below data
+  const colA = regSheet.getRange(1, 1, regSheet.getMaxRows(), 1).getValues().flat();
+  let lastDocRow = 2;
+  for (let i = 0; i < colA.length; i++) {
+    if (/^DOC-\d{4}$/.test(String(colA[i]))) lastDocRow = i + 1;
+  }
+  if (lastDocRow < 3) return result;
+
+  const data = regSheet.getRange(3, 1, lastDocRow - 2, 10).getValues();
 
   for (const row of data) {
     const doc = {
@@ -1992,6 +2012,82 @@ function getDocumentRegistry_() {
   return result;
 }
 
+
+/**
+ * Given a value from col H, return the full absolute path for this machine.
+ * - If already absolute (starts with C:\, /Users/, /Volumes/), return as-is.
+ * - Otherwise treat it as relative to FILECABINET_BASE_PATH_ and join with the
+ *   correct separator for the current OS (detected from the base path prefix).
+ */
+function resolveDocPath_(rawPath) {
+  if (!rawPath) return '';
+  const s = String(rawPath);
+  // Already absolute: Windows absolute, Mac/Linux absolute
+  if (/^[A-Za-z]:\\/.test(s) || s.startsWith('/')) return s;
+  // Relative — join with base path using correct separator
+  const sep = FILECABINET_BASE_PATH_.includes('\\') ? '\\' : '/';
+  // Normalise the relative segment to match base-path separator
+  const rel = sep === '\\' ? s.replace(/\//g, '\\') : s.replace(/\\/g, '/');
+  return FILECABINET_BASE_PATH_ + sep + rel;
+}
+
+/**
+ * One-time migration: rewrite col H in Document Registry from old absolute
+ * Mac paths (starting with /Users/animatedastronaut/) to FileCabinet-relative
+ * paths, so entries work on any machine once FILECABINET_BASE_PATH_ is set.
+ *
+ * Run once from the Apps Script editor (or TMAR menu after adding it there).
+ * Safe to re-run — rows that are already relative are left unchanged.
+ */
+function migrateDocRegistryPaths() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const regSheet = ss.getSheetByName('Document Registry');
+  if (!regSheet) { SpreadsheetApp.getUi().alert('Document Registry not found.'); return; }
+
+  // Anchor on last DOC-XXXX row
+  const colA = regSheet.getRange(1, 1, regSheet.getMaxRows(), 1).getValues().flat();
+  let lastDocRow = 2;
+  for (let i = 0; i < colA.length; i++) {
+    if (/^DOC-\d{4}$/.test(String(colA[i]))) lastDocRow = i + 1;
+  }
+  if (lastDocRow < 3) { SpreadsheetApp.getUi().alert('No data rows found.'); return; }
+
+  // Known Mac base prefixes to strip
+  const MAC_PREFIXES = [
+    '/Users/animatedastronaut/Downloads/FileCabinet/',
+    '/Users/animatedastronaut/Downloads/FileCabinet\\',
+  ];
+  // Known PC base prefix to strip
+  const PC_PREFIX = 'C:\\Users\\rhyme\\Desktop\\FileCabinet\\';
+
+  let updated = 0;
+  const colH = regSheet.getRange(3, 8, lastDocRow - 2, 1).getValues();
+
+  for (let i = 0; i < colH.length; i++) {
+    let val = String(colH[i][0] || '');
+    let rel = null;
+
+    for (const prefix of MAC_PREFIXES) {
+      if (val.startsWith(prefix)) { rel = val.slice(prefix.length); break; }
+    }
+    if (!rel && val.startsWith(PC_PREFIX)) rel = val.slice(PC_PREFIX.length);
+
+    if (rel !== null) {
+      // Normalise to forward slashes for cross-platform storage
+      colH[i][0] = rel.replace(/\\/g, '/');
+      updated++;
+    }
+  }
+
+  regSheet.getRange(3, 8, lastDocRow - 2, 1).setValues(colH);
+  SpreadsheetApp.getUi().alert(
+    '✅ Path migration complete.\n\n' +
+    'Rows updated : ' + updated + '\n' +
+    'Rows skipped : ' + (lastDocRow - 2 - updated) + ' (already relative or empty)\n\n' +
+    'Col H now stores paths relative to FILECABINET_BASE_PATH_.\n' +
+    'Update that constant in Code.gs when switching machines.'
+  );
+}
 
 /**
  * Check if documents matching given criteria exist in the registry.
@@ -2282,7 +2378,7 @@ function navigateToDocRegistry() {
   if (reg) {
     ss.setActiveSheet(reg);
   } else {
-    SpreadsheetApp.getUi().alert('No Document Registry found. Re-run the Python generator with document scanning enabled, then re-upload the workbook.');
+    SpreadsheetApp.getUi().alert('Document Registry tab not found.\n\nCreate it manually or contact your workbook administrator to add the tab.');
   }
 }
 
