@@ -55,3 +55,6 @@ eon-*.png
 
 # Local GAS setup helpers (not deployed)
 gas/env-vault-setup/
+
+# IRS reference PDFs (static official forms, not generated artifacts)
+irs-forms/downloads/
