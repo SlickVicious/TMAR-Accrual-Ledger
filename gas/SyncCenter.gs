@@ -876,8 +876,40 @@ function doPost(e) {
         }
         return jsonResponse_({ status: 'ok', action: 'fullSync', results: results });
 
+      case 'importSubstituteW2':
+        if (!payload.payload || typeof payload.payload !== 'object') {
+          return errorResponse_('importSubstituteW2 requires a nested "payload" object');
+        }
+        var w2Result = pushSubstituteW2_(ss, payload.payload);
+        updateSyncTimestamp_(ss, 'W-2 & Income Detail', 'push');
+        return jsonResponse_(w2Result);
+
+      case 'importForm1040':
+        if (!payload.payload || typeof payload.payload !== 'object') {
+          return errorResponse_('importForm1040 requires a nested "payload" object');
+        }
+        var f1040Result = pushForm1040_(ss, payload.payload);
+        updateSyncTimestamp_(ss, '1040 Submissions', 'push');
+        return jsonResponse_(f1040Result);
+
+      case 'importForm2848':
+        if (!payload.payload || typeof payload.payload !== 'object') {
+          return errorResponse_('importForm2848 requires a nested "payload" object');
+        }
+        var f2848Result = pushForm2848_(ss, payload.payload);
+        updateSyncTimestamp_(ss, 'Forms & Authority', 'push');
+        return jsonResponse_(f2848Result);
+
+      case 'importScheduleA':
+        if (!payload.payload || typeof payload.payload !== 'object') {
+          return errorResponse_('importScheduleA requires a nested "payload" object');
+        }
+        var schaResult = pushScheduleA_(ss, payload.payload);
+        updateSyncTimestamp_(ss, 'Schedule A', 'push');
+        return jsonResponse_(schaResult);
+
       default:
-        return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync');
+        return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync, importSubstituteW2, importForm1040, importForm2848, importScheduleA');
     }
 
   } catch (err) {
@@ -1057,6 +1089,215 @@ function pushPayables_(ss, payables) {
 
   return { status: 'ok', action: 'pushPayables', imported: imported, updated: updated };
 }
+
+/**
+ * Push a Form 2848 (Power of Attorney) record to "Forms & Authority" sheet.
+ * authorized_tax_years array is serialized to a comma-joined string.
+ * SSN must already be masked (last 4 only) before this function receives it.
+ * @param {Spreadsheet} ss
+ * @param {Object} p - Clean payload matching API_CONTRACT.md importForm2848 shape.
+ */
+function pushForm2848_(ss, p) {
+  var sheet = ss.getSheetByName('Forms & Authority');
+  if (!sheet) return { status: 'error', action: 'importForm2848', message: 'Forms & Authority tab not found' };
+
+  if (!p.taxpayer_name_and_address) return { status: 'error', action: 'importForm2848', message: 'Missing required field: taxpayer_name_and_address' };
+  if (!p.representative_name_and_address) return { status: 'error', action: 'importForm2848', message: 'Missing required field: representative_name_and_address' };
+
+  var taxYears = '';
+  if (Array.isArray(p.authorized_tax_years)) {
+    taxYears = p.authorized_tax_years.filter(function(y) { return y; }).join(', ');
+  } else if (typeof p.authorized_tax_years === 'string') {
+    taxYears = p.authorized_tax_years;
+  }
+
+  var row = [
+    p.taxpayer_name_and_address        || '',
+    p.taxpayer_ssn                     || '',
+    p.taxpayer_phone                   || '',
+    p.representative_name_and_address  || '',
+    p.representative_caf               || '',
+    p.representative_ptin              || '',
+    p.representative_phone             || '',
+    taxYears,
+    p.submitted_at || new Date().toISOString(),
+    'Artifactory'
+  ];
+
+  sheet.appendRow(row);
+  Logger.log('importForm2848: appended POA for ' + p.taxpayer_name_and_address + ' | rep: ' + p.representative_name_and_address);
+
+  return { status: 'ok', action: 'importForm2848', rowsWritten: 1 };
+}
+
+
+/**
+ * Push a Schedule A (Itemized Deductions) record to "Schedule A" sheet.
+ * Sheet is auto-created with headers if absent.
+ * Link to a Form 1040 row via tax_year + taxpayer_ssn.
+ * @param {Spreadsheet} ss
+ * @param {Object} p - Clean payload matching API_CONTRACT.md importScheduleA shape.
+ */
+function pushScheduleA_(ss, p) {
+  if (!p.tax_year)      return { status: 'error', action: 'importScheduleA', message: 'Missing required field: tax_year' };
+  if (!p.taxpayer_name) return { status: 'error', action: 'importScheduleA', message: 'Missing required field: taxpayer_name' };
+
+  var sheet = ss.getSheetByName('Schedule A');
+  if (!sheet) {
+    sheet = ss.insertSheet('Schedule A');
+    var headers = [
+      'Tax Year', 'Taxpayer Name', 'SSN (masked)',
+      'Medical Expenses (L4)', 'Taxes Paid (L7)', 'Interest Paid (L10)',
+      'Charitable Gifts (L14)', 'Casualty/Theft (L15)',
+      'Other Deductions (L16)', 'Total Deductions (L17)',
+      'Submitted At', 'Source'
+    ];
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight('bold');
+    sheet.setFrozenRows(1);
+    sheet.setTabColor('#4CAF50');
+    Logger.log('Schedule A sheet created');
+  }
+
+  var row = [
+    p.tax_year                              || '',
+    p.taxpayer_name                         || '',
+    p.taxpayer_ssn                          || '',
+    parseFloat(p.medical_expenses_line4)    || 0,
+    parseFloat(p.taxes_paid_line7)          || 0,
+    parseFloat(p.interest_paid_line10)      || 0,
+    parseFloat(p.charity_gifts_line14)      || 0,
+    parseFloat(p.casualty_theft_line15)     || 0,
+    parseFloat(p.other_deductions_line16)   || 0,
+    parseFloat(p.total_deductions_line17)   || 0,
+    p.submitted_at || new Date().toISOString(),
+    'Artifactory'
+  ];
+
+  sheet.appendRow(row);
+  Logger.log('importScheduleA: appended TY' + p.tax_year + ' for ' + p.taxpayer_name);
+
+  return { status: 'ok', action: 'importScheduleA', rowsWritten: 1 };
+}
+
+
+/**
+ * Ensure "1040 Submissions" sheet exists; create with headers if not.
+ * @param {Spreadsheet} ss
+ * @return {Sheet}
+ */
+function ensureForm1040Sheet_(ss) {
+  var sheet = ss.getSheetByName('1040 Submissions');
+  if (sheet) return sheet;
+
+  sheet = ss.insertSheet('1040 Submissions');
+  var headers = [
+    'Tax Year', 'Filing Status', 'First Name', 'Last Name', 'SSN (masked)',
+    'Address', 'City/State/Zip',
+    'Wages (L1)', 'Taxable Interest (L2b)', 'Ordinary Dividends (L3b)',
+    'Capital Gain (L7)', 'Other Income (L8)', 'Total Income (L9)',
+    'AGI (L11)', 'Deductions (L12)', 'Taxable Income (L15)',
+    'Tax (L16)', 'Total Tax (L24)', 'Fed Withholding (L25a)',
+    'Total Payments (L33)', 'Refund (L34)', 'Amount Owed (L37)',
+    'Submitted At', 'Source'
+  ];
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight('bold');
+  sheet.setFrozenRows(1);
+  sheet.setTabColor('#3F51B5');
+  Logger.log('1040 Submissions sheet created');
+  return sheet;
+}
+
+/**
+ * Push a Form 1040 return record to "1040 Submissions" sheet.
+ * Sheet is auto-created with headers if absent.
+ * SSN must already be masked (last 4 only) before this function receives it.
+ * @param {Spreadsheet} ss
+ * @param {Object} p - Clean payload matching API_CONTRACT.md importForm1040 shape.
+ */
+function pushForm1040_(ss, p) {
+  if (!p.tax_year)             return { status: 'error', action: 'importForm1040', message: 'Missing required field: tax_year' };
+  if (!p.taxpayer_last_name)   return { status: 'error', action: 'importForm1040', message: 'Missing required field: taxpayer_last_name' };
+
+  var validStatuses = ['Single', 'MFJ', 'MFS', 'HOH', 'QW'];
+  if (p.filing_status && validStatuses.indexOf(p.filing_status) === -1) {
+    return { status: 'error', action: 'importForm1040', message: 'Invalid filing_status: ' + p.filing_status + '. Must be one of: ' + validStatuses.join(', ') };
+  }
+
+  var sheet = ensureForm1040Sheet_(ss);
+
+  var row = [
+    p.tax_year                          || '',
+    p.filing_status                     || '',
+    p.taxpayer_first_name               || '',
+    p.taxpayer_last_name                || '',
+    p.taxpayer_ssn                      || '',
+    p.taxpayer_address                  || '',
+    p.taxpayer_city_state_zip           || '',
+    parseFloat(p.wages_line1)           || 0,
+    parseFloat(p.taxable_interest_line2b)  || 0,
+    parseFloat(p.ordinary_dividends_line3b)|| 0,
+    parseFloat(p.capital_gain_line7)    || 0,
+    parseFloat(p.other_income_line8)    || 0,
+    parseFloat(p.total_income_line9)    || 0,
+    parseFloat(p.agi_line11)            || 0,
+    parseFloat(p.deductions_line12)     || 0,
+    parseFloat(p.taxable_income_line15) || 0,
+    parseFloat(p.tax_line16)            || 0,
+    parseFloat(p.total_tax_line24)      || 0,
+    parseFloat(p.fed_withholding_line25a)  || 0,
+    parseFloat(p.total_payments_line33) || 0,
+    parseFloat(p.refund_line34)         || 0,
+    parseFloat(p.amount_owed_line37)    || 0,
+    p.submitted_at || new Date().toISOString(),
+    'Artifactory'
+  ];
+
+  sheet.appendRow(row);
+  Logger.log('importForm1040: appended TY' + p.tax_year + ' for ' + p.taxpayer_last_name + ', ' + p.taxpayer_first_name);
+
+  return { status: 'ok', action: 'importForm1040', rowsWritten: 1 };
+}
+
+
+/**
+ * Push a Form 4852 (Substitute W-2) record to W-2 & Income Detail.
+ * Called by doPost action 'importSubstituteW2'.
+ * SSN must already be masked (last 4 only) before this function receives it.
+ * @param {Spreadsheet} ss
+ * @param {Object} p - Clean payload matching API_CONTRACT.md importSubstituteW2 shape.
+ */
+function pushSubstituteW2_(ss, p) {
+  var sheet = ss.getSheetByName('W-2 & Income Detail');
+  if (!sheet) return { status: 'error', action: 'importSubstituteW2', message: 'W-2 & Income Detail tab not found' };
+
+  if (!p.tax_year)      return { status: 'error', action: 'importSubstituteW2', message: 'Missing required field: tax_year' };
+  if (!p.taxpayer_name) return { status: 'error', action: 'importSubstituteW2', message: 'Missing required field: taxpayer_name' };
+  if (!p.employer_name) return { status: 'error', action: 'importSubstituteW2', message: 'Missing required field: employer_name' };
+
+  var row = [
+    p.tax_year        || '',
+    'Form 4852',
+    p.taxpayer_name   || '',
+    p.taxpayer_ssn    || '',   // pre-masked to XXX-XX-1234 by Artifactory
+    p.taxpayer_address|| '',
+    p.employer_name   || '',
+    p.employer_tin    || '',
+    parseFloat(p.wages)        || 0,
+    parseFloat(p.fed_withheld) || 0,
+    p.determination_1 || '',
+    p.determination_2 || '',
+    p.efforts_1       || '',
+    p.efforts_2       || '',
+    p.submitted_at    || new Date().toISOString(),
+    'Artifactory'
+  ];
+
+  sheet.appendRow(row);
+  Logger.log('importSubstituteW2: appended row for ' + p.taxpayer_name + ' TY' + p.tax_year);
+
+  return { status: 'ok', action: 'importSubstituteW2', rowsWritten: 1 };
+}
+
 
 /**
  * Push 1099 filings to 1099 Filing Chain via Web App.
