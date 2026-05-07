@@ -453,6 +453,54 @@ var WORKBOOK_ID_ = '1CYg4fwQoLARD9y3bQbn8W8HO5jI89osj';
 var WORKBOOK_TARGET_GIDS_ = [779167554, 1677909637, 1870452300];
 
 /**
+ * Table-driven config for Artifactory pull endpoints (GSheet → Artifactory).
+ * fields[] maps column index → contract field name (matches push payload keys).
+ * taxYearCol is the 0-indexed column that holds the tax_year value for filtering.
+ * worksheetTypeCol is the 0-indexed column for worksheet_type filtering (pullWorksheetData only).
+ */
+var FORM_PULL_CONFIG_ = {
+  pullSubstituteW2: {
+    sheet: 'W-2 & Income Detail', taxYearCol: 0,
+    fields: ['tax_year','form_type','taxpayer_name','taxpayer_ssn','taxpayer_address',
+             'employer_name','employer_tin','wages','fed_withheld',
+             'determination_1','determination_2','efforts_1','efforts_2','submitted_at','source']
+  },
+  pullForm1040: {
+    sheet: '1040 Submissions', taxYearCol: 0,
+    fields: ['tax_year','filing_status','taxpayer_first_name','taxpayer_last_name','taxpayer_ssn',
+             'taxpayer_address','taxpayer_city_state_zip',
+             'wages_line1','taxable_interest_line2b','ordinary_dividends_line3b',
+             'capital_gain_line7','other_income_line8','total_income_line9',
+             'agi_line11','deductions_line12','taxable_income_line15',
+             'tax_line16','total_tax_line24','fed_withholding_line25a',
+             'total_payments_line33','refund_line34','amount_owed_line37',
+             'submitted_at','source']
+  },
+  pullScheduleA: {
+    sheet: 'Schedule A', taxYearCol: 0,
+    fields: ['tax_year','taxpayer_name','taxpayer_ssn',
+             'medical_expenses_line4','taxes_paid_line7','interest_paid_line10',
+             'charity_gifts_line14','casualty_theft_line15',
+             'other_deductions_line16','total_deductions_line17','submitted_at','source']
+  },
+  pullSchedule1: {
+    sheet: 'Schedule 1', taxYearCol: 0,
+    fields: ['tax_year','taxpayer_name','taxpayer_ssn',
+             'part1_total','part2_total','lines_data','submitted_at','source']
+  },
+  pullSchedule2: {
+    sheet: 'Schedule 2', taxYearCol: 0,
+    fields: ['tax_year','taxpayer_name','taxpayer_ssn',
+             'part1_total','part2_total','lines_data','submitted_at','source']
+  },
+  pullWorksheetData: {
+    sheet: 'Tax Worksheets', taxYearCol: 0, worksheetTypeCol: 3,
+    fields: ['tax_year','taxpayer_name','taxpayer_ssn',
+             'worksheet_type','data_blob','submitted_at','source']
+  }
+};
+
+/**
  * Open the TMAR spreadsheet by ID (for Web App context).
  * In sidebar context, getActiveSpreadsheet() works. In Web App, it doesn't.
  */
@@ -795,8 +843,140 @@ function doGet(e) {
         return jsonResponse_({ status: 'ok', action: 'pullWorkbookSheets', sheets: sheetData, timestamp: new Date().toISOString() });
       }
 
+      // ─── Artifactory Pull Endpoints (GSheet → Artifactory) ──────────────
+
+      case 'pullSubstituteW2': {
+        var w2PullData = pullFormTab_(ss, FORM_PULL_CONFIG_['pullSubstituteW2'],
+          (e.parameter && e.parameter.tax_year) || null,
+          parseInt((e.parameter && e.parameter.limit) || 0), null);
+        return jsonResponse_({ status: 'ok', action: action, count: w2PullData.length, data: w2PullData });
+      }
+
+      case 'pullForm1040': {
+        var f1040PullData = pullFormTab_(ss, FORM_PULL_CONFIG_['pullForm1040'],
+          (e.parameter && e.parameter.tax_year) || null,
+          parseInt((e.parameter && e.parameter.limit) || 0), null);
+        return jsonResponse_({ status: 'ok', action: action, count: f1040PullData.length, data: f1040PullData });
+      }
+
+      case 'pullScheduleA': {
+        var schAPullData = pullFormTab_(ss, FORM_PULL_CONFIG_['pullScheduleA'],
+          (e.parameter && e.parameter.tax_year) || null,
+          parseInt((e.parameter && e.parameter.limit) || 0), null);
+        return jsonResponse_({ status: 'ok', action: action, count: schAPullData.length, data: schAPullData });
+      }
+
+      case 'pullSchedule1': {
+        var sch1PullData = pullFormTab_(ss, FORM_PULL_CONFIG_['pullSchedule1'],
+          (e.parameter && e.parameter.tax_year) || null,
+          parseInt((e.parameter && e.parameter.limit) || 0), null);
+        return jsonResponse_({ status: 'ok', action: action, count: sch1PullData.length, data: sch1PullData });
+      }
+
+      case 'pullSchedule2': {
+        var sch2PullData = pullFormTab_(ss, FORM_PULL_CONFIG_['pullSchedule2'],
+          (e.parameter && e.parameter.tax_year) || null,
+          parseInt((e.parameter && e.parameter.limit) || 0), null);
+        return jsonResponse_({ status: 'ok', action: action, count: sch2PullData.length, data: sch2PullData });
+      }
+
+      case 'pullWorksheetData': {
+        var wsPullData = pullFormTab_(ss, FORM_PULL_CONFIG_['pullWorksheetData'],
+          (e.parameter && e.parameter.tax_year) || null,
+          parseInt((e.parameter && e.parameter.limit) || 0),
+          (e.parameter && e.parameter.worksheet_type) || null);
+        return jsonResponse_({ status: 'ok', action: action, count: wsPullData.length, data: wsPullData });
+      }
+
+      case 'pullForm2848': {
+        var faSheet2848 = ss.getSheetByName('Forms & Authority');
+        if (!faSheet2848) return jsonResponse_({ status: 'ok', action: action, count: 0, data: [] });
+        var limit2848 = parseInt((e.parameter && e.parameter.limit) || 0);
+        var fields2848 = ['taxpayer_name_and_address','taxpayer_ssn','taxpayer_phone',
+                          'representative_name_and_address','representative_caf','representative_ptin',
+                          'representative_phone','authorized_tax_years','submitted_at','source'];
+        var lastRow2848 = faSheet2848.getLastRow();
+        var data2848 = [];
+        if (lastRow2848 > 1) {
+          var rows2848 = faSheet2848.getRange(2, 1, lastRow2848 - 1, 10).getValues();
+          for (var ri2848 = 0; ri2848 < rows2848.length; ri2848++) {
+            var r2848 = rows2848[ri2848];
+            if (!r2848[0] || String(r2848[0]).indexOf('Form ') === 0) continue;
+            var obj2848 = {};
+            for (var fi2848 = 0; fi2848 < fields2848.length; fi2848++) {
+              var v2848 = r2848[fi2848];
+              if (v2848 instanceof Date) v2848 = v2848.toISOString().slice(0, 10);
+              obj2848[fields2848[fi2848]] = (v2848 !== null && v2848 !== undefined) ? v2848 : '';
+            }
+            data2848.push(obj2848);
+          }
+        }
+        data2848.reverse();
+        if (limit2848 > 0) data2848 = data2848.slice(0, limit2848);
+        return jsonResponse_({ status: 'ok', action: action, count: data2848.length, data: data2848 });
+      }
+
+      case 'pullForm8275R': {
+        var faSheet8275 = ss.getSheetByName('Forms & Authority');
+        if (!faSheet8275) return jsonResponse_({ status: 'ok', action: action, count: 0, data: [] });
+        var limit8275 = parseInt((e.parameter && e.parameter.limit) || 0);
+        var fields8275 = ['form_type','taxpayer_name','taxpayer_ssn',
+                          'amount_1','explanation','submitted_at','source'];
+        var lastRow8275 = faSheet8275.getLastRow();
+        var data8275 = [];
+        if (lastRow8275 > 1) {
+          var rows8275 = faSheet8275.getRange(2, 1, lastRow8275 - 1, 7).getValues();
+          for (var ri8275 = 0; ri8275 < rows8275.length; ri8275++) {
+            var r8275 = rows8275[ri8275];
+            if (String(r8275[0]) !== 'Form 8275-R') continue;
+            var obj8275 = {};
+            for (var fi8275 = 0; fi8275 < fields8275.length; fi8275++) {
+              var v8275 = r8275[fi8275];
+              if (v8275 instanceof Date) v8275 = v8275.toISOString().slice(0, 10);
+              obj8275[fields8275[fi8275]] = (v8275 !== null && v8275 !== undefined) ? v8275 : '';
+            }
+            data8275.push(obj8275);
+          }
+        }
+        data8275.reverse();
+        if (limit8275 > 0) data8275 = data8275.slice(0, limit8275);
+        return jsonResponse_({ status: 'ok', action: action, count: data8275.length, data: data8275 });
+      }
+
+      case 'pullAdminForms': {
+        var faSheetAdm = ss.getSheetByName('Forms & Authority');
+        if (!faSheetAdm) return jsonResponse_({ status: 'ok', action: action, count: 0, data: [] });
+        var filterFtAdm = (e.parameter && e.parameter.form_type) ? ('Form ' + e.parameter.form_type) : null;
+        var filterYrAdm = (e.parameter && e.parameter.tax_year) || null;
+        var limitAdm = parseInt((e.parameter && e.parameter.limit) || 0);
+        var adminTypesList = ['Form 8453', 'Form 8867', 'Form 8879'];
+        var adminFields = ['form_type','tax_year','taxpayer_name','taxpayer_ssn',
+                           'spouse_name','spouse_ssn','form_data','submitted_at','source'];
+        var lastRowAdm = faSheetAdm.getLastRow();
+        var dataAdm = [];
+        if (lastRowAdm > 1) {
+          var rowsAdm = faSheetAdm.getRange(2, 1, lastRowAdm - 1, 9).getValues();
+          for (var riAdm = 0; riAdm < rowsAdm.length; riAdm++) {
+            var rAdm = rowsAdm[riAdm];
+            if (adminTypesList.indexOf(String(rAdm[0])) === -1) continue;
+            if (filterFtAdm && String(rAdm[0]) !== filterFtAdm) continue;
+            if (filterYrAdm && String(rAdm[1]) !== String(filterYrAdm)) continue;
+            var objAdm = {};
+            for (var fiAdm = 0; fiAdm < adminFields.length; fiAdm++) {
+              var vAdm = rAdm[fiAdm];
+              if (vAdm instanceof Date) vAdm = vAdm.toISOString().slice(0, 10);
+              objAdm[adminFields[fiAdm]] = (vAdm !== null && vAdm !== undefined) ? vAdm : '';
+            }
+            dataAdm.push(objAdm);
+          }
+        }
+        dataAdm.reverse();
+        if (limitAdm > 0) dataAdm = dataAdm.slice(0, limitAdm);
+        return jsonResponse_({ status: 'ok', action: action, count: dataAdm.length, data: dataAdm });
+      }
+
       default:
-        return errorResponse_('Unknown action: ' + action + '. Valid: ping, pullAccounts, pullTransactions, pullObligations, pull1099, pullValidation, listSheetTabs, pullRawTab, listWorkbookTabs, pullWorkbookSheets');
+        return errorResponse_('Unknown action: ' + action + '. Valid: ping, pullAccounts, pullTransactions, pullObligations, pull1099, pullValidation, listSheetTabs, pullRawTab, listWorkbookTabs, pullWorkbookSheets, pullSubstituteW2, pullForm1040, pullScheduleA, pullSchedule1, pullSchedule2, pullWorksheetData, pullForm2848, pullForm8275R, pullAdminForms');
     }
 
   } catch (err) {
@@ -908,8 +1088,48 @@ function doPost(e) {
         updateSyncTimestamp_(ss, 'Schedule A', 'push');
         return jsonResponse_(schaResult);
 
+      case 'importSchedule1':
+        if (!payload.payload || typeof payload.payload !== 'object') {
+          return errorResponse_('importSchedule1 requires a nested "payload" object');
+        }
+        var sch1Result = pushSchedule1_(ss, payload.payload);
+        updateSyncTimestamp_(ss, 'Schedule 1', 'push');
+        return jsonResponse_(sch1Result);
+
+      case 'importSchedule2':
+        if (!payload.payload || typeof payload.payload !== 'object') {
+          return errorResponse_('importSchedule2 requires a nested "payload" object');
+        }
+        var sch2Result = pushSchedule2_(ss, payload.payload);
+        updateSyncTimestamp_(ss, 'Schedule 2', 'push');
+        return jsonResponse_(sch2Result);
+
+      case 'importForm8275R':
+        if (!payload.payload || typeof payload.payload !== 'object') {
+          return errorResponse_('importForm8275R requires a nested "payload" object');
+        }
+        var f8275rResult = pushForm8275R_(ss, payload.payload);
+        updateSyncTimestamp_(ss, 'Forms & Authority', 'push');
+        return jsonResponse_(f8275rResult);
+
+      case 'importAdminForms':
+        if (!payload.payload || typeof payload.payload !== 'object') {
+          return errorResponse_('importAdminForms requires a nested "payload" object');
+        }
+        var adminResult = pushAdminForms_(ss, payload.payload);
+        updateSyncTimestamp_(ss, 'Forms & Authority', 'push');
+        return jsonResponse_(adminResult);
+
+      case 'importWorksheetData':
+        if (!payload.payload || typeof payload.payload !== 'object') {
+          return errorResponse_('importWorksheetData requires a nested "payload" object');
+        }
+        var wsResult = pushWorksheetData_(ss, payload.payload);
+        updateSyncTimestamp_(ss, 'Tax Worksheets', 'push');
+        return jsonResponse_(wsResult);
+
       default:
-        return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync, importSubstituteW2, importForm1040, importForm2848, importScheduleA');
+        return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync, importSubstituteW2, importForm1040, importForm2848, importScheduleA, importSchedule1, importSchedule2, importForm8275R, importAdminForms, importWorksheetData');
     }
 
   } catch (err) {
@@ -1296,6 +1516,247 @@ function pushSubstituteW2_(ss, p) {
   Logger.log('importSubstituteW2: appended row for ' + p.taxpayer_name + ' TY' + p.tax_year);
 
   return { status: 'ok', action: 'importSubstituteW2', rowsWritten: 1 };
+}
+
+
+// ─── Sprint 2 Artifactory Bridge Handlers ────────────────────────────────────
+
+/**
+ * Push Schedule 1 (Additional Income & Adjustments) to "Schedule 1" sheet.
+ * Sheet auto-created if absent. lines_data blob stores line-level fields.
+ * part1_total / part2_total are explicit summary fields for auditability.
+ */
+function pushSchedule1_(ss, p) {
+  if (!p.tax_year)      return { status: 'error', action: 'importSchedule1', message: 'Missing required field: tax_year' };
+  if (!p.taxpayer_name) return { status: 'error', action: 'importSchedule1', message: 'Missing required field: taxpayer_name' };
+
+  var sheet = ss.getSheetByName('Schedule 1');
+  if (!sheet) {
+    sheet = ss.insertSheet('Schedule 1');
+    var headers = [
+      'Tax Year', 'Taxpayer Name', 'SSN (masked)',
+      "Part I Total (Add'l Income)", 'Part II Total (Adjustments)',
+      'Lines Data (JSON)', 'Submitted At', 'Source'
+    ];
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight('bold');
+    sheet.setFrozenRows(1);
+    sheet.setTabColor('#FF9800');
+    Logger.log('Schedule 1 sheet created');
+  }
+
+  var linesData = p.lines_data
+    ? (typeof p.lines_data === 'string' ? p.lines_data : JSON.stringify(p.lines_data))
+    : '';
+
+  sheet.appendRow([
+    p.tax_year       || '',
+    p.taxpayer_name  || '',
+    p.taxpayer_ssn   || '',
+    parseFloat(p.part1_total) || 0,
+    parseFloat(p.part2_total) || 0,
+    linesData,
+    p.submitted_at   || new Date().toISOString(),
+    'Artifactory'
+  ]);
+  Logger.log('importSchedule1: appended TY' + p.tax_year + ' for ' + p.taxpayer_name);
+  return { status: 'ok', action: 'importSchedule1', rowsWritten: 1 };
+}
+
+
+/**
+ * Push Schedule 2 (Additional Taxes) to "Schedule 2" sheet.
+ * Sheet auto-created if absent. Same structure as Schedule 1 handler.
+ */
+function pushSchedule2_(ss, p) {
+  if (!p.tax_year)      return { status: 'error', action: 'importSchedule2', message: 'Missing required field: tax_year' };
+  if (!p.taxpayer_name) return { status: 'error', action: 'importSchedule2', message: 'Missing required field: taxpayer_name' };
+
+  var sheet = ss.getSheetByName('Schedule 2');
+  if (!sheet) {
+    sheet = ss.insertSheet('Schedule 2');
+    var headers = [
+      'Tax Year', 'Taxpayer Name', 'SSN (masked)',
+      'Part I Total (AMT & NIIT)', 'Part II Total (Other Taxes)',
+      'Lines Data (JSON)', 'Submitted At', 'Source'
+    ];
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight('bold');
+    sheet.setFrozenRows(1);
+    sheet.setTabColor('#F44336');
+    Logger.log('Schedule 2 sheet created');
+  }
+
+  var linesData = p.lines_data
+    ? (typeof p.lines_data === 'string' ? p.lines_data : JSON.stringify(p.lines_data))
+    : '';
+
+  sheet.appendRow([
+    p.tax_year       || '',
+    p.taxpayer_name  || '',
+    p.taxpayer_ssn   || '',
+    parseFloat(p.part1_total) || 0,
+    parseFloat(p.part2_total) || 0,
+    linesData,
+    p.submitted_at   || new Date().toISOString(),
+    'Artifactory'
+  ]);
+  Logger.log('importSchedule2: appended TY' + p.tax_year + ' for ' + p.taxpayer_name);
+  return { status: 'ok', action: 'importSchedule2', rowsWritten: 1 };
+}
+
+
+/**
+ * Push Form 8275-R (Regulation Disclosure Statement) to "Forms & Authority".
+ * Rigid columns — form is simple; no blob needed.
+ * Col A = "Form 8275-R" type marker (coexists with 2848 rows by type-prefix pattern).
+ */
+function pushForm8275R_(ss, p) {
+  var sheet = ss.getSheetByName('Forms & Authority');
+  if (!sheet) return { status: 'error', action: 'importForm8275R', message: 'Forms & Authority tab not found' };
+  if (!p.taxpayer_name) return { status: 'error', action: 'importForm8275R', message: 'Missing required field: taxpayer_name' };
+
+  sheet.appendRow([
+    'Form 8275-R',
+    p.taxpayer_name               || '',
+    p.taxpayer_ssn                || '',
+    parseFloat(p.amount_1)        || 0,
+    p.explanation                 || '',
+    p.submitted_at                || new Date().toISOString(),
+    'Artifactory'
+  ]);
+  Logger.log('importForm8275R: appended for ' + p.taxpayer_name);
+  return { status: 'ok', action: 'importForm8275R', rowsWritten: 1 };
+}
+
+
+/**
+ * Push admin/signature forms (8453, 8867, 8879) to "Forms & Authority".
+ * form_data blob accommodates each form's unique field structure.
+ * Col A = "Form XXXX" type marker; col G = JSON blob of form-specific fields.
+ */
+function pushAdminForms_(ss, p) {
+  var sheet = ss.getSheetByName('Forms & Authority');
+  if (!sheet) return { status: 'error', action: 'importAdminForms', message: 'Forms & Authority tab not found' };
+
+  var validFormTypes = ['8453', '8867', '8879'];
+  if (!p.form_type || validFormTypes.indexOf(String(p.form_type)) === -1) {
+    return { status: 'error', action: 'importAdminForms', message: 'Missing or invalid form_type. Must be one of: ' + validFormTypes.join(', ') };
+  }
+  if (!p.taxpayer_name) return { status: 'error', action: 'importAdminForms', message: 'Missing required field: taxpayer_name' };
+
+  var formData = p.form_data
+    ? (typeof p.form_data === 'string' ? p.form_data : JSON.stringify(p.form_data))
+    : '';
+
+  sheet.appendRow([
+    'Form ' + p.form_type,
+    p.tax_year       || '',
+    p.taxpayer_name  || '',
+    p.taxpayer_ssn   || '',
+    p.spouse_name    || '',
+    p.spouse_ssn     || '',
+    formData,
+    p.submitted_at   || new Date().toISOString(),
+    'Artifactory'
+  ]);
+  Logger.log('importAdminForms: appended Form ' + p.form_type + ' for ' + p.taxpayer_name);
+  return { status: 'ok', action: 'importAdminForms', rowsWritten: 1 };
+}
+
+
+/**
+ * Push worksheet data to consolidated "Tax Worksheets" sheet.
+ * Handles: CG, EIC, OTHER_INCOME, REG_EXPLANATION.
+ * Sheet auto-created if absent. data_blob stores all worksheet-specific fields.
+ */
+function pushWorksheetData_(ss, p) {
+  if (!p.tax_year)      return { status: 'error', action: 'importWorksheetData', message: 'Missing required field: tax_year' };
+  if (!p.taxpayer_name) return { status: 'error', action: 'importWorksheetData', message: 'Missing required field: taxpayer_name' };
+
+  var validTypes = ['CG', 'EIC', 'OTHER_INCOME', 'REG_EXPLANATION'];
+  if (!p.worksheet_type || validTypes.indexOf(p.worksheet_type) === -1) {
+    return { status: 'error', action: 'importWorksheetData', message: 'Missing or invalid worksheet_type. Must be one of: ' + validTypes.join(', ') };
+  }
+
+  var sheet = ss.getSheetByName('Tax Worksheets');
+  if (!sheet) {
+    sheet = ss.insertSheet('Tax Worksheets');
+    var headers = [
+      'Tax Year', 'Taxpayer Name', 'SSN (masked)',
+      'Worksheet Type', 'Data (JSON)', 'Submitted At', 'Source'
+    ];
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight('bold');
+    sheet.setFrozenRows(1);
+    sheet.setTabColor('#607D8B');
+    Logger.log('Tax Worksheets sheet created');
+  }
+
+  var dataBlob = p.data_blob
+    ? (typeof p.data_blob === 'string' ? p.data_blob : JSON.stringify(p.data_blob))
+    : '';
+
+  sheet.appendRow([
+    p.tax_year        || '',
+    p.taxpayer_name   || '',
+    p.taxpayer_ssn    || '',
+    p.worksheet_type  || '',
+    dataBlob,
+    p.submitted_at    || new Date().toISOString(),
+    'Artifactory'
+  ]);
+  Logger.log('importWorksheetData: appended ' + p.worksheet_type + ' TY' + p.tax_year + ' for ' + p.taxpayer_name);
+  return { status: 'ok', action: 'importWorksheetData', rowsWritten: 1 };
+}
+
+
+// ─── Sprint 2 Pull Helper (GSheet → Artifactory) ─────────────────────────────
+
+/**
+ * Read rows from an Artifactory form tab and return as keyed objects.
+ * Uses FORM_PULL_CONFIG_ entry for column→field mapping.
+ * Results are returned most-recent-first (reversed row order).
+ *
+ * @param {Spreadsheet} ss
+ * @param {Object} config - Entry from FORM_PULL_CONFIG_
+ * @param {string|null} taxYear - Optional: filter rows where taxYearCol === taxYear
+ * @param {number} limit - Optional: cap results (0 = unlimited)
+ * @param {string|null} worksheetType - Optional: filter by worksheetTypeCol value
+ * @return {Array<Object>} Rows as keyed objects matching the push payload field names
+ */
+function pullFormTab_(ss, config, taxYear, limit, worksheetType) {
+  var sheet = ss.getSheetByName(config.sheet);
+  if (!sheet) return [];
+
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return [];
+
+  var numCols = config.fields.length;
+  var data = sheet.getRange(2, 1, lastRow - 1, numCols).getValues();
+  var results = [];
+
+  for (var i = 0; i < data.length; i++) {
+    var row = data[i];
+    var hasData = false;
+    for (var c = 0; c < row.length; c++) {
+      if (row[c] !== '' && row[c] !== null && row[c] !== undefined) { hasData = true; break; }
+    }
+    if (!hasData) continue;
+
+    if (taxYear && String(row[config.taxYearCol]) !== String(taxYear)) continue;
+    if (worksheetType && config.worksheetTypeCol !== undefined &&
+        String(row[config.worksheetTypeCol]) !== worksheetType) continue;
+
+    var obj = {};
+    for (var j = 0; j < config.fields.length; j++) {
+      var v = row[j];
+      if (v instanceof Date) v = v.toISOString().slice(0, 10);
+      obj[config.fields[j]] = (v !== null && v !== undefined) ? v : '';
+    }
+    results.push(obj);
+  }
+
+  results.reverse(); // most recent submission first
+  if (limit > 0) results = results.slice(0, limit);
+  return results;
 }
 
 
