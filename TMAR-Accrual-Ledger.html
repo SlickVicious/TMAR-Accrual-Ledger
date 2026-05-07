@@ -43330,9 +43330,7 @@ function pdkbCallAnthropic(prompt, options, onProgress) {
   // Long timeout — streaming keeps connection alive so we just need to handle stalls
   var timeout = options.timeout || 300000;
   var corsProxy = (localStorage.getItem('eeon_cors_proxy') || '').replace(/\/$/, '');
-  // === API DISABLED — use Claude chat or connect Ollama ===
-    return Promise.resolve({ success: false, error: { type: 'api_offline', message: '⚡ API calls disabled to save credits. Use Claude chat for Transcript Transformer and Etymology Analyzer, or configure Ollama in Settings → API Keys → Ollama.' } });
-    var endpoint = corsProxy ? corsProxy + '/v1/messages' : 'https://api.anthropic.com/v1/messages'; // DISABLED
+  var endpoint = corsProxy ? corsProxy + '/v1/messages' : 'https://api.anthropic.com/v1/messages';
   var controller = new AbortController();
   var timer = setTimeout(function(){ controller.abort(); }, timeout);
 
