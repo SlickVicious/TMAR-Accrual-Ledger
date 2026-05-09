@@ -31890,6 +31890,9 @@ function ev2InitEntityVerifier() {
   };
   SyncBridge.prototype.listWorkbookTabs = function() { return this.request('listWorkbookTabs'); };
   SyncBridge.prototype.pullWorkbookSheets = function() { return this.request('pullWorkbookSheets'); };
+  SyncBridge.prototype.pullPrincipalRegister = function() { return this.request('pullPrincipalRegister'); };
+  SyncBridge.prototype.pullContacts = function() { return this.request('pullContacts'); };
+  SyncBridge.prototype.pullWebsiteAccounts = function() { return this.request('pullWebsiteAccounts'); };
 
   // Push methods (POST)
   SyncBridge.prototype.pushEntities = function(data) {
@@ -31903,6 +31906,15 @@ function ev2InitEntityVerifier() {
   };
   SyncBridge.prototype.push1099 = function(data) {
     return this.request('push1099', 'POST', { action: 'push1099', filings: data });
+  };
+  SyncBridge.prototype.pushPrincipalRegister = function(data) {
+    return this.request('pushPrincipalRegister', 'POST', { action: 'pushPrincipalRegister', principals: data });
+  };
+  SyncBridge.prototype.pushContacts = function(data) {
+    return this.request('pushContacts', 'POST', { action: 'pushContacts', contacts: data });
+  };
+  SyncBridge.prototype.pushWebsiteAccounts = function(data) {
+    return this.request('pushWebsiteAccounts', 'POST', { action: 'pushWebsiteAccounts', accounts: data });
   };
 
   // ══════════════════════════════════════════════════════════════════

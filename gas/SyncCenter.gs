@@ -564,7 +564,8 @@ function ensureSyncMetaSheet_(ss) {
   sheet.getRange('A1:E1').setValues([['Sheet Name', 'Last Push', 'Last Pull', 'Push Count', 'Pull Count']]);
   sheet.getRange('A1:E1').setFontWeight('bold');
 
-  var sheets = ['Master Register', 'Transaction Ledger', 'Household Obligations', '1099 Filing Chain'];
+  var sheets = ['Master Register', 'Transaction Ledger', 'Household Obligations', '1099 Filing Chain',
+                'Principal Register', 'Contacts', 'Website Accounts'];
   for (var i = 0; i < sheets.length; i++) {
     sheet.getRange(i + 2, 1, 1, 5).setValues([[sheets[i], '', '', 0, 0]]);
   }
@@ -735,6 +736,36 @@ function doGet(e) {
         ]);
         updateSyncTimestamp_(ss, '1099 Filing Chain', 'pull');
         return jsonResponse_({ status: 'ok', action: 'pull1099', count: filings.length, data: filings });
+
+      case 'pullPrincipalRegister': {
+        var principals = pullSheetData_(ss, 'Principal Register', 2, [
+          'entityId', 'entityType', 'legalName', 'dbaName', 'ein',
+          'mailingAddress', 'city', 'state', 'zip',
+          'primaryTrustee', 'coTrustee', 'registeredState', 'dateEstablished',
+          'bankName', 'branch', 'accountNumber', 'routingNumber',
+          'accountType', 'accountHolderName', 'notes'
+        ], { einColumn: 4 });
+        updateSyncTimestamp_(ss, 'Principal Register', 'pull');
+        return jsonResponse_({ status: 'ok', action: 'pullPrincipalRegister', count: principals.length, data: principals });
+      }
+
+      case 'pullContacts': {
+        var contacts = pullSheetData_(ss, 'Contacts', 2, [
+          'contactId', 'role', 'fullName', 'organization',
+          'phone', 'email', 'mailingAddress', 'relatedEntity', 'notes'
+        ]);
+        updateSyncTimestamp_(ss, 'Contacts', 'pull');
+        return jsonResponse_({ status: 'ok', action: 'pullContacts', count: contacts.length, data: contacts });
+      }
+
+      case 'pullWebsiteAccounts': {
+        var webAccts = pullSheetData_(ss, 'Website Accounts', 2, [
+          'accountId', 'platform', 'url', 'username',
+          'linkedEntity', 'mfaMethod', 'lastVerified', 'notes'
+        ]);
+        updateSyncTimestamp_(ss, 'Website Accounts', 'pull');
+        return jsonResponse_({ status: 'ok', action: 'pullWebsiteAccounts', count: webAccts.length, data: webAccts });
+      }
 
       case 'pullValidation':
         var valSheet = ss.getSheetByName('_Validation');
@@ -976,7 +1007,7 @@ function doGet(e) {
       }
 
       default:
-        return errorResponse_('Unknown action: ' + action + '. Valid: ping, pullAccounts, pullTransactions, pullObligations, pull1099, pullValidation, listSheetTabs, pullRawTab, listWorkbookTabs, pullWorkbookSheets, pullSubstituteW2, pullForm1040, pullScheduleA, pullSchedule1, pullSchedule2, pullWorksheetData, pullForm2848, pullForm8275R, pullAdminForms');
+        return errorResponse_('Unknown action: ' + action + '. Valid: ping, pullAccounts, pullTransactions, pullObligations, pull1099, pullValidation, pullPrincipalRegister, pullContacts, pullWebsiteAccounts, listSheetTabs, pullRawTab, listWorkbookTabs, pullWorkbookSheets, pullSubstituteW2, pullForm1040, pullScheduleA, pullSchedule1, pullSchedule2, pullWorksheetData, pullForm2848, pullForm8275R, pullAdminForms');
     }
 
   } catch (err) {
@@ -1056,6 +1087,30 @@ function doPost(e) {
         }
         return jsonResponse_({ status: 'ok', action: 'fullSync', results: results });
 
+      case 'pushPrincipalRegister': {
+        var prV = validatePayload_(payload.principals, ['legalName']);
+        if (!prV.valid) return errorResponse_(prV.message);
+        var prResult = pushPrincipalRegister_(ss, payload.principals);
+        updateSyncTimestamp_(ss, 'Principal Register', 'push');
+        return jsonResponse_(prResult);
+      }
+
+      case 'pushContacts': {
+        var ctV = validatePayload_(payload.contacts, ['fullName']);
+        if (!ctV.valid) return errorResponse_(ctV.message);
+        var ctResult = pushContacts_(ss, payload.contacts);
+        updateSyncTimestamp_(ss, 'Contacts', 'push');
+        return jsonResponse_(ctResult);
+      }
+
+      case 'pushWebsiteAccounts': {
+        var waV = validatePayload_(payload.accounts, ['platform']);
+        if (!waV.valid) return errorResponse_(waV.message);
+        var waResult = pushWebsiteAccounts_(ss, payload.accounts);
+        updateSyncTimestamp_(ss, 'Website Accounts', 'push');
+        return jsonResponse_(waResult);
+      }
+
       case 'importSubstituteW2':
         if (!payload.payload || typeof payload.payload !== 'object') {
           return errorResponse_('importSubstituteW2 requires a nested "payload" object');
@@ -1129,7 +1184,7 @@ function doPost(e) {
         return jsonResponse_(wsResult);
 
       default:
-        return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync, importSubstituteW2, importForm1040, importForm2848, importScheduleA, importSchedule1, importSchedule2, importForm8275R, importAdminForms, importWorksheetData');
+        return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync, pushPrincipalRegister, pushContacts, pushWebsiteAccounts, importSubstituteW2, importForm1040, importForm2848, importScheduleA, importSchedule1, importSchedule2, importForm8275R, importAdminForms, importWorksheetData');
     }
 
   } catch (err) {
@@ -1757,6 +1812,187 @@ function pullFormTab_(ss, config, taxYear, limit, worksheetType) {
   results.reverse(); // most recent submission first
   if (limit > 0) results = results.slice(0, limit);
   return results;
+}
+
+
+/**
+ * Push principal entity records to "Principal Register" tab.
+ * Upserts by legalName (case-insensitive). ID prefix: PE-NNN.
+ */
+function pushPrincipalRegister_(ss, records) {
+  var sheet = ss.getSheetByName('Principal Register');
+  if (!sheet) return { status: 'error', action: 'pushPrincipalRegister', message: 'Principal Register tab not found' };
+
+  var lastRow = sheet.getLastRow();
+  var nameMap = {}, existingRows = {};
+  if (lastRow > 1) {
+    var allData = sheet.getRange(2, 1, lastRow - 1, 20).getValues();
+    for (var n = 0; n < allData.length; n++) {
+      var k = String(allData[n][2] || '').toLowerCase().trim(); // col C = legalName
+      if (k) { nameMap[k] = n + 2; existingRows[k] = allData[n]; }
+    }
+  }
+
+  var nextId = 1;
+  if (lastRow > 1) {
+    var ids = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+    for (var ki = 0; ki < ids.length; ki++) {
+      var m = String(ids[ki][0]).match(/PE-(\d+)/);
+      if (m) nextId = Math.max(nextId, parseInt(m[1]) + 1);
+    }
+  }
+
+  var imported = 0, updated = 0;
+  for (var i = 0; i < records.length; i++) {
+    var r = records[i];
+    var name = (r.legalName || '').trim();
+    if (!name) continue;
+    var key = name.toLowerCase();
+    var existingRow = nameMap[key];
+
+    if (existingRow) {
+      var ex = existingRows[key];
+      sheet.getRange(existingRow, 1, 1, 20).setValues([[
+        ex[0], r.entityType || ex[1], name, r.dbaName || ex[3], r.ein || ex[4],
+        r.mailingAddress || ex[5], r.city || ex[6], r.state || ex[7], r.zip || ex[8],
+        r.primaryTrustee || ex[9], r.coTrustee || ex[10], r.registeredState || ex[11],
+        r.dateEstablished || ex[12], r.bankName || ex[13], r.branch || ex[14],
+        r.accountNumber || ex[15], r.routingNumber || ex[16], r.accountType || ex[17],
+        r.accountHolderName || ex[18], r.notes || ex[19]
+      ]]);
+      updated++;
+    } else {
+      sheet.appendRow([
+        'PE-' + String(nextId++).padStart(3, '0'),
+        r.entityType || '', name, r.dbaName || '', r.ein || '',
+        r.mailingAddress || '', r.city || '', r.state || '', r.zip || '',
+        r.primaryTrustee || '', r.coTrustee || '', r.registeredState || '',
+        r.dateEstablished || '', r.bankName || '', r.branch || '',
+        r.accountNumber || '', r.routingNumber || '', r.accountType || '',
+        r.accountHolderName || '', r.notes || ''
+      ]);
+      nameMap[key] = sheet.getLastRow();
+      imported++;
+    }
+  }
+  return { status: 'ok', action: 'pushPrincipalRegister', imported: imported, updated: updated };
+}
+
+
+/**
+ * Push contact records to "Contacts" tab.
+ * Upserts by fullName (case-insensitive). ID prefix: PC-NNN.
+ */
+function pushContacts_(ss, contacts) {
+  var sheet = ss.getSheetByName('Contacts');
+  if (!sheet) return { status: 'error', action: 'pushContacts', message: 'Contacts tab not found' };
+
+  var lastRow = sheet.getLastRow();
+  var nameMap = {}, existingRows = {};
+  if (lastRow > 1) {
+    var allData = sheet.getRange(2, 1, lastRow - 1, 9).getValues();
+    for (var n = 0; n < allData.length; n++) {
+      var k = String(allData[n][2] || '').toLowerCase().trim(); // col C = fullName
+      if (k) { nameMap[k] = n + 2; existingRows[k] = allData[n]; }
+    }
+  }
+
+  var nextId = 1;
+  if (lastRow > 1) {
+    var ids = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+    for (var ki = 0; ki < ids.length; ki++) {
+      var m = String(ids[ki][0]).match(/PC-(\d+)/);
+      if (m) nextId = Math.max(nextId, parseInt(m[1]) + 1);
+    }
+  }
+
+  var imported = 0, updated = 0;
+  for (var i = 0; i < contacts.length; i++) {
+    var c = contacts[i];
+    var name = (c.fullName || '').trim();
+    if (!name) continue;
+    var key = name.toLowerCase();
+    var existingRow = nameMap[key];
+
+    if (existingRow) {
+      var ex = existingRows[key];
+      sheet.getRange(existingRow, 1, 1, 9).setValues([[
+        ex[0], c.role || ex[1], name, c.organization || ex[3],
+        c.phone || ex[4], c.email || ex[5], c.mailingAddress || ex[6],
+        c.relatedEntity || ex[7], c.notes || ex[8]
+      ]]);
+      updated++;
+    } else {
+      sheet.appendRow([
+        'PC-' + String(nextId++).padStart(3, '0'),
+        c.role || '', name, c.organization || '',
+        c.phone || '', c.email || '', c.mailingAddress || '',
+        c.relatedEntity || '', c.notes || ''
+      ]);
+      nameMap[key] = sheet.getLastRow();
+      imported++;
+    }
+  }
+  return { status: 'ok', action: 'pushContacts', imported: imported, updated: updated };
+}
+
+
+/**
+ * Push website account records to "Website Accounts" tab.
+ * Upserts by platform name (case-insensitive). ID prefix: WA-NNN.
+ * Does NOT write passwords — callers must strip them before sending.
+ */
+function pushWebsiteAccounts_(ss, accounts) {
+  var sheet = ss.getSheetByName('Website Accounts');
+  if (!sheet) return { status: 'error', action: 'pushWebsiteAccounts', message: 'Website Accounts tab not found' };
+
+  var lastRow = sheet.getLastRow();
+  var platformMap = {}, existingRows = {};
+  if (lastRow > 1) {
+    var allData = sheet.getRange(2, 1, lastRow - 1, 8).getValues();
+    for (var n = 0; n < allData.length; n++) {
+      var k = String(allData[n][1] || '').toLowerCase().trim(); // col B = platform
+      if (k) { platformMap[k] = n + 2; existingRows[k] = allData[n]; }
+    }
+  }
+
+  var nextId = 1;
+  if (lastRow > 1) {
+    var ids = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+    for (var ki = 0; ki < ids.length; ki++) {
+      var m = String(ids[ki][0]).match(/WA-(\d+)/);
+      if (m) nextId = Math.max(nextId, parseInt(m[1]) + 1);
+    }
+  }
+
+  var imported = 0, updated = 0;
+  for (var i = 0; i < accounts.length; i++) {
+    var a = accounts[i];
+    var platform = (a.platform || '').trim();
+    if (!platform) continue;
+    var key = platform.toLowerCase();
+    var existingRow = platformMap[key];
+
+    if (existingRow) {
+      var ex = existingRows[key];
+      sheet.getRange(existingRow, 1, 1, 8).setValues([[
+        ex[0], platform, a.url || ex[2], a.username || ex[3],
+        a.linkedEntity || ex[4], a.mfaMethod || ex[5],
+        a.lastVerified || ex[6], a.notes || ex[7]
+      ]]);
+      updated++;
+    } else {
+      sheet.appendRow([
+        'WA-' + String(nextId++).padStart(3, '0'),
+        platform, a.url || '', a.username || '',
+        a.linkedEntity || '', a.mfaMethod || '',
+        a.lastVerified || '', a.notes || ''
+      ]);
+      platformMap[key] = sheet.getLastRow();
+      imported++;
+    }
+  }
+  return { status: 'ok', action: 'pushWebsiteAccounts', imported: imported, updated: updated };
 }
 
 
