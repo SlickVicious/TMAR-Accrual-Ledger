@@ -39706,12 +39706,17 @@ async function eonChatSend() {
   var memories = [];
   try { memories = (await MEM0.search(msg, 4)) || []; } catch(e) {}
 
+  // Track conversation history so the agent remembers what it just asked
+  EEON_STATE.chatMessages.push({ role: 'user', content: msg });
+  // Cap at 40 turns (20 exchanges) to avoid context bloat
+  if (EEON_STATE.chatMessages.length > 40) EEON_STATE.chatMessages = EEON_STATE.chatMessages.slice(-40);
+
   var finalText = await callLLMStream(systemPrompt, userContent, memories, function(tok) {
     rawBuf += tok;
     _updateTokenGuard(tok);
     if (body) body.innerHTML = rawBuf.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
     if (msgs) msgs.scrollTop = msgs.scrollHeight;
-  });
+  }, EEON_STATE.chatMessages);
 
   if (body) {
     if (finalText && finalText.indexOf('[ERROR') === 0) {
@@ -39725,6 +39730,12 @@ async function eonChatSend() {
     body.removeAttribute('id');
   }
   if (msgs) msgs.scrollTop = msgs.scrollHeight;
+
+  // Store assistant reply so next turn includes it as context
+  var replyText = finalText || rawBuf;
+  if (replyText && replyText.indexOf('[ERROR') !== 0) {
+    EEON_STATE.chatMessages.push({ role: 'assistant', content: replyText });
+  }
 
   try { if (finalText && finalText.indexOf('[ERROR') !== 0) await MEM0.add(msg, finalText, agentId); } catch(e) {}
 }
@@ -41901,7 +41912,7 @@ function buildFullSystemPrompt(agentSystemPrompt, mem0Memories) {
 // ═══════════════════════════════════════════════════════════════════════════
 // callLLMStream — Streaming Token Delivery (Ollama NDJSON + SSE for all others)
 // ═══════════════════════════════════════════════════════════════════════════
-async function callLLMStream(agentSystemPrompt, userMessage, mem0Memories, onToken) {
+async function callLLMStream(agentSystemPrompt, userMessage, mem0Memories, onToken, conversationHistory) {
   var r = resolveProvider();
   if (!r) {
     var e1 = '[ERROR] No API key configured. Go to Settings → API Keys and configure a provider.';
@@ -41996,7 +42007,10 @@ async function callLLMStream(agentSystemPrompt, userMessage, mem0Memories, onTok
       headers['x-api-key'] = key;
       headers['anthropic-version'] = '2023-06-01';
       headers['anthropic-dangerous-request-allow-browser-headers'] = 'true';
-      var body = JSON.stringify({ model: model, max_tokens: 4096, stream: true, system: systemPrompt, messages: [{ role: 'user', content: userMessage }] });
+      var anthropicMsgs = (conversationHistory && conversationHistory.length > 0)
+        ? conversationHistory
+        : [{ role: 'user', content: userMessage }];
+      var body = JSON.stringify({ model: model, max_tokens: 4096, stream: true, system: systemPrompt, messages: anthropicMsgs });
     } else if (p.auth === 'ernie') {
       url = url + '?access_token=' + key;
       var ernieMsgText = Array.isArray(userMessage) ? userMessage.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('\n') : userMessage;
@@ -42004,7 +42018,10 @@ async function callLLMStream(agentSystemPrompt, userMessage, mem0Memories, onTok
     } else {
       headers['Authorization'] = 'Bearer ' + key;
       var bearerMsgText = Array.isArray(userMessage) ? userMessage.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('\n') : userMessage;
-      var body = JSON.stringify({ model: model, max_tokens: 4096, stream: true, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: bearerMsgText }] });
+      var bearerMsgs = (conversationHistory && conversationHistory.length > 0)
+        ? [{ role: 'system', content: systemPrompt }].concat(conversationHistory.map(function(m) { return { role: m.role, content: typeof m.content === 'string' ? m.content : bearerMsgText }; }))
+        : [{ role: 'system', content: systemPrompt }, { role: 'user', content: bearerMsgText }];
+      var body = JSON.stringify({ model: model, max_tokens: 4096, stream: true, messages: bearerMsgs });
     }
 
     var ctrl = new AbortController();
@@ -44802,6 +44819,7 @@ var _eonActiveFirm = 'auto';
 
 function setFirm(firmId) {
   _eonActiveFirm = firmId;
+  EEON_STATE.chatMessages = []; // reset history when switching agents
   document.querySelectorAll('[id^="firm-chip-"]').forEach(function(btn) {
     var id = btn.id.replace('firm-chip-','');
     var isActive = id === firmId;
@@ -46078,7 +46096,15 @@ const AP = {
   },
 
   _ensureFileUI: function(page) {
-    if (document.getElementById('ap_fu_' + page)) return;
+    var existing = document.getElementById('ap_fu_' + page);
+    if (existing) {
+      // Static inputs have no onchange — wire it here if not already done
+      if (!existing._apWired) {
+        existing._apWired = true;
+        existing.onchange = (function(pg) { return function() { AP.handleFile(this, pg); }; })(page);
+      }
+      return;
+    }
     var inp = document.getElementById('ap_in_' + page);
     if (!inp) return;
     var bar = inp.parentNode;
@@ -46187,7 +46213,8 @@ document.addEventListener('DOMContentLoaded', function() {
    'code','creative','html_arch','general',
    'doc_creation','legal_analyst','doc_format','writs_writing','amicus_brief',
    'dt_appeal','presumption_killer','fact_conclusion','jurisdictional',
-   'const_sovereignty','brainstorm','trial_prep','biblical'].forEach(function(p) {
+   'const_sovereignty','brainstorm','trial_prep','biblical',
+   'beni_inte','irs_lab'].forEach(function(p) {
     AP.init(p);
   });
 });
