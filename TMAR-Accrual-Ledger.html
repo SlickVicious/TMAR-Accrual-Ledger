@@ -39706,8 +39706,8 @@ async function eonChatSend() {
   var memories = [];
   try { memories = (await MEM0.search(msg, 4)) || []; } catch(e) {}
 
-  // Track conversation history so the agent remembers what it just asked
-  EEON_STATE.chatMessages.push({ role: 'user', content: msg });
+  // Track conversation history — use userContent (not msg) so attachments are included
+  EEON_STATE.chatMessages.push({ role: 'user', content: userContent });
   // Cap at 40 turns (20 exchanges) to avoid context bloat
   if (EEON_STATE.chatMessages.length > 40) EEON_STATE.chatMessages = EEON_STATE.chatMessages.slice(-40);
 

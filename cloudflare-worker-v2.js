@@ -46,6 +46,14 @@ export default {
 
     const url = new URL(request.url);
 
+    // ── Route 0: Health check (root GET) ──
+    if (request.method === 'GET' && url.pathname === '/') {
+      return new Response(
+        JSON.stringify({ status: 'ok', service: 'TMAR CORS Proxy', version: 2 }),
+        { status: 200, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // ── Route 1: Generic CORS proxy (?url= parameter) ──
     const proxyTarget = url.searchParams.get('url');
     if (proxyTarget) {
