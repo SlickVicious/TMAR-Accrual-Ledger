@@ -35158,7 +35158,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <div class="chat-input-area">
 <label id="micBtn" onclick="toggleMic()" title="Voice Input (Speech-to-Text)" style="width:42px;height:42px;border-radius:10px;border:1px solid rgba(139,92,246,.5);background:rgba(139,92,246,.15);color:#a78bfa;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .2s">🎤</label>
 <label for="fileUpload" title="Upload Document" style="width:42px;height:42px;border-radius:10px;border:1px solid rgba(99,102,241,.5);background:rgba(99,102,241,.15);color:#818cf8;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .2s">📎</label>
-<input type="file" id="fileUpload" multiple="" accept=".txt,.pdf,.doc,.docx,.csv,.json,.html,.md,.rtf,.xml,.log" style="display:none" onchange="handleFileUpload(this)">
+<input type="file" id="fileUpload" multiple="" accept=".txt,.pdf,.doc,.docx,.csv,.json,.html,.md,.rtf,.xml,.log,.png,.jpg,.jpeg,.gif,.webp,.bmp,.tiff" style="display:none" onchange="handleFileUpload(this)">
 <textarea class="chat-input" id="chatInput" placeholder="Type your message… (Enter to send, Shift+Enter for new line, Ctrl+V to paste image)" rows="1" onkeydown="if(event.key==='Enter'&amp;&amp;!event.shiftKey){event.preventDefault();eonChatSend();}" onpaste="handleChatPaste(event)"></textarea>
 <button class="chat-send" onclick="eonChatSend()" title="Send">➤</button>
 </div>
@@ -39876,13 +39876,23 @@ function handleFileUpload(input) {
   if (!window._chatAttachments) window._chatAttachments = [];
   var preview = document.getElementById('filePreview');
   Array.from(input.files).forEach(function(file) {
-    var isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    var isPdf   = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    var isImage = file.type.startsWith('image/');
     var reader = new FileReader();
     if (isPdf) {
       reader.onload = function(e) {
         var base64 = e.target.result.split(',')[1];
         var idx = window._chatAttachments.length;
         window._chatAttachments.push({ name: file.name, type: 'pdf', base64: base64 });
+        _addAttachPill(file.name, idx);
+        if (preview) preview.style.display = 'flex';
+      };
+      reader.readAsDataURL(file);
+    } else if (isImage) {
+      reader.onload = function(e) {
+        var base64 = e.target.result.split(',')[1];
+        var idx = window._chatAttachments.length;
+        window._chatAttachments.push({ name: file.name, type: 'image', base64: base64, mediaType: file.type || 'image/png' });
         _addAttachPill(file.name, idx);
         if (preview) preview.style.display = 'flex';
       };
