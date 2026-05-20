@@ -46,6 +46,9 @@ tt-test.html
 # Local IDE / editor settings
 .vscode/
 
+# OpenAI Codex workspace config (local dev environment)
+.codex/
+
 # Merge artifacts and pre-dedup backups
 TMAR-Accrual-Ledger-merged.html
 *.bak-predeup
