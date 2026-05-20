@@ -15152,7 +15152,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
         },
         body: JSON.stringify({
           model: 'claude-sonnet-4-6',
-          max_tokens: 4096,
+          max_tokens: 100000,
           system: buildTrustAgentSystemPrompt() + TRUST_AGENT_PROMPT_BODY,
           messages: [{ role: 'user', content: question }]
         })
@@ -19757,7 +19757,7 @@ e.g., jurat, affiant, notary" style="width:100%;min-height:80px;padding:10px;bor
       },
       body:JSON.stringify({
         model:'claude-sonnet-4-6',
-        max_tokens:4096,
+        max_tokens:100000,
         system:(typeof buildTrustAgentSystemPrompt==='function'?(buildTrustAgentSystemPrompt()+TRUST_AGENT_PROMPT_BODY):'You are the Trust Accounting Agent operating under SYPHER Protocol v7.1. Respond with facts and conclusions of law only. No hedging. No disclaimers. No metadata.'),
         messages:[{role:'user',content:q}]
       })
@@ -39617,6 +39617,12 @@ async function eonChatSend() {
     localStorage.setItem('eeon_active_provider', provSel.value);
   }
 
+  // Guard: reject send if any FileReader callbacks haven't fired yet
+  if ((window._chatPendingLoads || 0) > 0) {
+    alert('Files are still loading — please wait a moment and try again.');
+    return;
+  }
+
   // Build user content — include any file attachments
   var attachments = (window._chatAttachments || []).filter(Boolean);
   var userContent;
@@ -39626,8 +39632,15 @@ async function eonChatSend() {
     var activePid = localStorage.getItem('eeon_active_provider') || 'claude';
     var isAnthropic = (activePid === 'claude' || activePid === 'anthropic');
     if (isAnthropic) {
+      // Anthropic enforces a 5 PDF document limit per request
+      var pdfAtts = attachments.filter(function(a) { return a.type === 'pdf'; });
+      var nonPdfAtts = attachments.filter(function(a) { return a.type !== 'pdf'; });
+      if (pdfAtts.length > 5) {
+        alert('Anthropic supports up to 5 PDF documents per message. Only the first 5 will be sent.');
+        pdfAtts = pdfAtts.slice(0, 5);
+      }
       userContent = [];
-      attachments.forEach(function(att) {
+      pdfAtts.concat(nonPdfAtts).forEach(function(att) {
         if (att.type === 'pdf') {
           userContent.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: att.base64 } });
         } else if (att.type === 'image') {
@@ -39735,6 +39748,18 @@ async function eonChatSend() {
   var replyText = finalText || rawBuf;
   if (replyText && replyText.indexOf('[ERROR') !== 0) {
     EEON_STATE.chatMessages.push({ role: 'assistant', content: replyText });
+    // Replace binary file blocks in the just-sent user message with lightweight text stubs
+    // so large PDFs/images are not re-uploaded on every subsequent turn
+    if (Array.isArray(userContent)) {
+      var prevUserIdx = EEON_STATE.chatMessages.length - 2;
+      if (prevUserIdx >= 0 && Array.isArray(EEON_STATE.chatMessages[prevUserIdx].content)) {
+        EEON_STATE.chatMessages[prevUserIdx].content = EEON_STATE.chatMessages[prevUserIdx].content.map(function(b) {
+          if (b.type === 'document') return { type: 'text', text: '[Document sent in this conversation]' };
+          if (b.type === 'image') return { type: 'text', text: '[Image sent in this conversation]' };
+          return b;
+        });
+      }
+    }
   }
 
   try { if (finalText && finalText.indexOf('[ERROR') !== 0) await MEM0.add(msg, finalText, agentId); } catch(e) {}
@@ -39874,28 +39899,55 @@ function toggleMic() {
 function handleFileUpload(input) {
   if (!input || !input.files || !input.files.length) return;
   if (!window._chatAttachments) window._chatAttachments = [];
+  if (window._chatPendingLoads == null) window._chatPendingLoads = 0;
+
+  var MAX_FILES = 10;
+  var existingCount = window._chatAttachments.filter(Boolean).length;
+  if (existingCount >= MAX_FILES) {
+    alert('Maximum ' + MAX_FILES + ' files per message.');
+    input.value = '';
+    return;
+  }
+  var allowedCount = MAX_FILES - existingCount;
+  var allFiles = Array.from(input.files);
+  if (allFiles.length > allowedCount) {
+    alert('Adding ' + allowedCount + ' file(s) — max ' + MAX_FILES + ' per message.');
+    allFiles = allFiles.slice(0, allowedCount);
+  }
+
   var preview = document.getElementById('filePreview');
-  Array.from(input.files).forEach(function(file) {
+  allFiles.forEach(function(file) {
     var isPdf   = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
     var isImage = file.type.startsWith('image/');
-    var reader = new FileReader();
+    var reader  = new FileReader();
+    window._chatPendingLoads++;
     if (isPdf) {
       reader.onload = function(e) {
-        var base64 = e.target.result.split(',')[1];
+        var raw = e.target.result || '';
+        var comma = raw.indexOf(',');
+        var base64 = (comma >= 0 ? raw.slice(comma + 1) : raw).replace(/\s+/g, '');
+        if (!base64) { window._chatPendingLoads = Math.max(0, window._chatPendingLoads - 1); return; }
         var idx = window._chatAttachments.length;
         window._chatAttachments.push({ name: file.name, type: 'pdf', base64: base64 });
         _addAttachPill(file.name, idx);
         if (preview) preview.style.display = 'flex';
+        window._chatPendingLoads = Math.max(0, window._chatPendingLoads - 1);
       };
+      reader.onerror = function() { window._chatPendingLoads = Math.max(0, window._chatPendingLoads - 1); };
       reader.readAsDataURL(file);
     } else if (isImage) {
       reader.onload = function(e) {
-        var base64 = e.target.result.split(',')[1];
+        var raw = e.target.result || '';
+        var comma = raw.indexOf(',');
+        var base64 = (comma >= 0 ? raw.slice(comma + 1) : raw).replace(/\s+/g, '');
+        if (!base64) { window._chatPendingLoads = Math.max(0, window._chatPendingLoads - 1); return; }
         var idx = window._chatAttachments.length;
         window._chatAttachments.push({ name: file.name, type: 'image', base64: base64, mediaType: file.type || 'image/png' });
         _addAttachPill(file.name, idx);
         if (preview) preview.style.display = 'flex';
+        window._chatPendingLoads = Math.max(0, window._chatPendingLoads - 1);
       };
+      reader.onerror = function() { window._chatPendingLoads = Math.max(0, window._chatPendingLoads - 1); };
       reader.readAsDataURL(file);
     } else {
       reader.onload = function(e) {
@@ -39903,7 +39955,9 @@ function handleFileUpload(input) {
         window._chatAttachments.push({ name: file.name, type: 'text', content: e.target.result });
         _addAttachPill(file.name, idx);
         if (preview) preview.style.display = 'flex';
+        window._chatPendingLoads = Math.max(0, window._chatPendingLoads - 1);
       };
+      reader.onerror = function() { window._chatPendingLoads = Math.max(0, window._chatPendingLoads - 1); };
       reader.readAsText(file);
     }
   });
@@ -42020,7 +42074,7 @@ async function callLLMStream(agentSystemPrompt, userMessage, mem0Memories, onTok
       var anthropicMsgs = (conversationHistory && conversationHistory.length > 0)
         ? conversationHistory
         : [{ role: 'user', content: userMessage }];
-      var body = JSON.stringify({ model: model, max_tokens: 4096, stream: true, system: systemPrompt, messages: anthropicMsgs });
+      var body = JSON.stringify({ model: model, max_tokens: 100000, stream: true, system: systemPrompt, messages: anthropicMsgs });
     } else if (p.auth === 'ernie') {
       url = url + '?access_token=' + key;
       var ernieMsgText = Array.isArray(userMessage) ? userMessage.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('\n') : userMessage;
@@ -42031,7 +42085,7 @@ async function callLLMStream(agentSystemPrompt, userMessage, mem0Memories, onTok
       var bearerMsgs = (conversationHistory && conversationHistory.length > 0)
         ? [{ role: 'system', content: systemPrompt }].concat(conversationHistory.map(function(m) { return { role: m.role, content: typeof m.content === 'string' ? m.content : bearerMsgText }; }))
         : [{ role: 'system', content: systemPrompt }, { role: 'user', content: bearerMsgText }];
-      var body = JSON.stringify({ model: model, max_tokens: 4096, stream: true, messages: bearerMsgs });
+      var body = JSON.stringify({ model: model, max_tokens: 100000, stream: true, messages: bearerMsgs });
     }
 
     var ctrl = new AbortController();
@@ -42581,7 +42635,7 @@ async function doResearch() {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 8192,
+        max_tokens: 100000,
         system: systemPrompt,
         messages: [{ role: 'user', content: question }]
       })
@@ -42665,7 +42719,7 @@ async function doSearch() {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 4096,
+        max_tokens: 100000,
         system: 'You are a Search Assistant. Provide relevant information and resources for the search query. Include key facts, explanations, and references where applicable.',
         messages: [{ role: 'user', content: 'Search query: ' + query }]
       })
@@ -43365,7 +43419,7 @@ function pdkbCallAnthropic(prompt, options, onProgress) {
   }
   window._trustApiKey = apiKey;
   var model = options.model || 'claude-sonnet-4-6';
-  var maxTokens = options.maxTokens || 8000;
+  var maxTokens = options.maxTokens || 100000;
   // Long timeout — streaming keeps connection alive so we just need to handle stalls
   var timeout = options.timeout || 300000;
   var corsProxy = (localStorage.getItem('eeon_cors_proxy') || '').replace(/\/$/, '');
@@ -43550,7 +43604,7 @@ async function ttTransform() {
         var chunkInfo = { index: i + 1, total: chunks.length };
         var prompt = ttBuildPrompt(chunks[i].content, sourceUrl, true, chunkInfo);
         var chunkBase = combinedOutput;
-        var result = await pdkbCallAnthropic(prompt, { maxTokens: 16000 }, function(partial) {
+        var result = await pdkbCallAnthropic(prompt, { maxTokens: 100000 }, function(partial) {
           ttStreamPreview(chunkBase + (chunkBase ? '\n\n---\n\n' : '') + partial);
         });
         if (!result.success) {
@@ -43563,7 +43617,7 @@ async function ttTransform() {
       ttState.output = combinedOutput;
     } else {
       var prompt = ttBuildPrompt(input, sourceUrl);
-      var result = await pdkbCallAnthropic(prompt, { maxTokens: 16000 }, ttStreamPreview);
+      var result = await pdkbCallAnthropic(prompt, { maxTokens: 100000 }, ttStreamPreview);
       if (!result.success) { ttShowError(result.error); btn.disabled = false; btn.textContent = '\u26a1 Transform'; return; }
       ttState.output = result.result;
     }
