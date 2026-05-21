@@ -10,6 +10,21 @@ The **TMAR (Trust Master Account Register)** system — a comprehensive legal do
 
 ---
 
+## Recent Revision Notes
+
+- 2026-05-20: Pocket Army "Enhancing Pocket Army" — 45-agent registry fully verified (29/29 pass, 0 fail, 0 warn)
+  - 7 new agents registered: tmar_admin (37), fc_team/librarian/taxonomy/auditor (38–41), tmar_strategy (42), trust_architect (43); default (44) and test (45) added as runtime placeholders
+  - All 6 affected canvas files renamed to match agent number prefixes; `PERMITTED_SHARED_CANVASES` updated in verify script
+  - 4 keyword collision pairs resolved (code, dt_appeal, brainstorm, legal_analyst); dream_team/legal/doc_creation/general-purpose collisions resolved
+  - 3 substantive system prompts deployed: legal (42-year EEON Foundation expert), tax (IRC/Treasury specialist), beni_inte (Form 1041/K-1 + EeoN Framework doctrines)
+  - `fc_team` canvas (`38_file_cabinet_team.canvas`) received a full system_prompt node covering all 4 sub-agents and the 11-Binder System
+  - Source: `06 Toolkit/Agents/agents.json`, `TMAR-Accrual-Ledger/tmar-agents-registry.js`, `06 Toolkit/Agents/verify_agent_parity.js`
+
+- 2026-05-20: Document Creator and IRS autofill revision summary
+  - `docs/TMAR-IRS-Autofill-Revision-2026-05-20.md`
+
+---
+
 ## Live Remote Infrastructure
 
 | Resource | URL / ID |
@@ -188,6 +203,7 @@ export PATH='/Users/animatedastronaut/.npm-global/bin:/opt/homebrew/bin:/usr/loc
 | AI Tools for Obsidian | Installed both machines; Mac PATH bug fixed |
 | TMAR GUI verification | 211/211 elements, 246/246 functions, 17 Function Reference Cards |
 | **File organization (Apr 2026)** | 30 1099-B iterations archived; 25 scripts + 24 logs moved to vault; PDKB archived + deleted (1.07 GB freed); repo cleaned (2.8 MB stale artifacts removed); AestheticsAndAudit.gs synced to both deployment dirs; 37 trust reference PDFs rescued from PPP to FileCabinet |
+| **Pocket Army v2 (May 2026)** | 45-agent registry fully built and verified: agents.json, tmar-agents-registry.js, 42 canvas files, verify_agent_parity.js 29/29 pass. `06 Toolkit/Agents/` is the canonical source. |
 
 ### 🔧 In Progress
 
@@ -291,3 +307,4 @@ C:\Users\rhyme\Desktop\FileCabinet\Legal Reference\Trust Books Articles Ref Docs
 ```
 
 > These were extracted from PPP vault before archival. Original PPP vault is compressed at `D:\_Archive\`.
+
