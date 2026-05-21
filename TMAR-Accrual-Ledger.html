@@ -13,6 +13,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <style>
     :root {
       --bg-primary: #0D1B2A;
@@ -1303,6 +1304,9 @@
         <!-- Group 10: Verification Tools -->
         <button onclick="switchMainTab('entityVerifier')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="entityVerifier" style="background:rgba(59,130,246,0.2);border:2px solid rgba(59,130,246,0.6);font-weight:800;color:#3b82f6">
           🔍 Entity Verifier
+        </button>
+        <button onclick="switchMainTab('tmarInspector')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="tmarInspector" style="background:linear-gradient(135deg,rgba(14,165,233,0.24),rgba(16,185,129,0.22));border:2px solid rgba(14,165,233,0.55);font-weight:800;color:#38bdf8">
+          🛡️ TMAR Inspector
         </button>
         <div class="w-px h-6 bg-gray-600 mx-1 hidden md:block"></div>
         <!-- Group 11: Data Integration -->
@@ -7212,17 +7216,187 @@ function exportFilingPDF(formType, data) {
       if (tabName === 'masterReport') { if (typeof generateMasterReport === 'function') generateMasterReport(); }
       if (tabName === 'financialAssets') { if (typeof initFinancialAssets === 'function') initFinancialAssets(); if (typeof initScrollReveal === 'function') initScrollReveal(); }
       if (tabName === 'voiceChat') { if (typeof initVoiceChat === 'function') initVoiceChat(); }
-      if (tabName === 'docCreator') { if (typeof initDocCreator === 'function') initDocCreator(); }
+      if (tabName === 'docCreator') { if (typeof initDocCreator === 'function') initDocCreator(); if (typeof renderDocAutofillDiagnostics === 'function') renderDocAutofillDiagnostics(); }
       if (tabName === 'cpsa') { if (typeof initCPSA === 'function') initCPSA(); }
       if (tabName === 'trcf') { if (typeof initTRCF === 'function') initTRCF(); }
       if (tabName === 'ccsn') { if (typeof initCCSN === 'function') initCCSN(); }
       if (tabName === 'fdrf') { if (typeof initFDRF === 'function') initFDRF(); }
       if (tabName === 'eeej') { if (typeof initEEEJ === 'function') initEEEJ(); }
       if (tabName === 'entityVerifier') { if (typeof ev2InitEntityVerifier === 'function') ev2InitEntityVerifier(); }
+      if (tabName === 'tmarInspector') { if (typeof initTMARInspectorDashboard === 'function') initTMARInspectorDashboard(); }
       if (tabName === 'syncCenter') { if (typeof initSyncCenter === 'function') initSyncCenter(); }
       if (tabName === 'etymologyAnalyzer') { if (typeof initEtymologyAnalyzer === 'function') initEtymologyAnalyzer(); }
       if (tabName === 'multiStatePoa') { if (typeof initMultiStatePoa === 'function') initMultiStatePoa(); }
     }
+
+    // TMAR Inspector Dashboard (lightweight UI bridge)
+    const TI_STORAGE_KEY = 'tmar_inspector_dashboard_v1';
+
+    function tiLoadState() {
+      try {
+        const raw = localStorage.getItem(TI_STORAGE_KEY);
+        if (!raw) return { catalog: [], events: [], verifications: [], fixes: [], recommendations: [] };
+        const parsed = JSON.parse(raw);
+        return {
+          catalog: Array.isArray(parsed.catalog) ? parsed.catalog : [],
+          events: Array.isArray(parsed.events) ? parsed.events : [],
+          verifications: Array.isArray(parsed.verifications) ? parsed.verifications : [],
+          fixes: Array.isArray(parsed.fixes) ? parsed.fixes : [],
+          recommendations: Array.isArray(parsed.recommendations) ? parsed.recommendations : []
+        };
+      } catch (e) {
+        return { catalog: [], events: [], verifications: [], fixes: [], recommendations: [] };
+      }
+    }
+
+    function tiSaveState(state) {
+      try { localStorage.setItem(TI_STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+    }
+
+    function tiState() {
+      if (!window.__tiState) window.__tiState = tiLoadState();
+      return window.__tiState;
+    }
+
+    function tiPushEvent(event) {
+      const st = tiState();
+      st.events.push(event);
+      if (st.events.length > 3000) st.events.splice(0, st.events.length - 3000);
+      tiSaveState(st);
+    }
+
+    function tiTrackFunction(functionId) {
+      if (!functionId) return;
+      const st = tiState();
+      const exists = st.catalog.some(function(c){ return c && c.id === functionId; });
+      if (!exists) {
+        st.catalog.push({ id: functionId, trackedAt: new Date().toISOString() });
+        tiSaveState(st);
+      }
+    }
+
+    function tiPushVerification(record) {
+      const st = tiState();
+      st.verifications.push(record);
+      if (st.verifications.length > 3000) st.verifications.splice(0, st.verifications.length - 3000);
+      tiSaveState(st);
+    }
+
+    function tiPushRecommendation(record) {
+      const st = tiState();
+      st.recommendations.push(record);
+      if (st.recommendations.length > 3000) st.recommendations.splice(0, st.recommendations.length - 3000);
+      tiSaveState(st);
+    }
+
+    function tiPushFix(record) {
+      const st = tiState();
+      st.fixes.push(record);
+      if (st.fixes.length > 3000) st.fixes.splice(0, st.fixes.length - 3000);
+      tiSaveState(st);
+    }
+
+    function tiRefreshIfVisible() {
+      var section = document.getElementById('tmarInspectorSection');
+      if (!section) return;
+      if (!section.classList.contains('hidden') && typeof tiRefreshDashboard === 'function') {
+        tiRefreshDashboard();
+      }
+    }
+
+    function tiInitConnectionLabel() {
+      const el = document.getElementById('ti-connection');
+      if (!el) return;
+      if (window.TMAR && window.TMAR.TMARInspectorService && typeof window.TMAR.TMARInspectorService.createInspector === 'function') {
+        if (!window.__tiInspectorRuntime) window.__tiInspectorRuntime = window.TMAR.TMARInspectorService.createInspector();
+        el.textContent = 'Status: Connected to TMARInspectorService runtime';
+      } else {
+        el.textContent = 'Status: Local dashboard mode (runtime bridge not attached)';
+      }
+    }
+
+    function tiRenderList(elId, rows, accent) {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      if (!rows.length) {
+        el.innerHTML = '<div style="opacity:.7">No items.</div>';
+        return;
+      }
+      el.innerHTML = rows.map(function(r) {
+        return '<div style="padding:8px 10px;border:1px solid rgba(255,255,255,0.08);border-left:3px solid ' + accent + ';border-radius:8px;background:rgba(0,0,0,0.18);margin-bottom:8px">' +
+          '<div style="font-weight:700;color:var(--text-primary);margin-bottom:4px">' + (r.title || 'Item') + '</div>' +
+          '<div style="color:var(--text-secondary)">' + (r.meta || '') + '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    function tiRefreshDashboard() {
+      const st = tiState();
+      const failures = st.events.filter(function(e){ return e && e.status === 'error'; }).slice(-20).reverse()
+        .map(function(e){
+          var summary = e && e.diagnosticSummary ? (' • ' + e.diagnosticSummary) : '';
+          return { title: (e.id || 'unknown') + ' failed', meta: (e.errorMessage || 'Execution error') + summary + ' • ' + (e.endedAt || '') };
+        });
+
+      const verifFails = st.verifications.filter(function(v){ return v && !v.passed; }).slice(-20).reverse();
+      verifFails.forEach(function(v){
+        failures.push({ title: (v.functionId || 'unknown') + ' verification failed', meta: (v.ruleId || 'rule') + ' • ' + (v.message || '') });
+      });
+
+      const confirmations = []
+        .concat(st.verifications.filter(function(v){ return v && v.passed; }).slice(-20).reverse().map(function(v){
+          return { title: (v.functionId || 'unknown') + ' verified', meta: (v.ruleId || 'rule') + ' • ' + (v.message || '') + ' • ' + (v.createdAt || '') };
+        }))
+        .concat(st.fixes.filter(function(f){ return f && f.applied; }).slice(-20).reverse().map(function(f){
+          return { title: (f.functionId || 'unknown') + ' fix applied', meta: (f.fixId || 'fix') + ' • safeAutoFix=' + (!!f.safeAutoFix) };
+        }));
+
+      const recs = st.recommendations.slice(-30).reverse().map(function(r){
+        return { title: (r.functionId || 'unknown') + ' → ' + (r.recommendation || 'Review required'), meta: (r.reason || '') + ' • ' + (r.priority || 'P2') };
+      });
+
+      document.getElementById('ti-total-functions').textContent = String(st.catalog.length || 0);
+      document.getElementById('ti-failure-count').textContent = String(failures.length);
+      document.getElementById('ti-confirm-count').textContent = String(confirmations.length);
+      document.getElementById('ti-fix-count').textContent = String(recs.length);
+
+      tiRenderList('ti-failures', failures, '#f87171');
+      tiRenderList('ti-confirmations', confirmations, '#34d399');
+      tiRenderList('ti-recommendations', recs, '#fbbf24');
+
+      tiPushEvent({ type: 'dashboard', id: 'tmarInspector.dashboard.refresh', status: 'ok', endedAt: new Date().toISOString() });
+    }
+
+    function tiSeedSampleData() {
+      const st = tiState();
+      st.catalog = st.catalog.length ? st.catalog : [
+        { id: 'DocCreator.autoFillIRSPDF' },
+        { id: 'SyncCenter.importFromLedger' },
+        { id: 'EntityVerifier.ev2VerifySingle' }
+      ];
+      st.events.push({ id: 'DocCreator.autoFillIRSPDF', status: 'error', errorMessage: 'No matching PDF fields were populated', endedAt: new Date().toISOString() });
+      st.verifications.push({ functionId: 'DocCreator.autoFillIRSPDF', ruleId: 'pdf-autofill-count', passed: false, message: 'Filled count = 0', createdAt: new Date().toISOString() });
+      st.verifications.push({ functionId: 'SyncCenter.importFromLedger', ruleId: 'import-schema', passed: true, message: 'Schema validated', createdAt: new Date().toISOString() });
+      st.fixes.push({ functionId: 'EntityVerifier.ev2VerifySingle', fixId: 'add-source-fallback', applied: true, safeAutoFix: true, createdAt: new Date().toISOString() });
+      st.recommendations.push({ functionId: 'DocCreator.autoFillIRSPDF', recommendation: 'Expand IRS tooltip pattern map', reason: 'High miss-rate in autofill', priority: 'P1' });
+      tiSaveState(st);
+      tiRefreshDashboard();
+    }
+
+    function tiClearDashboard() {
+      window.__tiState = { catalog: [], events: [], verifications: [], fixes: [], recommendations: [] };
+      tiSaveState(window.__tiState);
+      tiRefreshDashboard();
+    }
+
+    function initTMARInspectorDashboard() {
+      tiInitConnectionLabel();
+      tiRefreshDashboard();
+    }
+
+    window.tiRefreshDashboard = tiRefreshDashboard;
+    window.tiSeedSampleData = tiSeedSampleData;
+    window.tiClearDashboard = tiClearDashboard;
 
     // Filing Type Selection
     function selectFilingType(type) {
@@ -15575,6 +15749,50 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
             <option value="irs_f2848">Form 2848 — Power of Attorney</option>
             <option value="irs_f8821">Form 8821 — Tax Info Authorization</option>
             <option value="irs_f56">Form 56 — Fiduciary Notice</option>
+            <option value="irs_f1041k1">Schedule K-1 (Form 1041) — Beneficiary Share</option>
+            <option value="irs_f1041es">Form 1041-ES — Estimated Income Tax for Estates and Trusts</option>
+            <option value="irs_f1041t">Form 1041-T — Allocation of Estimated Tax to Beneficiaries</option>
+            <option value="irs_f5227">Form 5227 — Split-Interest Trust Information Return</option>
+            <option value="irs_f3520a">Form 3520-A — Foreign Trust Annual Information Return</option>
+            <option value="irs_f706">Form 706 — Estate and GST Tax Return</option>
+            <option value="irs_f709">Form 709 — Gift and GST Tax Return</option>
+            <option value="irs_f1120">Form 1120 — U.S. Corporation Income Tax Return</option>
+            <option value="irs_f1120w">Form 1120-W — Estimated Tax for Corporations</option>
+            <option value="irs_f1065">Form 1065 — U.S. Return of Partnership Income</option>
+            <option value="irs_f1065k1">Schedule K-1 (Form 1065) — Partner Share</option>
+            <option value="irs_f3800">Form 3800 — General Business Credit</option>
+            <option value="irs_f990">Form 990 — Return of Organization Exempt From Income Tax</option>
+            <option value="irs_f990ez">Form 990-EZ — Short Form Return of Exempt Organization</option>
+            <option value="irs_f990pf">Form 990-PF — Return of Private Foundation</option>
+            <option value="irs_f8971">Form 8971 — Beneficiaries Acquiring Property From Decedent</option>
+            <option value="irs_fw2">Form W-2 — Wage and Tax Statement</option>
+            <option value="irs_f1099nec">Form 1099-NEC — Nonemployee Compensation</option>
+            <option value="irs_f1099div">Form 1099-DIV — Dividends and Distributions</option>
+            <option value="irs_f1099int">Form 1099-INT — Interest Income</option>
+            <option value="irs_f1099r">Form 1099-R — Distributions From Pensions/IRAs</option>
+            <option value="irs_f1099oid">Form 1099-OID — Original Issue Discount</option>
+            <option value="irs_f3911">Form 3911 — Taxpayer Statement Regarding Refund</option>
+            <option value="irs_f4868">Form 4868 — Application for Automatic Extension</option>
+            <option value="irs_f8233">Form 8233 — Exemption From Withholding</option>
+            <option value="irs_f843">Form 843 — Claim for Refund and Request for Abatement</option>
+            <option value="irs_fw7">Form W-7 — Application for IRS Individual Taxpayer Identification Number</option>
+            <option value="irs_fw8ben">Form W-8BEN — Certificate of Foreign Status (Individuals)</option>
+            <option value="irs_fw8bene">Form W-8BEN-E — Certificate of Foreign Status (Entities)</option>
+            <option value="irs_fw8eci">Form W-8ECI — Income Connected With U.S. Trade or Business</option>
+            <option value="irs_p519">Publication 519 — U.S. Tax Guide for Aliens</option>
+          </optgroup>
+          <optgroup label="── IRS Downloads (Current / Reference) ──">
+            <option value="irs_dl_1040_current">Form 1040 (Current)</option>
+            <option value="irs_dl_2848_current">Form 2848 (Current)</option>
+            <option value="irs_dl_4852_current">Form 4852 (Current)</option>
+            <option value="irs_dl_8275r_current">Form 8275-R (Current)</option>
+            <option value="irs_dl_8453_current">Form 8453 (Current)</option>
+            <option value="irs_dl_8867_current">Form 8867 (Current)</option>
+            <option value="irs_dl_8879_current">Form 8879 (Current)</option>
+            <option value="irs_dl_schedule1_current">Schedule 1 (Current)</option>
+            <option value="irs_dl_schedule2_current">Schedule 2 (Current)</option>
+            <option value="irs_dl_scheduleA_current">Schedule A (Current)</option>
+            <option value="irs_dl_instructions1040_2025">Instructions 1040 (2025)</option>
           </optgroup>
           <optgroup label="── FWM Trust Administration ──">
             <option value="fwm_certificate_of_trust">FWM Certificate of Trust (1-Page)</option>
@@ -15655,6 +15873,16 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
         <button onclick="exportDocPDF()" style="padding:6px 12px;border:1px solid rgba(239,68,68,.3);border-radius:4px;background:rgba(239,68,68,.1);color:#ef4444;cursor:pointer;font-weight:700;font-size:11px">📄 PDF</button>
         <button onclick="exportDocWord()" style="padding:6px 12px;border:1px solid rgba(59,130,246,.3);border-radius:4px;background:rgba(59,130,246,.1);color:#3b82f6;cursor:pointer;font-weight:700;font-size:11px">📝 Word</button>
         <button onclick="printDoc()" style="padding:6px 12px;border:1px solid rgba(16,185,129,.3);border-radius:4px;background:rgba(16,185,129,.1);color:#10b981;cursor:pointer;font-weight:700;font-size:11px">🖨️ Print</button>
+      </div>
+
+      <!-- Autofill Diagnostics (Doc Creator) -->
+      <div id="doc-autofill-diagnostics" style="background:var(--bg-secondary);border:1px solid rgba(16,185,129,.28);border-radius:8px;padding:10px 12px;margin-bottom:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+          <div style="font-size:12px;font-weight:800;color:#10b981">🧪 Autofill Diagnostics</div>
+          <button onclick="renderDocAutofillDiagnostics()" style="padding:4px 10px;border:1px solid rgba(16,185,129,.35);border-radius:4px;background:rgba(16,185,129,.1);color:#10b981;cursor:pointer;font-weight:700;font-size:10px">↻ Refresh</button>
+        </div>
+        <div id="doc-autofill-summary" style="font-size:11px;color:var(--text-secondary);margin-bottom:6px">No autofill diagnostics yet. Run an IRS form autofill first.</div>
+        <div id="doc-autofill-details" style="font-size:10px;color:var(--text-secondary);line-height:1.5;max-height:120px;overflow:auto"></div>
       </div>
 
       <!-- Editor -->
@@ -18947,6 +19175,62 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
 </section>
 
   <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- TMAR INSPECTOR SECTION                                          -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <section id="tmarInspectorSection" class="form-section hidden">
+    <div style="padding:20px;max-width:1400px;margin:0 auto">
+      <div style="background:linear-gradient(135deg,rgba(14,165,233,0.14),rgba(16,185,129,0.12));border:2px solid rgba(14,165,233,0.42);border-radius:12px;padding:20px;margin-bottom:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+          <div>
+            <div style="font-size:24px;font-weight:900;background:linear-gradient(135deg,#38bdf8,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px">🛡️ TMAR INSPECTOR</div>
+            <div style="font-size:12px;color:var(--text-secondary)">Monitors, verifies, confirms, reports, records, and recommends safe fixes.</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button onclick="tiRefreshDashboard()" style="background:rgba(14,165,233,0.2);border:1px solid rgba(14,165,233,0.45);color:#38bdf8;padding:8px 14px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer">↻ Refresh</button>
+            <button onclick="tiSeedSampleData()" style="background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);color:#fbbf24;padding:8px 14px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer">⚗ Seed Sample</button>
+            <button onclick="tiClearDashboard()" style="background:rgba(239,68,68,0.16);border:1px solid rgba(239,68,68,0.4);color:#f87171;padding:8px 14px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer">🗑 Clear</button>
+          </div>
+        </div>
+        <div id="ti-connection" style="font-size:11px;color:var(--text-secondary);margin-top:8px">Status: Not initialized</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">
+        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:12px">
+          <div id="ti-total-functions" style="font-size:26px;font-weight:900;color:#e2e8f0">0</div>
+          <div style="font-size:10px;color:var(--text-secondary);font-weight:700;letter-spacing:.4px">FUNCTIONS TRACKED</div>
+        </div>
+        <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.35);border-radius:10px;padding:12px">
+          <div id="ti-failure-count" style="font-size:26px;font-weight:900;color:#f87171">0</div>
+          <div style="font-size:10px;color:#f87171;font-weight:700;letter-spacing:.4px">FAILURES</div>
+        </div>
+        <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.35);border-radius:10px;padding:12px">
+          <div id="ti-confirm-count" style="font-size:26px;font-weight:900;color:#34d399">0</div>
+          <div style="font-size:10px;color:#34d399;font-weight:700;letter-spacing:.4px">CONFIRMED</div>
+        </div>
+        <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.35);border-radius:10px;padding:12px">
+          <div id="ti-fix-count" style="font-size:26px;font-weight:900;color:#fbbf24">0</div>
+          <div style="font-size:10px;color:#fbbf24;font-weight:700;letter-spacing:.4px">RECOMMENDED FIXES</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:12px">
+          <div style="font-size:13px;font-weight:800;color:#f87171;margin-bottom:10px">🚨 Recent Failures</div>
+          <div id="ti-failures" style="max-height:360px;overflow:auto;font-size:11px;color:var(--text-secondary)"></div>
+        </div>
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(16,185,129,0.25);border-radius:10px;padding:12px">
+          <div style="font-size:13px;font-weight:800;color:#34d399;margin-bottom:10px">✅ Confirmations</div>
+          <div id="ti-confirmations" style="max-height:360px;overflow:auto;font-size:11px;color:var(--text-secondary)"></div>
+        </div>
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:12px">
+          <div style="font-size:13px;font-weight:800;color:#fbbf24;margin-bottom:10px">🛠 Recommended Fixes</div>
+          <div id="ti-recommendations" style="max-height:360px;overflow:auto;font-size:11px;color:var(--text-secondary)"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
   <!-- SYNC CENTER SECTION                                             -->
   <!-- ═══════════════════════════════════════════════════════════════ -->
   <section id="syncCenterSection" class="form-section hidden">
@@ -20876,7 +21160,7 @@ e.g., jurat, affiant, notary" style="width:100%;min-height:80px;padding:10px;bor
     if (!key) { alert('Please select a template first.'); return; }
     // IRS PDF forms — switch to PDF viewer mode
     if (key.indexOf('irs_') === 0) {
-      showIRSForm(key);
+      fillAndShowIRSForm(key);
       return;
     }
     // If returning from PDF viewer, restore editor
@@ -20901,44 +21185,604 @@ e.g., jurat, affiant, notary" style="width:100%;min-height:80px;padding:10px;bor
 
   // ── IRS Forms Map ──
   var IRS_FORMS = {
-    irs_f1040:    { file: 'f1040.pdf',    title: 'Form 1040 \u2014 U.S. Individual Income Tax Return' },
-    irs_f1040sc:  { file: 'f1040sc.pdf',  title: 'Form 1040 Schedule C \u2014 Profit or Loss from Business' },
-    irs_f1040x:   { file: 'f1040x.pdf',   title: 'Form 1040-X \u2014 Amended U.S. Individual Income Tax Return' },
-    irs_f1041:    { file: 'f1041.pdf',     title: 'Form 1041 \u2014 U.S. Income Tax Return for Estates and Trusts' },
-    irs_f1099a:   { file: 'f1099a.pdf',    title: 'Form 1099-A \u2014 Acquisition or Abandonment of Secured Property' },
-    irs_f1099b:   { file: 'f1099b.pdf',    title: 'Form 1099-B \u2014 Proceeds from Broker and Barter Exchange' },
-    irs_f1099c:   { file: 'f1099c.pdf',    title: 'Form 1099-C \u2014 Cancellation of Debt' },
-    irs_f1099msc: { file: 'f1099msc.pdf',  title: 'Form 1099-MISC \u2014 Miscellaneous Information' },
-    irs_f56f:     { file: 'f56f.pdf',      title: 'Form 56-F \u2014 Notice Concerning Fiduciary Relationship' },
-    irs_f8832:    { file: 'f8832.pdf',     title: 'Form 8832 \u2014 Entity Classification Election' },
-    irs_fss4:     { file: 'fss4.pdf',      title: 'Form SS-4 \u2014 Application for Employer Identification Number' },
-    irs_fw4:      { file: 'fw4.pdf',       title: 'Form W-4 \u2014 Employee\'s Withholding Certificate' },
-    irs_fw9:      { file: 'fw9.pdf',       title: 'Form W-9 \u2014 Request for Taxpayer Identification Number' },
-    irs_f2848:    { file: 'f2848.pdf',    title: 'Form 2848 \u2014 Power of Attorney and Declaration of Representative' },
-    irs_f8821:    { file: 'f8821.pdf',    title: 'Form 8821 \u2014 Tax Information Authorization' },
-    irs_f56:      { file: 'f56.pdf',      title: 'Form 56 \u2014 Notice Concerning Fiduciary Relationship' }
+    irs_f1040:    { file: 'f1040.pdf',    title: 'Form 1040 — U.S. Individual Income Tax Return' },
+    irs_f1040sc:  { file: 'f1040sc.pdf',  title: 'Form 1040 Schedule C — Profit or Loss from Business' },
+    irs_f1040x:   { file: 'f1040x.pdf',   title: 'Form 1040-X — Amended U.S. Individual Income Tax Return' },
+    irs_f1041:    { file: 'f1041.pdf',    title: 'Form 1041 — U.S. Income Tax Return for Estates and Trusts' },
+    irs_f1041k1:  { file: 'f1041sk1.pdf',  title: 'Schedule K-1 (Form 1041) — Beneficiary's Share of Income, Deductions, Credits' },
+    irs_f1041es:  { file: 'f1041es.pdf',  title: 'Form 1041-ES — Estimated Income Tax for Estates and Trusts' },
+    irs_f1041t:   { file: 'f1041t.pdf',   title: 'Form 1041-T — Allocation of Estimated Tax Payments to Beneficiaries' },
+    irs_f1041g:   { file: 'f1041.pdf',    title: 'Schedule G (Form 1041) — Included in Form 1041 package' },
+    irs_f1065:    { file: 'f1065.pdf',    title: 'Form 1065 — U.S. Return of Partnership Income' },
+    irs_f1065k1:  { file: 'f1065sk1.pdf',  title: 'Schedule K-1 (Form 1065) — Partner's Share of Income, Deductions, Credits' },
+    irs_f1120:    { file: 'f1120.pdf',    title: 'Form 1120 — U.S. Corporation Income Tax Return' },
+    irs_f1120w:   { file: 'f1120w--2022.pdf',   title: 'Form 1120-W — Estimated Tax for Corporations' },
+    irs_f3800:    { file: 'f3800.pdf',    title: 'Form 3800 — General Business Credit' },
+    irs_f5227:    { file: 'f5227.pdf',    title: 'Form 5227 — Split-Interest Trust Information Return' },
+    irs_f3520a:   { file: 'f3520a.pdf',   title: 'Form 3520-A — Annual Information Return of Foreign Trust With a U.S. Owner' },
+    irs_f706:     { file: 'f706.pdf',     title: 'Form 706 — United States Estate (and Generation-Skipping Transfer) Tax Return' },
+    irs_f709:     { file: 'f709.pdf',     title: 'Form 709 — United States Gift (and Generation-Skipping Transfer) Tax Return' },
+    irs_f990:     { file: 'f990.pdf',     title: 'Form 990 — Return of Organization Exempt From Income Tax' },
+    irs_f990ez:   { file: 'f990ez.pdf',   title: 'Form 990-EZ — Short Form Return of Organization Exempt From Income Tax' },
+    irs_f990pf:   { file: 'f990pf.pdf',   title: 'Form 990-PF — Return of Private Foundation' },
+    irs_f8971:    { file: 'f8971.pdf',    title: 'Form 8971 — Information Regarding Beneficiaries Acquiring Property From a Decedent' },
+    irs_fw2:      { file: 'fw2.pdf',      title: 'Form W-2 — Wage and Tax Statement' },
+    irs_fw4:      { file: 'fw4.pdf',      title: 'Form W-4 — Employee's Withholding Certificate' },
+    irs_fw9:      { file: 'fw9.pdf',      title: 'Form W-9 — Request for Taxpayer Identification Number' },
+    irs_f1099a:   { file: 'f1099a.pdf',   title: 'Form 1099-A — Acquisition or Abandonment of Secured Property' },
+    irs_f1099b:   { file: 'f1099b.pdf',   title: 'Form 1099-B — Proceeds from Broker and Barter Exchange' },
+    irs_f1099c:   { file: 'f1099c.pdf',   title: 'Form 1099-C — Cancellation of Debt' },
+    irs_f1099msc: { file: 'f1099msc.pdf', title: 'Form 1099-MISC — Miscellaneous Information' },
+    irs_f1099nec: { file: 'f1099nec.pdf', title: 'Form 1099-NEC — Nonemployee Compensation' },
+    irs_f1099div: { file: 'f1099div.pdf', title: 'Form 1099-DIV — Dividends and Distributions' },
+    irs_f1099int: { file: 'f1099int.pdf', title: 'Form 1099-INT — Interest Income' },
+    irs_f1099r:   { file: 'f1099r.pdf',   title: 'Form 1099-R — Distributions From Pensions, Annuities, Retirement or Profit-Sharing Plans, IRAs, Insurance Contracts' },
+    irs_f1099oid: { file: 'f1099oid.pdf', title: 'Form 1099-OID — Original Issue Discount' },
+    irs_f3911:    { file: 'f3911.pdf',    title: 'Form 3911 — Taxpayer Statement Regarding Refund' },
+    irs_f4868:    { file: 'f4868.pdf',    title: 'Form 4868 — Application for Automatic Extension of Time To File U.S. Individual Income Tax Return' },
+    irs_f8233:    { file: 'f8233.pdf',    title: 'Form 8233 — Exemption From Withholding on Compensation for Independent Personal Services' },
+    irs_f843:     { file: 'f843.pdf',     title: 'Form 843 — Claim for Refund and Request for Abatement' },
+    irs_fw7:      { file: 'fw7.pdf',      title: 'Form W-7 — Application for IRS Individual Taxpayer Identification Number' },
+    irs_fw8ben:   { file: 'fw8ben.pdf',   title: 'Form W-8BEN — Certificate of Foreign Status of Beneficial Owner for U.S. Tax Withholding and Reporting (Individuals)' },
+    irs_fw8bene:  { file: 'fw8bene.pdf',  title: 'Form W-8BEN-E — Certificate of Foreign Status of Beneficial Owner for U.S. Tax Withholding and Reporting (Entities)' },
+    irs_fw8eci:   { file: 'fw8eci.pdf',   title: 'Form W-8ECI — Certificate of Foreign Person's Claim That Income Is Effectively Connected With the Conduct of a Trade or Business in the United States' },
+    irs_p519:     { file: 'p519.pdf',     title: 'Publication 519 — U.S. Tax Guide for Aliens' },
+    irs_dl_1040_current:         { file: 'downloads/Form1040_current.pdf',        title: 'Form 1040 (Current) — Downloads' },
+    irs_dl_2848_current:         { file: 'downloads/Form2848_current.pdf',        title: 'Form 2848 (Current) — Downloads' },
+    irs_dl_4852_current:         { file: 'downloads/Form4852_current.pdf',        title: 'Form 4852 (Current) — Downloads' },
+    irs_dl_8275r_current:        { file: 'downloads/Form8275R_current.pdf',       title: 'Form 8275-R (Current) — Downloads' },
+    irs_dl_8453_current:         { file: 'downloads/Form8453_current.pdf',        title: 'Form 8453 (Current) — Downloads' },
+    irs_dl_8867_current:         { file: 'downloads/Form8867_current.pdf',        title: 'Form 8867 (Current) — Downloads' },
+    irs_dl_8879_current:         { file: 'downloads/Form8879_current.pdf',        title: 'Form 8879 (Current) — Downloads' },
+    irs_dl_schedule1_current:    { file: 'downloads/Schedule1_current.pdf',       title: 'Schedule 1 (Current) — Downloads' },
+    irs_dl_schedule2_current:    { file: 'downloads/Schedule2_current.pdf',       title: 'Schedule 2 (Current) — Downloads' },
+    irs_dl_scheduleA_current:    { file: 'downloads/ScheduleA_current.pdf',       title: 'Schedule A (Current) — Downloads' },
+    irs_dl_instructions1040_2025:{ file: 'downloads/Instructions1040_2025.pdf',   title: 'Instructions 1040 (2025) — Downloads' },
+    irs_f56f:     { file: 'f56f.pdf',     title: 'Form 56-F — Notice Concerning Fiduciary Relationship' },
+    irs_f8832:    { file: 'f8832.pdf',    title: 'Form 8832 — Entity Classification Election' },
+    irs_fss4:     { file: 'fss4.pdf',     title: 'Form SS-4 — Application for Employer Identification Number' },
+    irs_f2848:    { file: 'f2848.pdf',    title: 'Form 2848 — Power of Attorney and Declaration of Representative' },
+    irs_f8821:    { file: 'f8821.pdf',    title: 'Form 8821 — Tax Information Authorization' },
+    irs_f56:      { file: 'f56.pdf',      title: 'Form 56 — Notice Concerning Fiduciary Relationship' }
   };
 
   function showIRSForm(key) {
+    fillAndShowIRSForm(key);
+  }
+
+  function exitPDFViewer() {
+    var frame = document.getElementById('doc-pdf-frame');
+    if (frame.src && frame.src.startsWith('blob:')) { try { URL.revokeObjectURL(frame.src); } catch(e) {} }
+    document.getElementById('doc-pdf-viewer').style.display = 'none';
+    frame.src = '';
+    document.getElementById('doc-toolbar').style.display = '';
+    document.getElementById('doc-editor').style.display = '';
+    document.getElementById('doc-template-select').value = '';
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // ── IRS PDF AUTO-FILL ENGINE ──
+  // Deterministic per-form layer first (explicit field mappings), then
+  // semantic fallback for unmatched fields.
+  // ══════════════════════════════════════════════════════════════════
+
+  var IRS_DETERMINISTIC_FIELD_RULES = {
+    irs_f1040: [
+      { id: 'primary-name', token: '{{TRUSTEE}}', fieldPatterns: [/\.f1_01\[0\]$/, /\.f1_02\[0\]$/] },
+      { id: 'secondary-name', token: '{{CO_TRUSTEE}}', fieldPatterns: [/\.f1_03\[0\]$/, /\.f1_04\[0\]$/] },
+      { id: 'address-lines', token: '{{ADDRESS}}', fieldPatterns: [/Address_ReadOrder\[0\]\.f1_1[0-6]\[0\]$/] }
+    ],
+    irs_f1040sc: [
+      { id: 'schedule-c-name', token: '{{TRUST_NAME}}', fieldPatterns: [/\.f1_1\[0\]$/, /\.f1_2\[0\]$/] },
+      { id: 'schedule-c-ein', token: '{{EIN}}', fieldPatterns: [/\.f1_6\[0\]$/] }
+    ],
+    irs_f1040x: [
+      { id: 'amended-name', token: '{{TRUSTEE}}', fieldPatterns: [/\.f1_01\[0\]$/, /\.f1_02\[0\]$/] },
+      { id: 'amended-address', token: '{{ADDRESS}}', fieldPatterns: [/Address_ReadOrder\[0\]\.f1_0?9\[0\]$/, /Address_ReadOrder\[0\]\.f1_1[0-6]\[0\]$/] }
+    ],
+    irs_f1041: [
+      { id: 'estate-trust-name', token: '{{TRUST_NAME}}', fieldPatterns: [/DateNameAddress_ReadOrder\[0\]\.f1_3\[0\]$/] },
+      { id: 'fiduciary-name', token: '{{TRUSTEE}}', fieldPatterns: [/DateNameAddress_ReadOrder\[0\]\.f1_4\[0\]$/] },
+      { id: 'estate-address', token: '{{ADDRESS}}', fieldPatterns: [/DateNameAddress_ReadOrder\[0\]\.f1_[5-7]\[0\]$/] },
+      { id: 'signature-date', token: '{{DATE}}', fieldPatterns: [/SignatureDate_ReadOrder/] }
+    ],
+    irs_f1099a: [
+      { id: 'left-col-name-address', token: '{{TRUST_NAME}}', fieldPatterns: [/LeftCol\[0\]\.f1_1\[0\]$/, /LeftCol\[0\]\.f1_2\[0\]$/] },
+      { id: 'left-col-tin', token: '{{EIN}}', fieldPatterns: [/LeftCol\[0\]\.f1_3\[0\]$/] }
+    ],
+    irs_f1099b: [
+      { id: 'payer-name', token: '{{TRUST_NAME}}', fieldPatterns: [/Payers_ReadOrder\[0\]\.f1_2\[0\]$/] },
+      { id: 'payer-tin', token: '{{EIN}}', fieldPatterns: [/LeftCol_ReadOrder\[0\]\.f1_3\[0\]$/] }
+    ],
+    irs_f1099c: [
+      { id: 'left-col-name', token: '{{TRUST_NAME}}', fieldPatterns: [/LeftCol\[0\]\.f1_2\[0\]$/] },
+      { id: 'left-col-tin', token: '{{EIN}}', fieldPatterns: [/LeftCol\[0\]\.f1_3\[0\]$/] }
+    ],
+    irs_f1099msc: [
+      { id: 'left-col-name', token: '{{TRUST_NAME}}', fieldPatterns: [/LeftColumn\[0\]\.f1_2\[0\]$/] },
+      { id: 'left-col-tin', token: '{{EIN}}', fieldPatterns: [/LeftColumn\[0\]\.f1_3\[0\]$/] }
+    ],
+    irs_f56f: [
+      { id: 'fiduciary-name', token: '{{TRUSTEE}}', fieldPatterns: [/\.f1_1\[0\]$/, /\.f1_2\[0\]$/] },
+      { id: 'fiduciary-address', token: '{{ADDRESS}}', fieldPatterns: [/\.f1_[3-5]\[0\]$/] },
+      { id: 'fiduciary-ein', token: '{{EIN}}', fieldPatterns: [/\.f1_1[0-2]\[0\]$/] }
+    ],
+    irs_f8832: [
+      { id: 'entity-name', token: '{{ENTITY_NAME}}', fieldPatterns: [/\.p1-t1\[0\]$/] },
+      { id: 'entity-address', token: '{{ADDRESS}}', fieldPatterns: [/\.p1-t2\[0\]$/] },
+      { id: 'entity-ein', token: '{{EIN}}', fieldPatterns: [/\.p1-t4\[0\]$/] }
+    ],
+    irs_fss4: [
+      { id: 'legal-name', token: '{{ENTITY_NAME}}', fieldPatterns: [/\.f1_2\[0\]$/] },
+      { id: 'trade-name', token: '{{TRUST_NAME}}', fieldPatterns: [/\.f1_3\[0\]$/] },
+      { id: 'mailing-address', token: '{{ADDRESS}}', fieldPatterns: [/Line4ReadOrder\[0\]\.f1_5\[0\]$/, /Line4ReadOrder\[0\]\.f1_6\[0\]$/] },
+      { id: 'responsible-party', token: '{{TRUSTEE}}', fieldPatterns: [/\.f1_10\[0\]$/] },
+      { id: 'responsible-party-tin', token: '{{EIN}}', fieldPatterns: [/\.f1_11\[0\]$/] }
+    ],
+    irs_fw4: [
+      { id: 'employee-name', token: '{{TRUSTEE}}', fieldPatterns: [/Step1a\[0\]\.f1_01\[0\]$/, /Step1a\[0\]\.f1_02\[0\]$/] },
+      { id: 'employee-address', token: '{{ADDRESS}}', fieldPatterns: [/Step1a\[0\]\.f1_03\[0\]$/, /Step1a\[0\]\.f1_04\[0\]$/] },
+      { id: 'w4-year', token: '{{ACTIVE_YEAR}}', fieldPatterns: [/\.f1_05\[0\]$/] }
+    ],
+    irs_fw9: [
+      { id: 'name', token: '{{TRUSTEE}}', fieldPatterns: [/\.f1_01\[0\]$/] },
+      { id: 'business-name', token: '{{TRUST_NAME}}', fieldPatterns: [/\.f1_02\[0\]$/] },
+      { id: 'disregarded-entity-name', token: '{{ENTITY_NAME}}', fieldPatterns: [/Boxes3a-b_ReadOrder\[0\]\.f1_03\[0\]$/] },
+      { id: 'address-line-1', token: '{{ADDRESS}}', fieldPatterns: [/Address_ReadOrder\[0\]\.f1_07\[0\]$/] },
+      { id: 'address-line-2', token: '{{ADDRESS}}', fieldPatterns: [/Address_ReadOrder\[0\]\.f1_08\[0\]$/] },
+      { id: 'tin-ein', token: '{{EIN}}', fieldPatterns: [/\.f1_12\[0\]$/] }
+    ],
+    irs_f2848: [
+      { id: 'taxpayer-name', token: '{{ENTITY_NAME}}', fieldPatterns: [/TaxpayerName\[0\]$/] },
+      { id: 'taxpayer-address', token: '{{ADDRESS}}', fieldPatterns: [/TaxpayerAddress\[0\]$/] },
+      { id: 'taxpayer-ein', token: '{{EIN}}', fieldPatterns: [/TaxpayerIDEIN\[0\]$/] },
+      { id: 'rep-name-1', token: '{{TRUSTEE}}', fieldPatterns: [/RepresentativesName1\[0\]$/] },
+      { id: 'rep-name-2', token: '{{CO_TRUSTEE}}', fieldPatterns: [/RepresentativesName2\[0\]$/] },
+      { id: 'rep-name-fallback', token: '{{TRUSTEE}}', fieldPatterns: [/RepresentativesName3\[0\]$/, /RepresentativesName4\[0\]$/] },
+      { id: 'rep-addresses', token: '{{ADDRESS}}', fieldPatterns: [/RepresentativesAddress1\[0\]$/, /RepresentativesAddress2\[0\]$/, /RepresentativesAddress3\[0\]$/, /RepresentativesAddress4\[0\]$/] },
+      { id: 'caf-numbers', token: '{{CAF_NUMBER}}', fieldPatterns: [/CAFNumber1\[0\]$/, /CAFNumber2\[0\]$/, /CAFNumber3\[0\]$/, /CAFNumber4\[0\]$/] },
+      { id: 'tax-years', token: '{{ACTIVE_YEAR}}', fieldPatterns: [/TaxYear\[0\]$/, /TaxYear1\[0\]$/, /TaxYear2\[0\]$/] }
+    ],
+    irs_f8821: [
+      { id: 'taxpayer-name', token: '{{ENTITY_NAME}}', fieldPatterns: [/Pg1Header\[0\]\.f1_1\[0\]$/] },
+      { id: 'taxpayer-address', token: '{{ADDRESS}}', fieldPatterns: [/Pg1Header\[0\]\.f1_2\[0\]$/, /Pg1Header\[0\]\.f1_3\[0\]$/] },
+      { id: 'taxpayer-ein', token: '{{EIN}}', fieldPatterns: [/Pg1Header\[0\]\.f1_4\[0\]$/] },
+      { id: 'appointee-name', token: '{{TRUSTEE}}', fieldPatterns: [/\.f1_10\[0\]$/] },
+      { id: 'appointee-caf', token: '{{CAF_NUMBER}}', fieldPatterns: [/\.f1_11\[0\]$/] }
+    ],
+    irs_f56: [
+      { id: 'fiduciary-name', token: '{{TRUSTEE}}', fieldPatterns: [/\.f1_01\[0\]$/, /\.f1_02\[0\]$/] },
+      { id: 'estate-entity-name', token: '{{ENTITY_NAME}}', fieldPatterns: [/\.f1_03\[0\]$/] },
+      { id: 'fiduciary-address', token: '{{ADDRESS}}', fieldPatterns: [/\.f1_0[4-9]\[0\]$/, /\.f1_10\[0\]$/] },
+      { id: 'fiduciary-ein', token: '{{EIN}}', fieldPatterns: [/\.f1_11\[0\]$/, /\.f1_12\[0\]$/] }
+    ],
+    irs_f3911: [
+      { id: 'taxpayer-name', token: '{{TRUSTEE}}', fieldPatterns: [/taxpayer.*name/i, /^name$/i] },
+      { id: 'taxpayer-address', token: '{{ADDRESS}}', fieldPatterns: [/taxpayer.*address/i, /mailing.*address/i] },
+      { id: 'taxpayer-tin', token: '{{EIN}}', fieldPatterns: [/(ein|tin|ssn|taxpayer.*ident)/i] },
+      { id: 'tax-year', token: '{{ACTIVE_YEAR}}', fieldPatterns: [/tax.*year/i, /year.*ended/i] }
+    ],
+    irs_f4868: [
+      { id: 'filer-name', token: '{{TRUSTEE}}', fieldPatterns: [/(name|taxpayer)/i] },
+      { id: 'filer-address', token: '{{ADDRESS}}', fieldPatterns: [/address/i, /street/i, /city|state|zip/i] },
+      { id: 'filer-tin', token: '{{EIN}}', fieldPatterns: [/(ssn|tin|ein|identification)/i] },
+      { id: 'tax-year', token: '{{ACTIVE_YEAR}}', fieldPatterns: [/tax.*year/i, /calendar.*year/i] }
+    ],
+    irs_f8233: [
+      { id: 'beneficial-owner-name', token: '{{TRUSTEE}}', fieldPatterns: [/beneficial.*owner.*name/i, /applicant.*name/i] },
+      { id: 'beneficial-owner-address', token: '{{ADDRESS}}', fieldPatterns: [/permanent.*address/i, /mailing.*address/i] },
+      { id: 'us-tin', token: '{{EIN}}', fieldPatterns: [/(u\.?s\.?\s*tin|itin|ssn|ein|taxpayer.*ident)/i] },
+      { id: 'signature-date', token: '{{DATE}}', fieldPatterns: [/date/i, /signature.*date/i] }
+    ],
+    irs_f843: [
+      { id: 'requestor-name', token: '{{TRUSTEE}}', fieldPatterns: [/name/i, /claimant/i] },
+      { id: 'requestor-address', token: '{{ADDRESS}}', fieldPatterns: [/address/i, /city|state|zip/i] },
+      { id: 'requestor-tin', token: '{{EIN}}', fieldPatterns: [/(tin|ein|ssn|identification)/i] },
+      { id: 'tax-period', token: '{{ACTIVE_YEAR}}', fieldPatterns: [/tax.*period/i, /year/i] }
+    ],
+    irs_fw7: [
+      { id: 'applicant-name', token: '{{TRUSTEE}}', fieldPatterns: [/applicant.*name/i, /name.*at.*birth/i] },
+      { id: 'applicant-address', token: '{{ADDRESS}}', fieldPatterns: [/mailing.*address/i, /foreign.*address/i, /address/i] },
+      { id: 'identification-number', token: '{{EIN}}', fieldPatterns: [/(ssn|itin|ein|identification)/i] },
+      { id: 'date', token: '{{DATE}}', fieldPatterns: [/date/i] }
+    ],
+    irs_fw8ben: [
+      { id: 'beneficial-owner-name', token: '{{TRUSTEE}}', fieldPatterns: [/beneficial.*owner.*name/i, /individual.*name/i, /^name$/i] },
+      { id: 'country-citizenship', token: '{{JURISDICTION}}', fieldPatterns: [/country.*citizenship/i, /country/i] },
+      { id: 'permanent-address', token: '{{ADDRESS}}', fieldPatterns: [/permanent.*address/i, /mailing.*address/i] },
+      { id: 'foreign-tax-id', token: '{{EIN}}', fieldPatterns: [/(tin|ein|foreign.*tax.*ident)/i] },
+      { id: 'signature-date', token: '{{DATE}}', fieldPatterns: [/date/i, /signature.*date/i] }
+    ],
+    irs_fw8bene: [
+      { id: 'entity-name', token: '{{ENTITY_NAME}}', fieldPatterns: [/name.*organization/i, /name.*entity/i, /^name$/i] },
+      { id: 'country-incorporation', token: '{{JURISDICTION}}', fieldPatterns: [/country.*incorporation/i, /country.*organization/i, /country/i] },
+      { id: 'address', token: '{{ADDRESS}}', fieldPatterns: [/mailing.*address/i, /permanent.*address/i, /address/i] },
+      { id: 'giin-ein-tin', token: '{{EIN}}', fieldPatterns: [/(giin|ein|tin|taxpayer.*ident)/i] },
+      { id: 'signature-date', token: '{{DATE}}', fieldPatterns: [/date/i, /signature.*date/i] }
+    ],
+    irs_fw8eci: [
+      { id: 'beneficial-owner-name', token: '{{TRUSTEE}}', fieldPatterns: [/beneficial.*owner.*name/i, /name.*individual/i, /^name$/i] },
+      { id: 'entity-name', token: '{{ENTITY_NAME}}', fieldPatterns: [/name.*organization/i, /entity.*name/i] },
+      { id: 'address', token: '{{ADDRESS}}', fieldPatterns: [/address/i, /mailing/i, /permanent/i] },
+      { id: 'tin', token: '{{EIN}}', fieldPatterns: [/(tin|ein|taxpayer.*ident)/i] },
+      { id: 'signature-date', token: '{{DATE}}', fieldPatterns: [/date/i, /signature.*date/i] }
+    ]
+  };
+
+  var IRS_DETERMINISTIC_RULE_ALIASES = {
+    irs_dl_1040_current: "irs_f1040",
+    irs_dl_2848_current: "irs_f2848",
+    irs_dl_4852_current: "irs_fw2",
+    irs_dl_8275r_current: "irs_f1040",
+    irs_dl_8453_current: "irs_f1040",
+    irs_dl_8867_current: "irs_f1040",
+    irs_dl_8879_current: "irs_f1040",
+    irs_dl_schedule1_current: "irs_f1040",
+    irs_dl_schedule2_current: "irs_f1040",
+    irs_dl_scheduleA_current: "irs_f1040"
+  };
+
+  function getIRSFormKeyFromUrl(url) {
+    if (!url) return '';
+    var m = /([^\\/]+\\.pdf)(?:\\?|#|$)/i.exec(url);
+    var file = m ? m[1].toLowerCase() : '';
+    if (!file) return '';
+    var keys = Object.keys(IRS_FORMS || {});
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i];
+      var f = (IRS_FORMS[k] && IRS_FORMS[k].file ? IRS_FORMS[k].file : '').toLowerCase();
+      if (f === file) return k;
+    }
+    return '';
+  }
+
+  function getIRSDeterministicRules(formKey, url) {
+    var key = formKey ? formKey : getIRSFormKeyFromUrl(url);
+    if (IRS_DETERMINISTIC_FIELD_RULES[key]) return IRS_DETERMINISTIC_FIELD_RULES[key];
+    var alias = IRS_DETERMINISTIC_RULE_ALIASES[key] ? IRS_DETERMINISTIC_RULE_ALIASES[key] : "";
+    return IRS_DETERMINISTIC_FIELD_RULES[alias] ? IRS_DETERMINISTIC_FIELD_RULES[alias] : [];
+  }
+
+  // Semantic fallback policy keeps deterministic mappings primary and
+  // prevents noisy over-fills on highly repetitive forms.
+  var IRS_SEMANTIC_FALLBACK_POLICY = {
+    _default: {
+      disabledTokens: [],
+      maxMatchesPerToken: {
+        '{{ADDRESS}}': 6,
+        '{{JURISDICTION}}': 2,
+        '{{ACTIVE_YEAR}}': 3
+      }
+    },
+    irs_f1099b: {
+      disabledTokens: ['{{JURISDICTION}}'],
+      maxMatchesPerToken: {
+        '{{ADDRESS}}': 2,
+        '{{ACTIVE_YEAR}}': 2
+      }
+    },
+    irs_f1099msc: {
+      disabledTokens: ['{{JURISDICTION}}'],
+      maxMatchesPerToken: {
+        '{{ADDRESS}}': 2,
+        '{{ACTIVE_YEAR}}': 2
+      }
+    }
+  };
+
+  function getIRSSemanticFallbackPolicy(formKey, url) {
+    var key = formKey || getIRSFormKeyFromUrl(url);
+    var base = IRS_SEMANTIC_FALLBACK_POLICY._default || { disabledTokens: [], maxMatchesPerToken: {} };
+    var scoped = IRS_SEMANTIC_FALLBACK_POLICY[key] || {};
+    return {
+      disabledTokens: (base.disabledTokens || []).concat(scoped.disabledTokens || []),
+      maxMatchesPerToken: Object.assign({}, base.maxMatchesPerToken || {}, scoped.maxMatchesPerToken || {})
+    };
+  }
+
+  var IRS_FILL_PATTERNS = [
+    { token: '{{TRUST_NAME}}',        patterns: [/trust\s*name/i, /name\s*of\s*(trust|estate|entity)/i, /legal\s*name/i, /^name$/i, /taxpayer.*name/i, /name.*taxpayer/i] },
+    { token: '{{ENTITY_NAME}}',       patterns: [/entity\s*name/i, /organization\s*name/i, /name\s*of\s*org/i, /business\s*name/i, /disregarded\s*entity/i] },
+    { token: '{{TRUSTEE}}',           patterns: [/\btrustee\b/i, /fiduciary.*name/i, /name.*fiduciary/i, /authorized\s*rep/i, /attorney.*in.*fact/i, /power.*of.*attorney/i] },
+    { token: '{{GRANTOR}}',           patterns: [/\bgrantor\b/i, /\bsettlor\b/i, /\bdecedent\b/i, /applicant.*name/i] },
+    { token: '{{EIN}}',               patterns: [/employer\s*id/i, /\bein\b/i, /employer.*number/i, /tax\s*id.*number/i, /taxpayer.*ident/i, /\btin\b/i] },
+    { token: '{{CAF_NUMBER}}',        patterns: [/caf\s*(no|num|#)/i, /centralized\s*auth/i] },
+    { token: '{{ADDRESS}}',           patterns: [/mailing\s*address/i, /home\s*address/i, /current\s*address/i, /street\s*address/i, /^address\b/i] },
+    { token: '{{JURISDICTION}}',      patterns: [/\bstate\b/i, /\bjurisdiction\b/i, /state\s*of\s*(org|inc|form)/i] },
+    { token: '{{DATE}}',              patterns: [/^date$/i, /signature\s*date/i, /date\s*signed/i, /date\s*of\s*sign/i] },
+    { token: '{{ACTIVE_YEAR}}',       patterns: [/tax\s*year/i, /calendar\s*year/i, /fiscal\s*year/i, /year\s*ended/i, /taxable\s*year/i] },
+    { token: '{{COURT}}',             patterns: [/\bcourt\b/i, /court\s*name/i] },
+    { token: '{{CASE_NUMBER}}',       patterns: [/case\s*(no|num|#)/i, /docket\s*(no|num|#)/i] },
+  ];
+
+  async function autoFillIRSPDF(url, varMap, formKey) {
+    var _tiFn = 'DocCreator.autoFillIRSPDF';
+    var _tiStart = Date.now();
+    tiTrackFunction(_tiFn);
+
+    try {
+      if (typeof PDFLib === 'undefined') throw new Error('pdf-lib not loaded');
+      var resp = await fetch(url);
+      if (!resp.ok) throw new Error('PDF fetch failed: ' + resp.status);
+      var bytes = await resp.arrayBuffer();
+      var pdfDoc = await PDFLib.PDFDocument.load(bytes, { ignoreEncryption: true });
+      var form = pdfDoc.getForm();
+      var fields = form.getFields();
+      var filledCount = 0;
+      var textFieldCount = 0;
+      var matchedTokenCounts = {};
+      var unmatchedTextFields = [];
+      var patternTokens = IRS_FILL_PATTERNS.map(function(rule) { return rule.token; });
+      var deterministicRules = getIRSDeterministicRules(formKey, url);
+      var semanticPolicy = getIRSSemanticFallbackPolicy(formKey, url);
+      var semanticMatchCounts = {};
+      var semanticSkippedByPolicy = 0;
+      var deterministicMatchedFieldCount = 0;
+      var deterministicFilledCount = 0;
+      var deterministicRuleHits = {};
+
+      fields.forEach(function(field) {
+        if (!(field instanceof PDFLib.PDFTextField)) return;
+        textFieldCount++;
+
+        var fieldName = field.getName();
+        var tooltip = '';
+        try {
+          var tu = field.acroField.dict.get(PDFLib.PDFName.of('TU'));
+          if (tu) tooltip = tu.decodeText ? tu.decodeText() : (tu.asString ? tu.asString() : '');
+        } catch(e) {}
+        var searchText = tooltip + ' ' + fieldName;
+        var matchedToken = null;
+
+        // Deterministic per-form layer: explicit field IDs/regexes first.
+        for (var d = 0; d < deterministicRules.length; d++) {
+          var detRule = deterministicRules[d];
+          var detMatched = detRule.fieldPatterns.some(function(p) { return p.test(fieldName); });
+          if (detMatched) {
+            matchedToken = detRule.token;
+            deterministicMatchedFieldCount++;
+            deterministicRuleHits[detRule.id] = (deterministicRuleHits[detRule.id] || 0) + 1;
+            matchedTokenCounts[detRule.token] = (matchedTokenCounts[detRule.token] || 0) + 1;
+            var detVal = varMap[detRule.token] || '';
+            if (detVal) {
+              try {
+                field.setText(detVal);
+                filledCount++;
+                deterministicFilledCount++;
+              } catch(e) {
+                tiPushEvent({
+                  type: 'execution',
+                  id: _tiFn,
+                  status: 'error',
+                  errorMessage: 'Deterministic field set failed: ' + (e && e.message ? e.message : String(e)),
+                  endedAt: new Date().toISOString(),
+                  durationMs: Date.now() - _tiStart,
+                  source: url
+                });
+              }
+            }
+            break;
+          }
+        }
+
+        // Semantic fallback for unmapped fields.
+        if (!matchedToken) {
+          for (var i = 0; i < IRS_FILL_PATTERNS.length; i++) {
+            var rule = IRS_FILL_PATTERNS[i];
+
+            if (semanticPolicy.disabledTokens.indexOf(rule.token) !== -1) {
+              continue;
+            }
+
+            var tokenCap = semanticPolicy.maxMatchesPerToken[rule.token];
+            var tokenMatches = semanticMatchCounts[rule.token] || 0;
+            if (typeof tokenCap === 'number' && tokenMatches >= tokenCap) {
+              semanticSkippedByPolicy++;
+              continue;
+            }
+
+            var matched = rule.patterns.some(function(p) { return p.test(searchText); });
+            if (matched) {
+              matchedToken = rule.token;
+              semanticMatchCounts[rule.token] = tokenMatches + 1;
+              matchedTokenCounts[rule.token] = (matchedTokenCounts[rule.token] || 0) + 1;
+              var val = varMap[rule.token] || '';
+              if (val) {
+                try {
+                  field.setText(val);
+                  filledCount++;
+                } catch(e) {
+                  tiPushEvent({
+                    type: 'execution',
+                    id: _tiFn,
+                    status: 'error',
+                    errorMessage: 'Field set failed: ' + (e && e.message ? e.message : String(e)),
+                    endedAt: new Date().toISOString(),
+                    durationMs: Date.now() - _tiStart,
+                    source: url
+                  });
+                }
+              }
+              break;
+            }
+          }
+        }
+
+        if (!matchedToken) {
+          unmatchedTextFields.push({ fieldName: fieldName, tooltip: tooltip || '' });
+        }
+      });
+
+      var missingVarTokens = patternTokens.filter(function(token) {
+        return !varMap[token] || String(varMap[token]).trim() === '';
+      });
+
+      var diagnosticSummary =
+        'filled=' + filledCount +
+        ', textFields=' + textFieldCount +
+        ', unmatched=' + unmatchedTextFields.length +
+        ', missingTokens=' + missingVarTokens.length;
+
+      var filledBytes = await pdfDoc.save();
+
+      tiPushEvent({
+        type: 'execution',
+        id: _tiFn,
+        status: 'ok',
+        endedAt: new Date().toISOString(),
+        durationMs: Date.now() - _tiStart,
+        filledCount: filledCount,
+        totalFields: fields.length,
+        textFieldCount: textFieldCount,
+        unmatchedTextFieldCount: unmatchedTextFields.length,
+        missingVarTokenCount: missingVarTokens.length,
+        matchedTokenCounts: matchedTokenCounts,
+        deterministicRuleCount: deterministicRules.length,
+        deterministicMatchedFieldCount: deterministicMatchedFieldCount,
+        deterministicFilledCount: deterministicFilledCount,
+        deterministicRuleHits: deterministicRuleHits,
+        semanticMatchCounts: semanticMatchCounts,
+        semanticSkippedByPolicy: semanticSkippedByPolicy,
+        unmatchedTextFieldSample: unmatchedTextFields.slice(0, 10),
+        missingVarTokens: missingVarTokens,
+        diagnosticSummary: diagnosticSummary,
+        source: url
+      });
+
+      if (filledCount > 0) {
+        tiPushVerification({
+          functionId: _tiFn,
+          ruleId: 'pdf-autofill-count',
+          passed: true,
+          message: 'Auto-fill populated ' + filledCount + ' field(s) for ' + url + ' [' + diagnosticSummary + ']',
+          createdAt: new Date().toISOString()
+        });
+      } else {
+        tiPushVerification({
+          functionId: _tiFn,
+          ruleId: 'pdf-autofill-count',
+          passed: false,
+          message: 'No fields were auto-filled for ' + url + ' [' + diagnosticSummary + ']',
+          createdAt: new Date().toISOString()
+        });
+        tiPushRecommendation({
+          functionId: _tiFn,
+          recommendation: 'Expand IRS fill patterns and verify template variables',
+          reason: 'Auto-fill returned zero populated fields for ' + url + ' | unmatched sample: ' + unmatchedTextFields.slice(0, 3).map(function(f){ return f.fieldName || 'unknown'; }).join(', ') + ' | missing tokens: ' + missingVarTokens.slice(0, 5).join(', '),
+          priority: 'P1',
+          createdAt: new Date().toISOString()
+        });
+      }
+
+      tiRefreshIfVisible();
+      if (typeof renderDocAutofillDiagnostics === 'function') renderDocAutofillDiagnostics();
+      return {
+        bytes: filledBytes,
+        filledCount: filledCount,
+        totalFields: fields.length,
+        diagnostics: {
+          textFieldCount: textFieldCount,
+          unmatchedTextFieldCount: unmatchedTextFields.length,
+          unmatchedTextFieldSample: unmatchedTextFields.slice(0, 10),
+          matchedTokenCounts: matchedTokenCounts,
+          deterministicRuleCount: deterministicRules.length,
+          deterministicMatchedFieldCount: deterministicMatchedFieldCount,
+          deterministicFilledCount: deterministicFilledCount,
+          deterministicRuleHits: deterministicRuleHits,
+          semanticMatchCounts: semanticMatchCounts,
+          semanticSkippedByPolicy: semanticSkippedByPolicy,
+          missingVarTokens: missingVarTokens,
+          diagnosticSummary: diagnosticSummary
+        }
+      };
+    } catch (e) {
+      tiPushEvent({
+        type: 'execution',
+        id: _tiFn,
+        status: 'error',
+        errorMessage: e && e.message ? e.message : String(e),
+        endedAt: new Date().toISOString(),
+        durationMs: Date.now() - _tiStart,
+        source: url
+      });
+      tiPushVerification({
+        functionId: _tiFn,
+        ruleId: 'pdf-autofill-execution',
+        passed: false,
+        message: 'autoFillIRSPDF threw: ' + (e && e.message ? e.message : String(e)),
+        createdAt: new Date().toISOString()
+      });
+      tiPushRecommendation({
+        functionId: _tiFn,
+        recommendation: 'Inspect PDF accessibility, field metadata, and network fetch',
+        reason: 'autoFillIRSPDF execution error for ' + url,
+        priority: 'P1',
+        createdAt: new Date().toISOString()
+      });
+      tiRefreshIfVisible();
+      if (typeof renderDocAutofillDiagnostics === 'function') renderDocAutofillDiagnostics();
+      throw e;
+    }
+  }
+
+  var _irsFilledUrls = {};
+
+  async function fillAndShowIRSForm(key) {
+    var _tiFn = 'DocCreator.fillAndShowIRSForm';
+    var _tiStart = Date.now();
+    tiTrackFunction(_tiFn);
+
     var form = IRS_FORMS[key];
-    if (!form) { alert('IRS form not found: ' + key); return; }
+    if (!form) {
+      tiPushEvent({ type: 'execution', id: _tiFn, status: 'error', errorMessage: 'IRS form not found: ' + key, endedAt: new Date().toISOString(), durationMs: Date.now() - _tiStart });
+      tiPushRecommendation({ functionId: _tiFn, recommendation: 'Validate IRS form key before rendering', reason: 'Unknown form key: ' + key, priority: 'P2', createdAt: new Date().toISOString() });
+      tiRefreshIfVisible();
+      alert('IRS form not found: ' + key);
+      return;
+    }
+
     var url = 'irs-forms/' + form.file;
-    // Hide editor + toolbar, show PDF viewer
     document.getElementById('doc-toolbar').style.display = 'none';
     document.getElementById('doc-editor').style.display = 'none';
     var viewer = document.getElementById('doc-pdf-viewer');
     viewer.style.display = 'block';
-    document.getElementById('doc-pdf-title').textContent = form.title;
-    document.getElementById('doc-pdf-frame').src = url;
-    document.getElementById('doc-pdf-download').href = url;
-  }
-
-  function exitPDFViewer() {
-    document.getElementById('doc-pdf-viewer').style.display = 'none';
+    var titleEl = document.getElementById('doc-pdf-title');
+    var dlLink = document.getElementById('doc-pdf-download');
+    titleEl.textContent = form.title + ' — filling fields…';
     document.getElementById('doc-pdf-frame').src = '';
-    document.getElementById('doc-toolbar').style.display = '';
-    document.getElementById('doc-editor').style.display = '';
-    document.getElementById('doc-template-select').value = '';
+    dlLink.href = '#';
+    var varMap = buildVariableMap({});
+
+    try {
+      var result = await autoFillIRSPDF(url, varMap, key);
+      var blob = new Blob([result.bytes], { type: 'application/pdf' });
+      if (_irsFilledUrls[key]) { try { URL.revokeObjectURL(_irsFilledUrls[key]); } catch(e) {} }
+      var blobUrl = URL.createObjectURL(blob);
+      _irsFilledUrls[key] = blobUrl;
+      document.getElementById('doc-pdf-frame').src = blobUrl;
+      dlLink.href = blobUrl;
+      titleEl.textContent = form.title +
+        (result.filledCount > 0 ? ' — ✅ ' + result.filledCount + ' field' + (result.filledCount !== 1 ? 's' : '') + ' auto-filled' : '');
+
+      var diag = result && result.diagnostics ? result.diagnostics : {};
+      var diagSummary = diag.diagnosticSummary || ('filled=' + (result.filledCount || 0));
+      tiPushEvent({ type: 'execution', id: _tiFn, status: 'ok', endedAt: new Date().toISOString(), durationMs: Date.now() - _tiStart, formKey: key, file: form.file, filledCount: result.filledCount, diagnosticSummary: diagSummary });
+      tiPushVerification({ functionId: _tiFn, ruleId: 'viewer-prefill', passed: result.filledCount > 0, message: (result.filledCount > 0 ? 'Viewer opened with pre-filled PDF for ' : 'Viewer opened but no fields populated for ') + form.file + ' [' + diagSummary + ']', createdAt: new Date().toISOString() });
+      if (result.filledCount === 0) {
+        tiPushRecommendation({ functionId: _tiFn, recommendation: 'Review field tooltips and token map for this IRS form', reason: 'Viewer prefill produced zero fields for ' + form.file + ' | unmatched sample: ' + ((diag.unmatchedTextFieldSample || []).slice(0, 3).map(function(f){ return f.fieldName || 'unknown'; }).join(', ')) + ' | missing tokens: ' + ((diag.missingVarTokens || []).slice(0, 5).join(', ')), priority: 'P1', createdAt: new Date().toISOString() });
+      }
+      tiRefreshIfVisible();
+    } catch(e) {
+      console.warn('IRS auto-fill error:', e);
+      document.getElementById('doc-pdf-frame').src = url;
+      dlLink.href = url;
+      titleEl.textContent = form.title;
+
+      tiPushEvent({ type: 'execution', id: _tiFn, status: 'error', errorMessage: e && e.message ? e.message : String(e), endedAt: new Date().toISOString(), durationMs: Date.now() - _tiStart, formKey: key, file: form.file });
+      tiPushVerification({ functionId: _tiFn, ruleId: 'viewer-prefill', passed: false, message: 'Auto-fill failed; viewer fell back to raw form for ' + form.file, createdAt: new Date().toISOString() });
+      tiPushRecommendation({ functionId: _tiFn, recommendation: 'Investigate PDF fetch/load and fallback quality for this form', reason: 'fillAndShowIRSForm fallback triggered for ' + form.file, priority: 'P1', createdAt: new Date().toISOString() });
+      tiRefreshIfVisible();
+    }
   }
 
   // ══════════════════════════════════════════════════════════════════
@@ -21326,20 +22170,31 @@ e.g., jurat, affiant, notary" style="width:100%;min-height:80px;padding:10px;bor
     return docs;
   }
 
-  function buildAndPreviewPackage() {
+  async function buildAndPreviewPackage() {
+    var _tiFn = 'DocCreator.buildAndPreviewPackage';
+    var _tiStart = Date.now();
+    tiTrackFunction(_tiFn);
+
     var docs = getSelectedPackageDocs();
-    if (docs.length === 0) { alert('Please select at least one document.'); return; }
+    if (docs.length === 0) {
+      tiPushEvent({ type: 'execution', id: _tiFn, status: 'error', errorMessage: 'No documents selected for package preview', endedAt: new Date().toISOString(), durationMs: Date.now() - _tiStart });
+      tiPushRecommendation({ functionId: _tiFn, recommendation: 'Require at least one package doc before preview', reason: 'Preview attempted with empty selection', priority: 'P3', createdAt: new Date().toISOString() });
+      tiRefreshIfVisible();
+      alert('Please select at least one document.');
+      return;
+    }
     var sel = document.getElementById('pkg-entity-select');
     var entity = sel.value !== '' ? appData.entities[parseInt(sel.value)] : {};
     var varMap = buildVariableMap(entity || {});
     var previewArea = document.getElementById('pkg-preview-area');
     var previewContent = document.getElementById('pkg-preview-content');
+    previewContent.innerHTML = '<div style="color:#8b5cf6;padding:20px;text-align:center;font-weight:700">⏳ Building package — filling IRS forms…</div>';
+    previewArea.style.display = 'block';
     var allHtml = '';
-    docs.forEach(function(d, idx) {
+    for (var idx = 0; idx < docs.length; idx++) {
+      var d = docs[idx];
       for (var c = 0; c < d.copies; c++) {
-        if (allHtml) {
-          allHtml += '<hr style="border:2px dashed #8b5cf6;margin:32px 0">';
-        }
+        if (allHtml) allHtml += '<hr style="border:2px dashed #8b5cf6;margin:32px 0">';
         var copyLabel = d.copies > 1 ? ' (Copy ' + (c + 1) + ' of ' + d.copies + ')' : '';
         if (d.type === 'legal' && DOC_TEMPLATES[d.key]) {
           var html = populateTemplate(d.key, varMap);
@@ -21347,24 +22202,78 @@ e.g., jurat, affiant, notary" style="width:100%;min-height:80px;padding:10px;bor
             (DOC_DISPLAY_NAMES[d.key] || d.key) + copyLabel + '</div>';
           allHtml += html;
         } else if (d.type === 'irs' && IRS_FORMS[d.key]) {
-          var form = IRS_FORMS[d.key];
+          var irsForm = IRS_FORMS[d.key];
+          var rawUrl = 'irs-forms/' + irsForm.file;
+          var pdfUrl = rawUrl;
+          var fillBadge = '';
+          try {
+            var fillResult = await autoFillIRSPDF(rawUrl, varMap, d.key);
+            var filledBlob = new Blob([fillResult.bytes], { type: 'application/pdf' });
+            pdfUrl = URL.createObjectURL(filledBlob);
+            fillBadge = fillResult.filledCount > 0
+              ? '<span style="color:#10b981;font-size:10px;display:block;margin-top:4px">✅ ' + fillResult.filledCount + ' field' + (fillResult.filledCount !== 1 ? 's' : '') + ' auto-filled</span>'
+              : '<span style="color:#f59e0b;font-size:10px;display:block;margin-top:4px">⚠ No matching fields detected — verify manually</span>';
+
+            tiPushVerification({
+              functionId: _tiFn,
+              ruleId: 'package-preview-pdf-fill',
+              passed: fillResult.filledCount > 0,
+              message: fillResult.filledCount > 0
+                ? 'Package preview pre-filled ' + irsForm.file + ' with ' + fillResult.filledCount + ' field(s)'
+                : 'Package preview had zero filled fields for ' + irsForm.file,
+              createdAt: new Date().toISOString()
+            });
+
+            if (fillResult.filledCount === 0) {
+              tiPushRecommendation({
+                functionId: _tiFn,
+                recommendation: 'Improve fill map for package preview forms',
+                reason: irsForm.file + ' returned zero filled fields during package preview',
+                priority: 'P1',
+                createdAt: new Date().toISOString()
+              });
+            }
+          } catch(e) {
+            fillBadge = '<span style="color:#ef4444;font-size:10px;display:block;margin-top:4px">⚠ Auto-fill unavailable — form opens blank</span>';
+            tiPushEvent({ type: 'execution', id: _tiFn, status: 'error', errorMessage: 'Package preview auto-fill failed for ' + irsForm.file + ': ' + (e && e.message ? e.message : String(e)), endedAt: new Date().toISOString(), durationMs: Date.now() - _tiStart });
+            tiPushVerification({ functionId: _tiFn, ruleId: 'package-preview-pdf-fill', passed: false, message: 'Auto-fill failed for ' + irsForm.file, createdAt: new Date().toISOString() });
+            tiPushRecommendation({ functionId: _tiFn, recommendation: 'Inspect PDF accessibility and fallback behavior in package preview', reason: 'Auto-fill exception for ' + irsForm.file, priority: 'P1', createdAt: new Date().toISOString() });
+          }
           allHtml += '<div style="background:#f0f0ff;border:2px solid #8b5cf6;border-radius:8px;padding:16px;margin:8px 0">' +
-            '<div style="font-weight:700;font-size:14px;color:#4c1d95;margin-bottom:8px">📋 ' + form.title + copyLabel + '</div>' +
-            '<div style="font-size:12px;color:#555;margin-bottom:8px">IRS Fillable PDF — open separately to fill fields</div>' +
+            '<div style="font-weight:700;font-size:14px;color:#4c1d95;margin-bottom:8px">📋 ' + irsForm.title + copyLabel + '</div>' +
             '<div style="font-size:11px;color:#333">' +
             '<b>Entity:</b> ' + (varMap['{{TRUST_NAME}}'] || varMap['{{ENTITY_NAME}}'] || 'N/A') + '<br>' +
             '<b>EIN:</b> ' + (varMap['{{EIN}}'] || 'N/A') + '<br>' +
             '<b>Trustee:</b> ' + (varMap['{{TRUSTEE}}'] || 'N/A') + '<br>' +
             '<b>CAF:</b> ' + (varMap['{{CAF_NUMBER}}'] || 'N/A') +
             '</div>' +
-            '<div style="margin-top:8px"><a href="irs-forms/' + form.file + '" target="_blank" style="color:#8b5cf6;font-weight:700;font-size:11px">⬇ Open ' + form.file + ' in New Tab</a></div>' +
-            '</div>';
+            '<div style="margin-top:8px">' +
+            '<a href="' + pdfUrl + '" target="_blank" style="color:#8b5cf6;font-weight:700;font-size:11px">⬇ Open Pre-filled ' + irsForm.file + ' in New Tab</a>' +
+            fillBadge +
+            '</div></div>';
         }
       }
-    });
+    }
     previewContent.innerHTML = allHtml;
-    previewArea.style.display = 'block';
     previewArea.scrollIntoView({ behavior: 'smooth' });
+
+    tiPushEvent({
+      type: 'execution',
+      id: _tiFn,
+      status: 'ok',
+      endedAt: new Date().toISOString(),
+      durationMs: Date.now() - _tiStart,
+      selectedDocs: docs.length
+    });
+    tiPushFix({
+      functionId: _tiFn,
+      fixId: 'package-preview-build-complete',
+      applied: true,
+      safeAutoFix: true,
+      notes: 'Build and preview completed with current template variables.',
+      createdAt: new Date().toISOString()
+    });
+    tiRefreshIfVisible();
   }
 
   // ── Package Export Functions ──
@@ -21447,14 +22356,18 @@ e.g., jurat, affiant, notary" style="width:100%;min-height:80px;padding:10px;bor
         var form = IRS_FORMS[d.key];
         for (var c2 = 0; c2 < d.copies; c2++) {
           (function(formObj, copyIdx, totalCopies) {
-            var p = fetch('irs-forms/' + formObj.file).then(function(r) {
-              if (!r.ok) throw new Error('Failed to fetch ' + formObj.file);
-              return r.blob();
-            }).then(function(b) {
-              var suffix = totalCopies > 1 ? '_' + (copyIdx + 1) : '';
-              zip.file('IRS_Forms/' + formObj.file.replace('.pdf', suffix + '.pdf'), b);
-            }).catch(function(err) {
-              console.warn('Could not add ' + formObj.file + ' to ZIP:', err);
+            var rawUrl = 'irs-forms/' + formObj.file;
+            var suffix = totalCopies > 1 ? '_' + (copyIdx + 1) : '';
+            var zipName = 'IRS_Forms/' + formObj.file.replace('.pdf', suffix + '_filled.pdf');
+            var p = autoFillIRSPDF(rawUrl, varMap, d.key).then(function(result) {
+              zip.file(zipName, result.bytes);
+            }).catch(function() {
+              return fetch(rawUrl).then(function(r) {
+                if (!r.ok) throw new Error('fetch failed');
+                return r.blob();
+              }).then(function(b) {
+                zip.file('IRS_Forms/' + formObj.file.replace('.pdf', suffix + '.pdf'), b);
+              }).catch(function(err) { console.warn('Could not add ' + formObj.file + ' to ZIP:', err); });
             });
             irsPromises.push(p);
           })(form, c2, d.copies);
@@ -21690,12 +22603,62 @@ e.g., jurat, affiant, notary" style="width:100%;min-height:80px;padding:10px;bor
     docAutoSaveTimer = setInterval(docAutoSaveNow, 5000);
   }
 
+  function renderDocAutofillDiagnostics() {
+    var summaryEl = document.getElementById('doc-autofill-summary');
+    var detailsEl = document.getElementById('doc-autofill-details');
+    if (!summaryEl || !detailsEl) return;
+
+    if (typeof tiState !== 'function') {
+      summaryEl.textContent = 'TMAR Inspector state is unavailable in this runtime.';
+      detailsEl.textContent = '';
+      return;
+    }
+
+    var st = tiState();
+    var okEvents = (st.events || []).filter(function(e){ return e && e.id === 'DocCreator.autoFillIRSPDF' && e.status === 'ok'; });
+    var errEvents = (st.events || []).filter(function(e){ return e && e.id === 'DocCreator.autoFillIRSPDF' && e.status === 'error'; });
+    var lastOk = okEvents.length ? okEvents[okEvents.length - 1] : null;
+    var lastErr = errEvents.length ? errEvents[errEvents.length - 1] : null;
+
+    if (!lastOk && !lastErr) {
+      summaryEl.textContent = 'No autofill diagnostics yet. Run an IRS form autofill first.';
+      detailsEl.textContent = '';
+      return;
+    }
+
+    if (lastOk) {
+      summaryEl.textContent =
+        'Last run: ' + (lastOk.endedAt || 'unknown time') +
+        ' | ' + (lastOk.diagnosticSummary || 'no summary') +
+        ' | source: ' + (lastOk.source || 'unknown');
+
+      var matched = lastOk.matchedTokenCounts || {};
+      var matchedPairs = Object.keys(matched).map(function(k){ return k + ': ' + matched[k]; });
+      var unmatchedSample = (lastOk.unmatchedTextFieldSample || []).slice(0, 5).map(function(f){
+        return f.fieldName || 'unknown';
+      });
+      var missing = (lastOk.missingVarTokens || []).slice(0, 8);
+
+      detailsEl.innerHTML =
+        '<div><b style="color:#10b981">Matched tokens:</b> ' + (matchedPairs.length ? matchedPairs.join(', ') : 'none') + '</div>' +
+        '<div><b style="color:#f59e0b">Unmatched fields (sample):</b> ' + (unmatchedSample.length ? unmatchedSample.join(', ') : 'none') + '</div>' +
+        '<div><b style="color:#ef4444">Missing template tokens:</b> ' + (missing.length ? missing.join(', ') : 'none') + '</div>';
+    } else {
+      summaryEl.textContent = 'Last autofill failed at ' + (lastErr.endedAt || 'unknown time') + ': ' + (lastErr.errorMessage || 'unknown error');
+      detailsEl.innerHTML = '<div><b style="color:#ef4444">Error:</b> ' + (lastErr.errorMessage || 'unknown error') + '</div>';
+    }
+  }
+
   // ── Init Document Creator ──
   function initDocCreator() {
-    if (docCreatorInitialized) return;
+    if (docCreatorInitialized) {
+      renderDocAutofillDiagnostics();
+      return;
+    }
     docCreatorInitialized = true;
     initDocAutoSave();
     initDocUndoRedo();
+    renderDocAutofillDiagnostics();
   }
 
   function docCmd(cmd, val) { document.execCommand(cmd, false, val||null); }
@@ -50336,3 +51299,5 @@ function gmailHandleFileImport(input) {
 <script src="tmar-key-manager.js"></script>
 </div>
 </body><!-- ===== EON AI SIDEBAR ===== --></html>
+
+

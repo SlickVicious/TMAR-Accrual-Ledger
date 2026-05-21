@@ -9,7 +9,8 @@
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
     "test:coverage": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
     "build": "node build.js",
-    "dev": "node --watch src/index.js"
+    "dev": "node --watch src/index.js",
+    "inspect:catalog": "node scripts/tmar-inspector/catalog-functions.mjs"
   },
   "keywords": [
     "financial",

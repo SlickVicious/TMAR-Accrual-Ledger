@@ -7,6 +7,7 @@ import * as AccountService from './services/AccountService.js';
 import * as TransactionService from './services/TransactionService.js';
 import * as InvoiceService from './services/InvoiceService.js';
 import * as PayrollService from './services/PayrollService.js';
+import * as TMARInspectorService from './services/TMARInspectorService.js';
 import * as LocalStorage from './storage/LocalStorage.js';
 import { createStateManager } from './utils/StateManager.js';
 
@@ -25,6 +26,7 @@ export {
   TransactionService,
   InvoiceService,
   PayrollService,
+  TMARInspectorService,
   LocalStorage,
   appState
 };
@@ -59,6 +61,7 @@ if (typeof window !== 'undefined') {
     TransactionService,
     InvoiceService,
     PayrollService,
+    TMARInspectorService,
     LocalStorage,
     appState,
     initialize: initializeTMAR
