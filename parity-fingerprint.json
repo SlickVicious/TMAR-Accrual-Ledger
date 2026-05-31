@@ -1,19 +1,19 @@
 {
-  "lastChecked": "2026-05-24T08:57:30Z",
-  "driftDetected": false,
+  "lastChecked": "2026-05-31T09:08:46Z",
+  "driftDetected": true,
   "sources": {
     "Agent.html": {
       "hash": "520bedc9c2d6dd97a8326b3bd655197eb3428ad8924abbc3740c341389f11f19",
       "tabCount": 0,
       "version": "v7.2",
-      "checkedAt": "2026-05-24T08:57:30Z"
+      "checkedAt": "2026-05-31T09:08:46Z"
     },
     "GAAP.html": {
-      "hash": "56f639c54163512b6ec9483dc54f003153b777a1327657c3e1ffae3989f56124",
-      "tabCount": 59,
-      "version": "GAAPCLAW v3.0",
-      "checkedAt": "2026-05-24T08:57:30Z"
+      "hash": "10f74d15802fcd5c0f87758259817ab1e8a47d1a9855b2a9fcfbb5e66c50ad31",
+      "tabCount": 39,
+      "version": "unknown",
+      "checkedAt": "2026-05-31T09:08:46Z"
     }
   },
-  "driftSummary": ""
+  "driftSummary": "\u2022 GAAP.html changed (was: 56f639c54163... now: 10f74d15802f...) \u2014 tabs: 39\\n"
 }
