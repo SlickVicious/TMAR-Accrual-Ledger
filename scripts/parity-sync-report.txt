@@ -1,0 +1,804 @@
+TMAR Parity Sync — 2026-06-02T07:13:50.121Z
+
+  PROTECTED (unchanged): resolveProvider
+  PROTECTED (unchanged): callLLMStream
+  SAFE [changed] add
+  SAFE [changed] addPdf
+  SAFE [changed] search
+  SAFE [changed] count
+  SAFE [changed] _guardedRegisterAgent
+  SAFE [changed] _guardedRegisterSkill
+  SAFE [changed] buildFullSystemPrompt
+  SAFE [changed] estimateTokens
+  SAFE [changed] truncateToTokenBudget
+  SAFE [changed] getSystemPrompt
+  REVIEW [changed] sendChat
+    Deps in source (pullable with --resolve): getActiveSession, newChatSession, addMsg, routeAgent, genId, updateMemory, renderSessionList
+    window.X refs not in TMAR: _selectedFirmId
+  REVIEW [changed] handleFileUpload
+    Deps in source (pullable with --resolve): renderFilePreview
+  REVIEW [changed] toggleMic
+    Deps in source (pullable with --resolve): stopMic
+  SAFE [changed] shareChat
+  REVIEW [changed] exportChat
+    Deps in source (pullable with --resolve): getActiveSession
+  REVIEW [changed] askAgent
+    Deps in source (pullable with --resolve): updateMemory
+  REVIEW [changed] dtNewChat
+    Deps in source (pullable with --resolve): genId, save, dtRenderSessions, dtRenderMsgs
+  REVIEW [changed] dtHandleFiles
+    Deps in source (pullable with --resolve): dtRenderFiles
+  REVIEW [changed] dtClearHistory
+    Deps in source (pullable with --resolve): save
+  REVIEW [changed] dtSend
+    Deps in source (pullable with --resolve): dtGetSession, dtAddMsg, dtRenderFiles, genId, updateMemory, dtRenderSessions
+  SAFE [changed] noiAsk
+  SAFE [changed] renderAgents
+  REVIEW [changed] createAgent
+    Deps in source (pullable with --resolve): save
+  REVIEW [changed] saveKeys
+    Deps in source (pullable with --resolve): save, loadKeys, refreshDash
+  REVIEW [changed] testConnection
+    Deps in source (pullable with --resolve): callLLM
+  SAFE [changed] refreshOllamaModels
+  REVIEW [changed] savePrefs
+    Deps in source (pullable with --resolve): save
+  REVIEW [changed] clearMemory
+    Deps in source (pullable with --resolve): save, renderMemory
+  SAFE [changed] renderHistory
+  SAFE [changed] esc
+  REVIEW [changed] doResearch
+    Deps in source (pullable with --resolve): callLLM, save, renderResearchHistory, trackActivity
+    DOM IDs not in TMAR: researchInput, researchDepth
+  REVIEW [changed] doSearch
+    Deps in source (pullable with --resolve): callLLM, trackActivity
+  REVIEW [changed] uploadDocs
+    Deps in source (pullable with --resolve): save, renderDocs
+  REVIEW [changed] toggleVoiceMic
+    Deps not found anywhere: SR
+  SAFE [changed] speakTTS
+  REVIEW [changed] addCalEvent
+    Deps in source (pullable with --resolve): save, renderCalendar
+  REVIEW [changed] unlockVault
+    Deps in source (pullable with --resolve): deriveVaultKey, decryptVault
+  REVIEW [changed] addVaultEntry
+    Deps in source (pullable with --resolve): saveVault
+  SAFE [changed] renderVault
+  SAFE [changed] genPW
+  SAFE [changed] exportBackup
+  REVIEW [changed] importBackup
+    Deps in source (pullable with --resolve): save
+  SAFE [changed] exportAllHistory
+  REVIEW [changed] showAlert
+    window.X refs not in TMAR: console
+  SAFE [changed] saveFiling
+  SAFE [changed] exportFiling
+  SAFE [changed] addSubsidiary
+  REVIEW [changed] calculate1120
+    DOM IDs not in TMAR: form1120TaxYear, taxableIncome1120
+  SAFE [changed] toggleAgentTTS
+  SAFE [changed] toggleAgentSTT
+  SAFE [changed] printForm
+  REVIEW [changed] onYearChange
+    DOM IDs not in TMAR: eeon-ybadge
+  REVIEW [changed] eeonSendChat
+    Deps in source (pullable with --resolve): buildSystemPrompt, speakAgent
+  SAFE [changed] sendQuick
+  SAFE [changed] _populateFormSchedC
+  REVIEW [changed] setFirm
+    window.X refs not in TMAR: _selectedFirmId
+  REVIEW [changed] buildFirmChips
+    Deps in source (pullable with --resolve): _chipStyle
+    window.X refs not in TMAR: _selectedFirmId
+  SAFE [changed] openClawCaseLaw
+  SAFE [changed] openClawStatutes
+  SAFE [changed] openClawCongress
+  SAFE [changed] apifyWebSearch
+  SAFE [changed] apifySECSearch
+  SAFE [changed] apifyNewsSearch
+  SAFE [changed] reconcileApps
+  SAFE [changed] forceSyncFromGAAP
+  SAFE [changed] clearTaskPlan
+  REVIEW [changed] planTask
+    Deps in source (pullable with --resolve): _mkTaskCard
+  SAFE [changed] buildCode
+  SAFE [changed] copyBuiltCode
+  SAFE [changed] downloadBuiltCode
+  SAFE [changed] deployBuiltCode
+  REVIEW [changed] runAPIScout
+    Deps in source (pullable with --resolve): _renderScoutCards
+    window.X refs not in TMAR: _scoutApis
+  REVIEW [changed] scoutTestAll
+    Deps in source (pullable with --resolve): _renderScoutCards
+    window.X refs not in TMAR: _scoutApis
+  REVIEW [changed] filterScoutAPIs
+    Deps in source (pullable with --resolve): _renderScoutCards
+    window.X refs not in TMAR: _scoutApis
+  REVIEW [changed] showIntegratedAPIs
+    Deps in source (pullable with --resolve): _renderScoutCards
+    window.X refs not in TMAR: _scoutApis
+  SAFE [changed] scoutClearIntegrated
+  SAFE [new] load
+  REVIEW [new] save
+    Deps in source (pullable with --resolve): save
+  REVIEW [new] genId
+    Deps in source (pullable with --resolve): genId
+  REVIEW [new] newChatSession
+    Deps in source (pullable with --resolve): newChatSession, genId, save, renderSessionList, renderChatMessages, goPage
+  REVIEW [new] loadSession
+    Deps in source (pullable with --resolve): loadSession, save, renderSessionList, renderChatMessages, goPage
+  REVIEW [new] deleteSession
+    Deps in source (pullable with --resolve): deleteSession, save, loadSession, newChatSession, renderSessionList
+  REVIEW [new] getActiveSession
+    Deps in source (pullable with --resolve): getActiveSession
+  REVIEW [new] saveCurrentSession
+    Deps in source (pullable with --resolve): saveCurrentSession, getActiveSession, save
+  REVIEW [new] renderSessionList
+    Deps in source (pullable with --resolve): renderSessionList
+    DOM IDs not in TMAR: chatSessionList
+  REVIEW [new] routeAgent
+    Deps in source (pullable with --resolve): routeAgent
+  REVIEW [new] callLLM
+    Deps in source (pullable with --resolve): callLLM
+  REVIEW [new] goPage
+    Deps in source (pullable with --resolve): goPage, loadKeys, loadPrefs, renderNoiToggles, refreshDash, renderChatMessages
+    DOM IDs not in TMAR: pageTitle
+  REVIEW [new] toggleTheme
+    Deps in source (pullable with --resolve): toggleTheme, save
+  REVIEW [new] addMsg
+    Deps in source (pullable with --resolve): addMsg, genId, saveCurrentSession, save, renderChatMessages
+  REVIEW [new] deleteMsg
+    Deps in source (pullable with --resolve): deleteMsg, saveCurrentSession, renderChatMessages
+  REVIEW [new] recycleMsg
+    Deps in source (pullable with --resolve): recycleMsg
+  REVIEW [new] saveMsg
+    Deps in source (pullable with --resolve): saveMsg
+  REVIEW [new] copyMsg
+    Deps in source (pullable with --resolve): copyMsg
+  REVIEW [new] speakMsg
+    Deps in source (pullable with --resolve): speakMsg
+  REVIEW [new] renderChatMessages
+    Deps in source (pullable with --resolve): renderChatMessages
+  REVIEW [new] removeFile
+    Deps in source (pullable with --resolve): removeFile, renderFilePreview
+  REVIEW [new] renderFilePreview
+    Deps in source (pullable with --resolve): renderFilePreview
+  REVIEW [new] stopMic
+    Deps in source (pullable with --resolve): stopMic
+  REVIEW [new] dtGetSession
+    Deps in source (pullable with --resolve): dtGetSession
+  REVIEW [new] dtLoadSession
+    Deps in source (pullable with --resolve): dtLoadSession, save, dtGetSession, dtRenderSessions, dtRenderMsgs
+  REVIEW [new] dtDeleteSession
+    Deps in source (pullable with --resolve): dtDeleteSession, save, dtLoadSession, dtRenderSessions
+  REVIEW [new] dtSaveSession
+    Deps in source (pullable with --resolve): dtSaveSession, dtGetSession, save
+  REVIEW [new] dtRenderSessions
+    Deps in source (pullable with --resolve): dtRenderSessions
+  REVIEW [new] dtAddMsg
+    Deps in source (pullable with --resolve): dtAddMsg, genId, dtSaveSession, dtRenderMsgs
+  REVIEW [new] dtDeleteMsg
+    Deps in source (pullable with --resolve): dtDeleteMsg, dtSaveSession, dtRenderMsgs
+  REVIEW [new] dtRecycleMsg
+    Deps in source (pullable with --resolve): dtRecycleMsg
+  REVIEW [new] dtSpeakMsg
+    Deps in source (pullable with --resolve): dtSpeakMsg
+  REVIEW [new] dtRenderMsgs
+    Deps in source (pullable with --resolve): dtRenderMsgs
+  REVIEW [new] dtRemoveFile
+    Deps in source (pullable with --resolve): dtRemoveFile, dtRenderFiles
+  REVIEW [new] dtRenderFiles
+    Deps in source (pullable with --resolve): dtRenderFiles
+  REVIEW [new] renderNoiToggles
+    Deps in source (pullable with --resolve): renderNoiToggles
+  REVIEW [new] deleteAgent
+    Deps in source (pullable with --resolve): deleteAgent, save
+  REVIEW [new] loadKeys
+    Deps in source (pullable with --resolve): loadKeys
+  REVIEW [new] loadPrefs
+    Deps in source (pullable with --resolve): loadPrefs, renderMemory
+  REVIEW [new] updateMemory
+    Deps in source (pullable with --resolve): updateMemory, save
+  REVIEW [new] renderMemory
+    Deps in source (pullable with --resolve): renderMemory
+  REVIEW [new] refreshDash
+    Deps in source (pullable with --resolve): refreshDash, save
+    DOM IDs not in TMAR: llmBadge
+  REVIEW [new] renderResearchHistory
+    Deps in source (pullable with --resolve): renderResearchHistory
+  REVIEW [new] renderDocs
+    Deps in source (pullable with --resolve): renderDocs
+  REVIEW [new] viewDoc
+    Deps in source (pullable with --resolve): viewDoc
+  REVIEW [new] delDoc
+    Deps in source (pullable with --resolve): delDoc, save, renderDocs
+  REVIEW [new] analyzeDoc
+    Deps in source (pullable with --resolve): analyzeDoc, goPage
+  REVIEW [new] populateTTSVoices
+    Deps in source (pullable with --resolve): populateTTSVoices
+  REVIEW [new] trackActivity
+    Deps in source (pullable with --resolve): trackActivity, save
+  REVIEW [new] refreshAnalytics
+    Deps in source (pullable with --resolve): refreshAnalytics
+  REVIEW [new] renderCalendar
+    Deps in source (pullable with --resolve): renderCalendar
+  REVIEW [new] delCalEvent
+    Deps in source (pullable with --resolve): delCalEvent, save, renderCalendar
+  REVIEW [new] deriveVaultKey
+    Deps in source (pullable with --resolve): deriveVaultKey
+  REVIEW [new] encryptVault
+    Deps in source (pullable with --resolve): encryptVault
+  REVIEW [new] decryptVault
+    Deps in source (pullable with --resolve): decryptVault
+  REVIEW [new] saveVault
+    Deps in source (pullable with --resolve): saveVault, deriveVaultKey, encryptVault, save
+  REVIEW [new] exportSession
+    Deps in source (pullable with --resolve): exportSession
+  REVIEW [new] showTaxForm
+    Deps in source (pullable with --resolve): showTaxForm
+  REVIEW [new] speak
+    Deps in source (pullable with --resolve): speak
+  REVIEW [new] speakAgent
+    Deps in source (pullable with --resolve): speakAgent
+  REVIEW [new] toggleTTS
+    Deps in source (pullable with --resolve): toggleTTS
+    DOM IDs not in TMAR: tts-btn, speech-status
+  REVIEW [new] toggleSTT
+    Deps in source (pullable with --resolve): toggleSTT
+    DOM IDs not in TMAR: jdesc, speech-status, stt-btn
+  REVIEW [new] eeonLegacySendChat
+    Deps not found anywhere: addChatMessage, addThinking
+    Deps in source (pullable with --resolve): eeonLegacySendChat, buildSystemPrompt, speakAgent
+  REVIEW [new] buildSystemPrompt
+    Deps in source (pullable with --resolve): buildSystemPrompt
+  REVIEW [new] eeonSetAgent
+    Deps in source (pullable with --resolve): eeonSetAgent
+  REVIEW [new] showSection
+    Deps in source (pullable with --resolve): showSection, goPage
+  REVIEW [new] generateJournalDocument
+    Deps in source (pullable with --resolve): generateJournalDocument
+  REVIEW [new] pushJournalToGAAP
+    Deps in source (pullable with --resolve): pushJournalToGAAP
+  REVIEW [new] _chipStyle
+    Deps in source (pullable with --resolve): _chipStyle
+  REVIEW [new] _safeKeys
+    Deps in source (pullable with --resolve): _safeKeys
+    window.X refs not in TMAR: apiKeys
+  REVIEW [new] _keys
+    Deps in source (pullable with --resolve): _keys
+    window.X refs not in TMAR: apiKeys
+  REVIEW [new] _getKey
+    Deps in source (pullable with --resolve): _getKey, _keys
+  REVIEW [new] _getUrl
+    Deps in source (pullable with --resolve): _getUrl, _keys
+  REVIEW [new] _getCLToken
+    Deps in source (pullable with --resolve): _getCLToken, _keys
+  REVIEW [new] courtListenerSearch
+    Deps in source (pullable with --resolve): courtListenerSearch, _getCLToken
+  REVIEW [new] openClawSearch
+    Deps in source (pullable with --resolve): openClawSearch, _getKey, _getUrl
+  REVIEW [new] statutesSearch
+    Deps in source (pullable with --resolve): statutesSearch
+  REVIEW [new] searchCaseLaw
+    Deps in source (pullable with --resolve): searchCaseLaw, _getKey, openClawSearch, courtListenerSearch
+  REVIEW [new] _getToken
+    Deps in source (pullable with --resolve): _getToken
+    window.X refs not in TMAR: apiKeys
+  REVIEW [new] runActor
+    Deps in source (pullable with --resolve): runActor, _getToken
+  REVIEW [new] googleSearch
+    Deps in source (pullable with --resolve): googleSearch, runActor
+  REVIEW [new] scrapeUrl
+    Deps in source (pullable with --resolve): scrapeUrl, runActor
+  REVIEW [new] testOpenClawConnection
+    Deps in source (pullable with --resolve): testOpenClawConnection
+    window.X refs not in TMAR: apiKeys
+  REVIEW [new] testApifyConnection
+    Deps in source (pullable with --resolve): testApifyConnection
+    window.X refs not in TMAR: apiKeys
+  REVIEW [new] _mkTaskCard
+    Deps in source (pullable with --resolve): _mkTaskCard
+  REVIEW [new] refineCode
+    Deps in source (pullable with --resolve): refineCode
+  REVIEW [new] _isRelevant
+    Deps in source (pullable with --resolve): _isRelevant
+  REVIEW [new] _fetchRegistry
+    Deps in source (pullable with --resolve): _fetchRegistry
+  REVIEW [new] discover
+    Deps not found anywhere: onProgress
+    Deps in source (pullable with --resolve): discover, _fetchRegistry
+  REVIEW [new] integrateAPI
+    Deps in source (pullable with --resolve): integrateAPI, save
+    window.X refs not in TMAR: customAgents
+  REVIEW [new] integrateAll
+    Deps in source (pullable with --resolve): integrateAll, integrateAPI
+  REVIEW [new] clearIntegrated
+    Deps in source (pullable with --resolve): clearIntegrated, save
+    window.X refs not in TMAR: customAgents
+  REVIEW [new] getDiscovered
+    Deps in source (pullable with --resolve): getDiscovered
+  REVIEW [new] getIntegrated
+    Deps in source (pullable with --resolve): getIntegrated
+  REVIEW [new] _renderScoutCards
+    Deps in source (pullable with --resolve): _renderScoutCards
+    window.X refs not in TMAR: _scoutApis
+  REVIEW [new] _lk
+    Deps in source (pullable with --resolve): _lk
+  REVIEW [new] _ak
+    Deps in source (pullable with --resolve): _ak
+  REVIEW [new] _ld
+    Deps in source (pullable with --resolve): _ld
+  REVIEW [new] _sv
+    Deps in source (pullable with --resolve): _sv
+  REVIEW [new] _init
+    Deps in source (pullable with --resolve): _init, _ld, _lk, _ak, _newChat, _renderSL, _renderMsgs
+  REVIEW [new] _getSess
+    Deps in source (pullable with --resolve): _getSess
+  REVIEW [new] _persist
+    Deps in source (pullable with --resolve): _persist, _getSess, _sv, _lk
+  REVIEW [new] _newChat
+    Deps in source (pullable with --resolve): _newChat, _sv, _lk, _ak, _renderSL, _renderMsgs
+  REVIEW [new] _loadSess
+    Deps in source (pullable with --resolve): _loadSess, _sv, _ak, _renderSL, _renderMsgs
+  REVIEW [new] _delSess
+    Deps in source (pullable with --resolve): _delSess, _sv, _lk, _loadSess, _newChat, _renderSL
+  REVIEW [new] _renderSL
+    Deps in source (pullable with --resolve): _renderSL, _esc
+  REVIEW [new] _renderMsgs
+    Deps in source (pullable with --resolve): _renderMsgs, _esc
+  REVIEW [new] _send
+    Deps in source (pullable with --resolve): _send, _init, _getSess, _newChat, _persist, _renderMsgs, _callLLM
+  REVIEW [new] _callLLM
+    Deps not found anywhere: onToken
+    Deps in source (pullable with --resolve): _callLLM
+  REVIEW [new] _toggleSTT
+    Deps not found anywhere: SR
+    Deps in source (pullable with --resolve): _toggleSTT
+  REVIEW [new] _speakLast
+    Deps in source (pullable with --resolve): _speakLast
+  REVIEW [new] _printConv
+    Deps in source (pullable with --resolve): _printConv, _init, _getSess, _esc
+  REVIEW [new] _exportPDF
+    Deps not found anywhere: jsPDF
+    Deps in source (pullable with --resolve): _exportPDF, _init, _getSess, _esc
+  REVIEW [new] _exportWord
+    Deps in source (pullable with --resolve): _exportWord, _init, _getSess, _esc
+  REVIEW [new] _shareLink
+    Deps not found anywhere: unescape
+    Deps in source (pullable with --resolve): _shareLink, _init, _getSess
+  REVIEW [new] _importShare
+    Deps not found anywhere: escape
+    Deps in source (pullable with --resolve): _importShare, _sv, _lk, _ak, _renderSL, _renderMsgs, goPage
+  REVIEW [new] _esc
+    Deps in source (pullable with --resolve): _esc
+
+  --resolve: pulling 116 dep(s): getActiveSession, newChatSession, genId, save, renderSessionList, renderChatMessages, goPage, loadKeys, loadPrefs, renderMemory, renderNoiToggles, refreshDash, addMsg, saveCurrentSession, routeAgent, updateMemory, renderFilePreview, stopMic, dtRenderSessions, dtRenderMsgs, dtRenderFiles, dtGetSession, dtAddMsg, dtSaveSession, callLLM, renderResearchHistory, trackActivity, renderDocs, renderCalendar, deriveVaultKey, decryptVault, saveVault, encryptVault, buildSystemPrompt, speakAgent, _chipStyle, _mkTaskCard, _renderScoutCards, loadSession, deleteSession, toggleTheme, deleteMsg, recycleMsg, saveMsg, copyMsg, speakMsg, removeFile, dtLoadSession, dtDeleteSession, dtDeleteMsg, dtRecycleMsg, dtSpeakMsg, dtRemoveFile, deleteAgent, viewDoc, delDoc, analyzeDoc, populateTTSVoices, refreshAnalytics, delCalEvent, exportSession, showTaxForm, speak, toggleTTS, toggleSTT, eeonLegacySendChat, eeonSetAgent, showSection, generateJournalDocument, pushJournalToGAAP, _safeKeys, _keys, _getKey, _getUrl, _getCLToken, courtListenerSearch, openClawSearch, statutesSearch, searchCaseLaw, _getToken, runActor, googleSearch, scrapeUrl, testOpenClawConnection, testApifyConnection, refineCode, _isRelevant, _fetchRegistry, discover, integrateAPI, integrateAll, clearIntegrated, getDiscovered, getIntegrated, _lk, _ak, _ld, _sv, _init, _newChat, _renderSL, _esc, _renderMsgs, _getSess, _persist, _loadSess, _delSess, _send, _callLLM, _toggleSTT, _speakLast, _printConv, _exportPDF, _exportWord, _shareLink, _importShare
+  Agent.html — Changed: 76  New: 117  Skip: 0
+  CHANGED (applied): add
+  CHANGED (applied): addPdf
+  CHANGED (applied): search
+  CHANGED (applied): count
+  CHANGED (applied): _guardedRegisterAgent
+  CHANGED (applied): _guardedRegisterSkill
+  CHANGED (applied): buildFullSystemPrompt
+  CHANGED (applied): estimateTokens
+  CHANGED (applied): truncateToTokenBudget
+  CHANGED (applied): getSystemPrompt
+  CHANGED (applied): sendChat
+  CHANGED (applied): handleFileUpload
+  CHANGED (applied): toggleMic
+  CHANGED (applied): shareChat
+  CHANGED (applied): exportChat
+  CHANGED (applied): askAgent
+  CHANGED (applied): dtNewChat
+  CHANGED (applied): dtHandleFiles
+  CHANGED (applied): dtClearHistory
+  CHANGED (applied): dtSend
+  CHANGED (applied): noiAsk
+  CHANGED (applied): renderAgents
+  CHANGED (applied): createAgent
+  CHANGED (applied): saveKeys
+  CHANGED (applied): testConnection
+  CHANGED (applied): refreshOllamaModels
+  CHANGED (applied): savePrefs
+  CHANGED (applied): clearMemory
+  CHANGED (applied): renderHistory
+  CHANGED (applied): esc
+  CHANGED (applied): doResearch
+  CHANGED (applied): doSearch
+  CHANGED (applied): uploadDocs
+  CHANGED (applied): toggleVoiceMic
+  CHANGED (applied): speakTTS
+  CHANGED (applied): addCalEvent
+  CHANGED (applied): unlockVault
+  CHANGED (applied): addVaultEntry
+  CHANGED (applied): renderVault
+  CHANGED (applied): genPW
+  CHANGED (applied): exportBackup
+  CHANGED (applied): importBackup
+  CHANGED (applied): exportAllHistory
+  CHANGED (applied): showAlert
+  CHANGED (applied): saveFiling
+  CHANGED (applied): exportFiling
+  CHANGED (applied): addSubsidiary
+  CHANGED (applied): calculate1120
+  CHANGED (applied): toggleAgentTTS
+  CHANGED (applied): toggleAgentSTT
+  CHANGED (applied): printForm
+  CHANGED (applied): onYearChange
+  CHANGED (applied): eeonSendChat
+  CHANGED (applied): sendQuick
+  CHANGED (applied): _populateFormSchedC
+  CHANGED (applied): setFirm
+  CHANGED (applied): buildFirmChips
+  CHANGED (applied): openClawCaseLaw
+  CHANGED (applied): openClawStatutes
+  CHANGED (applied): openClawCongress
+  CHANGED (applied): apifyWebSearch
+  CHANGED (applied): apifySECSearch
+  CHANGED (applied): apifyNewsSearch
+  CHANGED (applied): reconcileApps
+  CHANGED (applied): forceSyncFromGAAP
+  CHANGED (applied): clearTaskPlan
+  CHANGED (applied): planTask
+  CHANGED (applied): buildCode
+  CHANGED (applied): copyBuiltCode
+  CHANGED (applied): downloadBuiltCode
+  CHANGED (applied): deployBuiltCode
+  CHANGED (applied): runAPIScout
+  CHANGED (applied): scoutTestAll
+  CHANGED (applied): filterScoutAPIs
+  CHANGED (applied): showIntegratedAPIs
+  CHANGED (applied): scoutClearIntegrated
+  NEW (added): load
+  NEW (added): save
+  NEW (added): genId
+  NEW (added): newChatSession
+  NEW (added): loadSession
+  NEW (added): deleteSession
+  NEW (added): getActiveSession
+  NEW (added): saveCurrentSession
+  NEW (added): renderSessionList
+  NEW (added): routeAgent
+  NEW (added): callLLM
+  NEW (added): goPage
+  NEW (added): toggleTheme
+  NEW (added): addMsg
+  NEW (added): deleteMsg
+  NEW (added): recycleMsg
+  NEW (added): saveMsg
+  NEW (added): copyMsg
+  NEW (added): speakMsg
+  NEW (added): renderChatMessages
+  NEW (added): removeFile
+  NEW (added): renderFilePreview
+  NEW (added): stopMic
+  NEW (added): dtGetSession
+  NEW (added): dtLoadSession
+  NEW (added): dtDeleteSession
+  NEW (added): dtSaveSession
+  NEW (added): dtRenderSessions
+  NEW (added): dtAddMsg
+  NEW (added): dtDeleteMsg
+  NEW (added): dtRecycleMsg
+  NEW (added): dtSpeakMsg
+  NEW (added): dtRenderMsgs
+  NEW (added): dtRemoveFile
+  NEW (added): dtRenderFiles
+  NEW (added): renderNoiToggles
+  NEW (added): deleteAgent
+  NEW (added): loadKeys
+  NEW (added): loadPrefs
+  NEW (added): updateMemory
+  NEW (added): renderMemory
+  NEW (added): refreshDash
+  NEW (added): renderResearchHistory
+  NEW (added): renderDocs
+  NEW (added): viewDoc
+  NEW (added): delDoc
+  NEW (added): analyzeDoc
+  NEW (added): populateTTSVoices
+  NEW (added): trackActivity
+  NEW (added): refreshAnalytics
+  NEW (added): renderCalendar
+  NEW (added): delCalEvent
+  NEW (added): deriveVaultKey
+  NEW (added): encryptVault
+  NEW (added): decryptVault
+  NEW (added): saveVault
+  NEW (added): exportSession
+  NEW (added): showTaxForm
+  NEW (added): speak
+  NEW (added): speakAgent
+  NEW (added): toggleTTS
+  NEW (added): toggleSTT
+  NEW (added): eeonLegacySendChat
+  NEW (added): buildSystemPrompt
+  NEW (added): eeonSetAgent
+  NEW (added): showSection
+  NEW (added): generateJournalDocument
+  NEW (added): pushJournalToGAAP
+  NEW (added): _chipStyle
+  NEW (added): _safeKeys
+  NEW (added): _keys
+  NEW (added): _getKey
+  NEW (added): _getUrl
+  NEW (added): _getCLToken
+  NEW (added): courtListenerSearch
+  NEW (added): openClawSearch
+  NEW (added): statutesSearch
+  NEW (added): searchCaseLaw
+  NEW (added): _getToken
+  NEW (added): runActor
+  NEW (added): googleSearch
+  NEW (added): scrapeUrl
+  NEW (added): testOpenClawConnection
+  NEW (added): testApifyConnection
+  NEW (added): _mkTaskCard
+  NEW (added): refineCode
+  NEW (added): _isRelevant
+  NEW (added): _fetchRegistry
+  NEW (added): discover
+  NEW (added): integrateAPI
+  NEW (added): integrateAll
+  NEW (added): clearIntegrated
+  NEW (added): getDiscovered
+  NEW (added): getIntegrated
+  NEW (added): _renderScoutCards
+  NEW (added): _lk
+  NEW (added): _ak
+  NEW (added): _ld
+  NEW (added): _sv
+  NEW (added): _init
+  NEW (added): _getSess
+  NEW (added): _persist
+  NEW (added): _newChat
+  NEW (added): _loadSess
+  NEW (added): _delSess
+  NEW (added): _renderSL
+  NEW (added): _renderMsgs
+  NEW (added): _send
+  NEW (added): _callLLM
+  NEW (added): _toggleSTT
+  NEW (added): _speakLast
+  NEW (added): _printConv
+  NEW (added): _exportPDF
+  NEW (added): _exportWord
+  NEW (added): _shareLink
+  NEW (added): _importShare
+  NEW (added): _esc
+  SAFE [changed] loadFromStorage
+  REVIEW [changed] exportToWord
+    Deps not found anywhere: saveAs
+  REVIEW [changed] exportAllData
+    Deps not found anywhere: saveAs, jsPDF
+  SAFE [changed] previewData
+  SAFE [changed] showAlert
+  REVIEW [changed] switchMainTab
+    Deps not found anywhere: updateSPVDashboard, updateSPVReports
+  SAFE [changed] selectFilingType
+  SAFE [changed] loadEntries
+  SAFE [changed] deleteEntry
+  REVIEW [changed] saveLedger
+    Deps not found anywhere: saveAs
+  REVIEW [changed] exportCSV
+    Deps not found anywhere: saveAs
+  SAFE [changed] addSubsidiary
+  SAFE [changed] calculate1120
+  SAFE [changed] saveFiling
+  SAFE [changed] exportFiling
+  SAFE [changed] updateFilingsList
+  SAFE [changed] loadFiling
+  REVIEW [changed] updateReports
+    DOM IDs not in TMAR: r3CountRecognized, r3CountReconciled, r3CountRealized, r3FinancialAssets
+  SAFE [changed] showEntityModal
+  SAFE [changed] saveEntity
+  SAFE [changed] deleteEntity
+  SAFE [changed] updateEntitiesTable
+  REVIEW [changed] updateARTable
+    DOM IDs not in TMAR: ar6190
+  SAFE [changed] getAging
+  REVIEW [changed] updateAPTable
+    DOM IDs not in TMAR: ap6190
+  SAFE [changed] spvSave
+  REVIEW [changed] spvSaveEntry
+    Deps in source (pullable with --resolve): spvHideForm
+    DOM IDs not in TMAR: spvDate, spvType, spvDescription, spvReference, spvDebitAccount, spvCreditAccount, spvAmount, spvCurrency, spvStatus, spvNotes
+  SAFE [changed] spvDeleteEntry
+  REVIEW [changed] spvRenderLedger
+    Deps in source (pullable with --resolve): spvTypeLabel
+  REVIEW [changed] spvUpdateDashboard
+    DOM IDs not in TMAR: spv-total-assets, spv-tcu-total, spv-token-total, spvRecentActivity
+  SAFE [changed] generateSPVTrialBalance
+  REVIEW [changed] generateSPVAssetSummary
+    Deps in source (pullable with --resolve): spvTypeLabel
+  REVIEW [changed] spvExportCSV
+    Deps in source (pullable with --resolve): spvTypeLabel
+  SAFE [changed] spvExportJSON
+  SAFE [changed] initInvoicing
+  SAFE [changed] saveInvoice
+  SAFE [changed] markInvoicePaid
+  SAFE [changed] deleteInvoice
+  SAFE [changed] initPayroll
+  SAFE [changed] savePayrollRecord
+  SAFE [changed] renderPayrollRecords
+  SAFE [changed] initInventory
+  SAFE [changed] saveInventoryItem
+  SAFE [changed] renderInventoryTable
+  SAFE [changed] initBudget
+  SAFE [changed] saveBudget
+  SAFE [changed] initPaymentOrders
+  SAFE [changed] savePaymentOrder
+  SAFE [changed] renderPaymentOrders
+  SAFE [changed] initBOE
+  SAFE [changed] saveBOE
+  SAFE [changed] renderBOEList
+  SAFE [changed] clearBOEForm
+  SAFE [changed] printBOE
+  SAFE [changed] printBOEDocument
+  SAFE [changed] initExpenses
+  SAFE [changed] saveExpense
+  SAFE [changed] deleteExpense
+  SAFE [changed] initContacts
+  SAFE [changed] saveContact
+  SAFE [changed] deleteCustomer
+  SAFE [changed] deleteVendor
+  SAFE [changed] saveScheduleA
+  SAFE [changed] initDepreciation
+  SAFE [changed] saveAsset
+  SAFE [changed] deleteAsset
+  SAFE [changed] initBankRecon
+  SAFE [changed] saveReconciliation
+  SAFE [changed] deleteRecon
+  SAFE [changed] generateMasterReport
+  REVIEW [changed] gaapAgentQ
+    Deps in source (pullable with --resolve): sendGaapAgentQuery
+    DOM IDs not in TMAR: gaap-agent-input
+  REVIEW [new] verifyAndReconcile
+    Deps in source (pullable with --resolve): verifyAndReconcile, showVerificationReport
+  REVIEW [new] showVerificationReport
+    Deps in source (pullable with --resolve): showVerificationReport
+  REVIEW [new] autoValidateOnSave
+    Deps in source (pullable with --resolve): autoValidateOnSave, verifyAndReconcile
+  REVIEW [new] confirmAccuracy
+    Deps in source (pullable with --resolve): confirmAccuracy
+  REVIEW [new] speakReport
+    Deps in source (pullable with --resolve): speakReport
+  REVIEW [new] speakText
+    Deps in source (pullable with --resolve): speakText
+  REVIEW [new] updateCategoryInfo
+    Deps in source (pullable with --resolve): updateCategoryInfo
+    DOM IDs not in TMAR: categoryInfo
+  REVIEW [new] advanceR3Status
+    Deps in source (pullable with --resolve): advanceR3Status
+  REVIEW [new] spvTypeLabel
+    Deps in source (pullable with --resolve): spvTypeLabel
+  REVIEW [new] spvShowForm
+    Deps in source (pullable with --resolve): spvShowForm
+    DOM IDs not in TMAR: spvEntryForm, spvFormTitle, spvDate, spvType, spvDescription, spvReference, spvDebitAccount, spvCreditAccount, spvAmount, spvCurrency, spvStatus, spvNotes
+  REVIEW [new] spvHideForm
+    Deps in source (pullable with --resolve): spvHideForm
+    DOM IDs not in TMAR: spvEntryForm
+  REVIEW [new] spvApplyFilters
+    Deps in source (pullable with --resolve): spvApplyFilters
+    DOM IDs not in TMAR: spvFilterFrom, spvFilterTo
+  REVIEW [new] spvResetFilters
+    Deps in source (pullable with --resolve): spvResetFilters
+  REVIEW [new] saveUKSettings
+    Deps in source (pullable with --resolve): saveUKSettings
+    DOM IDs not in TMAR: ukYearEnd, ukFramework, ukCurrency, ukRegisteredOffice
+  REVIEW [new] generateUKComplianceReport
+    Deps in source (pullable with --resolve): generateUKComplianceReport
+  REVIEW [new] generateUKStatement
+    Deps in source (pullable with --resolve): generateUKStatement
+    DOM IDs not in TMAR: ukStatementType, ukReportDate, ukFramework, ukCurrency, ukStatementTitle, ukStatementContent, ukStatementOutput
+  REVIEW [new] printUKStatement
+    Deps in source (pullable with --resolve): printUKStatement
+    DOM IDs not in TMAR: ukStatementContent
+  REVIEW [new] clearGaapAgentChat
+    Deps in source (pullable with --resolve): clearGaapAgentChat
+    DOM IDs not in TMAR: gaap-agent-response, gaap-agent-input
+  REVIEW [new] reviewMyBooks
+    Deps in source (pullable with --resolve): reviewMyBooks, verifyAndReconcile, sendGaapAgentQuery
+    DOM IDs not in TMAR: gaap-agent-input
+  REVIEW [new] sendGaapAgentQuery
+    Deps not found anywhere: n
+    Deps in source (pullable with --resolve): sendGaapAgentQuery
+    DOM IDs not in TMAR: gaap-agent-input, gaap-agent-response
+    window.X refs not in TMAR: _gaapApiKey
+
+  --resolve: pulling 20 dep(s): spvHideForm, spvTypeLabel, sendGaapAgentQuery, verifyAndReconcile, showVerificationReport, autoValidateOnSave, confirmAccuracy, speakReport, speakText, updateCategoryInfo, advanceR3Status, spvShowForm, spvApplyFilters, spvResetFilters, saveUKSettings, generateUKComplianceReport, generateUKStatement, printUKStatement, clearGaapAgentChat, reviewMyBooks
+  GAAP.html — Changed: 71  New: 20  Skip: 0
+  CHANGED (applied): loadFromStorage
+  CHANGED (applied): exportToWord
+  CHANGED (applied): exportAllData
+  CHANGED (applied): previewData
+  CHANGED (applied): showAlert
+  CHANGED (applied): switchMainTab
+  CHANGED (applied): selectFilingType
+  CHANGED (applied): loadEntries
+  CHANGED (applied): deleteEntry
+  CHANGED (applied): saveLedger
+  CHANGED (applied): exportCSV
+  CHANGED (applied): addSubsidiary
+  CHANGED (applied): calculate1120
+  CHANGED (applied): saveFiling
+  CHANGED (applied): exportFiling
+  CHANGED (applied): updateFilingsList
+  CHANGED (applied): loadFiling
+  CHANGED (applied): updateReports
+  CHANGED (applied): showEntityModal
+  CHANGED (applied): saveEntity
+  CHANGED (applied): deleteEntity
+  CHANGED (applied): updateEntitiesTable
+  CHANGED (applied): updateARTable
+  CHANGED (applied): getAging
+  CHANGED (applied): updateAPTable
+  CHANGED (applied): spvSave
+  CHANGED (applied): spvSaveEntry
+  CHANGED (applied): spvDeleteEntry
+  CHANGED (applied): spvRenderLedger
+  CHANGED (applied): spvUpdateDashboard
+  CHANGED (applied): generateSPVTrialBalance
+  CHANGED (applied): generateSPVAssetSummary
+  CHANGED (applied): spvExportCSV
+  CHANGED (applied): spvExportJSON
+  CHANGED (applied): initInvoicing
+  CHANGED (applied): saveInvoice
+  CHANGED (applied): markInvoicePaid
+  CHANGED (applied): deleteInvoice
+  CHANGED (applied): initPayroll
+  CHANGED (applied): savePayrollRecord
+  CHANGED (applied): renderPayrollRecords
+  CHANGED (applied): initInventory
+  CHANGED (applied): saveInventoryItem
+  CHANGED (applied): renderInventoryTable
+  CHANGED (applied): initBudget
+  CHANGED (applied): saveBudget
+  CHANGED (applied): initPaymentOrders
+  CHANGED (applied): savePaymentOrder
+  CHANGED (applied): renderPaymentOrders
+  CHANGED (applied): initBOE
+  CHANGED (applied): saveBOE
+  CHANGED (applied): renderBOEList
+  CHANGED (applied): clearBOEForm
+  CHANGED (applied): printBOE
+  CHANGED (applied): printBOEDocument
+  CHANGED (applied): initExpenses
+  CHANGED (applied): saveExpense
+  CHANGED (applied): deleteExpense
+  CHANGED (applied): initContacts
+  CHANGED (applied): saveContact
+  CHANGED (applied): deleteCustomer
+  CHANGED (applied): deleteVendor
+  CHANGED (applied): saveScheduleA
+  CHANGED (applied): initDepreciation
+  CHANGED (applied): saveAsset
+  CHANGED (applied): deleteAsset
+  CHANGED (applied): initBankRecon
+  CHANGED (applied): saveReconciliation
+  CHANGED (applied): deleteRecon
+  CHANGED (applied): generateMasterReport
+  CHANGED (applied): gaapAgentQ
+  NEW (added): verifyAndReconcile
+  NEW (added): showVerificationReport
+  NEW (added): autoValidateOnSave
+  NEW (added): confirmAccuracy
+  NEW (added): speakReport
+  NEW (added): speakText
+  NEW (added): updateCategoryInfo
+  NEW (added): advanceR3Status
+  NEW (added): spvTypeLabel
+  NEW (added): spvShowForm
+  NEW (added): spvHideForm
+  NEW (added): spvApplyFilters
+  NEW (added): spvResetFilters
+  NEW (added): saveUKSettings
+  NEW (added): generateUKComplianceReport
+  NEW (added): generateUKStatement
+  NEW (added): printUKStatement
+  NEW (added): clearGaapAgentChat
+  NEW (added): reviewMyBooks
+  NEW (added): sendGaapAgentQuery
+
+Applied 284 change(s)
