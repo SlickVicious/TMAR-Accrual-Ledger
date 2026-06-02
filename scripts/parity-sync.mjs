@@ -513,6 +513,31 @@ function statusLabel(s) {
        : s === 'REVIEW' ? '🟡 REVIEW'
                         : '🔴 SKIP  ';
 }
+/**
+ * Verify that buildFullSystemPrompt contains required gate tokens.
+ * Returns { ok, missing, reason }
+ */
+function verifyBuildPromptGate(html) {
+  const functions = extractFunctions(html);
+  const target = functions.get('buildFullSystemPrompt');
+
+  if (!target) {
+    return {
+      ok: false,
+      missing: ['buildFullSystemPrompt'],
+      reason: 'function missing'
+    };
+  }
+
+  const requiredTokens = ['SYPHER PROTOCOL', 'PRESUMPTION KILLER'];
+  const missing = requiredTokens.filter(token => !target.body.includes(token));
+
+  return {
+    ok: missing.length === 0,
+    missing,
+    reason: missing.length ? 'gate tokens missing from buildFullSystemPrompt' : 'ok'
+  };
+}
 
 // ── main ──────────────────────────────────────────────────────────────────────
 
@@ -771,6 +796,25 @@ async function main() {
   }
 
   if (rl) rl.close();
+
+  // ── gate verification ─────────────────────────────────────────────────────
+  const gateCheck = verifyBuildPromptGate(tmarWorking);
+  if (!gateCheck.ok) {
+    const missingList = gateCheck.missing.join(', ');
+    const message = `Prompt gate verification failed: ${gateCheck.reason} (${missingList})`;
+
+    reportLines.push(`\nVERIFY FAIL: ${message}`);
+
+    if (APPLY) {
+      fs.writeFileSync(REPORT_FILE, reportLines.join('\n'), 'utf8');
+      console.error(`\n❌  ${message}`);
+      console.error('Sync aborted. buildFullSystemPrompt must retain gate tokens.');
+      process.exit(1);
+    } else {
+      console.warn(`\n⚠️   ${message}`);
+      console.warn('(Dry run — gate check failed but not aborting without --apply)\n');
+    }
+  }
 
   // ── output ────────────────────────────────────────────────────────────────
   console.log('═'.repeat(48));

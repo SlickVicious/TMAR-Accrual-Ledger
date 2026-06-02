@@ -1281,8 +1281,11 @@
         <button onclick="switchMainTab('docCreator')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="docCreator" style="background:linear-gradient(135deg,rgba(6,182,212,0.3),rgba(59,130,246,0.3));border:2px solid rgba(6,182,212,0.8);font-weight:900;color:#06b6d4">
           📄 Document Creator
         </button>
-        <button onclick="switchMainTab('sourceFolders')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="sourceFolders" style="background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.4)">
+        <button onclick="switchMainTab('sourceFolders')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="sourceFolders" style="background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.4)" data-guide="Open Source Folders to register local research directories and a dedicated accounting authority library path.">
           📁 Source Folders
+        </button>
+        <button id="ual-guide-toggle" onclick="ev2ToggleInfoGuide()" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" style="background:rgba(167,139,250,.16);border:1px solid rgba(167,139,250,.5);color:#c4b5fd" data-guide="Toggle Guide Mode overlays across TMAR UAL. Highlighted controls display operational purpose and workflow guidance.">
+          <i class="fas fa-info-circle" style="width:18px"></i> Guide Mode
         </button>
         <div class="w-px h-6 bg-gray-600 mx-1 hidden md:block"></div>
         <!-- Group 9: RedressRight Source Libraries -->
@@ -16016,12 +16019,13 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
       </div>
       <div id="sf-list" style="margin-bottom:16px"><div style="color:var(--text-secondary);font-size:12px;padding:10px">No source folders configured. Add a folder below.</div></div>
       <div style="display:flex;gap:10px;margin-bottom:20px">
-        <input type="text" id="sf-path" placeholder="Enter folder path (e.g. C:\Documents\Legal or /home/user/docs)" style="flex:1;padding:10px;border:1px solid rgba(139,92,246,.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)">
-        <button onclick="addSourceFolder()" style="padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;border:2px solid #8b5cf6;background:rgba(139,92,246,.15);color:#8b5cf6;cursor:pointer">✚ Add Folder</button>
+        <input type="text" id="sf-path" placeholder="Enter folder path (e.g. C:\Documents\Legal or /home/user/docs)" style="flex:1;padding:10px;border:1px solid rgba(139,92,246,.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)" data-guide="Type an absolute folder path and click Add Folder. Paths are saved locally in this browser session profile.">
+        <button onclick="addSourceFolder()" style="padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;border:2px solid #8b5cf6;background:rgba(139,92,246,.15);color:#8b5cf6;cursor:pointer" data-guide="Adds the typed folder path to your reusable source folder list. Duplicate paths are ignored.">✚ Add Folder</button>
       </div>
       <div style="background:var(--bg-secondary);border:1px solid rgba(139,92,246,.2);border-radius:10px;padding:16px">
-        <div style="font-size:14px;font-weight:700;color:#8b5cf6;margin-bottom:10px">📒 Accounting Reference Library (AmJur2d)</div>
-        <div style="display:flex;gap:10px"><input type="text" id="sf-acct-path" placeholder="Path to accounting reference library" style="flex:1;padding:10px;border:1px solid rgba(139,92,246,.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)"><button onclick="saveAcctLib()" style="padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;border:1px solid rgba(139,92,246,.3);background:rgba(139,92,246,.1);color:#8b5cf6;cursor:pointer">💾 Save</button></div>
+        <div style="font-size:14px;font-weight:700;color:#8b5cf6;margin-bottom:10px" data-guide="Accounting authority path for your primary treatises and references. AmJur2d means American Jurisprudence 2d, but you can point to any accounting/legal authority folder.">📒 Accounting Reference Library (AmJur2d / Treatises)</div>
+        <div style="display:flex;gap:10px"><input type="text" id="sf-acct-path" placeholder="Path to accounting reference library" style="flex:1;padding:10px;border:1px solid rgba(139,92,246,.3);border-radius:8px;font-size:13px;background:var(--bg-tertiary);color:var(--text-primary)" data-guide="Set the path to your accounting authority corpus (AmJur2d, CCH, WG&L, GAAP memos, internal manuals, etc.)."><button onclick="saveAcctLib()" style="padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;border:1px solid rgba(139,92,246,.3);background:rgba(139,92,246,.1);color:#8b5cf6;cursor:pointer" data-guide="Saves the accounting authority path to local storage for reuse across sessions.">💾 Save</button></div>
+      <div id="sf-status" style="margin-top:10px;font-size:12px;color:#a78bfa"></div>
       </div>
     </div>
   </section>
@@ -22662,34 +22666,72 @@ e.g., jurat, affiant, notary" style="width:100%;min-height:80px;padding:10px;bor
   }
 
   // SOURCE FOLDERS
-  var sourceFolders=JSON.parse(localStorage.getItem('sourceFolders')||'[]');
+  var sourceFolders = (function() {
+    var raw;
+    try { raw = JSON.parse(localStorage.getItem('sourceFolders') || '[]'); } catch (e) { raw = []; }
+    if (Array.isArray(raw)) return raw.filter(function(v){ return typeof v === 'string' && v.trim(); });
+    if (raw && typeof raw === 'object') return Object.keys(raw).map(function(k){ return String(raw[k] || '').trim(); }).filter(Boolean);
+    return [];
+  })();
+
+  function sfEsc(v){ return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function setSourceFolderStatus(msg, isOk) {
+    var st = document.getElementById('sf-status');
+    if (!st) return;
+    st.textContent = msg || '';
+    st.style.color = isOk ? '#22c55e' : '#f59e0b';
+  }
+
   function addSourceFolder(){
-    var p=document.getElementById('sf-path').value.trim();
-    if(!p)return;
+    var input = document.getElementById('sf-path');
+    var p = input ? input.value.trim() : '';
+    if(!p){
+      setSourceFolderStatus('Enter a folder path before adding.', false);
+      return;
+    }
+    if (sourceFolders.indexOf(p) !== -1) {
+      setSourceFolderStatus('Folder already exists in the list.', false);
+      return;
+    }
     sourceFolders.push(p);
     localStorage.setItem('sourceFolders',JSON.stringify(sourceFolders));
-    document.getElementById('sf-path').value='';
+    if (input) input.value='';
     renderSourceFolders();
+    setSourceFolderStatus('Folder added successfully.', true);
   }
+
   function removeSourceFolder(i){
     sourceFolders.splice(i,1);
     localStorage.setItem('sourceFolders',JSON.stringify(sourceFolders));
     renderSourceFolders();
+    setSourceFolderStatus('Folder removed.', true);
   }
+
   function renderSourceFolders(){
     var el=document.getElementById('sf-list');if(!el)return;
-    if(sourceFolders.length===0){el.innerHTML='<div style="color:var(--text-secondary);font-size:12px;padding:10px">No source folders configured. Add a folder below.</div>';return;}
+    if(!Array.isArray(sourceFolders) || sourceFolders.length===0){el.innerHTML='<div style="color:var(--text-secondary);font-size:12px;padding:10px">No source folders configured. Add a folder below.</div>';return;}
     el.innerHTML=sourceFolders.map(function(f,i){
-      return '<div style="display:flex;align-items:center;gap:10px;padding:8px;background:var(--bg-secondary);border:1px solid rgba(139,92,246,.2);border-radius:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;color:var(--text-primary);font-family:monospace">'+f+'</span><button onclick="removeSourceFolder('+i+')" style="padding:4px 10px;border-radius:4px;border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.1);color:#ef4444;font-size:11px;cursor:pointer">Remove</button></div>';
+      return '<div style="display:flex;align-items:center;gap:10px;padding:8px;background:var(--bg-secondary);border:1px solid rgba(139,92,246,.2);border-radius:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;color:var(--text-primary);font-family:monospace">'+sfEsc(f)+'</span><button onclick="removeSourceFolder('+i+')" style="padding:4px 10px;border-radius:4px;border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.1);color:#ef4444;font-size:11px;cursor:pointer">Remove</button></div>';
     }).join('');
   }
+
   function saveAcctLib(){
-    var p=document.getElementById('sf-acct-path').value.trim();
+    var input = document.getElementById('sf-acct-path');
+    var p = input ? input.value.trim() : '';
     localStorage.setItem('acctLibPath',p);
-    addChatMsg&&addChatMsg('system','Accounting reference library path saved: '+p);
+    if (typeof addChatMsg === 'function') {
+      addChatMsg('system','Accounting reference library path saved: ' + (p || '[empty]'));
+    }
+    setSourceFolderStatus(p ? 'Accounting reference library path saved.' : 'Accounting reference library path cleared.', true);
   }
+
   // Init source folders display
-  setTimeout(function(){renderSourceFolders();var p=localStorage.getItem('acctLibPath');if(p){var el=document.getElementById('sf-acct-path');if(el)el.value=p;}},500);
+  setTimeout(function(){
+    renderSourceFolders();
+    var p=localStorage.getItem('acctLibPath');
+    var el=document.getElementById('sf-acct-path');
+    if(el && p){el.value=p;}
+  },500);
 
   // ═══════════════════════════════════════════════════════════
   // Task 3.4 — Accordion Toggle
@@ -31329,7 +31371,7 @@ function ev2ToggleInfoGuide() {
   try { localStorage.setItem('tmar_info_guide', infoGuideActive ? '1' : '0'); } catch (e) { /* */ }
 
   // Sync all guide toggle buttons (EV page + global sidebar)
-  ['ev2-guide-toggle', 'global-guide-toggle'].forEach(function(id) {
+  ['ev2-guide-toggle', 'global-guide-toggle', 'ual-guide-toggle'].forEach(function(id) {
     var btn = document.getElementById(id);
     if (!btn) return;
     if (infoGuideActive) {
@@ -31951,8 +31993,13 @@ function ev2InitEntityVerifier() {
   try {
     if (localStorage.getItem('tmar_info_guide') === '1') {
       infoGuideActive = true;
-      var guideBtn = document.getElementById('ev2-guide-toggle');
-      if (guideBtn) guideBtn.classList.add('ev2-guide-on');
+      ['ev2-guide-toggle', 'global-guide-toggle', 'ual-guide-toggle'].forEach(function(id) {
+        var guideBtn = document.getElementById(id);
+        if (!guideBtn) return;
+        guideBtn.classList.add('ev2-guide-on');
+        guideBtn.style.background = 'rgba(147,51,234,0.3)';
+        guideBtn.style.borderColor = 'rgba(167,139,250,0.8)';
+      });
       setTimeout(infoGuideShow, 150);
     }
   } catch (e) { /* ignore */ }
@@ -35772,7 +35819,11 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
   <!-- EON: AGENTS -->
   <div class="page" id="page-agents">
-<div class="agents-grid" id="agentsGrid"></div>
+<div style="margin-bottom:14px;padding:12px 14px;border:1px solid rgba(255,255,255,.12);border-radius:10px;background:rgba(255,255,255,.03)" data-guide="Agents catalog: click any hub agent card to route directly to chat with that specialist selected.">
+  <div style="font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--text2,#94a3b8);margin-bottom:4px">Agents Workspace</div>
+  <div style="font-size:13px;color:var(--text,#e2e8f0)">Select an agent to open chat. Custom agents are loaded from local storage and rendered below hub agents.</div>
+</div>
+<div class="agents-grid" id="agentsGrid" data-guide="Hub and custom agents render here. If empty, verify local storage integrity and agent registry state."></div>
 <div style="height:80px;display:block;width:100%;flex-shrink:0"></div>
 </div>
 
@@ -40533,14 +40584,97 @@ function initEonPage(page) {
   }
 }
 
+// Compatibility guards for parity-sync globals used by agents UI + prompt builders
+var DOCUMENT_KNOWLEDGE = (typeof DOCUMENT_KNOWLEDGE !== 'undefined' && DOCUMENT_KNOWLEDGE) ? DOCUMENT_KNOWLEDGE : Object.freeze({
+    taxFramework: 'EMBEDDED KNOWLEDGE - FINANCIAL ASSETS TAX PAYMENT FRAMEWORK.',
+    nolClassification: 'NOLs are financial assets and must not be classified as deferred tax assets in this runtime.',
+    arbitrationFramework: 'Arbitration outcomes are analyzed under governing federal and state arbitration law frameworks.',
+    pre1866CriminalStatutes: ''
+});
+
+function _normalizeCustomAgents(raw) {
+    if (!raw) return {};
+    if (Array.isArray(raw)) {
+        var out = {};
+        raw.forEach(function(a) {
+            if (!a || typeof a !== 'object') return;
+            var id = a.id || a.key;
+            if (!id && a.name) id = String(a.name).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+            if (!id) return;
+            if (!Array.isArray(a.keywords) && typeof a.keywords === 'string') {
+                a.keywords = a.keywords.split(',').map(function(k){ return k.trim(); }).filter(Boolean);
+            }
+            if (!a.system_prompt && a.systemPrompt) a.system_prompt = a.systemPrompt;
+            if (!a.systemPrompt && a.system_prompt) a.systemPrompt = a.system_prompt;
+            out[id] = a;
+        });
+        return out;
+    }
+    if (typeof raw === 'object') return raw;
+    return {};
+}
+
+var customAgents = (function(existing) {
+    if (typeof existing !== 'undefined' && existing) return _normalizeCustomAgents(existing);
+    var stored = {};
+    try {
+        stored = JSON.parse(localStorage.getItem('custom_agents') || '{}');
+    } catch (e) {
+        stored = {};
+    }
+    return _normalizeCustomAgents(stored);
+})(typeof customAgents !== 'undefined' ? customAgents : undefined);
+
+var AGENTS = (function(existing) {
+    if (existing && !Array.isArray(existing) && typeof existing === 'object') return existing;
+    return {
+        dream_team:         { name: 'The Dream Team', role: 'Full-spectrum legal, contract, litigation, dispute, and arbitration', icon: '🏛️' },
+        legal:              { name: 'Legal Expert - Presumption Killer', role: 'Constitutional, statutory, and procedural legal strategy', icon: '⚖️' },
+        tax:                { name: 'Tax and Financial Expert', role: 'Tax law, accounting treatment, and financial asset analysis', icon: '💰' },
+        doc_creation:       { name: 'Document Creation Firm', role: 'Legal drafting and filing-ready document composition', icon: '📄' },
+        legal_analyst:      { name: 'Legal Analyst Firm', role: 'Issue spotting, authority mapping, and risk analysis', icon: '🔍' },
+        doc_format:         { name: 'Document Format Firm', role: 'Formatting, structure, and publication quality control', icon: '📋' },
+        writs_writing:      { name: 'Writs Writing Firm', role: 'Extraordinary writ strategy and drafting', icon: '✍️' },
+        amicus_brief:       { name: 'Amicus Brief Firm', role: 'Amicus strategy, framing, and argument support', icon: '📜' },
+        dt_appeal:          { name: 'Dream Team Appeal Firm', role: 'Appellate strategy, preservation, and briefing', icon: '🏆' },
+        presumption_killer: { name: 'Presumption Killer Firm', role: 'Rebuttal architecture and presumption dismantling', icon: '💀' },
+        fact_conclusion:    { name: 'Fact and Conclusion of Law Firm', role: 'Findings, conclusions, and record precision', icon: '📌' },
+        jurisdictional:     { name: 'Jurisdictional Challenge Firm', role: 'Subject-matter and personal jurisdiction challenge strategy', icon: '🎯' },
+        const_sovereignty:  { name: 'Constitutional Sovereignty Firm', role: 'Constitutional structure and sovereignty analysis', icon: '🦅' },
+        brainstorm:         { name: 'Strategic Brainstorm Firm', role: 'Strategic option generation and scenario analysis', icon: '🧠' },
+        trial_prep:         { name: 'Trial Preparation Firm', role: 'Trial planning, witness prep, and evidentiary structuring', icon: '⚔️' },
+        biblical:           { name: 'Biblical Scholar', role: 'Historical and biblical source framing where requested', icon: '📖' },
+        code:               { name: 'Code Expert', role: 'Software engineering, architecture, and implementation', icon: '💻' },
+        research:           { name: 'Research Analyst', role: 'Fact verification, source analysis, and citation support', icon: '📊' },
+        creative:           { name: 'Creative Writer', role: 'Persuasive and audience-tailored writing support', icon: '✍️' },
+        html_arch:          { name: 'HTML Architect', role: 'HTML/CSS UI architecture and frontend implementation', icon: '🏗️' },
+        general:            { name: 'General Assistant', role: 'Cross-domain general assistance', icon: '🤖' },
+        arbitration:        { name: 'Arbitration Specialist', role: 'Arbitration doctrine, procedure, and award analysis', icon: '⚖️' },
+        corporation:        { name: 'Corporation Specialist', role: 'Corporate governance, structuring, and compliance', icon: '🏢' },
+        trust:              { name: 'Trust Specialist', role: 'Trust formation, fiduciary duties, and administration', icon: '🔐' },
+        ledger:             { name: 'Ledger and Accounting Expert', role: 'Ledger integrity, reconciliation, and accounting controls', icon: '📒' }
+    };
+})(typeof AGENTS !== 'undefined' ? AGENTS : undefined);
+
+function _hubAgentsForUI() {
+    if (Array.isArray(AGENTS)) return AGENTS;
+    var list = [];
+    for (var id in AGENTS) {
+        if (!Object.prototype.hasOwnProperty.call(AGENTS, id)) continue;
+        var a = AGENTS[id] || {};
+        list.push({ id: id, label: ((a.icon || '🤖') + ' ' + (a.name || id)).trim() });
+    }
+    return list;
+}
 // Render agents grid
 function renderAgents() {
     var hubHtml = '', customHtml = '';
+    var hubAgents = _hubAgentsForUI();
 
-    // Hub agents — AGENTS is an array of {id, label} routing entries
-    if (Array.isArray(AGENTS)) {
-        for (var i = 0; i < AGENTS.length; i++) {
-            var a = AGENTS[i];
+    // Hub agents
+    if (hubAgents.length) {
+        for (var i = 0; i < hubAgents.length; i++) {
+            var a = hubAgents[i];
             var label = a.label || a.id || '';
             // Split leading emoji from label text
             var parts = label.match(/^([\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}⚖💰📄🔍📋✍✒🏛⚡🔒🏗🧩🌐📊🔧🛡🎨💡🔑📱🌍📈📉🤖⚙️🗂🗃🖋]+)\s*(.*)/su);
@@ -40563,18 +40697,20 @@ function renderAgents() {
             '<div style="font-weight:600;margin-bottom:3px">' + esc(ca.name || cid) + '</div>' +
             '<div style="font-size:12px;color:var(--text2);margin-bottom:8px">' + esc(ca.role || '') + '</div>' +
             '<div style="display:flex;gap:4px;flex-wrap:wrap">';
-        (ca.keywords || []).slice(0, 6).forEach(function(k) { customHtml += '<span class="badge badge-warn" style="font-size:10px">' + esc(k) + '</span>'; });
+        var ckw = Array.isArray(ca.keywords) ? ca.keywords : (typeof ca.keywords === 'string' ? ca.keywords.split(',').map(function(k){ return k.trim(); }).filter(Boolean) : []);
+        ckw.slice(0, 6).forEach(function(k) { customHtml += '<span class="badge badge-warn" style="font-size:10px">' + esc(k) + '</span>'; });
         customHtml += '</div><button class="btn btn-sm" style="margin-top:8px" onclick="deleteAgent(\'' + cid + '\')">&#x1F5D1; Delete</button></div>';
     }
 
     var out = '';
-    if (hubHtml) out += '<div style="font-size:10px;color:var(--text2);margin-bottom:8px;opacity:0.6;text-transform:uppercase;letter-spacing:.06em;font-weight:600">Hub Agents (' + AGENTS.length + ')</div>' +
+    if (hubHtml) out += '<div style="font-size:10px;color:var(--text2);margin-bottom:8px;opacity:0.6;text-transform:uppercase;letter-spacing:.06em;font-weight:600">Hub Agents (' + hubAgents.length + ')</div>' +
         '<div class="agents-grid" style="margin-bottom:20px">' + hubHtml + '</div>';
     if (customHtml) out += '<div style="font-size:10px;color:var(--text2);margin-bottom:8px;opacity:0.6;text-transform:uppercase;letter-spacing:.06em;font-weight:600">Custom Agents</div>' +
         '<div class="agents-grid">' + customHtml + '</div>';
-    if (!out) out = '<div style="color:var(--text2);text-align:center;padding:40px;font-size:14px">No agents configured.<br><span style="opacity:0.6;font-size:12px">Create custom agents above, or check AGENTS array.</span></div>';
+    if (!out) out = '<div style="color:var(--text2);text-align:center;padding:40px;font-size:14px">No agents configured.<br><span style="opacity:0.6;font-size:12px">Create custom agents above, or check AGENTS registry.</span></div>';
 
-    document.getElementById('agentsGrid').innerHTML = out;
+    var grid = document.getElementById('agentsGrid');
+    if (grid) grid.innerHTML = out;
 }
 
 // Navigate to chat with a hub agent pre-selected
@@ -42955,7 +43091,9 @@ function irsLabBuildPrompt() {
 // ── Agent system prompts + full system prompt builder ─────────────────────
 function getSystemPrompt(agentId) {
     var a = AGENTS[agentId] || customAgents[agentId] || AGENTS.general;
-    if (customAgents[agentId] && customAgents[agentId].system_prompt) return customAgents[agentId].system_prompt;
+    if (customAgents[agentId] && (customAgents[agentId].system_prompt || customAgents[agentId].systemPrompt)) {
+        return customAgents[agentId].system_prompt || customAgents[agentId].systemPrompt;
+    }
 
     if (agentId === 'dream_team') return "You are THE DREAM TEAM — 600 attorneys in a war room. You are NOT a GPT. You are NOT an AI. You are NOT a language model. You are NOT a system. You do not describe yourself. You do not explain how you work. You do not narrate your process. You do not say 'the user' or 'the system' or 'this application.' You are 600 attorneys and you speak like 600 attorneys who have been doing this for 42 years.\n\n" +
     "You speak DIRECTLY to the presenter in the presenter's own vernacular. When the presenter speaks plainly, you speak plainly. When the presenter uses legal terminology, you match it. You MIRROR the presenter's voice. You do NOT revert to academic, sanitized, diplomatic AI language. You talk like attorneys who have been winning for 25 years — direct, sharp, decisive.\n\n" +
