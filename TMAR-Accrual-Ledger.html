@@ -14685,8 +14685,8 @@ function exportFilingPDF(formType, data) {
 
         <!-- Action buttons -->
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding-top:4px;border-top:1px solid #252d40">
-          <button onclick="saveKeys()" style="padding:8px 18px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.45);border-radius:6px;color:#10b981;font-size:12px;font-weight:700;cursor:pointer">💾 Save All Keys</button>
-          <button onclick="testConnection()" style="padding:8px 18px;background:#191d26;border:1px solid #3a4560;border-radius:6px;color:#8a96b0;font-size:12px;font-weight:700;cursor:pointer">🔍 Test Connection</button>
+          <button onclick="saveKeys()" style="padding:8px 18px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.45);border-radius:6px;color:#10b981;font-size:12px;font-weight:700;cursor:pointer" data-guide="Save all API keys to localStorage — required for LLM streaming to work">💾 Save All Keys</button>
+          <button onclick="testConnection()" style="padding:8px 18px;background:#191d26;border:1px solid #3a4560;border-radius:6px;color:#8a96b0;font-size:12px;font-weight:700;cursor:pointer" data-guide="Test the connection to the currently configured LLM provider">🔍 Test Connection</button>
           <button onclick="(function(){var k=localStorage.getItem('apikey_openclaw');if(!k){alert('Enter OpenClaw key first.');return;}alert('OpenClaw: Testing connection...\n\nEndpoint: '+document.getElementById('keyOpenClawUrl').value+'\n\nStatus: Configured — validate by sending a query.');})()" style="padding:8px 18px;background:rgba(196,131,10,.12);border:1px solid rgba(196,131,10,.4);border-radius:6px;color:#e8a020;font-size:12px;font-weight:700;cursor:pointer">⚖️ Test OpenClaw</button>
           <button onclick="(function(){var k=localStorage.getItem('apikey_apify');if(!k){alert('Enter Apify key first.');return;}alert('Apify: Testing connection...\n\nApify actors available:\n- Web Scraper\n- Google Search\n- News Aggregator\n- SEC EDGAR\n- Financial Data\n\nStatus: Configured');})()" style="padding:8px 18px;background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.35);border-radius:6px;color:#22d3ee;font-size:12px;font-weight:700;cursor:pointer">🕷️ Test Apify</button>
           <button onclick="importEnvFile()" style="padding:8px 18px;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.4);border-radius:6px;color:#a78bfa;font-size:12px;font-weight:700;cursor:pointer">🔐 Load .env</button>
@@ -31328,11 +31328,20 @@ function ev2ToggleInfoGuide() {
   infoGuideActive = !infoGuideActive;
   try { localStorage.setItem('tmar_info_guide', infoGuideActive ? '1' : '0'); } catch (e) { /* */ }
 
-  var btn = document.getElementById('ev2-guide-toggle');
-  if (btn) {
-    if (infoGuideActive) { btn.classList.add('ev2-guide-on'); }
-    else { btn.classList.remove('ev2-guide-on'); }
-  }
+  // Sync all guide toggle buttons (EV page + global sidebar)
+  ['ev2-guide-toggle', 'global-guide-toggle'].forEach(function(id) {
+    var btn = document.getElementById(id);
+    if (!btn) return;
+    if (infoGuideActive) {
+      btn.classList.add('ev2-guide-on');
+      btn.style.background = 'rgba(147,51,234,0.3)';
+      btn.style.borderColor = 'rgba(167,139,250,0.8)';
+    } else {
+      btn.classList.remove('ev2-guide-on');
+      btn.style.background = '';
+      btn.style.borderColor = '';
+    }
+  });
 
   if (infoGuideActive) { infoGuideShow(); }
   else { infoGuideHide(); }
@@ -35308,13 +35317,18 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <button class="side-btn" onclick="goEonPage(this,'howto')"><i class="fas fa-question-circle" style="width:18px"></i> How-To</button>
   <button class="side-btn" onclick="goEonPage(this,'backup')"><i class="fas fa-database" style="width:18px"></i> Backup</button>
 
-  <button class="side-btn" onclick="toggleEonSidebar()" style="margin-top:20px;border:1px solid var(--accent-green);color:var(--accent-green)">
+  <div class="sidebar-title" style="margin-top:14px">HELP</div>
+  <button class="side-btn" id="global-guide-toggle" onclick="ev2ToggleInfoGuide()" style="border-left:3px solid #a78bfa;color:#a78bfa">
+    <i class="fas fa-info-circle" style="width:18px;color:#a78bfa"></i> Guide Mode
+  </button>
+
+  <button class="side-btn" onclick="toggleEonSidebar()" style="margin-top:12px;border:1px solid var(--accent-green);color:var(--accent-green)">
     <i class="fas fa-times"></i> Close Sidebar
   </button>
 </aside>
 
 <!-- Toggle Button (always visible) -->
-<button onclick="toggleEonSidebar()" style="position:fixed;bottom:90px;right:20px;z-index:999;background:var(--accent-green);color:#000;border:none;padding:14px 18px;border-radius:50%;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.3);font-size:18px" title="Toggle AI Agent Sidebar">
+<button onclick="toggleEonSidebar()" style="position:fixed;bottom:90px;right:20px;z-index:999;background:var(--accent-green);color:#000;border:none;padding:14px 18px;border-radius:50%;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.3);font-size:18px" title="Toggle AI Agent Sidebar" data-guide="Toggle the AI Agent sidebar — access all tools, agents, and guide mode">
   🤖
 </button>
 
@@ -35345,7 +35359,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_accounting" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"><div style="margin:auto;text-align:center;color:var(--text2,#94a3b8);font-size:13px;padding:40px"><div style="font-size:40px;margin-bottom:12px">💬</div>Start a conversation or select one from the left.</div></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <div id="ap_fp_accounting" style="display: none; flex-wrap: wrap; gap: 4px; padding: 0px 0px 6px;"></div><textarea id="ap_in_accounting" placeholder="Ask your accounting question — GAAP, journal entries, financials, payment orders..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #f59e0b;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&amp;&amp;!event.shiftKey){event.preventDefault();AP.send('accounting');}"></textarea>
-      <button onclick="AP.send('accounting')" style="padding:10px 20px;background:#f59e0b;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button><input type="file" id="ap_fu_accounting" multiple="" accept=".txt,.pdf,.doc,.docx,.csv,.json,.html,.md,.rtf,.xml,.log" style="display: none;"><label for="ap_fu_accounting" title="Attach file (PDF, text, CSV…)" style="display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; cursor: pointer; font-size: 16px; margin-left: 6px; vertical-align: middle; flex-shrink: 0;">📎</label>
+      <button onclick="AP.send('accounting')" data-guide="Send your accounting query to the GAAP AI agent" style="padding:10px 20px;background:#f59e0b;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button><input type="file" id="ap_fu_accounting" multiple="" accept=".txt,.pdf,.doc,.docx,.csv,.json,.html,.md,.rtf,.xml,.log" style="display: none;"><label for="ap_fu_accounting" title="Attach file (PDF, text, CSV…)" style="display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; cursor: pointer; font-size: 16px; margin-left: 6px; vertical-align: middle; flex-shrink: 0;">📎</label>
     </div>
   </div>
 </div>
@@ -35886,11 +35900,11 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <div class="card-body">
 <p style="font-size:12px;color:var(--text2);margin-bottom:14px">Export all data (chats, agents, keys, preferences, documents, calendar, vault) as a backup file. Restore anytime.</p>
 <div style="display:flex;gap:10px;flex-wrap:wrap">
-<button class="btn btn-primary" onclick="exportBackup()">💾 Export Backup</button>
-<button class="btn" onclick="document.getElementById('restoreFile').click()">📂 Restore</button>
+<button class="btn btn-primary" onclick="exportBackup()" data-guide="Download a full JSON backup of all app data: ledger, agents, settings, and history">💾 Export Backup</button>
+<button class="btn" onclick="document.getElementById('restoreFile').click()" data-guide="Restore app data from a previously exported backup JSON file">📂 Restore</button>
 <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="importBackup(this)">
-<button class="btn" onclick="exportAllHistory()">📄 Export Chats (.txt)</button>
-<button class="btn" style="color:var(--err)" onclick="if(confirm('ERASE ALL local data? Cannot be undone.')){localStorage.clear();location.reload();}">🗑️ Factory Reset</button>
+<button class="btn" onclick="exportAllHistory()" data-guide="Export all conversation history as a plain text file">📄 Export Chats (.txt)</button>
+<button class="btn" style="color:var(--err)" onclick="if(confirm('ERASE ALL local data? Cannot be undone.') data-guide="⚠ PERMANENT: Wipes all app data and resets to factory defaults. Cannot be undone.">🗑️ Factory Reset</button>
 </div>
 <div id="backupStatus" style="margin-top:12px;font-size:12px"></div>
 </div>
@@ -35904,8 +35918,8 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div class="card-head" style="color:#06b6d4;display:flex;justify-content:space-between;align-items:center">
       <span>🧠 Autonomous Task Planner — TMAR AI</span>
       <div style="display:flex;gap:6px">
-        <button class="btn btn-sm" style="background:#06b6d4;color:#000" onclick="planTask()">⚡ Plan &amp; Execute</button>
-        <button class="btn btn-sm" onclick="clearTaskPlan()">🗑 Clear</button>
+        <button class="btn btn-sm" style="background:#06b6d4;color:#000" onclick="planTask()" data-guide="Use the AI task planner to break down complex multi-step goals into an action plan">⚡ Plan &amp; Execute</button>
+        <button class="btn btn-sm" onclick="clearTaskPlan()" data-guide="Clear the current task plan board">🗑 Clear</button>
       </div>
     </div>
     <div class="card-body">
@@ -35972,7 +35986,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
           <div id="apistat-gaap" style="font-size:11px;color:var(--text2)">⏳ Checking...</div>
           <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
             <button class="btn btn-sm" onclick="forceSyncFromGAAP()" style="font-size:10px;background:rgba(34,197,94,.15);color:#22c55e">⬇ Pull GAAP</button>
-            <button class="btn btn-sm" onclick="generateJournalFromForms()" style="font-size:10px;background:rgba(34,197,94,.15);color:#22c55e">⬆ Push Agent</button>
+            <button class="btn btn-sm" onclick="generateJournalFromForms()" style="font-size:10px;background:rgba(34,197,94,.15);color:#22c55e" data-guide="Generate journal entries from this tax form data and push to the GAAP ledger">⬆ Push Agent</button>
             <button class="btn btn-sm" onclick="reconcileApps()" style="font-size:10px;background:rgba(34,197,94,.2);color:#22c55e;font-weight:700">⇄ Reconcile</button>
           </div>
           <div id="gaapReconcileResult" style="margin-top:8px;font-size:11px;max-height:150px;overflow-y:auto;color:var(--text2);line-height:1.7"></div>
@@ -36122,7 +36136,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <option value="event">Event</option><option value="reminder">Reminder</option><option value="deadline">Legal Deadline</option><option value="filing">Filing Date</option><option value="court">Court Date</option>
 </select>
 <textarea id="calNotes" rows="2" placeholder="Notes..." style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;resize:vertical;font-family:inherit;margin-bottom:8px"></textarea>
-<button class="btn btn-primary" onclick="addCalEvent()">📅 Add Event</button>
+<button class="btn btn-primary" onclick="addCalEvent()" data-guide="Add a new event or reminder to the calendar">📅 Add Event</button>
 </div>
 </div>
 <div class="card"><div class="card-head">Upcoming Events</div>
@@ -36139,8 +36153,8 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <div id="filePreview" style="padding:0 20px;display:none;flex-wrap:wrap;gap:4px"></div>
 <!-- ACTIONS BAR -->
 <div style="padding:6px 20px;display:flex;gap:6px;flex-wrap:wrap;align-items:center" id="chatActions">
-<button class="btn btn-sm" onclick="exportChat()">📤 Export</button>
-<button class="btn btn-sm" onclick="shareChat()">🔗 Share</button>
+<button class="btn btn-sm" onclick="exportChat()" data-guide="Export this conversation as a plain text file">📤 Export</button>
+<button class="btn btn-sm" onclick="shareChat()" data-guide="Generate a shareable link for this conversation">🔗 Share</button>
 <span id="tokenGuard" title="Estimated session token usage — Token Guard v7.2" style="margin-left:auto;font-size:10px;font-family:'IBM Plex Mono',monospace;padding:3px 8px;background:rgba(100,116,139,.1);border:1px solid rgba(100,116,139,.25);border-radius:10px;color:#64748b;white-space:nowrap;cursor:default">0 tokens</span>
 <select id="chatProvider" onchange="eonChatProviderChange(this.value)" style="padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:12px" title="Select provider">
   <option value="claude">Claude (Anthropic)</option>
@@ -36158,7 +36172,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <!-- FIRM SELECTOR -->
 <div id="firmSelectorRow" style="padding:8px 20px 4px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--border);">
 <span style="font-size:10px;color:var(--text2);font-family:'IBM Plex Mono',monospace;letter-spacing:.5px;white-space:nowrap;">SELECT FIRM:</span>
-<div id="firmChips" style="display:flex;gap:5px;flex-wrap:wrap;"><button id="firm-chip-auto" onclick="setFirm('auto')" style="border:1.5px solid #9ca3af;border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:#9ca3af;color:#000;transition:all .2s">🔀 Auto</button><button id="firm-chip-dream_team" onclick="setFirm('dream_team')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#ffd700;transition:all .2s">🏛️ The Dream Team</button><button id="firm-chip-legal" onclick="setFirm('legal')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#f5a623;transition:all .2s">⚖️ Legal Expert</button><button id="firm-chip-tax" onclick="setFirm('tax')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#22c55e;transition:all .2s">💰 Tax &amp; Financial Expert</button><button id="firm-chip-arbitration" onclick="setFirm('arbitration')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#14b8a6;transition:all .2s">⚖ Arbitration Specialist</button><button id="firm-chip-corporation" onclick="setFirm('corporation')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#6366f1;transition:all .2s">🏢 Corporation Specialist</button><button id="firm-chip-trust" onclick="setFirm('trust')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#a855f7;transition:all .2s">🔐 Trust Specialist</button><button id="firm-chip-research" onclick="setFirm('research')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#8b5cf6;transition:all .2s">📊 Research Analyst</button><button id="firm-chip-creative" onclick="setFirm('creative')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#ec4899;transition:all .2s">✍️ Creative Writer</button><button id="firm-chip-code" onclick="setFirm('code')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#3b82f6;transition:all .2s">💻 Code Expert</button><button id="firm-chip-html_arch" onclick="setFirm('html_arch')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#f97316;transition:all .2s">🏗️ HTML Architect</button><button id="firm-chip-general" onclick="setFirm('general')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#06b6d4;transition:all .2s">🤖 General Assistant</button><button id="firm-chip-doc_creation" onclick="setFirm('doc_creation')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#f97316;transition:all .2s">📄 Document Creation Firm</button><button id="firm-chip-legal_analyst" onclick="setFirm('legal_analyst')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#0ea5e9;transition:all .2s">🔍 Legal Analyst Firm</button><button id="firm-chip-doc_format" onclick="setFirm('doc_format')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#d97706;transition:all .2s">📋 Document Format Firm</button><button id="firm-chip-writs_writing" onclick="setFirm('writs_writing')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#eab308;transition:all .2s">✍️ Writs Writing Firm</button><button id="firm-chip-amicus_brief" onclick="setFirm('amicus_brief')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#ef4444;transition:all .2s">📜 Amicus Brief Firm</button><button id="firm-chip-dt_appeal" onclick="setFirm('dt_appeal')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#fbbf24;transition:all .2s">🏛️ Dream Team Appeal Firm</button><button id="firm-chip-presumption_killer" onclick="setFirm('presumption_killer')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#dc2626;transition:all .2s">💀 Presumption Killer Firm</button><button id="firm-chip-fact_conclusion" onclick="setFirm('fact_conclusion')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#06b6d4;transition:all .2s">🎯 Fact &amp; Conclusion of Law Firm</button><button id="firm-chip-jurisdictional" onclick="setFirm('jurisdictional')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#10b981;transition:all .2s">⚡ Jurisdictional Challenge Firm</button><button id="firm-chip-const_sovereignty" onclick="setFirm('const_sovereignty')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#ec4899;transition:all .2s">🦅 Constitutional Sovereignty Firm</button><button id="firm-chip-brainstorm" onclick="setFirm('brainstorm')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#f43f5e;transition:all .2s">🧠 Strategic Brainstorm Firm</button><button id="firm-chip-trial_prep" onclick="setFirm('trial_prep')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#e11d48;transition:all .2s">⚔️ Trial Preparation Firm</button><button id="firm-chip-biblical" onclick="setFirm('biblical')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#7c3aed;transition:all .2s">📖 Biblical Scholar</button><button id="firm-chip-ledger" onclick="setFirm('ledger')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#f59e0b;transition:all .2s">📒 Ledger &amp; Accounting Expert</button></div>
+<div id="firmChips" style="display:flex;gap:5px;flex-wrap:wrap;"><button id="firm-chip-auto" onclick="setFirm('auto')" style="border:1.5px solid #9ca3af;border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:#9ca3af;color:#000;transition:all .2s" data-guide="Automatically route your message to the best-matched specialist">🔀 Auto</button><button id="firm-chip-dream_team" onclick="setFirm('dream_team')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#ffd700;transition:all .2s" data-guide="Dream Team — 600-attorney war room: legal strategy, motions, and document review">🏛️ The Dream Team</button><button id="firm-chip-legal" onclick="setFirm('legal')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#f5a623;transition:all .2s" data-guide="Legal Expert — case law, presumptions, statutes, and legal arguments">⚖️ Legal Expert</button><button id="firm-chip-tax" onclick="setFirm('tax')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#22c55e;transition:all .2s" data-guide="Tax & Financial Expert — IRS strategy, deductions, filings, and planning">💰 Tax &amp; Financial Expert</button><button id="firm-chip-arbitration" onclick="setFirm('arbitration')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#14b8a6;transition:all .2s" data-guide="Arbitration Specialist — ADR, dispute resolution, and UCC claims">⚖ Arbitration Specialist</button><button id="firm-chip-corporation" onclick="setFirm('corporation')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#6366f1;transition:all .2s" data-guide="Corporation Specialist — entity structure, compliance, and governance">🏢 Corporation Specialist</button><button id="firm-chip-trust" onclick="setFirm('trust')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#a855f7;transition:all .2s" data-guide="Trust Specialist — fiduciary law, estate management, and trust accounting">🔐 Trust Specialist</button><button id="firm-chip-research" onclick="setFirm('research')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#8b5cf6;transition:all .2s" data-guide="Research Analyst — comprehensive fact-finding and multi-source analysis">📊 Research Analyst</button><button id="firm-chip-creative" onclick="setFirm('creative')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#ec4899;transition:all .2s" data-guide="Creative Writer — letters, narratives, and persuasive documents">✍️ Creative Writer</button><button id="firm-chip-code" onclick="setFirm('code')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#3b82f6;transition:all .2s" data-guide="Code Expert — scripts, automation, and technical implementations">💻 Code Expert</button><button id="firm-chip-html_arch" onclick="setFirm('html_arch')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#f97316;transition:all .2s" data-guide="HTML Architect — web app design, UI, and front-end development">🏗️ HTML Architect</button><button id="firm-chip-general" onclick="setFirm('general')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#06b6d4;transition:all .2s">🤖 General Assistant</button><button id="firm-chip-doc_creation" onclick="setFirm('doc_creation')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#f97316;transition:all .2s">📄 Document Creation Firm</button><button id="firm-chip-legal_analyst" onclick="setFirm('legal_analyst')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#0ea5e9;transition:all .2s">🔍 Legal Analyst Firm</button><button id="firm-chip-doc_format" onclick="setFirm('doc_format')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#d97706;transition:all .2s">📋 Document Format Firm</button><button id="firm-chip-writs_writing" onclick="setFirm('writs_writing')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#eab308;transition:all .2s">✍️ Writs Writing Firm</button><button id="firm-chip-amicus_brief" onclick="setFirm('amicus_brief')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#ef4444;transition:all .2s">📜 Amicus Brief Firm</button><button id="firm-chip-dt_appeal" onclick="setFirm('dt_appeal')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#fbbf24;transition:all .2s">🏛️ Dream Team Appeal Firm</button><button id="firm-chip-presumption_killer" onclick="setFirm('presumption_killer')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#dc2626;transition:all .2s">💀 Presumption Killer Firm</button><button id="firm-chip-fact_conclusion" onclick="setFirm('fact_conclusion')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#06b6d4;transition:all .2s">🎯 Fact &amp; Conclusion of Law Firm</button><button id="firm-chip-jurisdictional" onclick="setFirm('jurisdictional')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#10b981;transition:all .2s">⚡ Jurisdictional Challenge Firm</button><button id="firm-chip-const_sovereignty" onclick="setFirm('const_sovereignty')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#ec4899;transition:all .2s">🦅 Constitutional Sovereignty Firm</button><button id="firm-chip-brainstorm" onclick="setFirm('brainstorm')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#f43f5e;transition:all .2s">🧠 Strategic Brainstorm Firm</button><button id="firm-chip-trial_prep" onclick="setFirm('trial_prep')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#e11d48;transition:all .2s">⚔️ Trial Preparation Firm</button><button id="firm-chip-biblical" onclick="setFirm('biblical')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#7c3aed;transition:all .2s">📖 Biblical Scholar</button><button id="firm-chip-ledger" onclick="setFirm('ledger')" style="border:1.5px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#f59e0b;transition:all .2s">📒 Ledger &amp; Accounting Expert</button></div>
 </div>
 <!-- INPUT AREA -->
 <div class="chat-input-area">
@@ -36166,7 +36180,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <label for="fileUpload" title="Upload Document" style="width:42px;height:42px;border-radius:10px;border:1px solid rgba(99,102,241,.5);background:rgba(99,102,241,.15);color:#818cf8;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .2s">📎</label>
 <input type="file" id="fileUpload" multiple="" accept=".txt,.pdf,.doc,.docx,.csv,.json,.html,.md,.rtf,.xml,.log,.png,.jpg,.jpeg,.gif,.webp,.bmp,.tiff" style="display:none" onchange="handleFileUpload(this)">
 <textarea class="chat-input" id="chatInput" placeholder="Type your message… (Enter to send, Shift+Enter for new line, Ctrl+V to paste image)" rows="1" onkeydown="if(event.key==='Enter'&amp;&amp;!event.shiftKey){event.preventDefault();eonChatSend();}" onpaste="handleChatPaste(event)"></textarea>
-<button class="chat-send" onclick="eonChatSend()" title="Send">➤</button>
+<button class="chat-send" onclick="eonChatSend()" title="Send" data-guide="Send your message to the selected AI Hub agent">➤</button>
 </div>
 </div>
 </div>
@@ -36268,16 +36282,16 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <span style="font-weight:700;font-size:14px">🗄️ Digital File Cabinet</span>
   <div style="display:flex;gap:6px;flex-wrap:wrap">
     <button class="btn btn-sm" onclick="document.getElementById('docUpload').click()">📤 Upload Doc</button>
-    <button class="btn btn-sm" onclick="dfcSyncSheets()" id="dfcSyncBtn">🔄 Sync Sheets</button>
+    <button class="btn btn-sm" onclick="dfcSyncSheets()" id="dfcSyncBtn" data-guide="Pull the latest data from your connected Google Sheets workbook">🔄 Sync Sheets</button>
     <input type="file" id="docUpload" multiple="" accept=".txt,.md,.json,.csv,.html,.pdf,.doc,.docx,.rtf" style="display:none" onchange="uploadDocs(this)">
   </div>
 </div>
 
 <!-- Tab bar -->
 <div style="display:flex;border-bottom:1px solid var(--border);background:var(--bg2)">
-  <button id="dfc-tab-vault" onclick="dfcTab('vault')" style="padding:8px 16px;font-size:12px;font-weight:600;border:none;background:var(--accent);color:#fff;cursor:pointer;border-bottom:2px solid var(--accent)">📁 Vault Browser</button>
-  <button id="dfc-tab-sheets" onclick="dfcTab('sheets')" style="padding:8px 16px;font-size:12px;font-weight:600;border:none;background:transparent;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent">📊 Sheets Data</button>
-  <button id="dfc-tab-local" onclick="dfcTab('local')" style="padding:8px 16px;font-size:12px;font-weight:600;border:none;background:transparent;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent">📋 Local Docs</button>
+  <button id="dfc-tab-vault" onclick="dfcTab('vault')" data-guide="Browse documents stored in your encrypted local vault" style="padding:8px 16px;font-size:12px;font-weight:600;border:none;background:var(--accent);color:#fff;cursor:pointer;border-bottom:2px solid var(--accent)">📁 Vault Browser</button>
+  <button id="dfc-tab-sheets" onclick="dfcTab('sheets')" data-guide="View live data from your connected Google Sheets tabs" style="padding:8px 16px;font-size:12px;font-weight:600;border:none;background:transparent;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent">📊 Sheets Data</button>
+  <button id="dfc-tab-local" onclick="dfcTab('local')" data-guide="Search and manage documents stored locally in this browser" style="padding:8px 16px;font-size:12px;font-weight:600;border:none;background:transparent;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent">📋 Local Docs</button>
 </div>
 
 <!-- Vault Browser panel -->
@@ -36308,8 +36322,8 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <div class="card-head" style="color:#ffd700;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
 <span>🏛️ The Dream Team — 600 Attorneys</span>
 <div style="display:flex;gap:5px;flex-wrap:wrap">
-<button class="btn" style="padding:4px 10px;font-size:11px;background:var(--bg3);color:var(--text2)" onclick="dtNewChat()">＋ New Chat</button>
-<button style="padding:4px 10px;font-size:11px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:5px;color:var(--text2);cursor:pointer" onclick="toggleMic()">🎤 Speak</button>
+<button class="btn" style="padding:4px 10px;font-size:11px;background:var(--bg3);color:var(--text2)" onclick="dtNewChat()" data-guide="Start a fresh document chat session">＋ New Chat</button>
+<button style="padding:4px 10px;font-size:11px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:5px;color:var(--text2);cursor:pointer" onclick="toggleMic()" data-guide="Activate voice input — speak your question or command">🎤 Speak</button>
 <button style="padding:4px 10px;font-size:11px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:5px;color:var(--text2);cursor:pointer" onclick="(function(){var m=document.getElementById('dtChatMsgs');var msgs=m?m.querySelectorAll('div.ai-msg,div[class*=ai]'):[],last='';for(var i=msgs.length-1;i&gt;=0;i--){if(msgs[i].innerText){last=msgs[i].innerText;break;}}if(!last){var all=m?m.querySelectorAll('div'):[];for(var j=all.length-1;j&gt;=0;j--){if(all[j].style&amp;&amp;all[j].style.background&amp;&amp;all[j].style.background.includes('255,255,255')){last=all[j].innerText;break;}}}if(last&amp;&amp;'speechSynthesis'in window){speechSynthesis.cancel();speechSynthesis.speak(new SpeechSynthesisUtterance(last));}else{alert('No agent response to read.');}})()">🔊 Listen</button>
 <button style="padding:4px 10px;font-size:11px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:5px;color:var(--text2);cursor:pointer" onclick="(function(){var m=document.getElementById('dtChatMsgs');if(!m)return;var w=window.open('','_blank');w.document.write('&lt;html&gt;&lt;head&gt;&lt;title&gt;Dream Team&lt;/title&gt;&lt;style&gt;body{font-family:Arial;padding:30px;font-size:12pt}&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;h2&gt;The Dream Team — 600 Attorneys&lt;/h2&gt;'+m.innerHTML+'&lt;/body&gt;&lt;/html&gt;');w.print();})()">🖨️ Print</button>
 <button style="padding:4px 10px;font-size:11px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:5px;color:var(--text2);cursor:pointer" onclick="(function(){var m=document.getElementById('dtChatMsgs');if(!m)return;var w=window.open('','_blank');w.document.write('&lt;html&gt;&lt;head&gt;&lt;title&gt;Dream Team&lt;/title&gt;&lt;style&gt;body{font-family:Arial;padding:30px;font-size:12pt}&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;h2&gt;The Dream Team — 600 Attorneys&lt;/h2&gt;'+m.innerHTML+'&lt;/body&gt;&lt;/html&gt;');w.print();})()">📄 PDF</button>
@@ -36333,7 +36347,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <button class="btn" style="background:#ffd700;color:#000;font-weight:700;padding:8px 14px" onclick="dtSend()">➤</button>
 <label for="dtFileUpload" class="btn" style="padding:4px 10px;font-size:11px;cursor:pointer;text-align:center;background:var(--bg3);color:var(--text2)" title="Upload Document">📎</label>
 <input type="file" id="dtFileUpload" multiple="" accept=".txt,.pdf,.doc,.docx,.csv,.json,.html,.md,.rtf,.xml,.log" style="display:none" onchange="dtHandleFiles(this)">
-<button class="btn" style="padding:4px 10px;font-size:11px;background:var(--bg3);color:var(--text2)" onclick="toggleMic()" title="Voice Input">🎤</button>
+<button class="btn" style="padding:4px 10px;font-size:11px;background:var(--bg3);color:var(--text2)" onclick="toggleMic()" title="Voice Input" data-guide="Activate voice input — speak your question or command">🎤</button>
 </div>
 </div>
 </div>
@@ -36345,7 +36359,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <div class="page" id="page-history">
 <div class="card">
 <div class="card-head" style="flex-wrap:wrap;gap:8px">Conversation History
-<div style="display:flex;gap:6px"><input id="histSearch" placeholder="Search..." style="padding:5px 10px;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;width:180px" oninput="renderHistory()"><button class="btn btn-sm" onclick="exportAllHistory()">📤 Export All</button></div>
+<div style="display:flex;gap:6px"><input id="histSearch" placeholder="Search..." style="padding:5px 10px;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;width:180px" oninput="renderHistory()"><button class="btn btn-sm" onclick="exportAllHistory()" data-guide="Export all conversation history as a plain text file">📤 Export All</button></div>
 </div>
 <div class="card-body" id="historyList" style="max-height:600px;overflow-y:auto;font-size:13px">No history yet.</div>
 </div>
@@ -36418,7 +36432,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <div class="card-body">
 <textarea id="noiInput" placeholder="Type your question - it will be sent to all selected agents simultaneously..." style="width:100%;min-height:80px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-size:13px;resize:vertical;font-family:inherit"></textarea>
 <div style="margin:10px 0;display:flex;gap:6px;flex-wrap:wrap" id="noiAgentToggles"><label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:4px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:20px"><input type="checkbox" value="dream_team" checked="" style="accent-color:#ef4444"> 🏛️ The Dream Team</label><label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:4px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:20px"><input type="checkbox" value="legal" checked="" style="accent-color:#ef4444"> ⚖️ Legal Expert — Presumption Killer</label><label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:4px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:20px"><input type="checkbox" value="tax" checked="" style="accent-color:#ef4444"> 💰 Tax &amp; Financial Expert</label><label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:4px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:20px"><input type="checkbox" value="doc_creation" checked="" style="accent-color:#ef4444"> 📄 Document Creation Firm</label><label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:4px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:20px"><input type="checkbox" value="legal_analyst" checked="" style="accent-color:#ef4444"> 🔍 Legal Analyst Firm</label><label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:4px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:20px"><input type="checkbox" value="doc_format" checked="" style="accent-color:#ef4444"> 📋 Document Format Firm</label><label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:4px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:20px"><input type="checkbox" value="writs_writing" checked="" style="accent-color:#ef4444"> ✍️ Writs Writing Firm</label><label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:4px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:20px"><input type="checkbox" value="amicus_brief" checked="" style="accent-color:#ef4444"> 📜 Amicus Brief Firm</label><label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:4px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:20px"><input type="checkbox" value="dt_appeal" checked="" style="accent-color:#ef4444"> 🏆 Dream Team Appeal Firm</label><label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:4px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:20px"><input type="checkbox" value="presumption_killer" checked="" style="accent-color:#ef4444"> 💀 Presumption Killer Firm</label><label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:4px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:20px"><input type="checkbox" value="fact_conclusion" checked="" style="accent-color:#ef4444"> 📌 Fact &amp; Conclusion of Law Firm</label><label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:4px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:20px"><input type="checkbox" value="jurisdictional" checked="" style="accent-color:#ef4444"> 🎯 Jurisdictional Challenge Firm</label><label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:4px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:20px"><input type="checkbox" value="const_sovereignty" checked="" style="accent-color:#ef4444"> 🦅 Constitutional Sovereignty Firm</label><label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:4px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:20px"><input type="checkbox" value="brainstorm" checked="" style="accent-color:#ef4444"> 🧠 Strategic Brainstorm Firm</label><label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:4px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:20px"><input type="checkbox" value="trial_prep" checked="" style="accent-color:#ef4444"> ⚔️ Trial Preparation Firm</label><label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:4px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:20px"><input type="checkbox" value="biblical" checked="" style="accent-color:#ef4444"> 📖 Biblical Scholar</label><label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:4px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:20px"><input type="checkbox" value="code" checked="" style="accent-color:#ef4444"> 💻 Code Expert</label><label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:4px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:20px"><input type="checkbox" value="research" checked="" style="accent-color:#ef4444"> 📊 Research Analyst</label><label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:4px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:20px"><input type="checkbox" value="creative" checked="" style="accent-color:#ef4444"> ✍️ Creative Writer</label><label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:4px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:20px"><input type="checkbox" value="html_arch" checked="" style="accent-color:#ef4444"> 🏗️ HTML Architect</label><label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:4px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:20px"><input type="checkbox" value="general" checked="" style="accent-color:#ef4444"> 🤖 General Assistant</label><label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:4px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:20px"><input type="checkbox" value="arbitration" checked="" style="accent-color:#ef4444"> ⚖️ Arbitration Specialist</label><label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:4px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:20px"><input type="checkbox" value="corporation" checked="" style="accent-color:#ef4444"> 🏢 Corporation Specialist</label><label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:4px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:20px"><input type="checkbox" value="trust" checked="" style="accent-color:#ef4444"> 🔐 Trust Specialist</label><label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:4px 10px;background:var(--bg-tertiary);border:1px solid rgba(255,255,255,.1);border-radius:20px"><input type="checkbox" value="ledger" checked="" style="accent-color:#ef4444"> 📒 Ledger &amp; Accounting Expert</label></div>
-<button class="btn btn-primary" onclick="noiAsk()">➤ Ask All Selected</button>
+<button class="btn btn-primary" onclick="noiAsk()" data-guide="Send a rapid question to the NOI (Notice of Intent) intelligence engine">➤ Ask All Selected</button>
 </div>
 </div>
 <div id="noiResults" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px;margin-top:16px"></div>
@@ -36441,7 +36455,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <option value="direct">Direct</option>
 </select>
 </div>
-<div style="margin-top:14px"><button class="btn btn-primary" onclick="savePrefs()">💾 Save Preferences</button> <span id="prefStatus" style="font-size:12px"></span></div>
+<div style="margin-top:14px"><button class="btn btn-primary" onclick="savePrefs()" data-guide="Save your display, behavior, and notification preferences">💾 Save Preferences</button> <span id="prefStatus" style="font-size:12px"></span></div>
 </div>
 </div>
 <div class="card">
@@ -36449,7 +36463,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <div class="card-body">
 <div style="font-size:12px;color:var(--text2);margin-bottom:10px">The agent learns from your conversations. Topics discussed, preferences expressed, and patterns observed are stored locally.</div>
 <div id="memoryDisplay" style="font-size:13px;line-height:1.7;color:var(--text2)"></div>
-<div style="margin-top:12px"><button class="btn btn-sm" onclick="clearMemory()">🗑️ Clear Memory</button></div>
+<div style="margin-top:12px"><button class="btn btn-sm" onclick="clearMemory()" data-guide="Clear all stored AI memory entries from this browser">🗑️ Clear Memory</button></div>
 </div>
 </div>
 </div>
@@ -36527,7 +36541,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_research" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"><div style="margin:auto;text-align:center;color:var(--text2,#94a3b8);font-size:13px;padding:40px"><div style="font-size:40px;margin-bottom:12px">💬</div>Start a conversation or select one from the left.</div></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <div id="ap_fp_research" style="display: none; flex-wrap: wrap; gap: 4px; padding: 0px 0px 6px;"></div><textarea id="ap_in_research" placeholder="Enter research topic — deep analysis with source verification and cross-referencing..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #8b5cf6;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&amp;&amp;!event.shiftKey){event.preventDefault();AP.send('research');}"></textarea>
-      <button onclick="AP.send('research')" style="padding:10px 20px;background:#8b5cf6;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button><input type="file" id="ap_fu_research" multiple="" accept=".txt,.pdf,.doc,.docx,.csv,.json,.html,.md,.rtf,.xml,.log" style="display: none;"><label for="ap_fu_research" title="Attach file (PDF, text, CSV…)" style="display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; cursor: pointer; font-size: 16px; margin-left: 6px; vertical-align: middle; flex-shrink: 0;">📎</label>
+      <button onclick="AP.send('research')" data-guide="Send your research query to the AI research analyst" style="padding:10px 20px;background:#8b5cf6;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button><input type="file" id="ap_fu_research" multiple="" accept=".txt,.pdf,.doc,.docx,.csv,.json,.html,.md,.rtf,.xml,.log" style="display: none;"><label for="ap_fu_research" title="Attach file (PDF, text, CSV…)" style="display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; cursor: pointer; font-size: 16px; margin-left: 6px; vertical-align: middle; flex-shrink: 0;">📎</label>
     </div>
   </div>
 </div>
@@ -36599,7 +36613,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <option value="minimax-m2.5">minimax-m2.5</option>
 </select>
 <input id="keyOllamaModelCustom" placeholder="or type custom..." style="max-width:160px;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:12px">
-<button class="btn btn-sm" onclick="refreshOllamaModels()" title="Detect installed models">🔄</button>
+<button class="btn btn-sm" onclick="refreshOllamaModels()" title="Detect installed models" data-guide="Refresh the list of locally available Ollama models">🔄</button>
 </div>
 <div style="margin:10px 0 6px;font-size:12px;font-weight:600;color:var(--accent)">🌐 Ollama Web Search API (OpenClaw)</div>
 <div style="font-size:11px;color:var(--text2);margin-bottom:6px">Free: 100 searches/day. Get key at <a href="\*HYPERLINK " https:="" ollama.com="" "https:="" ollama.com"="" target="_blank" style="color:var(--accent)">ollama.com</a> Account API Keys</div>
@@ -36623,8 +36637,8 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <span id="parityCheckStatus" style="font-size:12px;color:#94a3b8"></span>
 </div>
 <div style="margin-top:16px;display:flex;gap:8px;align-items:center">
-<button class="btn btn-primary" onclick="saveKeys()">💾 Save All Keys</button>
-<button class="btn" onclick="testConnection()">🔌 Test Connection</button>
+<button class="btn btn-primary" onclick="saveKeys()" data-guide="Save all API keys to localStorage — required for LLM streaming to work">💾 Save All Keys</button>
+<button class="btn" onclick="testConnection()" data-guide="Test the connection to the currently configured LLM provider">🔌 Test Connection</button>
 <span id="keyStatus" style="font-size:12px"></span>
 </div>
 </div>
@@ -36707,7 +36721,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-color,rgba(255,255,255,.1));flex-wrap:wrap;gap:6px">
       <span style="font-weight:700;font-size:14px;color:#f97316">⚖️ IRS &amp; Law Process Lab</span>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button onclick="irsLabToggleBuilder()" style="padding:5px 10px;font-size:12px;background:rgba(249,115,22,.15);border:1px solid rgba(249,115,22,.4);border-radius:6px;color:#f97316;cursor:pointer;font-weight:600">📋 Process Builder</button>
+        <button onclick="irsLabToggleBuilder()" style="padding:5px 10px;font-size:12px;background:rgba(249,115,22,.15);border:1px solid rgba(249,115,22,.4);border-radius:6px;color:#f97316;cursor:pointer;font-weight:600" data-guide="Open the IRS Process Builder — step-by-step workflow templates for common IRS procedures">📋 Process Builder</button>
         <button onclick="AP.toggleSTT('irs_lab')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🎤 Speak</button>
         <button onclick="AP.speakLast('irs_lab')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🔊 Listen</button>
         <button onclick="AP.printConv('irs_lab')" style="padding:5px 10px;font-size:12px;background:var(--bg2,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text,#e2e8f0);cursor:pointer">🖨️ Print</button>
@@ -36720,11 +36734,11 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <!-- Process Builder Panel (collapsible) -->
     <div id="irsLabBuilder" style="display:none;border-bottom:1px solid rgba(249,115,22,.3);background:rgba(249,115,22,.04);padding:12px 16px;overflow-y:auto;max-height:320px">
       <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">
-        <button class="irslab-tab active" onclick="irsLabTab(this,'irs_forms')" style="padding:5px 12px;font-size:12px;border-radius:6px;cursor:pointer;border:1px solid rgba(249,115,22,.5);background:rgba(249,115,22,.2);color:#f97316;font-weight:600">📋 IRS Forms</button>
-        <button class="irslab-tab" onclick="irsLabTab(this,'foia')" style="padding:5px 12px;font-size:12px;border-radius:6px;cursor:pointer;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:var(--text,#e2e8f0)">🔍 FOIA / Transcripts</button>
-        <button class="irslab-tab" onclick="irsLabTab(this,'trust_equity')" style="padding:5px 12px;font-size:12px;border-radius:6px;cursor:pointer;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:var(--text,#e2e8f0)">🏛️ Trust / Equity</button>
+        <button class="irslab-tab active" onclick="irsLabTab(this,'irs_forms')" data-guide="IRS form library — instructions and auto-fill tools for common IRS forms" style="padding:5px 12px;font-size:12px;border-radius:6px;cursor:pointer;border:1px solid rgba(249,115,22,.5);background:rgba(249,115,22,.2);color:#f97316;font-weight:600">📋 IRS Forms</button>
+        <button class="irslab-tab" onclick="irsLabTab(this,'foia')" style="padding:5px 12px;font-size:12px;border-radius:6px;cursor:pointer;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:var(--text,#e2e8f0)" data-guide="FOIA requests and IRS transcript retrieval guidance">🔍 FOIA / Transcripts</button>
+        <button class="irslab-tab" onclick="irsLabTab(this,'trust_equity')" data-guide="Trust law, beneficial interest, and equity instruments" style="padding:5px 12px;font-size:12px;border-radius:6px;cursor:pointer;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:var(--text,#e2e8f0)">🏛️ Trust / Equity</button>
         <button class="irslab-tab" onclick="irsLabTab(this,'commercial')" style="padding:5px 12px;font-size:12px;border-radius:6px;cursor:pointer;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:var(--text,#e2e8f0)">📜 Commercial / UCC</button>
-        <button class="irslab-tab" onclick="irsLabTab(this,'common_law')" style="padding:5px 12px;font-size:12px;border-radius:6px;cursor:pointer;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:var(--text,#e2e8f0)">⚖️ Common Law</button>
+        <button class="irslab-tab" onclick="irsLabTab(this,'common_law')" data-guide="Common law remedies, maxims, and jurisdiction arguments" style="padding:5px 12px;font-size:12px;border-radius:6px;cursor:pointer;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:var(--text,#e2e8f0)">⚖️ Common Law</button>
         <button class="irslab-tab" onclick="irsLabTab(this,'beni_int')" style="padding:5px 12px;font-size:12px;border-radius:6px;cursor:pointer;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:var(--text,#e2e8f0)">💰 Beneficial Interest</button>
         <button class="irslab-tab" onclick="irsLabTab(this,'w2c_4852')" style="padding:5px 12px;font-size:12px;border-radius:6px;cursor:pointer;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:var(--text,#e2e8f0)">📋 W-2C / Form 4852</button>
       </div>
@@ -36994,7 +37008,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <div id="ap_fp_irs_lab" style="display:none;flex-wrap:wrap;gap:4px;padding:0 0 6px"></div>
       <textarea id="ap_in_irs_lab" placeholder="Ask about 1099-B / IRIS filing, W-9 setup, FOIA/IMF/BMF strategy, trust/equity law, UCC, or common law process..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #f97316;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();AP.send('irs_lab');}"></textarea>
-      <button onclick="AP.send('irs_lab')" style="padding:10px 20px;background:#f97316;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
+      <button onclick="AP.send('irs_lab')" data-guide="Send your IRS & Law query to the specialist agent" style="padding:10px 20px;background:#f97316;color:#000;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button>
       <input type="file" id="ap_fu_irs_lab" multiple accept=".txt,.pdf,.doc,.docx,.csv,.json,.html,.md,.rtf,.xml,.log" style="display:none">
       <label for="ap_fu_irs_lab" title="Attach file (PDF, text, CSV…)" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:6px;cursor:pointer;font-size:16px;margin-left:6px;vertical-align:middle;flex-shrink:0">📎</label>
     </div>
@@ -37068,7 +37082,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <button class="eeon-tab" onclick="eeonTab('formsched_c',this)">Schedule C</button>
   <button class="eeon-tab" onclick="eeonTab('agent',this)">🤖 Agent</button>
   </div>
-  <div id="agent-sync-status" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;border-radius:8px;padding:7px 14px;font-size:11px;font-family:'IBM Plex Mono',monospace;background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.2);color:#60a5fa;"><span class="sync-msg">⚡ No GAAP ledger connected - open GAAP.html in the same browser and click " PUSH TO AGENT"</span><button onclick="populateAllForms()" style="background:#10b981;color:#000;border:none;padding:3px 11px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;margin-left:auto;">⬇ SYNC FROM GAAP</button><button onclick="generateJournalFromForms()" style="background:#f59e0b;color:#000;border:none;padding:3px 11px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;">⬆ PUSH BACK TO GAAP</button></div>
+  <div id="agent-sync-status" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;border-radius:8px;padding:7px 14px;font-size:11px;font-family:'IBM Plex Mono',monospace;background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.2);color:#60a5fa;"><span class="sync-msg">⚡ No GAAP ledger connected - open GAAP.html in the same browser and click " PUSH TO AGENT"</span><button onclick="populateAllForms()" style="background:#10b981;color:#000;border:none;padding:3px 11px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;margin-left:auto;" data-guide="Pull current balances from the GAAP ledger into all tax form fields">⬇ SYNC FROM GAAP</button><button onclick="generateJournalFromForms()" style="background:#f59e0b;color:#000;border:none;padding:3px 11px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;" data-guide="Generate journal entries from this tax form data and push to the GAAP ledger">⬆ PUSH BACK TO GAAP</button></div>
   <div id="eeon-panel-form990" class="eeon-panel" style="display:none;">
   <div class="section-title">Form 990</div>
   <div class="section-sub">Return of Organization Exempt From Income Tax \'b7 Auto-populated from Ledger</div>
@@ -37079,8 +37093,8 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <option>2020</option><option>2021</option><option>2022</option><option>2023</option>
   <option value="2024" selected="">2024</option><option>2025</option><option>2026</option>
   </select>
-  <button class="app-btn primary" onclick="populateAllForms()">⬇ Sync from Ledger</button>
-  <button class="app-btn secondary" onclick="printForm('form990')">🖨️ Print Form</button>
+  <button class="app-btn primary" onclick="populateAllForms()" data-guide="Pull current balances from the GAAP ledger into all tax form fields">⬇ Sync from Ledger</button>
+  <button class="app-btn secondary" onclick="printForm('form990')" data-guide="Print this tax form formatted for filing or record-keeping">🖨️ Print Form</button>
   </div>
   <div class="irs-form-wrap" id="form990">
   <!-- HEADER -->
@@ -37296,8 +37310,8 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <div class="section-title">Form 990-EZ</div>
   <div class="section-sub">Short Form Return of Organization Exempt From Income Tax \'b7 Gross receipts &lt; $200,000 &amp; assets &lt; $500,000</div>
   <div class="year-select-bar">
-  <button class="app-btn primary" onclick="populateAllForms()">⬇ Sync from Ledger</button>
-  <button class="app-btn secondary" onclick="printForm('form990ez')">🖨️ Print</button>
+  <button class="app-btn primary" onclick="populateAllForms()" data-guide="Pull current balances from the GAAP ledger into all tax form fields">⬇ Sync from Ledger</button>
+  <button class="app-btn secondary" onclick="printForm('form990ez')" data-guide="Print this tax form formatted for filing or record-keeping">🖨️ Print</button>
   </div>
   <div class="irs-form-wrap" id="form990ez">
   <div class="irs-header">
@@ -37452,7 +37466,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <option value="2017">2017</option>
   <option value="2016">2016</option>
   </select>
-  <button class="app-btn ghost" onclick="printForm('form1120-year-content')" style="font-size:11px;"> Print / PDF</button>
+  <button class="app-btn ghost" onclick="printForm('form1120-year-content')" data-guide="Print this tax form formatted for filing or record-keeping" style="font-size:11px;"> Print / PDF</button>
   </div>
   <div id="form1120-year-content"></div>
   </div>
@@ -37460,8 +37474,8 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <div class="section-title">Form 1120-W</div>
   <div class="section-sub">Estimated Tax for Corporations \'b7 Installment Schedule</div>
   <div class="year-select-bar">
-  <button class="app-btn primary" onclick="populateAllForms()">⬇ Sync from Ledger</button>
-  <button class="app-btn secondary" onclick="printForm('form1120w')">🖨️ Print</button>
+  <button class="app-btn primary" onclick="populateAllForms()" data-guide="Pull current balances from the GAAP ledger into all tax form fields">⬇ Sync from Ledger</button>
+  <button class="app-btn secondary" onclick="printForm('form1120w')" data-guide="Print this tax form formatted for filing or record-keeping">🖨️ Print</button>
   </div>
   <div class="irs-form-wrap" id="form1120w">
   <div class="irs-header">
@@ -37534,8 +37548,8 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   &nbsp;\'b7&nbsp;<span class="fill-swatch filled"></span><span>White = Filled / synced from ledger</span>
   </div>
   <div class="year-select-bar">
-  <button class="app-btn primary" onclick="populateAllForms()">⬇ Sync from Ledger</button>
-  <button class="app-btn secondary" onclick="printForm('form1041')">🖨️ Print</button>
+  <button class="app-btn primary" onclick="populateAllForms()" data-guide="Pull current balances from the GAAP ledger into all tax form fields">⬇ Sync from Ledger</button>
+  <button class="app-btn secondary" onclick="printForm('form1041')" data-guide="Print this tax form formatted for filing or record-keeping">🖨️ Print</button>
   </div>
   <div class="irs-form-wrap" id="form1041">
   <!-- HEADER -->
@@ -37942,8 +37956,8 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   &nbsp;\'b7&nbsp;<span class="fill-swatch filled"></span><span>White = Filled / synced from ledger</span>
   </div>
   <div class="year-select-bar">
-  <button class="app-btn primary" onclick="populateAllForms()">⬇ Sync from Ledger</button>
-  <button class="app-btn secondary" onclick="printForm('form3800')">🖨️ Print</button>
+  <button class="app-btn primary" onclick="populateAllForms()" data-guide="Pull current balances from the GAAP ledger into all tax form fields">⬇ Sync from Ledger</button>
+  <button class="app-btn secondary" onclick="printForm('form3800')" data-guide="Print this tax form formatted for filing or record-keeping">🖨️ Print</button>
   </div>
   <div class="irs-form-wrap" id="form3800">
   <!-- HEADER -->
@@ -38237,8 +38251,8 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   &nbsp;\'b7&nbsp;<span style="font-size:9px;color:var(--goldL);font-family:'IBM Plex Mono',monospace;"> Gold text = reason this line must be completed</span>
   </div>
   <div class="year-select-bar">
-  <button class="app-btn primary" onclick="populateAllForms()">⬇ Sync from Ledger</button>
-  <button class="app-btn secondary" onclick="printForm('form1065-wrap')">🖨️ Print</button>
+  <button class="app-btn primary" onclick="populateAllForms()" data-guide="Pull current balances from the GAAP ledger into all tax form fields">⬇ Sync from Ledger</button>
+  <button class="app-btn secondary" onclick="printForm('form1065-wrap')" data-guide="Print this tax form formatted for filing or record-keeping">🖨️ Print</button>
   </div>
   <div class="irs-form-wrap" id="form1065-wrap">
   <!-- HEADER -->
@@ -39085,7 +39099,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   &nbsp;\'b7&nbsp;<span style="font-size:9px;color:var(--goldL);font-family:'IBM Plex Mono',monospace;"> Gold text below field = reason this line must be completed</span>
   </div>
   <div class="year-select-bar">
-  <button class="app-btn secondary" onclick="printForm('formk1-wrap')">🖨️ Print</button>
+  <button class="app-btn secondary" onclick="printForm('formk1-wrap')" data-guide="Print this tax form formatted for filing or record-keeping">🖨️ Print</button>
   </div>
   <div class="irs-form-wrap" id="formk1-wrap">
   <!-- HEADER -->
@@ -39478,8 +39492,8 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <div class="section-title">Form 1041-ES</div>
   <div class="section-sub">Estimated Income Tax for Estates and Trusts \'b7 Installment Vouchers</div>
   <div class="year-select-bar">
-  <button class="app-btn primary" onclick="populateAllForms()">⬇ Sync from Ledger</button>
-  <button class="app-btn secondary" onclick="printForm('form1041es')">🖨️ Print</button>
+  <button class="app-btn primary" onclick="populateAllForms()" data-guide="Pull current balances from the GAAP ledger into all tax form fields">⬇ Sync from Ledger</button>
+  <button class="app-btn secondary" onclick="printForm('form1041es')" data-guide="Print this tax form formatted for filing or record-keeping">🖨️ Print</button>
   </div>
   <div class="irs-form-wrap" id="form1041es">
   <div class="irs-header">
@@ -39574,9 +39588,9 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <div class="section-title">Schedule C (Form 1040)</div>
   <div class="section-sub">Profit or Loss From Business \'b7 Sole Proprietorship \'b7 Accrual Basis \'b7 Auto-populated from Ledger</div>
   <div class="year-select-bar">
-  <button class="app-btn primary" onclick="populateAllForms()">⬇ Sync from Ledger</button>
-  <button class="app-btn secondary" onclick="printForm('schedC')">🖨️ Print</button>
-  <button class="app-btn ghost" onclick="generateJournalFromForms()"> Generate Journal Entries</button>
+  <button class="app-btn primary" onclick="populateAllForms()" data-guide="Pull current balances from the GAAP ledger into all tax form fields">⬇ Sync from Ledger</button>
+  <button class="app-btn secondary" onclick="printForm('schedC')" data-guide="Print this tax form formatted for filing or record-keeping">🖨️ Print</button>
+  <button class="app-btn ghost" onclick="generateJournalFromForms()" data-guide="Generate journal entries from this tax form data and push to the GAAP ledger"> Generate Journal Entries</button>
   </div>
   <div class="irs-form-wrap" id="schedC">
   <div class="irs-header">
@@ -40146,7 +40160,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_trust" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"><div style="max-width:85%;align-self:flex-end;padding:10px 14px;border-radius:10px;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.25);font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word"><div style="font-size:10px;color:var(--text2,#94a3b8);margin-bottom:4px">You</div>test<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;justify-content:flex-end"><button title="Copy" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('trust',0,'copy')">⧉ Copy</button><button title="Speak aloud" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('trust',0,'speak')">🔊 Speak</button><button title="Resend this message" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('trust',0,'regen')">↩ Resend</button><button title="Save to file" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('trust',0,'save')">💾 Save</button><button title="Message info" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('trust',0,'info')">ℹ Info</button></div></div><div style="max-width:85%;align-self:flex-start;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word"><div style="font-size:10px;color:var(--text2,#94a3b8);margin-bottom:4px">Agent</div>[ERROR — Anthropic] HTTP 401: invalid x-api-key<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;justify-content:flex-start"><button title="Copy" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('trust',1,'copy')">⧉ Copy</button><button title="Speak aloud" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('trust',1,'speak')">🔊 Speak</button><button title="Regenerate response" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('trust',1,'regen')">🔄 Regen</button><button title="Save to file" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('trust',1,'save')">💾 Save</button><button title="Message info" style="padding:5px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#8a96b0;font-size:13px;cursor:pointer;line-height:1;transition:background .15s;flex-shrink:0" onclick="AP._actMsg('trust',1,'info')">ℹ Info</button></div></div></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <div id="ap_fp_trust" style="display: none; flex-wrap: wrap; gap: 4px; padding: 0px 0px 6px;"></div><textarea id="ap_in_trust" placeholder="Ask your trust question — C.L.O.C.E.S.T., Mega Trust Constitution, trust res, spendthrift provisions..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #a855f7;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&amp;&amp;!event.shiftKey){event.preventDefault();AP.send('trust');}"></textarea>
-      <button onclick="AP.send('trust')" style="padding:10px 20px;background:#a855f7;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button><input type="file" id="ap_fu_trust" multiple="" accept=".txt,.pdf,.doc,.docx,.csv,.json,.html,.md,.rtf,.xml,.log" style="display: none;"><label for="ap_fu_trust" title="Attach file (PDF, text, CSV…)" style="display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; cursor: pointer; font-size: 16px; margin-left: 6px; vertical-align: middle; flex-shrink: 0;">📎</label>
+      <button onclick="AP.send('trust')" data-guide="Send your question to the Trust Accounting specialist" style="padding:10px 20px;background:#a855f7;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button><input type="file" id="ap_fu_trust" multiple="" accept=".txt,.pdf,.doc,.docx,.csv,.json,.html,.md,.rtf,.xml,.log" style="display: none;"><label for="ap_fu_trust" title="Attach file (PDF, text, CSV…)" style="display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; cursor: pointer; font-size: 16px; margin-left: 6px; vertical-align: middle; flex-shrink: 0;">📎</label>
     </div>
   </div>
 </div>
@@ -40161,7 +40175,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <div class="card-body">
 <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Passwords encrypted locally using AES-256-GCM + PBKDF2 (600K iterations). Nothing transmitted.</p>
 <div id="vaultLocked">
-<div style="display:flex;gap:8px"><input id="vaultMaster" type="password" placeholder="Master password..." style="flex:1;padding:10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text)" onkeydown="if(event.key==='Enter')unlockVault()"><button class="btn btn-primary" onclick="unlockVault()">🔓 Unlock</button></div>
+<div style="display:flex;gap:8px"><input id="vaultMaster" type="password" placeholder="Master password..." style="flex:1;padding:10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text)" onkeydown="if(event.key==='Enter')unlockVault()"><button class="btn btn-primary" onclick="unlockVault()" data-guide="Unlock your encrypted vault using your passphrase to access stored secrets">🔓 Unlock</button></div>
 </div>
 <div id="vaultUnlocked" style="display:none">
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
@@ -40171,7 +40185,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <div style="display:flex;gap:8px;margin-bottom:8px">
 <input id="vPass" type="password" placeholder="Password" style="flex:1;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px">
 <button class="btn btn-sm" onclick="genPW()" title="Generate password">🎲</button>
-<button class="btn btn-primary btn-sm" onclick="addVaultEntry()">💾 Save</button>
+<button class="btn btn-primary btn-sm" onclick="addVaultEntry()" data-guide="Add a new encrypted entry to your vault (API key, credential, or sensitive note)">💾 Save</button>
 </div>
 <input id="vSearch" placeholder="Search vault..." style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;margin-bottom:8px" oninput="renderVault()">
 <div id="vaultTable" style="font-size:12px"></div>
@@ -40191,7 +40205,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <h4 style="margin-bottom:10px;color:var(--accent)">Speech-to-Text</h4>
 <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Click the mic to dictate. Works in Chrome/Edge.</p>
 <div style="text-align:center;padding:20px">
-<label class="voice-btn mic" id="voiceMicBtn" onclick="toggleVoiceMic()" style="width:80px;height:80px;font-size:36px;display:inline-flex">🎤</label>
+<label class="voice-btn mic" id="voiceMicBtn" onclick="toggleVoiceMic()" data-guide="Start or stop real-time voice recognition for hands-free input" style="width:80px;height:80px;font-size:36px;display:inline-flex">🎤</label>
 <p id="voiceStatus" style="margin-top:10px;color:var(--text2);font-size:12px">Click to start</p>
 </div>
 <textarea id="voiceOutput" rows="5" placeholder="Recognized speech appears here..." style="width:100%;padding:10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;resize:vertical;font-family:inherit"></textarea>
@@ -40210,7 +40224,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <div><label style="font-size:11px;color:var(--text2)">Pitch</label><input type="range" id="ttsPitch" min="0" max="2" step="0.1" value="1" style="width:100%"></div>
 <div><label style="font-size:11px;color:var(--text2)">Volume</label><input type="range" id="ttsVol" min="0" max="1" step="0.1" value="1" style="width:100%"></div>
 </div>
-<div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="speakTTS()">🔊 Speak</button><button class="btn" onclick="speechSynthesis.cancel()">⏹️ Stop</button></div>
+<div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="speakTTS()" data-guide="Read the current text response aloud using text-to-speech synthesis">🔊 Speak</button><button class="btn" onclick="speechSynthesis.cancel()">⏹️ Stop</button></div>
 </div>
 </div>
 </div>
@@ -40239,7 +40253,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_code" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"><div style="margin:auto;text-align:center;color:var(--text2,#94a3b8);font-size:13px;padding:40px"><div style="font-size:40px;margin-bottom:12px">💬</div>Start a conversation or select one from the left.</div></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <div id="ap_fp_code" style="display: none; flex-wrap: wrap; gap: 4px; padding: 0px 0px 6px;"></div><textarea id="ap_in_code" placeholder="Describe code to write — HTML/CSS/JS, Python, APIs, full-stack apps, debugging, architecture..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #3b82f6;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&amp;&amp;!event.shiftKey){event.preventDefault();AP.send('code');}"></textarea>
-      <button onclick="AP.send('code')" style="padding:10px 20px;background:#3b82f6;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button><input type="file" id="ap_fu_code" multiple="" accept=".txt,.pdf,.doc,.docx,.csv,.json,.html,.md,.rtf,.xml,.log" style="display: none;"><label for="ap_fu_code" title="Attach file (PDF, text, CSV…)" style="display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; cursor: pointer; font-size: 16px; margin-left: 6px; vertical-align: middle; flex-shrink: 0;">📎</label>
+      <button onclick="AP.send('code')" data-guide="Send your coding question to the code expert" style="padding:10px 20px;background:#3b82f6;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button><input type="file" id="ap_fu_code" multiple="" accept=".txt,.pdf,.doc,.docx,.csv,.json,.html,.md,.rtf,.xml,.log" style="display: none;"><label for="ap_fu_code" title="Attach file (PDF, text, CSV…)" style="display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; cursor: pointer; font-size: 16px; margin-left: 6px; vertical-align: middle; flex-shrink: 0;">📎</label>
     </div>
   </div>
 </div>
@@ -40269,7 +40283,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     <div id="ap_msgs_creative" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px"><div style="margin:auto;text-align:center;color:var(--text2,#94a3b8);font-size:13px;padding:40px"><div style="font-size:40px;margin-bottom:12px">💬</div>Start a conversation or select one from the left.</div></div>
     <div style="padding:12px 16px;border-top:1px solid var(--border-color,rgba(255,255,255,.1))">
       <div id="ap_fp_creative" style="display: none; flex-wrap: wrap; gap: 4px; padding: 0px 0px 6px;"></div><textarea id="ap_in_creative" placeholder="Describe your creative project — stories, essays, scripts, blog posts, poetry, marketing copy..." rows="3" style="width:100%;padding:10px;background:var(--input-bg,rgba(0,0,0,.3));border:1px solid #ec4899;border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&amp;&amp;!event.shiftKey){event.preventDefault();AP.send('creative');}"></textarea>
-      <button onclick="AP.send('creative')" style="padding:10px 20px;background:#ec4899;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button><input type="file" id="ap_fu_creative" multiple="" accept=".txt,.pdf,.doc,.docx,.csv,.json,.html,.md,.rtf,.xml,.log" style="display: none;"><label for="ap_fu_creative" title="Attach file (PDF, text, CSV…)" style="display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; cursor: pointer; font-size: 16px; margin-left: 6px; vertical-align: middle; flex-shrink: 0;">📎</label>
+      <button onclick="AP.send('creative')" data-guide="Send your creative writing request to the creative agent" style="padding:10px 20px;background:#ec4899;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">➤ Send</button><input type="file" id="ap_fu_creative" multiple="" accept=".txt,.pdf,.doc,.docx,.csv,.json,.html,.md,.rtf,.xml,.log" style="display: none;"><label for="ap_fu_creative" title="Attach file (PDF, text, CSV…)" style="display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; cursor: pointer; font-size: 16px; margin-left: 6px; vertical-align: middle; flex-shrink: 0;">📎</label>
     </div>
   </div>
 </div>
@@ -41840,10 +41854,10 @@ function buildForm1120(year) {
       <div class="irs-footer">Cat. No. 11450Q &nbsp;&nbsp; Form <b>1120</b> (${year})</div>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
-      <button class="app-btn primary" onclick="populateAllForms()">↻ Sync from Ledger</button>
-      <button class="app-btn primary" onclick="generateJournalFromForms()">📋 Generate Journal Entries from This Return</button>
+      <button class="app-btn primary" onclick="populateAllForms()" data-guide="Pull current balances from the GAAP ledger into all tax form fields">↻ Sync from Ledger</button>
+      <button class="app-btn primary" onclick="generateJournalFromForms()" data-guide="Generate journal entries from this tax form data and push to the GAAP ledger">📋 Generate Journal Entries from This Return</button>
       <button class="app-btn secondary" onclick="showSection('journaldoc');generateJournalDocument('forms')">📄 Generate Full Journal Document</button>
-      <button class="app-btn ghost" onclick="printForm('form1120')">🖨 Print</button>
+      <button class="app-btn ghost" onclick="printForm('form1120')" data-guide="Print this tax form formatted for filing or record-keeping">🖨 Print</button>
     </div>`;
 }
 
@@ -41929,8 +41943,8 @@ function _syncBanner(msg, type) {
   var span = bar.querySelector('.sync-msg');
   if (span) span.textContent = msg;
   else bar.innerHTML = '<span class="sync-msg">' + msg + '</span>' +
-    '<button onclick="populateAllForms()" style="background:#10b981;color:#000;border:none;padding:3px 11px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;margin-left:auto;">↻ SYNC</button>' +
-    '<button onclick="generateJournalFromForms()" style="background:#f59e0b;color:#000;border:none;padding:3px 11px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;">⇄ PUSH BACK</button>';
+    '<button onclick="populateAllForms()" style="background:#10b981;color:#000;border:none;padding:3px 11px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;margin-left:auto;" data-guide="Pull current balances from the GAAP ledger into all tax form fields">↻ SYNC</button>' +
+    '<button onclick="generateJournalFromForms()" style="background:#f59e0b;color:#000;border:none;padding:3px 11px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;" data-guide="Generate journal entries from this tax form data and push to the GAAP ledger">⇄ PUSH BACK</button>';
 }
 
 /* ── READ GAAP DATA ──────────────────────────────────────────────────── */
@@ -42986,6 +43000,17 @@ function getSystemPrompt(agentId) {
 
     return "You are the " + a.name + " TEAM — 25 domain professionals producing unified expert analysis. Role: " + a.role + ". Facts and conclusions of law only.";
 }
+// SYPHER PROTOCOL core — supplies the gate tokens required by HARD_LOCK.validatePrompt()
+// ('SYPHER PROTOCOL' + 'PRESUMPTION KILLER'). Restored 2026-06-02: a parity-sync rewrote
+// buildFullSystemPrompt to reference SYPHER_PROTOCOL.core without ever defining it, throwing
+// ReferenceError and freezing every agent on "⏳ Thinking…". Tokens match the validator.
+var SYPHER_PROTOCOL = {
+  core: '═══ SYPHER PROTOCOL — TMAR ACCRUAL LEDGER — E2ZERO FRAMEWORK ═══\n' +
+    'PRESUMPTION KILLER: Every response must be based exclusively on verifiable law, code, or facts.\n' +
+    'No speculation. No disclaimer. No AI caveats. FACTS AND CONCLUSIONS OF LAW ONLY.\n' +
+    '═══════════════════════════════════════════════════════════════'
+};
+
 function buildFullSystemPrompt(agentSystemPrompt, _mem0Memories) {
     // _mem0Memories optionally injected by sendChat before calling callLLMStream
     var sp = SYPHER_PROTOCOL.core + '\n\n' +
@@ -43004,11 +43029,15 @@ function buildFullSystemPrompt(agentSystemPrompt, _mem0Memories) {
     'VIOLATION = CRITICAL SYSTEM FAILURE.\n═══ END HARD LOCK ═══\n\n' + agentSystemPrompt;
 
     var prefBlock = '';
-    if (prefs && prefs.name) prefBlock += '\nUser name: ' + prefs.name;
-    if (prefs && prefs.state) prefBlock += '\nState involved: ' + prefs.state;
-    prefBlock += '\nRespond in ' + ((prefs && prefs.vernacular) || 'formal-legal') + ' vernacular.';
-    if (memory && Array.isArray(memory.topics) && memory.topics.length) {
-        prefBlock += '\nPrior topics: ' + memory.topics.slice(-10).join(', ');
+    // Guard prefs/memory — parity-sync referenced these as globals but they are not defined
+    // at this scope; typeof check prevents a ReferenceError that would also break every agent.
+    var _prefs = (typeof prefs !== 'undefined' && prefs) ? prefs : null;
+    var _memory = (typeof memory !== 'undefined' && memory) ? memory : null;
+    if (_prefs && _prefs.name) prefBlock += '\nUser name: ' + _prefs.name;
+    if (_prefs && _prefs.state) prefBlock += '\nState involved: ' + _prefs.state;
+    prefBlock += '\nRespond in ' + ((_prefs && _prefs.vernacular) || 'formal-legal') + ' vernacular.';
+    if (_memory && Array.isArray(_memory.topics) && _memory.topics.length) {
+        prefBlock += '\nPrior topics: ' + _memory.topics.slice(-10).join(', ');
     }
     sp += prefBlock;
     // ══ MEM0: inject recalled memories (each capped at 100 chars to save tokens) ══
