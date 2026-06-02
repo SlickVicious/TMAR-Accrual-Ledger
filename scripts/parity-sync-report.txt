@@ -1,4 +1,4 @@
-TMAR Parity Sync — 2026-06-02T07:13:50.121Z
+TMAR Parity Sync — 2026-06-02T07:41:23.179Z
 
   PROTECTED (unchanged): resolveProvider
   PROTECTED (unchanged): callLLMStream
@@ -371,9 +371,10 @@ TMAR Parity Sync — 2026-06-02T07:13:50.121Z
     Deps in source (pullable with --resolve): _importShare, _sv, _lk, _ak, _renderSL, _renderMsgs, goPage
   REVIEW [new] _esc
     Deps in source (pullable with --resolve): _esc
+  SAFE [new] setField
 
   --resolve: pulling 116 dep(s): getActiveSession, newChatSession, genId, save, renderSessionList, renderChatMessages, goPage, loadKeys, loadPrefs, renderMemory, renderNoiToggles, refreshDash, addMsg, saveCurrentSession, routeAgent, updateMemory, renderFilePreview, stopMic, dtRenderSessions, dtRenderMsgs, dtRenderFiles, dtGetSession, dtAddMsg, dtSaveSession, callLLM, renderResearchHistory, trackActivity, renderDocs, renderCalendar, deriveVaultKey, decryptVault, saveVault, encryptVault, buildSystemPrompt, speakAgent, _chipStyle, _mkTaskCard, _renderScoutCards, loadSession, deleteSession, toggleTheme, deleteMsg, recycleMsg, saveMsg, copyMsg, speakMsg, removeFile, dtLoadSession, dtDeleteSession, dtDeleteMsg, dtRecycleMsg, dtSpeakMsg, dtRemoveFile, deleteAgent, viewDoc, delDoc, analyzeDoc, populateTTSVoices, refreshAnalytics, delCalEvent, exportSession, showTaxForm, speak, toggleTTS, toggleSTT, eeonLegacySendChat, eeonSetAgent, showSection, generateJournalDocument, pushJournalToGAAP, _safeKeys, _keys, _getKey, _getUrl, _getCLToken, courtListenerSearch, openClawSearch, statutesSearch, searchCaseLaw, _getToken, runActor, googleSearch, scrapeUrl, testOpenClawConnection, testApifyConnection, refineCode, _isRelevant, _fetchRegistry, discover, integrateAPI, integrateAll, clearIntegrated, getDiscovered, getIntegrated, _lk, _ak, _ld, _sv, _init, _newChat, _renderSL, _esc, _renderMsgs, _getSess, _persist, _loadSess, _delSess, _send, _callLLM, _toggleSTT, _speakLast, _printConv, _exportPDF, _exportWord, _shareLink, _importShare
-  Agent.html — Changed: 76  New: 117  Skip: 0
+  Agent.html — Changed: 76  New: 118  Skip: 0
   CHANGED (applied): add
   CHANGED (applied): addPdf
   CHANGED (applied): search
@@ -384,53 +385,53 @@ TMAR Parity Sync — 2026-06-02T07:13:50.121Z
   CHANGED (applied): estimateTokens
   CHANGED (applied): truncateToTokenBudget
   CHANGED (applied): getSystemPrompt
-  CHANGED (applied): sendChat
-  CHANGED (applied): handleFileUpload
-  CHANGED (applied): toggleMic
+  CHANGED REVIEW-SKIPPED: sendChat
+  CHANGED REVIEW-SKIPPED: handleFileUpload
+  CHANGED REVIEW-SKIPPED: toggleMic
   CHANGED (applied): shareChat
-  CHANGED (applied): exportChat
-  CHANGED (applied): askAgent
-  CHANGED (applied): dtNewChat
-  CHANGED (applied): dtHandleFiles
-  CHANGED (applied): dtClearHistory
-  CHANGED (applied): dtSend
+  CHANGED REVIEW-SKIPPED: exportChat
+  CHANGED REVIEW-SKIPPED: askAgent
+  CHANGED REVIEW-SKIPPED: dtNewChat
+  CHANGED REVIEW-SKIPPED: dtHandleFiles
+  CHANGED REVIEW-SKIPPED: dtClearHistory
+  CHANGED REVIEW-SKIPPED: dtSend
   CHANGED (applied): noiAsk
   CHANGED (applied): renderAgents
-  CHANGED (applied): createAgent
-  CHANGED (applied): saveKeys
-  CHANGED (applied): testConnection
+  CHANGED REVIEW-SKIPPED: createAgent
+  CHANGED REVIEW-SKIPPED: saveKeys
+  CHANGED REVIEW-SKIPPED: testConnection
   CHANGED (applied): refreshOllamaModels
-  CHANGED (applied): savePrefs
-  CHANGED (applied): clearMemory
+  CHANGED REVIEW-SKIPPED: savePrefs
+  CHANGED REVIEW-SKIPPED: clearMemory
   CHANGED (applied): renderHistory
   CHANGED (applied): esc
-  CHANGED (applied): doResearch
-  CHANGED (applied): doSearch
-  CHANGED (applied): uploadDocs
-  CHANGED (applied): toggleVoiceMic
+  CHANGED REVIEW-SKIPPED: doResearch
+  CHANGED REVIEW-SKIPPED: doSearch
+  CHANGED REVIEW-SKIPPED: uploadDocs
+  CHANGED REVIEW-SKIPPED: toggleVoiceMic
   CHANGED (applied): speakTTS
-  CHANGED (applied): addCalEvent
-  CHANGED (applied): unlockVault
-  CHANGED (applied): addVaultEntry
+  CHANGED REVIEW-SKIPPED: addCalEvent
+  CHANGED REVIEW-SKIPPED: unlockVault
+  CHANGED REVIEW-SKIPPED: addVaultEntry
   CHANGED (applied): renderVault
   CHANGED (applied): genPW
   CHANGED (applied): exportBackup
-  CHANGED (applied): importBackup
+  CHANGED REVIEW-SKIPPED: importBackup
   CHANGED (applied): exportAllHistory
-  CHANGED (applied): showAlert
+  CHANGED REVIEW-SKIPPED: showAlert
   CHANGED (applied): saveFiling
   CHANGED (applied): exportFiling
   CHANGED (applied): addSubsidiary
-  CHANGED (applied): calculate1120
+  CHANGED REVIEW-SKIPPED: calculate1120
   CHANGED (applied): toggleAgentTTS
   CHANGED (applied): toggleAgentSTT
   CHANGED (applied): printForm
-  CHANGED (applied): onYearChange
-  CHANGED (applied): eeonSendChat
+  CHANGED REVIEW-SKIPPED: onYearChange
+  CHANGED REVIEW-SKIPPED: eeonSendChat
   CHANGED (applied): sendQuick
   CHANGED (applied): _populateFormSchedC
-  CHANGED (applied): setFirm
-  CHANGED (applied): buildFirmChips
+  CHANGED REVIEW-SKIPPED: setFirm
+  CHANGED REVIEW-SKIPPED: buildFirmChips
   CHANGED (applied): openClawCaseLaw
   CHANGED (applied): openClawStatutes
   CHANGED (applied): openClawCongress
@@ -440,140 +441,140 @@ TMAR Parity Sync — 2026-06-02T07:13:50.121Z
   CHANGED (applied): reconcileApps
   CHANGED (applied): forceSyncFromGAAP
   CHANGED (applied): clearTaskPlan
-  CHANGED (applied): planTask
+  CHANGED REVIEW-SKIPPED: planTask
   CHANGED (applied): buildCode
   CHANGED (applied): copyBuiltCode
   CHANGED (applied): downloadBuiltCode
   CHANGED (applied): deployBuiltCode
-  CHANGED (applied): runAPIScout
-  CHANGED (applied): scoutTestAll
-  CHANGED (applied): filterScoutAPIs
-  CHANGED (applied): showIntegratedAPIs
+  CHANGED REVIEW-SKIPPED: runAPIScout
+  CHANGED REVIEW-SKIPPED: scoutTestAll
+  CHANGED REVIEW-SKIPPED: filterScoutAPIs
+  CHANGED REVIEW-SKIPPED: showIntegratedAPIs
   CHANGED (applied): scoutClearIntegrated
   NEW (added): load
-  NEW (added): save
-  NEW (added): genId
-  NEW (added): newChatSession
-  NEW (added): loadSession
-  NEW (added): deleteSession
-  NEW (added): getActiveSession
-  NEW (added): saveCurrentSession
-  NEW (added): renderSessionList
-  NEW (added): routeAgent
-  NEW (added): callLLM
-  NEW (added): goPage
-  NEW (added): toggleTheme
-  NEW (added): addMsg
-  NEW (added): deleteMsg
-  NEW (added): recycleMsg
-  NEW (added): saveMsg
-  NEW (added): copyMsg
-  NEW (added): speakMsg
-  NEW (added): renderChatMessages
-  NEW (added): removeFile
-  NEW (added): renderFilePreview
-  NEW (added): stopMic
-  NEW (added): dtGetSession
-  NEW (added): dtLoadSession
-  NEW (added): dtDeleteSession
-  NEW (added): dtSaveSession
-  NEW (added): dtRenderSessions
-  NEW (added): dtAddMsg
-  NEW (added): dtDeleteMsg
-  NEW (added): dtRecycleMsg
-  NEW (added): dtSpeakMsg
-  NEW (added): dtRenderMsgs
-  NEW (added): dtRemoveFile
-  NEW (added): dtRenderFiles
-  NEW (added): renderNoiToggles
-  NEW (added): deleteAgent
-  NEW (added): loadKeys
-  NEW (added): loadPrefs
-  NEW (added): updateMemory
-  NEW (added): renderMemory
-  NEW (added): refreshDash
-  NEW (added): renderResearchHistory
-  NEW (added): renderDocs
-  NEW (added): viewDoc
-  NEW (added): delDoc
-  NEW (added): analyzeDoc
-  NEW (added): populateTTSVoices
-  NEW (added): trackActivity
-  NEW (added): refreshAnalytics
-  NEW (added): renderCalendar
-  NEW (added): delCalEvent
-  NEW (added): deriveVaultKey
-  NEW (added): encryptVault
-  NEW (added): decryptVault
-  NEW (added): saveVault
-  NEW (added): exportSession
-  NEW (added): showTaxForm
-  NEW (added): speak
-  NEW (added): speakAgent
-  NEW (added): toggleTTS
-  NEW (added): toggleSTT
-  NEW (added): eeonLegacySendChat
-  NEW (added): buildSystemPrompt
-  NEW (added): eeonSetAgent
-  NEW (added): showSection
-  NEW (added): generateJournalDocument
-  NEW (added): pushJournalToGAAP
-  NEW (added): _chipStyle
-  NEW (added): _safeKeys
-  NEW (added): _keys
-  NEW (added): _getKey
-  NEW (added): _getUrl
-  NEW (added): _getCLToken
-  NEW (added): courtListenerSearch
-  NEW (added): openClawSearch
-  NEW (added): statutesSearch
-  NEW (added): searchCaseLaw
-  NEW (added): _getToken
-  NEW (added): runActor
-  NEW (added): googleSearch
-  NEW (added): scrapeUrl
-  NEW (added): testOpenClawConnection
-  NEW (added): testApifyConnection
-  NEW (added): _mkTaskCard
-  NEW (added): refineCode
-  NEW (added): _isRelevant
-  NEW (added): _fetchRegistry
-  NEW (added): discover
-  NEW (added): integrateAPI
-  NEW (added): integrateAll
-  NEW (added): clearIntegrated
-  NEW (added): getDiscovered
-  NEW (added): getIntegrated
-  NEW (added): _renderScoutCards
-  NEW (added): _lk
-  NEW (added): _ak
-  NEW (added): _ld
-  NEW (added): _sv
-  NEW (added): _init
-  NEW (added): _getSess
-  NEW (added): _persist
-  NEW (added): _newChat
-  NEW (added): _loadSess
-  NEW (added): _delSess
-  NEW (added): _renderSL
-  NEW (added): _renderMsgs
-  NEW (added): _send
-  NEW (added): _callLLM
-  NEW (added): _toggleSTT
-  NEW (added): _speakLast
-  NEW (added): _printConv
-  NEW (added): _exportPDF
-  NEW (added): _exportWord
-  NEW (added): _shareLink
-  NEW (added): _importShare
-  NEW (added): _esc
+  NEW REVIEW-SKIPPED: save
+  NEW REVIEW-SKIPPED: genId
+  NEW REVIEW-SKIPPED: newChatSession
+  NEW REVIEW-SKIPPED: loadSession
+  NEW REVIEW-SKIPPED: deleteSession
+  NEW REVIEW-SKIPPED: getActiveSession
+  NEW REVIEW-SKIPPED: saveCurrentSession
+  NEW REVIEW-SKIPPED: renderSessionList
+  NEW REVIEW-SKIPPED: routeAgent
+  NEW REVIEW-SKIPPED: callLLM
+  NEW REVIEW-SKIPPED: goPage
+  NEW REVIEW-SKIPPED: toggleTheme
+  NEW REVIEW-SKIPPED: addMsg
+  NEW REVIEW-SKIPPED: deleteMsg
+  NEW REVIEW-SKIPPED: recycleMsg
+  NEW REVIEW-SKIPPED: saveMsg
+  NEW REVIEW-SKIPPED: copyMsg
+  NEW REVIEW-SKIPPED: speakMsg
+  NEW REVIEW-SKIPPED: renderChatMessages
+  NEW REVIEW-SKIPPED: removeFile
+  NEW REVIEW-SKIPPED: renderFilePreview
+  NEW REVIEW-SKIPPED: stopMic
+  NEW REVIEW-SKIPPED: dtGetSession
+  NEW REVIEW-SKIPPED: dtLoadSession
+  NEW REVIEW-SKIPPED: dtDeleteSession
+  NEW REVIEW-SKIPPED: dtSaveSession
+  NEW REVIEW-SKIPPED: dtRenderSessions
+  NEW REVIEW-SKIPPED: dtAddMsg
+  NEW REVIEW-SKIPPED: dtDeleteMsg
+  NEW REVIEW-SKIPPED: dtRecycleMsg
+  NEW REVIEW-SKIPPED: dtSpeakMsg
+  NEW REVIEW-SKIPPED: dtRenderMsgs
+  NEW REVIEW-SKIPPED: dtRemoveFile
+  NEW REVIEW-SKIPPED: dtRenderFiles
+  NEW REVIEW-SKIPPED: renderNoiToggles
+  NEW REVIEW-SKIPPED: deleteAgent
+  NEW REVIEW-SKIPPED: loadKeys
+  NEW REVIEW-SKIPPED: loadPrefs
+  NEW REVIEW-SKIPPED: updateMemory
+  NEW REVIEW-SKIPPED: renderMemory
+  NEW REVIEW-SKIPPED: refreshDash
+  NEW REVIEW-SKIPPED: renderResearchHistory
+  NEW REVIEW-SKIPPED: renderDocs
+  NEW REVIEW-SKIPPED: viewDoc
+  NEW REVIEW-SKIPPED: delDoc
+  NEW REVIEW-SKIPPED: analyzeDoc
+  NEW REVIEW-SKIPPED: populateTTSVoices
+  NEW REVIEW-SKIPPED: trackActivity
+  NEW REVIEW-SKIPPED: refreshAnalytics
+  NEW REVIEW-SKIPPED: renderCalendar
+  NEW REVIEW-SKIPPED: delCalEvent
+  NEW REVIEW-SKIPPED: deriveVaultKey
+  NEW REVIEW-SKIPPED: encryptVault
+  NEW REVIEW-SKIPPED: decryptVault
+  NEW REVIEW-SKIPPED: saveVault
+  NEW REVIEW-SKIPPED: exportSession
+  NEW REVIEW-SKIPPED: showTaxForm
+  NEW REVIEW-SKIPPED: speak
+  NEW REVIEW-SKIPPED: speakAgent
+  NEW REVIEW-SKIPPED: toggleTTS
+  NEW REVIEW-SKIPPED: toggleSTT
+  NEW REVIEW-SKIPPED: eeonLegacySendChat
+  NEW REVIEW-SKIPPED: buildSystemPrompt
+  NEW REVIEW-SKIPPED: eeonSetAgent
+  NEW REVIEW-SKIPPED: showSection
+  NEW REVIEW-SKIPPED: generateJournalDocument
+  NEW REVIEW-SKIPPED: pushJournalToGAAP
+  NEW REVIEW-SKIPPED: _chipStyle
+  NEW REVIEW-SKIPPED: _safeKeys
+  NEW REVIEW-SKIPPED: _keys
+  NEW REVIEW-SKIPPED: _getKey
+  NEW REVIEW-SKIPPED: _getUrl
+  NEW REVIEW-SKIPPED: _getCLToken
+  NEW REVIEW-SKIPPED: courtListenerSearch
+  NEW REVIEW-SKIPPED: openClawSearch
+  NEW REVIEW-SKIPPED: statutesSearch
+  NEW REVIEW-SKIPPED: searchCaseLaw
+  NEW REVIEW-SKIPPED: _getToken
+  NEW REVIEW-SKIPPED: runActor
+  NEW REVIEW-SKIPPED: googleSearch
+  NEW REVIEW-SKIPPED: scrapeUrl
+  NEW REVIEW-SKIPPED: testOpenClawConnection
+  NEW REVIEW-SKIPPED: testApifyConnection
+  NEW REVIEW-SKIPPED: _mkTaskCard
+  NEW REVIEW-SKIPPED: refineCode
+  NEW REVIEW-SKIPPED: _isRelevant
+  NEW REVIEW-SKIPPED: _fetchRegistry
+  NEW REVIEW-SKIPPED: discover
+  NEW REVIEW-SKIPPED: integrateAPI
+  NEW REVIEW-SKIPPED: integrateAll
+  NEW REVIEW-SKIPPED: clearIntegrated
+  NEW REVIEW-SKIPPED: getDiscovered
+  NEW REVIEW-SKIPPED: getIntegrated
+  NEW REVIEW-SKIPPED: _renderScoutCards
+  NEW REVIEW-SKIPPED: _lk
+  NEW REVIEW-SKIPPED: _ak
+  NEW REVIEW-SKIPPED: _ld
+  NEW REVIEW-SKIPPED: _sv
+  NEW REVIEW-SKIPPED: _init
+  NEW REVIEW-SKIPPED: _getSess
+  NEW REVIEW-SKIPPED: _persist
+  NEW REVIEW-SKIPPED: _newChat
+  NEW REVIEW-SKIPPED: _loadSess
+  NEW REVIEW-SKIPPED: _delSess
+  NEW REVIEW-SKIPPED: _renderSL
+  NEW REVIEW-SKIPPED: _renderMsgs
+  NEW REVIEW-SKIPPED: _send
+  NEW REVIEW-SKIPPED: _callLLM
+  NEW REVIEW-SKIPPED: _toggleSTT
+  NEW REVIEW-SKIPPED: _speakLast
+  NEW REVIEW-SKIPPED: _printConv
+  NEW REVIEW-SKIPPED: _exportPDF
+  NEW REVIEW-SKIPPED: _exportWord
+  NEW REVIEW-SKIPPED: _shareLink
+  NEW REVIEW-SKIPPED: _importShare
+  NEW REVIEW-SKIPPED: _esc
+  NEW (added): setField
   SAFE [changed] loadFromStorage
   REVIEW [changed] exportToWord
     Deps not found anywhere: saveAs
   REVIEW [changed] exportAllData
     Deps not found anywhere: saveAs, jsPDF
   SAFE [changed] previewData
-  SAFE [changed] showAlert
   REVIEW [changed] switchMainTab
     Deps not found anywhere: updateSPVDashboard, updateSPVReports
   SAFE [changed] selectFilingType
@@ -584,7 +585,6 @@ TMAR Parity Sync — 2026-06-02T07:13:50.121Z
   REVIEW [changed] exportCSV
     Deps not found anywhere: saveAs
   SAFE [changed] addSubsidiary
-  SAFE [changed] calculate1120
   SAFE [changed] saveFiling
   SAFE [changed] exportFiling
   SAFE [changed] updateFilingsList
@@ -702,46 +702,43 @@ TMAR Parity Sync — 2026-06-02T07:13:50.121Z
     Deps in source (pullable with --resolve): reviewMyBooks, verifyAndReconcile, sendGaapAgentQuery
     DOM IDs not in TMAR: gaap-agent-input
   REVIEW [new] sendGaapAgentQuery
-    Deps not found anywhere: n
     Deps in source (pullable with --resolve): sendGaapAgentQuery
     DOM IDs not in TMAR: gaap-agent-input, gaap-agent-response
     window.X refs not in TMAR: _gaapApiKey
 
   --resolve: pulling 20 dep(s): spvHideForm, spvTypeLabel, sendGaapAgentQuery, verifyAndReconcile, showVerificationReport, autoValidateOnSave, confirmAccuracy, speakReport, speakText, updateCategoryInfo, advanceR3Status, spvShowForm, spvApplyFilters, spvResetFilters, saveUKSettings, generateUKComplianceReport, generateUKStatement, printUKStatement, clearGaapAgentChat, reviewMyBooks
-  GAAP.html — Changed: 71  New: 20  Skip: 0
+  GAAP.html — Changed: 69  New: 20  Skip: 0
   CHANGED (applied): loadFromStorage
-  CHANGED (applied): exportToWord
-  CHANGED (applied): exportAllData
+  CHANGED REVIEW-SKIPPED: exportToWord
+  CHANGED REVIEW-SKIPPED: exportAllData
   CHANGED (applied): previewData
-  CHANGED (applied): showAlert
-  CHANGED (applied): switchMainTab
+  CHANGED REVIEW-SKIPPED: switchMainTab
   CHANGED (applied): selectFilingType
   CHANGED (applied): loadEntries
   CHANGED (applied): deleteEntry
-  CHANGED (applied): saveLedger
-  CHANGED (applied): exportCSV
+  CHANGED REVIEW-SKIPPED: saveLedger
+  CHANGED REVIEW-SKIPPED: exportCSV
   CHANGED (applied): addSubsidiary
-  CHANGED (applied): calculate1120
   CHANGED (applied): saveFiling
   CHANGED (applied): exportFiling
   CHANGED (applied): updateFilingsList
   CHANGED (applied): loadFiling
-  CHANGED (applied): updateReports
+  CHANGED REVIEW-SKIPPED: updateReports
   CHANGED (applied): showEntityModal
   CHANGED (applied): saveEntity
   CHANGED (applied): deleteEntity
   CHANGED (applied): updateEntitiesTable
-  CHANGED (applied): updateARTable
+  CHANGED REVIEW-SKIPPED: updateARTable
   CHANGED (applied): getAging
-  CHANGED (applied): updateAPTable
+  CHANGED REVIEW-SKIPPED: updateAPTable
   CHANGED (applied): spvSave
-  CHANGED (applied): spvSaveEntry
+  CHANGED REVIEW-SKIPPED: spvSaveEntry
   CHANGED (applied): spvDeleteEntry
-  CHANGED (applied): spvRenderLedger
-  CHANGED (applied): spvUpdateDashboard
+  CHANGED REVIEW-SKIPPED: spvRenderLedger
+  CHANGED REVIEW-SKIPPED: spvUpdateDashboard
   CHANGED (applied): generateSPVTrialBalance
-  CHANGED (applied): generateSPVAssetSummary
-  CHANGED (applied): spvExportCSV
+  CHANGED REVIEW-SKIPPED: generateSPVAssetSummary
+  CHANGED REVIEW-SKIPPED: spvExportCSV
   CHANGED (applied): spvExportJSON
   CHANGED (applied): initInvoicing
   CHANGED (applied): saveInvoice
@@ -779,26 +776,26 @@ TMAR Parity Sync — 2026-06-02T07:13:50.121Z
   CHANGED (applied): saveReconciliation
   CHANGED (applied): deleteRecon
   CHANGED (applied): generateMasterReport
-  CHANGED (applied): gaapAgentQ
-  NEW (added): verifyAndReconcile
-  NEW (added): showVerificationReport
-  NEW (added): autoValidateOnSave
-  NEW (added): confirmAccuracy
-  NEW (added): speakReport
-  NEW (added): speakText
-  NEW (added): updateCategoryInfo
-  NEW (added): advanceR3Status
-  NEW (added): spvTypeLabel
-  NEW (added): spvShowForm
-  NEW (added): spvHideForm
-  NEW (added): spvApplyFilters
-  NEW (added): spvResetFilters
-  NEW (added): saveUKSettings
-  NEW (added): generateUKComplianceReport
-  NEW (added): generateUKStatement
-  NEW (added): printUKStatement
-  NEW (added): clearGaapAgentChat
-  NEW (added): reviewMyBooks
-  NEW (added): sendGaapAgentQuery
+  CHANGED REVIEW-SKIPPED: gaapAgentQ
+  NEW REVIEW-SKIPPED: verifyAndReconcile
+  NEW REVIEW-SKIPPED: showVerificationReport
+  NEW REVIEW-SKIPPED: autoValidateOnSave
+  NEW REVIEW-SKIPPED: confirmAccuracy
+  NEW REVIEW-SKIPPED: speakReport
+  NEW REVIEW-SKIPPED: speakText
+  NEW REVIEW-SKIPPED: updateCategoryInfo
+  NEW REVIEW-SKIPPED: advanceR3Status
+  NEW REVIEW-SKIPPED: spvTypeLabel
+  NEW REVIEW-SKIPPED: spvShowForm
+  NEW REVIEW-SKIPPED: spvHideForm
+  NEW REVIEW-SKIPPED: spvApplyFilters
+  NEW REVIEW-SKIPPED: spvResetFilters
+  NEW REVIEW-SKIPPED: saveUKSettings
+  NEW REVIEW-SKIPPED: generateUKComplianceReport
+  NEW REVIEW-SKIPPED: generateUKStatement
+  NEW REVIEW-SKIPPED: printUKStatement
+  NEW REVIEW-SKIPPED: clearGaapAgentChat
+  NEW REVIEW-SKIPPED: reviewMyBooks
+  NEW REVIEW-SKIPPED: sendGaapAgentQuery
 
-Applied 284 change(s)
+Applied 100 change(s)

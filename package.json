@@ -12,8 +12,8 @@
     "dev": "node --watch src/index.js",
     "inspect:catalog": "node scripts/tmar-inspector/catalog-functions.mjs",
     "parity:check": "node scripts/parity-sync.mjs --compat",
-    "parity:sync": "node scripts/parity-sync.mjs --compat --resolve --apply",
-    "parity:sync:all": "node scripts/parity-sync.mjs --compat --resolve --apply --yes"
+    "parity:sync": "node scripts/parity-sync.mjs --compat --resolve --apply --yes",
+    "parity:sync:full": "node scripts/parity-sync.mjs --compat --resolve --apply --yes --include-review"
   },
   "keywords": [
     "financial",

@@ -1,18 +1,18 @@
 {
-  "lastChecked": "2026-06-02T07:13:51.865Z",
+  "lastChecked": "2026-06-02T07:41:24.713Z",
   "driftDetected": false,
   "sources": {
     "Agent.html": {
       "hash": "156f3ba8e721fc8bd3a713abc82cbfd63f265ffae99419fc7f1e08f45438d86e",
       "tabCount": 0,
       "version": "v7.2",
-      "checkedAt": "2026-06-02T07:13:51.302Z"
+      "checkedAt": "2026-06-02T07:41:24.210Z"
     },
     "GAAP.html": {
       "hash": "5fd8bcfa5cf321364acc8d244c58e5e7e6922d6c67833d117586da087d252994",
       "tabCount": 0,
       "version": "unknown",
-      "checkedAt": "2026-06-02T07:13:51.860Z"
+      "checkedAt": "2026-06-02T07:41:24.710Z"
     }
   },
   "driftSummary": ""

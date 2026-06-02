@@ -152,9 +152,10 @@ const PROTECTED = new Set([
 
 const args     = process.argv.slice(2);
 const APPLY    = args.includes('--apply');
-const YES_ALL  = args.includes('--yes');
-const COMPAT   = args.includes('--compat') || APPLY; // always run compat before apply
-const RESOLVE  = args.includes('--resolve');
+const YES_ALL        = args.includes('--yes');
+const COMPAT         = args.includes('--compat') || APPLY;
+const RESOLVE        = args.includes('--resolve');
+const INCLUDE_REVIEW = args.includes('--include-review'); // apply REVIEW fns (default: skip)
 const _fnIdx   = args.indexOf('--fn');
 const _srcIdx  = args.indexOf('--source');
 const ONLY_FN  = _fnIdx  >= 0 ? (args[_fnIdx  + 1] ?? null) : null;
@@ -246,11 +247,18 @@ function scanToMatchingBrace(src, startIdx) {
 }
 
 /**
- * Extract all named function definitions.
+ * Extract all named function definitions — both declarations and expressions.
+ * Detects:
+ *   function name(          ← declaration
+ *   async function name(    ← async declaration
+ *   const/let/var name = (async)? function(   ← expression
+ *   const/let/var name = (async)? (...) =>    ← arrow function
  * Returns Map<name, { body, hash, startIdx, endIdx }>
  */
 function extractFunctions(src) {
   const results = new Map();
+
+  // Pattern 1: function declarations
   const fnPat = /(?:async\s+)?function\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*\(/g;
   let m;
   while ((m = fnPat.exec(src)) !== null) {
@@ -263,6 +271,31 @@ function extractFunctions(src) {
     const body = src.slice(m.index, endIdx);
     results.set(name, { body, hash: sha256short(body), startIdx: m.index, endIdx });
   }
+
+  // Pattern 2: function expressions  (const name = function / async function)
+  const exprPat = /(?:const|let|var)\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*(?:async\s+)?function\s*\(/g;
+  while ((m = exprPat.exec(src)) !== null) {
+    const name = m[1];
+    if (results.has(name)) continue;
+    const braceIdx = src.indexOf('{', m.index + m[0].length);
+    if (braceIdx === -1) continue;
+    const endIdx = scanToMatchingBrace(src, braceIdx);
+    if (endIdx === -1) continue;
+    results.set(name, { body: src.slice(m.index, endIdx), hash: sha256short(src.slice(m.index, endIdx)), startIdx: m.index, endIdx });
+  }
+
+  // Pattern 3: arrow functions  (const name = (async)? (...) => {)
+  const arrowPat = /(?:const|let|var)\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*(?:async\s+)?(?:\([^)]*\)|[A-Za-z_$][A-Za-z0-9_$]*)\s*=>\s*\{/g;
+  while ((m = arrowPat.exec(src)) !== null) {
+    const name = m[1];
+    if (results.has(name)) continue;
+    const braceIdx = src.lastIndexOf('{', m.index + m[0].length);
+    if (braceIdx === -1) continue;
+    const endIdx = scanToMatchingBrace(src, braceIdx);
+    if (endIdx === -1) continue;
+    results.set(name, { body: src.slice(m.index, endIdx), hash: sha256short(src.slice(m.index, endIdx)), startIdx: m.index, endIdx });
+  }
+
   return results;
 }
 
@@ -494,12 +527,13 @@ async function main() {
   }
 
   const flags = [
-    APPLY   && 'apply',
-    YES_ALL && 'yes (no prompts)',
-    COMPAT  && 'compat',
-    RESOLVE && 'resolve deps',
-    ONLY_FN  && `fn=${ONLY_FN}`,
-    ONLY_SRC && `source=${ONLY_SRC}`,
+    APPLY          && 'apply',
+    YES_ALL        && 'yes (no prompts)',
+    COMPAT         && 'compat',
+    RESOLVE        && 'resolve deps',
+    INCLUDE_REVIEW && 'include-review',
+    ONLY_FN        && `fn=${ONLY_FN}`,
+    ONLY_SRC       && `source=${ONLY_SRC}`,
   ].filter(Boolean);
   if (flags.length) console.log(`Flags: ${flags.join('  •  ')}\n`);
 
@@ -647,6 +681,14 @@ async function main() {
           continue;
         }
 
+        // Without --include-review, skip REVIEW functions — they likely have DOM/window
+        // dependencies that differ between source and TMAR HTML structure.
+        if (compat.status === 'REVIEW' && !INCLUDE_REVIEW) {
+          console.log(`     🟡 REVIEW ~ ${c.name}  (skipped — use --include-review to apply)`);
+          reportLines.push(`  CHANGED REVIEW-SKIPPED: ${c.name}`);
+          continue;
+        }
+
         let apply = YES_ALL;
         if (!apply && rl) {
           const reviewNote = compat.status === 'REVIEW' ? ' [REVIEW — see warnings]' : '';
@@ -687,8 +729,16 @@ async function main() {
           continue;
         }
 
+        // Skip REVIEW new functions unless --include-review (they may shadow TMAR functions
+        // defined as expressions/arrows that extractFunctions might not have detected)
+        if (compat.status === 'REVIEW' && !INCLUDE_REVIEW && !a.resolvedDep) {
+          console.log(`     🟡 REVIEW + ${a.name}  (skipped — use --include-review to add)`);
+          reportLines.push(`  NEW REVIEW-SKIPPED: ${a.name}`);
+          continue;
+        }
+
         const depTag = a.resolvedDep ? ' [auto-resolved dep]' : '';
-        let apply = YES_ALL || a.resolvedDep; // resolved deps applied silently
+        let apply = YES_ALL || a.resolvedDep;
         if (!apply && rl) {
           const ans = await rl.question(`     ${statusLabel(compat.status)} + ${a.name}${depTag} add? [y/N] `);
           apply = ans.trim().toLowerCase() === 'y';
