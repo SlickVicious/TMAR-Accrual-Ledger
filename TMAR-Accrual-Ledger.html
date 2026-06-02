@@ -36312,6 +36312,13 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <div class="card-body" id="llmStatus">Configure your API keys in <b>API Keys</b> to get started.</div>
 </div>
 <div class="card">
+<div class="card-head" style="display:flex;align-items:center;justify-content:space-between">
+  <span>🩺 System Health</span>
+  <button class="btn btn-sm" onclick="renderHealthMonitor()" title="Re-run all subsystem checks">↻ Re-check</button>
+</div>
+<div class="card-body" id="healthMonitor" style="font-size:13px">Running checks…</div>
+</div>
+<div class="card">
 <div class="card-head">Quick Start</div>
 <div class="card-body" style="font-size:13px;line-height:1.8;color:var(--text2)">
 1. Go to <b>API Keys</b> - select <b>Ollama (Local)</b> for free local AI, or enter a cloud provider key<br>
@@ -40668,6 +40675,8 @@ function _hubAgentsForUI() {
 }
 // Render agents grid
 function renderAgents() {
+    // Self-contained HTML escaper — do not depend on an outer-scope esc()
+    function esc(s) { var d = document.createElement('div'); d.textContent = (s == null ? '' : s); return d.innerHTML; }
     var hubHtml = '', customHtml = '';
     var hubAgents = _hubAgentsForUI();
 
@@ -42682,7 +42691,8 @@ function estimateTokens(text) {
     return Math.ceil(text.length / 3.8);
 }
 function truncateToTokenBudget(userMessage, systemPromptTokens) {
-    var pid = activeProvider || Object.keys(apiKeys)[0] || 'ollama';
+    var pid = 'ollama';
+    try { pid = localStorage.getItem('eeon_active_provider') || 'ollama'; } catch (e) {}
     var maxContext = PROVIDER_LIMITS[pid] || 128000;
     var completionReserve = 4096;
     var safetyMargin = 500;
@@ -51191,6 +51201,105 @@ function updateDashboard() {
       statusEl.innerHTML = 'No API keys configured. Go to <b>API Keys</b> to get started.';
     }
   }
+  try { renderHealthMonitor(); } catch (e) {}
+}
+
+// ── SYSTEM HEALTH MONITOR ─────────────────────────────────────
+// Live self-test of critical subsystems. Each check runs a real probe in a
+// try/catch and reports ok/warn/fail, so the "X is not defined" regressions
+// that parity-sync periodically reintroduces surface HERE on the dashboard
+// instead of as a frozen agent window. See lines ~43144 for prior incidents.
+function runHealthCheck() {
+  var checks = [];
+  function add(label, status, detail) { checks.push({ label: label, status: status, detail: detail || '' }); }
+  function fn(name) { return typeof window[name] === 'function'; }
+
+  // 1. Critical functions present
+  var coreFns = ['callLLMStream','resolveProvider','buildFullSystemPrompt','truncateToTokenBudget',
+                 'renderAgents','askAgent','updateDashboard','goEonPage'];
+  var missingFns = coreFns.filter(function(n){ return !fn(n); });
+  add('Core functions', missingFns.length ? 'fail' : 'ok',
+      missingFns.length ? 'Missing: ' + missingFns.join(', ') : coreFns.length + ' present');
+
+  // 2. Agent registry populated
+  try {
+    var agentCount = (typeof AGENTS !== 'undefined' && AGENTS && !Array.isArray(AGENTS))
+      ? Object.keys(AGENTS).length : (Array.isArray(AGENTS) ? AGENTS.length : 0);
+    add('Agent registry', agentCount > 0 ? 'ok' : 'fail', agentCount + ' hub agents');
+  } catch (e) { add('Agent registry', 'fail', e.message); }
+
+  // 3. renderAgents smoke test — actually invoke it (catches esc/scope regressions)
+  try {
+    if (fn('renderAgents')) { renderAgents(); add('renderAgents()', 'ok', 'renders without error'); }
+    else add('renderAgents()', 'fail', 'not defined');
+  } catch (e) { add('renderAgents()', 'fail', e.message); }
+
+  // 4. SYPHER gate tokens in the actual built prompt (catches frozen-agent regression)
+  try {
+    var p = fn('buildFullSystemPrompt') ? String(buildFullSystemPrompt('')) : '';
+    var hasGate = p.indexOf('SYPHER PROTOCOL') !== -1 && p.indexOf('PRESUMPTION KILLER') !== -1;
+    add('SYPHER gate', hasGate ? 'ok' : 'fail',
+        hasGate ? 'tokens present' : 'GATE TOKENS MISSING — agents will freeze');
+  } catch (e) { add('SYPHER gate', 'fail', 'buildFullSystemPrompt threw: ' + e.message); }
+
+  // 5. HARD_LOCK integrity
+  try {
+    var hl = (typeof HARD_LOCK !== 'undefined');
+    add('HARD_LOCK', (hl && HARD_LOCK.enforced === true) ? 'ok' : 'fail',
+        hl ? ('enforced=' + HARD_LOCK.enforced) : 'not defined');
+  } catch (e) { add('HARD_LOCK', 'fail', e.message); }
+
+  // 6. LLM provider configured
+  try {
+    var prov = localStorage.getItem('eeon_active_provider') || '(none)';
+    var resolved = fn('resolveProvider') ? resolveProvider() : null;
+    if (prov === 'ollama' || prov === 'custom') add('LLM provider', 'ok', prov + ' (local/custom)');
+    else if (resolved && resolved.key) add('LLM provider', 'ok', prov + ' — key set');
+    else add('LLM provider', 'warn', prov + ' — no API key (set in API Keys)');
+  } catch (e) { add('LLM provider', 'warn', e.message); }
+
+  // 7. CORS proxy (required for cloud providers on GitHub Pages)
+  try {
+    var proxy = localStorage.getItem('eeon_cors_proxy') || '';
+    add('CORS proxy', proxy ? 'ok' : 'warn', proxy || 'not set (required for cloud LLMs)');
+  } catch (e) { add('CORS proxy', 'warn', e.message); }
+
+  // 8. Memory engine
+  var mem = (typeof GCMemory !== 'undefined' ? 'GCMemory' : '') +
+            (typeof MEM0 !== 'undefined' ? (typeof GCMemory !== 'undefined' ? ' / MEM0' : 'MEM0') : '');
+  add('Memory engine', mem ? 'ok' : 'warn', mem || 'not loaded');
+
+  // 9. appData persistence
+  try {
+    var ad = localStorage.getItem('appData');
+    if (!ad) add('appData store', 'warn', 'empty (nothing saved yet)');
+    else { JSON.parse(ad); add('appData store', 'ok', Math.round(ad.length / 1024) + ' KB'); }
+  } catch (e) { add('appData store', 'fail', 'corrupt JSON: ' + e.message); }
+
+  return checks;
+}
+
+function renderHealthMonitor() {
+  var el = document.getElementById('healthMonitor');
+  if (!el) return;
+  var checks;
+  try { checks = runHealthCheck(); }
+  catch (e) { el.innerHTML = '<span style="color:#ef4444">Health check crashed: ' + (e.message || e) + '</span>'; return; }
+  var fails = checks.filter(function(c){ return c.status === 'fail'; }).length;
+  var warns = checks.filter(function(c){ return c.status === 'warn'; }).length;
+  var icon  = { ok:'✅', warn:'⚠️', fail:'❌' };
+  var color = { ok:'#22c55e', warn:'#f59e0b', fail:'#ef4444' };
+  var banner = fails ? '<div style="color:#ef4444;font-weight:700;margin-bottom:8px">❌ ' + fails + ' subsystem(s) failing — agents may be broken</div>'
+             : warns ? '<div style="color:#f59e0b;font-weight:700;margin-bottom:8px">⚠️ ' + warns + ' warning(s) — core systems OK</div>'
+             : '<div style="color:#22c55e;font-weight:700;margin-bottom:8px">✅ All systems operational</div>';
+  var rows = checks.map(function(c){
+    return '<div style="display:flex;align-items:flex-start;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)">' +
+      '<span>' + icon[c.status] + '</span>' +
+      '<span style="min-width:130px;font-weight:600">' + c.label + '</span>' +
+      '<span style="color:' + color[c.status] + ';opacity:.95">' + c.detail + '</span></div>';
+  }).join('');
+  el.innerHTML = banner + rows +
+    '<div style="margin-top:8px;font-size:11px;color:var(--text2);opacity:.6">Last checked: ' + new Date().toLocaleTimeString() + '</div>';
 }
 
 // ── CREATE AGENT ──────────────────────────────────────────────
