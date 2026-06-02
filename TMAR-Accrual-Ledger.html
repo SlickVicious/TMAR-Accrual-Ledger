@@ -40521,21 +40521,53 @@ function initEonPage(page) {
 
 // Render agents grid
 function renderAgents() {
-    var all = Object.assign({}, AGENTS, customAgents);
-    var html = '';
-    for (var aid in all) {
-        var a = all[aid];
-        html += '<div class="agent-card' + (a.color === '#f5a623' ? ' legal' : '') + '">' +
-            '<div style="font-size:24px;margin-bottom:6px">' + (a.icon||'🤖') + '</div>' +
-            '<div style="font-weight:600;margin-bottom:3px">' + esc(a.name) + '</div>' +
-            '<div style="font-size:12px;color:var(--text2);margin-bottom:8px">' + esc(a.role) + '</div>' +
-            '<div style="display:flex;gap:4px;flex-wrap:wrap">';
-        (a.keywords || []).slice(0,6).forEach(function(k) { html += '<span class="badge badge-warn" style="font-size:10px">' + esc(k) + '</span>'; });
-        html += '</div>';
-        if (customAgents[aid]) html += '<button class="btn btn-sm" style="margin-top:8px" onclick="deleteAgent(\'' + aid + '\')">🗑 Delete</button>';
-        html += '</div>';
+    var hubHtml = '', customHtml = '';
+
+    // Hub agents — AGENTS is an array of {id, label} routing entries
+    if (Array.isArray(AGENTS)) {
+        for (var i = 0; i < AGENTS.length; i++) {
+            var a = AGENTS[i];
+            var label = a.label || a.id || '';
+            // Split leading emoji from label text
+            var parts = label.match(/^([\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}⚖💰📄🔍📋✍✒🏛⚡🔒🏗🧩🌐📊🔧🛡🎨💡🔑📱🌍📈📉🤖⚙️🗂🗃🖋]+)\s*(.*)/su);
+            var icon = parts ? parts[1].trim() : '🤖';
+            var name = parts ? parts[2].trim() : label;
+            hubHtml += '<div class="agent-card" style="cursor:pointer" onclick="setHubAgent(\'' + esc(a.id) + '\')" title="Open in Chat">' +
+                '<div style="font-size:22px;margin-bottom:5px">' + icon + '</div>' +
+                '<div style="font-weight:600;font-size:13px;margin-bottom:3px">' + esc(name) + '</div>' +
+                '<div style="font-size:10px;color:var(--text2);opacity:0.6">Hub Agent — click to chat</div>' +
+                '</div>';
+        }
     }
-    document.getElementById('agentsGrid').innerHTML = html;
+
+    // Custom agents — full {name, role, icon, keywords} objects from localStorage
+    for (var cid in customAgents) {
+        var ca = customAgents[cid];
+        if (!ca || typeof ca !== 'object') continue;
+        customHtml += '<div class="agent-card' + (ca.color === '#f5a623' ? ' legal' : '') + '">' +
+            '<div style="font-size:24px;margin-bottom:6px">' + (ca.icon || '🤖') + '</div>' +
+            '<div style="font-weight:600;margin-bottom:3px">' + esc(ca.name || cid) + '</div>' +
+            '<div style="font-size:12px;color:var(--text2);margin-bottom:8px">' + esc(ca.role || '') + '</div>' +
+            '<div style="display:flex;gap:4px;flex-wrap:wrap">';
+        (ca.keywords || []).slice(0, 6).forEach(function(k) { customHtml += '<span class="badge badge-warn" style="font-size:10px">' + esc(k) + '</span>'; });
+        customHtml += '</div><button class="btn btn-sm" style="margin-top:8px" onclick="deleteAgent(\'' + cid + '\')">&#x1F5D1; Delete</button></div>';
+    }
+
+    var out = '';
+    if (hubHtml) out += '<div style="font-size:10px;color:var(--text2);margin-bottom:8px;opacity:0.6;text-transform:uppercase;letter-spacing:.06em;font-weight:600">Hub Agents (' + AGENTS.length + ')</div>' +
+        '<div class="agents-grid" style="margin-bottom:20px">' + hubHtml + '</div>';
+    if (customHtml) out += '<div style="font-size:10px;color:var(--text2);margin-bottom:8px;opacity:0.6;text-transform:uppercase;letter-spacing:.06em;font-weight:600">Custom Agents</div>' +
+        '<div class="agents-grid">' + customHtml + '</div>';
+    if (!out) out = '<div style="color:var(--text2);text-align:center;padding:40px;font-size:14px">No agents configured.<br><span style="opacity:0.6;font-size:12px">Create custom agents above, or check AGENTS array.</span></div>';
+
+    document.getElementById('agentsGrid').innerHTML = out;
+}
+
+// Navigate to chat with a hub agent pre-selected
+function setHubAgent(agentId) {
+    goEonPage(null, 'chat');
+    var sel = document.getElementById('agentSelect') || document.getElementById('hubAgentSelect');
+    if (sel) { sel.value = agentId; if (sel.onchange) sel.onchange(); }
 }
 
 function openCustomAgent(id) {
