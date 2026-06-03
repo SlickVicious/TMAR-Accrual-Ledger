@@ -13065,14 +13065,14 @@ function exportFilingPDF(formType, data) {
         </div>
         <div id="trust-api-key-bar" style="margin-bottom:10px;display:flex;gap:6px;align-items:center">
           <input id="trust-api-key-input" type="password" placeholder="Anthropic API Key (sk-ant-...)" style="flex:1;padding:6px 10px;background:rgba(0,0,0,.3);color:#f1f5f9;border:1px solid rgba(16,185,129,.2);border-radius:6px;font-size:11px;font-family:monospace" value="">
-          <button onclick="var k=document.getElementById('trust-api-key-input').value.trim();if(k){window._trustApiKey=k;localStorage.setItem('TMAR_trustApiKey',k);this.textContent='✅ Saved';this.style.color='#10b981';setTimeout(function(){document.querySelector('#trust-api-key-bar button').textContent='🔑 Set';document.querySelector('#trust-api-key-bar button').style.color='#94a3b8'},2000)}else{alert('Enter an API key first')}" style="padding:6px 12px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:6px;color:#94a3b8;cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap">🔑 Set</button>
+          <button onclick="var k=document.getElementById('trust-api-key-input').value.trim();if(k){window._trustApiKey=k;localStorage.setItem('TMAR_trustApiKey',k);this.textContent='✅ Saved';this.style.color='#10b981';setTimeout(function(){document.querySelector('#trust-api-key-bar button').textContent='🔑 Set';document.querySelector('#trust-api-key-bar button').style.color='#94a3b8'},2000)}else{alert('Enter an API key first')}" style="padding:6px 12px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:6px;color:#94a3b8;cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap" data-guide="Saves this Anthropic key for the Trust Accounting Agent only (stored locally as TMAR_trustApiKey). The key is sent solely to the LLM provider through the CORS proxy — never committed or logged.">🔑 Set</button>
         </div>
         <script>
           (function(){var k=localStorage.getItem('TMAR_trustApiKey');if(k){window._trustApiKey=k;var inp=document.getElementById('trust-api-key-input');if(inp)inp.value=k;}})();
         </script>
-        <textarea id="tmar-trust-input" placeholder="Ask any trust accounting, GAAP / ASC / IRC question — journal entries, form placement, asset classification, valuation, event sequencing, or rebuttal of any accounting presumption..." style="width:100%;min-height:90px;background:rgba(0,0,0,.3);color:#f1f5f9;border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:10px;font-size:13px;font-family:'SF Mono','Cascadia Code',monospace;resize:vertical;box-sizing:border-box"></textarea>
+        <textarea id="tmar-trust-input" placeholder="Ask any trust accounting, GAAP / ASC / IRC question — journal entries, form placement, asset classification, valuation, event sequencing, or rebuttal of any accounting presumption..." style="width:100%;min-height:90px;background:rgba(0,0,0,.3);color:#f1f5f9;border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:10px;font-size:13px;font-family:'SF Mono','Cascadia Code',monospace;resize:vertical;box-sizing:border-box" data-guide="Trust Accounting Agent query box. Ask about journal entries, GAAP/ASC/IRC form placement, asset classification, valuation, accrual event sequencing, or presumption rebuttal. Returns facts and conclusions of law only."></textarea>
         <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
-          <button onclick="sendTrustAgentQuery()" style="background:#10b981;color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px">⚖️ Submit to Trust Agent</button>
+          <button onclick="sendTrustAgentQuery()" style="background:#10b981;color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px" data-guide="Submit your question to the Trust Accounting Agent. Streams a GAAP/ASC/IRC-grounded answer through the SYPHER protocol gate. Requires an Anthropic key set above or in Settings → API Keys.">⚖️ Submit to Trust Agent</button>
           <button onclick="clearTrustAgentChat()" style="background:rgba(255,255,255,.08);color:#94a3b8;border:1px solid rgba(255,255,255,.1);padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">Clear</button>
         </div>
         <div id="tmar-trust-response" style="margin-top:16px;min-height:40px;font-size:13px;color:#94a3b8;line-height:1.7">
@@ -13121,13 +13121,13 @@ function exportFilingPDF(formType, data) {
       <div id="gaapAgentEntityBar" style="background:rgba(6,182,212,.06);border:1px solid rgba(6,182,212,.25);border-radius:8px;padding:10px 14px;margin-bottom:10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px">
         <span style="font-size:11px;color:#06b6d4;font-weight:700">ACTIVE ENTITY:</span>
         <span id="gaapAgentEntity" style="font-size:11px;color:#f59e0b;font-weight:600">None selected</span>
-        <button onclick="(function(){var n=localStorage.getItem('gaapclaw_entity');document.getElementById('gaapAgentEntity').textContent=n||'None selected';})()" style="padding:3px 10px;font-size:10px;background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.35);border-radius:5px;color:#06b6d4;cursor:pointer;font-weight:700">🔄 Sync Entity</button>
+        <button onclick="(function(){var n=localStorage.getItem('gaapclaw_entity');document.getElementById('gaapAgentEntity').textContent=n||'None selected';})()" style="padding:3px 10px;font-size:10px;background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.35);border-radius:5px;color:#06b6d4;cursor:pointer;font-weight:700" data-guide="Pulls the currently selected entity (gaapclaw_entity in local storage) into this chat so GAAPCLAW Master answers in that entity's context. Click after changing entities elsewhere.">🔄 Sync Entity</button>
         <button onclick="gaapAgentClear()" style="margin-left:auto;padding:3px 10px;font-size:10px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:5px;color:#ef4444;cursor:pointer">🗑 Clear Chat</button>
       </div>
 
-      <textarea id="gaapAgentInput" rows="3" placeholder="Ask any GAAP, IRC, IRS, or FASB ASC question across all entity types — corporations, nonprofits, partnerships, trusts, SPVs..." style="width:100%;padding:10px;background:rgba(0,0,0,.3);border:1px solid rgba(6,182,212,.35);border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" onkeydown="if(event.key==='Enter'&amp;&amp;!event.shiftKey){event.preventDefault();gaapAgentSend();}"></textarea>
+      <textarea id="gaapAgentInput" rows="3" placeholder="Ask any GAAP, IRC, IRS, or FASB ASC question across all entity types — corporations, nonprofits, partnerships, trusts, SPVs..." style="width:100%;padding:10px;background:rgba(0,0,0,.3);border:1px solid rgba(6,182,212,.35);border-radius:8px;color:var(--text,#e2e8f0);font-size:13px;font-family:inherit;resize:vertical;min-height:60px;box-sizing:border-box;margin-bottom:8px" data-guide="GAAPCLAW Master query box — general accounting AI across all entity types (C-corp, nonprofit, partnership, trust, SPV). Covers GAAP, IFRS, IRC, IRS, FASB ASC, and Treasury. Enter to send, Shift+Enter for a new line." onkeydown="if(event.key==='Enter'&amp;&amp;!event.shiftKey){event.preventDefault();gaapAgentSend();}"></textarea>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button onclick="gaapAgentSend()" style="padding:10px 24px;background:#06b6d4;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">⚖️ Submit to GAAPCLAW Master</button>
+        <button onclick="gaapAgentSend()" style="padding:10px 24px;background:#06b6d4;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer" data-guide="Submit your question to GAAPCLAW Master. Uses the active entity (shown above) for context and streams a facts-and-conclusions-of-law answer. Set an Anthropic key in Settings → API Keys first.">⚖️ Submit to GAAPCLAW Master</button>
         <button onclick="gaapAgentClear()" style="padding:10px 16px;background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:6px;font-size:12px;color:var(--text-secondary);cursor:pointer">Clear</button>
       </div>
     </div>
@@ -14351,13 +14351,13 @@ function exportFilingPDF(formType, data) {
       <!-- Entity Loader -->
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;padding:12px 16px;background:var(--bg-secondary);border:1px solid rgba(255,255,255,.1);border-radius:10px">
         <select id="irsEntitySelect" style="flex:1;min-width:200px;padding:8px;background:var(--bg-tertiary);border:1px solid rgba(16,185,129,.3);border-radius:6px;color:var(--text-primary);font-size:12px"><option>— Select saved entity —</option></select>
-        <button onclick="irsLoadEntity()" style="padding:8px 14px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.4);border-radius:6px;color:#10b981;font-size:12px;font-weight:700;cursor:pointer">📥 Load Data</button>
-        <button onclick="irsSaveEntity()" style="padding:8px 14px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.4);border-radius:6px;color:#3b82f6;font-size:12px;font-weight:700;cursor:pointer">💾 Save to Entity</button>
+        <button onclick="irsLoadEntity()" style="padding:8px 14px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.4);border-radius:6px;color:#10b981;font-size:12px;font-weight:700;cursor:pointer" data-guide="Pulls the selected saved entity's stored data into the form fields, auto-populating name, EIN, address, and ledger figures so you don't retype them.">📥 Load Data</button>
+        <button onclick="irsSaveEntity()" style="padding:8px 14px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.4);border-radius:6px;color:#3b82f6;font-size:12px;font-weight:700;cursor:pointer" data-guide="Saves the current form field values back to the selected entity profile so future forms reuse them. Stored locally in this browser.">💾 Save to Entity</button>
         <span id="irsEntityStatus" style="font-size:11px;color:var(--text-secondary)"></span>
       </div>
       <!-- Form Selector -->
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
-        <select id="irsFormSelect" onchange="irsLoadFormSchema()" style="flex:1;min-width:240px;padding:10px 14px;background:var(--bg-tertiary);border:1px solid rgba(16,185,129,.4);border-radius:8px;color:var(--text-primary);font-size:13px;font-weight:600">
+        <select id="irsFormSelect" onchange="irsLoadFormSchema()" data-guide="Pick an IRS form to load its fillable field schema below. Covers corporate (1120/1120-S), nonprofit (990 series), trust/estate (1041/706/709), partnership (1065/K-1), depreciation/credits, fiduciary authority (56/8821/2848), and correction forms." style="flex:1;min-width:240px;padding:10px 14px;background:var(--bg-tertiary);border:1px solid rgba(16,185,129,.4);border-radius:8px;color:var(--text-primary);font-size:13px;font-weight:600">
           <option value="">— Select IRS Form —</option>
           <optgroup label="Corporate Returns">
             <option value="1120">Form 1120 — U.S. Corporation Income Tax Return</option>
@@ -14430,9 +14430,9 @@ function exportFilingPDF(formType, data) {
       </div>
       <!-- Controls -->
       <div id="irsFormControls" style="display:flex;gap:8px;flex-wrap:wrap">
-        <button onclick="irsGeneratePDF()" style="padding:10px 20px;background:rgba(16,185,129,.2);border:2px solid rgba(16,185,129,.5);border-radius:8px;color:#10b981;font-weight:700;font-size:13px;cursor:pointer">📄 Generate IRS-Style PDF</button>
-        <button onclick="irsGeneratePacket()" style="padding:10px 20px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.4);border-radius:8px;color:#3b82f6;font-weight:700;font-size:13px;cursor:pointer">📦 Generate Filing Packet</button>
-        <button onclick="irsPrintForm()" style="padding:10px 20px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.4);border-radius:8px;color:#f59e0b;font-weight:700;font-size:13px;cursor:pointer">🖨️ Print Preview</button>
+        <button onclick="irsGeneratePDF()" style="padding:10px 20px;background:rgba(16,185,129,.2);border:2px solid rgba(16,185,129,.5);border-radius:8px;color:#10b981;font-weight:700;font-size:13px;cursor:pointer" data-guide="Renders the populated form fields into an IRS-style PDF (via jsPDF) and downloads it. Fill the fields above and load entity data first for auto-population.">📄 Generate IRS-Style PDF</button>
+        <button onclick="irsGeneratePacket()" style="padding:10px 20px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.4);border-radius:8px;color:#3b82f6;font-weight:700;font-size:13px;cursor:pointer" data-guide="Builds a multi-document filing packet (the selected form plus its required supporting forms/schedules) as a single combined PDF ready to file or mail.">📦 Generate Filing Packet</button>
+        <button onclick="irsPrintForm()" style="padding:10px 20px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.4);border-radius:8px;color:#f59e0b;font-weight:700;font-size:13px;cursor:pointer" data-guide="Opens a browser print preview of the current form with values filled in — use to print directly or save as PDF via the OS print dialog.">🖨️ Print Preview</button>
         <span id="irsFormStatus" style="font-size:12px;color:var(--text-secondary);align-self:center">Ready</span>
       </div>
     </div>
@@ -19230,8 +19230,8 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
             </div>
           </div>
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <input type="text" id="sync-gas-url" placeholder="GAS Web App URL (https://script.google.com/...)" value="" oninput="onGasUrlChange()" style="width:360px;padding:8px 12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:6px;color:var(--text-primary);font-size:12px;font-family:monospace">
-            <button onclick="testSyncConnection()" id="sync-test-btn" style="background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.5);color:#10b981;padding:8px 16px;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer">🔌 Test Connection</button>
+            <input type="text" id="sync-gas-url" placeholder="GAS Web App URL (https://script.google.com/...)" value="" oninput="onGasUrlChange()" style="width:360px;padding:8px 12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:6px;color:var(--text-primary);font-size:12px;font-family:monospace" data-guide="Paste your deployed Google Apps Script Web App /exec URL here. This is the bridge that pushes ledger data into the Master Register workbook. Saved locally; redeploy the GAS Web App if doGet/doPost changed.">
+            <button onclick="testSyncConnection()" id="sync-test-btn" style="background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.5);color:#10b981;padding:8px 16px;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer" data-guide="Pings the GAS Web App URL above to verify the bridge responds. Green status dot = connected and ready to sync; red = check the URL or redeploy the Web App.">🔌 Test Connection</button>
           </div>
         </div>
         <div id="sync-last-sync" style="font-size:11px;color:var(--text-secondary);margin-top:8px;opacity:0.6"></div>
@@ -19248,7 +19248,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
           <div style="font-size:11px;color:var(--text-secondary);margin-bottom:14px">Generate CSV files formatted for direct import into the TMAR Google Sheets workbook</div>
 
           <div style="display:flex;flex-direction:column;gap:8px">
-            <button onclick="exportEntitiesToMasterRegisterCSV()" class="sync-export-btn" style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left;width:100%;transition:all 0.2s">
+            <button onclick="exportEntitiesToMasterRegisterCSV()" class="sync-export-btn" data-guide="Exports your entities as a 35-column Master Register CSV (strict column order, EINs masked, account types mapped). Import this into the Master Register sheet, or push via the GAS bridge." style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left;width:100%;transition:all 0.2s">
               <span style="font-size:18px">🏢</span>
               <div>
                 <div style="font-weight:700;font-size:13px;color:var(--text-primary)">Entities → Master Register</div>
@@ -19257,7 +19257,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
               <span id="sync-export-entities-count" style="margin-left:auto;font-size:11px;color:var(--accent-cyan);font-weight:700"></span>
             </button>
 
-            <button onclick="exportLedgerToTransactionCSV()" class="sync-export-btn" style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left;width:100%;transition:all 0.2s">
+            <button onclick="exportLedgerToTransactionCSV()" class="sync-export-btn" data-guide="Exports ledger entries as a Transaction Ledger CSV matching the workbook's transaction schema (date, category-derived type, amount, account link). Use for the Transaction Ledger sheet." style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left;width:100%;transition:all 0.2s">
               <span style="font-size:18px">📒</span>
               <div>
                 <div style="font-weight:700;font-size:13px;color:var(--text-primary)">Ledger → Transaction Ledger</div>

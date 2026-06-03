@@ -25,14 +25,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "jspdf": "^2.5.1",
-    "html2canvas": "^1.4.1"
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.1"
   },
   "devDependencies": {
+    "@testing-library/dom": "^9.3.4",
+    "@testing-library/jest-dom": "^6.1.5",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
-    "@testing-library/dom": "^9.3.4",
-    "@testing-library/jest-dom": "^6.1.5"
+    "playwright": "^1.60.0"
   },
   "jest": {
     "testEnvironment": "jsdom",
