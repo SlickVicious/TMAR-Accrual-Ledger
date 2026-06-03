@@ -47216,7 +47216,9 @@ const AP = {
       this.newConv(page);
       data = this._load(page);
     }
-    data.sessions[data.current].messages.push({ role: 'user', content: text });
+    var _userMsg = { role: 'user', content: text };
+    if (userContent !== text) _userMsg.full = userContent;  // keep file/attachment content so later turns still see it
+    data.sessions[data.current].messages.push(_userMsg);
     if (data.sessions[data.current].messages.length === 1) {
       data.sessions[data.current].title = text.substring(0, 40) + (text.length > 40 ? '…' : '');
     }
@@ -47267,6 +47269,15 @@ const AP = {
         var memories = [];
         try { memories = (await MEM0.search(text, 4)) || []; } catch(e) {}
 
+        // Build conversation history so the agent remembers the whole thread (and any
+        // attached files retained via m.full). Previously only the current message was
+        // sent — the cause of the "forgets everything between turns" behavior.
+        var _hd = self._load(page);
+        var _hsess = _hd.sessions[convId];
+        var hist = (_hsess && _hsess.messages.length)
+          ? _hsess.messages.map(function(m) { return { role: m.role, content: (m.full || m.content) }; })
+          : [{ role: 'user', content: userContent }];
+
         var finalText = await callLLMStream(sysPrompt, userContent, memories, function(tok) {
           rawBuf += tok;
           if (streamDiv) {
@@ -47275,7 +47286,7 @@ const AP = {
               rawBuf.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
           }
           if (msgsEl) msgsEl.scrollTop = msgsEl.scrollHeight;
-        });
+        }, hist);
 
         var saved = finalText || rawBuf;
         if (streamDiv) {
@@ -47539,16 +47550,16 @@ const AP = {
   },
 
   clearConv: function(page) {
-    if (!confirm('Clear ALL conversations for this agent?\n\nThis permanently removes the chat history AND every saved conversation title in the left-hand list. This cannot be undone.')) return;
+    if (!confirm('Clear this conversation?')) return;
     var data = this._load(page);
-    // Wipe every session (this is what removes the titles from the sidebar list),
-    // not just the current conversation's messages. The send handler auto-creates
-    // a fresh session on the next message, so leaving sessions empty is safe.
-    data.sessions = {};
-    data.current = null;
-    this._save(page);
-    this._renderSL(page);    // re-render the sidebar — title list is now empty
-    this._renderMsgs(page);  // shows the "Start a conversation…" empty state
+    // Clears only the CURRENT conversation's messages and leaves every saved
+    // conversation title in the left-hand list intact (so worthwhile threads can be
+    // kept/copied). Intentional per user preference — do not wipe data.sessions here.
+    if (data.current && data.sessions[data.current]) {
+      data.sessions[data.current].messages = [];
+      this._save(page);
+      this._renderMsgs(page);
+    }
   },
 
   init: function(page) {
