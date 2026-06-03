@@ -47539,13 +47539,16 @@ const AP = {
   },
 
   clearConv: function(page) {
-    if (!confirm('Clear this conversation?')) return;
+    if (!confirm('Clear ALL conversations for this agent?\n\nThis permanently removes the chat history AND every saved conversation title in the left-hand list. This cannot be undone.')) return;
     var data = this._load(page);
-    if (data.current && data.sessions[data.current]) {
-      data.sessions[data.current].messages = [];
-      this._save(page);
-      this._renderMsgs(page);
-    }
+    // Wipe every session (this is what removes the titles from the sidebar list),
+    // not just the current conversation's messages. The send handler auto-creates
+    // a fresh session on the next message, so leaving sessions empty is safe.
+    data.sessions = {};
+    data.current = null;
+    this._save(page);
+    this._renderSL(page);    // re-render the sidebar — title list is now empty
+    this._renderMsgs(page);  // shows the "Start a conversation…" empty state
   },
 
   init: function(page) {
