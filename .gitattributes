@@ -6,6 +6,8 @@
 *.yml  text eol=lf
 *.yaml text eol=lf
 *.sh   text eol=lf
+*.command text eol=lf
+*.bat  text eol=crlf
 
 # Always LF for web files (served as-is)
 *.html text eol=lf
