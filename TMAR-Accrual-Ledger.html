@@ -1321,12 +1321,6 @@
         <button onclick="switchMainTab('transcriptTransformer')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="transcriptTransformer" style="background:rgba(16,185,129,0.2);border:2px solid rgba(16,185,129,0.6);font-weight:800;color:#10b981">
           📝 Transcript
         </button>
-        <button onclick="switchMainTab('etymologyAnalyzer')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="etymologyAnalyzer" style="background:rgba(168,85,247,0.2);border:2px solid rgba(168,85,247,0.6);font-weight:800;color:#a855f7">
-          📖 Etymology
-        </button>
-        <button onclick="switchMainTab('pdfMdConverter')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="pdfMdConverter" style="background:rgba(59,130,246,0.2);border:2px solid rgba(59,130,246,0.6);font-weight:800;color:#3b82f6">
-          🔄 PDF/MD
-        </button>
         <button onclick="switchMainTab('multiStatePoa')" class="tab-btn px-4 py-3 rounded-lg font-semibold text-sm" data-tab="multiStatePoa" style="background:rgba(245,158,11,0.2);border:2px solid rgba(245,158,11,0.6);font-weight:800;color:#f59e0b">
           ⚖️ POA/DBA
         </button>
@@ -7221,7 +7215,6 @@ function exportFilingPDF(formType, data) {
       if (tabName === 'entityVerifier') { if (typeof ev2InitEntityVerifier === 'function') ev2InitEntityVerifier(); }
       if (tabName === 'tmarInspector') { if (typeof initTMARInspectorDashboard === 'function') initTMARInspectorDashboard(); }
       if (tabName === 'syncCenter') { if (typeof initSyncCenter === 'function') initSyncCenter(); }
-      if (tabName === 'etymologyAnalyzer') { if (typeof initEtymologyAnalyzer === 'function') initEtymologyAnalyzer(); }
       if (tabName === 'multiStatePoa') { if (typeof initMultiStatePoa === 'function') initMultiStatePoa(); }
     }
 
@@ -19472,162 +19465,10 @@ Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height
   <!-- ═══════════════════════════════════════════════════════════════ -->
   <!-- ETYMOLOGY ANALYZER SECTION                                      -->
   <!-- ═══════════════════════════════════════════════════════════════ -->
-  <section id="etymologyAnalyzerSection" class="form-section hidden">
-    <div style="padding:20px;max-width:1400px;margin:0 auto">
-      <div style="background:linear-gradient(135deg,rgba(168,85,247,0.12),rgba(139,92,246,0.12));border:2px solid rgba(168,85,247,0.4);border-radius:12px;padding:20px;margin-bottom:20px;text-align:center">
-        <div style="font-size:24px;font-weight:900;background:linear-gradient(135deg,#a855f7,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px">📖 ETYMOLOGY ANALYZER v1.3.0</div>
-        <div style="font-size:13px;color:var(--text-secondary)">Multi-Dictionary Bracket Chain Analysis</div>
-        <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;opacity:0.7">Black's Law 4th • Random House • Oxford English • Modern Legal</div>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-        <!-- Input Panel -->
-        <div>
-          <div style="font-weight:700;font-size:14px;color:var(--text-primary);margin-bottom:10px">Etymology Input</div>
-
-          <textarea id="etym-input" placeholder="Enter legal terms separated by commas...
-e.g., jurat, affiant, notary" style="width:100%;min-height:80px;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text-primary);font-size:13px;resize:vertical;box-sizing:border-box"></textarea>
-
-          <!-- Quick Load -->
-          <div style="margin-top:10px">
-            <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px">Quick Load:</div>
-            <div style="display:flex;flex-wrap:wrap;gap:4px" id="etym-quick-load"></div>
-          </div>
-
-          <!-- Dictionary Selection -->
-          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;margin-top:10px">
-            <div style="font-size:12px;font-weight:700;color:#a855f7;margin-bottom:8px">Dictionary Sources</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-              <label id="etym-dict-blacks4th" style="display:flex;align-items:flex-start;gap:6px;cursor:pointer;padding:8px;border-radius:8px;border:1px solid rgba(168,85,247,0.3);background:rgba(168,85,247,0.1)">
-                <input type="checkbox" checked="" onchange="etymToggleDict('blacks4th')" style="accent-color:#a855f7;margin-top:2px">
-                <div><div style="font-size:12px;font-weight:600">Black's Law 4th</div><div style="font-size:10px;color:var(--text-secondary)">Legal definitions</div></div>
-              </label>
-              <label id="etym-dict-randomHouse" style="display:flex;align-items:flex-start;gap:6px;cursor:pointer;padding:8px;border-radius:8px;border:1px solid rgba(168,85,247,0.3);background:rgba(168,85,247,0.1)">
-                <input type="checkbox" checked="" onchange="etymToggleDict('randomHouse')" style="accent-color:#a855f7;margin-top:2px">
-                <div><div style="font-size:12px;font-weight:600">Random House</div><div style="font-size:10px;color:var(--text-secondary)">Bracket etymology</div></div>
-              </label>
-              <label id="etym-dict-oxford" style="display:flex;align-items:flex-start;gap:6px;cursor:pointer;padding:8px;border-radius:8px;border:1px solid rgba(168,85,247,0.3);background:rgba(168,85,247,0.1)">
-                <input type="checkbox" checked="" onchange="etymToggleDict('oxford')" style="accent-color:#a855f7;margin-top:2px">
-                <div><div style="font-size:12px;font-weight:600">Oxford English</div><div style="font-size:10px;color:var(--text-secondary)">Historical usage</div></div>
-              </label>
-              <label id="etym-dict-modern" style="display:flex;align-items:flex-start;gap:6px;cursor:pointer;padding:8px;border-radius:8px;border:1px solid rgba(168,85,247,0.3);background:rgba(168,85,247,0.1)">
-                <input type="checkbox" checked="" onchange="etymToggleDict('modern')" style="accent-color:#a855f7;margin-top:2px">
-                <div><div style="font-size:12px;font-weight:600">Modern Legal</div><div style="font-size:10px;color:var(--text-secondary)">2024 definitions</div></div>
-              </label>
-            </div>
-          </div>
-
-          <!-- Chain Depth -->
-          <div style="margin-top:10px">
-            <div style="font-size:12px;font-weight:600;margin-bottom:6px">Bracket Chain Depth: <span id="etym-depth-val" style="font-weight:800;color:#a855f7">3</span></div>
-            <input type="range" id="etym-depth" min="1" max="5" value="3" oninput="document.getElementById('etym-depth-val').textContent=this.value" style="width:100%;accent-color:#a855f7">
-            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-secondary);margin-top:2px">
-              <span>1 Surface</span><span>3 Standard</span><span>5 Deep Root</span>
-            </div>
-          </div>
-
-          <!-- Symbol Guide (Collapsible) -->
-          <details style="margin-top:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;overflow:hidden">
-            <summary style="padding:10px;cursor:pointer;font-size:12px;font-weight:600;color:#fbbf24">ℹ️ Etymology Symbols Reference</summary>
-            <div id="etym-symbols" style="padding:8px 12px;display:grid;grid-template-columns:1fr 1fr;gap:2px 16px;font-size:11px;max-height:180px;overflow-y:auto"></div>
-          </details>
-
-          <!-- Action Buttons -->
-          <div style="display:flex;gap:8px;margin-top:10px">
-            <button onclick="etymAnalyze()" id="etym-analyze-btn" style="flex:1;padding:10px;border-radius:8px;border:none;background:#a855f7;color:white;font-weight:700;cursor:pointer;font-size:13px">⚡ Analyze Etymology</button>
-            <button onclick="etymClearAll()" style="padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#9ca3af;cursor:pointer" title="Clear all">🗑️</button>
-          </div>
-        </div>
-
-        <!-- Output Panel -->
-        <div>
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-            <div style="font-weight:700;font-size:14px;color:var(--text-primary)">Analysis Output</div>
-            <div id="etym-output-actions" style="display:none;gap:6px">
-              <button onclick="etymCopyOutput()" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(16,185,129,0.4);background:rgba(16,185,129,0.1);color:#10b981;cursor:pointer;font-size:11px;font-weight:600">📋 Copy</button>
-              <button onclick="etymDownloadOutput()" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(59,130,246,0.4);background:rgba(59,130,246,0.1);color:#3b82f6;cursor:pointer;font-size:11px;font-weight:600">⬇ .md</button>
-            </div>
-          </div>
-          <div id="etym-output-panel" style="min-height:500px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:rgba(0,0,0,0.2);padding:16px;overflow:auto;max-height:600px">
-            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:rgba(255,255,255,0.3)">
-              <div style="font-size:32px;margin-bottom:8px;opacity:0.3">📖</div>
-              <p>Enter legal terms and click Analyze</p>
-              <p style="font-size:11px;margin-top:6px">Reveals hidden meanings through bracket chain analysis</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <!-- ═══════════════════════════════════════════════════════════════ -->
   <!-- PDF/MARKDOWN CONVERTER SECTION                                  -->
   <!-- ═══════════════════════════════════════════════════════════════ -->
-  <section id="pdfMdConverterSection" class="form-section hidden">
-    <div style="padding:20px;max-width:1400px;margin:0 auto">
-      <div style="background:linear-gradient(135deg,rgba(59,130,246,0.12),rgba(99,102,241,0.12));border:2px solid rgba(59,130,246,0.4);border-radius:12px;padding:20px;margin-bottom:20px;text-align:center">
-        <div style="font-size:24px;font-weight:900;background:linear-gradient(135deg,#3b82f6,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px">🔄 PDF / MARKDOWN CONVERTER</div>
-        <div style="font-size:13px;color:var(--text-secondary)">Bidirectional Local Conversion — No Server Required</div>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-        <!-- Input Panel -->
-        <div>
-          <div style="font-weight:700;font-size:14px;color:var(--text-primary);margin-bottom:10px">PDF / Markdown Converter</div>
-
-          <!-- Direction Toggle -->
-          <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px">
-            <span id="pmc-label-pdf" style="padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;background:#3b82f6;color:white">PDF → Markdown</span>
-            <button onclick="pmcSwitchType()" style="padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#9ca3af;cursor:pointer;font-size:12px" title="Switch direction">⇄</button>
-            <span id="pmc-label-md" style="padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(255,255,255,0.1);color:#6b7280">Markdown → PDF</span>
-          </div>
-
-          <!-- Upload Zone -->
-          <div style="border:2px dashed rgba(255,255,255,0.15);border-radius:12px;padding:32px;text-align:center;cursor:pointer;margin-bottom:14px" onclick="document.getElementById('pmc-file-input').click()">
-            <input type="file" id="pmc-file-input" accept=".pdf" onchange="pmcFileChange(this)" style="display:none">
-            <div style="font-size:32px;margin-bottom:8px;opacity:0.4">⬆</div>
-            <div id="pmc-upload-label" style="color:rgba(255,255,255,0.4);font-size:13px">Click to upload PDF file</div>
-            <div id="pmc-file-selected" style="display:none;margin-top:8px;padding:6px 12px;background:rgba(59,130,246,0.1);color:#60a5fa;border-radius:6px;font-size:12px;display:inline-block"></div>
-          </div>
-
-          <!-- Error -->
-          <div id="pmc-error" style="display:none;border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.05);border-radius:8px;padding:12px;margin-bottom:10px;font-size:12px">
-            <div style="font-weight:700;color:#f87171;font-size:12px;margin-bottom:4px">Conversion Error</div>
-            <div id="pmc-error-msg" style="color:#fca5a5;font-size:11px"></div>
-            <div style="color:var(--text-secondary);font-size:10px;margin-top:4px;opacity:0.7">Works best with text-based PDFs. Image-based or encrypted PDFs may not convert.</div>
-          </div>
-
-          <button onclick="pmcConvert()" id="pmc-convert-btn" style="width:100%;padding:10px;border-radius:8px;border:none;background:#3b82f6;color:white;font-weight:700;cursor:pointer;font-size:13px;margin-bottom:10px">⇄ Convert File</button>
-
-          <!-- Info -->
-          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;font-size:11px;color:var(--text-secondary);line-height:1.6">
-            <div style="font-weight:700;color:var(--text-primary);margin-bottom:6px">Notes:</div>
-            <p>• <strong>PDF to Markdown:</strong> Works with text-based PDFs. Image/scanned PDFs won't convert.</p>
-            <p>• <strong>Markdown to PDF:</strong> Creates basic formatted PDF from markdown content.</p>
-            <p>• Complex formatting, images, and tables may not preserve perfectly.</p>
-            <p>• All processing happens in your browser — files are never uploaded to a server.</p>
-          </div>
-        </div>
-
-        <!-- Output Panel -->
-        <div>
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-            <div style="font-weight:700;font-size:14px;color:var(--text-primary)">Output Preview</div>
-            <div id="pmc-output-actions" style="display:none;gap:6px">
-              <button onclick="pmcCopyOutput()" id="pmc-copy-btn" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(16,185,129,0.4);background:rgba(16,185,129,0.1);color:#10b981;cursor:pointer;font-size:11px;font-weight:600">📋 Copy</button>
-              <button onclick="pmcDownloadOutput()" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(59,130,246,0.4);background:rgba(59,130,246,0.1);color:#3b82f6;cursor:pointer;font-size:11px;font-weight:600">⬇ Download</button>
-            </div>
-          </div>
-          <div id="pmc-output-panel" style="min-height:400px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:rgba(0,0,0,0.2);padding:16px;overflow:auto;max-height:600px">
-            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:rgba(255,255,255,0.3)">
-              <div style="font-size:32px;margin-bottom:8px;opacity:0.3">📄</div>
-              <p>Upload and convert a file to see output here</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <!-- ═══════════════════════════════════════════════════════════════ -->
   <!-- MULTISTATE POA / DBA SECTION                                    -->
@@ -40639,6 +40480,7 @@ var AGENTS = (function(existing) {
         legal:              { name: 'Legal Expert - Presumption Killer', role: 'Constitutional, statutory, and procedural legal strategy', icon: '⚖️' },
         tax:                { name: 'Tax and Financial Expert', role: 'Tax law, accounting treatment, and financial asset analysis', icon: '💰' },
         doc_creation:       { name: 'Document Creation Firm', role: 'Legal drafting and filing-ready document composition', icon: '📄' },
+        irs_lab:            { name: 'IRS & Law Lab', role: 'IRS form analysis, tax-law research, and filing-strategy lab', icon: '⚖️' },
         legal_analyst:      { name: 'Legal Analyst Firm', role: 'Issue spotting, authority mapping, and risk analysis', icon: '🔍' },
         doc_format:         { name: 'Document Format Firm', role: 'Formatting, structure, and publication quality control', icon: '📋' },
         writs_writing:      { name: 'Writs Writing Firm', role: 'Extraordinary writ strategy and drafting', icon: '✍️' },
@@ -47257,8 +47099,11 @@ const AP = {
     }
 
     // Map page → agentId for system prompt
-    var agentId = (['legal','trust','tax','arbitration','corporation','research',
-                    'code','creative','html_arch','general','accounting'].indexOf(page) !== -1)
+    // Route to the page's own agent if it's a registered agent (AGENTS or a custom agent);
+    // otherwise fall back to 'general'. Previously a hardcoded whitelist silently mis-routed
+    // doc_creation / irs_lab / every firm agent to the generic prompt.
+    var agentId = ((typeof AGENTS !== 'undefined' && AGENTS[page]) ||
+                   (typeof customAgents !== 'undefined' && customAgents[page]))
                   ? page : 'general';
 
     var sysPrompt = (typeof getSystemPrompt === 'function') ? getSystemPrompt(agentId) : '';
@@ -47550,16 +47395,16 @@ const AP = {
   },
 
   clearConv: function(page) {
-    if (!confirm('Clear this conversation?')) return;
+    if (!confirm('Clear ALL conversations for this agent?\n\nThis removes every chat AND every saved title in the left-hand list. This cannot be undone.')) return;
     var data = this._load(page);
-    // Clears only the CURRENT conversation's messages and leaves every saved
-    // conversation title in the left-hand list intact (so worthwhile threads can be
-    // kept/copied). Intentional per user preference — do not wipe data.sessions here.
-    if (data.current && data.sessions[data.current]) {
-      data.sessions[data.current].messages = [];
-      this._save(page);
-      this._renderMsgs(page);
-    }
+    // Wipes the entire conversation list for this agent — all messages AND all titles.
+    // Per user request (option B): Clear = full reset of the left-hand list, not just the
+    // current thread. Next message auto-creates a fresh conversation via AP.send/newConv.
+    data.sessions = {};
+    data.current = null;
+    this._save(page);
+    this._renderSL(page);
+    this._renderMsgs(page);
   },
 
   init: function(page) {
