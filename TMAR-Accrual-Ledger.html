@@ -47059,13 +47059,23 @@ const AP = {
       data = this._load(page);
     }
     var _userMsg = { role: 'user', content: text };
-    if (userContent !== text) _userMsg.full = userContent;  // keep file/attachment content so later turns still see it
+    if (userContent !== text) {
+      // Persist a LIGHTWEIGHT stub (base64 file blocks -> short text notes). Storing the
+      // full base64 in localStorage blows the ~5MB quota on PDF/image attachments, which
+      // threw QuotaExceededError on _save() and made the whole message "poof". The FULL
+      // content stays in-memory in `userContent` and is used for THIS turn's call below.
+      _userMsg.full = Array.isArray(userContent) ? userContent.map(function(b) {
+        if (b.type === 'document') return { type: 'text', text: '[PDF attached in this message]' };
+        if (b.type === 'image') return { type: 'text', text: '[Image attached in this message]' };
+        return b;
+      }) : userContent;
+    }
     data.sessions[data.current].messages.push(_userMsg);
     if (data.sessions[data.current].messages.length === 1) {
       data.sessions[data.current].title = text.substring(0, 40) + (text.length > 40 ? '…' : '');
     }
     inp.value = '';
-    this._save(page);
+    try { this._save(page); } catch (e) { console.warn('[AP.send] save failed (likely localStorage quota):', e); }
     this._renderSL(page);
     this._renderMsgs(page);
 
@@ -47122,6 +47132,12 @@ const AP = {
         var hist = (_hsess && _hsess.messages.length)
           ? _hsess.messages.map(function(m) { return { role: m.role, content: (m.full || m.content) }; })
           : [{ role: 'user', content: userContent }];
+        // The persisted copy of THIS turn's message is stubbed (to dodge the localStorage
+        // quota), so swap the full in-memory userContent back in for the last user message —
+        // otherwise the agent would receive "[PDF attached]" instead of the actual file.
+        if (hist.length && userContent !== text) {
+          hist[hist.length - 1] = { role: 'user', content: userContent };
+        }
 
         var finalText = await callLLMStream(sysPrompt, userContent, memories, function(tok) {
           rawBuf += tok;
