@@ -2034,3 +2034,144 @@ function push1099_(ss, filings) {
 
   return { status: 'ok', action: 'push1099', imported: rows.length };
 }
+
+
+// ═══════════════════════════════════════════════════════════════════════════
+// APPC_RLT HUB LAYER  (ADDITIVE — does NOT touch doGet/doPost above)
+// ═══════════════════════════════════════════════════════════════════════════
+// Unified-hub consolidation. These functions copy whole sheets between the
+// active spreadsheet and the APPC_RLT hub workbook (full-replace copy).
+//
+// They are intended to run from the Apps Script editor, a custom menu, or a
+// time-driven trigger — they are deliberately NOT wired into the web-app
+// bridge, so the deployed exec URL and all existing pull/push/import actions
+// keep working unchanged. No Web App redeploy is required for these.
+//
+// Hub tabs use prefixed names, e.g. "TMAR — Master Register", "FWM — Dashboard".
+// Sync timestamps reuse the existing ensureSyncMetaSheet_/updateSyncTimestamp_
+// machinery, writing into the hub's own hidden _SyncMeta tab.
+//
+// Added: 2026-06-07
+// ═══════════════════════════════════════════════════════════════════════════
+
+/** APPC_RLT unified hub workbook ID — kept separate from TMAR_SPREADSHEET_ID_. */
+var APPC_HUB_ID_ = '1Ac5AAM2381L2AgXi_llp7ugfRW2bWX2NbMLW3jiATtc';
+
+// Legacy sources (archived, for audit trail — do not write to these):
+//   TMAR original : 1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ  (= TMAR_SPREADSHEET_ID_)
+//   Freeway 2025  : 1kbulI33th8uOmrumj7RkiJ8aqZs48gqzujrXUmNRjk8
+
+/** Hub tab-name constants. Use these instead of hardcoded prefixed strings. */
+var APPC_SHEET_NAMES_ = {
+  MASTER_REGISTER:       'TMAR — Master Register',
+  TRANSACTION_LEDGER:    'TMAR — Transaction Ledger',
+  HOUSEHOLD_OBLIGATIONS: 'TMAR — Household Obligations',
+  FILING_CHAIN:          'TMAR — 1099 Filing Chain',
+  W2_INCOME:             'TMAR — W-2 & Income Detail',
+  SUBMISSIONS_1040:      'TMAR — 1040 Submissions',
+  FORMS_AUTHORITY:       'TMAR — Forms & Authority',
+  PROOF_OF_MAILING:      'TMAR — Proof of Mailing',
+  FILINGS_1099:          'TMAR — 1099 Filings',
+  DOCUMENT_INVENTORY:    'TMAR — Document Inventory',
+  DOCUMENT_REGISTRY:     'TMAR — Document Registry',
+  COA:                   'TMAR — CoA',
+  PRINCIPAL_REGISTER:    'TMAR — Principal Register',
+  // Freeway tabs (absorbed into the hub)
+  FWM_MASTER_INDEX:      'FWM — Master Index',
+  FWM_CHECKLIST:         'FWM — Forms Checklist',
+  FWM_CREDITOR_DETAIL:   'FWM — Creditor Detail',
+  FWM_DASHBOARD:         'FWM — Dashboard',
+  FWM_BINDER_GUIDE:      'FWM — Binder Tab Guide'
+};
+
+/** Open the APPC_RLT hub workbook (Web App-safe; uses openById). */
+function getAppcHub_() {
+  return SpreadsheetApp.openById(APPC_HUB_ID_);
+}
+
+/**
+ * Copy a sheet from the active spreadsheet INTO a hub tab (full replace).
+ * Creates the hub tab if it does not exist.
+ * @param {string} localSheetName - Source sheet in the active spreadsheet.
+ * @param {string} hubSheetName   - Destination tab name in the hub.
+ * @return {Object} { status, rows, hubTab }
+ */
+function appcPushToHub(localSheetName, hubSheetName) {
+  var src = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(localSheetName);
+  if (!src) {
+    Logger.log('appcPushToHub: local sheet "' + localSheetName + '" not found.');
+    return { status: 'error', action: 'appcPushToHub', message: 'Local sheet not found: ' + localSheetName };
+  }
+
+  var hub = getAppcHub_();
+  var dest = hub.getSheetByName(hubSheetName);
+  if (!dest) {
+    dest = hub.insertSheet(hubSheetName);
+    Logger.log('appcPushToHub: created hub tab "' + hubSheetName + '".');
+  }
+
+  var values = src.getDataRange().getValues();
+  dest.clearContents();
+  if (values.length > 0 && values[0].length > 0) {
+    dest.getRange(1, 1, values.length, values[0].length).setValues(values);
+  }
+
+  updateSyncTimestamp_(hub, hubSheetName, 'push');
+  SpreadsheetApp.flush();
+  Logger.log('appcPushToHub: "' + localSheetName + '" → "' + hubSheetName + '" (' + values.length + ' rows).');
+  return { status: 'ok', action: 'appcPushToHub', rows: values.length, hubTab: hubSheetName };
+}
+
+/**
+ * Copy a hub tab INTO a sheet in the active spreadsheet (full replace).
+ * Creates the local sheet if it does not exist.
+ * @param {string} hubSheetName   - Source tab name in the hub.
+ * @param {string} localSheetName - Destination sheet in the active spreadsheet.
+ * @return {Object} { status, rows, localSheet }
+ */
+function appcPullFromHub(hubSheetName, localSheetName) {
+  var hub = getAppcHub_();
+  var src = hub.getSheetByName(hubSheetName);
+  if (!src) {
+    Logger.log('appcPullFromHub: hub tab "' + hubSheetName + '" not found.');
+    return { status: 'error', action: 'appcPullFromHub', message: 'Hub tab not found: ' + hubSheetName };
+  }
+
+  var local = SpreadsheetApp.getActiveSpreadsheet();
+  var dest = local.getSheetByName(localSheetName);
+  if (!dest) {
+    dest = local.insertSheet(localSheetName);
+    Logger.log('appcPullFromHub: created local sheet "' + localSheetName + '".');
+  }
+
+  var values = src.getDataRange().getValues();
+  dest.clearContents();
+  if (values.length > 0 && values[0].length > 0) {
+    dest.getRange(1, 1, values.length, values[0].length).setValues(values);
+  }
+
+  updateSyncTimestamp_(hub, hubSheetName, 'pull');
+  SpreadsheetApp.flush();
+  Logger.log('appcPullFromHub: "' + hubSheetName + '" → "' + localSheetName + '" (' + values.length + ' rows).');
+  return { status: 'ok', action: 'appcPullFromHub', rows: values.length, localSheet: localSheetName };
+}
+
+// ─── Convenience wrappers (active sheet name ⇄ hub prefixed tab) ──────────────
+
+function appcPushMasterRegister()    { return appcPushToHub('Master Register',    APPC_SHEET_NAMES_.MASTER_REGISTER); }
+function appcPushTransactionLedger() { return appcPushToHub('Transaction Ledger', APPC_SHEET_NAMES_.TRANSACTION_LEDGER); }
+function appcPullMasterRegister()    { return appcPullFromHub(APPC_SHEET_NAMES_.MASTER_REGISTER,    'Master Register'); }
+function appcPullTransactionLedger() { return appcPullFromHub(APPC_SHEET_NAMES_.TRANSACTION_LEDGER, 'Transaction Ledger'); }
+
+/**
+ * Push the core TMAR sheets up to the APPC_RLT hub in one call.
+ * Extend with additional appcPushToHub() calls as more tabs are migrated.
+ * @return {Object} per-sheet results keyed by hub tab.
+ */
+function appcSyncAll() {
+  var results = {};
+  results.masterRegister    = appcPushMasterRegister();
+  results.transactionLedger = appcPushTransactionLedger();
+  Logger.log('appcSyncAll: complete → hub ' + APPC_HUB_ID_);
+  return { status: 'ok', action: 'appcSyncAll', results: results };
+}
