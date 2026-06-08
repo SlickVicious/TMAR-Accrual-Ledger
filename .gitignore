@@ -68,3 +68,11 @@ gas/env-vault-setup/
 
 # IRS reference PDFs (static official forms, not generated artifacts)
 irs-forms/downloads/
+
+# Local build/dev tooling — kept on disk, out of source control.
+# Bank-statement parsers, FileCabinet build scripts, one-off injectors, cleanup.
+# NOTE: scripts/filecabinet-build/ holds 4 real GAS files worth promoting into
+# gas/ later if formalized: CapitalOneCashFlow.gs, appc_import_delta.gs,
+# appc_import_full_replace.gs, path_remap.gs.
+scripts/
+tmar_cleanup.ps1
