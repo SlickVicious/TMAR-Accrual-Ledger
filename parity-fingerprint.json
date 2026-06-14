@@ -1,19 +1,19 @@
 {
-  "lastChecked": "2026-06-02T07:41:24.713Z",
-  "driftDetected": false,
+  "lastChecked": "2026-06-14T09:12:05Z",
+  "driftDetected": true,
   "sources": {
     "Agent.html": {
-      "hash": "156f3ba8e721fc8bd3a713abc82cbfd63f265ffae99419fc7f1e08f45438d86e",
+      "hash": "a1ce31d11d519a98e00fe5994aaa97fb62cff90803bb693dca44f95d6130d4b5",
       "tabCount": 0,
       "version": "v7.2",
-      "checkedAt": "2026-06-02T07:41:24.210Z"
+      "checkedAt": "2026-06-14T09:12:05Z"
     },
     "GAAP.html": {
-      "hash": "5fd8bcfa5cf321364acc8d244c58e5e7e6922d6c67833d117586da087d252994",
-      "tabCount": 0,
+      "hash": "10f74d15802fcd5c0f87758259817ab1e8a47d1a9855b2a9fcfbb5e66c50ad31",
+      "tabCount": 39,
       "version": "unknown",
-      "checkedAt": "2026-06-02T07:41:24.710Z"
+      "checkedAt": "2026-06-14T09:12:05Z"
     }
   },
-  "driftSummary": ""
+  "driftSummary": "\u2022 Agent.html changed (was: 156f3ba8e721... now: a1ce31d11d51...) \u2014 tabs: 0\\n\u2022 GAAP.html changed (was: 5fd8bcfa5cf3... now: 10f74d15802f...) \u2014 tabs: 39\\n"
 }
