@@ -141,11 +141,17 @@ const BUILTINS = new Set([
 ]);
 
 // ── protected functions (TMAR has diverged intentionally — never replace) ─────
-// callLLMStream  : routes through Cloudflare CORS proxy (required for GitHub Pages)
-// resolveProvider: reads TMAR-specific eeon_key_* localStorage keys
+// callLLMStream        : routes through Cloudflare CORS proxy (required for GitHub Pages)
+// resolveProvider      : reads TMAR-specific eeon_key_* localStorage keys
+// buildFullSystemPrompt: TMAR adds typeof guards for prefs/memory (source uses bare
+//                        globals → ReferenceError → total agent outage). Fix 2026-06-02.
+// truncateToTokenBudget: TMAR reads provider via guarded path; source uses bare
+//                        `activeProvider` (a local DOM var here, not a global) → ReferenceError.
 const PROTECTED = new Set([
   'callLLMStream',
   'resolveProvider',
+  'buildFullSystemPrompt',
+  'truncateToTokenBudget',
 ]);
 
 // ── args ──────────────────────────────────────────────────────────────────────
@@ -530,12 +536,26 @@ function verifyBuildPromptGate(html) {
   }
 
   const requiredTokens = ['SYPHER PROTOCOL', 'PRESUMPTION KILLER'];
-  const missing = requiredTokens.filter(token => !target.body.includes(token));
+
+  // Two valid architectures:
+  //   (a) tokens inlined directly in buildFullSystemPrompt's body, or
+  //   (b) tokens supplied at runtime via SYPHER_PROTOCOL.core, which the function
+  //       concatenates into the prompt (current TMAR architecture).
+  // Validate the *reachable* gate: tokens must exist in the file AND be wired into
+  // the prompt either inline or through a referenced SYPHER_PROTOCOL.core.
+  const injectsCore = /SYPHER_PROTOCOL\s*\.\s*core/.test(target.body);
+  const missing = requiredTokens.filter(token => {
+    const inline = target.body.includes(token);
+    const viaCore = injectsCore && html.includes(token);
+    return !inline && !viaCore;
+  });
 
   return {
     ok: missing.length === 0,
     missing,
-    reason: missing.length ? 'gate tokens missing from buildFullSystemPrompt' : 'ok'
+    reason: missing.length
+      ? 'gate tokens not reachable from buildFullSystemPrompt (neither inline nor via SYPHER_PROTOCOL.core)'
+      : 'ok'
   };
 }
 

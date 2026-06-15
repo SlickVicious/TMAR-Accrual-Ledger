@@ -1,16 +1,9 @@
-TMAR Parity Sync — 2026-06-02T07:41:23.179Z
+TMAR Parity Sync — 2026-06-15T19:12:34.421Z
 
+  PROTECTED (unchanged): buildFullSystemPrompt
+  PROTECTED (unchanged): truncateToTokenBudget
   PROTECTED (unchanged): resolveProvider
   PROTECTED (unchanged): callLLMStream
-  SAFE [changed] add
-  SAFE [changed] addPdf
-  SAFE [changed] search
-  SAFE [changed] count
-  SAFE [changed] _guardedRegisterAgent
-  SAFE [changed] _guardedRegisterSkill
-  SAFE [changed] buildFullSystemPrompt
-  SAFE [changed] estimateTokens
-  SAFE [changed] truncateToTokenBudget
   SAFE [changed] getSystemPrompt
   REVIEW [changed] sendChat
     Deps in source (pullable with --resolve): getActiveSession, newChatSession, addMsg, routeAgent, genId, updateMemory, renderSessionList
@@ -19,7 +12,6 @@ TMAR Parity Sync — 2026-06-02T07:41:23.179Z
     Deps in source (pullable with --resolve): renderFilePreview
   REVIEW [changed] toggleMic
     Deps in source (pullable with --resolve): stopMic
-  SAFE [changed] shareChat
   REVIEW [changed] exportChat
     Deps in source (pullable with --resolve): getActiveSession
   REVIEW [changed] askAgent
@@ -32,7 +24,6 @@ TMAR Parity Sync — 2026-06-02T07:41:23.179Z
     Deps in source (pullable with --resolve): save
   REVIEW [changed] dtSend
     Deps in source (pullable with --resolve): dtGetSession, dtAddMsg, dtRenderFiles, genId, updateMemory, dtRenderSessions
-  SAFE [changed] noiAsk
   SAFE [changed] renderAgents
   REVIEW [changed] createAgent
     Deps in source (pullable with --resolve): save
@@ -40,13 +31,10 @@ TMAR Parity Sync — 2026-06-02T07:41:23.179Z
     Deps in source (pullable with --resolve): save, loadKeys, refreshDash
   REVIEW [changed] testConnection
     Deps in source (pullable with --resolve): callLLM
-  SAFE [changed] refreshOllamaModels
   REVIEW [changed] savePrefs
     Deps in source (pullable with --resolve): save
   REVIEW [changed] clearMemory
     Deps in source (pullable with --resolve): save, renderMemory
-  SAFE [changed] renderHistory
-  SAFE [changed] esc
   REVIEW [changed] doResearch
     Deps in source (pullable with --resolve): callLLM, save, renderResearchHistory, trackActivity
     DOM IDs not in TMAR: researchInput, researchDepth
@@ -56,19 +44,14 @@ TMAR Parity Sync — 2026-06-02T07:41:23.179Z
     Deps in source (pullable with --resolve): save, renderDocs
   REVIEW [changed] toggleVoiceMic
     Deps not found anywhere: SR
-  SAFE [changed] speakTTS
   REVIEW [changed] addCalEvent
     Deps in source (pullable with --resolve): save, renderCalendar
   REVIEW [changed] unlockVault
     Deps in source (pullable with --resolve): deriveVaultKey, decryptVault
   REVIEW [changed] addVaultEntry
     Deps in source (pullable with --resolve): saveVault
-  SAFE [changed] renderVault
-  SAFE [changed] genPW
-  SAFE [changed] exportBackup
   REVIEW [changed] importBackup
     Deps in source (pullable with --resolve): save
-  SAFE [changed] exportAllHistory
   REVIEW [changed] showAlert
     window.X refs not in TMAR: console
   SAFE [changed] saveFiling
@@ -76,35 +59,20 @@ TMAR Parity Sync — 2026-06-02T07:41:23.179Z
   SAFE [changed] addSubsidiary
   REVIEW [changed] calculate1120
     DOM IDs not in TMAR: form1120TaxYear, taxableIncome1120
-  SAFE [changed] toggleAgentTTS
-  SAFE [changed] toggleAgentSTT
-  SAFE [changed] printForm
+  REVIEW [changed] buildForm1120
+    Deps not found anywhere: repurchases
   REVIEW [changed] onYearChange
     DOM IDs not in TMAR: eeon-ybadge
   REVIEW [changed] eeonSendChat
     Deps in source (pullable with --resolve): buildSystemPrompt, speakAgent
-  SAFE [changed] sendQuick
-  SAFE [changed] _populateFormSchedC
+  SAFE [changed] _syncBanner
   REVIEW [changed] setFirm
     window.X refs not in TMAR: _selectedFirmId
   REVIEW [changed] buildFirmChips
     Deps in source (pullable with --resolve): _chipStyle
     window.X refs not in TMAR: _selectedFirmId
-  SAFE [changed] openClawCaseLaw
-  SAFE [changed] openClawStatutes
-  SAFE [changed] openClawCongress
-  SAFE [changed] apifyWebSearch
-  SAFE [changed] apifySECSearch
-  SAFE [changed] apifyNewsSearch
-  SAFE [changed] reconcileApps
-  SAFE [changed] forceSyncFromGAAP
-  SAFE [changed] clearTaskPlan
   REVIEW [changed] planTask
     Deps in source (pullable with --resolve): _mkTaskCard
-  SAFE [changed] buildCode
-  SAFE [changed] copyBuiltCode
-  SAFE [changed] downloadBuiltCode
-  SAFE [changed] deployBuiltCode
   REVIEW [changed] runAPIScout
     Deps in source (pullable with --resolve): _renderScoutCards
     window.X refs not in TMAR: _scoutApis
@@ -117,8 +85,6 @@ TMAR Parity Sync — 2026-06-02T07:41:23.179Z
   REVIEW [changed] showIntegratedAPIs
     Deps in source (pullable with --resolve): _renderScoutCards
     window.X refs not in TMAR: _scoutApis
-  SAFE [changed] scoutClearIntegrated
-  SAFE [new] load
   REVIEW [new] save
     Deps in source (pullable with --resolve): save
   REVIEW [new] genId
@@ -371,87 +337,47 @@ TMAR Parity Sync — 2026-06-02T07:41:23.179Z
     Deps in source (pullable with --resolve): _importShare, _sv, _lk, _ak, _renderSL, _renderMsgs, goPage
   REVIEW [new] _esc
     Deps in source (pullable with --resolve): _esc
-  SAFE [new] setField
-
-  --resolve: pulling 116 dep(s): getActiveSession, newChatSession, genId, save, renderSessionList, renderChatMessages, goPage, loadKeys, loadPrefs, renderMemory, renderNoiToggles, refreshDash, addMsg, saveCurrentSession, routeAgent, updateMemory, renderFilePreview, stopMic, dtRenderSessions, dtRenderMsgs, dtRenderFiles, dtGetSession, dtAddMsg, dtSaveSession, callLLM, renderResearchHistory, trackActivity, renderDocs, renderCalendar, deriveVaultKey, decryptVault, saveVault, encryptVault, buildSystemPrompt, speakAgent, _chipStyle, _mkTaskCard, _renderScoutCards, loadSession, deleteSession, toggleTheme, deleteMsg, recycleMsg, saveMsg, copyMsg, speakMsg, removeFile, dtLoadSession, dtDeleteSession, dtDeleteMsg, dtRecycleMsg, dtSpeakMsg, dtRemoveFile, deleteAgent, viewDoc, delDoc, analyzeDoc, populateTTSVoices, refreshAnalytics, delCalEvent, exportSession, showTaxForm, speak, toggleTTS, toggleSTT, eeonLegacySendChat, eeonSetAgent, showSection, generateJournalDocument, pushJournalToGAAP, _safeKeys, _keys, _getKey, _getUrl, _getCLToken, courtListenerSearch, openClawSearch, statutesSearch, searchCaseLaw, _getToken, runActor, googleSearch, scrapeUrl, testOpenClawConnection, testApifyConnection, refineCode, _isRelevant, _fetchRegistry, discover, integrateAPI, integrateAll, clearIntegrated, getDiscovered, getIntegrated, _lk, _ak, _ld, _sv, _init, _newChat, _renderSL, _esc, _renderMsgs, _getSess, _persist, _loadSess, _delSess, _send, _callLLM, _toggleSTT, _speakLast, _printConv, _exportPDF, _exportWord, _shareLink, _importShare
-  Agent.html — Changed: 76  New: 118  Skip: 0
-  CHANGED (applied): add
-  CHANGED (applied): addPdf
-  CHANGED (applied): search
-  CHANGED (applied): count
-  CHANGED (applied): _guardedRegisterAgent
-  CHANGED (applied): _guardedRegisterSkill
-  CHANGED (applied): buildFullSystemPrompt
-  CHANGED (applied): estimateTokens
-  CHANGED (applied): truncateToTokenBudget
+  Agent.html — Changed: 40  New: 116  Skip: 0
   CHANGED (applied): getSystemPrompt
   CHANGED REVIEW-SKIPPED: sendChat
   CHANGED REVIEW-SKIPPED: handleFileUpload
   CHANGED REVIEW-SKIPPED: toggleMic
-  CHANGED (applied): shareChat
   CHANGED REVIEW-SKIPPED: exportChat
   CHANGED REVIEW-SKIPPED: askAgent
   CHANGED REVIEW-SKIPPED: dtNewChat
   CHANGED REVIEW-SKIPPED: dtHandleFiles
   CHANGED REVIEW-SKIPPED: dtClearHistory
   CHANGED REVIEW-SKIPPED: dtSend
-  CHANGED (applied): noiAsk
   CHANGED (applied): renderAgents
   CHANGED REVIEW-SKIPPED: createAgent
   CHANGED REVIEW-SKIPPED: saveKeys
   CHANGED REVIEW-SKIPPED: testConnection
-  CHANGED (applied): refreshOllamaModels
   CHANGED REVIEW-SKIPPED: savePrefs
   CHANGED REVIEW-SKIPPED: clearMemory
-  CHANGED (applied): renderHistory
-  CHANGED (applied): esc
   CHANGED REVIEW-SKIPPED: doResearch
   CHANGED REVIEW-SKIPPED: doSearch
   CHANGED REVIEW-SKIPPED: uploadDocs
   CHANGED REVIEW-SKIPPED: toggleVoiceMic
-  CHANGED (applied): speakTTS
   CHANGED REVIEW-SKIPPED: addCalEvent
   CHANGED REVIEW-SKIPPED: unlockVault
   CHANGED REVIEW-SKIPPED: addVaultEntry
-  CHANGED (applied): renderVault
-  CHANGED (applied): genPW
-  CHANGED (applied): exportBackup
   CHANGED REVIEW-SKIPPED: importBackup
-  CHANGED (applied): exportAllHistory
   CHANGED REVIEW-SKIPPED: showAlert
   CHANGED (applied): saveFiling
   CHANGED (applied): exportFiling
   CHANGED (applied): addSubsidiary
   CHANGED REVIEW-SKIPPED: calculate1120
-  CHANGED (applied): toggleAgentTTS
-  CHANGED (applied): toggleAgentSTT
-  CHANGED (applied): printForm
+  CHANGED REVIEW-SKIPPED: buildForm1120
   CHANGED REVIEW-SKIPPED: onYearChange
   CHANGED REVIEW-SKIPPED: eeonSendChat
-  CHANGED (applied): sendQuick
-  CHANGED (applied): _populateFormSchedC
+  CHANGED (applied): _syncBanner
   CHANGED REVIEW-SKIPPED: setFirm
   CHANGED REVIEW-SKIPPED: buildFirmChips
-  CHANGED (applied): openClawCaseLaw
-  CHANGED (applied): openClawStatutes
-  CHANGED (applied): openClawCongress
-  CHANGED (applied): apifyWebSearch
-  CHANGED (applied): apifySECSearch
-  CHANGED (applied): apifyNewsSearch
-  CHANGED (applied): reconcileApps
-  CHANGED (applied): forceSyncFromGAAP
-  CHANGED (applied): clearTaskPlan
   CHANGED REVIEW-SKIPPED: planTask
-  CHANGED (applied): buildCode
-  CHANGED (applied): copyBuiltCode
-  CHANGED (applied): downloadBuiltCode
-  CHANGED (applied): deployBuiltCode
   CHANGED REVIEW-SKIPPED: runAPIScout
   CHANGED REVIEW-SKIPPED: scoutTestAll
   CHANGED REVIEW-SKIPPED: filterScoutAPIs
   CHANGED REVIEW-SKIPPED: showIntegratedAPIs
-  CHANGED (applied): scoutClearIntegrated
-  NEW (added): load
   NEW REVIEW-SKIPPED: save
   NEW REVIEW-SKIPPED: genId
   NEW REVIEW-SKIPPED: newChatSession
@@ -568,18 +494,12 @@ TMAR Parity Sync — 2026-06-02T07:41:23.179Z
   NEW REVIEW-SKIPPED: _shareLink
   NEW REVIEW-SKIPPED: _importShare
   NEW REVIEW-SKIPPED: _esc
-  NEW (added): setField
-  SAFE [changed] loadFromStorage
   REVIEW [changed] exportToWord
     Deps not found anywhere: saveAs
   REVIEW [changed] exportAllData
     Deps not found anywhere: saveAs, jsPDF
-  SAFE [changed] previewData
   REVIEW [changed] switchMainTab
     Deps not found anywhere: updateSPVDashboard, updateSPVReports
-  SAFE [changed] selectFilingType
-  SAFE [changed] loadEntries
-  SAFE [changed] deleteEntry
   REVIEW [changed] saveLedger
     Deps not found anywhere: saveAs
   REVIEW [changed] exportCSV
@@ -587,70 +507,23 @@ TMAR Parity Sync — 2026-06-02T07:41:23.179Z
   SAFE [changed] addSubsidiary
   SAFE [changed] saveFiling
   SAFE [changed] exportFiling
-  SAFE [changed] updateFilingsList
-  SAFE [changed] loadFiling
   REVIEW [changed] updateReports
     DOM IDs not in TMAR: r3CountRecognized, r3CountReconciled, r3CountRealized, r3FinancialAssets
-  SAFE [changed] showEntityModal
-  SAFE [changed] saveEntity
-  SAFE [changed] deleteEntity
-  SAFE [changed] updateEntitiesTable
   REVIEW [changed] updateARTable
     DOM IDs not in TMAR: ar6190
-  SAFE [changed] getAging
   REVIEW [changed] updateAPTable
     DOM IDs not in TMAR: ap6190
-  SAFE [changed] spvSave
   REVIEW [changed] spvSaveEntry
     Deps in source (pullable with --resolve): spvHideForm
     DOM IDs not in TMAR: spvDate, spvType, spvDescription, spvReference, spvDebitAccount, spvCreditAccount, spvAmount, spvCurrency, spvStatus, spvNotes
-  SAFE [changed] spvDeleteEntry
   REVIEW [changed] spvRenderLedger
     Deps in source (pullable with --resolve): spvTypeLabel
   REVIEW [changed] spvUpdateDashboard
     DOM IDs not in TMAR: spv-total-assets, spv-tcu-total, spv-token-total, spvRecentActivity
-  SAFE [changed] generateSPVTrialBalance
   REVIEW [changed] generateSPVAssetSummary
     Deps in source (pullable with --resolve): spvTypeLabel
   REVIEW [changed] spvExportCSV
     Deps in source (pullable with --resolve): spvTypeLabel
-  SAFE [changed] spvExportJSON
-  SAFE [changed] initInvoicing
-  SAFE [changed] saveInvoice
-  SAFE [changed] markInvoicePaid
-  SAFE [changed] deleteInvoice
-  SAFE [changed] initPayroll
-  SAFE [changed] savePayrollRecord
-  SAFE [changed] renderPayrollRecords
-  SAFE [changed] initInventory
-  SAFE [changed] saveInventoryItem
-  SAFE [changed] renderInventoryTable
-  SAFE [changed] initBudget
-  SAFE [changed] saveBudget
-  SAFE [changed] initPaymentOrders
-  SAFE [changed] savePaymentOrder
-  SAFE [changed] renderPaymentOrders
-  SAFE [changed] initBOE
-  SAFE [changed] saveBOE
-  SAFE [changed] renderBOEList
-  SAFE [changed] clearBOEForm
-  SAFE [changed] printBOE
-  SAFE [changed] printBOEDocument
-  SAFE [changed] initExpenses
-  SAFE [changed] saveExpense
-  SAFE [changed] deleteExpense
-  SAFE [changed] initContacts
-  SAFE [changed] saveContact
-  SAFE [changed] deleteCustomer
-  SAFE [changed] deleteVendor
-  SAFE [changed] saveScheduleA
-  SAFE [changed] initDepreciation
-  SAFE [changed] saveAsset
-  SAFE [changed] deleteAsset
-  SAFE [changed] initBankRecon
-  SAFE [changed] saveReconciliation
-  SAFE [changed] deleteRecon
-  SAFE [changed] generateMasterReport
   REVIEW [changed] gaapAgentQ
     Deps in source (pullable with --resolve): sendGaapAgentQuery
     DOM IDs not in TMAR: gaap-agent-input
@@ -705,77 +578,23 @@ TMAR Parity Sync — 2026-06-02T07:41:23.179Z
     Deps in source (pullable with --resolve): sendGaapAgentQuery
     DOM IDs not in TMAR: gaap-agent-input, gaap-agent-response
     window.X refs not in TMAR: _gaapApiKey
-
-  --resolve: pulling 20 dep(s): spvHideForm, spvTypeLabel, sendGaapAgentQuery, verifyAndReconcile, showVerificationReport, autoValidateOnSave, confirmAccuracy, speakReport, speakText, updateCategoryInfo, advanceR3Status, spvShowForm, spvApplyFilters, spvResetFilters, saveUKSettings, generateUKComplianceReport, generateUKStatement, printUKStatement, clearGaapAgentChat, reviewMyBooks
-  GAAP.html — Changed: 69  New: 20  Skip: 0
-  CHANGED (applied): loadFromStorage
+  GAAP.html — Changed: 17  New: 20  Skip: 0
   CHANGED REVIEW-SKIPPED: exportToWord
   CHANGED REVIEW-SKIPPED: exportAllData
-  CHANGED (applied): previewData
   CHANGED REVIEW-SKIPPED: switchMainTab
-  CHANGED (applied): selectFilingType
-  CHANGED (applied): loadEntries
-  CHANGED (applied): deleteEntry
   CHANGED REVIEW-SKIPPED: saveLedger
   CHANGED REVIEW-SKIPPED: exportCSV
   CHANGED (applied): addSubsidiary
   CHANGED (applied): saveFiling
   CHANGED (applied): exportFiling
-  CHANGED (applied): updateFilingsList
-  CHANGED (applied): loadFiling
   CHANGED REVIEW-SKIPPED: updateReports
-  CHANGED (applied): showEntityModal
-  CHANGED (applied): saveEntity
-  CHANGED (applied): deleteEntity
-  CHANGED (applied): updateEntitiesTable
   CHANGED REVIEW-SKIPPED: updateARTable
-  CHANGED (applied): getAging
   CHANGED REVIEW-SKIPPED: updateAPTable
-  CHANGED (applied): spvSave
   CHANGED REVIEW-SKIPPED: spvSaveEntry
-  CHANGED (applied): spvDeleteEntry
   CHANGED REVIEW-SKIPPED: spvRenderLedger
   CHANGED REVIEW-SKIPPED: spvUpdateDashboard
-  CHANGED (applied): generateSPVTrialBalance
   CHANGED REVIEW-SKIPPED: generateSPVAssetSummary
   CHANGED REVIEW-SKIPPED: spvExportCSV
-  CHANGED (applied): spvExportJSON
-  CHANGED (applied): initInvoicing
-  CHANGED (applied): saveInvoice
-  CHANGED (applied): markInvoicePaid
-  CHANGED (applied): deleteInvoice
-  CHANGED (applied): initPayroll
-  CHANGED (applied): savePayrollRecord
-  CHANGED (applied): renderPayrollRecords
-  CHANGED (applied): initInventory
-  CHANGED (applied): saveInventoryItem
-  CHANGED (applied): renderInventoryTable
-  CHANGED (applied): initBudget
-  CHANGED (applied): saveBudget
-  CHANGED (applied): initPaymentOrders
-  CHANGED (applied): savePaymentOrder
-  CHANGED (applied): renderPaymentOrders
-  CHANGED (applied): initBOE
-  CHANGED (applied): saveBOE
-  CHANGED (applied): renderBOEList
-  CHANGED (applied): clearBOEForm
-  CHANGED (applied): printBOE
-  CHANGED (applied): printBOEDocument
-  CHANGED (applied): initExpenses
-  CHANGED (applied): saveExpense
-  CHANGED (applied): deleteExpense
-  CHANGED (applied): initContacts
-  CHANGED (applied): saveContact
-  CHANGED (applied): deleteCustomer
-  CHANGED (applied): deleteVendor
-  CHANGED (applied): saveScheduleA
-  CHANGED (applied): initDepreciation
-  CHANGED (applied): saveAsset
-  CHANGED (applied): deleteAsset
-  CHANGED (applied): initBankRecon
-  CHANGED (applied): saveReconciliation
-  CHANGED (applied): deleteRecon
-  CHANGED (applied): generateMasterReport
   CHANGED REVIEW-SKIPPED: gaapAgentQ
   NEW REVIEW-SKIPPED: verifyAndReconcile
   NEW REVIEW-SKIPPED: showVerificationReport
@@ -798,4 +617,4 @@ TMAR Parity Sync — 2026-06-02T07:41:23.179Z
   NEW REVIEW-SKIPPED: reviewMyBooks
   NEW REVIEW-SKIPPED: sendGaapAgentQuery
 
-Applied 100 change(s)
+Applied 9 change(s)
