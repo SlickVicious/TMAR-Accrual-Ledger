@@ -69,6 +69,10 @@ gas/env-vault-setup/
 # IRS reference PDFs (static official forms, not generated artifacts)
 irs-forms/downloads/
 
+# fiduciary-doc-factory source-book PDFs (large/copyrighted reference manuals — kept local,
+# re-ignored under the .claude/skills/ whitelist above)
+.claude/skills/fiduciary-doc-factory/references/source-books/
+
 # Local build/dev tooling — kept on disk, out of source control.
 # Bank-statement parsers, FileCabinet build scripts, one-off injectors, cleanup.
 # NOTE: scripts/filecabinet-build/ holds 4 real GAS files worth promoting into

@@ -1,8 +1,8 @@
 # TMAR - Trust Master Account Register
 
 **Complete Interactive Web Application + Google Sheets Integration**
-**Version:** 3.9
-**Last Updated:** April 14, 2026
+**Version:** 4.0
+**Last Updated:** June 17, 2026
 **Status:** ✅ Production Ready — 246/246 Functions Verified | 211/211 GUI Elements Verified
 
 ---
@@ -146,6 +146,16 @@ npx http-server -p 8080 -o
 2. Select an agent (Legal, Tax, Accounting, etc.)
 3. Type your question
 4. Click **⚡ Analyze**
+
+---
+
+## 🆕 What's New in v4.0
+
+| Feature | Details |
+|---|---|
+| **⚖ fiduciary-doc-factory v2.1.0 (merged skill)** | The two skill fragments (v2.0.0 + v2.1.0) were combined into one canonical skill at `.claude/skills/fiduciary-doc-factory/` (v2.1.0 supersedes v2.0.0; see its `MERGE-NOTES.md`). A distilled standard — GPO Style Manual 2016 editorial rules, Weiss trustee-substance hygiene, forced Profile B output (Times New Roman 12pt, 1″ margins, justified, black-on-white), DOC-NNNN register binding, media defaults — is embedded as `DOCUMENT_KNOWLEDGE.fiduciaryDocFactory`. |
+| **Skill wired into all agents + the 3 Document features** | `buildFullSystemPrompt()` appends the standard to **every** agent (inert unless drafting). The **Document Creation Firm** (`doc_creation`) and **Document Format Firm** (`doc_format`) get dedicated `getSystemPrompt()` branches that embody the skill. The **Document Creator** tab gains a `⚖ Fiduciary Standard` button (`applyFiduciaryStandard()`) plus Profile-B PDF/Word/Print export. |
+| **🪐 Gemini neural TTS (realistic voices)** | New `GEMINI_TTS` engine replaces the robotic Web Speech voice across every read-aloud surface (`speakWithHighlight`, `speakTTS`, section readers). Calls Gemini `generateContent` (`responseModalities:["AUDIO"]`), wraps the returned PCM as WAV, and plays it; long text is auto-chunked; on missing key/error it falls back to the system voice. **Settings → 🔊 Voice & TTS** adds an engine toggle, 30-voice picker, model selector, Gemini key field, and Test button. Models: `gemini-2.5-flash-preview-tts` (default) / `gemini-3.1-flash-tts-preview`. |
 
 ---
 

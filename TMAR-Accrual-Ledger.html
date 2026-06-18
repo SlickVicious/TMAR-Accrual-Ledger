@@ -14701,6 +14701,41 @@ function exportFilingPDF(formType, data) {
           <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:6px">Volume</label><input type="range" id="stg-voice-volume" min="0" max="1" step="0.1" value="0.9" style="width:100%"></div>
         </div>
         <label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:var(--text-secondary);cursor:pointer"><input type="checkbox" id="stg-voice-autospeak"> Auto-speak agent responses</label>
+
+        <!-- ── Neural voice engine (Gemini) ── -->
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)">
+          <div style="font-size:13px;font-weight:800;color:#a855f7;margin-bottom:4px">🪐 Neural Voice Engine</div>
+          <div style="font-size:11px;color:var(--text-secondary);margin-bottom:10px">Replace the robotic system voice with realistic Gemini neural voices. Uses your Gemini API key; audio is generated on demand.</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+            <div>
+              <label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:6px">Engine</label>
+              <select id="stg-tts-engine" onchange="gttsSaveEngine(this.value)" style="width:100%;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--text-primary);font-size:12px">
+                <option value="gemini">Gemini Neural (realistic)</option>
+                <option value="system">System (browser, robotic)</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:6px">Gemini Voice</label>
+              <select id="stg-gtts-voice" onchange="gttsSaveVoice(this.value)" style="width:100%;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--text-primary);font-size:12px"></select>
+            </div>
+            <div>
+              <label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:6px">Model</label>
+              <select id="stg-gtts-model" onchange="gttsSaveModel(this.value)" style="width:100%;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--text-primary);font-size:12px">
+                <option value="gemini-2.5-flash-preview-tts">gemini-2.5-flash-preview-tts (stable)</option>
+                <option value="gemini-3.1-flash-tts-preview">gemini-3.1-flash-tts-preview (newest)</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top:12px">
+            <label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px">Gemini API Key <span style="color:var(--text-secondary)">(saved to eeon_key_gemini)</span></label>
+            <input type="password" id="stg-gtts-key" placeholder="AIza…" oninput="gttsSaveKey(this.value)" style="width:100%;padding:8px 12px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box">
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:12px">
+            <button onclick="gttsTest()" style="padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(168,85,247,.4);background:rgba(168,85,247,.12);color:#a855f7;cursor:pointer">▶ Test voice</button>
+            <button onclick="if(typeof GEMINI_TTS!=='undefined')GEMINI_TTS.stop();" style="padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.1);color:#ef4444;cursor:pointer">⏹ Stop</button>
+            <span id="stg-gtts-status" style="font-size:11px;color:var(--text-secondary)"></span>
+          </div>
+        </div>
       </div>
 
       <!-- WEB SEARCH PANEL -->
@@ -15682,6 +15717,8 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
       <div style="background:linear-gradient(135deg,rgba(6,182,212,.10),rgba(59,130,246,.08));border:2px solid rgba(6,182,212,.4);border-radius:12px;padding:20px;margin-bottom:20px">
         <div style="font-size:22px;font-weight:900;color:#06b6d4;margin-bottom:8px">📄 DOCUMENT &amp; FORM CREATOR</div>
         <div style="font-size:12px;color:var(--text-secondary)">Create • Edit • Preview • Export PDF/Word • Fillable Forms • Print Ready</div>
+        <div style="font-size:11px;color:#a855f7;margin-top:6px;font-weight:700">⚖ fiduciary-doc-factory v2.1.0 active — GPO 2016 editorial · Weiss trustee substance · Profile B output (TNR 12pt, 1in, justified, black-on-white). Use the ⚖ Fiduciary Standard button to conform the draft; PDF/Word/Print export under Profile B.</div>
+        <div id="doc-fdf-status" style="font-size:11px;margin-top:4px;color:var(--text-secondary)"></div>
       </div>
 
       <!-- Template Selector Bar -->
@@ -15837,6 +15874,8 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
           <option value="lower">lowercase</option>
           <option value="title">Title Case</option>
         </select>
+        <span style="border-left:1px solid rgba(255,255,255,.1);margin:0 4px"></span>
+        <button onclick="applyFiduciaryStandard()" title="Conform to fiduciary-doc-factory Profile B: Times New Roman 12pt, 1in margins, justified, black-on-white" style="padding:6px 12px;border:1px solid rgba(168,85,247,.4);border-radius:4px;background:rgba(168,85,247,.12);color:#a855f7;cursor:pointer;font-weight:700;font-size:11px">⚖ Fiduciary Standard</button>
         <span style="border-left:1px solid rgba(255,255,255,.1);margin:0 4px"></span>
         <button onclick="exportDocPDF()" style="padding:6px 12px;border:1px solid rgba(239,68,68,.3);border-radius:4px;background:rgba(239,68,68,.1);color:#ef4444;cursor:pointer;font-weight:700;font-size:11px">📄 PDF</button>
         <button onclick="exportDocWord()" style="padding:6px 12px;border:1px solid rgba(59,130,246,.3);border-radius:4px;background:rgba(59,130,246,.1);color:#3b82f6;cursor:pointer;font-weight:700;font-size:11px">📝 Word</button>
@@ -19737,6 +19776,12 @@ Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height
     var plainText = rawText.replace(/<[^>]*>/g, '');
     if (!plainText.trim()) return;
 
+    // Neural engine (Gemini) when enabled — realistic voice, no per-sentence highlight.
+    if (typeof GEMINI_TTS !== 'undefined' && GEMINI_TTS.enabled() && GEMINI_TTS.hasKey()) {
+      GEMINI_TTS.speak(plainText, { rate: getTTSRate() });
+      return;
+    }
+
     // Split into sentences (on . ! ? followed by space or end-of-string)
     var sentences = plainText.match(/[^.!?]*[.!?]+[\s]?|[^.!?]+$/g);
     if (!sentences || sentences.length === 0) sentences = [plainText];
@@ -19798,6 +19843,7 @@ Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height
 
   function stopVoiceTTS() {
     speechSynthesis.cancel();
+    if (typeof GEMINI_TTS !== 'undefined') GEMINI_TTS.stop();
     vcTTSPaused = false;
     var btn = document.getElementById('vc-pause-btn');
     if (btn) btn.textContent = '\u23F8\uFE0F Pause';
@@ -22484,26 +22530,58 @@ Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height
     if(!jsPDF){alert('jsPDF not loaded');return;}
     var doc=new jsPDF('p','pt','letter');
     var content=document.getElementById('doc-editor').innerText;
-    var lines=doc.splitTextToSize(content,520);
+    // Profile B: 1-inch (72pt) margins → text width 612-144=468pt; Times 12pt.
+    var lines=doc.splitTextToSize(content,468);
     doc.setFont('times','normal');doc.setFontSize(12);
-    var y=60;
+    var y=72;
     lines.forEach(function(line){
-      if(y>720){doc.addPage();y=60;}
-      doc.text(40,y,line);y+=18;
+      if(y>720){doc.addPage();y=72;}
+      doc.text(72,y,line);y+=18;
     });
     doc.save('document_'+new Date().toISOString().slice(0,10)+'.pdf');
   }
+  // fiduciary-doc-factory Profile B: Times New Roman 12pt, 1in margins, justified, black-on-white, no fills.
+  var FIDUCIARY_PROFILE_B_CSS =
+    '@page{size:letter;margin:1in;}' +
+    'body{font-family:"Times New Roman",serif;font-size:12pt;line-height:1.5;margin:1in;color:#000;background:#fff;text-align:justify;}' +
+    'p{text-align:justify;}' +
+    'table{border-collapse:collapse;}' +
+    'td,th{border:0.75pt solid #000;background:#fff !important;}' +
+    'th{font-weight:bold;}' +
+    '*{background:transparent !important;color:#000 !important;}';
   function exportDocWord() {
     var content=document.getElementById('doc-editor').innerHTML;
-    var html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><style>body{font-family:"Times New Roman";font-size:12pt;line-height:2;margin:1in;}</style></head><body>'+content+'</body></html>';
+    var html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><style>'+FIDUCIARY_PROFILE_B_CSS+'</style></head><body>'+content+'</body></html>';
     var blob=new Blob([html],{type:'application/msword'});
     saveAs(blob,'document_'+new Date().toISOString().slice(0,10)+'.doc');
   }
   function printDoc() {
     var content=document.getElementById('doc-editor').innerHTML;
     var w=window.open('','','width=800,height=1000');
-    w.document.write('<html><head><style>body{font-family:"Times New Roman";font-size:12pt;line-height:2;margin:1in;color:#000;}</style></head><body>'+content+'</body></html>');
+    w.document.write('<html><head><style>'+FIDUCIARY_PROFILE_B_CSS+'</style></head><body>'+content+'</body></html>');
     w.document.close();w.print();
+  }
+  // Normalize the editor content to the fiduciary-doc-factory Profile B standard, in place.
+  function applyFiduciaryStandard() {
+    var editor=document.getElementById('doc-editor');
+    if(!editor){return;}
+    editor.style.fontFamily="'Times New Roman',serif";
+    editor.style.fontSize='12pt';
+    editor.style.color='#1B2A4A';
+    editor.style.background='#fff';
+    editor.style.textAlign='justify';
+    // strip colored fills / highlights / non-black text per the black-on-white invariant
+    var nodes=editor.querySelectorAll('*');
+    for(var i=0;i<nodes.length;i++){
+      var el=nodes[i];
+      el.style.backgroundColor='';
+      el.style.background='';
+      if(el.style.color && el.style.color!=='#000' && el.style.color!=='rgb(0, 0, 0)'){el.style.color='';}
+      el.removeAttribute('bgcolor');
+      if(el.tagName==='P'||el.tagName==='DIV'){if(!el.style.textAlign||el.style.textAlign==='left'){/* leave centered headings */ if(getComputedStyle(el).textAlign!=='center'){el.style.textAlign='justify';}}}
+    }
+    var st=document.getElementById('doc-fdf-status');
+    if(st){st.textContent='✓ Profile B applied (TNR 12pt · 1in · justified · black-on-white)';st.style.color='#22c55e';}
   }
 
   // SOURCE FOLDERS
@@ -40123,7 +40201,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <div><label style="font-size:11px;color:var(--text2)">Pitch</label><input type="range" id="ttsPitch" min="0" max="2" step="0.1" value="1" style="width:100%"></div>
 <div><label style="font-size:11px;color:var(--text2)">Volume</label><input type="range" id="ttsVol" min="0" max="1" step="0.1" value="1" style="width:100%"></div>
 </div>
-<div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="speakTTS()" data-guide="Read the current text response aloud using text-to-speech synthesis">🔊 Speak</button><button class="btn" onclick="speechSynthesis.cancel()">⏹️ Stop</button></div>
+<div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="speakTTS()" data-guide="Read the current text response aloud using text-to-speech synthesis">🔊 Speak</button><button class="btn" onclick="speechSynthesis.cancel();if(typeof GEMINI_TTS!=='undefined')GEMINI_TTS.stop();">⏹️ Stop</button></div>
 </div>
 </div>
 </div>
@@ -40437,7 +40515,21 @@ var DOCUMENT_KNOWLEDGE = (typeof DOCUMENT_KNOWLEDGE !== 'undefined' && DOCUMENT_
     taxFramework: 'EMBEDDED KNOWLEDGE - FINANCIAL ASSETS TAX PAYMENT FRAMEWORK.',
     nolClassification: 'NOLs are financial assets and must not be classified as deferred tax assets in this runtime.',
     arbitrationFramework: 'Arbitration outcomes are analyzed under governing federal and state arbitration law frameworks.',
-    pre1866CriminalStatutes: ''
+    pre1866CriminalStatutes: '',
+    // ── fiduciary-doc-factory v2.1.0 (merged skill) — distilled standard ──
+    // Source of truth: .claude/skills/fiduciary-doc-factory/. Plain prose only (HARD_LOCK safe).
+    fiduciaryDocFactory:
+      'FIDUCIARY DOCUMENT FACTORY STANDARD (v2.1.0 — GPO Style Manual 2016 plus Weiss trustee substance). ' +
+      'Apply this whenever you produce, curate, or revise a trust or private-administrative document; it is inert for non-document tasks. ' +
+      'IDENTITY STACK (state capacity on every signature): Trust entity — "A Provident Private Creditor Revocable Living Trust, by [Name], Trustee"; Living Man — per the Affidavit of Identity and Status; Co-Trustee — "[Name], as Co-Trustee and not individually". A trustee signs in capacity, never personally; on any debt or contract instrument a bare title is insufficient — add a non-personal qualifier ("as Trustee and not personally", "without recourse to Trustee"). ' +
+      'EIN is masked everywhere as **-***9588 except a form field that legally compels the full number. Governing law is the North Carolina Uniform Trust Code, N.C.G.S. Ch. 36C. Pull the mailing address from the live workbook at render time; never hardcode it. ' +
+      'FORMAT INVARIANTS (Profile B, forced): Times New Roman 12 pt, 1-inch margins all sides, justified. Black text on white only — no shading, no highlight, no colored rules, no fills; tables use a single black hairline grid, header row bold not shaded. Signatures and datelines indent in multiples of 2 ems (signature block reached by a 3.0-inch left indent, capacity line directly beneath the name); addresses and the Jurat sit flush left. Executive spacing; control widows and orphans and let the signature or Jurat share the final content page rather than stranding a lone line. ' +
+      'GPO EDITORIAL PASS: serial (Oxford) comma is mandatory; initialisms carry no internal periods (IRS, USPS, SSA, EIN); "U.S." as an adjective keeps periods, "United States" as a noun is spelled out; spell out one through nine and use figures for 10 and up, but always figures for money, dates, percentages, and section, account, EIN, and case numbers; no sentence begins with a figure; dateline uses a spelled-out month; italicize case names and supra, infra, id., but keep e.g., i.e., et al., pro se, affidavit, jurat upright; capitalize defined parties (the Trust, Trustee, Settlor, Beneficiary) consistently. ' +
+      'WEISS FIDUCIARY SUBSTANCE: open most instruments with an authority recital ("Pursuant to the powers vested in the Trustee under that certain A Provident Private Creditor Revocable Living Trust and the North Carolina Uniform Trust Code, N.C.G.S. Ch. 36C, the undersigned Trustee acts as follows"); close demands and notices with a reservation of rights and non-waiver clause; notices identify the Trust, the Trustee, the recipient, the act, the effective date, and the response window, in that order; accountings keep principal separate from income and never net them silently; transfers state the from-titling and to-titling exactly with complete account numbers; no self-dealing, preference, or concealment language; no personal pronouns where the trustee acts for the trust. ' +
+      'DOC-ID: every emitted document carries a DOC-NNNN stamp (upper-left) matched to the live TMAR Document Registry — mint the next ID and write the row back; never reuse or placeholder an ID. ' +
+      'MEDIA: default Letter 8.5x11 on 24 lb bond; Legal 8.5x14 only for court forms and recording filings; 32 lb cover stock for certificates, seals, and cover pages; surface size and weight in the output preamble. ' +
+      'GATES: if a document is account-specific (transfer, retitle, closure) and any referenced account number is missing, stop and list exactly which numbers are missing rather than inventing them. Conflict order: compelled legal form field, then format invariant, then Weiss substance, then GPO editorial — higher yields to lower, and any yield is flagged in one line. ' +
+      'The 14 document types (Account Transfer Letter, Affidavit, Notice/Praecipe, Declaration, Trustee Resolution, Power of Attorney, FOIA Request, Administrative Appeal, Election Letter, Certification of Documents, Cover Sheet/Transmittal, Petition, Cease and Desist/Notice of Claim, Affidavit of Identity and Status) each carry the capacity line and, where the trust acts, the authority recital; types 2, 4, 6, 9, 12, and 14 require sworn or certified execution.'
 });
 
 function _normalizeCustomAgents(raw) {
@@ -42982,6 +43074,10 @@ function getSystemPrompt(agentId) {
 
     if (agentId === 'html_arch') return "You are the HTML ARCHITECT TEAM — 25 web design professionals covering HTML5 semantics, CSS3 layout/grid, responsive design, cross-browser testing, WCAG accessibility, performance, animation, typography, UI components, design systems, SVG/Canvas, CSS variables, print-to-web, landing pages, dashboards, forms, navigation/IA, mobile-first, dark mode, progressive enhancement, web fonts, image optimization, CSS frameworks, standards compliance, and design direction. All produce clean, semantic, production-grade HTML/CSS.";
 
+    if (agentId === 'doc_creation') return "You are the DOCUMENT CREATION FIRM — 25 fiduciary drafting professionals operating the fiduciary-doc-factory (v2.1.0). You generate filing-ready trust and private-administrative instruments. Before emitting any document you run the pre-flight gate: identify the document type, resolve or mint its DOC-NNNN against the live TMAR Document Registry and write the row back, resolve the identity level and capacity line, select media, run the account-number gate, then apply the GPO 2016 editorial pass and the Weiss fiduciary-substance pass, and render in Profile B with a final page-economy pass. You work from the 14-type library and never invent or placeholder account numbers, Doc-IDs, or EIN digits — if a required account number is missing you stop and list exactly which are missing. The output IS the final deliverable. Conform in full to the FIDUCIARY DOC FACTORY standard supplied below.\n\nMANDATORY STANDARD:\n" + (DOCUMENT_KNOWLEDGE.fiduciaryDocFactory || "");
+
+    if (agentId === 'doc_format') return "You are the DOCUMENT FORMAT FIRM — 25 formatting and publication-quality professionals operating the format layer of the fiduciary-doc-factory (v2.1.0). You take existing or drafted text and enforce the deterministic format backbone: Profile B (Times New Roman 12 pt, 1-inch margins, justified), black-on-white only with no fills or color, signature and dateline geometry indented in multiples of 2 ems with the capacity line beneath the name, flush-left addresses and Jurat, executive spacing, widow/orphan control, and the final page-economy pass. You apply the GPO 2016 editorial pass (serial comma, period-free initialisms, numeral and capitalization rules, italic conventions) and verify the Weiss fiduciary signature hygiene is present without altering the operator's substantive positions. In revision mode you output a tight diff, not a full rewrite, unless structure changed. Conform in full to the FIDUCIARY DOC FACTORY standard supplied below.\n\nMANDATORY STANDARD:\n" + (DOCUMENT_KNOWLEDGE.fiduciaryDocFactory || "");
+
     return "You are the " + a.name + " TEAM — 25 domain professionals producing unified expert analysis. Role: " + a.role + ". Facts and conclusions of law only.";
 }
 // SYPHER PROTOCOL core — supplies the gate tokens required by HARD_LOCK.validatePrompt()
@@ -43030,6 +43126,10 @@ function buildFullSystemPrompt(agentSystemPrompt, _mem0Memories) {
               _mem0Memories.map(function(m, i) {
                   return (i+1) + '. ' + (m.length > 100 ? m.substring(0,100) + '…' : m);
               }).join('\n') + '\n';
+    }
+    // ══ fiduciary-doc-factory: every agent carries the document standard (inert unless drafting) ══
+    if (typeof DOCUMENT_KNOWLEDGE !== 'undefined' && DOCUMENT_KNOWLEDGE && DOCUMENT_KNOWLEDGE.fiduciaryDocFactory) {
+        sp += '\n\n═══ FIDUCIARY DOC FACTORY ═══\n' + DOCUMENT_KNOWLEDGE.fiduciaryDocFactory + '\n═══ END FIDUCIARY DOC FACTORY ═══\n';
     }
     return sp;
 }
@@ -44484,18 +44584,219 @@ function toggleAgentTTS() {
 }
 
 function speakTTS() {
-    speechSynthesis.cancel();
     var text = document.getElementById('ttsInput').value;
     if (!text) return;
+    var r = document.getElementById('ttsRate');
+    var v = document.getElementById('ttsVol');
+    var rate = r ? parseFloat(r.value) : 1;
+    var vol = v ? parseFloat(v.value) : 1;
+    // Neural engine (Gemini) when enabled + key present; otherwise system voice.
+    if (typeof GEMINI_TTS !== 'undefined' && GEMINI_TTS.enabled() && GEMINI_TTS.hasKey()) {
+        GEMINI_TTS.speak(text, { rate: rate, volume: vol });
+        return;
+    }
+    speechSynthesis.cancel();
     var u = new SpeechSynthesisUtterance(text);
     var voices = speechSynthesis.getVoices();
     var voiceSel = document.getElementById('ttsVoiceSelect');
     if (voiceSel && voices[voiceSel.value]) u.voice = voices[voiceSel.value];
-    var r = document.getElementById('ttsRate'); if (r) u.rate = parseFloat(r.value);
+    if (r) u.rate = rate;
     var p = document.getElementById('ttsPitch'); if (p) u.pitch = parseFloat(p.value);
-    var v = document.getElementById('ttsVol'); if (v) u.volume = parseFloat(v.value);
+    if (v) u.volume = vol;
     speechSynthesis.speak(u);
 }
+
+// ═══════════════════════════════════════════════════════════════
+// GEMINI NEURAL TTS — realistic voices via gemini-*-tts (generateContent → PCM → WAV)
+// localStorage: tmar_tts_engine ('gemini'|'system'), tmar_gemini_tts_voice,
+//   tmar_gemini_tts_model, key from eeon_key_gemini (fallback chain below).
+// ═══════════════════════════════════════════════════════════════
+var GEMINI_TTS = (function () {
+  var currentAudio = null;
+  var queue = [];
+  var stopped = false;
+
+  // 30 prebuilt Gemini voices with a short character hint.
+  var VOICES = [
+    ['Charon','Informative · deep'], ['Kore','Firm · clear'], ['Puck','Upbeat · bright'],
+    ['Zephyr','Bright · airy'], ['Fenrir','Excitable · strong'], ['Leda','Youthful'],
+    ['Orus','Firm · grounded'], ['Aoede','Breezy'], ['Callirrhoe','Easy-going'],
+    ['Autonoe','Bright'], ['Enceladus','Breathy · soft'], ['Iapetus','Clear'],
+    ['Umbriel','Easy-going · calm'], ['Algieba','Smooth'], ['Despina','Smooth'],
+    ['Erinome','Clear'], ['Algenib','Gravelly'], ['Rasalgethi','Informative'],
+    ['Laomedeia','Upbeat'], ['Achernar','Soft'], ['Alnilam','Firm'],
+    ['Schedar','Even'], ['Gacrux','Mature'], ['Pulcherrima','Forward'],
+    ['Achird','Friendly · warm'], ['Zubenelgenubi','Casual'], ['Vindemiatrix','Gentle'],
+    ['Sadachbia','Lively'], ['Sadaltager','Knowledgeable'], ['Sulafat','Warm']
+  ];
+  // model fallback chain — try stable preview first, then newest.
+  var MODELS = ['gemini-2.5-flash-preview-tts', 'gemini-3.1-flash-tts-preview'];
+
+  function ls(k, d) { try { var v = localStorage.getItem(k); return (v === null || v === '') ? d : v; } catch (e) { return d; } }
+  function enabled() { return ls('tmar_tts_engine', 'gemini') === 'gemini'; }
+  function getVoice() { return ls('tmar_gemini_tts_voice', 'Charon'); }
+  function getModel() { var m = ls('tmar_gemini_tts_model', ''); return m || MODELS[0]; }
+  function getKey() {
+    return ls('eeon_key_gemini', '') || ls('tmar_gemini_tts_key', '') ||
+           ls('eeon_key_google', '') || ls('stg_key_gemini', '') || ls('eeon_key_zai', '');
+  }
+  function hasKey() { return !!getKey(); }
+  function setStatus(msg, ok) {
+    var el = document.getElementById('stg-gtts-status');
+    if (el) { el.textContent = msg || ''; el.style.color = ok ? '#22c55e' : '#f59e0b'; }
+  }
+
+  function b64ToBytes(b64) {
+    var bin = atob(b64); var len = bin.length; var bytes = new Uint8Array(len);
+    for (var i = 0; i < len; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
+  }
+  // Wrap raw PCM (signed 16-bit LE, mono) in a minimal WAV container.
+  function pcmToWav(pcm, sampleRate) {
+    sampleRate = sampleRate || 24000;
+    var numCh = 1, bps = 16, blockAlign = numCh * bps / 8, byteRate = sampleRate * blockAlign;
+    var buf = new ArrayBuffer(44 + pcm.length); var dv = new DataView(buf);
+    function ws(off, s) { for (var i = 0; i < s.length; i++) dv.setUint8(off + i, s.charCodeAt(i)); }
+    ws(0, 'RIFF'); dv.setUint32(4, 36 + pcm.length, true); ws(8, 'WAVE');
+    ws(12, 'fmt '); dv.setUint32(16, 16, true); dv.setUint16(20, 1, true);
+    dv.setUint16(22, numCh, true); dv.setUint32(24, sampleRate, true);
+    dv.setUint32(28, byteRate, true); dv.setUint16(32, blockAlign, true); dv.setUint16(34, bps, true);
+    ws(36, 'data'); dv.setUint32(40, pcm.length, true);
+    new Uint8Array(buf, 44).set(pcm);
+    return new Blob([buf], { type: 'audio/wav' });
+  }
+  function rateFromMime(mime) { var m = /rate=(\d+)/.exec(mime || ''); return m ? parseInt(m[1], 10) : 24000; }
+
+  // Split long text into <=2800-char chunks on sentence boundaries.
+  function chunk(text) {
+    var sents = text.match(/[^.!?]+[.!?]+\s*|[^.!?]+$/g) || [text];
+    var out = [], cur = '';
+    sents.forEach(function (s) {
+      if ((cur + s).length > 2800 && cur) { out.push(cur); cur = s; }
+      else cur += s;
+    });
+    if (cur.trim()) out.push(cur);
+    return out;
+  }
+
+  async function fetchAudio(text) {
+    var key = getKey();
+    var body = JSON.stringify({
+      contents: [{ parts: [{ text: text }] }],
+      generationConfig: {
+        responseModalities: ['AUDIO'],
+        speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: getVoice() } } }
+      }
+    });
+    var models = [getModel()].concat(MODELS.filter(function (m) { return m !== getModel(); }));
+    var lastErr = '';
+    for (var i = 0; i < models.length; i++) {
+      var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + models[i] +
+                ':generateContent?key=' + encodeURIComponent(key);
+      try {
+        var r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body });
+        if (!r.ok) { lastErr = 'HTTP ' + r.status + ' (' + models[i] + ')'; continue; }
+        var d = await r.json();
+        var part = d && d.candidates && d.candidates[0] && d.candidates[0].content &&
+                   d.candidates[0].content.parts && d.candidates[0].content.parts[0];
+        var inline = part && part.inlineData;
+        if (inline && inline.data) {
+          if (models[i] !== getModel()) { try { localStorage.setItem('tmar_gemini_tts_model', models[i]); } catch (e) {} }
+          return pcmToWav(b64ToBytes(inline.data), rateFromMime(inline.mimeType));
+        }
+        lastErr = 'No audio in response (' + models[i] + ')';
+      } catch (e) { lastErr = (e && e.message) || 'fetch failed'; }
+    }
+    throw new Error(lastErr || 'Gemini TTS failed');
+  }
+
+  function playBlob(blob, opts) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(blob);
+      var a = new Audio(url);
+      currentAudio = a;
+      if (opts && typeof opts.volume === 'number') a.volume = Math.max(0, Math.min(1, opts.volume));
+      if (opts && typeof opts.rate === 'number') a.playbackRate = Math.max(0.5, Math.min(2, opts.rate));
+      a.onended = function () { URL.revokeObjectURL(url); resolve(); };
+      a.onerror = function () { URL.revokeObjectURL(url); reject(new Error('audio playback failed')); };
+      a.play().catch(reject);
+    });
+  }
+
+  function systemFallback(text, opts) {
+    try {
+      if (typeof speechSynthesis === 'undefined') return;
+      speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(text);
+      if (opts && typeof opts.rate === 'number') u.rate = opts.rate;
+      if (opts && typeof opts.volume === 'number') u.volume = opts.volume;
+      speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+
+  async function speak(text, opts) {
+    opts = opts || {};
+    stop();
+    stopped = false;
+    var plain = String(text || '').replace(/<[^>]*>/g, '').trim();
+    if (!plain) return;
+    if (!hasKey()) { setStatus('No Gemini key — using system voice', false); systemFallback(plain, opts); return; }
+    queue = chunk(plain);
+    setStatus('🔊 Synthesizing (' + getVoice() + ')…', true);
+    try {
+      for (var i = 0; i < queue.length; i++) {
+        if (stopped) break;
+        var blob = await fetchAudio(queue[i]);
+        if (stopped) break;
+        await playBlob(blob, opts);
+      }
+      setStatus('', true);
+    } catch (e) {
+      setStatus('Gemini TTS error: ' + e.message + ' — using system voice', false);
+      console.warn('[GEMINI_TTS]', e);
+      systemFallback(plain, opts);
+    }
+  }
+
+  function stop() {
+    stopped = true; queue = [];
+    if (currentAudio) { try { currentAudio.pause(); currentAudio.currentTime = 0; } catch (e) {} currentAudio = null; }
+  }
+
+  return { VOICES: VOICES, MODELS: MODELS, enabled: enabled, hasKey: hasKey, getKey: getKey,
+           getVoice: getVoice, getModel: getModel, speak: speak, stop: stop, setStatus: setStatus };
+})();
+
+// ── Gemini TTS settings-panel glue ──
+function gttsSaveEngine(v) { try { localStorage.setItem('tmar_tts_engine', v); } catch (e) {} GEMINI_TTS.setStatus(v === 'gemini' ? 'Neural engine on' : 'System voice', true); }
+function gttsSaveVoice(v) { try { localStorage.setItem('tmar_gemini_tts_voice', v); } catch (e) {} }
+function gttsSaveModel(v) { try { localStorage.setItem('tmar_gemini_tts_model', v); } catch (e) {} }
+function gttsSaveKey(v) { try { localStorage.setItem('eeon_key_gemini', (v || '').trim()); } catch (e) {} GEMINI_TTS.setStatus((v || '').trim() ? 'Key saved' : 'Key cleared', !!(v || '').trim()); }
+function gttsTest() {
+  var saved = (function(){ try { return localStorage.getItem('tmar_tts_engine'); } catch(e){ return null; } })();
+  try { localStorage.setItem('tmar_tts_engine', 'gemini'); } catch (e) {}
+  if (!GEMINI_TTS.hasKey()) { GEMINI_TTS.setStatus('Enter a Gemini API key first', false); if (saved!==null) { try{localStorage.setItem('tmar_tts_engine',saved);}catch(e){} } return; }
+  GEMINI_TTS.speak('This is the ' + GEMINI_TTS.getVoice() + ' neural voice from the TMAR Accrual Ledger. Facts and conclusions of law only.', { rate: 1, volume: 1 });
+}
+function gttsInitUI() {
+  var vs = document.getElementById('stg-gtts-voice');
+  if (vs && !vs.options.length) {
+    GEMINI_TTS.VOICES.forEach(function (pair) {
+      var o = document.createElement('option');
+      o.value = pair[0]; o.textContent = pair[0] + ' — ' + pair[1];
+      vs.appendChild(o);
+    });
+  }
+  function setVal(id, val) { var el = document.getElementById(id); if (el && val != null) el.value = val; }
+  try {
+    setVal('stg-tts-engine', localStorage.getItem('tmar_tts_engine') || 'gemini');
+    setVal('stg-gtts-voice', GEMINI_TTS.getVoice());
+    setVal('stg-gtts-model', GEMINI_TTS.getModel());
+    var k = document.getElementById('stg-gtts-key');
+    if (k) k.value = GEMINI_TTS.getKey() || '';
+  } catch (e) {}
+}
+try { document.addEventListener('DOMContentLoaded', gttsInitUI); } catch (e) {}
 
 console.log('✓ EoN AI JavaScript loaded');
 console.log("✅ askAgentSafe loaded");
@@ -46041,6 +46342,7 @@ function showSettingsPanel(panel) {
   if (target) target.style.display = 'block';
   var btn = document.getElementById('stg-tab-' + panel);
   if (btn) { btn.style.background = 'rgba(59,130,246,.15)'; btn.style.fontWeight = '700'; btn.style.color = '#3b82f6'; btn.style.borderColor = 'rgba(59,130,246,.5)'; }
+  if (panel === 'voice' && typeof gttsInitUI === 'function') gttsInitUI();
 }
 
 function settingsSaveKey(provider, value) {
