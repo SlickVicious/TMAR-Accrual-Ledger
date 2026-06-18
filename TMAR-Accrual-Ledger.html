@@ -15734,6 +15734,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
           <option value="civil_rights_complaint">Civil Rights Complaint</option>
           <option value="notice_of_default">Notice of Default</option>
           <option value="demand_letter">Demand Letter</option>
+          <option value="ucc_9210_demand">UCC 9-210 Authenticated Accrual Demand</option>
           <option value="trust_resolution">Trust Resolution</option>
           <option value="certificate_of_trust">Certificate of Trust</option>
           <option value="general_legal_memo">General Legal Memo</option>
@@ -16007,6 +16008,22 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
               <div>
                 <label style="display:block;font-size:10px;color:var(--text-secondary);margin-bottom:2px">Active Tax Year <span style="color:#8b5cf6">→ {{ACTIVE_YEAR}}</span></label>
                 <input id="tvar-activeYear" placeholder="e.g. 2025" style="width:100%;padding:6px 8px;border:1px solid rgba(139,92,246,.3);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);font-size:12px;box-sizing:border-box">
+              </div>
+              <div>
+                <label style="display:block;font-size:10px;color:var(--text-secondary);margin-bottom:2px">Creditor / Secured Party <span style="color:#8b5cf6">→ {{CREDITOR_NAME}}</span></label>
+                <input id="tvar-creditorName" placeholder="e.g. LVNV Funding LLC" style="width:100%;padding:6px 8px;border:1px solid rgba(139,92,246,.3);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);font-size:12px;box-sizing:border-box">
+              </div>
+              <div>
+                <label style="display:block;font-size:10px;color:var(--text-secondary);margin-bottom:2px">Creditor Address <span style="color:#8b5cf6">→ {{CREDITOR_ADDRESS}}</span></label>
+                <input id="tvar-creditorAddress" placeholder="e.g. PO Box 10497, Greenville, SC 29603" style="width:100%;padding:6px 8px;border:1px solid rgba(139,92,246,.3);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);font-size:12px;box-sizing:border-box">
+              </div>
+              <div>
+                <label style="display:block;font-size:10px;color:var(--text-secondary);margin-bottom:2px">Account Reference No. <span style="color:#8b5cf6">→ {{ACCOUNT_NUMBER}}</span></label>
+                <input id="tvar-accountNumber" placeholder="e.g. 516648722480" style="width:100%;padding:6px 8px;border:1px solid rgba(139,92,246,.3);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);font-size:12px;box-sizing:border-box">
+              </div>
+              <div>
+                <label style="display:block;font-size:10px;color:var(--text-secondary);margin-bottom:2px">Signature Capacity <span style="color:#8b5cf6">→ {{CAPACITY}}</span></label>
+                <input id="tvar-capacity" placeholder="e.g. as Trustee and not individually (blank = individual)" style="width:100%;padding:6px 8px;border:1px solid rgba(139,92,246,.3);border-radius:4px;background:var(--bg-tertiary);color:var(--text-primary);font-size:12px;box-sizing:border-box">
               </div>
             </div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
@@ -20151,6 +20168,29 @@ Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height
       '<div style="margin-top:30px">____________________________________</div>' +
       '<div>{{PARTY_NAME}}</div>',
 
+    ucc_9210_demand: '<div style="margin-bottom:8px">{{DATE}}</div>' +
+      '<div style="margin-bottom:2px">VIA USPS CERTIFIED MAIL</div>' +
+      '<div style="margin-bottom:20px">Return Receipt Requested</div>' +
+      '<div style="margin-bottom:2px">{{CREDITOR_NAME}}</div>' +
+      '<div style="margin-bottom:20px">{{CREDITOR_ADDRESS}}</div>' +
+      '<div style="margin-bottom:6px"><b>Re: Authenticated Statement of Account — UCC 9-210 Demand</b></div>' +
+      '<div style="margin-bottom:20px"><b>Account Reference:</b> {{ACCOUNT_NUMBER}}</div>' +
+      '<div style="margin-bottom:12px">To the Secured Party of Record:</div>' +
+      '<div style="margin-bottom:12px">Pursuant to UCC 9-210, the undersigned, as account debtor, hereby demands an authenticated statement of account for the above-referenced obligation, including the following:</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">1. The unpaid balance of the obligation claimed to be secured as of the date of this demand.</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">2. A complete accrual accounting of all charges, payments received, interest applied, and fees assessed from origination to present, itemized by date and transaction.</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">3. Identification and description of all collateral claimed to secure the obligation, consistent with UCC 9-102(27)(a) classification.</div>' +
+      '<div style="margin-bottom:8px;padding-left:28px">4. The name and address of every assignee, transferee, or current holder of this obligation from origination to present, with the date of each assignment.</div>' +
+      '<div style="margin-bottom:16px;padding-left:28px">5. Copies of all authenticated assignment documents transferring rights in this obligation.</div>' +
+      '<div style="margin-bottom:12px">The secured party has fourteen (14) days from receipt of this demand to provide an authenticated response per UCC 9-210(b).</div>' +
+      '<div style="margin-bottom:12px">Failure to respond within fourteen (14) days entitles the account debtor to a court order compelling a response and an award of expenses, including attorney fees, per UCC 9-210(f).</div>' +
+      '<div style="margin-bottom:24px">This demand is not an acknowledgment of any claimed balance, nor a waiver of any defense, right, or claim, all of which are expressly reserved.</div>' +
+      '<div style="margin-top:30px">____________________________________</div>' +
+      '<div>{{PARTY_NAME}}</div>' +
+      '<div>{{CAPACITY}}</div>' +
+      '<div>{{ADDRESS}}</div>' +
+      '<div style="margin-top:8px">Date: {{DATE}}</div>',
+
     trust_resolution: '<div style="text-align:center;font-weight:bold;font-size:16px;margin-bottom:4px">TRUST RESOLUTION</div>' +
       '<div style="text-align:center;font-size:13px;margin-bottom:20px">Resolution No. ____________</div>' +
       '<div style="margin-bottom:12px"><b>Trust Name:</b> ____________</div>' +
@@ -21000,7 +21040,12 @@ Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height
       '{{CASE_NUMBER}}':       '',
       '{{DATE}}':              months[today.getMonth()] + ' ' + today.getDate() + ', ' + today.getFullYear(),
       '{{ACTIVE_YEAR}}':       s.activeYear || today.getFullYear().toString(),
-      '{{ADDRESS}}':           e.address || s.address || ''
+      '{{ADDRESS}}':           e.address || s.address || '',
+      // ── UCC 9-210 demand (per-letter) — fall back to a visible fill-in line ──
+      '{{CREDITOR_NAME}}':     s.creditorName    || '____________________________________',
+      '{{CREDITOR_ADDRESS}}':  s.creditorAddress || '____________________________________',
+      '{{ACCOUNT_NUMBER}}':    e.accountNumber || s.accountNumber || '____________________',
+      '{{CAPACITY}}':          s.capacity || ''
     };
   }
 
@@ -21753,6 +21798,7 @@ Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height
   var DOC_DISPLAY_NAMES = {
     affidavit:                    'Affidavit',
     demand_letter:                'Demand Letter',
+    ucc_9210_demand:              'UCC 9-210 Authenticated Accrual Demand',
     trust_resolution:             'Trust Resolution',
     certificate_of_trust:         'Certificate of Trust',
     general_legal_memo:           'General Legal Memo',
@@ -21915,6 +21961,10 @@ Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height
       document.getElementById('tvar-address').value           = s.address           || '';
       document.getElementById('tvar-court').value             = s.court             || '';
       document.getElementById('tvar-activeYear').value        = s.activeYear        || new Date().getFullYear().toString();
+      document.getElementById('tvar-creditorName').value      = s.creditorName      || '';
+      document.getElementById('tvar-creditorAddress').value   = s.creditorAddress   || '';
+      document.getElementById('tvar-accountNumber').value     = s.accountNumber     || '';
+      document.getElementById('tvar-capacity').value          = s.capacity          || '';
       ed.style.display = 'block';
       if (btn) btn.textContent = '▲ Close Editor';
     } else {
@@ -21936,6 +21986,10 @@ Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height
     s.address          = (document.getElementById('tvar-address').value          || '').trim();
     s.court            = (document.getElementById('tvar-court').value            || '').trim();
     s.activeYear       = (document.getElementById('tvar-activeYear').value       || '').trim();
+    s.creditorName     = (document.getElementById('tvar-creditorName').value     || '').trim();
+    s.creditorAddress  = (document.getElementById('tvar-creditorAddress').value  || '').trim();
+    s.accountNumber    = (document.getElementById('tvar-accountNumber').value    || '').trim();
+    s.capacity         = (document.getElementById('tvar-capacity').value         || '').trim();
     if (typeof saveToStorage === 'function') saveToStorage();
     updateVariablePreview();
     if (typeof updateHeaderSubtitle === 'function') updateHeaderSubtitle();
@@ -21964,7 +22018,11 @@ Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height
       successorTrustee: s.successorTrustee || '',
       address:          s.address          || '',
       court:            s.court            || '',
-      activeYear:       s.activeYear       || ''
+      activeYear:       s.activeYear       || '',
+      creditorName:     s.creditorName     || '',
+      creditorAddress:  s.creditorAddress  || '',
+      accountNumber:    s.accountNumber    || '',
+      capacity:         s.capacity         || ''
     };
     var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     var url = URL.createObjectURL(blob);
@@ -21994,6 +22052,10 @@ Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height
         if (data.address          !== undefined) s.address          = data.address;
         if (data.court            !== undefined) s.court            = data.court;
         if (data.activeYear       !== undefined) s.activeYear       = data.activeYear;
+        if (data.creditorName     !== undefined) s.creditorName     = data.creditorName;
+        if (data.creditorAddress  !== undefined) s.creditorAddress  = data.creditorAddress;
+        if (data.accountNumber    !== undefined) s.accountNumber    = data.accountNumber;
+        if (data.capacity         !== undefined) s.capacity         = data.capacity;
         if (typeof saveToStorage === 'function') saveToStorage();
         // Re-populate form fields and refresh preview
         var ed = document.getElementById('tmpl-var-editor');
@@ -22009,6 +22071,10 @@ Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height
           document.getElementById('tvar-address').value           = s.address           || '';
           document.getElementById('tvar-court').value             = s.court             || '';
           document.getElementById('tvar-activeYear').value        = s.activeYear        || '';
+          document.getElementById('tvar-creditorName').value      = s.creditorName      || '';
+          document.getElementById('tvar-creditorAddress').value   = s.creditorAddress   || '';
+          document.getElementById('tvar-accountNumber').value     = s.accountNumber     || '';
+          document.getElementById('tvar-capacity').value          = s.capacity          || '';
         }
         updateVariablePreview();
         if (typeof updateHeaderSubtitle === 'function') updateHeaderSubtitle();
