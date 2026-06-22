@@ -4375,7 +4375,13 @@
 
         <!-- Trial Balance -->
         <div class="mb-8">
-          <h3 class="text-xl font-bold mb-4 text-blue-400">⚖️ Trial Balance</h3>
+          <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+            <h3 class="text-xl font-bold text-blue-400">⚖️ Trial Balance</h3>
+            <div class="flex gap-2">
+              <button onclick="verifyAndReconcile()" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-semibold text-sm" title="Run 10 integrity checks across journal, trial balance, account/entity refs, dates, AR/AP, orphans, 3R lifecycle, and financial-asset reserve match">✅ Verify &amp; Reconcile</button>
+              <button onclick="reviewMyBooks()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-semibold text-sm" title="Run verification, then send a full books summary to the agent for GAAP-compliance review">🔍 Review My Books</button>
+            </div>
+          </div>
           <div class="overflow-x-auto" style="max-height: 300px; overflow-y: auto;">
             <table class="min-w-full border-collapse">
               <thead class="sticky top-0">
@@ -51946,6 +51952,315 @@ const setField = (id, val) => { const el = document.getElementById(id); if (el) 
 
 </script>
 </div>
+<script>
+// ════════════════════════════════════════════════════════════════════
+// TMAR Verify & Reconcile suite — additive cherry-pick from
+// redressright.me/GAAP.html (parity drift 2026-06-21). Self-contained;
+// touches no agent/HARD_LOCK code. reviewMyBooks rewired to #chatInput.
+// ════════════════════════════════════════════════════════════════════
+let lastVerificationPassed = false;
+let lastVerificationChecks = [];
+
+    function verifyAndReconcile(showModalResult = true) {
+      const checks = [];
+      let allPassed = true;
+
+      // ── 1. Journal Entry Balance Check ──
+      let unbalancedJEs = 0;
+      appData.journalEntries.forEach(je => {
+        const totalDr = je.lines.reduce((s, l) => s + (l.debit || 0), 0);
+        const totalCr = je.lines.reduce((s, l) => s + (l.credit || 0), 0);
+        if (Math.abs(totalDr - totalCr) > 0.001) unbalancedJEs++;
+      });
+      checks.push({
+        name: 'Journal Entries Balanced',
+        passed: unbalancedJEs === 0,
+        detail: unbalancedJEs === 0
+          ? appData.journalEntries.length + ' entries — all debits = credits ✓'
+          : unbalancedJEs + ' entries have unbalanced debits/credits'
+      });
+      if (unbalancedJEs > 0) allPassed = false;
+
+      // ── 2. Trial Balance Check ──
+      const balances = calculateBalances('all');
+      const flat = {};
+      let tbDr = 0, tbCr = 0;
+      for (const eid in balances) {
+        for (const acct in balances[eid]) {
+          if (!flat[acct]) flat[acct] = 0;
+          flat[acct] += balances[eid][acct];
+        }
+      }
+      appData.chartOfAccounts.forEach(a => {
+        const bal = flat[a.num] || 0;
+        if (bal === 0) return;
+        if ((a.normalBal === 'debit' && bal > 0) || (a.normalBal === 'credit' && bal < 0)) {
+          tbDr += Math.abs(bal);
+        } else {
+          tbCr += Math.abs(bal);
+        }
+      });
+      const tbBalanced = Math.abs(tbDr - tbCr) < 0.01;
+      checks.push({
+        name: 'Trial Balance',
+        passed: tbBalanced,
+        detail: tbBalanced
+          ? `Debits $${tbDr.toFixed(2)} = Credits $${tbCr.toFixed(2)} ✓`
+          : `IMBALANCE: Debits $${tbDr.toFixed(2)} ≠ Credits $${tbCr.toFixed(2)}`
+      });
+      if (!tbBalanced) allPassed = false;
+
+      // ── 3. Account Reference Check ──
+      const acctNums = new Set(appData.chartOfAccounts.map(a => a.num));
+      let badAccts = 0;
+      let badAcctList = [];
+      appData.journalEntries.forEach(je => {
+        je.lines.forEach(l => {
+          if (!acctNums.has(l.account)) {
+            badAccts++;
+            if (!badAcctList.includes(l.account)) badAcctList.push(l.account);
+          }
+        });
+      });
+      checks.push({
+        name: 'Account References Valid',
+        passed: badAccts === 0,
+        detail: badAccts === 0
+          ? 'All journal entries reference valid COA accounts ✓'
+          : badAccts + ' references to missing accounts: ' + badAcctList.join(', ')
+      });
+      if (badAccts > 0) allPassed = false;
+
+      // ── 4. Entity Reference Check ──
+      const entityIds = new Set(appData.entities.map(e => String(e.id)));
+      let badEntities = 0;
+      appData.journalEntries.forEach(je => {
+        je.lines.forEach(l => {
+          if (l.entityId && !entityIds.has(String(l.entityId))) badEntities++;
+        });
+      });
+      checks.push({
+        name: 'Entity References Valid',
+        passed: badEntities === 0,
+        detail: badEntities === 0 ? 'All entity references valid ✓' : badEntities + ' references to missing entities'
+      });
+      if (badEntities > 0) allPassed = false;
+
+      // ── 5. No Zero Amount Lines ──
+      let zeroLines = 0;
+      appData.journalEntries.forEach(je => {
+        je.lines.forEach(l => {
+          if ((!l.debit || l.debit === 0) && (!l.credit || l.credit === 0)) zeroLines++;
+        });
+      });
+      checks.push({
+        name: 'No Zero-Amount Lines',
+        passed: zeroLines === 0,
+        detail: zeroLines === 0 ? 'All lines have amounts ✓' : zeroLines + ' lines with zero debit AND zero credit'
+      });
+      if (zeroLines > 0) allPassed = false;
+
+      // ── 6. Future Date Check ──
+      const today = new Date().toISOString().split('T')[0];
+      let futureEntries = 0;
+      appData.journalEntries.forEach(je => {
+        if (je.date > today) futureEntries++;
+      });
+      checks.push({
+        name: 'No Future Dates',
+        passed: futureEntries === 0,
+        detail: futureEntries === 0 ? 'All entry dates are current or past ✓' : futureEntries + ' entries have future dates'
+      });
+      if (futureEntries > 0) allPassed = false;
+
+      // ── 7. AR/AP Control Account Reconciliation ──
+      const arTotal = appData.receivables.reduce((s, r) => s + (r.balance || 0), 0);
+      const apTotal = appData.payables.reduce((s, p) => s + (p.balance || 0), 0);
+      checks.push({
+        name: 'AR/AP Balances',
+        passed: true,
+        detail: `A/R total: $${arTotal.toFixed(2)} | A/P total: $${apTotal.toFixed(2)}`
+      });
+
+      // ── 8. Ledger-Journal Orphan Check ──
+      let orphanLedger = 0, orphanJournal = 0;
+      const journalNumbers = new Set(appData.journalEntries.map(j => j.number));
+      appData.ledgerEntries.forEach(e => {
+        if (e.journalRef && !journalNumbers.has(e.journalRef)) orphanLedger++;
+      });
+      checks.push({
+        name: 'Data Integrity (Orphans)',
+        passed: orphanLedger === 0,
+        detail: orphanLedger === 0
+          ? 'Ledger and journal entries are in sync ✓'
+          : orphanLedger + ' ledger entries reference missing journal entries'
+      });
+      if (orphanLedger > 0) allPassed = false;
+
+      // ── 9. 3R Status Summary ──
+      const r3Counts = { recognized: 0, reconciled: 0, realized: 0 };
+      appData.journalEntries.forEach(je => {
+        if (r3Counts[je.r3Status] !== undefined) r3Counts[je.r3Status]++;
+      });
+      checks.push({
+        name: '3R Lifecycle',
+        passed: true,
+        detail: `${r3Counts.recognized} Recognized | ${r3Counts.reconciled} Reconciled | ${r3Counts.realized} Realized`
+      });
+
+      // ── 10. Financial Asset Balance ──
+      let faBalance = 0, faReserve = 0;
+      appData.journalEntries.forEach(je => {
+        je.lines.forEach(l => {
+          if (['1750','1751','1752','1759'].includes(l.account)) faBalance += l.debit - l.credit;
+          if (['3750','3751','3752','3759'].includes(l.account)) faReserve += l.credit - l.debit;
+        });
+      });
+      const faMatch = Math.abs(faBalance - faReserve) < 0.01;
+      checks.push({
+        name: 'Financial Asset ↔ Reserve Match',
+        passed: faMatch,
+        detail: faMatch
+          ? `Financial Assets $${faBalance.toFixed(2)} = Reserves $${faReserve.toFixed(2)} ✓`
+          : `MISMATCH: Assets $${faBalance.toFixed(2)} ≠ Reserves $${faReserve.toFixed(2)}`
+      });
+      if (!faMatch) allPassed = false;
+
+      lastVerificationPassed = allPassed;
+      lastVerificationChecks = checks;
+
+      if (showModalResult) {
+        showVerificationReport(checks, allPassed);
+      }
+
+      // Auto-save verification result
+      appData.lastVerification = {
+        passed: allPassed,
+        at: new Date().toISOString(),
+        checks: checks.map(c => ({ name: c.name, passed: c.passed }))
+      };
+
+      return allPassed;
+    }
+    function showVerificationReport(checks, allPassed) {
+      let html = '<div style="max-height:70vh;overflow-y:auto">';
+      html += '<div style="text-align:center;margin-bottom:16px">';
+      html += allPassed
+        ? '<div style="font-size:48px;margin-bottom:8px">✅</div><div style="font-size:18px;font-weight:700;color:#10b981">ALL CHECKS PASSED — BOOKS ARE IN BALANCE</div>'
+        : '<div style="font-size:48px;margin-bottom:8px">⚠️</div><div style="font-size:18px;font-weight:700;color:#ef4444">ISSUES FOUND — REVIEW BEFORE PROCEEDING</div>';
+      html += '</div>';
+
+      html += '<div style="margin-bottom:16px">';
+      checks.forEach(c => {
+        const icon = c.passed ? '✅' : '❌';
+        const color = c.passed ? '#10b981' : '#ef4444';
+        html += `<div style="display:flex;align-items:flex-start;gap:8px;padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.06)">
+          <span style="font-size:14px;flex-shrink:0">${icon}</span>
+          <div style="flex:1">
+            <div style="font-weight:600;font-size:13px;color:${color}">${c.name}</div>
+            <div style="font-size:11px;color:#94a3b8">${c.detail}</div>
+          </div>
+        </div>`;
+      });
+      html += '</div>';
+
+      html += '<div style="display:flex;gap:8px;justify-content:flex-end;border-top:1px solid rgba(255,255,255,.08);padding-top:12px">';
+
+      if (allPassed) {
+        html += '<button onclick="confirmAccuracy(); closeModal();" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-black rounded-lg font-semibold text-sm" style="font-weight:700">📝 Confirm Accuracy & Sign Off</button>';
+      }
+      html += '<button onclick="closeModal()" class="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg font-semibold text-sm">Close</button>';
+      html += '</div></div>';
+
+      showModal(html);
+    }
+    function confirmAccuracy() {
+      appData.lastSignOff = {
+        confirmedAt: new Date().toISOString(),
+        checksPassed: lastVerificationPassed,
+        checkCount: lastVerificationChecks.length
+      };
+      saveToStorage();
+      showAlert('✅ Books confirmed accurate at ' + new Date().toLocaleString() +
+        '\n' + lastVerificationChecks.filter(c => c.passed).length + '/' +
+        lastVerificationChecks.length + ' checks passed.',
+        'Accuracy Confirmed — Sign-Off Recorded');
+    }
+    function autoValidateOnSave() {
+      if (appData.journalEntries.length === 0 && appData.ledgerEntries.length === 0) return;
+      const passed = verifyAndReconcile(false);
+      if (passed) {
+        console.log('✅ Auto-verification passed at', new Date().toLocaleTimeString());
+      } else {
+        console.warn('⚠️ Auto-verification found issues at', new Date().toLocaleTimeString());
+      }
+    }
+  function reviewMyBooks() {
+   // First run local verification
+   verifyAndReconcile(false);
+   const checks = lastVerificationChecks;
+   const allPassed = lastVerificationPassed;
+
+   // Build a structured data summary
+   var summary = '=== CURRENT BOOKS DATA SUMMARY ===\n';
+   summary += 'Journal Entries: ' + appData.journalEntries.length + '\n';
+   summary += 'Ledger Entries: ' + appData.ledgerEntries.length + '\n';
+   summary += 'Entities: ' + appData.entities.length + '\n';
+   summary += 'COA Accounts: ' + appData.chartOfAccounts.length + '\n';
+   summary += 'AR Items: ' + appData.receivables.length + '\n';
+   summary += 'AP Items: ' + appData.payables.length + '\n\n';
+
+   // Add verification check results
+   summary += '=== VERIFICATION RESULTS ===\n';
+   checks.forEach(function(c) {
+     summary += (c.passed ? '[PASS]' : '[FAIL]') + ' ' + c.name + ': ' + c.detail + '\n';
+   });
+   summary += '\nOverall: ' + (allPassed ? 'ALL CHECKS PASSED' : 'ISSUES FOUND') + '\n\n';
+
+   // Add journal entries detail
+   if (appData.journalEntries.length > 0) {
+     summary += '=== JOURNAL ENTRIES ===\n';
+     appData.journalEntries.forEach(function(je) {
+       summary += je.number + ' | ' + je.date + ' | ' + je.description + ' | 3R: ' + (je.r3Status || 'N/A') + '\n';
+       je.lines.forEach(function(l) {
+         var acct = (appData.chartOfAccounts.find(function(a) { return a.num === l.account; }) || {}).name || l.account;
+         summary += '   ' + (l.debit > 0 ? 'DR ' + acct + ' $' + l.debit.toFixed(2) : '') + (l.credit > 0 ? 'CR ' + acct + ' $' + l.credit.toFixed(2) : '') + '\n';
+       });
+     });
+   }
+
+   // Add AR/AP summary
+   if (appData.receivables.length > 0) {
+     summary += '\n=== ACCOUNTS RECEIVABLE ===\n';
+     appData.receivables.forEach(function(r) {
+       summary += r.invoiceNum + ' | $' + r.balance.toFixed(2) + ' | Due: ' + r.dueDate + '\n';
+     });
+   }
+   if (appData.payables.length > 0) {
+     summary += '\n=== ACCOUNTS PAYABLE ===\n';
+     appData.payables.forEach(function(p) {
+       summary += p.billNum + ' | $' + p.balance.toFixed(2) + ' | Due: ' + p.dueDate + '\n';
+     });
+   }
+
+   // Insert the summary into the input and send
+   var q = 'REVIEW MY BOOKS — analyze every entry for GAAP compliance, accrual accuracy, ' +
+     'proper journal entry structure (debits = credits), correct form placement, ' +
+     '3R status progression, and any errors or omissions. ' +
+     'Flag any issues and confirm what is correct.\n\n' + summary;
+
+   var input = document.getElementById('chatInput');
+   if (input) {
+     input.value = q;
+   }
+   eonChatSend();
+ }
+window.verifyAndReconcile = verifyAndReconcile;
+window.reviewMyBooks = reviewMyBooks;
+window.confirmAccuracy = confirmAccuracy;
+window.showVerificationReport = showVerificationReport;
+window.autoValidateOnSave = autoValidateOnSave;
+</script>
 </body><!-- ===== EON AI SIDEBAR ===== --></html>
 
 
