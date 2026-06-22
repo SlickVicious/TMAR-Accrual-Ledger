@@ -52255,11 +52255,26 @@ let lastVerificationChecks = [];
    }
    eonChatSend();
  }
+    // Fixes a live broken button: TMAR's Journal table renders an
+    // onclick="advanceR3Status(...)" (3R lifecycle), but the function was
+    // never defined in TMAR. Ported from upstream GAAP.html, with
+    // loadEntries() adapted to updateJournalTable() (confirmed present).
+    function advanceR3Status(jeId, newStatus) {
+      const je = appData.journalEntries.find(j => j.id === jeId);
+      if (!je) return;
+      je.r3Status = newStatus;
+      je.r3StatusAt = new Date().toISOString();
+      updateJournalTable();
+      saveToStorage();
+      showAlert('Journal ' + je.number + ' advanced to: ' + newStatus.toUpperCase(), '3R Status Updated');
+    }
+
 window.verifyAndReconcile = verifyAndReconcile;
 window.reviewMyBooks = reviewMyBooks;
 window.confirmAccuracy = confirmAccuracy;
 window.showVerificationReport = showVerificationReport;
 window.autoValidateOnSave = autoValidateOnSave;
+window.advanceR3Status = advanceR3Status;
 </script>
 </body><!-- ===== EON AI SIDEBAR ===== --></html>
 
