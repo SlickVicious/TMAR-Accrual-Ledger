@@ -47321,8 +47321,49 @@ const AP = {
     return this._convs[page];
   },
 
+  _isQuotaErr: function(e) {
+    return e && (e.name === 'QuotaExceededError' || e.code === 22 || e.code === 1014 ||
+                 e.name === 'NS_ERROR_DOM_QUOTA_REACHED');
+  },
+
   _save: function(page) {
-    localStorage.setItem('ap_conv_' + page, JSON.stringify(this._convs[page]));
+    var key = 'ap_conv_' + page;
+    var data = this._convs[page];
+    var self = this;
+    var attempt = function() { localStorage.setItem(key, JSON.stringify(data)); };
+
+    try { attempt(); return; }
+    catch (e) { if (!self._isQuotaErr(e)) throw e; }
+
+    // Quota hit — prune progressively (cheapest data first) and retry after each step.
+    // 1) Drop heavy `full` attached-file blobs except the current session's last 2 msgs.
+    Object.keys(data.sessions).forEach(function(id) {
+      var msgs = (data.sessions[id] && data.sessions[id].messages) || [];
+      msgs.forEach(function(m, i) {
+        var keepFull = (id === data.current && i >= msgs.length - 2);
+        if (m.full && !keepFull) delete m.full;
+      });
+    });
+    try { attempt(); return; } catch (e) { if (!self._isQuotaErr(e)) throw e; }
+
+    // 2) Drop oldest non-current sessions one at a time.
+    var oldIds = Object.keys(data.sessions)
+      .filter(function(id) { return id !== data.current; }).sort();
+    while (oldIds.length) {
+      delete data.sessions[oldIds.shift()];
+      try { attempt(); return; } catch (e) { if (!self._isQuotaErr(e)) throw e; }
+    }
+
+    // 3) Still too big — trim oldest messages from the current session (keep recent tail).
+    var cur = data.sessions[data.current];
+    while (cur && cur.messages && cur.messages.length > 4) {
+      cur.messages.splice(0, Math.max(1, Math.ceil(cur.messages.length / 4)));
+      try { attempt(); return; } catch (e) { if (!self._isQuotaErr(e)) throw e; }
+    }
+
+    // 4) Give up persisting; keep this turn in memory so the UI still works.
+    console.warn('[AP] localStorage quota exceeded for ' + key +
+      ' — pruned history but still over limit; this conversation is kept in memory only.');
   },
 
   _renderSL: function(page) {
