@@ -4050,6 +4050,12 @@
             <button onclick="showCOAImportWizard()" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold text-sm">
               📥 Import from Sheets
             </button>
+            <button onclick="syncPush('chartOfAccounts')" class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg font-semibold text-sm" title="Push the GAAP chart up to the 'GAAP CoA' workbook tab (creates it if missing)">
+              ⬆ Push to Sheet
+            </button>
+            <button onclick="syncPull('chartOfAccounts')" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-semibold text-sm" title="Pull the 'GAAP CoA' workbook tab into this chart">
+              ⬇ Pull from Sheet
+            </button>
           </div>
         </div>
 
@@ -19485,6 +19491,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
               <button onclick="syncPush('transactions')" class="sync-push-btn" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📒 Ledger</button>
               <button onclick="syncPush('payables')" class="sync-push-btn" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📤 A/P</button>
               <button onclick="syncPush('1099')" class="sync-push-btn" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📑 1099s</button>
+              <button onclick="syncPush('chartOfAccounts')" class="sync-push-btn" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📋 CoA</button>
               <button onclick="syncPushAll()" class="sync-push-btn" style="background:rgba(16,185,129,0.25);border:2px solid rgba(16,185,129,0.5);color:#10b981;padding:6px 16px;border-radius:6px;font-size:11px;font-weight:800;cursor:pointer">Push All ▶</button>
             </div>
           </div>
@@ -19495,6 +19502,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
               <button onclick="syncPull('accounts')" class="sync-pull-btn" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">🏢 Entities</button>
               <button onclick="syncPull('transactions')" class="sync-pull-btn" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📒 Ledger</button>
               <button onclick="syncPull('obligations')" class="sync-pull-btn" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📤 A/P</button>
+              <button onclick="syncPull('chartOfAccounts')" class="sync-pull-btn" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📋 CoA</button>
               <button onclick="syncPullAll()" class="sync-pull-btn" style="background:rgba(59,130,246,0.25);border:2px solid rgba(59,130,246,0.5);color:#3b82f6;padding:6px 16px;border-radius:6px;font-size:11px;font-weight:800;cursor:pointer">Pull All ▶</button>
             </div>
           </div>
@@ -32981,6 +32989,37 @@ function ev2InitEntityVerifier() {
   }
 
   // ══════════════════════════════════════════════════════════════════
+  // SHEET_MAP — canonical GUI-model ↔ workbook-tab binding
+  // Single source of truth for import/export targeting (design law: capture a
+  // name once, not scattered). Tab names match the GUI section labels where
+  // aligned. tabAliases tolerate pre-rename names during transition.
+  // One-click ⬇Import/⬆Export per section is wired against this map (phase 2).
+  // ══════════════════════════════════════════════════════════════════
+  // `sync` names the existing Sync Center push/pull pair (null = gap, no sync yet).
+  var SHEET_MAP = {
+    entities:          { tab: 'Master Register',      tabAliases: [],      sync: 'pushEntities / pullAccounts' },
+    transactions:      { tab: 'Transaction Ledger',   tabAliases: [],      sync: 'pushTransactions / pullTransactions' },
+    ledgerEntries:     { tab: 'Transaction Ledger',   tabAliases: [],      sync: 'pushTransactions / pullTransactions' },
+    payables:          { tab: 'Household Obligations',tabAliases: [],      sync: 'pushPayables / pullObligations' },
+    filings:           { tab: '1099 Filing Chain',    tabAliases: ['1099 Filings'], sync: 'push1099 / pull1099' },
+    principalRegister: { tab: 'Principal Register',   tabAliases: [],      sync: 'pushPrincipalRegister / pullPrincipalRegister' },
+    chartOfAccounts:   { tab: 'GAAP CoA',             tabAliases: [],      sync: 'pushChartOfAccounts / pullChartOfAccounts' },
+    // ── gaps: GUI sections with NO workbook sync yet (phase 2 targets) ──
+    receivables:       { tab: 'Receivables',          tabAliases: [],      sync: null },   // tab not yet created
+    journalEntries:    { tab: 'Journal',              tabAliases: [],      sync: null }    // tab not yet created
+  };
+  // GUI model key → canonical workbook tab name (or null if unmapped).
+  function sheetForModel(key) { return SHEET_MAP[key] ? SHEET_MAP[key].tab : null; }
+  // Workbook tab name (current or old alias) → GUI model key (or null).
+  function modelForSheet(tabName) {
+    for (var k in SHEET_MAP) {
+      var m = SHEET_MAP[k];
+      if (m.tab === tabName || (m.tabAliases && m.tabAliases.indexOf(tabName) !== -1)) return k;
+    }
+    return null;
+  }
+
+  // ══════════════════════════════════════════════════════════════════
   // SyncBridge — Tier 2 client for GAS Web App endpoints
   // ══════════════════════════════════════════════════════════════════
 
@@ -33021,10 +33060,14 @@ function ev2InitEntityVerifier() {
   SyncBridge.prototype.pullPrincipalRegister = function() { return this.request('pullPrincipalRegister'); };
   SyncBridge.prototype.pullContacts = function() { return this.request('pullContacts'); };
   SyncBridge.prototype.pullWebsiteAccounts = function() { return this.request('pullWebsiteAccounts'); };
+  SyncBridge.prototype.pullChartOfAccounts = function() { return this.request('pullChartOfAccounts'); };
 
   // Push methods (POST)
   SyncBridge.prototype.pushEntities = function(data) {
     return this.request('pushEntities', 'POST', { action: 'pushEntities', entities: data });
+  };
+  SyncBridge.prototype.pushChartOfAccounts = function(data) {
+    return this.request('pushChartOfAccounts', 'POST', { action: 'pushChartOfAccounts', accounts: data });
   };
   SyncBridge.prototype.pushTransactions = function(data) {
     return this.request('pushTransactions', 'POST', { action: 'pushTransactions', entries: data });
@@ -33396,6 +33439,27 @@ function ev2InitEntityVerifier() {
     });
   }
 
+  function applyPullChartOfAccounts(rows) {
+    var added = 0, updated = 0, byNum = {};
+    if (!appData.chartOfAccounts) appData.chartOfAccounts = [];
+    appData.chartOfAccounts.forEach(function(a) { byNum[a.num] = a; });
+    (rows || []).forEach(function(r) {
+      if (!r.num) return;
+      if (byNum[r.num]) {
+        var a = byNum[r.num];
+        a.name = r.name || a.name; a.type = r.type || a.type; a.subtype = r.subtype || a.subtype;
+        a.normalBal = r.normalBal || a.normalBal; a.formLine = r.formLine || a.formLine;
+        updated++;
+      } else {
+        appData.chartOfAccounts.push({ id: Date.now() + Math.random(), num: r.num, name: r.name || '', type: r.type || '', subtype: r.subtype || '', normalBal: r.normalBal || '', formLine: r.formLine || '' });
+        added++;
+      }
+    });
+    appData.chartOfAccounts.sort(function(a, b) { return String(a.num).localeCompare(String(b.num)); });
+    if (typeof updateCOATable === 'function') updateCOATable();
+    return { added: added, updated: updated };
+  }
+
   function syncPush(type) {
     var bridge = getSyncBridge();
     if (!bridge) return;
@@ -33416,6 +33480,11 @@ function ev2InitEntityVerifier() {
         data = _prepPayablesForPush(appData.payables || []);
         method = bridge.pushPayables.bind(bridge);
         label = '📤 A/P → Household Obligations';
+        break;
+      case 'chartOfAccounts':
+        data = appData.chartOfAccounts || [];
+        method = bridge.pushChartOfAccounts.bind(bridge);
+        label = '📋 Chart of Accounts → GAAP CoA';
         break;
       case '1099':
         // Gather all 1099 filings from appData.filings
@@ -33486,6 +33555,11 @@ function ev2InitEntityVerifier() {
         method = bridge.pullObligations.bind(bridge);
         applyFn = applyPullObligations;
         label = 'Household Obligations → 📤 A/P';
+        break;
+      case 'chartOfAccounts':
+        method = bridge.pullChartOfAccounts.bind(bridge);
+        applyFn = applyPullChartOfAccounts;
+        label = 'GAAP CoA → 📋 Chart of Accounts';
         break;
       default:
         showAlert('Unknown pull type: ' + type, 'Error');

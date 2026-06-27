@@ -1,593 +1,303 @@
-# TMAR - Trust Master Account Register
+# TMAR — Trust Master Account Register
 
-**Complete Interactive Web Application + Google Sheets Integration**
-**Version:** 4.0
-**Last Updated:** June 17, 2026
-**Status:** ✅ Production Ready — 246/246 Functions Verified | 211/211 GUI Elements Verified
+> A single-file, AI-driven legal/accounting portal that acts as the **central control hub** for an estate-planning, ledger-keeping, and document-tracking system. One browser app drives a Google Sheets workbook (the system of record), a Google Apps Script backend, local document vaults, and a fleet of LLM agents — all wired together as one **living relational database**.
+
+**Version:** 4.1 · **Updated:** 2026-06-27 · **Status:** ✅ Production
+**Live app:** https://slickvicious.github.io/TMAR-Accrual-Ledger/TMAR-Accrual-Ledger.html
+**Repo:** https://github.com/SlickVicious/TMAR-Accrual-Ledger (`master` → GitHub Pages auto-deploys)
+**Stack:** vanilla JS SPA (no build step) · Google Apps Script (V8) · Google Sheets · multi-provider LLM streaming
 
 ---
 
-## 🌐 Live Application
+## 1. What this is
 
-### Public URL (Auto-Updates)
-**GitHub Pages:** https://slickvicious.github.io/TMAR-Accrual-Ledger/TMAR-Accrual-Ledger.html
+TMAR is **not** a set of isolated tools — it is one **living, multi-surface relational database** with a browser app as its mission-control cockpit. The app reads/writes the workbook, drafts filing-ready documents through specialist agents, and keeps the document corpus, ledger, and creditor/tax data in sync across surfaces.
 
-Access from anywhere:
-- ✅ Mac Desktop/Laptop
-- ✅ Windows PC
-- ✅ Mobile/Tablet
-- ✅ Any modern web browser
+**Design law:** *minimalist, single source of truth — capture a fact once and let it propagate; never enter the same fact in two places.*
 
-### Local Development
+It is used for three overlapping jobs:
+- **Estate planning** — trust instruments, fiduciary documents, identity/authority records
+- **Ledger keeping** — accounts, transactions, cash flows, GAAP chart of accounts, tax
+- **File tracking** — a document registry/inventory linking every `DOC-NNNN` to its account, creditor, and filesystem location
+
+---
+
+## 2. The surfaces (and how they connect)
+
+```mermaid
+flowchart TD
+    subgraph Browser["🖥️ TMAR App (GitHub Pages) — CENTRAL CONTROL HUB"]
+        UI[Tabs · Agents · Document Creator]
+        ENG[Engines: callLLMStream · resolveProvider · MEM0/GCMemory · HARD_LOCK]
+        VAULT[(🔐 AES-256 Vault — API keys)]
+    end
+
+    PROXY[Cloudflare Worker — CORS proxy]
+    LLM[Anthropic · OpenAI · DeepSeek · xAI · Ollama …]
+    GEMINI[Gemini Neural TTS — direct, CORS-allowed]
+
+    subgraph GAS["⚙️ Apps Script backend (gas/)"]
+        WEBAPP[doGet / doPost Web App]
+        BRIDGE[TMARBridge · SyncCenter · ImportRegistryScan]
+    end
+
+    SHEET[(📊 TMAR Live Workbook — 1k6J2… · ~52 tabs · system of record)]
+    ARCHIVE[(📦 Freeway 2025 Archive — 1kbulI… · read-only)]
+    VAULTS[/🗄️ YTubiversity Vaults — docs born here/]
+    FILECAB[/📁 FileCabinet PC — doc storage/]
+
+    UI --> ENG --> PROXY --> LLM
+    ENG -.->|TTS| GEMINI
+    VAULT -->|inject keys| ENG
+    UI -->|push/pull JSON| WEBAPP --> BRIDGE --> SHEET
+    BRIDGE -. read-only .-> ARCHIVE
+    VAULTS --> FILECAB -->|scanned → DOC-NNNN| SHEET
+```
+
+| Surface | Role |
+|---|---|
+| **GitHub Pages app** (`TMAR-Accrual-Ledger.html`) | **Central control hub** — UI, agents, all reads/writes initiate here |
+| **TMAR Live workbook** (`1k6J2s0x…WInQ`) | **System of record** — ~52 tabs. Sole read/write source of truth |
+| **Apps Script backend** (`gas/`) | Web App bridge (`doGet`/`doPost`), sheet CRUD, importers, document-ID minting |
+| **Cloudflare Worker** | Mandatory CORS proxy for all browser→LLM calls (never call Anthropic directly from Pages) |
+| **YTubiversity Vaults** (`…\Documents\00_YTubiversity Vaults`) | Where documents are **born** (lessons → drafts) |
+| **FileCabinet** (`…\Desktop\FileCabinet`, PC) | Local document **storage**; scanned into `Document Registry` as `DOC-NNNN` |
+| **Freeway 2025 Archive** (`1kbulI…`) | Read-only legacy workbook. Never written |
+| **APPC_RLT hub** (`1Ac5A…`) | **Dead** — abandoned prior attempt to merge TMAR + FWM; never synced. Do not read/write |
+
+---
+
+## 3. The browser app (`TMAR-Accrual-Ledger.html`)
+
+~3.7 MB single HTML file, no build step. Key subsystems:
+
+### Agents
+Two cooperating layers:
+- **OpenClawRuntime "SYPHER-7.8-HARDLOCK" — 19 registered agents:** GAAPCLAW Master + 6 CPA firms × 3 sub-agents (Tax Compliance, Financial Reporting, Audit & Advisory). The registry is **frozen** (`Object.freeze`) — never mutated at runtime.
+- **EON / AP chat agents (24+):** legal-firm specialists (Document Creation, Document Format, Trust, UK/FRS 102, Writs, Amicus, Presumption Killer, Jurisdictional, Biblical Scholar, …) each with conversation history, file upload, Speak/Listen/Print/PDF/Word/Share.
+
+Dispatchers (`aiHubAskAgent`, `trustAgentQ`, `ukAgentQuery`, `askAgent`, `gaapAgentSend`, `AP.send`) all funnel to **`callLLMStream()`** (v7.1 — multi-provider SSE/NDJSON streaming, 15-min AbortController). **`resolveProvider()`** selects provider + key from `eeon_key_*` localStorage.
+
+### Memory & guardrails
+- **`GCMemory`** — IndexedDB persistent memory (60+ keyword scoring, auto-prune at 500 records). **`MEM0`** is a proxy alias, always enabled.
+- **`HARD_LOCK`** — frozen output sanitizer + prompt validator. The **SYPHER / PRESUMPTION-KILLER** gate leads every system prompt.
+
+### Injected knowledge (`DOCUMENT_KNOWLEDGE` → `buildFullSystemPrompt`)
+Every agent carries shared, plain-prose knowledge blocks appended after the SYPHER gate:
+- **`fiduciaryDocFactory`** — the v2.1.0 document standard (GPO 2016 editorial + Weiss trustee substance; Profile-B output; `DOC-NNNN` register binding).
+- **`ledgerTopology`** — the **data-relationship map** (join keys, canonical source per fact) so agents resolve values across tabs instead of treating a blank cell as missing. *See §6.*
+- `taxFramework`, `nolClassification`, `arbitrationFramework`, …
+
+### Other features
+- **Document Creator** — drafts filing-ready instruments; applies Profile-B fiduciary formatting on `.docx` export (JSZip). Templates incl. `ucc_9210_demand`.
+- **Digital File Cabinet** (`page-docs`) — **Vault Browser** (`VAULT_INDEX`, regenerated from the real cabinet by `scripts/gen-vault-index.mjs`), **Sheets Data** (live GAS pull), **Local Docs**.
+- **Smart Import** (`tmarImport`) — one-click import of entities/accounts/assets/SPVs/etc.
+- **Gemini Neural TTS** (`GEMINI_TTS`) — realistic voices; calls Google directly (CORS-allowed); PCM→WAV; Web-Speech fallback.
+- **🔐 Vault** — AES-256-GCM / PBKDF2(100k) key store; `_vaultInjectApiKeys` reseeds `eeon_key_*` on unlock. Floating `tmar-key-manager.js` panel (10 providers).
+- Modules: SPV, UK Accounting (FRS 102/IFRS), Tax Estimator (incl. IRC §55 CAMT, §4501 buyback), Entity Verifier v2, Sync Center.
+
+---
+
+## 4. The workbook (system of record)
+
+~52 tabs in **TMAR Live**, organized as a relational database:
+
+| Group | Tabs (examples) |
+|---|---|
+| **Account spine** | `Master Register` (35-col canonical, `MR-NNN`), `Master Register Archive` (dedup quarantine), `Account Entities`, `CoA`, `Principal Register` |
+| **Ledgers** | `Transaction Ledger`, `Trust Ledger`, `Acct Ledger`, cash flows (`BOA`, `PNC`) |
+| **Creditors / 1099** | `Creditor Registry` + `Checklist` (enriched 20-subsets) · `FWM — Creditor Detail` + `FWM — Forms Checklist` (28-creditor master) · `1099 Filing Chain`, `1099 Filings`, `Forms & Authority`, `Proof of Mailing` |
+| **Documents** | `Document Registry` (PC FileCabinet scan, canonical `DOC-NNNN`), `Document Inventory` (separate catalog) |
+| **Tax** | `W-2 & Income Detail`, `Schedule A`, `1040 Submissions`, `Tax Strategy` |
+| **Trust binder** | emoji-prefixed pages (`📋 HUB INDEX`, `📒 General Ledger`, `📊 Corpus & M-2`, …) |
+| **System (hidden)** | `_Validation`, `_Settings`, `_SyncMeta`, `_YearData` |
+
+> **Master Register is 35 strict columns (A–AI).** GAS reads by index (`getRange(2,1,lastRow-1,35)`) — never reorder. See `.claude/docs/domain-models.md`.
+
+---
+
+## 5. The Apps Script backend (`gas/`)
+
+| File | Purpose |
+|---|---|
+| `Code.gs` | `onOpen()` menu, formatting, importers, CPA tools |
+| `SyncCenter.gs` | Web App `doGet`/`doPost` bridge; **`TMAR_CONFIG`** = single source of truth for workbook IDs |
+| `TMARBridge.gs` | Financial summary, account/transaction CRUD |
+| `GUIFunctions.gs` | Dialog/sidebar launchers + data queries |
+| `ImportRegistryScan.gs` | Import a FileCabinet scan into `Document Registry` (mints `DOC-NNNN`) |
+| `DuplicateAnalyzer.gs` | Moves duplicate/closed accounts → `Master Register Archive` |
+| `TabConsolidationAudit.gs` | Audit / compare / dedup / registry-promotion toolkit (guarded, preview-first) |
+| `RemoveArchiveBanner.gs` | One-shot guarded cleanup utility |
+| `PopulateValidation.gs` · `FormattingComplement.gs` · `TMAR_AestheticsAndAudit.gs` | Validation lists, conditional formatting, health audit |
+
+**Web App actions:** `getMasterRegister`, `getTransactionLedger`, `pushEntities`, `pushTransactions`, `pushPayables`, `push1099s`, `listWorkbookTabs`, `pullWorkbookSheets`, `listSheetTabs`, `pullRawTab`, importers (`importSubstituteW2`, `importForm1040`, `importForm2848`, `importScheduleA`).
+
+All workbook IDs are centralized in **`TMAR_CONFIG`** (top of `SyncCenter.gs`): `liveBookId`, `sourceBookId` (= live), `appcHubId` (folded into live 2026-06-27), `archiveBookId`. Never hardcode an ID elsewhere. See `gas/README.md`.
+
+---
+
+## 6. Interconnectivity — the Ledger Data Topology
+
+The workbook is **relational**; a blank cell is almost never missing data — the value lives in a related tab, reachable by a **join key**. This map is injected into every agent (`DOCUMENT_KNOWLEDGE.ledgerTopology`) and mirrored at `.claude/docs/data-topology.md`.
+
+### Join keys
+| Key | Format | Links |
+|---|---|---|
+| **EIN** | `NN-NNNNNNN` | `Master Register` (PROVIDER_EIN) ↔ `Creditor Registry` ↔ `Checklist` ↔ `FWM — Creditor Detail` ↔ `FWM — Forms Checklist` ↔ `1099 Filing Chain/Filings`. *One W-9 + one Form 56 per unique EIN.* |
+| **DOC-NNNN** | `DOC-0001` | `Document Registry` (canonical PC scan). ⚠️ `Document Inventory` DOC-NNNN **collide** (same number ≠ same file) — never cross-join |
+| **MR-NNN** | `MR-001` | `Master Register` row key (account spine) |
+| **Account #** | — | `Master Register` ↔ cash-flow tabs ↔ `Checklist` |
+| **T-NNN / S-NNN** | creditor tag | Two numbering schemes over the **same** creditors — reconcile by EIN, not by tag |
+
+### Canonical source per fact (so blank ≠ missing)
+| Fact | Canonical tab |
+|---|---|
+| Creditor mailing address / legal name | `FWM — Creditor Detail` (28-master) + `Creditor Registry` |
+| **1099 payee name** | creditor **LEGAL ENTITY NAME** + EIN (never the brand) |
+| Account #, status, 1099-B pairing | `Checklist` / `Master Register` |
+| Document filename / path | `Document Registry` (PC scan) |
+| Account balance | `Master Register` CURRENT_BALANCE (col N) |
+
+### Relationship facts
+- `FWM —` tabs hold the **complete 28 creditors**; `Creditor Registry`/`Checklist` are **enriched 20-subsets** (join by EIN; `Creditor Registry.SOURCE REF` = the FWM `S-###`).
+- `Master Register Archive` = dedup **quarantine** — never merge back.
+- `Document Registry (Mac legacy)` is archived; the active corpus is the PC scan.
+
+### Data flow
+- **Browser → workbook:** `SyncBridge` POSTs JSON to the Web App (`pushEntities`, `pushTransactions`, …).
+- **Workbook → browser:** GET pulls (`getMasterRegister`, `pullWorkbookSheets`, `pullRawTab`).
+- **FileCabinet → workbook:** `ImportRegistryScan` writes scanned docs as `DOC-NNNN`.
+- **Agents:** carry the injected topology; resolve facts by join key before asking the operator.
+
+---
+
+## 7. Utilization
+
+### Run locally (stable origin — keys persist)
 ```bash
-# Start local server
-npx http-server -p 8080 -o
-
-# Access at
-http://localhost:8080/TMAR-Accrual-Ledger.html
+# Double-click Desktop\StarTMAR.lnk  → runs start-local-server.bat, OR:
+cd TMAR-Accrual-Ledger
+python -m http.server 5501
+# open http://localhost:5501/TMAR-Accrual-Ledger.html   (ALWAYS this same URL)
 ```
+> `localStorage` is bound to `scheme://host:port`. Keep every launcher on **`http://localhost:5501`** — VS Code Live Server is pinned to port 5501 + host `localhost` in `.vscode/settings.json`. Use the **vault** for one-passphrase key reseed. (`localhost` ≠ `127.0.0.1` for storage — don't mix them.)
+
+### Configure (one-time, per origin)
+1. **Settings → API Keys** — paste provider key(s) + the **CORS Proxy URL** (your Cloudflare Worker). Never hardcode the worker URL.
+2. **Settings → Sync Center** — paste the GAS Web App exec URL.
+3. **Settings → Voice & TTS** — Gemini engine + voice (key `eeon_key_gemini`).
+
+### Use
+- Ask any agent — it resolves cross-tab facts via the topology (e.g. *"Capital One's 1099 mailing address?"* → pulled from `FWM — Creditor Detail` by EIN).
+- Draft documents in the **Document Creator** (Profile-B export).
+- Sync ledger data via the **Sync Center**; browse the corpus in the **Digital File Cabinet**.
+
+### CORS proxy (one-time, ~3 min)
+Browser→Anthropic calls are CORS-blocked from Pages. Deploy `cloudflare-worker-v2.js` at [workers.cloudflare.com](https://workers.cloudflare.com): `/v1/*` → Anthropic (strips `Origin`/`Referer`, injects `anthropic-dangerous-direct-browser-access`); `?url=<encoded>` → generic CORS pass-through (`redressright.me` only). Paste the worker URL into Settings → API Keys → CORS Proxy URL.
 
 ---
 
-## 🌐 CORS Proxy Setup
+## 8. Deployment
 
-Direct browser API calls to Anthropic are blocked by CORS when using the app from GitHub Pages. A free Cloudflare Worker proxy solves this.
-
-**Current worker:** `cloudflare-worker-v2.js` — dual mode:
-- `/v1/*` → Anthropic API proxy (strips `Origin`/`Referer`, injects `anthropic-dangerous-direct-browser-access`)
-- `?url=<encoded>` → Generic CORS proxy for `redressright.me` only (used by `tmar-updater.js`)
-
-### Deploy (one-time, ~3 minutes)
-
-1. Go to [workers.cloudflare.com](https://workers.cloudflare.com) — create a free account
-2. Click **Create Worker**
-3. Select all default code, delete it, paste the full contents of [`cloudflare-worker-v2.js`](./cloudflare-worker-v2.js)
-4. Click **Deploy** — copy the worker URL (e.g. `https://your-worker.yourname.workers.dev`)
-
-### Configure in TMAR
-
-5. Open the app → click **🤖** → **API Keys**
-6. Scroll to **🌐 CORS Proxy URL** → paste the worker URL
-7. Click **Save All Keys**
-
-All Anthropic API calls now route through your worker. The worker strips browser identity headers and forwards requests cleanly to `api.anthropic.com`.
-
----
-
-## 📊 Project Overview
-
-TMAR is a comprehensive financial management system combining:
-
-1. **Interactive Web Application** - Full-featured HTML/JavaScript GUI
-2. **Google Apps Script Backend** - Automated Google Sheets integration
-3. **AI Agent Integration** - 6 specialized Claude AI agents
-4. **Secure Vault System** - Encrypted document storage
-5. **Research & Analysis Tools** - Legal, tax, and accounting research
-
----
-
-## 🎯 Core Features
-
-### Web Application (TMAR-Accrual-Ledger.html)
-
-**55 Tabs/Screens** across 13 groups:
-
-- Core Accounting (Ledger, Entities, CoA, Journal, A/R, A/P, Consolidation, Statements)
-- Tax & Compliance (Tax Filings, Tax Estimator, Schedule A)
-- Trust Estate (Dashboard, Ledger, Reports)
-- SPV Module (SPV Dashboard, SPV Ledger, SPV Reports) ← **new v3.3**
-- UK Accounting (FRS 102 / IFRS — entity config, compliance checklist, UK statements) ← **new v3.3**
-- Operations (Invoicing, Payroll, Inventory, Budget, Payment Orders, Bills of Exchange, Expenses, Customers/Vendors, Depreciation, Bank Recon)
-- Reports & Intelligence (Reports, Master Report, GAAPCLAW Master, 6 CPA Firms, IRS Form Generator)
-- Tools (Settings & API, API Scout, Voice & Chat, Financial Assets, Document Creator, Source Folders)
-- RedressRight Libraries (CPSA, TRCF, CCSN, FDRF, EEEJ)
-- Verification (Entity Verifier v2.0)
-- Data Integration (Sync Center)
-- PDKB Tools (Transcript, Etymology, PDF/MD, POA/DBA)
-
-**211 GUI Elements Verified** (see [System Status Dashboard](./TMAR-System-Status-Dashboard.html)):
-
-- ✅ 211/211 Working (100%)
-- ✅ 0 Not Working
-- ✅ Full function audit with dependency documentation
-- ✅ Interactive dashboard with search & filtering
-
-**17 Custom Functions (All Documented):**
-- Chat & Communication (3)
-- Memory & Storage (3)
-- Settings & Preferences (3)
-- Voice & Speech (4)
-- Utilities (4)
-
-See [Function_Reference_Cards/](./Function_Reference_Cards/) for complete documentation.
-
-### Google Sheets Integration
-
-**Apps Script Project:**
-https://docs.google.com/spreadsheets/d/1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ
-
-**Features:**
-- Master Account Register
-- Cash Flow Analysis (CapOne, BOA, PNC, Fidelity)
-- Bill of Exchange Management
-- Duplicate Detection & Analysis
-- GAAP Compliance Interface
-- Sync Center for data exchange
-
-See [GSheet/](./GSheet/) for Google Sheets documentation.
-
----
-
-## 🚀 Quick Start
-
-### 1. Access the Web Application
-
-**Option A - GitHub Pages (Recommended):**
-```
-https://slickvicious.github.io/TMAR-Accrual-Ledger/TMAR-Accrual-Ledger.html
-```
-
-**Option B - Local Development:**
+**HTML app → GitHub Pages (primary):**
 ```bash
-cd "/path/to/TMAR"
-npx http-server -p 8080 -o
-```
-
-### 2. Configure API Keys
-
-1. Navigate to **Settings > API Keys**
-2. Add your Anthropic Claude API key
-3. Click **Save** (green indicators appear)
-4. Click **Test** to verify connection
-
-### 3. Start Using Agents
-
-1. Go to **Trust Agent** page
-2. Select an agent (Legal, Tax, Accounting, etc.)
-3. Type your question
-4. Click **⚡ Analyze**
-
----
-
-## 🆕 What's New in v4.0
-
-| Feature | Details |
-|---|---|
-| **⚖ fiduciary-doc-factory v2.1.0 (merged skill)** | The two skill fragments (v2.0.0 + v2.1.0) were combined into one canonical skill at `.claude/skills/fiduciary-doc-factory/` (v2.1.0 supersedes v2.0.0; see its `MERGE-NOTES.md`). A distilled standard — GPO Style Manual 2016 editorial rules, Weiss trustee-substance hygiene, forced Profile B output (Times New Roman 12pt, 1″ margins, justified, black-on-white), DOC-NNNN register binding, media defaults — is embedded as `DOCUMENT_KNOWLEDGE.fiduciaryDocFactory`. |
-| **Skill wired into all agents + the 3 Document features** | `buildFullSystemPrompt()` appends the standard to **every** agent (inert unless drafting). The **Document Creation Firm** (`doc_creation`) and **Document Format Firm** (`doc_format`) get dedicated `getSystemPrompt()` branches that embody the skill. The **Document Creator** tab gains a `⚖ Fiduciary Standard` button (`applyFiduciaryStandard()`) plus Profile-B PDF/Word/Print export. |
-| **🪐 Gemini neural TTS (realistic voices)** | New `GEMINI_TTS` engine replaces the robotic Web Speech voice across every read-aloud surface (`speakWithHighlight`, `speakTTS`, section readers). Calls Gemini `generateContent` (`responseModalities:["AUDIO"]`), wraps the returned PCM as WAV, and plays it; long text is auto-chunked; on missing key/error it falls back to the system voice. **Settings → 🔊 Voice & TTS** adds an engine toggle, 30-voice picker, model selector, Gemini key field, and Test button. Models: `gemini-2.5-flash-preview-tts` (default) / `gemini-3.1-flash-tts-preview`. |
-| **📄 UCC 9-210 demand template** | New Document & Form Creator template `ucc_9210_demand` — "UCC 9-210 Authenticated Accrual Demand" (UCC 9-210(b)/(f), 9-102(27)(a)). Adds four per-letter variables wired through the full template-variable system (editor + save/load + export/import): `{{CREDITOR_NAME}}`, `{{CREDITOR_ADDRESS}}`, `{{ACCOUNT_NUMBER}}`, `{{CAPACITY}}`. Sender name/address/date auto-fill from saved settings; blanks render as fill-in lines. |
-
----
-
-## 🆕 What's New in v3.9
-
-| Feature | Details |
-|---|---|
-| **🗑 Clear button — all 24 AP agents** | `AP.clearConv(page)` method added to the AP object. Clears messages from the active session (with confirm prompt) without deleting the session. Red-tinted button appears in every agent toolbar after the 🔗 Share button. |
-| **📎 File upload — 13 legacy AP agents** | The 13 LEGAL FIRMS agents (`doc_creation`, `legal_analyst`, `doc_format`, `writs_writing`, `amicus_brief`, `dt_appeal`, `presumption_killer`, `fact_conclusion`, `jurisdictional`, `const_sovereignty`, `brainstorm`, `trial_prep`, `biblical`) are now added to the `AP.init()` array. `_ensureFileUI()` dynamically injects the hidden file input + 📎 label into each input bar on page load. All 24 AP agents now have full file upload support. |
-
----
-
-## 🆕 What's New in v3.8
-
-| Feature | Details |
-|---|---|
-| **tmar-key-manager.js** | New standalone floating 🔐 API key manager panel. Loaded via `<script src="tmar-key-manager.js">` before `</body>`. 10 provider slots (Claude, OpenAI, DeepSeek, Gemini, Perplexity, OpenRouter, xAI, HuggingFace, GitHub, DataGov). Per-key ⚡ live test, Test All, 👁 reveal/hide, `.env` import, IDB backup, and red-pulse alert when required keys are missing. |
-| **Vault → `eeon_key_*` injection bridge** | `_vaultInjectApiKeys(entries)` — called on both `unlockVault()` and `addVaultEntry()`. On unlock the full vault entry array is iterated; each `site` field is mapped via `_VAULT_SITE_MAP` to the correct `eeon_key_*` / `stg_key_*` localStorage slot. Claude key is mirrored to all 5 aliases (`eeon_key_claude`, `_trustApiKey`, `TMAR_trustApiKey`, `tmar_claude_key`, `stg_key_claude`). IDB backup fires after injection. |
-| **Digital File Cabinet (`page-docs`)** | Full 3-tab panel replacing the stub: **Vault Browser** (expandable static `VAULT_INDEX` tree from Obsidian vault dir, with search), **Sheets Data** (live GAS sync via `dfcSyncSheets()` — renders headers + rows for 3 workbook GIDs as scrollable tables), **Local Docs** (placeholder for local file links). `dfcShowSheetInPanel(context)` called from Accounting and Trust toolbar buttons. |
-| **Google Sheets workbook integration** | GAS `SyncCenter.gs` gains two new actions: `listWorkbookTabs` (returns all tab names + GIDs from workbook `1CYg4fwQoLARD9y3bQbn8W8HO5jI89osj`) and `pullWorkbookSheets` (returns headers + up to 200 rows each for GIDs 779167554, 1677909637, 1870452300). `SyncBridge` client updated with matching methods. |
-| **Obsidian vault static index** | `VAULT_INDEX` JS object embedded in HTML — full tree of `C:\Users\rhyme\Documents\Legal Document Generator\Digital File Cabinet\` (5 categories: Master Binder System, Generated Documents, Financials, Legal Reference Library, Gov Forms). Rendered as interactive accordion in Vault Browser tab. |
-| **`.chat-wrap` flex fix** | `height: calc(100vh - 142px - 40px)` → `flex: 1; min-height: 0` — chat panels now fill EON overlay correctly without hard-coded viewport offsets. |
-| **Duplicate 📎 icon removal** | 24 legacy `apAttachFile()` `<label>` elements removed from all AP agent input rows, eliminating phantom "double send button" appearance. |
-| **`.voice-btn` CSS** | Added missing `.voice-btn` definition (used on `page-voice`) — button now renders correctly with hover/active states. |
-
----
-
-## 🆕 What's New in v3.7
-
-| Feature | Details |
-|---|---|
-| **tmar-updater.js** | New standalone auto-update module (`TmarUpdater` class). Fetches upstream `redressright.me/GAAP.html` via CORS proxy, diffs against local version, presents update/rollback UI. Replaces the old inline `parityCheckOnLoad` / `parityDriftBanner` system (~75 lines removed). Loaded via `<script src="tmar-updater.js">` before `</body>`. |
-| **Cloudflare Worker v2** | Updated worker (`cloudflare-worker-v2.js`) adds a second route: `?url=<encoded>` generic CORS proxy limited to `redressright.me` / `www.redressright.me`. The existing `/v1/*` Anthropic API proxy is unchanged. Required by `tmar-updater.js` to fetch upstream source. |
-| **EON portal blank-page fix** | `.page.active` now uses `height: calc(100vh - 72px); max-height: calc(100vh - 72px); box-sizing: border-box` — resolves percentage-height failure inside `overflow-y:auto` scroll container. AP inner wrapper divs changed from `height:100%` to `flex:1;min-height:0` (23 occurrences). |
-| **Icons restored (12 pages)** | Stripped Font Awesome glyphs replaced with emoji equivalents on: Backup & Restore, Chat, Tax Forms (sync/print/TTS), NOI Ask, Vault, Voice Center, Search, Settings (API Keys, Provider Keys, GCMemory, Ollama, Web Search, Custom Provider, Channel Tokens). |
-
----
-
-## 🆕 What's New in v3.6
-
-| Feature | Details |
-|---|---|
-| **Analytics stat cards** | Added HARD_LOCK (v3.0) and Key Vault (AES-256) stats to Analytics page; SYPHER Active now shows ✓ (was blank). |
-| **Corporation feature section** | OG-style description card with 5 feature badges (Corporate Formation, Governance, SPV, Tax Compliance, Religious Corp) added above AP conversation interface. |
-| **AI Hub** | New first entry in TOOLS sidebar. Full page includes NOI Quick Launch (12 AI services), NOI Developer Tools, Free LLM API Resources, and Open Source AI curated directory. Adds `goPage`, `aiHubAskAgent()`, `noiServiceToChat()` JS functions. |
-| **AP file upload (all 24 agents)** | 📎 button added to every AP conversation page. Uses DOM-attached file input pattern; reads content and prepends to textarea. Covers all LEGAL, LEGAL FIRMS, SPECIALISTS, and TOOLS agent pages. |
-| **EEON Full Suite** | New sidebar entry + dedicated page. Describes TMAR as the full financial suite; includes Return to Ledger, Open Full Screen, and module quick-launch cards (Tax Forms, OpenClaw, AI Hub, Tax Estimator). |
-| **Dream Team button icons** | Restored blank send (➤), upload (📎), and mic (🎤) icons that had been stripped. |
-| **Page overlap fix** | `goEonPage()` now force-sets `display:none` on all pages before switching, preventing inline `style` overrides from ghost-rendering deactivated pages. Added `#page-corporation.active { display:flex }` CSS rule. |
-
----
-
-## 🆕 What's New in v3.5
-
-| Feature | Details |
-|---|---|
-| **14 New EON Chat Agents** | Added 14 legal-specialty firm agents to the Chat firm selector, Agents grid, and sidebar — matching Agent.html parity at 25 total agents. |
-| **LEGAL FIRMS sidebar section** | New sidebar group with 13 dedicated AP-style pages: Document Creation, Legal Analyst, Document Format, Writs Writing, Amicus Brief, Dream Team Appeal, Presumption Killer, Fact & Conclusion of Law, Jurisdictional Challenge, Constitutional Sovereignty, Strategic Brainstorm, Trial Preparation, Biblical Scholar. |
-| **Ledger & Accounting Expert chip** | Chat firm chip added for `ledger` — routes to existing `accounting` page/prompt. |
-| **25 active agents** | Dashboard Active Agents stat updated from 10 → 25. |
-
----
-
-## 🆕 What's New in v3.4
-
-| Feature | Details |
-|---|---|
-| **GAAPCLAW Master Agent** | Dedicated streaming chat agent (`gaapAgentSection`) for all entity types — C-Corp, S-Corp, LLC, Trust, SPV, Non-Profit. 6 quick-prompts, full conversation history, calls `callLLMStream()` via active provider. |
-| **OpenClaw Page** | New EON sidebar page with Apify token + Tavily + Firecrawl key cards and a discovery search panel for live web scraping/search integration. |
-| **Tavily / Firecrawl / Mem0 Keys** | Three new API key cards in Settings → API Keys. Keys stored as `stg_key_tavily`, `stg_key_firecrawl`, `stg_key_mem0`. Vault `.env` import maps `TAVILY_API_KEY`, `FIRECRAWL_API_KEY`, `MEM0_API_KEY`. |
-| **Image Paste** | `handleChatPaste()` — intercepts clipboard paste events, converts images to base64, sends to Claude vision API as `{type:'image',source:{type:'base64',...}}`. Ctrl+V to paste screenshots directly into any chat. |
-| **Token Guard** | Session token counter in chat action bar — gray <50K, amber ⚡ <100K, red ⚠️ <180K, ⛔ at limit. Tracks send + streaming tokens. |
-| **CAMT + Buyback Tax** | Two new sub-tabs in Tax Estimator: IRC §55 Corporate AMT (15% on AFSI ≥$1B) and IRC §4501 Stock Buyback Excise (1%, $10M de minimis). |
-| **Vault Buttons** | Three quick-action buttons in Settings action row: 🔐 Load .env, 📦 Export Bundle, 📥 Import Bundle. |
-| **Model Defaults Updated** | OpenAI→`gpt-4.1-mini`, xAI→`grok-3-mini`, MiniMax→`MiniMax-Text-01`, Ernie→Qianfan v2 endpoint + `ernie-4.0-turbo-8k`, Ollama fallback→`deepseek-r1:14b`. |
-| **Dev Workflow** | Document maintenance protocol added: per-feature doc update checklist, archive criteria, stale-doc rules. Parity drift issues now include a doc-update checklist. |
-
----
-
-## 🆕 What's New in v3.3
-
-| Feature | Details |
-|---|---|
-| **SPV Module** | 3 new tabs: SPV Dashboard, SPV Ledger, SPV Reports. Full CRUD for Special Purpose Vehicles with trial balance and asset summaries. |
-| **UK Accounting** | New tab: FRS 102 / IFRS compliance — entity config (UTR, VAT, Companies House), 8-item compliance checklist, UK P&L + Balance Sheet generator, AI agent for HMRC/Companies Act queries. |
-| **Groq provider** | Free-tier LLM via `https://api.groq.com` — `llama-3.3-70b-versatile`, 32K context. |
-| **Cerebras provider** | Free-tier LLM via `https://api.cerebras.ai` — `llama-3.3-70b`, 8K context. |
-| **OpenRouter provider** | 200+ model aggregator via `https://openrouter.ai` — default `gpt-4o-mini`. |
-| **Parity Drift Notifications** | Weekly GitHub Actions cron fingerprints `redressright.me/Agent.html` + `GAAP.html`. In-app sticky banner + GitHub Issue auto-created when upstream changes detected. |
-| **User Manual** | `TMAR-User-Manual.md` updated to v3.3 with all new sections and ~30 new function references. |
-
----
-
-## 📂 Project Structure
-
-```
-TMAR/
-├── TMAR-Accrual-Ledger.html          # Main web application (v3.8)
-├── tmar-key-manager.js               # Standalone floating API key manager (v1.0)
-├── TMAR-User-Manual.md               # Complete user manual (v3.3, ~3,600 lines)
-├── parity-fingerprint.json           # Source parity baseline (auto-updated weekly by CI)
-├── TMAR-System-Status-Dashboard.html # GUI element status dashboard (211 elements)
-├── TMAR_Audit_Dashboard.html         # Interactive audit dashboard v2 (246/246, 100%)
-├── audit_report.json                 # Full audit data v2 (0 missing)
-├── .github/workflows/
-│   └── parity-check.yml              # Weekly cron: fingerprints redressright.me, opens Issue on drift
-├── _archive/                         # Archived one-time records and superseded docs
-│
-├── Function_Reference_Cards/         # Complete function documentation
-│   ├── README.md                     # Quick reference index
-│   ├── COMPLETE_IMPLEMENTATION_GUIDE.md
-│   ├── 01_sendQuick.md               # Individual function cards
-│   ├── 02_eeonSendChat.md
-│   └── ... (22 total reference cards)
-│
-├── gas/                              # Google Apps Script files
-│   ├── Code.gs                       # Main GAS code
-│   ├── FormattingComplement.gs       # Formatting utilities
-│   ├── SyncCenter.gs                 # Data synchronization
-│   ├── DocumentGenerator.html        # Document generation UI
-│   ├── GAAPInterface.html            # GAAP compliance UI
-│   ├── README.md                     # GAS documentation
-│   └── ... (22 total GAS files)
-│
-├── GSheet/                           # Google Sheets documentation
-│   ├── README.md                     # GSheet overview
-│   ├── INTEGRATION_COMPLETE.md       # Integration guide
-│   ├── DEPLOYMENT_GUIDE.md
-│   └── ... (17 documentation files)
-│
-├── docs/                             # Additional documentation
-│   ├── Bank_Statement_Extraction_Guide.md
-│   ├── Extractor_API_Reference.md
-│   ├── LLM Provider Status.md
-│   └── plans/                        # Development plans
-│
-└── ClaudeSkills/                     # Claude Code skills
-    └── LDG Vault Skills Suite — Index.md
-```
-
----
-
-## 🔧 Development Workflow
-
-### Git Workflow
-
-**Mac → GitHub:**
-```bash
-git add TMAR-Accrual-Ledger.html   # stage only what changed
-git commit -m "feat/fix/chore: description"
-git push origin master              # GitHub Pages auto-deploys
-```
-
-**PC → Sync from GitHub:**
-```bash
-git pull origin master
-# Make changes
 git add TMAR-Accrual-Ledger.html
-git commit -m "PC updates"
-git push origin master
+git commit -m "…"
+git push origin master          # Pages auto-deploys in ~30s
 ```
 
-### Google Apps Script Deployment
+**GAS → Apps Script (secondary):**
+```bash
+cd gas && clasp push --force
+# If doGet/doPost or a new `case` changed: Apps Script editor →
+# Deploy → Manage deployments → New version (exec URL stays the same)
+```
+The **`/tmar-deploy`** skill runs the standard sequence. Dual-machine: `git pull origin master` on the Mac after a push. Rollback: `git revert HEAD && git push`.
+
+---
+
+## 9. Service layer & tests (`src/`)
+
+Modular JS services — `AccountService`, `TransactionService`, `TMARService`, `InvoiceService`, `PayrollService`, `SheetsService` — with `StateManager` (observer pattern) and a `LocalStorage` wrapper.
 
 ```bash
-cd gas/
-clasp push       # deploy to Apps Script
-clasp open       # open in editor to redeploy Web App if SyncCenter.gs changed
+npm test                # Jest + jsdom (ESM)
+npm run test:coverage   # 70% threshold over src/**
+```
+All service functions return **new objects** (immutability enforced by tests). Tests live in `src/__tests__/`. There is **no CI** — run tests locally before pushing.
+
+---
+
+## 10. Security
+
+- **CORS proxy mandatory** — never call `api.anthropic.com` directly from Pages. Gemini TTS is the one exception (CORS-allowed).
+- **Secrets** live only in localStorage / the AES-256 vault — **never committed**. A Read/Bash hook blocks secret files; `gas/env-vault-setup/` is gitignored. API keys live in `eeon_key_*` slots; the Anthropic key mirrors to 5 aliases.
+- **Vault:** AES-256-GCM, PBKDF2 (100k iterations), SHA-256 password hash, 15-min auto-lock, 5-attempt lockout.
+- **PII** in public Pages source is masked to last-4 (e.g. EIN `**-***9588`).
+- **Frozen runtimes** — agent registry, `HARD_LOCK`, and `DOCUMENT_KNOWLEDGE` are `Object.freeze`d.
+
+---
+
+## 11. Repo map
+
+```
+TMAR-Accrual-Ledger/
+  TMAR-Accrual-Ledger.html      Main app (agents, engines, topology, doc creator)
+  tmar-key-manager.js           Floating 🔐 API-key manager
+  cloudflare-worker-v2.js       CORS proxy worker (deploy to Cloudflare)
+  TMAR-System-Status-Dashboard.html · TMAR_Audit_Dashboard.html
+  src/                          Service layer + Jest tests
+  gas/                          Apps Script backend (clasp) + gas/README.md
+  scripts/                      Local tools (gen-vault-index, parity-sync) — gitignored
+  Function_Reference_Cards/     Per-function reference docs
+  docs/ · GSheet/               Human docs
+  .github/workflows/            Weekly parity-check cron
+  .claude/
+    docs/                       Instruction docs (api-patterns, domain-models, gas-patterns,
+                                ledger-calculation-rules, deployment, data-topology) — local
+    skills/                     fiduciary-doc-factory, tmar-deploy, … (shared)
+    agents/                     ledger-guardian, llm-security-reviewer (shared)
 ```
 
 ---
 
-### 📋 Document Maintenance Checklist
+## 12. Roadmap
 
-Run this checklist on **every feature or parity-sync commit** before pushing.
+- **Capture-once propagation** (`gas/ReconcileCrossFill.gs`, in progress): document creation auto-captures linked account IDs — `DOC-NNNN` ↔ `T-NNN` — into every applicable tab, so the operator never updates locations by hand. The concrete expression of the single-source design law.
 
-#### Update (when applicable)
+---
 
-| Document | Update When |
+## 13. Further reading
+
+| Doc | Covers |
 |---|---|
-| `README.md` | version bump, new features, tab/count changes, What's New entry |
-| `TMAR-ACCRUAL-LEDGER-DESIGN.md` | new Approved Decision rows, version header, module scope |
-| `TMAR-User-Manual.md` | any user-visible feature added or changed |
-| `parity-fingerprint.json` | auto-updated by CI — do not edit manually |
-
-#### Archive to `_archive/`
-
-Move these when they are no longer current:
-- One-time deployment records, setup completion reports (after their feature ships)
-- Superseded planning docs and gap-audit reports (after implementation)
-- Old implementation plans that are fully executed
-- Duplicate guides that have been consolidated elsewhere
-
-#### Remove
-
-- Empty stubs or placeholder files with no content
-- Files wholly superseded by a renamed/rewritten replacement
-- Temporary scratch files committed by mistake
-
-**Rule of thumb:** if you wouldn't link it from `README.md` and nothing in the codebase references it, archive or delete it before the next push.
+| `.claude/docs/data-topology.md` | Full data-relationship map (source of truth for injected `ledgerTopology`) |
+| `.claude/docs/domain-models.md` | Schemas — Master Register 35-col, Account/Transaction models |
+| `.claude/docs/ledger-calculation-rules.md` | Balance / income / verification rules |
+| `.claude/docs/api-patterns.md` | LLM call stack, CORS, provider routing, TTS |
+| `.claude/docs/gas-patterns.md` · `deployment.md` | Backend & deploy conventions |
+| `gas/README.md` · `GSheet/README.md` · `Function_Reference_Cards/` | Module & function references |
 
 ---
 
-### 🔁 Parity Sync Workflow
+## 14. Version history (condensed)
 
-When the weekly Actions run or `gh workflow run parity-check.yml` opens a drift issue:
+> Full granular detail lives in git history. Highlights per release:
 
-1. Fetch both source URLs listed in the issue
-2. Run gap audit (diff source tabs vs TMAR sidebar)
-3. Implement gaps in TMAR-Accrual-Ledger.html
-4. Follow the Document Maintenance Checklist above
-5. Commit → push → close the drift issue
-
----
-
-## 📖 Documentation
-
-### Quick References
-- [Function Reference Cards](./Function_Reference_Cards/README.md) - All 17 custom functions
-- [Audit Dashboard](./TMAR_Audit_Dashboard.html) - Interactive coverage report (v2, 246/246)
-- [System Status Dashboard](./TMAR-System-Status-Dashboard.html) - GUI element status (211/211)
-
-### Implementation Guides
-- [Complete Implementation Guide](./Function_Reference_Cards/COMPLETE_IMPLEMENTATION_GUIDE.md)
-
-### Google Sheets Integration
-- [GSheet README](./GSheet/README.md)
-- [Integration Complete](./GSheet/INTEGRATION_COMPLETE.md)
-- [Deployment Guide](./GSheet/DEPLOYMENT_GUIDE.md)
-
-### Specialized Guides
-- [Bank Statement Extraction](./docs/Bank_Statement_Extraction_Guide.md)
-- [Extractor API Reference](./docs/Extractor_API_Reference.md)
-- [LLM Provider Status](./docs/LLM%20Provider%20Status.md)
+| Version | Date | Highlights |
+|---|---|---|
+| **4.1** | 2026-06-27 | **Ledger Data Topology** injected into every agent (`ledgerTopology` + `buildFullSystemPrompt`); workbook consolidation (APPC hub → Live, registry promotion, `TabConsolidationAudit.gs` toolkit); VAULT_INDEX regenerated from the live cabinet; localhost key-persistence fix |
+| **4.0** | 2026-06-17 | fiduciary-doc-factory v2.1.0 merged + wired into all agents and the 3 Document features; Gemini neural TTS (`GEMINI_TTS`); UCC 9-210 demand template |
+| **3.9** | 2026 | Clear button + file upload across all 24 AP agents |
+| **3.8** | 2026-04-07 | `tmar-key-manager.js`; vault→`eeon_key_*` injection bridge; Digital File Cabinet (3-tab); GAS workbook-tab integration |
+| **3.7** | 2026 | `tmar-updater.js` (replaces inline parity banner); Cloudflare Worker v2; EON portal layout fixes |
+| **3.5** | 2026-04-05 | 14 EON legal-firm chat agents (25 total) + LEGAL FIRMS sidebar |
+| **3.4** | 2026-04-04 | GAAPCLAW Master agent; OpenClaw page; image paste; token guard; CAMT + buyback tax |
+| **3.3** | 2026 | SPV module; UK Accounting (FRS 102/IFRS); Groq/Cerebras/OpenRouter providers; parity-drift CI |
+| **3.0** | 2026-03-14 | GCMemory (IndexedDB) + MEM0; OpenClawRuntime SYPHER-7.8; HARD_LOCK; `callLLMStream` v7.1 |
+| **2.0** | 2026-03-09 | All 17 custom functions + reference cards + audit system (246 fns) |
+| **1.0** | 2026-03-08 | 6 AI agents + Claude API; Research HUB; API-key management |
 
 ---
 
-## ✅ Implementation Status
-
-### Web Application
-
-- **GUI Elements:** 211/211 (100%) — verified via System Status Dashboard
-- **Tabs/Screens:** 51 across 12 groups (100%)
-- **AI Agents:** 19 total (GAAPCLAW Master + 6 CPA firms × 3 sub-agents each)
-- **Testing:** ✅ All buttons verified working (zero stubs remaining)
-
-### Google Apps Script
-- **Main Code:** Code.gs (137 KB)
-- **Modules:** 22 files
-- **Integration:** ✅ Complete
-- **Deployment:** ✅ Live on Google Sheets
-
-### AI Agents (6 Total)
-1. ⚖️ Legal Expert - Presumption Killer
-2. 💰 Tax Strategist - IRC Master
-3. 📊 Accounting Expert - GAAP/FASB
-4. 🏛️ Trust Administrator - Estate Planning
-5. ⚔️ Arbitration Expert - Dispute Resolution
-6. 🏢 Corporation Specialist - Business Formation
-
-**API Integration:** Anthropic Claude (claude-sonnet-4-20250514)
-
----
-
-## 🔐 Security Features
-
-### Vault System
-- **Encryption:** AES-256-GCM
-- **Key Derivation:** PBKDF2 (100,000 iterations)
-- **Password Hashing:** SHA-256
-- **Auto-Lock:** 15-minute timer
-- **Failed Attempts:** 5 max before lockout
-
-### API Keys
-- **Storage:** Browser localStorage (encrypted at rest)
-- **Transmission:** HTTPS only
-- **Validation:** Connection testing before save
-- **Indicators:** Visual key status dots
-
-### Data Privacy
-- **Local First:** All data stored in browser localStorage
-- **No Cloud Sync:** Unless explicitly configured
-- **No Tracking:** No analytics or telemetry
-- **Offline Capable:** Works without internet (except AI features)
-
----
-
-## 🎨 Tech Stack
-
-### Frontend
-- **HTML5** - Semantic markup
-- **CSS3** - Bootstrap 5 + Custom styles
-- **JavaScript** - Vanilla JS (ES6+)
-- **LocalStorage** - Client-side persistence
-- **Web Crypto API** - Encryption
-- **Web Speech API** - Voice features
-
-### Backend
-- **Google Apps Script** - Server-side automation
-- **Google Sheets API** - Data storage
-- **Anthropic Claude API** - AI agents
-
-### Deployment
-- **GitHub Pages** - Static hosting
-- **Git** - Version control
-- **clasp** - Google Apps Script CLI
-
----
-
-## 📈 Version History
-
-### v3.5 (April 5, 2026) — 14 New EON Legal Firm Agents (25 Total)
-
-- ✅ **14 new Chat firm chips** — Document Creation, Legal Analyst, Document Format, Writs Writing, Amicus Brief, Dream Team Appeal, Presumption Killer, Fact & Conclusion of Law, Jurisdictional Challenge, Constitutional Sovereignty, Strategic Brainstorm, Trial Preparation, Biblical Scholar, Ledger & Accounting Expert
-- ✅ **13 new AP-style agent pages** — full conversation history, Speak/Listen/Print/PDF/Word/Share, color-matched UI per agent
-- ✅ **LEGAL FIRMS sidebar section** — 13 new sidebar nav buttons
-- ✅ **25 agent cards** in Agents grid (`renderAgents()`)
-- ✅ **System prompts** — SYPHER/EEON methodology applied to all 13 new agents
-- ✅ **Dashboard** — Active Agents stat updated to 25
-
-### v3.4 (April 4, 2026) — GAAPCLAW Master Agent + OpenClaw + Model Updates + Doc Workflow
-
-- ✅ **GAAPCLAW Master Agent** — dedicated streaming chat for all entity types; 6 quick-prompts; `gaapAgentSend/Clear/Q()` wired to `callLLMStream()`
-- ✅ **OpenClaw page** — Apify/Tavily/Firecrawl key cards + discovery search in EON sidebar
-- ✅ **Tavily / Firecrawl / Mem0 API keys** — settings cards + ENV_TO_LS_MAP vault import mappings
-- ✅ **Image paste** — `handleChatPaste()` on all chat inputs; Claude vision base64 block format
-- ✅ **Token Guard** — session token counter with color-coded thresholds in chat bar
-- ✅ **CAMT + Buyback Tax sub-tabs** — IRC §55 (15% AFSI ≥$1B) + IRC §4501 (1% excise, $10M de minimis)
-- ✅ **Vault quick-action buttons** — 🔐 Load .env, 📦 Export Bundle, 📥 Import Bundle in Settings row
-- ✅ **Model defaults** — OpenAI→`gpt-4.1-mini`, xAI→`grok-3-mini`, MiniMax→`MiniMax-Text-01`, Ernie→Qianfan v2, Ollama fallback→`deepseek-r1:14b`
-- ✅ **Document maintenance protocol** — per-feature checklist, archive criteria, parity issue doc checklist
-
-### v3.2 (April 4, 2026) — Transcript Transformer YAML Fix + Audit Dashboard v2
-
-- ✅ **Transcript Transformer YAML fix** — `source_url` now single-quoted in generated frontmatter, fixing Obsidian parse failure on Windows paths (C: colon was breaking YAML key detection); `purpose` switched to `>-` block scalar; `tags` switched to list format
-- ✅ **Audit Dashboard v2** — Rebuilt to reflect post-fix verified state (246/246, 100%); removed stale red alert, added green all-clear banner with fixed-17 highlight grid
-- ✅ **audit_report.json v2** — All 17 previously-missing functions now in `implemented` array with `fixed` date markers; 8 browser built-ins separated into `excluded_builtins`
-- ✅ **Doc cleanup** — 12 one-time deployment/completion records archived; 15+ GSheet duplicate files archived; stale PR #1 closed
-
-### v3.1 (March 17, 2026) — Full GUI Audit + Entity Verifier CSV Import
-
-- ✅ **System Status Dashboard** — Interactive HTML dashboard mapping all 211 GUI elements with status, handlers, descriptions, search & filtering
-- ✅ **Full function verification** — All 23 previously-unconfirmed functions investigated and confirmed working with graceful degradation
-- ✅ **toggleMic() fixed** — Replaced stub with real implementation wired to startVoiceRec()/stopVoiceRec()
-- ✅ **testSyncConnection() implemented** — Pings GAS Web App via SyncBridge.ping(), shows version/year/latency
-- ✅ **Entity Verifier CSV Import** — `ev2ImportCSV()` parses TMAR Entities CSV format, deduplicates by EIN/name, merges into `appData.entities` with extended fields (address, phone, email)
-- ✅ **Entity Verifier v2.0 section** added to System Status Dashboard (12 elements)
-
-### v3.0 (March 14, 2026) — GAAPCLAW Full Parity + Engine Ports
-- ✅ **GCMemory IndexedDB engine** — Full persistent agent memory (replaces localStorage stub)
-  - `add()`, `addPdf()`, `search()` with keyword-overlap scoring, `clearAll()`, `count()`
-  - 60+ legal/financial importance keywords; auto-prune at 500 records
-- ✅ **MEM0 (GAAP_MEM0)** — Drop-in proxy routing all calls to GCMemory; always enabled, no key gate
-- ✅ **OpenClawRuntime SYPHER-7.8-HARDLOCK** — 3-phase boot: guarded registration → delete methods → `Object.freeze()`; 5 agents + 9 skills sealed; rogue injection blocked + logged
-- ✅ **HARD_LOCK enforcement layer** — Frozen object: sanitizeOutput (strips markdown), validatePrompt, stripDisclaimers, processOutput; integrity self-test at load
-- ✅ **Streaming architecture (callLLMStream v7.1)** — Multi-provider SSE/NDJSON streaming: Ollama, Anthropic, OpenAI-compatible bearer, Ernie non-streaming fallback; 15-min AbortController
-- ✅ **Token Budget Guard** — PROVIDER_LIMITS for 14 providers; `truncateToTokenBudget()` preserves questions, truncates docs first
-- ✅ **resolveProvider()** — Reads `eeon_*` localStorage keys; cascading fallback to Claude
-- ✅ **askAgent() refactored** — Full streaming with live cursor, MEM0 context injection, IndexedDB save on completion
-- ✅ **API Scout v2** — 22 curated APIs, search/category/auth filters, ⚡ Test All Live with per-card status dots, ⬇ Integrate All
-- ✅ **`#gc-v3-bar` footer status bar** — Fixed bottom: Rev/Exp/Net/Assets/Tax/BALANCED/entries/Mem + 5 panel buttons
-- ✅ **AP pattern** — All 7 specialist pages rebuilt with left sidebar + 6-button action bar (Speak/Listen/Print/PDF/Word/Share) + localStorage conversation persistence
-- ✅ **AUTONOMOUS sidebar section** — Task Planner, API Integrations, Code Builder, API Scout properly separated from SYSTEM
-- ✅ **uploadIRSTemplate()** — PDF template upload with FileReader + localStorage
-- ✅ **Settings expanded** — Appearance tab, LLM provider grid buttons, GCMemory block, OpenClaw + Apify sections
-
-### v2.0 (March 9, 2026)
-- ✅ Implemented all 17 custom functions
-- ✅ Created 17 reference cards
-- ✅ Complete audit system (246 functions)
-- ✅ Interactive audit dashboard
-- ✅ 100% function coverage
-- ✅ Documentation reorganization
-
-### v1.0 (March 8, 2026)
-- ✅ 6 AI agents with Claude API integration
-- ✅ Research HUB with 3 depth modes
-- ✅ API Keys management
-- ✅ Enhanced button styling
-- ✅ Comprehensive error handling
-
----
-
-## 🤝 Contributing
-
-### Reporting Issues
-1. Check existing issues on GitHub
-2. Provide detailed description
-3. Include browser/environment info
-4. Add screenshots if applicable
-
-### Making Changes
-1. Fork the repository
-2. Create feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit pull request
-
----
-
-## 📞 Support
-
-### Documentation
-- Check [Function Reference Cards](./Function_Reference_Cards/)
-- Review [Audit Dashboard](./TMAR_Audit_Dashboard.html)
-- Read implementation guides
-
-### Troubleshooting
-- Enable browser console (F12)
-- Check for error messages
-- Verify API key configuration
-- Test network connectivity
-
----
-
-## 📝 License
-
-Copyright © 2026 TMAR Development Team
-All Rights Reserved
-
----
-
-## 🔗 Links
-
-- **Live Application:** https://slickvicious.github.io/TMAR-Accrual-Ledger/TMAR-Accrual-Ledger.html
-- **GitHub Repository:** https://github.com/SlickVicious/TMAR-Accrual-Ledger
-- **Google Sheets:** https://docs.google.com/spreadsheets/d/1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ
-- **Audit Dashboard:** https://slickvicious.github.io/TMAR-Accrual-Ledger/TMAR_Audit_Dashboard.html
-
----
-
-**Last Updated:** April 4, 2026
-**Status:** ✅ Production Ready — 246/246 Functions | 211/211 GUI Elements Verified
-**Coverage:** 100%
+**License:** © 2026 — All rights reserved · **Anthropic model string:** `claude-sonnet-4-20250514` (update in `resolveProvider`/request body when it changes).

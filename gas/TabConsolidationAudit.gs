@@ -209,6 +209,34 @@ function _promotePcRegistry_(dryRun) {
 //  - "Validation" (plain): unreferenced by any GAS (all code uses "_Validation").
 //    Guarded by a data-validation reference scan so we never break a dropdown.
 //  - "CPA Questions": header-only; ensureCPASheet_() recreates it on demand.
+// ── Align workbook tab names to their TMAR GUI section labels (SHEET_MAP) ─────
+// Safe: no GAS reader references these names. Guarded — renames only when the
+// source exists and the target name is free. Mirror of the HTML SHEET_MAP.
+// The 'CoA' / 'Chart of Accounts' tab actually holds entity/TIN data (people +
+// creditor EINs), NOT GAAP account codes — rename it to its true name. The GUI's
+// GAAP Chart of Accounts syncs to a separate 'GAAP CoA' tab (created on push).
+// 'Account Entities' stays as-is (it is the Entity Verifier's source-data tab).
+var TAB_RENAMES_ = [
+  ['Chart of Accounts', 'TIN Registry'],
+  ['CoA',               'TIN Registry']
+];
+function previewAlignTabNames() { return _alignTabs_(true); }
+function alignTabNames() { return _alignTabs_(false); }
+function _alignTabs_(dryRun) {
+  var ss = _liveBook_();
+  var done = [], skip = [];
+  TAB_RENAMES_.forEach(function(p) {
+    var from = p[0], to = p[1], sh = ss.getSheetByName(from);
+    if (!sh) { skip.push('"' + from + '" → "' + to + '" (source missing — already renamed?)'); return; }
+    if (ss.getSheetByName(to)) { skip.push('"' + from + '" → "' + to + '" (target already exists)'); return; }
+    if (!dryRun) sh.setName(to);
+    done.push('"' + from + '" → "' + to + '"');
+  });
+  Logger.log('%s — %s rename(s) %s:\n  %s', dryRun ? 'DRY RUN' : 'DONE', done.length, dryRun ? 'WOULD apply' : 'applied', done.join('\n  ') || '(none)');
+  if (skip.length) Logger.log('SKIPPED:\n  %s', skip.join('\n  '));
+  return { done: done, skipped: skip };
+}
+
 function previewRemoveDeadTabs() { return _removeDead_(true); }
 function removeDeadTabs() { return _removeDead_(false); }
 

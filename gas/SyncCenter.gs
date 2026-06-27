@@ -744,6 +744,14 @@ function doGet(e) {
         updateSyncTimestamp_(ss, 'Household Obligations', 'pull');
         return jsonResponse_({ status: 'ok', action: 'pullObligations', count: obls.length, data: obls });
 
+      case 'pullChartOfAccounts': {
+        var coaRows = pullSheetData_(ss, 'GAAP CoA', 2, [
+          'num', 'name', 'type', 'subtype', 'normalBal', 'formLine'
+        ]);
+        updateSyncTimestamp_(ss, 'GAAP CoA', 'pull');
+        return jsonResponse_({ status: 'ok', action: 'pullChartOfAccounts', count: coaRows.length, data: coaRows });
+      }
+
       case 'pull1099':
         var filings = pullSheetData_(ss, '1099 Filing Chain', 5, [
           'assetId', 'description', 'acquisitionDate', '1099A_filed', '1099A_date',
@@ -1088,6 +1096,12 @@ function doPost(e) {
         updateSyncTimestamp_(ss, 'Household Obligations', 'push');
         return jsonResponse_(payResult);
 
+      case 'pushChartOfAccounts':
+        var coaV = validatePayload_(payload.accounts, ['num']);
+        if (!coaV.valid) return errorResponse_(coaV.message);
+        var coaResult = pushChartOfAccounts_(ss, payload.accounts);
+        return jsonResponse_(coaResult);
+
       case 'push1099':
         var filV = validatePayload_(payload.filings, []);
         if (!filV.valid) return errorResponse_(filV.message);
@@ -1343,6 +1357,26 @@ function pushTransactions_(ss, entries) {
  * Push payables to Household Obligations via Web App.
  * Replicates importLedgerPayables() logic with upsert.
  */
+function pushChartOfAccounts_(ss, accounts) {
+  // GUI's GAAP chart is authoritative → full-replace the data rows. Creates the
+  // 'GAAP CoA' tab (header: Num | Name | Type | Subtype | Normal Balance | Form Line).
+  var sheet = ss.getSheetByName('GAAP CoA');
+  if (!sheet) {
+    sheet = ss.insertSheet('GAAP CoA');
+    sheet.getRange(1, 1, 1, 6).setValues([['Num', 'Name', 'Type', 'Subtype', 'Normal Balance', 'Form Line']]);
+    sheet.getRange(1, 1, 1, 6).setFontWeight('bold');
+    sheet.setFrozenRows(1);
+  }
+  var last = sheet.getLastRow();
+  if (last > 1) sheet.getRange(2, 1, last - 1, 6).clearContent();
+  var rows = (accounts || []).map(function(a) {
+    return [a.num || '', a.name || '', a.type || '', a.subtype || '', a.normalBal || a.normalBalance || '', a.formLine || ''];
+  });
+  if (rows.length) sheet.getRange(2, 1, rows.length, 6).setValues(rows);
+  updateSyncTimestamp_(ss, 'GAAP CoA', 'push');
+  return { status: 'ok', action: 'pushChartOfAccounts', imported: rows.length };
+}
+
 function pushPayables_(ss, payables) {
   var sheet = ss.getSheetByName('Household Obligations');
   if (!sheet) return { status: 'error', action: 'pushPayables', message: 'Household Obligations tab not found' };
