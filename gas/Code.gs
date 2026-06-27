@@ -504,6 +504,24 @@ function protectHeaderRows(ss) {
 
 // ─── MENU & INITIALIZATION ─────────────────────────────────────────────────
 
+/**
+ * One-time setup: attach the "TMAR Tools" menu to the Live book.
+ * This is a standalone project (Web App + Library), so the simple onOpen() does NOT
+ * fire on the spreadsheet automatically. Run this once from the editor to install an
+ * onOpen trigger on the Live book, then reopen the sheet — the menu appears.
+ * Re-running is safe: it removes any prior onOpen trigger first (no duplicates).
+ */
+function installTmarToolsMenu() {
+  var ss = SpreadsheetApp.openById(TMAR_CONFIG.liveBookId);
+  ScriptApp.getProjectTriggers().forEach(function(t) {
+    if (t.getHandlerFunction() === 'onOpen' && t.getEventType() === ScriptApp.EventType.ON_OPEN) {
+      ScriptApp.deleteTrigger(t);
+    }
+  });
+  ScriptApp.newTrigger('onOpen').forSpreadsheet(ss).onOpen().create();
+  Logger.log('✅ "TMAR Tools" menu installed on the Live book (%s). Reload the spreadsheet to see it.', TMAR_CONFIG.liveBookId);
+}
+
 function onOpen() {
   const ui = SpreadsheetApp.getUi();
 

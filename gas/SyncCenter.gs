@@ -454,7 +454,7 @@ function importLedger1099s(filings) {
 var TMAR_CONFIG = {
   liveBookId:    '1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ', // TMAR — Web App context (Master Register, ledgers; menu + sync target). Form imports write here.
   sourceBookId:  '1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ', // = liveBookId. Old Wimberly source (1CYg4fwQ…) was DELETED 2026-06-27 → folded into Live; pulls now read the same book imports write to.
-  appcHubId:     '1Ac5AAM2381L2AgXi_llp7ugfRW2bWX2NbMLW3jiATtc', // APPC_RLT unified hub (→ fold into Live)
+  appcHubId:     '1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ', // = liveBookId. APPC hub (1Ac5A…) folded into Live 2026-06-27 (MigrateAppcToLive.gs); its TMAR—/FWM— tabs now read from Live.
   archiveBookId: '1kbulI33th8uOmrumj7RkiJ8aqZs48gqzujrXUmNRjk8', // Freeway 2025 — LEGACY, read-only Archive (never write)
   execUrl:       'https://script.google.com/macros/s/AKfycbzpeegvE52lvqCTMyKrsdaa_4JFfjM6MQrsJkU8zb17fkUJzPRasUU0fjONdaHkM5dh/exec'
 };
