@@ -40660,6 +40660,15 @@ var DOCUMENT_KNOWLEDGE = (typeof DOCUMENT_KNOWLEDGE !== 'undefined' && DOCUMENT_
     nolClassification: 'NOLs are financial assets and must not be classified as deferred tax assets in this runtime.',
     arbitrationFramework: 'Arbitration outcomes are analyzed under governing federal and state arbitration law frameworks.',
     pre1866CriminalStatutes: '',
+    // ── Ledger Data Topology — the workbook is a living relational database; agents resolve facts across tabs/workbooks by join key, never treat a blank cell as missing. Mirror: .claude/docs/data-topology.md. Plain prose only (HARD_LOCK safe). ──
+    ledgerTopology:
+      'LEDGER DATA TOPOLOGY. This workbook (TMAR Live) is the organized record and log of a living, multi-surface system: the GitHub Pages app is the central control hub that pulls and pushes to remote interfaces; documents are born in the YTubiversity Vaults, stored in the local FileCabinet, and logged here for estate planning, ledger keeping, and file tracking. Design law is minimalist and single source of truth: capture a fact once and let it propagate; never require the same fact to be entered in two places. ' +
+      'The workbook is RELATIONAL, not a set of isolated sheets. A blank cell is almost never missing data; the value lives in a related tab. Before you report a value missing or ask the operator for it, resolve it through its join key to the canonical tab named below. ' +
+      'JOIN KEYS. EIN is the creditor identity key; it links Master Register (PROVIDER_EIN), Creditor Registry, Checklist, FWM Creditor Detail, FWM Forms Checklist, and the 1099 Filing Chain and 1099 Filings; one W-9 and one Form 56 are required per unique EIN, not per account. DOC-NNNN is the document key in Document Registry, which is now the PC FileCabinet scan and is canonical; Document Inventory is a separate older catalog whose DOC-NNNN numbers COLLIDE (same number, different file), so never join DOC numbers between Document Registry and Document Inventory. MR-NNN is the Master Register row key and account spine. Account number links Master Register, the bank cash-flow tabs, and Checklist. The creditor tags T-NNN and S-NNN are two numbering schemes over the SAME creditors, reconciled by EIN. ' +
+      'CANONICAL SOURCE PER FACT. Creditor mailing address and legal entity name come from FWM Creditor Detail (the complete twenty-eight creditor master) and its enriched subset Creditor Registry. For any IRS filing or 1099, use the creditor LEGAL ENTITY NAME (the CREDITOR ENTITY LEGAL NAME column, for example Capital One Bank USA NA) and its EIN, never the brand or trade name. Account number, status, and 1099-B pairing come from Checklist and Master Register. Document filename and filesystem path come from Document Registry. Account balance comes from the Master Register current-balance column. ' +
+      'RELATIONSHIP FACTS. The FWM tabs hold the complete twenty-eight creditors; Creditor Registry and Checklist are enriched subsets of twenty of them, joined by EIN, with Creditor Registry SOURCE REF equal to the FWM S number; if a value is blank in a subset, look it up by EIN in the FWM master before treating it as missing. Master Register Archive is a quarantine of duplicate or closed accounts removed by the duplicate analyzer; it is not redundant and must never be merged back. Document Registry (Mac legacy) is an archived earlier corpus; the active corpus is the PC scan. ' +
+      'SURFACE MAP. TMAR Live (1k6J2…) is the sole read and write source of truth; all sync, imports, and document-ID minting target it. The Freeway 2025 Archive (1kbulI…) is read-only legacy; never write to it. The APPC_RLT hub (1Ac5A…) was an abandoned attempt to merge TMAR and FWM; it is dead, was never synced, and must not be read from or written to. ' +
+      'STANDING DIRECTIVE. Honor the minimalist single-source rule: when you create or update a record, reflect it in every tab that joins to it by the keys above rather than asking the operator to re-enter it; never assume two DOC numbers in different document tabs are the same file; treat Archive tabs and the dead APPC hub as out of scope for active data.',
     // ── fiduciary-doc-factory v2.1.0 (merged skill) — distilled standard ──
     // Source of truth: .claude/skills/fiduciary-doc-factory/. Plain prose only (HARD_LOCK safe).
     fiduciaryDocFactory:
@@ -43274,6 +43283,10 @@ function buildFullSystemPrompt(agentSystemPrompt, _mem0Memories) {
     // ══ fiduciary-doc-factory: every agent carries the document standard (inert unless drafting) ══
     if (typeof DOCUMENT_KNOWLEDGE !== 'undefined' && DOCUMENT_KNOWLEDGE && DOCUMENT_KNOWLEDGE.fiduciaryDocFactory) {
         sp += '\n\n═══ FIDUCIARY DOC FACTORY ═══\n' + DOCUMENT_KNOWLEDGE.fiduciaryDocFactory + '\n═══ END FIDUCIARY DOC FACTORY ═══\n';
+    }
+    // ══ ledger data topology: every agent resolves facts across tabs/workbooks by join key (blank ≠ missing) ══
+    if (typeof DOCUMENT_KNOWLEDGE !== 'undefined' && DOCUMENT_KNOWLEDGE && DOCUMENT_KNOWLEDGE.ledgerTopology) {
+        sp += '\n\n═══ LEDGER DATA TOPOLOGY ═══\n' + DOCUMENT_KNOWLEDGE.ledgerTopology + '\n═══ END LEDGER DATA TOPOLOGY ═══\n';
     }
     return sp;
 }

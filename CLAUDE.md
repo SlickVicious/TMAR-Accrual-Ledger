@@ -43,6 +43,7 @@ Its `references/source-books/` PDFs are gitignored (large/copyrighted reference 
 - **No CI/CD** — run `npm test` locally before pushing HTML changes.
 - **Never commit secrets** — API keys live in localStorage/vault only.
 - **Fiduciary doc standard lives in two synced places** — `.claude/skills/fiduciary-doc-factory/` (source of truth) and `DOCUMENT_KNOWLEDGE.fiduciaryDocFactory` in the HTML (distilled, injected into every agent via `buildFullSystemPrompt` + the `doc_creation`/`doc_format` firm prompts). Update both together. See `.claude/docs/api-patterns.md`.
+- **Ledger Data Topology lives in two synced places** — `.claude/docs/data-topology.md` (source of truth) and `DOCUMENT_KNOWLEDGE.ledgerTopology` in the HTML (distilled, plain-prose, injected into every agent via `buildFullSystemPrompt`). The workbook is a living relational database: agents resolve facts across tabs/workbooks by join key (EIN, DOC-NNNN, MR-NNN) and never treat a blank cell as missing. Update both together.
 - **Gemini neural TTS calls Google directly** (CORS-allowed), NOT through the Anthropic CORS proxy. Engine + voices in Settings → Voice & TTS; key resolves from `eeon_key_gemini` first.
 
 ## Instruction Docs (load when relevant)
@@ -53,3 +54,4 @@ Its `references/source-books/` PDFs are gitignored (large/copyrighted reference 
 @.claude/docs/deployment.md
 @.claude/docs/gas-patterns.md
 @.claude/docs/ledger-calculation-rules.md
+@.claude/docs/data-topology.md
