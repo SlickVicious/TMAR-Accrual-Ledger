@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body { font-family: 'Segoe UI', Roboto, Arial, sans-serif; margin: 0; padding: 16px;
+           color: #1B2A4A; font-size: 13px; }
+    h2 { margin: 0 0 4px; font-size: 16px; }
+    p.sub { margin: 0 0 12px; color: #5a687a; }
+    textarea { width: 100%; height: 230px; box-sizing: border-box; font-family: Consolas, monospace;
+               font-size: 11px; border: 1px solid #c3ccd8; border-radius: 6px; padding: 8px; resize: vertical; }
+    .modes { margin: 12px 0; }
+    .modes label { display: block; margin: 6px 0; cursor: pointer; }
+    .modes b { color: #1B2A4A; }
+    .hint { color: #5a687a; font-size: 11px; }
+    .bar { margin-top: 14px; display: flex; gap: 10px; align-items: center; }
+    button { border: 0; border-radius: 6px; padding: 9px 18px; font-size: 13px; cursor: pointer; }
+    #go { background: #1B2A4A; color: #fff; }
+    #go:disabled { background: #9aa6b6; cursor: default; }
+    #cancel { background: #e7ebf1; color: #1B2A4A; }
+    #status { margin-top: 12px; padding: 10px; border-radius: 6px; display: none; white-space: pre-wrap; }
+    .ok { background: #E8F5E9; color: #1B5E20; }
+    .err { background: #FFEBEE; color: #B71C1C; }
+    .working { background: #FFF8E1; color: #7a5c00; }
+  </style>
+</head>
+<body>
+  <h2>Import Registry Scan</h2>
+  <p class="sub">Paste the contents of <b>DocumentRegistry_DELTA.csv</b> (new files) or
+     <b>DocumentRegistry_FULL.tsv</b> (everything), produced by
+     <code>scan_filecabinet_registry.py</code>. The header row is detected and ignored.</p>
+
+  <textarea id="data" placeholder="Doc ID&#9;Filename&#9;Document Type&#9;…  (paste TSV or CSV here)"></textarea>
+
+  <div class="modes">
+    <label><input type="radio" name="mode" value="append" checked>
+      <b>Append new only</b> — skips any row whose file path is already in the registry; assigns fresh DOC-IDs.
+      <div class="hint">Use with DocumentRegistry_DELTA.csv. Safe to re-run (idempotent).</div></label>
+    <label><input type="radio" name="mode" value="replace">
+      <b>Full replace</b> — clears all data rows (row 3+) and rewrites from the paste, keeping each row's DOC-ID.
+      <div class="hint">Use with DocumentRegistry_FULL.tsv. Also clears out stale rows.</div></label>
+  </div>
+
+  <div class="bar">
+    <button id="go" onclick="run()">Import</button>
+    <button id="cancel" onclick="google.script.host.close()">Cancel</button>
+  </div>
+
+  <div id="status"></div>
+
+  <script>
+    function setStatus(cls, msg) {
+      var s = document.getElementById('status');
+      s.className = cls; s.style.display = 'block'; s.textContent = msg;
+    }
+    function run() {
+      var text = document.getElementById('data').value;
+      if (!text.trim()) { setStatus('err', 'Paste the scan output first.'); return; }
+      var mode = document.querySelector('input[name=mode]:checked').value;
+      if (mode === 'replace' &&
+          !confirm('Full replace will clear ALL existing Document Registry data rows. Continue?')) return;
+      document.getElementById('go').disabled = true;
+      setStatus('working', 'Importing…');
+      google.script.run
+        .withSuccessHandler(function (res) {
+          document.getElementById('go').disabled = false;
+          setStatus(res && res.ok ? 'ok' : 'err', (res && res.message) || 'Done.');
+        })
+        .withFailureHandler(function (err) {
+          document.getElementById('go').disabled = false;
+          setStatus('err', 'Error: ' + (err && err.message ? err.message : err));
+        })
+        .importRegistryScan(text, mode);
+    }
+  </script>
+</body>
+</html>

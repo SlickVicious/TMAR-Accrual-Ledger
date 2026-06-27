@@ -558,6 +558,7 @@ function onOpen() {
       .addItem('View Last Report', 'navigateToGapReport')
       .addItem('View Document Registry', 'navigateToDocRegistry')
       .addSeparator()
+      .addItem('Import Registry Scan…', 'showImportRegistryScanDialog')
       .addItem('Install Auto-ID & Date Trigger', 'installDocRegistryTrigger')
       .addItem('Remove Auto-ID & Date Trigger', 'removeDocRegistryTrigger')
       .addSeparator()

@@ -2080,6 +2080,10 @@ function push1099_(ss, filings) {
 // machinery, writing into the hub's own hidden _SyncMeta tab.
 //
 // Added: 2026-06-07
+// CONSOLIDATED 2026-06-27 — the APPC hub was folded INTO the Live book, so
+//   TMAR_CONFIG.appcHubId now == liveBookId. appcPushToHub/appcPullFromHub
+//   short-circuit (no-op) when hub == Live to avoid self-referential duplicate
+//   "TMAR — *" tabs. Kept intact for history / future un-fold.
 // ═══════════════════════════════════════════════════════════════════════════
 
 /** APPC_RLT unified hub workbook ID. Source of truth: TMAR_CONFIG.appcHubId (top of file). */
@@ -2125,6 +2129,10 @@ function getAppcHub_() {
  * @return {Object} { status, rows, hubTab }
  */
 function appcPushToHub(localSheetName, hubSheetName) {
+  if (APPC_HUB_ID_ === TMAR_CONFIG.liveBookId) {
+    Logger.log('appcPushToHub: APPC hub folded into Live (2026-06-27) — no-op for "' + hubSheetName + '" (would create a self-referential duplicate tab).');
+    return { status: 'skipped', action: 'appcPushToHub', reason: 'hub-consolidated-into-live', hubTab: hubSheetName };
+  }
   var src = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(localSheetName);
   if (!src) {
     Logger.log('appcPushToHub: local sheet "' + localSheetName + '" not found.');
@@ -2158,6 +2166,10 @@ function appcPushToHub(localSheetName, hubSheetName) {
  * @return {Object} { status, rows, localSheet }
  */
 function appcPullFromHub(hubSheetName, localSheetName) {
+  if (APPC_HUB_ID_ === TMAR_CONFIG.liveBookId) {
+    Logger.log('appcPullFromHub: APPC hub folded into Live (2026-06-27) — no-op for "' + hubSheetName + '" (hub and Live are the same book).');
+    return { status: 'skipped', action: 'appcPullFromHub', reason: 'hub-consolidated-into-live', localSheet: localSheetName };
+  }
   var hub = getAppcHub_();
   var src = hub.getSheetByName(hubSheetName);
   if (!src) {

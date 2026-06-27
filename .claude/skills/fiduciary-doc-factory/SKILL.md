@@ -103,8 +103,8 @@ catalogue (banking package, assignments, notes, minutes, etc.) is a candidate-ex
 
 - **Scheme:** `DOC-NNNN`, 4-digit zero-padded, sequential, monotonic. *(Supersedes the handoff's
   proposed `APPC-<TYPE>-<YYYY>-<NNN>` — the live register uses `DOC-NNNN`; match reality.)*
-- **Canonical register:** `APPC_RLT_Living_Workbook`, sheet ID `1Ac5AAM2381L2AgXi_llp7ugfRW2bWX2NbMLW3jiATtc`,
-  tab **`TMAR — Document Registry`** (live; columns: `A Doc ID · B Document Name · C Document Type · …`).
+- **Canonical register:** TMAR Live workbook, sheet ID `1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ`,
+  tab **`Document Registry`** (live; columns: `A Doc ID · B Document Name · C Document Type · …`). *(The APPC_RLT hub `1Ac5A…` was folded into Live 2026-06-27; the registry now lives in the Live book — the bound minter targets this tab via `getRegistrySheet_()`.)*
 - **Mint:** next ID = `DOC-` + zeropad4(max(existing)+1). Append row {Doc ID, Document Name, Document Type, …}.
   A bound Apps Script minter (`mintDocId(name,type)` / `nextDocId()`) implements this against the workbook.
 - **Stamp:** upper-left, above/beside letterhead (component **N**), value == register row Doc ID.
