@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body { font-family: 'Segoe UI', Roboto, Arial, sans-serif; margin: 0; padding: 16px;
+           color: #1B2A4A; font-size: 13px; }
+    h2 { margin: 0 0 4px; font-size: 16px; }
+    p.sub { margin: 0 0 14px; color: #5a687a; }
+    label.fld { display: block; margin: 10px 0 4px; font-weight: 600; }
+    select { width: 100%; padding: 7px; border: 1px solid #c3ccd8; border-radius: 6px; font-size: 13px; }
+    .hint { color: #5a687a; font-size: 11px; margin-top: 3px; }
+    .bar { margin-top: 18px; display: flex; gap: 10px; align-items: center; }
+    button { border: 0; border-radius: 6px; padding: 9px 18px; font-size: 13px; cursor: pointer; }
+    #preview { background: #1B2A4A; color: #fff; }
+    #apply { background: #1B5E20; color: #fff; }
+    button:disabled { background: #9aa6b6; cursor: default; color: #eef; }
+    #cancel { background: #e7ebf1; color: #1B2A4A; }
+    #status { margin-top: 14px; padding: 10px; border-radius: 6px; display: none; white-space: pre-wrap; }
+    .ok { background: #E8F5E9; color: #1B5E20; }
+    .err { background: #FFEBEE; color: #B71C1C; }
+    .working { background: #FFF8E1; color: #7a5c00; }
+  </style>
+</head>
+<body>
+  <h2>Reconcile &amp; Cross-Fill</h2>
+  <p class="sub">Fills blank <b>Acct #</b> / <b>EIN</b> cells by matching rows across the two tabs
+     on EIN (then strict name). Writes a <b>Cross-Fill Preview</b> tab for review —
+     nothing changes in your data until you click <b>Apply</b>.</p>
+
+  <label class="fld">Entity register tab <span class="hint">(the Type / TIN / Acct # sheet)</span></label>
+  <select id="entity"><option>Loading…</option></select>
+
+  <label class="fld">Account ledger tab <span class="hint">(the Provider / Provider EIN / Account Number sheet)</span></label>
+  <select id="ledger"><option>Loading…</option></select>
+
+  <div class="bar">
+    <button id="preview" onclick="doPreview()">Preview</button>
+    <button id="apply" onclick="doApply()" disabled>Apply</button>
+    <button id="cancel" onclick="google.script.host.close()">Cancel</button>
+  </div>
+
+  <div id="status"></div>
+
+  <script>
+    function setStatus(cls, msg) {
+      var s = document.getElementById('status');
+      s.className = cls; s.style.display = 'block'; s.textContent = msg;
+    }
+    function fill(sel, names, prefer) {
+      sel.innerHTML = '';
+      names.forEach(function (n) {
+        var o = document.createElement('option'); o.value = n; o.textContent = n;
+        if (prefer && n.toLowerCase().indexOf(prefer) > -1) o.selected = true;
+        sel.appendChild(o);
+      });
+    }
+    google.script.run.withSuccessHandler(function (names) {
+      fill(document.getElementById('entity'), names, 'register');
+      fill(document.getElementById('ledger'), names, 'ledger');
+    }).withFailureHandler(function (e) {
+      setStatus('err', 'Could not list tabs: ' + (e.message || e));
+    }).xfListSheetNames();
+
+    function doPreview() {
+      var ent = document.getElementById('entity').value;
+      var led = document.getElementById('ledger').value;
+      document.getElementById('preview').disabled = true;
+      setStatus('working', 'Matching rows and building preview…');
+      google.script.run.withSuccessHandler(function (res) {
+        document.getElementById('preview').disabled = false;
+        setStatus(res.ok ? 'ok' : 'err', res.message);
+        document.getElementById('apply').disabled = !(res.ok && res.fills > 0);
+      }).withFailureHandler(function (e) {
+        document.getElementById('preview').disabled = false;
+        setStatus('err', 'Error: ' + (e.message || e));
+      }).xfPreview(ent, led);
+    }
+
+    function doApply() {
+      if (!confirm('Write the previewed values into the blank cells now?')) return;
+      document.getElementById('apply').disabled = true;
+      setStatus('working', 'Applying…');
+      google.script.run.withSuccessHandler(function (res) {
+        setStatus(res.ok ? 'ok' : 'err', res.message);
+      }).withFailureHandler(function (e) {
+        document.getElementById('apply').disabled = false;
+        setStatus('err', 'Error: ' + (e.message || e));
+      }).xfApply();
+    }
+  </script>
+</body>
+</html>
