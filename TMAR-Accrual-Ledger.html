@@ -1139,6 +1139,7 @@
           📥 Import
           <input type="file" accept=".json" onchange="importData(event)" class="hidden">
         </label>
+        <button type="button" onclick="tmarImportOpen()" title="Smart Import — add entities, accounts, assets, vehicles, SPV entries and more from a JSON payload, routed to the right store automatically" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-semibold text-sm cursor-pointer">🧩 Smart Import</button>
       </div>
       <p class="text-xs text-gray-500 mt-2">Data auto-saves every 5 seconds. Your work persists across browser refreshes.</p>
     </header>
@@ -6510,7 +6511,7 @@
         court: '',
         address: '',
         grantor: '',
-        gasWebAppUrl: 'https://script.google.com/macros/s/AKfycbwdLljh2fsOv--_8Ik3PKVAnXRflpkSkmB8zi-JZeVwdvZaKbLNk843kgK9R3V2V_2C/exec',
+        gasWebAppUrl: 'https://script.google.com/macros/s/AKfycbzpeegvE52lvqCTMyKrsdaa_4JFfjM6MQrsJkU8zb17fkUJzPRasUU0fjONdaHkM5dh/exec',
         lastSyncTimestamp: null,
         googleClientId: '',
         spreadsheetId: ''
@@ -13070,8 +13071,11 @@ function exportFilingPDF(formType, data) {
           (function(){var k=localStorage.getItem('TMAR_trustApiKey');if(k){window._trustApiKey=k;var inp=document.getElementById('trust-api-key-input');if(inp)inp.value=k;}})();
         </script>
         <textarea id="tmar-trust-input" placeholder="Ask any trust accounting, GAAP / ASC / IRC question — journal entries, form placement, asset classification, valuation, event sequencing, or rebuttal of any accounting presumption..." style="width:100%;min-height:90px;background:rgba(0,0,0,.3);color:#f1f5f9;border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:10px;font-size:13px;font-family:'SF Mono','Cascadia Code',monospace;resize:vertical;box-sizing:border-box" data-guide="Trust Accounting Agent query box. Ask about journal entries, GAAP/ASC/IRC form placement, asset classification, valuation, accrual event sequencing, or presumption rebuttal. Returns facts and conclusions of law only."></textarea>
+        <input type="file" id="trust-file-input" multiple accept=".txt,.md,.markdown,.csv,.tsv,.json,.log,.xml,.yaml,.yml,.html,.htm,.gs,.js,.py,.pdf,.png,.jpg,.jpeg,.webp,.gif,.heic" style="display:none" onchange="handleTrustFiles(this.files);this.value=''">
+        <div id="trust-file-list" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px"></div>
         <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
           <button onclick="sendTrustAgentQuery()" style="background:#10b981;color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px" data-guide="Submit your question to the Trust Accounting Agent. Streams a GAAP/ASC/IRC-grounded answer through the SYPHER protocol gate. Requires an Anthropic key set above or in Settings → API Keys.">⚖️ Submit to Trust Agent</button>
+          <button onclick="document.getElementById('trust-file-input').click()" style="background:rgba(16,185,129,.12);color:#10b981;border:1px solid rgba(16,185,129,.3);padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600" data-guide="Attach documents for the Trust Accounting Agent to analyze. PDFs and images are sent natively to Claude; text / CSV / JSON / Markdown are inlined into the query. Up to 20 MB per file.">📎 Attach Files</button>
           <button onclick="clearTrustAgentChat()" style="background:rgba(255,255,255,.08);color:#94a3b8;border:1px solid rgba(255,255,255,.1);padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">Clear</button>
         </div>
         <div id="tmar-trust-response" style="margin-top:16px;min-height:40px;font-size:13px;color:#94a3b8;line-height:1.7">
@@ -15254,6 +15258,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     if (resp) resp.innerHTML = 'Ask any accounting question — journal entries, form placement, asset classification, valuation, accrual events, IRC compliance, or rebuttal of any accounting presumption.';
     var input = document.getElementById('tmar-trust-input');
     if (input) input.value = '';
+    if (typeof clearTrustAttachments === 'function') clearTrustAttachments();
   }
 
   function parseDocumentCommand(query) {
@@ -15288,12 +15293,80 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     return { command: 'package', preset: preset, entity: entityName };
   }
 
+  // ─── Trust Accounting Agent — file attachments ───
+  window._trustAttachments = window._trustAttachments || [];
+  function _trustHumanSize(n){ if(n<1024)return n+' B'; if(n<1048576)return (n/1024).toFixed(1)+' KB'; return (n/1048576).toFixed(1)+' MB'; }
+  function renderTrustFileChips(){
+    var box=document.getElementById('trust-file-list'); if(!box)return;
+    box.innerHTML = window._trustAttachments.map(function(a,i){
+      var icon = a.kind==='image'?'🖼️':a.kind==='pdf'?'📄':'📑';
+      return '<span style="display:inline-flex;align-items:center;gap:6px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:#a7f3d0;border-radius:14px;padding:3px 9px;font-size:11px;max-width:260px">'+
+        icon+'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+String(a.name).replace(/</g,'&lt;')+'</span>'+
+        '<span style="color:#64748b">'+_trustHumanSize(a.size)+'</span>'+
+        '<span onclick="removeTrustAttachment('+i+')" style="cursor:pointer;color:#f87171;font-weight:700;padding:0 2px" title="Remove">×</span></span>';
+    }).join('');
+  }
+  function removeTrustAttachment(i){ window._trustAttachments.splice(i,1); renderTrustFileChips(); }
+  function clearTrustAttachments(){ window._trustAttachments=[]; renderTrustFileChips(); }
+  window.removeTrustAttachment = removeTrustAttachment;
+  function handleTrustFiles(fileList){
+    var files = Array.prototype.slice.call(fileList||[]);
+    var TEXT_RE = /\.(txt|md|markdown|csv|tsv|json|log|xml|ya?ml|html?|gs|js|py)$/i;
+    var MAX = 20*1024*1024; // 20 MB per file
+    files.forEach(function(f){
+      if(f.size>MAX){ alert('"'+f.name+'" is '+_trustHumanSize(f.size)+' — over the 20 MB limit, skipped.'); return; }
+      var isPdf = f.type==='application/pdf' || /\.pdf$/i.test(f.name);
+      var isImg = /^image\//.test(f.type) || /\.(png|jpe?g|webp|gif|heic)$/i.test(f.name);
+      if(isPdf || isImg){
+        var r=new FileReader();
+        r.onload=function(){
+          var dataUrl=String(r.result||''); var comma=dataUrl.indexOf(','); var b64=comma>=0?dataUrl.slice(comma+1):dataUrl;
+          var media = isPdf ? 'application/pdf' : (f.type || ('image/'+f.name.split('.').pop().toLowerCase().replace(/^jpg$/,'jpeg')));
+          window._trustAttachments.push({name:f.name,size:f.size,kind:isPdf?'pdf':'image',mediaType:media,b64:b64});
+          renderTrustFileChips();
+        };
+        r.readAsDataURL(f);
+      } else if(/\.docx$/i.test(f.name) || f.type==='application/vnd.openxmlformats-officedocument.wordprocessingml.document'){
+        var dr=new FileReader();
+        dr.onload=function(){
+          extractDocxText(dr.result).then(function(text){
+            window._trustAttachments.push({name:f.name,size:f.size,kind:'text',text:text}); renderTrustFileChips();
+          }).catch(function(err){
+            window._trustAttachments.push({name:f.name,size:f.size,kind:'text',text:'[Could not read Word file "'+f.name+'": '+((err&&err.message)||err)+'. Re-save as .docx or .txt.]'}); renderTrustFileChips();
+          });
+        };
+        dr.readAsArrayBuffer(f);
+      } else if(TEXT_RE.test(f.name) || /^text\//.test(f.type) || !f.type){
+        var tr=new FileReader();
+        tr.onload=function(){ window._trustAttachments.push({name:f.name,size:f.size,kind:'text',text:String(tr.result||'')}); renderTrustFileChips(); };
+        tr.readAsText(f);
+      } else {
+        alert('"'+f.name+'" ('+(f.type||'unknown type')+') is not supported. Use PDF, image, or text / CSV / JSON / Markdown.');
+      }
+    });
+  }
+  window.handleTrustFiles = handleTrustFiles;
+  // Build the Anthropic message content: documents/images as native blocks, text files inlined, question last.
+  function buildTrustAgentContent(question){
+    var atts = window._trustAttachments||[];
+    if(!atts.length) return question; // plain string when nothing attached
+    var blocks=[];
+    atts.forEach(function(a){
+      if(a.kind==='pdf'){ blocks.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:a.b64}}); }
+      else if(a.kind==='image'){ blocks.push({type:'image',source:{type:'base64',media_type:a.mediaType,data:a.b64}}); }
+      else { blocks.push({type:'text',text:'--- Attached file: '+a.name+' ---\n'+a.text}); }
+    });
+    blocks.push({type:'text',text: question || 'Analyze the attached document(s) under GAAP / ASC / IRC and state the facts and conclusions of law.'});
+    return blocks;
+  }
+
   async function sendTrustAgentQuery() {
     var input = document.getElementById('tmar-trust-input');
     var respDiv = document.getElementById('tmar-trust-response');
     if (!input || !respDiv) return;
     var question = (input.value || '').trim();
-    if (!question) return;
+    var hasFiles = (window._trustAttachments && window._trustAttachments.length > 0);
+    if (!question && !hasFiles) return;
 
     // Check for document generation commands first
     var docCmd = parseDocumentCommand(question);
@@ -15323,9 +15396,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
         throw new Error('api_key missing — enter your Anthropic key in Settings → API Keys');
       }
       var _taProxy = (localStorage.getItem('eeon_cors_proxy') || 'https://crimson-recipe-cdfd.rhymeminded.workers.dev').replace(/\/$/, '');
-      // === API DISABLED — Trust Agent calls disabled to save credits ===
-      throw new Error('⚡ Trust Agent API calls disabled. Use Claude chat instead, or configure Ollama in Settings.');
-      var response = await fetch(_taProxy + '/v1/messages', { // DISABLED
+      var response = await fetch(_taProxy + '/v1/messages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -15335,9 +15406,9 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
         },
         body: JSON.stringify({
           model: 'claude-sonnet-4-6',
-          max_tokens: 100000,
+          max_tokens: 16000,
           system: buildTrustAgentSystemPrompt() + TRUST_AGENT_PROMPT_BODY,
-          messages: [{ role: 'user', content: question }]
+          messages: [{ role: 'user', content: buildTrustAgentContent(question) }]
         })
       });
 
@@ -15360,6 +15431,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
         '<div style="color:#10b981;font-weight:700;font-size:12px;margin-bottom:8px;border-bottom:1px solid rgba(16,185,129,.2);padding-bottom:6px">⚖️ TRUST ACCOUNTING AGENT — RESPONSE</div>' +
         '<div style="font-size:13px;line-height:1.7;color:#f1f5f9">' + formatted + '</div>' +
         '<div style="margin-top:10px;font-size:10px;color:#64748b;border-top:1px solid rgba(255,255,255,.06);padding-top:6px">Agent: Trust Accounting Agent &bull; Facts and Conclusions of Law Only &bull; GAAP | ASC | IRC | IRS | Treasury</div>';
+      clearTrustAttachments();
 
     } catch(err) {
       var msg = err.message || String(err);
@@ -47308,6 +47380,262 @@ function mainScoutClear() {
 console.log('✅ GAAPCLAW extension loaded: CPA Firms, Settings & API, IRS Form Generator, API Scout');
 
 // ── AP (Agent Portal) — Persistent Conversation Object ───────────────────────
+// ─── .docx (Office Open XML / WordprocessingML) → plain text, in-browser ───
+// LLM agents only see text; a .docx is a ZIP container, so without this it arrives
+// as binary gibberish. Uses the JSZip already loaded in <head>. Body text only
+// (word/document.xml) — headers/footers/images are intentionally not extracted.
+async function extractDocxText(arrayBuffer){
+  if (typeof JSZip === 'undefined') throw new Error('JSZip library not loaded');
+  var zip = await JSZip.loadAsync(arrayBuffer);
+  var docFile = zip.file('word/document.xml');
+  if (!docFile) throw new Error('not a Word .docx (missing word/document.xml)');
+  var xml = await docFile.async('string');
+  var dom = new DOMParser().parseFromString(xml, 'application/xml');
+  if (dom.getElementsByTagNameNS('*','parsererror').length) throw new Error('document.xml parse error');
+  var paras = dom.getElementsByTagNameNS('*','p');     // every w:p, in document order (incl. table cells)
+  var lines = [];
+  for (var i = 0; i < paras.length; i++){
+    var runs = paras[i].getElementsByTagNameNS('*','r'); // scope to runs so w:pPr tab-stops aren't mistaken for tabs
+    var buf = '';
+    for (var j = 0; j < runs.length; j++){
+      var kids = runs[j].childNodes;
+      for (var k = 0; k < kids.length; k++){
+        var c = kids[k];
+        if (c.nodeType !== 1) continue;
+        var ln = c.localName;
+        if (ln === 't') buf += c.textContent;
+        else if (ln === 'tab') buf += '\t';
+        else if (ln === 'br' || ln === 'cr') buf += '\n';
+      }
+    }
+    lines.push(buf);
+  }
+  var text = lines.join('\n\n').replace(/\n{3,}/g, '\n\n').trim();
+  return text || '[Word document contained no readable text]';
+}
+window.extractDocxText = extractDocxText;
+
+// ─── Phase 2: plain text → Profile-B formatted .docx, generated in-browser ───
+// Ports the Document Format Firm DOC-0004 emit rules to JS (no python-docx / no server):
+// Times New Roman 12pt, 1in margins, justified body, left-aligned + 3in-indented signature
+// blocks, EIN masking, optional DOC-ID header, widow/orphan + keep-with-next, metadata scrub.
+const FACTORY_TRUST_AUTHOR = 'A Provident Private Creditor Revocable Living Trust';
+function _fdXmlEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function _fdRPr(bold){ return '<w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/><w:sz w:val="24"/><w:szCs w:val="24"/>'+(bold?'<w:b/>':'')+'</w:rPr>'; }
+function _fdRuns(text, bold){
+  // Split on tabs → emit w:tab between text runs; preserve leading/trailing spaces.
+  var parts = String(text).split('\t'), out = '';
+  for (var i=0;i<parts.length;i++){
+    if (i>0) out += '<w:r>'+_fdRPr(bold)+'<w:tab/></w:r>';
+    if (parts[i].length) out += '<w:r>'+_fdRPr(bold)+'<w:t xml:space="preserve">'+_fdXmlEsc(parts[i])+'</w:t></w:r>';
+  }
+  return out || '<w:r>'+_fdRPr(bold)+'<w:t xml:space="preserve"></w:t></w:r>';
+}
+function _fdClassify(line){
+  var t = line.trim();
+  if (/^_{20,}$/.test(t)) return 'sig';                                   // signature underline
+  if (/\bas\s+(co-)?trustee\b/i.test(line) || /without\s+recourse/i.test(line)) return 'sig';
+  if (/^(state of|county of)\b/i.test(t) || /subscribed and sworn/i.test(line)) return 'leftblock';
+  return 'body';
+}
+function _fdIsJurat(line){ return /subscribed and sworn/i.test(line); }
+function _fdMaskEIN(line){
+  if (/FORMFIELD_EIN/.test(line)) return line.replace(/FORMFIELD_EIN/g,'');           // compelled form field → keep full number, strip tag
+  return line.replace(/\b(\d{2})-(\d{7})\b/g, function(_m,_a,b){ return '**-***'+b.slice(-4); });
+}
+function _fdPara(line, type, keepNext){
+  var jc = (type==='body') ? 'both' : 'left';
+  var ind = (type==='sig') ? '<w:ind w:left="4320"/>' : '';               // 3.0in = 4320 twips
+  var pPr = '<w:pPr>'+(keepNext?'<w:keepNext/>':'')+'<w:widowControl/>'+ind+'<w:jc w:val="'+jc+'"/>'+_fdRPr(false)+'</w:pPr>';
+  return '<w:p>'+pPr+_fdRuns(line,false)+'</w:p>';
+}
+async function buildFactoryDocx(rawText, opts){
+  opts = opts || {};
+  if (typeof JSZip === 'undefined') throw new Error('JSZip library not loaded');
+  var author = opts.author || FACTORY_TRUST_AUTHOR;
+  var lines = String(rawText==null?'':rawText).replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
+  var types = lines.map(_fdClassify);
+  var body = '';
+  if (opts.docId){
+    body += '<w:p><w:pPr><w:widowControl/><w:jc w:val="right"/>'+_fdRPr(true)+'</w:pPr>'+_fdRuns(opts.docId,true)+'</w:p>';
+  }
+  for (var i=0;i<lines.length;i++){
+    var keepNext = (i+1<lines.length) && (types[i+1]==='sig' || _fdIsJurat(lines[i+1]));
+    body += _fdPara(_fdMaskEIN(lines[i]), types[i], keepNext);
+  }
+  var sectPr = '<w:sectPr><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720" w:gutter="0"/></w:sectPr>';
+  var W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+  var documentXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<w:document xmlns:w="'+W+'"><w:body>'+body+sectPr+'</w:body></w:document>';
+  var stylesXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<w:styles xmlns:w="'+W+'"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr></w:rPrDefault></w:docDefaults>'+
+    '<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style></w:styles>';
+  var contentTypes = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'+
+    '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'+
+    '<Default Extension="xml" ContentType="application/xml"/>'+
+    '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'+
+    '<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>'+
+    '<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>'+
+    '<Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/></Types>';
+  var rootRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>'+
+    '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>'+
+    '<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/></Relationships>';
+  var docRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>';
+  var coreXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/">'+
+    '<dc:creator>'+_fdXmlEsc(author)+'</dc:creator><cp:lastModifiedBy>'+_fdXmlEsc(author)+'</cp:lastModifiedBy>'+
+    '<cp:revision>1</cp:revision><dc:title>'+_fdXmlEsc(opts.title||'')+'</dc:title></cp:coreProperties>';
+  var appXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties">'+
+    '<Application>Document Format Firm</Application><Pages>1</Pages><Words>0</Words><Characters>0</Characters><Lines>0</Lines><Paragraphs>0</Paragraphs></Properties>';
+  var zip = new JSZip();
+  zip.file('[Content_Types].xml', contentTypes);
+  zip.folder('_rels').file('.rels', rootRels);
+  zip.folder('docProps').file('core.xml', coreXml);
+  zip.folder('docProps').file('app.xml', appXml);
+  var wf = zip.folder('word');
+  wf.file('document.xml', documentXml);
+  wf.file('styles.xml', stylesXml);
+  wf.folder('_rels').file('document.xml.rels', docRels);
+  return zip.generateAsync({ type:'blob', mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document', compression:'DEFLATE' });
+}
+async function downloadFactoryDocx(rawText, opts){
+  opts = opts || {};
+  try {
+    var blob = await buildFactoryDocx(rawText, opts);
+    var base = (opts.filenameBase || opts.title || 'TMAR-document').replace(/[^a-z0-9_\- ]/gi,'_').replace(/\s+/g,'_').slice(0,80) || 'TMAR-document';
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = base + '.docx';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+  } catch(e){
+    alert('Could not generate .docx: ' + ((e && e.message) || e));
+  }
+}
+window.buildFactoryDocx = buildFactoryDocx;
+window.downloadFactoryDocx = downloadFactoryDocx;
+
+// ─── Smart Import: one-click, schema-tagged importer for every managed record type ───
+// Routes {kind,data} records (or a grouped { entity:[…], asset:[…] } object) to the correct
+// store via a handler registry — entities/accounts, chart-of-accounts, payables, receivables,
+// journal/ledger entries, filings → appData.*; assets/vehicles → TMAR_TMW_Assets; SPV entries →
+// TMAR_SPV_Data. Dedupes, applies defaults, persists once per store via the app's own
+// saveToStorage()/tmwSetAssets(). Adding a future kind = one row in REG.
+(function(){
+  function _id(){ return Date.now() + Math.floor(Math.random()*1e6); }
+  function _entityNorm(d){ return Object.assign({ id:_id(), type:'business', status:'Active', ownership:100, fye:12, country:'US', importSource:'smart-import', importDate:new Date().toISOString() }, d); }
+  function _genericNorm(d){ d=d||{}; return Object.assign({ id: d.id || _id() }, d); }
+  var REG = {
+    entity:        { target:'appData', arr:'entities',        keys:['accountNumber','name'],     norm:_entityNorm,  label:'Entity / Account' },
+    chartOfAccount:{ target:'appData', arr:'chartOfAccounts', keys:['name','num'],               norm:_genericNorm, label:'Chart-of-Accounts line' },
+    payable:       { target:'appData', arr:'payables',        keys:['id','invoiceNo'],           norm:_genericNorm, label:'Payable' },
+    receivable:    { target:'appData', arr:'receivables',     keys:['id','invoiceNo'],           norm:_genericNorm, label:'Receivable' },
+    journalEntry:  { target:'appData', arr:'journalEntries',  keys:['id'],                       norm:_genericNorm, label:'Journal entry' },
+    ledgerEntry:   { target:'appData', arr:'ledgerEntries',   keys:['id'],                       norm:_genericNorm, label:'Ledger entry' },
+    filing:        { target:'appData', arr:'filings',         keys:['id'],                       norm:_genericNorm, label:'Filing' },
+    asset:         { target:'assets',                          keys:['vin','last4'],             norm:_genericNorm, label:'Asset / Vehicle' },
+    spv:           { target:'spv',                             keys:['spvName','date','amount'], norm:_genericNorm, label:'SPV entry' }
+  };
+  var ALIAS = { account:'entity', accounts:'entity', entities:'entity', vehicle:'asset', vehicles:'asset', assets:'asset', spvs:'spv', chartofaccounts:'chartOfAccount', coa:'chartOfAccount', payables:'payable', receivables:'receivable', journalentries:'journalEntry', ledgerentries:'ledgerEntry', filings:'filing' };
+  function _resolveKind(k){ if(REG[k]) return k; var lk=String(k||'').toLowerCase().replace(/[\s_\-]/g,''); if(ALIAS[lk]) return ALIAS[lk]; var sing=String(k||'').replace(/s$/,''); return REG[sing]?sing:null; }
+  function _dk(rec, keys){ for(var i=0;i<keys.length;i++){ var v=rec[keys[i]]; if(v!=null && v!=='') return keys[i]+'='+String(v).toLowerCase(); } return null; }
+  function _flatten(payload){
+    var out=[];
+    if(Array.isArray(payload)){
+      payload.forEach(function(it){
+        if(it && it.kind && it.data!==undefined){ (Array.isArray(it.data)?it.data:[it.data]).forEach(function(d){ out.push({kind:it.kind,data:d}); }); }
+        else if(it && it.kind){ out.push({kind:it.kind, data:it}); }
+      });
+    } else if(payload && typeof payload==='object'){
+      Object.keys(payload).forEach(function(k){ var v=payload[k]; (Array.isArray(v)?v:[v]).forEach(function(d){ out.push({kind:k,data:d}); }); });
+    }
+    return out;
+  }
+  function tmarImport(payload, opts){
+    opts=opts||{};
+    if(typeof payload==='string') payload=JSON.parse(payload);
+    var recs=_flatten(payload);
+    var summary={ added:0, skipped:0, errors:[], byKind:{} };
+    var touchApp=false, assetList=null, spvData=null;
+    function _assets(){ if(assetList===null){ assetList=(typeof tmwGetAssets==='function')?tmwGetAssets():JSON.parse(localStorage.getItem('TMAR_TMW_Assets')||'[]'); } return assetList; }
+    function _spv(){ if(spvData===null){ var d=null; try{d=JSON.parse(localStorage.getItem('TMAR_SPV_Data')||'null');}catch(e){} spvData=d||{entries:[]}; spvData.entries=spvData.entries||[]; } return spvData; }
+    recs.forEach(function(r){
+      var kind=_resolveKind(r.kind);
+      if(!kind){ summary.errors.push('Unknown kind: '+JSON.stringify(r.kind)); return; }
+      var cfg=REG[kind]; summary.byKind[kind]=summary.byKind[kind]||{added:0,skipped:0,label:cfg.label};
+      try{
+        var list;
+        if(cfg.target==='appData'){ if(typeof appData!=='object'||!appData) throw new Error('appData unavailable'); list=(appData[cfg.arr]=appData[cfg.arr]||[]); }
+        else if(cfg.target==='assets'){ list=_assets(); }
+        else { list=_spv().entries; }
+        var rec=cfg.norm(r.data||{});
+        var key=_dk(rec, cfg.keys);
+        if(key && !opts.allowDuplicates && list.some(function(x){ return _dk(x,cfg.keys)===key; })){ summary.skipped++; summary.byKind[kind].skipped++; return; }
+        list.push(rec); summary.added++; summary.byKind[kind].added++;
+        if(cfg.target==='appData') touchApp=true;
+      }catch(e){ summary.errors.push(kind+': '+((e&&e.message)||e)); }
+    });
+    if(touchApp && typeof saveToStorage==='function') saveToStorage();
+    if(assetList!==null){ if(typeof tmwSetAssets==='function') tmwSetAssets(assetList); else localStorage.setItem('TMAR_TMW_Assets',JSON.stringify(assetList)); if(typeof tmwRenderAssets==='function'){ try{ tmwRenderAssets(); }catch(e){} } }
+    if(spvData!==null){ localStorage.setItem('TMAR_SPV_Data', JSON.stringify(spvData)); }
+    return summary;
+  }
+  window.tmarImport=tmarImport; window.TMAR_IMPORT_KINDS=Object.keys(REG);
+
+  var SAMPLE = {
+    // Placeholder/example values only — real account data is loaded via a private import file/paste, never baked into source.
+    entity: [{ name:'Example Auto Policy (sample)', provider:'Example Insurance Co', accountType:'Insurance — Auto', accountNumber:'POLICY-0000', primaryUser:'Owner', state:'NC', phone:'000-000-0000', effectiveDate:'2026-01-01', expirationDate:'2026-07-01', notes:'Sample auto policy — replace with your own values or load real records via a private import.' }],
+    asset: [
+      { acctType:'Vehicle', last4:'0001', institution:'Example Insurance Co', vin:'EXAMPLEVIN0000001', description:'2026 Example Make/Model', acqDate:'2026-01-01', origBalance:0, fmv:0, chargeOffDate:'', notes:'Sample vehicle', upliftedValue:null },
+      { acctType:'Vehicle', last4:'0002', institution:'Example Insurance Co', vin:'EXAMPLEVIN0000002', description:'2015 Example Make/Model', acqDate:'2026-01-01', origBalance:0, fmv:0, chargeOffDate:'', notes:'Sample vehicle', upliftedValue:null }
+    ],
+    // GAAP Chart-of-Accounts GL accounts the policy + insured autos post to (added only if not already present, matched by name)
+    chartOfAccount: [
+      { num:'1450', name:'Prepaid Insurance', type:'asset',     subtype:'Current Asset',      normalBal:'debit',  formLine:'' },
+      { num:'1600', name:'Vehicles',          type:'asset',     subtype:'Fixed Asset',        normalBal:'debit',  formLine:'' },
+      { num:'2150', name:'Insurance Payable',  type:'liability', subtype:'Current Liability',  normalBal:'credit', formLine:'' },
+      { num:'6300', name:'Insurance Expense',  type:'expense',   subtype:'Operating Expense',  normalBal:'debit',  formLine:'' }
+    ]
+  };
+  function _esc(s){ return (typeof escHtml==='function')?escHtml(s):String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function tmarImportOpen(){
+    var ov=document.getElementById('tmarImportOverlay');
+    if(!ov){
+      ov=document.createElement('div'); ov.id='tmarImportOverlay';
+      ov.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:20px';
+      ov.innerHTML='<div style="background:#0f172a;border:1px solid rgba(16,185,129,.35);border-radius:14px;max-width:760px;width:100%;max-height:88vh;overflow:auto;padding:20px;color:#e2e8f0;font-family:system-ui,sans-serif">'+
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-size:16px;font-weight:800;color:#10b981">🧩 Smart Import</div><button onclick="tmarImportClose()" style="background:none;border:none;color:#94a3b8;font-size:22px;cursor:pointer;line-height:1">×</button></div>'+
+        '<div style="font-size:12px;color:#94a3b8;margin-bottom:10px">Paste JSON — a grouped object <code>{ "entity":[…], "asset":[…] }</code> or an array of <code>{ "kind":"…", "data":{…} }</code>. Supported kinds: <span id="tmarImportKinds" style="color:#67e8f9"></span>. Records are de-duplicated and routed to the right store automatically.</div>'+
+        '<textarea id="tmarImportText" spellcheck="false" placeholder=\'{ "entity": [ … ], "asset": [ … ] }\' style="width:100%;height:230px;background:rgba(0,0,0,.35);color:#e2e8f0;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:10px;font-family:monospace;font-size:12px;box-sizing:border-box;resize:vertical"></textarea>'+
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center"><button onclick="tmarImportRun()" style="background:#10b981;color:#fff;border:none;padding:9px 18px;border-radius:7px;font-weight:700;cursor:pointer">Import</button><label style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);padding:9px 14px;border-radius:7px;cursor:pointer;font-size:13px">📂 Load file<input type="file" accept=".json,.txt" style="display:none" onchange="tmarImportLoadFile(this)"></label><button onclick="tmarImportSample()" style="background:rgba(139,92,246,.18);color:#c4b5fd;border:1px solid rgba(139,92,246,.35);padding:9px 14px;border-radius:7px;cursor:pointer;font-size:13px">Load sample (example)</button><span style="flex:1"></span><label style="font-size:12px;color:#94a3b8;display:flex;align-items:center;gap:5px"><input type="checkbox" id="tmarImportDup"> allow duplicates</label></div>'+
+        '<div id="tmarImportResult" style="margin-top:12px;font-size:12.5px;line-height:1.6"></div></div>';
+      document.body.appendChild(ov);
+      ov.addEventListener('click', function(e){ if(e.target===ov) tmarImportClose(); });
+    }
+    ov.style.display='flex';
+    var k=document.getElementById('tmarImportKinds'); if(k) k.textContent=Object.keys(REG).join(', ');
+  }
+  function tmarImportClose(){ var ov=document.getElementById('tmarImportOverlay'); if(ov) ov.style.display='none'; }
+  function tmarImportSample(){ var t=document.getElementById('tmarImportText'); if(t) t.value=JSON.stringify(SAMPLE,null,2); }
+  function tmarImportLoadFile(input){ var f=input.files&&input.files[0]; if(!f) return; var r=new FileReader(); r.onload=function(){ var t=document.getElementById('tmarImportText'); if(t) t.value=String(r.result||''); }; r.readAsText(f); input.value=''; }
+  function tmarImportRun(){
+    var res=document.getElementById('tmarImportResult'), t=document.getElementById('tmarImportText');
+    var raw=((t&&t.value)||'').trim(); if(!raw){ res.innerHTML='<span style="color:#f59e0b">Paste a JSON payload first.</span>'; return; }
+    var payload; try{ payload=JSON.parse(raw); }catch(e){ res.innerHTML='<span style="color:#ef4444">Invalid JSON: '+_esc(e.message)+'</span>'; return; }
+    var dup=document.getElementById('tmarImportDup'), s;
+    try{ s=tmarImport(payload, { allowDuplicates: !!(dup&&dup.checked) }); }catch(e){ res.innerHTML='<span style="color:#ef4444">Import failed: '+_esc((e&&e.message)||e)+'</span>'; return; }
+    var lines=Object.keys(s.byKind).map(function(k){ var b=s.byKind[k]; return '• '+(b.label||k)+': '+b.added+' added'+(b.skipped?', '+b.skipped+' skipped (dupe)':''); });
+    res.innerHTML='<div style="color:#10b981;font-weight:700">✅ '+s.added+' record'+(s.added===1?'':'s')+' imported'+(s.skipped?', '+s.skipped+' skipped':'')+'.</div><div style="color:#cbd5e1;margin-top:4px">'+lines.join('<br>')+'</div>'+(s.errors.length?'<div style="color:#ef4444;margin-top:6px">'+s.errors.map(_esc).join('<br>')+'</div>':'')+'<div style="color:#94a3b8;margin-top:8px;font-size:11.5px">Saved to local storage. Reload or revisit the Entities / Assets tabs to see them.</div>';
+  }
+  window.tmarImportOpen=tmarImportOpen; window.tmarImportClose=tmarImportClose; window.tmarImportSample=tmarImportSample; window.tmarImportLoadFile=tmarImportLoadFile; window.tmarImportRun=tmarImportRun;
+})();
+
 const AP = {
   _convs: {},
   _stt: null,
@@ -47398,6 +47726,7 @@ const AP = {
         '<button title="Speak aloud" style="' + bs + '" onclick="AP._actMsg(\'' + p + '\',' + idx + ',\'speak\')">🔊 Speak</button>' +
         '<button title="' + regenTitle + '" style="' + bs + '" onclick="AP._actMsg(\'' + p + '\',' + idx + ',\'regen\')">' + regenLabel + '</button>' +
         '<button title="Save to file" style="' + bs + '" onclick="AP._actMsg(\'' + p + '\',' + idx + ',\'save\')">💾 Save</button>' +
+        '<button title="Export as formatted Word .docx (Profile B)" style="' + bs + '" onclick="AP._actMsg(\'' + p + '\',' + idx + ',\'docx\')">📄 Word</button>' +
         '<button title="Message info" style="' + bs + '" onclick="AP._actMsg(\'' + p + '\',' + idx + ',\'info\')">ℹ Info</button>';
       return '<div style="max-width:85%;align-self:' + (isUser ? 'flex-end' : 'flex-start') + ';padding:10px 14px;border-radius:10px;background:' + (isUser ? 'rgba(0,229,255,.1)' : 'rgba(255,255,255,.05)') + ';border:1px solid ' + (isUser ? 'rgba(0,229,255,.25)' : 'rgba(255,255,255,.1)') + ';font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word">' +
         '<div style="font-size:10px;color:var(--text2,#94a3b8);margin-bottom:4px">' + (isUser ? 'You' : 'Agent') + '</div>' +
@@ -47733,6 +48062,13 @@ const AP = {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(a.href);
+    } else if (action === 'docx') {
+      var dm = (/DOC-\d{3,}/.exec(m.content) || [])[0] || null;   // reuse an existing DOC-NNNN id if the body carries one
+      downloadFactoryDocx(m.content, {
+        title: (data.sessions[data.current].title || page),
+        filenameBase: (data.sessions[data.current].title || (page + '-' + idx)),
+        docId: dm
+      });
     } else if (action === 'info') {
       var role = m.role === 'user' ? 'You' : 'Agent';
       var words = m.content.split(/\s+/).filter(Boolean).length;
@@ -47786,8 +48122,16 @@ const AP = {
     var self = this;
     var preview = document.getElementById('ap_fp_' + page);
     Array.from(input.files).forEach(function(file) {
-      var isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+      var lname = file.name.toLowerCase();
+      var isPdf = file.type === 'application/pdf' || lname.endsWith('.pdf');
+      var isDocx = lname.endsWith('.docx') || file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      var isLegacyDoc = lname.endsWith('.doc') && !isDocx;
       var reader = new FileReader();
+      var pushText = function(text) {
+        self._attachments[page].push({ name: file.name, type: 'text', content: text });
+        self._addAttachPill(page, file.name, self._attachments[page].length - 1);
+        if (preview) preview.style.display = 'flex';
+      };
       if (isPdf) {
         reader.onload = function(e) {
           self._attachments[page].push({ name: file.name, type: 'pdf', base64: e.target.result.split(',')[1] });
@@ -47795,12 +48139,17 @@ const AP = {
           if (preview) preview.style.display = 'flex';
         };
         reader.readAsDataURL(file);
-      } else {
+      } else if (isDocx) {
         reader.onload = function(e) {
-          self._attachments[page].push({ name: file.name, type: 'text', content: e.target.result });
-          self._addAttachPill(page, file.name, self._attachments[page].length - 1);
-          if (preview) preview.style.display = 'flex';
+          extractDocxText(e.target.result).then(pushText).catch(function(err) {
+            pushText('[Could not read Word file "' + file.name + '": ' + ((err && err.message) || err) + '. Try re-saving it as .docx or .txt.]');
+          });
         };
+        reader.readAsArrayBuffer(file);
+      } else if (isLegacyDoc) {
+        pushText('[Legacy .doc (binary Word 97–2003) cannot be read in-browser. Open it in Word and "Save As" .docx, then re-attach.]');
+      } else {
+        reader.onload = function(e) { pushText(e.target.result); };
         reader.readAsText(file);
       }
     });
@@ -51138,6 +51487,7 @@ var VAULT_INDEX = {
     sections: {
       'Accounts — Banking':     { icon: '🏦', items: ['BankOfAmerica_0672','PayPal'] },
       'Accounts — Investment':  { icon: '📈', items: ['Fidelity_7819 (1099s, 5498s 2020-2024)','Vanguard (Statements)','Webull (Statements, 1099s 2021-2023)'] },
+      'Insurance — Auto':       { icon: '🛡️', items: ['Progressive Southeastern — Syrina (Policy …4592, eff 2/12/2026–8/12/2026; agt The Insurance Market 252-527-6000)','2026 Kia Sorento (VIN …2063)','2015 Jeep Cherokee (VIN …2976)'] },
       'Accounts — Employment':  { icon: '💼', items: ['Boys & Girls Club Wayne — Clint','Inter-Technologies Corp #80 — Clint (Paystubs 2023-2025)','Kinston Arts Council — Syrina (Paystubs 2025, W2s 2020-2024)','Lenoir Community College — Syrina (W2 2021)'] },
       'Government Records':     { icon: '🏛️', items: ['IRS — W2 Transcripts 2016-2021, Returns 2023-2024','NC DOR — State Return 2024','SSA — Earnings Record, Benefit Statements'] },
       'Subscriptions':          { icon: '📱', items: ['AI: Anthropic, Cline, OpenAI, Perplexity','Tech: Apple, Google, Microsoft','Software: Adobe, Dropbox, GitHub, Notion, Obsidian, Slack, Zoom','Streaming: Disney+, HBO Max, Hulu, Netflix, Spotify'] },

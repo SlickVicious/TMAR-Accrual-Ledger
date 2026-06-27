@@ -34,14 +34,18 @@ Google Apps Script modules for the Trust Master Account Register (TMAR) Google S
 
 ## GSheet Targets
 
-| Spreadsheet | Purpose |
-|-------------|---------|
-| `1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ` | TMAR Master Register (primary — sync target) |
-| `1CYg4fwQoLARD9y3bQbn8W8HO5jI89osj` | Wimberly Financial Workbook (read-only — DFC source) |
+All IDs are centralized in **`TMAR_CONFIG`** (top of `SyncCenter.gs`). Target architecture: **2 books** — "TMAR Live" (read/write) + "Archive" (read-only).
+
+| `TMAR_CONFIG` key | Spreadsheet | Purpose |
+|---|---|---|
+| `liveBookId` | `1k6J2…WInQ` | TMAR — Web App context / sync + push target (→ **Live**) |
+| `sourceBookId` | = `liveBookId` | Old Wimberly source (`1CYg4fwQ…`) **deleted 2026-06-27** → folded into Live; pulls now read the Live book (where form imports write) |
+| `appcHubId` | `1Ac5A…ATtc` | APPC_RLT unified hub (→ fold into **Live**) |
+| `archiveBookId` | `1kbulI…Rjk8` | Freeway 2025 — legacy, read-only **Archive** (never write) |
 
 ## Web App (SyncCenter)
 
-**Exec URL:** `https://script.google.com/macros/s/AKfycbwdLljh2fsOv--_8Ik3PKVAnXRflpkSkmB8zi-JZeVwdvZaKbLNk843kgK9R3V2V_2C/exec`
+**Exec URL:** `https://script.google.com/macros/s/AKfycbzpeegvE52lvqCTMyKrsdaa_4JFfjM6MQrsJkU8zb17fkUJzPRasUU0fjONdaHkM5dh/exec`
 
 ### Supported Actions (`?action=`)
 
@@ -55,15 +59,18 @@ Google Apps Script modules for the Trust Master Account Register (TMAR) Google S
 | `pushPayables` | POST | Writes payables → Household Obligations |
 | `push1099s` | POST | Writes filings → 1099 Filing Chain |
 | `listWorkbookTabs` | GET | Lists all tabs (name + GID) from `WORKBOOK_ID_` |
-| `pullWorkbookSheets` | GET | Returns headers + rows for `WORKBOOK_TARGET_GIDS_` (779167554, 1677909637, 1870452300) |
+| `pullWorkbookSheets` | GET | Returns headers + rows for tabs selected **by name** (GID-drift-proof). Priority: `?tabs=Name1,Name2` → `WORKBOOK_TARGET_TABS_` → the `FORM_PULL_CONFIG_` data tabs |
 
 > **`listWorkbookTabs` and `pullWorkbookSheets`** were added 2026-04-07 to support the Digital File Cabinet's Sheets Data tab in `TMAR-Accrual-Ledger.html`.
 
 ### Workbook Integration Constants (SyncCenter.gs)
 
 ```javascript
-var WORKBOOK_ID_ = '1CYg4fwQoLARD9y3bQbn8W8HO5jI89osj';
-var WORKBOOK_TARGET_GIDS_ = [779167554, 1677909637, 1870452300];
+// Single source of truth — all IDs + exec URL (top of SyncCenter.gs):
+var TMAR_CONFIG = { liveBookId, sourceBookId, appcHubId, archiveBookId, execUrl };
+// Existing vars are now aliases — never hardcode an ID:
+var WORKBOOK_ID_ = TMAR_CONFIG.sourceBookId;
+var WORKBOOK_TARGET_TABS_ = [];  // pull by tab NAME; empty → FORM_PULL_CONFIG_ data tabs. Override per-request with ?tabs=
 ```
 
 ## Integration Note

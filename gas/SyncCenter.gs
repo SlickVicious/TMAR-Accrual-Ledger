@@ -445,12 +445,28 @@ function importLedger1099s(filings) {
 //   POST {action:'fullSync', data:{...}}             → write to all sheets
 // ═══════════════════════════════════════════════════════════════════════════
 
+// ═══════════════════════════════════════════════════════════════════════════
+// SINGLE SOURCE OF TRUTH — every workbook ID + the Web App URL live here only.
+// Target architecture (2 books): "TMAR Live" (read/write) + "Archive" (read-only).
+// After the Google-side merge, set liveBookId/sourceBookId/appcHubId to the SAME
+// merged-book ID — every reference below (and across this file) follows automatically.
+// ═══════════════════════════════════════════════════════════════════════════
+var TMAR_CONFIG = {
+  liveBookId:    '1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ', // TMAR — Web App context (Master Register, ledgers; menu + sync target). Form imports write here.
+  sourceBookId:  '1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ', // = liveBookId. Old Wimberly source (1CYg4fwQ…) was DELETED 2026-06-27 → folded into Live; pulls now read the same book imports write to.
+  appcHubId:     '1Ac5AAM2381L2AgXi_llp7ugfRW2bWX2NbMLW3jiATtc', // APPC_RLT unified hub (→ fold into Live)
+  archiveBookId: '1kbulI33th8uOmrumj7RkiJ8aqZs48gqzujrXUmNRjk8', // Freeway 2025 — LEGACY, read-only Archive (never write)
+  execUrl:       'https://script.google.com/macros/s/AKfycbzpeegvE52lvqCTMyKrsdaa_4JFfjM6MQrsJkU8zb17fkUJzPRasUU0fjONdaHkM5dh/exec'
+};
+
 /** Spreadsheet ID for Web App context (getActiveSpreadsheet() won't work in doGet/doPost) */
-var TMAR_SPREADSHEET_ID_ = '1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ';
+var TMAR_SPREADSHEET_ID_ = TMAR_CONFIG.liveBookId;
 
 /** Wimberly Unified Master Register — workbook tabs to pull into TMAR */
-var WORKBOOK_ID_ = '1CYg4fwQoLARD9y3bQbn8W8HO5jI89osj';
-var WORKBOOK_TARGET_GIDS_ = [779167554, 1677909637, 1870452300];
+var WORKBOOK_ID_ = TMAR_CONFIG.sourceBookId;
+// Tabs the DFC "Sheets Data" view pulls — selected by NAME (GID-drift-proof; survives tab moves/merges).
+// Empty → defaults to the form-data tabs in FORM_PULL_CONFIG_. Override per-request with ?tabs=Name1,Name2.
+var WORKBOOK_TARGET_TABS_ = [];
 
 /**
  * Table-driven config for Artifactory pull endpoints (GSheet → Artifactory).
@@ -842,10 +858,22 @@ function doGet(e) {
 
       case 'pullWorkbookSheets': {
         var wbSS2 = SpreadsheetApp.openById(WORKBOOK_ID_);
+        // Name-based selection (GID-drift-proof). Priority: ?tabs= → WORKBOOK_TARGET_TABS_ → FORM_PULL_CONFIG_ data tabs.
+        var wantTabs = [];
+        if (e.parameter && e.parameter.tabs) {
+          wantTabs = String(e.parameter.tabs).split(',').map(function(s) { return s.trim(); }).filter(String);
+        } else if (WORKBOOK_TARGET_TABS_ && WORKBOOK_TARGET_TABS_.length) {
+          wantTabs = WORKBOOK_TARGET_TABS_.slice();
+        } else {
+          Object.keys(FORM_PULL_CONFIG_).forEach(function(k) {
+            var n = FORM_PULL_CONFIG_[k].sheet;
+            if (n && wantTabs.indexOf(n) === -1) wantTabs.push(n);
+          });
+        }
         var sheetData = {};
         wbSS2.getSheets().forEach(function(sheet) {
+          if (wantTabs.indexOf(sheet.getName()) === -1) return;
           var gid = sheet.getSheetId();
-          if (WORKBOOK_TARGET_GIDS_.indexOf(gid) === -1) return;
           var lastRow = sheet.getLastRow();
           var lastCol = sheet.getLastColumn();
           if (lastRow < 1 || lastCol < 1) {
@@ -2054,12 +2082,12 @@ function push1099_(ss, filings) {
 // Added: 2026-06-07
 // ═══════════════════════════════════════════════════════════════════════════
 
-/** APPC_RLT unified hub workbook ID — kept separate from TMAR_SPREADSHEET_ID_. */
-var APPC_HUB_ID_ = '1Ac5AAM2381L2AgXi_llp7ugfRW2bWX2NbMLW3jiATtc';
+/** APPC_RLT unified hub workbook ID. Source of truth: TMAR_CONFIG.appcHubId (top of file). */
+var APPC_HUB_ID_ = TMAR_CONFIG.appcHubId;
 
-// Legacy sources (archived, for audit trail — do not write to these):
-//   TMAR original : 1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ  (= TMAR_SPREADSHEET_ID_)
-//   Freeway 2025  : 1kbulI33th8uOmrumj7RkiJ8aqZs48gqzujrXUmNRjk8
+// Legacy / archive sources (read-only — never write). IDs centralized in TMAR_CONFIG (top of file):
+//   Live (TMAR)            : TMAR_CONFIG.liveBookId
+//   Archive (Freeway 2025) : TMAR_CONFIG.archiveBookId
 
 /** Hub tab-name constants. Use these instead of hardcoded prefixed strings. */
 var APPC_SHEET_NAMES_ = {
