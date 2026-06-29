@@ -4094,7 +4094,13 @@
     <section id="journalSection" class="form-section hidden">
       <!-- New Journal Entry Form -->
       <div class="glass-card p-6 rounded-xl mb-6">
-        <h2 class="text-2xl font-bold mb-4 text-green-400">📝 Double-Entry Journal</h2>
+        <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
+          <h2 class="text-2xl font-bold text-green-400">📝 Double-Entry Journal</h2>
+          <div class="flex flex-wrap gap-2">
+            <button type="button" onclick="syncPush('journalEntries')" class="bg-cyan-600 hover:bg-cyan-700 text-white px-3 py-2 rounded-lg font-semibold text-sm" title="Push journal entries to the 'Journal' workbook tab (one row per line)">⬆ Push to Sheet</button>
+            <button type="button" onclick="syncPull('journalEntries')" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-lg font-semibold text-sm" title="Pull the 'Journal' workbook tab into journal entries">⬇ Pull from Sheet</button>
+          </div>
+        </div>
 
         <form id="journalEntryForm" class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -4214,9 +4220,13 @@
       <div class="glass-card p-6 rounded-xl mb-6">
         <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
           <h2 class="text-2xl font-bold text-green-400">📥 Accounts Receivable</h2>
-          <button onclick="showARModal()" class="bg-green-500 hover:bg-green-600 text-black px-4 py-2 rounded-lg font-semibold">
-            ➕ New Invoice
-          </button>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="showARModal()" class="bg-green-500 hover:bg-green-600 text-black px-4 py-2 rounded-lg font-semibold">
+              ➕ New Invoice
+            </button>
+            <button onclick="syncPush('receivables')" class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg font-semibold text-sm" title="Push A/R up to the 'Receivables' workbook tab (creates it if missing)">⬆ Push to Sheet</button>
+            <button onclick="syncPull('receivables')" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-semibold text-sm" title="Pull the 'Receivables' workbook tab into A/R">⬇ Pull from Sheet</button>
+          </div>
         </div>
 
         <!-- A/R Summary Stats -->
@@ -19492,6 +19502,8 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
               <button onclick="syncPush('payables')" class="sync-push-btn" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📤 A/P</button>
               <button onclick="syncPush('1099')" class="sync-push-btn" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📑 1099s</button>
               <button onclick="syncPush('chartOfAccounts')" class="sync-push-btn" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📋 CoA</button>
+              <button onclick="syncPush('receivables')" class="sync-push-btn" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📥 A/R</button>
+              <button onclick="syncPush('journalEntries')" class="sync-push-btn" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📝 Journal</button>
               <button onclick="syncPushAll()" class="sync-push-btn" style="background:rgba(16,185,129,0.25);border:2px solid rgba(16,185,129,0.5);color:#10b981;padding:6px 16px;border-radius:6px;font-size:11px;font-weight:800;cursor:pointer">Push All ▶</button>
             </div>
           </div>
@@ -19503,6 +19515,8 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
               <button onclick="syncPull('transactions')" class="sync-pull-btn" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📒 Ledger</button>
               <button onclick="syncPull('obligations')" class="sync-pull-btn" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📤 A/P</button>
               <button onclick="syncPull('chartOfAccounts')" class="sync-pull-btn" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📋 CoA</button>
+              <button onclick="syncPull('receivables')" class="sync-pull-btn" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📥 A/R</button>
+              <button onclick="syncPull('journalEntries')" class="sync-pull-btn" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📝 Journal</button>
               <button onclick="syncPullAll()" class="sync-pull-btn" style="background:rgba(59,130,246,0.25);border:2px solid rgba(59,130,246,0.5);color:#3b82f6;padding:6px 16px;border-radius:6px;font-size:11px;font-weight:800;cursor:pointer">Pull All ▶</button>
             </div>
           </div>
@@ -33004,9 +33018,8 @@ function ev2InitEntityVerifier() {
     filings:           { tab: '1099 Filing Chain',    tabAliases: ['1099 Filings'], sync: 'push1099 / pull1099' },
     principalRegister: { tab: 'Principal Register',   tabAliases: [],      sync: 'pushPrincipalRegister / pullPrincipalRegister' },
     chartOfAccounts:   { tab: 'GAAP CoA',             tabAliases: [],      sync: 'pushChartOfAccounts / pullChartOfAccounts' },
-    // ── gaps: GUI sections with NO workbook sync yet (phase 2 targets) ──
-    receivables:       { tab: 'Receivables',          tabAliases: [],      sync: null },   // tab not yet created
-    journalEntries:    { tab: 'Journal',              tabAliases: [],      sync: null }    // tab not yet created
+    receivables:       { tab: 'Receivables',          tabAliases: [],      sync: 'pushReceivables / pullReceivables' },
+    journalEntries:    { tab: 'Journal',              tabAliases: [],      sync: 'pushJournalEntries / pullJournalEntries' }
   };
   // GUI model key → canonical workbook tab name (or null if unmapped).
   function sheetForModel(key) { return SHEET_MAP[key] ? SHEET_MAP[key].tab : null; }
@@ -33061,6 +33074,8 @@ function ev2InitEntityVerifier() {
   SyncBridge.prototype.pullContacts = function() { return this.request('pullContacts'); };
   SyncBridge.prototype.pullWebsiteAccounts = function() { return this.request('pullWebsiteAccounts'); };
   SyncBridge.prototype.pullChartOfAccounts = function() { return this.request('pullChartOfAccounts'); };
+  SyncBridge.prototype.pullReceivables = function() { return this.request('pullReceivables'); };
+  SyncBridge.prototype.pullJournalEntries = function() { return this.request('pullJournalEntries'); };
 
   // Push methods (POST)
   SyncBridge.prototype.pushEntities = function(data) {
@@ -33068,6 +33083,12 @@ function ev2InitEntityVerifier() {
   };
   SyncBridge.prototype.pushChartOfAccounts = function(data) {
     return this.request('pushChartOfAccounts', 'POST', { action: 'pushChartOfAccounts', accounts: data });
+  };
+  SyncBridge.prototype.pushReceivables = function(data) {
+    return this.request('pushReceivables', 'POST', { action: 'pushReceivables', receivables: data });
+  };
+  SyncBridge.prototype.pushJournalEntries = function(data) {
+    return this.request('pushJournalEntries', 'POST', { action: 'pushJournalEntries', entries: data });
   };
   SyncBridge.prototype.pushTransactions = function(data) {
     return this.request('pushTransactions', 'POST', { action: 'pushTransactions', entries: data });
@@ -33460,6 +33481,45 @@ function ev2InitEntityVerifier() {
     return { added: added, updated: updated };
   }
 
+  function applyPullReceivables(rows) {
+    var added = 0, updated = 0, byInv = {};
+    if (!appData.receivables) appData.receivables = [];
+    appData.receivables.forEach(function(r) { if (r.invoiceNum) byInv[r.invoiceNum] = r; });
+    (rows || []).forEach(function(r) {
+      if (!r.invoiceNum && !r.customer) return;
+      var amt = parseFloat(r.amount) || 0;
+      var bal = (r.balance !== '' && r.balance != null) ? (parseFloat(r.balance) || 0) : amt;
+      if (r.invoiceNum && byInv[r.invoiceNum]) {
+        var x = byInv[r.invoiceNum];
+        x.customer = r.customer || x.customer; x.entityId = r.entityId || x.entityId;
+        x.date = r.date || x.date; x.dueDate = r.dueDate || x.dueDate; x.amount = amt; x.balance = bal;
+        updated++;
+      } else {
+        appData.receivables.push({ id: Date.now() + Math.random(), entityId: r.entityId || '', invoiceNum: r.invoiceNum || '', customer: r.customer || '', date: r.date || '', dueDate: r.dueDate || '', amount: amt, balance: bal, isIntercompany: (String(r.isIntercompany).toUpperCase() === 'Y'), payments: [] });
+        added++;
+      }
+    });
+    if (typeof updateARTable === 'function') updateARTable();
+    else if (typeof renderReceivables === 'function') renderReceivables();
+    return { added: added, updated: updated };
+  }
+
+  function applyPullJournalEntries(rows) {
+    if (!appData.journalEntries) appData.journalEntries = [];
+    var existing = {};
+    appData.journalEntries.forEach(function(e) { if (e.number) existing[e.number] = true; });
+    var groups = {};
+    (rows || []).forEach(function(r) {
+      if (!r.number) return;
+      if (!groups[r.number]) groups[r.number] = { id: Date.now() + Math.random(), number: r.number, date: r.date || '', reference: r.reference || '', type: r.type || '', description: r.description || '', status: r.status || 'posted', lines: [] };
+      if (r.account || r.debit || r.credit) groups[r.number].lines.push({ account: r.account || '', debit: parseFloat(r.debit) || 0, credit: parseFloat(r.credit) || 0 });
+    });
+    var added = 0;
+    Object.keys(groups).forEach(function(num) { if (!existing[num]) { appData.journalEntries.push(groups[num]); added++; } });
+    if (typeof updateJournalTable === 'function') updateJournalTable();
+    return { added: added, updated: 0 };
+  }
+
   function syncPush(type) {
     var bridge = getSyncBridge();
     if (!bridge) return;
@@ -33485,6 +33545,16 @@ function ev2InitEntityVerifier() {
         data = appData.chartOfAccounts || [];
         method = bridge.pushChartOfAccounts.bind(bridge);
         label = '📋 Chart of Accounts → GAAP CoA';
+        break;
+      case 'receivables':
+        data = appData.receivables || [];
+        method = bridge.pushReceivables.bind(bridge);
+        label = '📥 A/R → Receivables';
+        break;
+      case 'journalEntries':
+        data = appData.journalEntries || [];
+        method = bridge.pushJournalEntries.bind(bridge);
+        label = '📝 Journal → Journal';
         break;
       case '1099':
         // Gather all 1099 filings from appData.filings
@@ -33560,6 +33630,16 @@ function ev2InitEntityVerifier() {
         method = bridge.pullChartOfAccounts.bind(bridge);
         applyFn = applyPullChartOfAccounts;
         label = 'GAAP CoA → 📋 Chart of Accounts';
+        break;
+      case 'receivables':
+        method = bridge.pullReceivables.bind(bridge);
+        applyFn = applyPullReceivables;
+        label = 'Receivables → 📥 A/R';
+        break;
+      case 'journalEntries':
+        method = bridge.pullJournalEntries.bind(bridge);
+        applyFn = applyPullJournalEntries;
+        label = 'Journal → 📝 Journal';
         break;
       default:
         showAlert('Unknown pull type: ' + type, 'Error');

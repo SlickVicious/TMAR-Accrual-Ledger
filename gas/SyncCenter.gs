@@ -752,6 +752,22 @@ function doGet(e) {
         return jsonResponse_({ status: 'ok', action: 'pullChartOfAccounts', count: coaRows.length, data: coaRows });
       }
 
+      case 'pullReceivables': {
+        var arRows = pullSheetData_(ss, 'Receivables', 2, [
+          'invoiceNum', 'customer', 'entityId', 'date', 'dueDate', 'amount', 'balance', 'isIntercompany'
+        ]);
+        updateSyncTimestamp_(ss, 'Receivables', 'pull');
+        return jsonResponse_({ status: 'ok', action: 'pullReceivables', count: arRows.length, data: arRows });
+      }
+
+      case 'pullJournalEntries': {
+        var jeRows = pullSheetData_(ss, 'Journal', 2, [
+          'number', 'date', 'reference', 'type', 'description', 'account', 'debit', 'credit', 'status'
+        ]);
+        updateSyncTimestamp_(ss, 'Journal', 'pull');
+        return jsonResponse_({ status: 'ok', action: 'pullJournalEntries', count: jeRows.length, data: jeRows });
+      }
+
       case 'pull1099':
         var filings = pullSheetData_(ss, '1099 Filing Chain', 5, [
           'assetId', 'description', 'acquisitionDate', '1099A_filed', '1099A_date',
@@ -1102,6 +1118,16 @@ function doPost(e) {
         var coaResult = pushChartOfAccounts_(ss, payload.accounts);
         return jsonResponse_(coaResult);
 
+      case 'pushReceivables':
+        var arV = validatePayload_(payload.receivables, []);
+        if (!arV.valid) return errorResponse_(arV.message);
+        return jsonResponse_(pushReceivables_(ss, payload.receivables));
+
+      case 'pushJournalEntries':
+        var jeV = validatePayload_(payload.entries, []);
+        if (!jeV.valid) return errorResponse_(jeV.message);
+        return jsonResponse_(pushJournalEntries_(ss, payload.entries));
+
       case 'push1099':
         var filV = validatePayload_(payload.filings, []);
         if (!filV.valid) return errorResponse_(filV.message);
@@ -1357,6 +1383,53 @@ function pushTransactions_(ss, entries) {
  * Push payables to Household Obligations via Web App.
  * Replicates importLedgerPayables() logic with upsert.
  */
+function pushReceivables_(ss, receivables) {
+  var sheet = ss.getSheetByName('Receivables');
+  if (!sheet) {
+    sheet = ss.insertSheet('Receivables');
+    sheet.getRange(1, 1, 1, 8).setValues([['Invoice #', 'Customer', 'Entity', 'Date', 'Due Date', 'Amount', 'Balance', 'Intercompany']]);
+    sheet.getRange(1, 1, 1, 8).setFontWeight('bold');
+    sheet.setFrozenRows(1);
+  }
+  var last = sheet.getLastRow();
+  if (last > 1) sheet.getRange(2, 1, last - 1, 8).clearContent();
+  var rows = (receivables || []).map(function(r) {
+    return [r.invoiceNum || '', r.customer || '', r.entityId || '', r.date || '', r.dueDate || '',
+            r.amount || '', (r.balance != null ? r.balance : r.amount) || '', r.isIntercompany ? 'Y' : ''];
+  });
+  if (rows.length) sheet.getRange(2, 1, rows.length, 8).setValues(rows);
+  updateSyncTimestamp_(ss, 'Receivables', 'push');
+  return { status: 'ok', action: 'pushReceivables', imported: rows.length };
+}
+
+function pushJournalEntries_(ss, entries) {
+  // Flatten header + lines → one row per line (general-journal format).
+  var sheet = ss.getSheetByName('Journal');
+  if (!sheet) {
+    sheet = ss.insertSheet('Journal');
+    sheet.getRange(1, 1, 1, 9).setValues([['JE #', 'Date', 'Reference', 'Type', 'Description', 'Account', 'Debit', 'Credit', 'Status']]);
+    sheet.getRange(1, 1, 1, 9).setFontWeight('bold');
+    sheet.setFrozenRows(1);
+  }
+  var last = sheet.getLastRow();
+  if (last > 1) sheet.getRange(2, 1, last - 1, 9).clearContent();
+  var rows = [];
+  (entries || []).forEach(function(e) {
+    var lines = e.lines || [];
+    if (!lines.length) {
+      rows.push([e.number || '', e.date || '', e.reference || '', e.type || '', e.description || '', '', '', '', e.status || '']);
+      return;
+    }
+    lines.forEach(function(l) {
+      rows.push([e.number || '', e.date || '', e.reference || '', e.type || '', e.description || '',
+                 l.account || '', l.debit || '', l.credit || '', e.status || '']);
+    });
+  });
+  if (rows.length) sheet.getRange(2, 1, rows.length, 9).setValues(rows);
+  updateSyncTimestamp_(ss, 'Journal', 'push');
+  return { status: 'ok', action: 'pushJournalEntries', imported: rows.length, entries: (entries || []).length };
+}
+
 function pushChartOfAccounts_(ss, accounts) {
   // GUI's GAAP chart is authoritative → full-replace the data rows. Creates the
   // 'GAAP CoA' tab (header: Num | Name | Type | Subtype | Normal Balance | Form Line).
