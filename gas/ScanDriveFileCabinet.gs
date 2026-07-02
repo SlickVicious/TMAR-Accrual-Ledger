@@ -229,6 +229,45 @@ function runDriveFileCabinetScan() {
            newCount + ' NEW rows.');
 }
 
+// ── Undo → remove rows a prior Apply added from the Drive scan ─────────────────
+// Deletes Document Registry rows whose col-H path matches a path in the current
+// "Drive FC Scan Preview". Safe because Drive-scan paths have zero overlap with
+// the PC-scanned rows, so only the appended duplicates are removed.
+function undoDriveScanApply() {
+  var ui = SpreadsheetApp.getUi();
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var pv = ss.getSheetByName(DRIVE_FC_PREVIEW_);
+  if (!pv || pv.getLastRow() < 2) { ui.alert('No "' + DRIVE_FC_PREVIEW_ + '" tab found — cannot identify what to undo.'); return; }
+
+  var paths = {};
+  var pvPaths = pv.getRange(2, 8, pv.getLastRow() - 1, 1).getValues();   // col H (Full File Path)
+  for (var i = 0; i < pvPaths.length; i++) {
+    var k = normRegistryPath_(pvPaths[i][0]);
+    if (k) paths[k] = true;
+  }
+
+  var reg = getRegistrySheet_();
+  var last = reg.getLastRow();
+  if (last < REGISTRY_DATA_START_) { ui.alert('Registry is empty.'); return; }
+  var colH = reg.getRange(REGISTRY_DATA_START_, 8, last - REGISTRY_DATA_START_ + 1, 1).getValues();
+
+  var toDelete = [];
+  for (var r = 0; r < colH.length; r++) {
+    if (paths[normRegistryPath_(colH[r][0])]) toDelete.push(REGISTRY_DATA_START_ + r);
+  }
+  if (!toDelete.length) { ui.alert('Nothing to undo — no registry rows match the Drive scan paths.'); return; }
+
+  var resp = ui.alert('Undo Drive scan Apply',
+    'Delete ' + toDelete.length + ' registry rows whose path matches the Drive FC Scan Preview?\n' +
+    'This removes the appended Drive-path duplicates and leaves the PC rows intact.',
+    ui.ButtonSet.YES_NO);
+  if (resp !== ui.Button.YES) return;
+
+  for (var d = toDelete.length - 1; d >= 0; d--) reg.deleteRow(toDelete[d]);  // bottom-up
+  ui.alert('Removed ' + toDelete.length + ' Drive-scan rows from the Document Registry.');
+  return { ok: true, removed: toDelete.length };
+}
+
 // ── Step 2: Apply → append NEW rows to Document Registry ───────────────────────
 function applyDriveFileCabinetScan() {
   var ui = SpreadsheetApp.getUi();

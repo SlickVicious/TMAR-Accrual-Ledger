@@ -561,6 +561,7 @@ function onOpen() {
       .addItem('Import Registry Scan…', 'showImportRegistryScanDialog')
       .addItem('Scan Drive FileCabinet…', 'runDriveFileCabinetScan')
       .addItem('Apply Drive FC Scan → Registry', 'applyDriveFileCabinetScan')
+      .addItem('Undo Drive FC Scan Apply', 'undoDriveScanApply')
       .addItem('Reconcile & Cross-Fill…', 'showReconcileDialog')
       .addItem('Install Auto-ID & Date Trigger', 'installDocRegistryTrigger')
       .addItem('Remove Auto-ID & Date Trigger', 'removeDocRegistryTrigger')
