@@ -30,6 +30,9 @@
 var DRIVE_FC_ROOT_    = '1tr5bDGj66CwvVk3c21N_MEF-7bpgNWXg'; // "FileCabinet" (Drive mirror)
 var DRIVE_FC_PREVIEW_ = 'Drive FC Scan Preview';
 var DRIVE_FC_MAX_MS_  = 5 * 60 * 1000;                       // stay under the 6-min quota
+var DFC_DEDUP_NAME_YEAR_ = true;  // also treat a doc already registered by filename+year as a dup
+                                  // (not just path) — needed because the Drive mirror and the PC
+                                  // cabinet use different paths for the same documents.
 
 var DFC_SKIP_DIRS_ = {
   '.fc': 1, '.git': 1, '.obsidian': 1, '__pycache__': 1, 'node_modules': 1,
@@ -177,6 +180,26 @@ function dfcWalk_(folder, relPrefix, rows, ctx) {
   }
 }
 
+// filename+year identity key (content dedup, path-independent).
+function dfcNameYearKey_(filename, year) {
+  var f = String(filename == null ? '' : filename).trim().toLowerCase();
+  if (!f) return '';
+  return f + '|' + String(year == null ? '' : year).trim();
+}
+
+// Set of filename+year keys already in the registry (cols B + D, data row 3+).
+function existingNameYearKeys_(sheet) {
+  var keys = {};
+  var last = sheet.getLastRow();
+  if (last < REGISTRY_DATA_START_) return keys;
+  var vals = sheet.getRange(REGISTRY_DATA_START_, 2, last - REGISTRY_DATA_START_ + 1, 3).getValues(); // B,C,D
+  for (var i = 0; i < vals.length; i++) {
+    var k = dfcNameYearKey_(vals[i][0], vals[i][2]); // B=filename, D=year
+    if (k) keys[k] = true;
+  }
+  return keys;
+}
+
 // ── Step 1: Scan → preview tab (non-destructive) ──────────────────────────────
 function runDriveFileCabinetScan() {
   var ui = SpreadsheetApp.getUi();
@@ -198,13 +221,23 @@ function runDriveFileCabinetScan() {
     uniq.push(rows[i]);
   }
 
-  // How many already exist in the live registry (col-H path match)?
+  // Classify each doc against the live registry: path match, then filename+year
+  // (content) match, then in-scan filename+year, else NEW.
   var reg = getRegistrySheet_();
   var existing = existingPathKeys_(reg, lastDocRow_(reg));
-  var already = 0;
+  var existingNY = DFC_DEDUP_NAME_YEAR_ ? existingNameYearKeys_(reg) : {};
+  var seenNY = {};
+  var already = 0, dupNY = 0, newCount = 0;
   for (var j = 0; j < uniq.length; j++) {
-    if (existing[normRegistryPath_(uniq[j][7])]) { uniq[j].push('EXISTS'); already++; }
-    else { uniq[j].push('NEW'); }
+    var row = uniq[j];
+    var pk = normRegistryPath_(row[7]);
+    var nyk = dfcNameYearKey_(row[1], row[3]);
+    var status;
+    if (existing[pk]) { status = 'EXISTS (path)'; already++; }
+    else if (DFC_DEDUP_NAME_YEAR_ && nyk && existingNY[nyk]) { status = 'DUP (name+year)'; dupNY++; }
+    else if (DFC_DEDUP_NAME_YEAR_ && nyk && seenNY[nyk]) { status = 'DUP (in-scan)'; dupNY++; }
+    else { status = 'NEW'; if (nyk) seenNY[nyk] = true; newCount++; }
+    row.push(status);
   }
 
   // Write preview tab (11 cols: schema A..J + Status).
@@ -217,16 +250,16 @@ function runDriveFileCabinetScan() {
   if (uniq.length) pv.getRange(2, 1, uniq.length, head.length).setValues(uniq);
   pv.setFrozenRows(1);
 
-  var newCount = uniq.length - already;
   ui.alert('Drive FileCabinet scan complete' + (ctx.truncated ? ' (TRUNCATED — hit time limit)' : '') + '.\n\n' +
            'Folders walked: ' + ctx.folders + '\n' +
            'Files found: ' + rows.length + ' (' + ctx.skipped + ' skipped incl. ' + ctx.codeSkipped +
            ' code/log, ' + dupInScan + ' duplicate paths collapsed)\n' +
            'Unique docs: ' + uniq.length + '\n' +
-           '  • NEW (not yet in registry): ' + newCount + '\n' +
-           '  • already in registry: ' + already + '\n\n' +
-           'Reviewed in "' + DRIVE_FC_PREVIEW_ + '". Run "Apply Drive FC Scan → Registry" to append the ' +
-           newCount + ' NEW rows.');
+           '  • NEW (not registered by path or filename+year): ' + newCount + '\n' +
+           '  • already registered by path: ' + already + '\n' +
+           '  • already registered by filename+year: ' + dupNY + '\n\n' +
+           'Reviewed in "' + DRIVE_FC_PREVIEW_ + '" (Status col). Run "Apply Drive FC Scan → Registry" to ' +
+           'append only the ' + newCount + ' NEW rows.');
 }
 
 // ── Undo → remove rows a prior Apply added from the Drive scan ─────────────────
@@ -275,14 +308,20 @@ function applyDriveFileCabinetScan() {
   var pv = ss.getSheetByName(DRIVE_FC_PREVIEW_);
   if (!pv || pv.getLastRow() < 2) { ui.alert('No preview found. Run "Scan Drive FileCabinet…" first.'); return; }
 
-  // Build TSV of the 10 schema cols (drop the Status col) and hand to the existing
-  // importer in APPEND mode — it re-stamps DOC-IDs and dedups on path.
-  var data = pv.getRange(2, 1, pv.getLastRow() - 1, 10).getValues();
+  // Append ONLY rows the scan classified NEW (Status col 11) — this is what makes
+  // the filename+year dedup effective, since importRegistryScan only dedups on path.
+  // Build TSV of the 10 schema cols and hand to the existing importer in APPEND mode.
+  var data = pv.getRange(2, 1, pv.getLastRow() - 1, 11).getValues();   // incl Status
   var lines = ['Doc ID\tFilename\tDocument Type\tTax Year\tPerson\tMR Account\tFWM Binder Tab\tFull File Path\tSource Directory\tScan Date'];
+  var kept = 0, held = 0;
   for (var i = 0; i < data.length; i++) {
-    lines.push(data[i].map(function (v) { return String(v == null ? '' : v).replace(/\t/g, ' '); }).join('\t'));
+    if (String(data[i][10] || '').toUpperCase() !== 'NEW') { held++; continue; }
+    lines.push(data[i].slice(0, 10).map(function (v) { return String(v == null ? '' : v).replace(/\t/g, ' '); }).join('\t'));
+    kept++;
   }
-  var res = importRegistryScan(lines.join('\n'), 'append');   // reuse tested append logic
-  ui.alert(res && res.message ? res.message : 'Done.');
+  if (!kept) { ui.alert('Nothing to append — all Drive docs are already registered (by path or filename+year). ' +
+                        held + ' rows held.'); return { ok: true, written: 0, held: held }; }
+  var res = importRegistryScan(lines.join('\n'), 'append');   // reuse tested append + DOC-ID logic
+  ui.alert((res && res.message ? res.message : 'Done.') + '\n(Held ' + held + ' non-NEW rows.)');
   return res;
 }
