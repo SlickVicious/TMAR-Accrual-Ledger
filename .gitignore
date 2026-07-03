@@ -80,4 +80,4 @@ irs-forms/downloads/
 # gas/ later if formalized: CapitalOneCashFlow.gs, appc_import_delta.gs,
 # appc_import_full_replace.gs, path_remap.gs.
 scripts/
-tmar_cleanup.ps1
+tmar_cleanup.ps1.obsidian/

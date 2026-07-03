@@ -8985,8 +8985,7 @@ function exportFilingPDF(formType, data) {
         '<label class="text-xs text-gray-500 whitespace-nowrap"><input type="checkbox" id="coaMapNumAuto" onchange="document.getElementById(\'coaMapNumAutoWrap\').style.display=this.checked?\'flex\':\'none\'"> Auto-gen</label>' +
         '</div>' +
 
-        '<div></div>' +
-        '<div id="coaMapNumAutoWrap" style="display:none;gap:8px;align-items:center">' +
+        '<div id="coaMapNumAutoWrap" style="display:none;grid-column:2;gap:8px;align-items:center">' +
         '<input type="number" id="coaMapNumStart" value="2600" class="border border-gray-600 p-1 rounded bg-gray-700 text-white text-sm" style="width:80px" placeholder="Start" />' +
         '<input type="number" id="coaMapNumStep" value="10" class="border border-gray-600 p-1 rounded bg-gray-700 text-white text-sm" style="width:60px" placeholder="Step" />' +
         '<span class="text-xs text-gray-500">start / increment</span>' +
@@ -18966,6 +18965,13 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     @keyframes ev2GuideFadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
     .ev2-guide-active{outline:1px dashed rgba(147,51,234,0.35)!important;outline-offset:2px}
     #ev2-guide-toggle.ev2-guide-on{background:rgba(147,51,234,0.4)!important;border-color:rgba(147,51,234,0.7)!important;color:#e9d5ff!important;box-shadow:0 0 8px rgba(147,51,234,0.3)}
+    /* ── Guide Mode v2: hover tooltip + page intro banner ── */
+    .guide-tip{position:fixed;z-index:99999;max-width:340px;background:#151a28;border:1px solid rgba(167,139,250,.55);color:#dbe3f4;font-size:12px;line-height:1.45;padding:8px 11px;border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,.5);pointer-events:none;white-space:normal}
+    .guide-tip .gt-src{display:block;color:#a78bfa;font-size:9.5px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;text-transform:uppercase}
+    .guide-banner{background:linear-gradient(135deg,rgba(147,51,234,.14),rgba(59,130,246,.10));border:1px solid rgba(167,139,250,.4);border-radius:10px;padding:10px 38px 10px 14px;margin:0 0 14px 0;color:#c9d4ea;font-size:12.5px;line-height:1.55;position:relative;animation:ev2GuideFadeIn .25s ease-out}
+    .guide-banner b{color:#c4b5fd}
+    .guide-banner .gb-x{position:absolute;top:6px;right:8px;background:none;border:none;color:#8a96b0;font-size:14px;cursor:pointer;padding:2px 6px}
+    body.guide-mode button:hover,body.guide-mode [onclick]:hover{outline:1px dashed rgba(167,139,250,.6)!important;outline-offset:1px}
   </style>
   <div style="padding:20px;max-width:1400px;margin:0 auto">
 
@@ -31451,9 +31457,544 @@ function ev2ClearCacheUI() {
 
 var infoGuideActive = false;
 
+/* ── Guide Mode v2 ─────────────────────────────────────────────────────────
+   Three layers, resolved in this order for any element:
+     1. data-guide attribute (hand-written, always wins; also gets a badge)
+     2. GUIDE_ID[element.id]         — per-element override
+     3. GUIDE_FN[onclick fn name]    — one entry covers every element wired
+                                       to that handler, incl. dynamic ones
+     4. title / aria-label / placeholder / associated label (derived)
+   Delivery: badges for data-guide (unchanged), hover tooltip for everything,
+   and a dismissible intro banner on each page-* window. */
+
+var GUIDE_PAGES = {
+  'page-dashboard': 'Financial overview — headline balances, net worth and recent activity across all entities. Data lives in local appData; use the Sync Center in Accounting to push/pull the Live workbook.',
+  'page-chat': 'Main agent chat. Type below and Send — replies stream in. Switch agents or windows from the sidebar; conversations can be saved to History.',
+  'page-noi': 'NOI Ask — fire a one-shot question without starting a full chat thread. Good for quick lookups.',
+  'page-agents': 'Registry of all OpenClaw agents (GAAPCLAW Master + 6 CPA firms with 3 sub-agents each). Pick an agent to open a chat with it.',
+  'page-create': 'Create a custom agent: name it, give it a system prompt and provider, and it joins the registry for this browser.',
+  'page-dream_team': 'The Dream Team — a multi-specialist panel. One question fans out to several experts and each responds in its own lane.',
+  'page-legal': 'Legal Expert agent — statutes, procedure, filings and legal drafting questions.',
+  'page-tax': 'Tax Expert agent — federal and state tax questions, form guidance and filing support.',
+  'page-accounting': 'The accounting suite. Tabs across the top hold Entities, Ledger, Journal, AR/AP, Trust Ledger, Budgets, Payroll, Reconciliation and Reports. Everything saves to local appData; the Sync Center pushes/pulls the Live workbook tab-for-tab.',
+  'page-analytics': 'Charts and metrics computed from your ledger, accounts and filings.',
+  'page-apiscout': 'API Scout — discover, test and integrate external APIs into the portal.',
+  'page-apitools': 'API tools — keys, endpoints and connection tests for integrated services.',
+  'page-arbitration': 'Arbitration workspace — track case milestones and prepare arbitration documents.',
+  'page-backup': 'Backup and restore. Export the full appData JSON, or import a previous backup to restore state.',
+  'page-biblical': 'Biblical counsel workroom — scripture-grounded reasoning agent.',
+  'page-brainstorm': 'Brainstorm workroom — free-form ideation with an agent tuned for divergent thinking.',
+  'page-calendar': 'Calendar — record events and deadlines. Events save locally with your app data.',
+  'page-chat-history': 'Saved conversations — reopen, export or delete past sessions.',
+  'page-code': 'Code workroom — ask for code, refactors or explanations.',
+  'page-codebuilder': 'Code Builder — describe what you want; the agent generates code you can copy, download or deploy.',
+  'page-corporation': 'Corporation workspace — entity formation, corporate filings and governance documents.',
+  'page-creative': 'Creative writing workroom.',
+  'page-docs': 'Digital File Cabinet — three tabs: Vault Browser (the FileCabinet tree), Sheets Data (live workbook tabs pulled via the GAS web app) and Local Docs.',
+  'page-eeonfull': 'Full EEON portal embedded in the app.',
+  'page-eeon_suite': 'Embedded EEON suite — reload it or pop it out to its own browser tab from the buttons above.',
+  'page-general': 'General assistant — everyday questions that do not fit a specialist.',
+  'page-gmailify': 'Gmail client — connect an account, then read, compose, reply and manage mail without leaving the portal.',
+  'page-history': 'Saved chat sessions — reopen, export or delete.',
+  'page-howto': 'Getting-started guide for the portal — read this first if the app is new to you.',
+  'page-jurisdictional': 'Jurisdictional challenge workroom — venue, standing and jurisdiction analysis.',
+  'page-legal_analyst': 'Legal Analyst workroom — case analysis, issue spotting and memo drafting.',
+  'page-noi-ask': 'Quick one-shot question lane.',
+  'page-openclaw': 'OpenClaw runtime — agent registry status, memory and security panels for the SYPHER stack.',
+  'page-preferences': 'Preferences — theme, defaults and behavior toggles. Saved to this browser.',
+  'page-aihub': 'AI Hub — every specialist agent on one wall. Each card sends a prepared question to that agent.',
+  'page-research': 'Research engine — web, news and SEC searches that return citable results into the chat.',
+  'page-search': 'Search across your app data — accounts, transactions, filings and documents.',
+  'page-settings': 'Settings — API keys (saved to this browser only), CORS proxy URL, provider routing, voice engine and sync. Save All Keys after edits.',
+  'page-taskplanner': 'Task Planner — describe an objective and get a step-by-step execution plan.',
+  'page-taxestimator': 'Tax Estimator — enter income and withholding figures, import from saved 1099 filings, and compute an estimate.',
+  'page-taxforms': 'IRS form filler — pick a form to load its field schema, autofill from a saved entity, then generate a PDF, packet or print view.',
+  'page-trust': 'Trust accounting — trust ledger entries, trial balance, asset summaries and the Trust agent for estate questions.',
+  'page-vault': 'Encrypted vault (AES-256-GCM). Unlock with your passphrase to manage keys and secrets; keys auto-inject into the app on unlock.',
+  'page-voice': 'Voice — speech-to-text input and the neural TTS engine. Configure the voice under Settings, then use the mic and speaker controls anywhere.',
+  'page-doc_creation': 'Document Creation firm — drafts fiduciary and administrative documents to the Profile B standard (GPO 2016 + Weiss).',
+  'page-doc_format': 'Document Formatting firm — normalizes and formats existing drafts to the fiduciary standard.',
+  'page-writs_writing': 'Writs workroom — petitions, writs and extraordinary relief drafting.',
+  'page-amicus_brief': 'Amicus brief workroom — friend-of-the-court brief drafting.',
+  'page-dt_appeal': 'Appeals workroom — appellate briefs, standards of review and the record.',
+  'page-presumption_killer': 'Presumption Killer workroom — rebutting legal presumptions on the record.',
+  'page-fact_conclusion': 'Findings workroom — proposed findings of fact and conclusions of law.',
+  'page-const_sovereignty': 'Constitutional workroom — constitutional and sovereignty argument analysis.',
+  'page-beni_inte': 'Beneficial Interest workroom — trust beneficial-interest analysis and documents.',
+  'page-trial_prep': 'Trial Prep workroom — witness outlines, exhibits and trial strategy.',
+  'page-html_arch': 'HTML Architect workroom — builds and edits HTML documents and layouts.',
+  'page-irs_lab': 'IRS Lab — experimental IRS form and prompt builder; assemble field data into agent-ready prompts.'
+};
+
+var GUIDE_ID = {};
+
+var GUIDE_FN = {
+  _removeAttach: 'Remove this attachment from the pending upload list.',
+  addBeneficiary: 'Add a beneficiary row to the Form 1041 return.',
+  addCalEvent: 'Add a new event to the calendar.',
+  addInvLine: 'Add a line item to this invoice.',
+  addJournalLine: 'Add a debit/credit line to the journal entry.',
+  addSourceFolder: 'Register the typed folder path as a reusable research source.',
+  addSubsidiary: 'Add a subsidiary row to the Form 1120 return.',
+  addVaultEntry: 'Save a new encrypted entry to the vault.',
+  advanceR3Status: 'Advance this entry to the next 3R lifecycle stage.',
+  aiHubAskAgent: 'Send this prepared question to the specialist agent; the answer streams into chat.',
+  apifyNewsSearch: 'Run a news search through the Apify research engine.',
+  apifySECSearch: 'Search SEC filings through the Apify research engine.',
+  apifyWebSearch: 'Run a web search through the Apify research engine.',
+  apply1099ToEstimator: 'Copy amounts from saved 1099 filings into the estimator fields.',
+  apply1099ToTRCF: 'Apply saved 1099 filing data to the refund calculation.',
+  applyFiduciaryStandard: 'Reformat the current document to the fiduciary Profile B standard, in place.',
+  boeAcceptSignature: 'Accept the drawn signature and embed it in the Bill of Exchange.',
+  boeClearSignature: 'Clear the signature pad.',
+  boeResetSignature: 'Reset the signature pad to blank.',
+  boeUndoStroke: 'Undo the last signature stroke.',
+  buildAndPreviewPackage: 'Assemble the selected documents into a filing package and preview it.',
+  buildCode: 'Generate code from your description.',
+  calDelete: 'Delete this calendar event.',
+  calcEonTaxEst: 'Compute the tax estimate from the entered figures.',
+  calculate1040: 'Compute totals for Form 1040 from the entered fields.',
+  calculate1040ES: 'Compute the Form 1040-ES estimated tax payments.',
+  calculate1041: 'Compute totals for the Form 1041 fiduciary return.',
+  calculate1041ES: 'Compute Form 1041-ES estimated payments.',
+  calculate1099A: 'Compute the Form 1099-A figures.',
+  calculate1099B: 'Compute the Form 1099-B proceeds/basis figures.',
+  calculate1099C: 'Compute the Form 1099-C cancellation amount.',
+  calculate1099DIV: 'Compute the Form 1099-DIV totals.',
+  calculate1099INT: 'Compute the Form 1099-INT totals.',
+  calculate1099MISC: 'Compute the Form 1099-MISC totals.',
+  calculate1099NEC: 'Compute the Form 1099-NEC totals.',
+  calculate1099R: 'Compute the Form 1099-R distribution figures.',
+  calculate1120: 'Compute totals for the Form 1120 corporate return.',
+  calculate990: 'Compute totals for the Form 990 exempt-org return.',
+  calculateBadDebtRefund: 'Compute the bad-debt deduction refund from the entered amounts.',
+  calculateInstrumentLoss: 'Compute the financial-instrument loss from the entered figures.',
+  calculateInterestRefund: 'Compute the interest refund for the entered rate and period.',
+  calculateSchC: 'Compute Schedule C profit or loss from the entered fields.',
+  ccsnJumpTo: 'Jump to this section of the session notes.',
+  ccsnNext: 'Go to the next section.',
+  ccsnPrev: 'Go to the previous section.',
+  ccsnToggleTOC: 'Show or hide the table of contents.',
+  clearBOEForm: 'Clear all Bill of Exchange fields.',
+  clearCPAChat: 'Clear this firm chat thread.',
+  clearChat: 'Clear the conversation in this window (full reset).',
+  clearEonTaxEst: 'Clear the estimator inputs.',
+  clearJournalEntry: 'Clear the journal entry form.',
+  clearMemory: 'Erase all agent memory records (GCMemory). This cannot be undone.',
+  clearPOForm: 'Clear the payment order form.',
+  clearSyncLog: 'Clear the sync activity log.',
+  clearTaskPlan: 'Clear the generated plan.',
+  clearTrustAgentChat: 'Clear the Trust agent conversation.',
+  closeModal: 'Close this dialog.',
+  coaImportCommit: 'Commit the mapped rows into the Chart of Accounts.',
+  coaImportSelectMode: 'Choose how to bring accounts in (paste, CSV, or defaults).',
+  coaImportStep2: 'Continue to the mapping step.',
+  coaImportStep3: 'Continue to the review step.',
+  confirmAccuracy: 'Mark the reviewed books as verified accurate.',
+  copyBuiltCode: 'Copy the generated code to the clipboard.',
+  cpaQuery: 'Ask this CPA firm sub-agent; the reply streams below.',
+  cpsaApplyCitation: 'Insert the selected citation into the document.',
+  cpsaApplyCodeChanges: 'Apply your HTML edits back to the document.',
+  cpsaChangeFontSize: 'Change the editor font size.',
+  cpsaCleanHTML: 'Strip messy markup and normalize the document HTML.',
+  cpsaClearGenerated: 'Clear the generated document.',
+  cpsaCmd: 'Apply this formatting command to the selected text.',
+  cpsaDeleteSection: 'Delete this section from the document.',
+  cpsaExportPDF: 'Export the document as PDF.',
+  cpsaExportWord: 'Export the document as a Word file.',
+  cpsaGenerateLegalTemplate: 'Generate the selected legal template with your form values.',
+  cpsaInsertCitation: 'Open the citation picker to insert authority at the cursor.',
+  cpsaInsertImage: 'Insert the chosen image into the document.',
+  cpsaMoveSection: 'Move this section up or down.',
+  cpsaOpenCodeEditor: 'Edit the document HTML directly.',
+  cpsaOpenImageModal: 'Add an image to the document.',
+  cpsaPreviewDocument: 'Open a clean preview of the document.',
+  cpsaPrint: 'Print the document.',
+  cpsaPrintGenerated: 'Print the generated document.',
+  cpsaRedo: 'Redo the last undone edit.',
+  cpsaSaveAll: 'Save all open documents to browser storage.',
+  cpsaSaveGenerated: 'Save the generated document.',
+  cpsaSetCase: 'Change the selected text case.',
+  cpsaSwitchDoc: 'Switch to this document.',
+  cpsaToggleFormPanel: 'Show or hide the template form panel.',
+  cpsaUndo: 'Undo the last edit.',
+  cpsaViewUpdatedCode: 'View the updated document HTML.',
+  createAgent: 'Create the custom agent from the entered name and prompt.',
+  deleteAP: 'Delete this payable. This cannot be undone.',
+  deleteAR: 'Delete this receivable. This cannot be undone.',
+  deleteAccount: 'Delete this account from the chart. This cannot be undone.',
+  deleteAgent: 'Delete this custom agent.',
+  deleteAsset: 'Delete this asset record.',
+  deleteCustomer: 'Delete this customer.',
+  deleteEntity: 'Delete this entity and its links. This cannot be undone.',
+  deleteEntry: 'Delete this entry. This cannot be undone.',
+  deleteExpense: 'Delete this expense.',
+  deleteFiling: 'Delete this saved filing. This cannot be undone.',
+  deleteInvoice: 'Delete this invoice.',
+  deleteJournalEntry: 'Delete this journal entry. This cannot be undone.',
+  deleteRecon: 'Delete this reconciliation.',
+  deleteSession: 'Delete this saved chat session.',
+  deleteVendor: 'Delete this vendor.',
+  deployBuiltCode: 'Load the generated code into the live preview.',
+  dfcShowSheetInPanel: 'Open this workbook tab in the Docs window Sheets panel.',
+  dfcSyncSheets: 'Refresh sheet data from the GAS web app.',
+  dfcTab: 'Switch File Cabinet tab (Vault Browser / Sheets / Local Docs).',
+  discoverFreeAPIs: 'Browse the curated directory of free APIs by category.',
+  doSearch: 'Run the search.',
+  docCmd: 'Apply this formatting command to the editor selection.',
+  docDelete: 'Delete this saved document.',
+  docRedo: 'Redo the last undone edit.',
+  docUndo: 'Undo the last edit.',
+  downloadBuiltCode: 'Download the generated code as a file.',
+  dtClearHistory: 'Clear the Dream Team conversation history.',
+  dtNewChat: 'Start a fresh Dream Team session.',
+  dtSend: 'Send your question to the panel; each specialist answers in turn.',
+  eeejJumpTo: 'Jump to this journal section.',
+  eeejNext: 'Next section.',
+  eeejPrev: 'Previous section.',
+  eeonOpenEmbeddedSuiteInNewTab: 'Open the embedded suite in its own browser tab.',
+  eeonReloadEmbeddedSuite: 'Reload the embedded suite.',
+  eeonSendChat: 'Send the sidebar chat message.',
+  eeonTab: 'Switch to this tax-form tab.',
+  eonChatSend: 'Send your message to the active agent; the reply streams in.',
+  eonEstTab: 'Switch estimator sub-tab.',
+  ev2ClearCacheUI: 'Clear cached verification results.',
+  ev2ExportCache: 'Download the verification cache as JSON.',
+  ev2ExportPreflightReport: 'Download the batch preflight report.',
+  ev2ExportResults: 'Export the verification results.',
+  ev2FilterByStatus: 'Filter entities by verification status.',
+  ev2ImportCache: 'Import a previously exported verification cache.',
+  ev2RunBatchPreflight: 'Validate every entity before submitting for verification.',
+  ev2RunVerification: 'Run verification for all pending entities.',
+  ev2SaveManualResult: 'Save the manually entered verification outcome.',
+  ev2SaveSamKey: 'Save your SAM.gov API key to this browser.',
+  ev2ShowDetail: 'Open the full verification detail for this entity.',
+  ev2SwitchSubTab: 'Switch Entity Verifier section.',
+  ev2ToggleInfoGuide: 'Toggle Guide Mode everywhere — hover any control for guidance; annotated controls also show badges.',
+  ev2UseLegalName: 'Replace the entity name with the verified legal name.',
+  ev2VerifySingle: 'Verify just this entity.',
+  exitPDFViewer: 'Close the PDF viewer.',
+  exitPackageBuilder: 'Close the package builder.',
+  export1099ToFilingChainCSV: 'Download 1099 filings as a Filing Chain CSV matching the workbook tab.',
+  exportAllHistory: 'Download all chat history.',
+  exportBackup: 'Download a full backup of app data as JSON.',
+  exportCSV: 'Download this table as CSV.',
+  exportChat: 'Export this conversation.',
+  exportChatHistory: 'Download this chat history.',
+  exportDocPDF: 'Export the document as PDF.',
+  exportDocWord: 'Export the document as a Word file.',
+  exportEntitiesToMasterRegisterCSV: 'Download entities as a Master Register CSV for the workbook.',
+  exportExpensesCSV: 'Download expenses as CSV.',
+  exportFiling: 'Export this filing with all fields.',
+  exportJournalEntries: 'Export journal entries.',
+  exportJournalToTransactionCSV: 'Download journal entries as a Transaction Ledger CSV (one row per line).',
+  exportLedgerToTransactionCSV: 'Download ledger entries as a Transaction Ledger CSV.',
+  exportPackagePDF: 'Export the assembled package as PDF.',
+  exportPackageZIP: 'Export the assembled package as a ZIP.',
+  exportPayablesToObligationsCSV: 'Download payables as a Household Obligations CSV.',
+  exportStatements: 'Export the financial statements.',
+  exportTemplateSettings: 'Export template variable settings.',
+  exportVaultBundle: 'Export an encrypted vault bundle for backup or transfer.',
+  fdrfReadSection: 'Read this section aloud with the neural voice.',
+  fdrfToggleAccordion: 'Expand or collapse this section.',
+  fdrfTogglePart: 'Expand or collapse this part.',
+  filterAccounts: 'Filter the account list.',
+  forceSyncFromGAAP: 'Pull the latest data from the GAAP portal source.',
+  gaapAgentClear: 'Clear the GAAPCLAW Master conversation.',
+  gaapAgentQ: 'Send this prepared question to GAAPCLAW Master.',
+  gaapAgentSend: 'Submit your question to GAAPCLAW Master; uses the active entity context.',
+  genPW: 'Generate a strong password.',
+  generateBadDebtActionPlan: 'Generate a step-by-step action plan for the bad-debt refund claim.',
+  generateEliminations: 'Generate intercompany elimination entries for consolidation.',
+  generateInterestReport: 'Generate the interest refund report.',
+  generateJournalFromForms: 'Build journal entries automatically from the saved tax forms.',
+  generateLossActionPlan: 'Generate an action plan for the instrument-loss claim.',
+  generateMasterReport: 'Build the consolidated master report across all modules.',
+  generateSPVAssetSummary: 'Generate the SPV asset summary.',
+  generateSPVTrialBalance: 'Generate the SPV trial balance.',
+  generateTrustAssetSummary: 'Generate the trust asset summary.',
+  generateTrustTrialBalance: 'Generate the trust trial balance.',
+  gmailAskAgent: 'Ask the agent about the open email.',
+  gmailCloseView: 'Close this email view.',
+  gmailCompose: 'Compose a new email.',
+  gmailDeleteSelected: 'Delete the selected emails.',
+  gmailForward: 'Forward this email.',
+  gmailMarkRead: 'Mark selected as read.',
+  gmailOpenEmail: 'Open this email.',
+  gmailRefresh: 'Refresh the inbox.',
+  gmailReply: 'Reply to this email.',
+  gmailSaveAccount: 'Save this Gmail account connection.',
+  gmailSaveDraft: 'Save as draft.',
+  gmailSelectAccount: 'Switch Gmail account.',
+  gmailSelectAll: 'Select all listed emails.',
+  gmailSendEmail: 'Send the email.',
+  gmailSetFolder: 'Switch mail folder.',
+  gmailShowAddAccount: 'Connect another Gmail account.',
+  gmailShowFolderPicker: 'Choose a folder.',
+  gmailTrashEmail: 'Move this email to trash.',
+  goEonPage: 'Open this window.',
+  gttsTest: 'Play a sample with the selected neural voice and current key.',
+  import1099ToEstimator: 'Import amounts from saved 1099 filings into the estimator.',
+  import1099ToTRCF: 'Import saved 1099 filing data into the refund calculator.',
+  importEnvFile: 'Import API keys from a .env file into this browser.',
+  importVaultBundle: 'Import an encrypted vault bundle.',
+  insertCitation: 'Insert a legal citation at the cursor.',
+  irsChainExport: 'Export the 1099 filing chain.',
+  irsChainPropagate: 'Propagate shared values across every form in the chain.',
+  irsChainSave: 'Save the filing chain.',
+  irsClearForm: 'Clear all fields of the loaded form.',
+  irsGeneratePDF: 'Render the populated form as an IRS-style PDF.',
+  irsGeneratePacket: 'Build a multi-document filing packet from this form plus attachments.',
+  irsImportFromFilings: 'Fill the form from your saved 1099 filings.',
+  irsLabBuildPrompt: 'Assemble the field data into an agent-ready prompt.',
+  irsLabClearFields: 'Clear the lab fields.',
+  irsLabTab: 'Switch IRS Lab tab.',
+  irsLabToggleBuilder: 'Show or hide the prompt builder.',
+  irsLoadEntity: 'Fill the form from the selected saved entity.',
+  irsPrintForm: 'Open a print preview of the populated form.',
+  irsSaveEntity: 'Save the current field values back to the selected entity.',
+  loadDefaultCOA: 'Load the standard GAAP chart of accounts.',
+  loadDocTemplate: 'Load this document template into the editor.',
+  loadFiling: 'Load this saved filing back into the form.',
+  loadSession: 'Reopen this saved chat session.',
+  mainApiScoutRun: 'Search the API directory for the typed capability.',
+  mainScoutClear: 'Clear scout results.',
+  mainScoutIntegrateAll: 'Integrate every listed API.',
+  mainScoutIntegrateOne: 'Integrate this API into the portal.',
+  mainScoutTestAllLive: 'Live-test every listed API endpoint.',
+  mainScoutTestOne: 'Test this API endpoint.',
+  mainShowIntegrated: 'Show APIs already integrated.',
+  manualSave: 'Save all app data to browser storage now.',
+  markInvoicePaid: 'Mark this invoice as paid.',
+  mem0ClearAll: 'Erase all MEM0 memory records. This cannot be undone.',
+  newBlankDoc: 'Start a new blank document.',
+  noiAsk: 'Send the one-shot question; the answer appears below.',
+  openClawCaseLaw: 'Search case law (CourtListener).',
+  openClawCongress: 'Search congressional records.',
+  openClawStatutes: 'Search statutes.',
+  parityCheckNow: 'Compare this build against the upstream parity source now.',
+  parityDismissBanner: 'Dismiss the parity notice.',
+  parityShowDetails: 'Show the full parity comparison.',
+  pauseVoice: 'Pause speech playback.',
+  planTask: 'Generate a step-by-step plan for the described task.',
+  poaDownload: 'Download the generated power of attorney.',
+  poaSetDBA: 'Toggle the DBA clause.',
+  poaSetMode: 'Switch POA mode.',
+  poaSetState: 'Choose the governing state.',
+  poaSetTab: 'Switch POA section.',
+  poaToggleMenu: 'Open POA options.',
+  populateAllForms: 'Fill every tax form from the stored entity data.',
+  previewData: 'Preview the data in a new window.',
+  printBOE: 'Print the Bill of Exchange.',
+  printDoc: 'Print the document.',
+  printEonTaxEst: 'Print the estimate.',
+  printExpenseReport: 'Print the expense report.',
+  printForm: 'Print the form.',
+  printInvoice: 'Print the invoice.',
+  printMasterReport: 'Print the master report.',
+  printPackage: 'Print the assembled package.',
+  printPaymentOrder: 'Print the payment order.',
+  printReconciliation: 'Print the reconciliation.',
+  printSpecificBOE: 'Print this Bill of Exchange.',
+  printSpecificPO: 'Print this payment order.',
+  promptEntitySelection: 'Choose which saved entity is active for autofill and agent context.',
+  reconAutoFill: 'Auto-fill the reconciliation from the imported bank CSV.',
+  reconcileApps: 'Reconcile data between app modules.',
+  recordAPPayment: 'Record a payment against this payable.',
+  recordARPayment: 'Record a payment received on this receivable.',
+  refreshOllamaModels: 'Reload the list of local Ollama models.',
+  removeInvLine: 'Remove this invoice line.',
+  removeJournalLine: 'Remove this journal line.',
+  removeSourceFolder: 'Remove this folder from the source list.',
+  removeTrustAttachment: 'Remove this attachment.',
+  renderDocAutofillDiagnostics: 'Show which fields autofilled and from where.',
+  renderHealthMonitor: 'Refresh the system health panel.',
+  resolveSyncConflicts: 'Review and resolve sync conflicts between local data and the workbook.',
+  reviewMyBooks: 'Have the agent review the books and flag issues.',
+  runAPIScout: 'Search for APIs matching the typed capability.',
+  saveAcctLib: 'Save the accounting authority folder paths.',
+  saveAsset: 'Save this asset record.',
+  saveBOE: 'Save the Bill of Exchange.',
+  saveBudget: 'Save the budget.',
+  saveContact: 'Save this contact.',
+  saveExpense: 'Save this expense.',
+  saveFiling: 'Save this filing to browser storage; it appears in the saved filings list.',
+  saveInventoryItem: 'Save this inventory item.',
+  saveInvoice: 'Save this invoice.',
+  saveKeys: 'Save all API keys to this browser. Required before agents can stream.',
+  saveLedger: 'Save the ledger entry.',
+  savePaymentOrder: 'Save the payment order.',
+  savePayrollRecord: 'Save this payroll record.',
+  savePrefs: 'Save preferences to this browser.',
+  saveReconciliation: 'Save the reconciliation.',
+  saveScheduleA: 'Save the Schedule A record.',
+  saveTemplateVars: 'Save the template variable values.',
+  scoutClearIntegrated: 'Clear the integrated API list.',
+  scoutIntegrateAPI: 'Integrate this API.',
+  scoutTestAll: 'Test all listed APIs.',
+  searchWeb: 'Search the web from chat.',
+  selectFilingType: 'Choose a filing type; its form loads below.',
+  selectPackagePreset: 'Load this package preset (document set).',
+  sendCPAQuery: 'Submit your question to the selected firm sub-agent.',
+  sendChat: 'Send your message.',
+  sendQuick: 'Send this prepared prompt to the agent.',
+  sendTrustAgentQuery: 'Submit your question to the Trust agent; the reply streams in.',
+  setAlloc: 'Set this allocation split.',
+  setFirm: 'Switch the active CPA firm; its three sub-agents load.',
+  setHubAgent: 'Open chat with this agent preselected.',
+  settingsSetProvider: 'Set the default LLM provider for agents.',
+  settingsTestGateway: 'Ping the CORS proxy gateway and report status.',
+  shareChat: 'Share this conversation.',
+  showAPModal: 'Add or edit a payable.',
+  showARModal: 'Add or edit a receivable.',
+  showAccountModal: 'Add or edit an account.',
+  showAddContact: 'Add a contact.',
+  showCOAImportWizard: 'Open the Chart of Accounts import wizard.',
+  showClearConfirm: 'Clear this data (asks for confirmation first).',
+  showEmployeeModal: 'Add or edit an employee.',
+  showEntityModal: 'Add or edit an entity.',
+  showFASub: 'Switch fixed-asset section.',
+  showGCAgentLog: 'View the agent activity log.',
+  showGCFinancials: 'View runtime financial summary.',
+  showGCIntegrityCheck: 'Run the registry integrity check.',
+  showGCMemoryPanel: 'Open the agent memory panel.',
+  showGCSecurityReport: 'View the security report.',
+  showIntegratedAPIs: 'Show integrated APIs.',
+  showInventoryItemModal: 'Add or edit an inventory item.',
+  showInvoiceForm: 'Create a new invoice.',
+  showPackageBuilder: 'Open the filing package builder.',
+  showSection: 'Open this section.',
+  showSettingsPanel: 'Open this settings section.',
+  showTaxSubTab: 'Switch tax calculator section.',
+  speakResponse: 'Read the last reply aloud with the neural voice.',
+  speakTTS: 'Read the entered text aloud with the neural voice.',
+  spvAddEntity: 'Add an SPV entity.',
+  spvApplyFilter: 'Apply the entry filter.',
+  spvDeleteActive: 'Delete the active SPV entity.',
+  spvDeleteEntry: 'Delete this SPV entry.',
+  spvExportCSV: 'Export SPV entries as CSV.',
+  spvExportJSON: 'Export SPV entries as JSON.',
+  spvFilterEntries: 'Filter SPV entries.',
+  spvPrintReport: 'Print the SPV report.',
+  spvResetFilter: 'Reset the filter.',
+  spvSaveEntry: 'Save this SPV ledger entry.',
+  spvShowAddEntry: 'Add an SPV ledger entry.',
+  startVoiceRec: 'Start voice dictation into the input.',
+  stopVoiceRec: 'Stop voice dictation.',
+  stopVoiceTTS: 'Stop speech playback.',
+  switchCPASubAgent: 'Switch to this firm sub-agent (Tax, Reporting, or Audit).',
+  switchMainTab: 'Switch to this section.',
+  syncPull: 'Pull this section from the Live workbook (upsert by key; adds, never deletes).',
+  syncPullAll: 'Pull every section from the Live workbook.',
+  syncPush: 'Push this section to the Live workbook (full replace; the app is authoritative).',
+  syncPushAll: 'Push every section to the Live workbook.',
+  testConnection: 'Test the connection to the configured LLM provider.',
+  testSyncConnection: 'Ping the GAS web app and report sync status.',
+  tiClearDashboard: 'Clear the dashboard data.',
+  tiRefreshDashboard: 'Recompute the dashboard from current data.',
+  tiSeedSampleData: 'Load sample data for a demo.',
+  tmarImportClose: 'Close the import wizard.',
+  tmarImportOpen: 'Open the import wizard.',
+  tmarImportRun: 'Run the import with the pasted data.',
+  tmarImportSample: 'Load a sample import payload.',
+  tmwBuildChain: 'Assemble the 1099-A / 1099-B / 1099-C form chain for this asset.',
+  tmwCalcUplift: 'Compute securitized value from face value.',
+  tmwClearAssetForm: 'Clear the asset form.',
+  tmwDeleteAsset: 'Delete this asset.',
+  tmwDeleteCUSIP: 'Delete this CUSIP record.',
+  tmwEditAsset: 'Load this asset back into the form for editing.',
+  tmwExportScheduleD: 'Export the capital gain/loss summary in Schedule D layout.',
+  tmwGen3949A: 'Prepare the Form 3949-A information referral.',
+  tmwGenDescription: 'Generate the asset description text.',
+  tmwSaveAsset: 'Save the asset record.',
+  tmwSaveCUSIP: 'Save the CUSIP record.',
+  tmwSaveUpliftToLedger: 'Post the computed uplift to the ledger.',
+  tmwSwitchTab: 'Switch worksheet tab.',
+  toggleAccordion: 'Expand or collapse this section.',
+  toggleAgentSTT: 'Toggle voice dictation for agent chat.',
+  toggleAgentTTS: 'Toggle spoken replies for agent chat.',
+  toggleDarkMode: 'Switch between dark and light theme.',
+  toggleEonSidebar: 'Collapse or expand the sidebar.',
+  toggleMic: 'Toggle the microphone.',
+  toggleTemplateVarEditor: 'Show or hide the template variable editor.',
+  toggleVoiceMic: 'Toggle voice input.',
+  tosAddAccount: 'Add a bank account to this trust.',
+  tosAddLedgerEntry: 'Add a trust ledger entry.',
+  tosAddNotice: 'Record a notice for this trust.',
+  tosDeleteAccount: 'Delete this bank account record.',
+  tosDeleteLedgerEntry: 'Delete this ledger entry.',
+  tosDeleteNotice: 'Delete this notice.',
+  tosGenForm56: 'Generate Form 56 (fiduciary relationship) for this trust.',
+  tosMarkFormFiled: 'Mark this 1099 as filed.',
+  tosNewTrust: 'Create a new trust record.',
+  tosPrintF56: 'Print the generated Form 56.',
+  tosSaveEIN: 'Save the EIN for this trust.',
+  tosSaveTrust: 'Save the trust record.',
+  tosSwitchTab: 'Switch trust operations tab.',
+  tosToggle: 'Expand or collapse.',
+  tosUpdateValuation: 'Update the asset valuation.',
+  trcfCalcInterestUI: 'Compute interest for the refund route.',
+  trcfCalculateBadDebt: 'Compute the bad-debt direct refund (Route 3).',
+  trcfCalculateNOL: 'Compute the NOL carryback (Route 4).',
+  trcfCalculateRoute1: 'Compute refund Route 1.',
+  trcfCalculateRoute2: 'Compute refund Route 2.',
+  trcfClearBadDebt: 'Clear the bad-debt inputs.',
+  trcfClearNOL: 'Clear the NOL inputs.',
+  trcfFI_calculate: 'Compute the financial-instrument figures.',
+  trcfFI_clear: 'Clear the instrument inputs.',
+  trcfFI_print: 'Print the instrument calculation.',
+  trcfFI_selectMethod: 'Choose the valuation method.',
+  trcfFI_validate: 'Validate the instrument inputs.',
+  trcfInt_calculate: 'Compute the interest figures.',
+  trcfInt_clear: 'Clear the interest inputs.',
+  trcfInt_generateReport: 'Generate the interest report.',
+  trcfInt_validate: 'Validate the interest inputs.',
+  trcfPrintBadDebt: 'Print the bad-debt calculation.',
+  trcfPrintNOL: 'Print the NOL calculation.',
+  trcfSelectRoute: 'Choose a refund route; its calculator loads.',
+  trcfSwitchTab: 'Switch calculator tab.',
+  triggerPackageFromAgent: 'Build a filing package from the agent output.',
+  trustAgentQ: 'Send this prepared question to the Trust estate specialist.',
+  trustApplyFilters: 'Apply the ledger filters.',
+  trustDeleteEntry: 'Delete this trust ledger entry.',
+  trustExportCSV: 'Export the trust ledger as CSV.',
+  trustExportJSON: 'Export the trust ledger as JSON.',
+  trustHideForm: 'Close the entry form.',
+  trustPrintReport: 'Print the trust report.',
+  trustResetFilters: 'Reset the filters.',
+  trustSaveEntry: 'Save the entry (double-entry: debit must equal credit).',
+  trustShowForm: 'Open the entry form.',
+  ttClearAll: 'Clear the transformer input and output.',
+  ttCopyOutput: 'Copy the transformed output.',
+  ttDownloadOutput: 'Download the transformed output.',
+  ttExportHtml: 'Export the output as styled HTML.',
+  ttSelectOutput: 'Select all output text.',
+  ttSetMode: 'Choose the transform mode.',
+  ttToggle: 'Expand or collapse.',
+  ttTransform: 'Transform the pasted transcript into the selected format.',
+  ukAgentQuery: 'Ask the UK accounting (FRS 102) specialist.',
+  ukCheckAll: 'Check every compliance item.',
+  ukGenerateComplianceReport: 'Generate the FRS 102 compliance report.',
+  ukGenerateStatements: 'Generate UK-format financial statements.',
+  ukPrintStatements: 'Print the statements.',
+  ukSaveChecklist: 'Save the compliance checklist.',
+  ukSaveSettings: 'Save the UK module settings.',
+  ukUncheckAll: 'Uncheck every compliance item.',
+  unlockVault: 'Unlock the vault with your passphrase; stored keys auto-inject into the app.',
+  verifyAndReconcile: 'Cross-check the ledger against the register and reconcile differences.',
+  viewJournalEntry: 'View this journal entry in full.',
+  w2cAutoCalc: 'Auto-compute the W-2c corrected amounts.',
+  w2cExport: 'Export the W-2c data.',
+  w2cPopulateAll: 'Fill all W-2c fields from stored data.',
+  w2cPopulateElection: 'Fill the election statement fields.',
+  w2cPopulateRegExpl: 'Fill the regulatory explanation fields.',
+  w2cSaveToFilings: 'Save the W-2c to your filings.'
+};
+
 function ev2ToggleInfoGuide() {
   infoGuideActive = !infoGuideActive;
   try { localStorage.setItem('tmar_info_guide', infoGuideActive ? '1' : '0'); } catch (e) { /* */ }
+  document.body.classList.toggle('guide-mode', infoGuideActive);
 
   // Sync all guide toggle buttons (EV page + global sidebar)
   ['ev2-guide-toggle', 'global-guide-toggle', 'ual-guide-toggle'].forEach(function(id) {
@@ -31474,8 +32015,112 @@ function ev2ToggleInfoGuide() {
   else { infoGuideHide(); }
 }
 
+/* Resolve guidance text for any element. Returns {text, src} or null. */
+function guideTextFor(el) {
+  if (!el || !el.getAttribute) return null;
+  var t = el.getAttribute('data-guide');
+  if (t) return { text: t, src: 'guide' };
+  if (el.id && GUIDE_ID[el.id]) return { text: GUIDE_ID[el.id], src: 'guide' };
+  var oc = el.getAttribute('onclick');
+  if (oc) {
+    var m = oc.match(/([A-Za-z_$][A-Za-z0-9_$]*)\s*\(/);
+    if (m && GUIDE_FN[m[1]]) return { text: GUIDE_FN[m[1]], src: m[1] };
+  }
+  t = el.getAttribute('title') || el.getAttribute('aria-label');
+  if (t) return { text: t, src: 'hint' };
+  if (el.placeholder) return { text: el.placeholder, src: 'field' };
+  if (el.labels && el.labels[0]) {
+    var lt = (el.labels[0].textContent || '').trim();
+    if (lt) return { text: lt, src: 'field' };
+  }
+  return null;
+}
+
+var _guideTip = null;
+function guideTipShow(el, info) {
+  if (!_guideTip) {
+    _guideTip = document.createElement('div');
+    _guideTip.className = 'guide-tip';
+    _guideTip.setAttribute('data-guide-tip', '');
+    document.body.appendChild(_guideTip);
+  }
+  _guideTip.innerHTML = '';
+  if (info.src && info.src !== 'guide') {
+    var s = document.createElement('span');
+    s.className = 'gt-src';
+    s.textContent = info.src;
+    _guideTip.appendChild(s);
+  }
+  _guideTip.appendChild(document.createTextNode(info.text));
+  _guideTip.style.display = 'block';
+  var r = el.getBoundingClientRect();
+  var tw = Math.min(340, window.innerWidth - 24);
+  _guideTip.style.maxWidth = tw + 'px';
+  var left = Math.max(8, Math.min(r.left, window.innerWidth - tw - 12));
+  _guideTip.style.left = left + 'px';
+  // Below by default; flip above if near the bottom edge
+  var th = _guideTip.offsetHeight || 46;
+  if (r.bottom + th + 14 > window.innerHeight) {
+    _guideTip.style.top = Math.max(6, r.top - th - 8) + 'px';
+  } else {
+    _guideTip.style.top = (r.bottom + 8) + 'px';
+  }
+}
+function guideTipHide() {
+  if (_guideTip) _guideTip.style.display = 'none';
+}
+
+/* Delegated hover — covers every current AND future element, no re-scans. */
+document.addEventListener('mouseover', function (e) {
+  if (!infoGuideActive) return;
+  var el = e.target && e.target.closest ?
+    e.target.closest('button, a, select, input, textarea, [onclick], [data-guide]') : null;
+  if (!el) { guideTipHide(); return; }
+  var info = guideTextFor(el);
+  if (!info) { guideTipHide(); return; }
+  guideTipShow(el, info);
+}, true);
+document.addEventListener('mouseout', function (e) {
+  if (!infoGuideActive) return;
+  if (!e.relatedTarget) guideTipHide();
+}, true);
+window.addEventListener('scroll', guideTipHide, true);
+
+/* Re-render badges + banner after clicks that switch tabs/pages while active. */
+var _guideRescanT = null;
+document.addEventListener('click', function () {
+  if (!infoGuideActive) return;
+  clearTimeout(_guideRescanT);
+  _guideRescanT = setTimeout(infoGuideShow, 200);
+}, true);
+
+var _guideBannerDismissed = {};
+function infoGuideBanner() {
+  // Remove stale banners first
+  var old = document.querySelectorAll('.guide-banner');
+  for (var i = 0; i < old.length; i++) old[i].parentNode.removeChild(old[i]);
+  if (!infoGuideActive) return;
+  for (var pid in GUIDE_PAGES) {
+    var page = document.getElementById(pid);
+    if (!page || page.offsetParent === null) continue;
+    if (_guideBannerDismissed[pid]) continue;
+    var b = document.createElement('div');
+    b.className = 'guide-banner';
+    b.innerHTML = '<b>&#8505;&#65039; Guide</b> — ';
+    b.appendChild(document.createTextNode(GUIDE_PAGES[pid]));
+    var x = document.createElement('button');
+    x.className = 'gb-x';
+    x.textContent = '×';
+    x.setAttribute('data-pid', pid);
+    x.onclick = function () { _guideBannerDismissed[this.getAttribute('data-pid')] = 1; var bn = this.parentNode; bn.parentNode.removeChild(bn); return false; };
+    b.appendChild(x);
+    page.insertBefore(b, page.firstChild);
+  }
+}
+
 function infoGuideShow() {
   infoGuideHide();
+  infoGuideBanner();
 
   var elements = document.querySelectorAll('[data-guide]');
   for (var i = 0; i < elements.length; i++) {
@@ -31539,6 +32184,11 @@ function infoGuideHide() {
   for (var j = 0; j < outlined.length; j++) {
     outlined[j].classList.remove('ev2-guide-active');
   }
+  var banners = document.querySelectorAll('.guide-banner');
+  for (var k = 0; k < banners.length; k++) {
+    banners[k].parentNode.removeChild(banners[k]);
+  }
+  guideTipHide();
 }
 
 
@@ -32078,6 +32728,7 @@ function ev2InitEntityVerifier() {
   try {
     if (localStorage.getItem('tmar_info_guide') === '1') {
       infoGuideActive = true;
+      document.body.classList.add('guide-mode');
       ['ev2-guide-toggle', 'global-guide-toggle', 'ual-guide-toggle'].forEach(function(id) {
         var guideBtn = document.getElementById(id);
         if (!guideBtn) return;
