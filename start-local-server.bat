@@ -49,7 +49,15 @@ REM Launch the server in its own persistent window (inherits this cwd),
 REM wait a moment for it to bind, then open the browser to the app.
 start "TMAR Local Server" cmd /k python -m http.server %PORT%
 timeout /t 1 /nobreak >nul
-start "" "http://localhost:%PORT%/%PAGE%"
+
+REM Prefer Brave; fall back to the system default browser if not found.
+set "BRAVE=%ProgramFiles%\BraveSoftware\Brave-Browser\Application\brave.exe"
+if not exist "%BRAVE%" set "BRAVE=%LocalAppData%\BraveSoftware\Brave-Browser\Application\brave.exe"
+if exist "%BRAVE%" (
+  start "" "%BRAVE%" "http://localhost:%PORT%/%PAGE%"
+) else (
+  start "" "http://localhost:%PORT%/%PAGE%"
+)
 
 endlocal
 exit /b 0
