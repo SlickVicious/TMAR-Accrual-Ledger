@@ -21193,8 +21193,36 @@ Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height
     var html = populateTemplate(key, varMap);
     if (!html) { html = DOC_TEMPLATES[key] || ''; }
     editor.innerHTML = html;
+    docCaretToNormalBlock(editor);
     docSaveSnapshot();
     docAutoSaveNow();
+  }
+
+  // Place the caret in a normal-weight block so typing does not inherit a bold
+  // heading (contenteditable clones the current block's style on Enter).
+  function docCaretToNormalBlock(editor) {
+    try {
+      var last = editor.lastElementChild;
+      var needNew = !last;
+      if (last) {
+        var cs = getComputedStyle(last);
+        if (cs.textAlign === 'center' || cs.fontWeight === 'bold' || parseInt(cs.fontWeight, 10) >= 600) { needNew = true; }
+      }
+      if (needNew) {
+        var d = document.createElement('div');
+        d.style.fontWeight = 'normal';
+        d.innerHTML = '<br>';
+        editor.appendChild(d);
+        last = d;
+      }
+      var r = document.createRange();
+      r.selectNodeContents(last);
+      r.collapse(false);
+      var s = window.getSelection();
+      s.removeAllRanges();
+      s.addRange(r);
+      editor.focus();
+    } catch (e) { /* caret placement is best-effort */ }
   }
 
   // ── IRS Forms Map ──
@@ -22750,7 +22778,13 @@ Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height
       el.style.background='';
       if(el.style.color && el.style.color!=='#000' && el.style.color!=='rgb(0, 0, 0)'){el.style.color='';}
       el.removeAttribute('bgcolor');
-      if(el.tagName==='P'||el.tagName==='DIV'){if(!el.style.textAlign||el.style.textAlign==='left'){/* leave centered headings */ if(getComputedStyle(el).textAlign!=='center'){el.style.textAlign='justify';}}}
+      if(el.tagName==='P'||el.tagName==='DIV'){
+        var cs=getComputedStyle(el);
+        if(!el.style.textAlign||el.style.textAlign==='left'){/* leave centered headings */ if(cs.textAlign!=='center'){el.style.textAlign='justify';}}
+        // Profile B: body paragraphs are normal weight — strip block-level bold picked up
+        // from caret-in-heading typing. Centered headings and inline <b>/<strong> stay.
+        if(cs.textAlign!=='center'&&(cs.fontWeight==='bold'||parseInt(cs.fontWeight,10)>=600)){el.style.fontWeight='normal';}
+      }
     }
     var st=document.getElementById('doc-fdf-status');
     if(st){st.textContent='✓ Profile B applied (TNR 12pt · 1in · justified · black-on-white)';st.style.color='#22c55e';}
