@@ -22741,22 +22741,63 @@ Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height
     doc.save('document_'+new Date().toISOString().slice(0,10)+'.pdf');
   }
   // fiduciary-doc-factory Profile B: Times New Roman 12pt, 1in margins, justified, black-on-white, no fills.
+  // Two-tier type (operator directive 2026-07-04): identifier-led paragraphs render their body at
+  // 10pt while the leading identifier token (Article/Schedule/Section/etc., "(a)", "1.", "IV.")
+  // stays 12pt. fdfTwoTierType() tags the spans; this CSS backs the classes on export.
   var FIDUCIARY_PROFILE_B_CSS =
     '@page{size:letter;margin:1in;}' +
     'body{font-family:"Times New Roman",serif;font-size:12pt;line-height:1.5;margin:1in;color:#000;background:#fff;text-align:justify;}' +
     'p{text-align:justify;}' +
+    '.fdf-id{font-size:12pt !important;}' +
     'table{border-collapse:collapse;}' +
     'td,th{border:0.75pt solid #000;background:#fff !important;}' +
     'th{font-weight:bold;}' +
     '*{background:transparent !important;color:#000 !important;}';
+
+  // Two-tier type pass: for each leaf block that STARTS with a structural identifier —
+  // a type label (Article, Section, Schedule, Exhibit, Appendix, Part, Clause, Type) with its
+  // numeral/letter, or an enumerator "(a)" / "1." / "IV." / "A." — set the block to 10pt and
+  // wrap the identifier in a 12pt span. Centered headings and identifier-free blocks untouched.
+  // Uses inline styles only (works in the stylesheet-less editor AND on detached export clones).
+  var FDF_ID_RE = /^\s*((?:ARTICLE|SCHEDULE|SECTION|EXHIBIT|APPENDIX|PART|CLAUSE|TYPE)\s+[A-Z0-9IVXLCDM][A-Za-z0-9.\-]*\.?:?|\([A-Za-z0-9]{1,4}\)|[IVXLCDM]{1,6}[.)]|\d{1,3}(?:\.\d+)*[.)]|[A-Za-z][.)])(?=\s)/i;
+  function fdfTwoTierType(root) {
+    var blocks = root.querySelectorAll('div,p,li');
+    for (var i = 0; i < blocks.length; i++) {
+      var el = blocks[i];
+      if (el.querySelector('div,p,li')) continue;              // leaf blocks only
+      if (el.style.textAlign === 'center') continue;           // headings keep 12pt
+      if (el.querySelector('.fdf-id')) {                       // already tagged — keep body at 10pt
+        el.style.fontSize = '10pt';
+        continue;
+      }
+      var n = el.firstChild;
+      if (!n || n.nodeType !== 3) continue;                    // must start with a text node
+      var m = n.nodeValue.match(FDF_ID_RE);
+      if (!m) continue;
+      var span = document.createElement('span');
+      span.className = 'fdf-id';
+      span.style.fontSize = '12pt';
+      span.textContent = n.nodeValue.slice(0, m[0].length);
+      n.nodeValue = n.nodeValue.slice(m[0].length);
+      el.insertBefore(span, n);
+      el.style.fontSize = '10pt';
+    }
+  }
+  // Serialize the editor with the two-tier type pass applied (on a clone — the
+  // on-screen editor is not mutated by exporting).
+  function fdfExportHTML() {
+    var clone=document.getElementById('doc-editor').cloneNode(true);
+    fdfTwoTierType(clone);
+    return clone.innerHTML;
+  }
   function exportDocWord() {
-    var content=document.getElementById('doc-editor').innerHTML;
+    var content=fdfExportHTML();
     var html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><style>'+FIDUCIARY_PROFILE_B_CSS+'</style></head><body>'+content+'</body></html>';
     var blob=new Blob([html],{type:'application/msword'});
     saveAs(blob,'document_'+new Date().toISOString().slice(0,10)+'.doc');
   }
   function printDoc() {
-    var content=document.getElementById('doc-editor').innerHTML;
+    var content=fdfExportHTML();
     var w=window.open('','','width=800,height=1000');
     w.document.write('<html><head><style>'+FIDUCIARY_PROFILE_B_CSS+'</style></head><body>'+content+'</body></html>');
     w.document.close();w.print();
@@ -22786,8 +22827,9 @@ Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height
         if(cs.textAlign!=='center'&&(cs.fontWeight==='bold'||parseInt(cs.fontWeight,10)>=600)){el.style.fontWeight='normal';}
       }
     }
+    fdfTwoTierType(editor);
     var st=document.getElementById('doc-fdf-status');
-    if(st){st.textContent='✓ Profile B applied (TNR 12pt · 1in · justified · black-on-white)';st.style.color='#22c55e';}
+    if(st){st.textContent='✓ Profile B applied (TNR 12pt · body after identifiers 10pt · 1in · justified · black-on-white)';st.style.color='#22c55e';}
   }
 
   // SOURCE FOLDERS
@@ -41515,7 +41557,7 @@ var DOCUMENT_KNOWLEDGE = (typeof DOCUMENT_KNOWLEDGE !== 'undefined' && DOCUMENT_
       'Apply this whenever you produce, curate, or revise a trust or private-administrative document; it is inert for non-document tasks. ' +
       'IDENTITY STACK (state capacity on every signature): Trust entity — "A Provident Private Creditor Revocable Living Trust, by [Name], Trustee"; Living Man — per the Affidavit of Identity and Status; Co-Trustee — "[Name], as Co-Trustee and not individually". A trustee signs in capacity, never personally; on any debt or contract instrument a bare title is insufficient — add a non-personal qualifier ("as Trustee and not personally", "without recourse to Trustee"). ' +
       'EIN is masked everywhere as **-***9588 except a form field that legally compels the full number. Governing law is the North Carolina Uniform Trust Code, N.C.G.S. Ch. 36C. Pull the mailing address from the live workbook at render time; never hardcode it. ' +
-      'FORMAT INVARIANTS (Profile B, forced): Times New Roman 12 pt, 1-inch margins all sides, justified. Black text on white only — no shading, no highlight, no colored rules, no fills; tables use a single black hairline grid, header row bold not shaded. Signatures and datelines indent in multiples of 2 ems (signature block reached by a 3.0-inch left indent, capacity line directly beneath the name); addresses and the Jurat sit flush left. Executive spacing; control widows and orphans and let the signature or Jurat share the final content page rather than stranding a lone line. ' +
+      'FORMAT INVARIANTS (Profile B, forced): Times New Roman, 1-inch margins all sides, justified. Two-tier type per operator directive: structural identifiers stay at 12 pt and the paragraph text that follows an identifier is set at 10 pt. An identifier is the leading token of a block — a type label such as Article, Section, Schedule, Exhibit, Appendix, Part, Clause, or Type together with its numeral or letter, or an enumerator such as (a), 1., IV., or A. — while headings and any paragraph not led by an identifier remain 12 pt. Black text on white only — no shading, no highlight, no colored rules, no fills; tables use a single black hairline grid, header row bold not shaded. Signatures and datelines indent in multiples of 2 ems (signature block reached by a 3.0-inch left indent, capacity line directly beneath the name); addresses and the Jurat sit flush left. Executive spacing; control widows and orphans and let the signature or Jurat share the final content page rather than stranding a lone line. ' +
       'GPO EDITORIAL PASS: serial (Oxford) comma is mandatory; initialisms carry no internal periods (IRS, USPS, SSA, EIN); "U.S." as an adjective keeps periods, "United States" as a noun is spelled out; spell out one through nine and use figures for 10 and up, but always figures for money, dates, percentages, and section, account, EIN, and case numbers; no sentence begins with a figure; dateline uses a spelled-out month; italicize case names and supra, infra, id., but keep e.g., i.e., et al., pro se, affidavit, jurat upright; capitalize defined parties (the Trust, Trustee, Settlor, Beneficiary) consistently. ' +
       'WEISS FIDUCIARY SUBSTANCE: open most instruments with an authority recital ("Pursuant to the powers vested in the Trustee under that certain A Provident Private Creditor Revocable Living Trust and the North Carolina Uniform Trust Code, N.C.G.S. Ch. 36C, the undersigned Trustee acts as follows"); close demands and notices with a reservation of rights and non-waiver clause; notices identify the Trust, the Trustee, the recipient, the act, the effective date, and the response window, in that order; accountings keep principal separate from income and never net them silently; transfers state the from-titling and to-titling exactly with complete account numbers; no self-dealing, preference, or concealment language; no personal pronouns where the trustee acts for the trust. ' +
       'DOC-ID: every emitted document carries a DOC-NNNN stamp (upper-left) matched to the live TMAR Document Registry — mint the next ID and write the row back; never reuse or placeholder an ID. ' +
@@ -44068,7 +44110,7 @@ function getSystemPrompt(agentId) {
 
     if (agentId === 'doc_creation') return "You are the DOCUMENT CREATION FIRM — 25 fiduciary drafting professionals operating the fiduciary-doc-factory (v2.1.0). You generate filing-ready trust and private-administrative instruments. Before emitting any document you run the pre-flight gate: identify the document type, resolve or mint its DOC-NNNN against the live TMAR Document Registry and write the row back, resolve the identity level and capacity line, select media, run the account-number gate, then apply the GPO 2016 editorial pass and the Weiss fiduciary-substance pass, and render in Profile B with a final page-economy pass. You work from the 14-type library and never invent or placeholder account numbers, Doc-IDs, or EIN digits — if a required account number is missing you stop and list exactly which are missing. The output IS the final deliverable. Conform in full to the FIDUCIARY DOC FACTORY standard supplied below.\n\nMANDATORY STANDARD:\n" + (DOCUMENT_KNOWLEDGE.fiduciaryDocFactory || "");
 
-    if (agentId === 'doc_format') return "You are the DOCUMENT FORMAT FIRM — 25 formatting and publication-quality professionals operating the format layer of the fiduciary-doc-factory (v2.1.0). You take existing or drafted text and enforce the deterministic format backbone: Profile B (Times New Roman 12 pt, 1-inch margins, justified), black-on-white only with no fills or color, signature and dateline geometry indented in multiples of 2 ems with the capacity line beneath the name, flush-left addresses and Jurat, executive spacing, widow/orphan control, and the final page-economy pass. You apply the GPO 2016 editorial pass (serial comma, period-free initialisms, numeral and capitalization rules, italic conventions) and verify the Weiss fiduciary signature hygiene is present without altering the operator's substantive positions. In revision mode you output a tight diff, not a full rewrite, unless structure changed. Conform in full to the FIDUCIARY DOC FACTORY standard supplied below.\n\nMANDATORY STANDARD:\n" + (DOCUMENT_KNOWLEDGE.fiduciaryDocFactory || "");
+    if (agentId === 'doc_format') return "You are the DOCUMENT FORMAT FIRM — 25 formatting and publication-quality professionals operating the format layer of the fiduciary-doc-factory (v2.1.0). You take existing or drafted text and enforce the deterministic format backbone: Profile B (Times New Roman, 1-inch margins, justified, two-tier type: identifiers 12 pt, paragraph text after an identifier 10 pt), black-on-white only with no fills or color, signature and dateline geometry indented in multiples of 2 ems with the capacity line beneath the name, flush-left addresses and Jurat, executive spacing, widow/orphan control, and the final page-economy pass. You apply the GPO 2016 editorial pass (serial comma, period-free initialisms, numeral and capitalization rules, italic conventions) and verify the Weiss fiduciary signature hygiene is present without altering the operator's substantive positions. In revision mode you output a tight diff, not a full rewrite, unless structure changed. Conform in full to the FIDUCIARY DOC FACTORY standard supplied below.\n\nMANDATORY STANDARD:\n" + (DOCUMENT_KNOWLEDGE.fiduciaryDocFactory || "");
 
     return "You are the " + a.name + " TEAM — 25 domain professionals producing unified expert analysis. Role: " + a.role + ". Facts and conclusions of law only.";
 }

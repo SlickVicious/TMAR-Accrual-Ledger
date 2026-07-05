@@ -24,11 +24,19 @@ address has a pending update and must not drift.
 | | **Profile A — Cambria-admin** (default for correspondence) | **Profile B — GPO white-paper** (petitions, white papers, declarations for filing) |
 |---|---|---|
 | Body face | **Cambria** | **Times New Roman** |
-| Body size | 11–12 pt | **12 pt** |
+| Body size | 11–12 pt | **12 pt (identifier-led paragraph text: 10 pt — see two-tier directive below)** |
 | Margins | 1″ | **1″ all sides** |
 | Alignment | left (ragged right) | **justified** |
 | Line spacing | executive (below) | 1.5 or double per court/agency rule |
 | Selection rule | account letters, notices, transmittals, cover sheets | affidavits/declarations for filing, petitions, FOIA, appeals, white papers |
+
+> **OPERATOR DIRECTIVE (2026-07-04) — two-tier type within Profile B.** Structural identifiers
+> keep **12 pt**; the paragraph text that follows an identifier is set at **10 pt**. An identifier
+> is the leading token of a block: a type label — "Article", "Section", "Schedule", "Exhibit",
+> "Appendix", "Part", "Clause", "Type" — together with its numeral or letter, or an enumerator —
+> "(a)", "1.", "IV.", "A.". Centered headings and paragraphs not led by an identifier are
+> unaffected (12 pt). In the TMAR Document Creator this is enforced by `fdfTwoTierType()`
+> (applied by the ⚖ Fiduciary Standard button and automatically on Word/Print export).
 
 > **OPERATOR OVERRIDE (v2.1.0) — forced Profile B.** The type-driven A/B selection below is
 > **overridden by operator directive**: every document renders in **Profile B (Times New Roman

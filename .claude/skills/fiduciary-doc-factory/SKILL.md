@@ -51,11 +51,16 @@ appears **only** where a form legally compels it.
 - **No color, no cell/shading fills, no highlight** — black on white only.
 - **Masked EIN** in body/letterhead; unmasked only in compelled fields.
 - **Executive spacing** (defined numerically in `references/format-spec.md`).
-- **Single output profile: B (GPO — Times New Roman 12 pt, 1″ margins, justified).**
+- **Single output profile: B (GPO — Times New Roman, 1″ margins, justified; two-tier type).**
   > **OPERATOR OVERRIDE (v2.1.0):** profile is no longer type-driven. The v1 *Cambria-for-admin*
   > invariant (Profile A) is **deliberately overridden** by operator directive — every document,
   > including administrative correspondence, renders in Profile B. Surfaced per §5 "conflict is
   > surfaced." To revert to dual A/B, remove this override here and in `format-spec.md §Output profiles`.
+  > **OPERATOR DIRECTIVE (2026-07-04) — two-tier type:** structural identifiers (type labels
+  > "Article", "Section", "Schedule", "Exhibit", "Appendix", "Part", "Clause", "Type" with their
+  > numeral/letter, and enumerators "(a)", "1.", "IV.", "A.") stay **12 pt**; the paragraph text
+  > following an identifier is **10 pt**. Headings and identifier-free paragraphs remain 12 pt.
+  > Details in `format-spec.md §Output profiles`.
 
 ## 3. Document library (14 types)
 

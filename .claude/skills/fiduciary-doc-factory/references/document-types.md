@@ -51,4 +51,4 @@ those before generating, or start with #14 while numbers are pending.
 - Types **2, 4, 6, 9, 12, 14** require sworn/certified execution (`J` or `K`) — never omit.
 - Types **1, 7, 13** are account/identifier-specific — apply the SKILL §0.5 account-number gate.
 - Every type carries the **capacity line (I)** and, where the trust acts, the **authority recital (F)**.
-- All types render **Profile B** (Times New Roman 12 pt, 1″, justified) under the v2.1.0 override.
+- All types render **Profile B** (Times New Roman, 1″, justified; two-tier type: identifiers 12 pt, identifier-led paragraph text 10 pt per the 2026-07-04 directive) under the v2.1.0 override.
