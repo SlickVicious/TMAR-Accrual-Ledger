@@ -101,9 +101,7 @@ textarea.paste:focus{outline:none;border-color:#3b82f6}
       <div class="import-row">
         <input id="pasteTitle" placeholder="Title for this process…" style="flex:1;padding:6px 10px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#cbd5e1;font-size:12px">
         <button class="primary" onclick="importPaste()">Import</button>
-        <button id="aiBtn" class="primary" style="background:linear-gradient(90deg,#7c3aed,#3b82f6)" onclick="aiRestructure()" title="Send the pasted document to Claude for hand-authored-grade restructuring: crisp labels, detail lines, extracted citations, protocol grouping. Needs your Anthropic key + CORS proxy (asked once, stored locally).">✨ AI Restructure &amp; Import</button>
       </div>
-      <div style="margin-top:6px;font-size:11px;color:#64748b">✨ AI Restructure rewrites messy prose into a tracker-grade checklist (labels + detail lines + refs, protocol grouping) via your own Claude key — plain Import uses offline heuristics.</div>
     </div>
   </details>
 
@@ -815,88 +813,6 @@ function importPaste(){
   const t = document.getElementById('pasteTitle').value.trim();
   importDocument(text, t ? t + '.html' : '');
   document.getElementById('pasteBox').value = ''; document.getElementById('pasteTitle').value = '';
-}
-
-/* ---------------- AI Restructure (Claude via CORS proxy) ---------------- */
-/* Key + proxy use the same localStorage names as the TMAR portal, so they interop:
-   eeon_key_claude / stg_key_claude / tmar_claude_key, eeon_cors_proxy. */
-const AI_RESTRUCTURE_PROMPT = [
-  'You restructure messy process documents (class notes, transcripts, guides) into a polished,',
-  'trackable checklist. Return ONLY a JSON array — no prose, no markdown fences.',
-  '',
-  'Schema: [{"title":"<emoji> Section Title","steps":[{"label":"...","detail":"...","ref":"..."}],',
-  '"subsections":[{"title":"Subsection Title","steps":[...]}]}]',
-  '',
-  'Editorial rules (match the quality of a hand-authored tracker):',
-  '- label: crisp imperative, ideally under 70 chars ("Locate your installment sales agreement number").',
-  '  Bold key terms with **double asterisks**: form names (**Form 56**, **UCC-1**, **W-9**, **1099**),',
-  '  quoted document titles, defined terms (**EIN**, **PMSI**), amounts, deadlines.',
-  '- detail: one short context line for MOST steps — where to find it, how to send it, why it matters.',
-  '  Never leave detail empty when the source gives any usable context.',
-  '- ref: bare legal citation only ("12 CFR 1026.13", "UCC 9-210") pulled OUT of the label. Empty if none.',
-  '- Group steps into logical phases as sections; prefix each section title with one fitting emoji',
-  '  (🧰 prerequisites, 🔍 research, 📝 drafting, 📤 sending/filing, ✅ verification, 💵 billing/funds, ⚖️ legal).',
-  '  Name multi-path phases like protocols: "🔧 Protocol 1: Billing Error — 12 CFR 1026.13".',
-  '- Use subsections for distinct sub-flows inside a phase (e.g. "If they respond" / "If no response").',
-  '- Preserve EVERY actionable instruction from the source; do not invent steps or facts not present.',
-  '- Split compound sentences into separate steps when they describe separate actions.',
-].join('\n');
-
-async function aiRestructure(){
-  const text = document.getElementById('pasteBox').value;
-  if (!text.trim()) { alert('Paste something first.'); return; }
-  const titleHint = document.getElementById('pasteTitle').value.trim();
-  let key = localStorage.getItem('eeon_key_claude') || localStorage.getItem('stg_key_claude') || localStorage.getItem('tmar_claude_key') || '';
-  let proxy = localStorage.getItem('eeon_cors_proxy') || '';
-  if (!key) {
-    key = (prompt('Anthropic API key (stored locally as eeon_key_claude, never sent anywhere but your proxy):') || '').trim();
-    if (!key) return;
-    localStorage.setItem('eeon_key_claude', key);
-  }
-  if (!proxy) {
-    proxy = (prompt('CORS proxy URL (your Cloudflare Worker, stored as eeon_cors_proxy):') || '').trim();
-    if (!proxy) return;
-    localStorage.setItem('eeon_cors_proxy', proxy.replace(/\/+$/,''));
-  }
-  proxy = proxy.replace(/\/+$/,'');
-  const btn = document.getElementById('aiBtn'), orig = btn.textContent;
-  btn.disabled = true; btn.textContent = '✨ Restructuring…';
-  try {
-    const res = await fetch(proxy + '/v1/messages', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({
-        model: localStorage.getItem('upt_ai_model') || 'claude-sonnet-4-20250514',
-        max_tokens: 8000,
-        system: AI_RESTRUCTURE_PROMPT,
-        messages: [{ role: 'user', content: (titleHint ? 'Process title: ' + titleHint + '\n\n' : '') + 'Source document:\n\n' + text.slice(0, 60000) }]
-      })
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status + ': ' + (await res.text()).slice(0, 200));
-    const j = await res.json();
-    let out = ((j.content && j.content[0] && j.content[0].text) || '').trim();
-    out = out.replace(/^[\s\S]*?```(?:json)?\s*/, '').replace(/```[\s\S]*$/, '').trim();
-    if (out[0] !== '[' && out[0] !== '{') { const b = out.indexOf('['); if (b >= 0) out = out.slice(b); }
-    const obj = JSON.parse(out);
-    const raw = Array.isArray(obj) ? obj : obj.sections;
-    if (!Array.isArray(raw) || !raw.length) throw new Error('model returned no sections');
-    // markdown bold/code in labels → inline tags (sanitized downstream by normalizeSections)
-    const mdInline = v => typeof v === 'string'
-      ? v.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/`(.+?)`/g, '<code>$1</code>') : v;
-    (function walk(list){ list.forEach(sec => {
-      (sec.steps || []).forEach(st => { st.label = mdInline(st.label); });
-      walk(sec.subsections || []);
-    }); })(raw);
-    const sections = normalizeSections(raw);
-    sections.forEach(sec => { if (!/[\u{1F000}-\u{1FAFF}☀-➿]/u.test(sec.title)) sec.title = emojiFor(sec.title); });
-    const title = (!Array.isArray(obj) && obj.title) || titleHint || 'Untitled Process';
-    const proj = { id: uid(), title, source: 'AI-restructured (Claude) — imported ' + new Date().toLocaleDateString(), created: Date.now(), sections };
-    putProject(proj);
-    document.getElementById('pasteBox').value = ''; document.getElementById('pasteTitle').value = '';
-    openProject(proj.id);
-  } catch (e) {
-    alert('AI Restructure failed: ' + e.message + '\n\nThe plain Import button (offline heuristics) still works.');
-  } finally { btn.disabled = false; btn.textContent = orig; }
 }
 
 /* ---------------- init ---------------- */
