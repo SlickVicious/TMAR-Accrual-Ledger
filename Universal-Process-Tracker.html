@@ -129,6 +129,7 @@ textarea.paste:focus{outline:none;border-color:#3b82f6}
       <button onclick="collapseAll()">Collapse All</button>
       <button onclick="exportCSV()">Export CSV</button>
       <button onclick="exportJSON()">Backup JSON</button>
+      <button onclick="exportStandalone()">Export Tracker HTML</button>
       <button onclick="renameProject()">Rename</button>
       <button onclick="addSection()">＋ Section</button>
       <button class="danger" onclick="resetAll()">Reset Progress</button>
@@ -190,6 +191,49 @@ function sanitizeInline(html){
 }
 function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function clean(t){ return String(t||'').replace(/\s+/g,' ').trim(); }
+
+/* ---------------- enhancement pass (parsed imports only — tracker imports stay lossless) ---------------- */
+function autoBold(html){
+  if (/<(strong|b)\b/i.test(html)) return html;                       // already emphasized — leave alone
+  html = html.replace(/[“"]([^”"]{3,80})[”"]/g, '“<strong>$1</strong>”');   // quoted phrases
+  html = html.replace(/\b(Form\s?[A-Z0-9-]{1,8}|UCC-?[13]|W-?[29]|1099(?:-[A-Z]+)?|1040|1041|SS-?4|EIN|PMSI|12\s?CFR\s?[\d.]+|UCC\s?§?\s?[\d-]+(?:\([a-z0-9]+\))*)\b/g, '<strong>$1</strong>');
+  return html;
+}
+function refineStep(labelHtml, detail){
+  let label = sanitizeInline(labelHtml);
+  detail = clean(detail || '');
+  let ref = '';
+  // trailing parenthetical statute/section citation → ref field
+  const par = stripTags(label).match(/\(([^()]*(?:§|\bCFR\b|\bUCC\b|\bUSC\b|\bU\.S\.C\.)[^()]*)\)\s*[.…]?\s*$/i);
+  if (par) {
+    ref = clean(par[1]);
+    label = clean(label.replace(/\s*\([^()]*\)\s*[.…]?\s*$/, ''));
+  }
+  // long "label — detail" sentences → split into label + muted detail line
+  if (!detail) {
+    const m = label.match(/\s[—–]\s/);
+    if (m && m.index > 15 && stripTags(label).length > 50) {
+      detail = clean(stripTags(label.slice(m.index + m[0].length)));
+      label = clean(label.slice(0, m.index));
+    }
+  }
+  return { label: autoBold(label), detail, ref };
+}
+const SEC_EMOJI = [
+  [/prereq|prepar|before|setup|gather|obtain/i,'🧰'],
+  [/research|locate|search|find|edgar|lookup/i,'🔍'],
+  [/draft|write|complete|affidavit|notice|form/i,'📝'],
+  [/send|mail|file|submit|deliver|serve/i,'📤'],
+  [/verify|confirm|audit|check|review/i,'✅'],
+  [/pay|bill|invoice|money|fund|balance/i,'💵'],
+  [/legal|court|ucc|cfr|law|dispute/i,'⚖️']
+];
+function emojiFor(title){
+  title = clean(title);
+  if (/\p{Extended_Pictographic}/u.test(title)) return title;         // author already picked one
+  for (const [re, e] of SEC_EMOJI) if (re.test(title)) return e + ' ' + title;
+  return '📌 ' + title;
+}
 
 /* =====================================================================
    PARSERS — turn any input into sections[]
@@ -255,12 +299,11 @@ function parseGenericHtml(text){
   const body = doc.body;
   const sections = [];
   let cur = null, curSub = null, n = 0;
-  const ensureSection = () => { if (!cur) { cur = { title: 'Steps', steps: [], subsections: [] }; sections.push(cur); } };
+  const ensureSection = () => { if (!cur) { cur = { title: '📌 Steps', steps: [], subsections: [] }; sections.push(cur); } };
   const addStep = (label, detail) => {
-    label = sanitizeInline(label); if (!label) return;
-    if (label.length > 400) { detail = detail || ''; }
+    const r = refineStep(label, detail); if (!r.label) return;
     ensureSection();
-    const step = { id: 's' + (++n), label, detail: clean(detail || ''), ref: '' };
+    const step = { id: 's' + (++n), label: r.label, detail: r.detail, ref: r.ref };
     (curSub ? curSub.steps : cur.steps).push(step);
   };
 
@@ -276,7 +319,7 @@ function parseGenericHtml(text){
   while ((node = walker.nextNode())) {
     const tag = node.tagName.toLowerCase();
     if (tag === secTag) {
-      cur = { title: clean(node.textContent) || 'Section', steps: [], subsections: [] };
+      cur = { title: emojiFor(clean(node.textContent) || 'Section'), steps: [], subsections: [] };
       curSub = null; sections.push(cur);
     } else if (tag === subTag && cur) {
       curSub = { title: clean(node.textContent), steps: [] };
@@ -317,17 +360,18 @@ function parseGenericHtml(text){
 function parseTextOrMarkdown(text){
   const lines = text.split(/\r?\n/);
   const sections = []; let cur = null, curSub = null, n = 0, title = '';
-  const ensure = () => { if (!cur) { cur = { title:'Steps', steps:[], subsections:[] }; sections.push(cur); } };
+  const ensure = () => { if (!cur) { cur = { title:'📌 Steps', steps:[], subsections:[] }; sections.push(cur); } };
   const inline = s => sanitizeInline(escapeHtml(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`(.+?)`/g,'<code>$1</code>'));
   for (const raw of lines) {
     const line = raw.trim(); if (!line) continue;
     let m;
-    if ((m = line.match(/^#\s+(.*)/)))       { if (!title) title = m[1]; else { cur = {title:m[1],steps:[],subsections:[]}; curSub=null; sections.push(cur);} }
-    else if ((m = line.match(/^##\s+(.*)/)))  { cur = {title:m[1],steps:[],subsections:[]}; curSub=null; sections.push(cur); }
+    if ((m = line.match(/^#\s+(.*)/)))       { if (!title) title = m[1]; else { cur = {title:emojiFor(m[1]),steps:[],subsections:[]}; curSub=null; sections.push(cur);} }
+    else if ((m = line.match(/^##\s+(.*)/)))  { cur = {title:emojiFor(m[1]),steps:[],subsections:[]}; curSub=null; sections.push(cur); }
     else if ((m = line.match(/^###\s+(.*)/))) { ensure(); curSub = {title:m[1],steps:[]}; cur.subsections.push(curSub); }
     else if ((m = line.match(/^(?:[-*+]|\d+[\.\)])\s*(?:\[( |x|X)\]\s*)?(.*)/))) {
       ensure();
-      const step = { id:'s'+(++n), label: inline(m[2]), detail:'', ref:'', preDone: !!(m[1] && m[1].toLowerCase()==='x') };
+      const r = refineStep(inline(m[2]), '');
+      const step = { id:'s'+(++n), label: r.label, detail: r.detail, ref: r.ref, preDone: !!(m[1] && m[1].toLowerCase()==='x') };
       (curSub ? curSub.steps : cur.steps).push(step);
     }
   }
@@ -582,6 +626,127 @@ function exportJSON(){
   const p = getProject(currentId);
   download(slug(p.title) + '-tracker-backup.json', JSON.stringify({ project: p, state: loadState(currentId) }, null, 2), 'application/json');
 }
+/* Generate a polished self-contained tracker file (same engine/style as the original
+   hand-built trackers). Embeds SECTIONS + current progress; re-importable losslessly. */
+function exportStandalone(){
+  const p = getProject(currentId), st = loadState(currentId);
+  const data = JSON.stringify(p.sections).replace(/</g, '\\u003c');
+  const pre = JSON.stringify(st).replace(/</g, '\\u003c');
+  const key = 'tracker_' + slug(p.title);
+  const css = document.querySelector('style').textContent;
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${escapeHtml(p.title)} — Process Tracking Dashboard</title>
+<style>${css}</style>
+</head>
+<body>
+<div class="header">
+<h1>📋 ${escapeHtml(p.title)}</h1>
+<p>${escapeHtml(p.source || '')}</p>
+<div class="progress-bar"><div class="progress-fill" id="progressBar" style="width:0%"></div></div>
+<div class="stats">
+  <div class="stat"><span class="num" id="statDone">0</span> of <span class="num" id="statTotal">0</span> completed</div>
+  <div class="stat"><span class="num" id="statPct">0%</span></div>
+</div>
+<div class="controls">
+  <button class="primary" onclick="expandAll()">Expand All</button>
+  <button onclick="collapseAll()">Collapse All</button>
+  <button onclick="resetAll()" class="danger">Reset All</button>
+  <button onclick="exportProgress()">Export CSV</button>
+  <span style="font-size:11px;color:#64748b;display:flex;align-items:center;margin-left:auto">Auto-saves to localStorage</span>
+</div>
+</div>
+<div id="dashboard"></div>
+<script>
+const LS_KEY = ${JSON.stringify(key)};
+const PRELOAD = ${pre};
+const SECTIONS = ${data};
+try{ if(PRELOAD && Object.keys(PRELOAD).length && !localStorage.getItem(LS_KEY)) localStorage.setItem(LS_KEY, JSON.stringify(PRELOAD)); }catch(e){}
+function loadState(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)) || {}; }catch(e){ return {}; } }
+function saveState(s){ localStorage.setItem(LS_KEY, JSON.stringify(s)); }
+function esc(x){ return String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function stepHtml(step, state){
+  var d = state[step.id] || {};
+  var ref = step.ref ? '<span class="step-ref">' + esc(step.ref) + '</span>' : '';
+  var det = step.detail ? '<div class="step-detail">' + esc(step.detail) + '</div>' : '';
+  return '<div class="step' + (d.done ? ' done' : '') + '"><input type="checkbox" data-step-id="' + step.id + '"' + (d.done ? ' checked' : '') + '><div class="step-content"><div class="step-label">' + step.label + ref + '</div>' + det + '<input class="notes" data-step-id="' + step.id + '" placeholder="Notes / date / tracking #…" value="' + esc(d.notes || '') + '"></div></div>';
+}
+function render(){
+  var state = loadState(), html = '';
+  SECTIONS.forEach(function(sec, i){
+    html += '<div class="section" id="sec' + i + '"><h2><span class="sec-title" onclick="toggleSection(&quot;sec' + i + '&quot;)"><span class="arrow">▼</span>' + esc(sec.title) + '</span></h2><div class="body">';
+    (sec.steps || []).forEach(function(s){ html += stepHtml(s, state); });
+    (sec.subsections || []).forEach(function(sub){
+      html += '<div class="subsection">' + esc(sub.title) + '</div>';
+      (sub.steps || []).forEach(function(s){ html += stepHtml(s, state); });
+    });
+    html += '</div></div>';
+  });
+  var el = document.getElementById('dashboard');
+  el.innerHTML = html;
+  el.querySelectorAll('input[type=checkbox]').forEach(function(cb){
+    cb.addEventListener('change', function(){
+      var s = loadState();
+      (s[this.dataset.stepId] = s[this.dataset.stepId] || {}).done = this.checked;
+      saveState(s);
+      this.closest('.step').classList.toggle('done', this.checked);
+      updateProgress();
+    });
+  });
+  el.querySelectorAll('input.notes').forEach(function(inp){
+    inp.addEventListener('input', function(){
+      var s = loadState();
+      (s[this.dataset.stepId] = s[this.dataset.stepId] || {}).notes = this.value;
+      saveState(s);
+    });
+  });
+  updateProgress();
+}
+function eachStep(fn){
+  SECTIONS.forEach(function(sec){
+    (sec.steps || []).forEach(fn);
+    (sec.subsections || []).forEach(function(sub){ (sub.steps || []).forEach(fn); });
+  });
+}
+function updateProgress(){
+  var state = loadState(), total = 0, done = 0;
+  eachStep(function(s){ total++; if (state[s.id] && state[s.id].done) done++; });
+  document.getElementById('statDone').textContent = done;
+  document.getElementById('statTotal').textContent = total;
+  var pct = total ? Math.round(done / total * 100) : 0;
+  document.getElementById('statPct').textContent = pct + '%';
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+function toggleSection(id){ document.getElementById(id).classList.toggle('collapsed'); }
+function expandAll(){ document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('collapsed'); }); }
+function collapseAll(){ document.querySelectorAll('.section').forEach(function(s){ s.classList.add('collapsed'); }); }
+function resetAll(){
+  if (confirm('Clear ALL progress and notes? This cannot be undone.')) {
+    localStorage.removeItem(LS_KEY);
+    render();
+  }
+}
+function exportProgress(){
+  var state = loadState(), csv = 'Step ID,Status,Notes\\n';
+  eachStep(function(s){
+    var d = state[s.id] || {};
+    csv += '"' + s.id + '","' + (d.done ? 'Done' : 'Pending') + '","' + (d.notes || '').replace(/"/g, '""') + '"\\n';
+  });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv'}));
+  a.download = ${JSON.stringify(slug(p.title) + '-tracker.csv')};
+  a.click();
+}
+render();
+<\/script>
+</body>
+</html>`;
+  download(slug(p.title) + '-tracker.html', html, 'text/html');
+}
+
 function restoreBackupObject(obj){
   const p = obj.project;
   p.id = p.id && !getProject(p.id) ? p.id : uid();
