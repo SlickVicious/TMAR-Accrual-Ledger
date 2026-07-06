@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Universal Process Tracking Dashboard</title>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;color:#e2e8f0;background:#0f172a;max-width:1100px;margin:0 auto;padding:20px}
+h1{font-size:1.4em;margin:0 0 4px;color:#f8fafc}
+h2{font-size:1.1em;margin:0;padding:12px 16px;color:#f8fafc;display:flex;align-items:center;gap:8px;user-select:none}
+h2 .sec-title{cursor:pointer;flex:1;display:flex;align-items:center;gap:8px}
+h3{font-size:1em;margin:0 0 8px;color:#cbd5e1}
+.header{margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #1e293b}
+.header p{margin:4px 0;color:#94a3b8;font-size:12px}
+.progress-bar{height:6px;background:#1e293b;border-radius:3px;margin:12px 0;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#8b5cf6);border-radius:3px;transition:width .3s}
+.stats{display:flex;gap:24px;flex-wrap:wrap;margin:8px 0;font-size:13px}
+.stat{display:flex;align-items:center;gap:6px;color:#94a3b8}
+.stat .num{color:#f8fafc;font-weight:600;font-size:16px}
+.stat.done .num{color:#22c55e}
+.section{background:#1e293b;border-radius:8px;margin-bottom:12px;overflow:hidden;border:1px solid #334155}
+.section.collapsed .body{display:none}
+.section h2 .arrow{transition:transform .2s;font-size:10px;color:#64748b}
+.section.collapsed h2 .arrow{transform:rotate(-90deg)}
+.body{padding:0 16px 16px}
+.step{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:6px;margin-bottom:4px;transition:background .15s;position:relative}
+.step:hover{background:#16213a}
+.step.done{opacity:.7}
+.step.done .step-label{text-decoration:line-through;color:#64748b}
+.step input[type=checkbox]{margin-top:2px;width:18px;height:18px;accent-color:#3b82f6;flex-shrink:0;cursor:pointer}
+.step-content{flex:1;min-width:0}
+.step-label{font-size:13px;color:#e2e8f0;margin-bottom:2px}
+.step-label strong,.step-label b{color:#f8fafc}
+.step-detail{font-size:11px;color:#64748b}
+.step input.notes{width:100%;margin-top:6px;padding:6px 8px;font-size:12px;background:#0f172a;border:1px solid #334155;border-radius:4px;color:#cbd5e1}
+.step input.notes::placeholder{color:#475569}
+.step input.notes:focus{outline:none;border-color:#3b82f6}
+.subsection{margin:8px 0 4px 0;padding:6px 12px;font-size:12px;color:#8b5cf6;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.controls{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+button{padding:6px 14px;border-radius:6px;border:1px solid #334155;background:#1e293b;color:#cbd5e1;font-size:12px;cursor:pointer;font-weight:500}
+button:hover{background:#334155;color:#f8fafc}
+button.primary{background:#3b82f6;border-color:#3b82f6;color:#fff}
+button.primary:hover{background:#2563eb}
+button.danger{background:#7f1d1d;border-color:#991b1b;color:#fca5a5}
+button.danger:hover{background:#991b1b}
+button.ghost{background:transparent;border-style:dashed;color:#64748b;font-size:11px;padding:4px 10px}
+button.ghost:hover{color:#cbd5e1;border-color:#64748b;background:transparent}
+.step-ref{font-size:11px;color:#8b5cf6;font-family:ui-monospace,monospace;margin-left:4px}
+.step-del{position:absolute;top:8px;right:8px;background:none;border:none;color:#475569;font-size:13px;cursor:pointer;padding:2px 6px;display:none}
+.step:hover .step-del{display:block}
+.step-del:hover{color:#f87171;background:none}
+.sec-tools{display:flex;gap:4px}
+.sec-tools button{padding:2px 8px;font-size:11px;background:transparent;border-color:transparent;color:#475569}
+.sec-tools button:hover{color:#cbd5e1;background:#334155}
+/* ---- Library / import screen ---- */
+.dropzone{border:2px dashed #334155;border-radius:12px;padding:40px 24px;text-align:center;color:#64748b;transition:all .2s;cursor:pointer;margin-bottom:20px}
+.dropzone.drag{border-color:#3b82f6;background:#16213a;color:#93c5fd}
+.dropzone .big{font-size:32px;margin-bottom:8px}
+.dropzone .hint{font-size:12px;margin-top:8px;color:#475569}
+textarea.paste{width:100%;height:140px;background:#0f172a;border:1px solid #334155;border-radius:8px;color:#cbd5e1;padding:12px;font-size:12px;font-family:ui-monospace,monospace;resize:vertical}
+textarea.paste:focus{outline:none;border-color:#3b82f6}
+.proj-card{display:flex;align-items:center;gap:14px;background:#1e293b;border:1px solid #334155;border-radius:8px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:border-color .15s}
+.proj-card:hover{border-color:#3b82f6}
+.proj-info{flex:1;min-width:0}
+.proj-title{font-size:14px;font-weight:600;color:#f8fafc;margin-bottom:2px}
+.proj-meta{font-size:11px;color:#64748b}
+.proj-pct{font-size:13px;font-weight:600;color:#3b82f6;white-space:nowrap}
+.proj-bar{width:110px;height:5px;background:#0f172a;border-radius:3px;overflow:hidden}
+.proj-bar div{height:100%;background:linear-gradient(90deg,#3b82f6,#8b5cf6)}
+.proj-card .proj-del{background:none;border:none;color:#475569;font-size:14px}
+.proj-card .proj-del:hover{color:#f87171;background:none}
+.empty{color:#475569;font-size:13px;text-align:center;padding:24px}
+.badge{display:inline-block;font-size:10px;padding:1px 7px;border-radius:10px;background:#172033;color:#8b5cf6;border:1px solid #312e81;margin-left:8px;vertical-align:middle}
+.screen{display:none}
+.screen.active{display:block}
+.import-row{display:flex;gap:10px;align-items:center;margin:10px 0}
+@media print{body{background:#fff;color:#000}.section{background:#f8fafc;border-color:#e2e8f0}.step{color:#000}.controls,.step-del,.sec-tools,.dropzone{display:none!important}}
+</style>
+</head>
+<body>
+
+<!-- ================= LIBRARY SCREEN ================= -->
+<div class="screen active" id="screen-library">
+  <div class="header">
+    <h1>🗂️ Universal Process Tracking Dashboard</h1>
+    <p>Point it at any .html (or paste any document) — it becomes a trackable checklist with progress, notes, and auto-save.</p>
+  </div>
+
+  <div class="dropzone" id="dropzone" onclick="document.getElementById('filePick').click()">
+    <div class="big">📄 ⇢ 📋</div>
+    <div><strong>Drop an .html file here</strong> or click to browse</div>
+    <div class="hint">Tracker-style files (embedded SECTIONS data) import losslessly · any other HTML is parsed from its headings, lists, checkboxes &amp; tables · .md / .txt checklists work too</div>
+    <input type="file" id="filePick" accept=".html,.htm,.md,.txt,.json" style="display:none" multiple>
+  </div>
+
+  <details style="margin-bottom:20px">
+    <summary style="cursor:pointer;color:#94a3b8;font-size:13px">✂️ Or paste HTML / Markdown / plain text</summary>
+    <div style="margin-top:10px">
+      <textarea class="paste" id="pasteBox" placeholder="Paste an HTML document, markdown, or a plain checklist (one step per line)…"></textarea>
+      <div class="import-row">
+        <input id="pasteTitle" placeholder="Title for this process…" style="flex:1;padding:6px 10px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#cbd5e1;font-size:12px">
+        <button class="primary" onclick="importPaste()">Import</button>
+      </div>
+    </div>
+  </details>
+
+  <h3 style="margin-top:24px">Saved Processes</h3>
+  <div id="projList"></div>
+  <div class="import-row" style="margin-top:16px">
+    <button class="ghost" onclick="importBackup()">⬆ Restore from JSON backup</button>
+    <input type="file" id="backupPick" accept=".json" style="display:none">
+  </div>
+</div>
+
+<!-- ================= DASHBOARD SCREEN ================= -->
+<div class="screen" id="screen-dash">
+  <div class="header">
+    <h1 id="dashTitle"></h1>
+    <p id="dashSource"></p>
+    <div class="progress-bar"><div class="progress-fill" id="progressBar" style="width:0%"></div></div>
+    <div class="stats">
+      <div class="stat"><span class="num" id="statDone">0</span> of <span class="num" id="statTotal">0</span> completed</div>
+      <div class="stat"><span class="num" id="statPct">0%</span></div>
+    </div>
+    <div class="controls">
+      <button onclick="showLibrary()">← All Processes</button>
+      <button class="primary" onclick="expandAll()">Expand All</button>
+      <button onclick="collapseAll()">Collapse All</button>
+      <button onclick="exportCSV()">Export CSV</button>
+      <button onclick="exportJSON()">Backup JSON</button>
+      <button onclick="renameProject()">Rename</button>
+      <button onclick="addSection()">＋ Section</button>
+      <button class="danger" onclick="resetAll()">Reset Progress</button>
+      <span style="font-size:11px;color:#64748b;margin-left:auto">Auto-saves to localStorage</span>
+    </div>
+  </div>
+  <div id="dashboard"></div>
+</div>
+
+<script>
+/* =====================================================================
+   Universal Process Tracker — generalized from Verizon-Process-Tracker
+   Data model:
+     project = { id, title, source, created, sections:[
+        { title, steps:[{id,label,detail,ref}], subsections:[{title,steps:[…]}] } ] }
+   Storage:
+     upt_projects_v1            → [project, …]
+     upt_state_<projectId>      → { stepId: {done, notes} }
+     upt_last_open              → projectId
+   ===================================================================== */
+
+const PROJ_KEY = 'upt_projects_v1';
+let currentId = null;
+
+/* ---------------- storage ---------------- */
+function loadProjects(){ try{ return JSON.parse(localStorage.getItem(PROJ_KEY)) || []; }catch(e){ return []; } }
+function saveProjects(p){ localStorage.setItem(PROJ_KEY, JSON.stringify(p)); }
+function getProject(id){ return loadProjects().find(p => p.id === id); }
+function putProject(proj){
+  const all = loadProjects();
+  const i = all.findIndex(p => p.id === proj.id);
+  if (i >= 0) all[i] = proj; else all.push(proj);
+  saveProjects(all);
+}
+function stateKey(id){ return 'upt_state_' + id; }
+function loadState(id){ try{ return JSON.parse(localStorage.getItem(stateKey(id))) || {}; }catch(e){ return {}; } }
+function saveState(id, s){ localStorage.setItem(stateKey(id), JSON.stringify(s)); }
+function uid(){ return 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+/* ---------------- sanitize (keep only harmless inline tags) ---------------- */
+const KEEP_TAGS = new Set(['STRONG','B','EM','I','CODE','U']);
+function sanitizeInline(html){
+  const doc = new DOMParser().parseFromString('<div>' + html + '</div>', 'text/html');
+  const root = doc.body.firstChild;
+  (function walk(node){
+    [...node.childNodes].forEach(ch => {
+      if (ch.nodeType === 1) {
+        walk(ch);
+        if (!KEEP_TAGS.has(ch.tagName)) {
+          while (ch.firstChild) node.insertBefore(ch.firstChild, ch);
+          node.removeChild(ch);
+        } else {
+          [...ch.attributes].forEach(a => ch.removeAttribute(a.name));
+        }
+      } else if (ch.nodeType !== 3) node.removeChild(ch);
+    });
+  })(root);
+  return root.innerHTML.replace(/\s+/g,' ').trim();
+}
+function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function clean(t){ return String(t||'').replace(/\s+/g,' ').trim(); }
+
+/* =====================================================================
+   PARSERS — turn any input into sections[]
+   ===================================================================== */
+
+/* --- 1. Tracker-style: extract embedded `SECTIONS = [...]` JS array --- */
+function tryExtractSections(text){
+  const m = text.match(/(?:const|let|var)\s+SECTIONS\s*=\s*\[/);
+  if (!m) return null;
+  const start = text.indexOf('[', m.index);
+  // balanced bracket scan (respecting strings)
+  let depth = 0, i = start, inStr = null, esc = false;
+  for (; i < text.length; i++) {
+    const c = text[i];
+    if (esc) { esc = false; continue; }
+    if (inStr) { if (c === '\\') esc = true; else if (c === inStr) inStr = null; continue; }
+    if (c === '"' || c === "'" || c === '`') { inStr = c; continue; }
+    if (c === '[') depth++;
+    else if (c === ']') { depth--; if (depth === 0) break; }
+  }
+  if (depth !== 0) return null;
+  const src = text.slice(start, i + 1);
+  try {
+    const data = (new Function('return (' + src + ')'))();
+    if (!Array.isArray(data)) return null;
+    return normalizeSections(data);
+  } catch(e){ return null; }
+}
+
+function normalizeSections(raw){
+  let n = 0;
+  const seen = new Set();
+  const normStep = s => {
+    let id = s && s.id ? String(s.id) : 's' + (++n);   // keep original ids → old progress can migrate
+    while (seen.has(id)) id = 's' + (++n);
+    seen.add(id);
+    return {
+      id,
+      label: sanitizeInline(s.label || s.title || s.text || String(s)),
+      detail: clean(s.detail || s.description || ''),
+      ref: clean(s.ref || '')
+    };
+  };
+  return raw.map(sec => {
+    const out = { title: clean(stripTags(sec.title || 'Untitled Section')), steps: [], subsections: [] };
+    if (Array.isArray(sec.steps)) out.steps = sec.steps.map(normStep);
+    if (Array.isArray(sec.subsections)) out.subsections = sec.subsections.map(sub => ({
+      title: clean(stripTags(sub.title || '')),
+      steps: (sub.steps || []).map(normStep)
+    }));
+    return out;
+  }).filter(s => s.steps.length || s.subsections.some(x => x.steps.length));
+}
+function stripTags(h){ const d = document.createElement('div'); d.innerHTML = h; return d.textContent; }
+
+/* --- 2. Generic HTML: headings → sections, li/checkbox/tr → steps --- */
+function parseGenericHtml(text){
+  const doc = new DOMParser().parseFromString(text, 'text/html');
+  doc.querySelectorAll('script,style,nav,footer,header select,noscript').forEach(e => e.remove());
+  const title = clean(doc.querySelector('title')?.textContent || doc.querySelector('h1')?.textContent || '');
+
+  // Collect content blocks in document order
+  const body = doc.body;
+  const sections = [];
+  let cur = null, curSub = null, n = 0;
+  const ensureSection = () => { if (!cur) { cur = { title: 'Steps', steps: [], subsections: [] }; sections.push(cur); } };
+  const addStep = (label, detail) => {
+    label = sanitizeInline(label); if (!label) return;
+    if (label.length > 400) { detail = detail || ''; }
+    ensureSection();
+    const step = { id: 's' + (++n), label, detail: clean(detail || ''), ref: '' };
+    (curSub ? curSub.steps : cur.steps).push(step);
+  };
+
+  // choose section heading level: first of h2 → h2/h3, else h1 → h1/h2, else h3
+  const hs = ['h1','h2','h3','h4'].map(t => body.querySelectorAll(t).length);
+  let secTag = 'h2', subTag = 'h3';
+  if (hs[1] === 0 && hs[0] > 1) { secTag = 'h1'; subTag = 'h2'; }
+  else if (hs[1] === 0 && hs[2] > 0) { secTag = 'h3'; subTag = 'h4'; }
+
+  const walker = doc.createTreeWalker(body, NodeFilter.SHOW_ELEMENT);
+  const seenLis = new Set();
+  let node;
+  while ((node = walker.nextNode())) {
+    const tag = node.tagName.toLowerCase();
+    if (tag === secTag) {
+      cur = { title: clean(node.textContent) || 'Section', steps: [], subsections: [] };
+      curSub = null; sections.push(cur);
+    } else if (tag === subTag && cur) {
+      curSub = { title: clean(node.textContent), steps: [] };
+      cur.subsections.push(curSub);
+    } else if (tag === 'li') {
+      if (seenLis.has(node)) continue;
+      // only leaf-ish items: take own text minus nested list text
+      const nested = node.querySelector('ul,ol');
+      let own = node.cloneNode(true);
+      own.querySelectorAll('ul,ol').forEach(e => e.remove());
+      const label = own.innerHTML;
+      if (clean(own.textContent)) addStep(label);
+      if (!nested) node.querySelectorAll('li').forEach(li => seenLis.add(li));
+      seenLis.add(node);
+    } else if (tag === 'input' && node.type === 'checkbox') {
+      // checkbox outside a list: use label / parent text
+      if (node.closest('li')) continue;
+      const lbl = node.closest('label') || node.parentElement;
+      if (lbl && clean(lbl.textContent)) addStep(lbl.innerHTML.replace(/<input[^>]*>/gi,''));
+    } else if (tag === 'tr') {
+      const cells = [...node.querySelectorAll('td')];
+      if (!cells.length) continue; // skip header rows
+      const label = cells[0].innerHTML;
+      const detail = cells.slice(1).map(c => clean(c.textContent)).filter(Boolean).join(' · ');
+      if (clean(cells[0].textContent)) addStep(label, detail);
+    } else if (tag === 'p') {
+      // numbered "Step 1:" style paragraphs
+      const t = clean(node.textContent);
+      if (/^(step\s*\d+|task\s*\d+|\d+[\.\)])\s/i.test(t)) addStep(node.innerHTML);
+    }
+  }
+
+  const result = sections.filter(s => s.steps.length || s.subsections.some(x => x.steps.length));
+  return { title, sections: result };
+}
+
+/* --- 3. Markdown / plain text --- */
+function parseTextOrMarkdown(text){
+  const lines = text.split(/\r?\n/);
+  const sections = []; let cur = null, curSub = null, n = 0, title = '';
+  const ensure = () => { if (!cur) { cur = { title:'Steps', steps:[], subsections:[] }; sections.push(cur); } };
+  const inline = s => sanitizeInline(escapeHtml(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`(.+?)`/g,'<code>$1</code>'));
+  for (const raw of lines) {
+    const line = raw.trim(); if (!line) continue;
+    let m;
+    if ((m = line.match(/^#\s+(.*)/)))       { if (!title) title = m[1]; else { cur = {title:m[1],steps:[],subsections:[]}; curSub=null; sections.push(cur);} }
+    else if ((m = line.match(/^##\s+(.*)/)))  { cur = {title:m[1],steps:[],subsections:[]}; curSub=null; sections.push(cur); }
+    else if ((m = line.match(/^###\s+(.*)/))) { ensure(); curSub = {title:m[1],steps:[]}; cur.subsections.push(curSub); }
+    else if ((m = line.match(/^(?:[-*+]|\d+[\.\)])\s*(?:\[( |x|X)\]\s*)?(.*)/))) {
+      ensure();
+      const step = { id:'s'+(++n), label: inline(m[2]), detail:'', ref:'', preDone: !!(m[1] && m[1].toLowerCase()==='x') };
+      (curSub ? curSub.steps : cur.steps).push(step);
+    }
+  }
+  return { title, sections: sections.filter(s => s.steps.length || s.subsections.some(x => x.steps.length)) };
+}
+
+/* ---------------- import orchestration ---------------- */
+function importDocument(text, filename){
+  filename = filename || '';
+  let title = filename.replace(/\.(html?|md|txt|json)$/i,'').replace(/[-_]/g,' ').trim();
+  let sections = null, mode = '';
+
+  // JSON backup file?
+  if (/\.json$/i.test(filename) || /^\s*\{[\s\S]*"sections"/.test(text)) {
+    try {
+      const obj = JSON.parse(text);
+      if (obj && obj.project && obj.project.sections) { restoreBackupObject(obj); return; }
+      if (obj && obj.sections) { sections = normalizeSections(obj.sections); title = obj.title || title; mode = 'JSON'; }
+    } catch(e){}
+  }
+  if (!sections && /<[a-z][\s\S]*>/i.test(text)) {
+    sections = tryExtractSections(text);
+    if (sections) {
+      mode = 'tracker import (lossless)';
+      const t = text.match(/<title>([\s\S]*?)<\/title>/i) || text.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
+      if (t) title = clean(stripTags(t[1])) || title;
+    } else {
+      const r = parseGenericHtml(text);
+      sections = r.sections; title = r.title || title; mode = 'parsed from HTML structure';
+    }
+  }
+  if (!sections || !sections.length) {
+    const r = parseTextOrMarkdown(text);
+    sections = r.sections; if (r.title) title = r.title; mode = mode || 'parsed as text/markdown';
+  }
+  if (!sections.length) { alert('Could not find any sections or steps in that document.\nTip: it needs headings + lists/checkboxes/tables, or a tracker SECTIONS array.'); return; }
+
+  const proj = { id: uid(), title: title || 'Untitled Process', source: (filename ? filename + ' — ' : '') + mode + ' — imported ' + new Date().toLocaleDateString(), created: Date.now(), sections };
+  // pre-checked markdown boxes
+  const st = {};
+  eachStep(proj, s => { if (s.preDone) { st[s.id] = {done:true}; delete s.preDone; } });
+  // migrate progress saved by the original tracker file itself (same-origin localStorage)
+  if (mode.startsWith('tracker')) {
+    const km = text.match(/LS_KEY\s*=\s*['"]([^'"]+)['"]/);
+    if (km) {
+      try {
+        const old = JSON.parse(localStorage.getItem(km[1]));
+        if (old && typeof old === 'object') {
+          let hits = 0;
+          eachStep(proj, s => { if (old[s.id]) { st[s.id] = Object.assign({}, old[s.id], st[s.id]); hits++; } });
+          if (hits) proj.source += ' · migrated ' + hits + ' saved steps';
+        }
+      } catch(e){}
+    }
+  }
+  putProject(proj);
+  if (Object.keys(st).length) saveState(proj.id, st);
+  openProject(proj.id);
+}
+
+function eachStep(proj, fn){
+  proj.sections.forEach(sec => {
+    (sec.steps||[]).forEach(fn);
+    (sec.subsections||[]).forEach(sub => (sub.steps||[]).forEach(fn));
+  });
+}
+function countSteps(proj){ let n = 0; eachStep(proj, () => n++); return n; }
+
+/* ---------------- library screen ---------------- */
+function renderLibrary(){
+  const el = document.getElementById('projList');
+  const projects = loadProjects().sort((a,b) => b.created - a.created);
+  if (!projects.length) { el.innerHTML = '<div class="empty">No saved processes yet — drop an .html above to begin.</div>'; return; }
+  el.innerHTML = projects.map(p => {
+    const st = loadState(p.id);
+    const total = countSteps(p);
+    let done = 0; eachStep(p, s => { if (st[s.id]?.done) done++; });
+    const pct = total ? Math.round(done/total*100) : 0;
+    return `<div class="proj-card" onclick="openProject('${p.id}')">
+      <div class="proj-info">
+        <div class="proj-title">📋 ${escapeHtml(p.title)}</div>
+        <div class="proj-meta">${total} steps · ${escapeHtml(p.source||'')}</div>
+      </div>
+      <div class="proj-bar"><div style="width:${pct}%"></div></div>
+      <div class="proj-pct">${pct}%</div>
+      <button class="proj-del" title="Delete" onclick="event.stopPropagation();deleteProject('${p.id}')">✕</button>
+    </div>`;
+  }).join('');
+}
+function deleteProject(id){
+  const p = getProject(id);
+  if (!confirm('Delete "' + (p?.title||id) + '" and its progress? This cannot be undone.')) return;
+  saveProjects(loadProjects().filter(x => x.id !== id));
+  localStorage.removeItem(stateKey(id));
+  renderLibrary();
+}
+function showLibrary(){
+  currentId = null;
+  localStorage.removeItem('upt_last_open');
+  document.getElementById('screen-dash').classList.remove('active');
+  document.getElementById('screen-library').classList.add('active');
+  renderLibrary();
+}
+
+/* ---------------- dashboard screen ---------------- */
+function openProject(id){
+  const p = getProject(id); if (!p) return;
+  currentId = id;
+  localStorage.setItem('upt_last_open', id);
+  document.getElementById('screen-library').classList.remove('active');
+  document.getElementById('screen-dash').classList.add('active');
+  document.getElementById('dashTitle').textContent = '📋 ' + p.title;
+  document.getElementById('dashSource').textContent = p.source || '';
+  renderDashboard();
+}
+
+function renderDashboard(){
+  const proj = getProject(currentId); if (!proj) return;
+  const state = loadState(currentId);
+  const el = document.getElementById('dashboard');
+  let html = '';
+  proj.sections.forEach((sec, si) => {
+    html += `<div class="section" id="sec-${si}"><h2>
+      <span class="sec-title" onclick="toggleSection('sec-${si}')"><span class="arrow">▼</span>${escapeHtml(sec.title)}</span>
+      <span class="sec-tools">
+        <button title="Add step" onclick="addStep(${si})">＋</button>
+        <button title="Rename section" onclick="renameSection(${si})">✎</button>
+        <button title="Delete section" onclick="deleteSection(${si})">✕</button>
+      </span></h2><div class="body">`;
+    (sec.steps||[]).forEach(step => html += renderStep(step, state));
+    (sec.subsections||[]).forEach(sub => {
+      html += `<div class="subsection">${escapeHtml(sub.title)}</div>`;
+      (sub.steps||[]).forEach(step => html += renderStep(step, state));
+    });
+    html += '</div></div>';
+  });
+  el.innerHTML = html;
+
+  el.querySelectorAll('input[type=checkbox]').forEach(cb => cb.addEventListener('change', function(){
+    const s = loadState(currentId);
+    (s[this.dataset.stepId] = s[this.dataset.stepId] || {}).done = this.checked;
+    saveState(currentId, s);
+    this.closest('.step').classList.toggle('done', this.checked);
+    updateProgress();
+  }));
+  el.querySelectorAll('input.notes').forEach(inp => inp.addEventListener('input', function(){
+    const s = loadState(currentId);
+    (s[this.dataset.stepId] = s[this.dataset.stepId] || {}).notes = this.value;
+    saveState(currentId, s);
+  }));
+  updateProgress();
+}
+
+function renderStep(step, state){
+  const checked = state[step.id]?.done || false;
+  const notes = state[step.id]?.notes || '';
+  const refHtml = step.ref ? `<span class="step-ref">${escapeHtml(step.ref)}</span>` : '';
+  return `<div class="step${checked ? ' done' : ''}">
+      <input type="checkbox" data-step-id="${step.id}" ${checked ? 'checked' : ''}>
+      <div class="step-content">
+        <div class="step-label">${step.label}${refHtml}</div>
+        ${step.detail ? `<div class="step-detail">${escapeHtml(step.detail)}</div>` : ''}
+        <input class="notes" data-step-id="${step.id}" placeholder="Notes / date / tracking #…" value="${escapeHtml(notes)}">
+      </div>
+      <button class="step-del" title="Delete step" onclick="deleteStep('${step.id}')">✕</button>
+    </div>`;
+}
+
+function updateProgress(){
+  const proj = getProject(currentId); if (!proj) return;
+  const state = loadState(currentId);
+  let total = 0, done = 0;
+  eachStep(proj, s => { total++; if (state[s.id]?.done) done++; });
+  document.getElementById('statDone').textContent = done;
+  document.getElementById('statTotal').textContent = total;
+  const pct = total ? Math.round(done/total*100) : 0;
+  document.getElementById('statPct').textContent = pct + '%';
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+/* ---------------- dashboard actions ---------------- */
+function toggleSection(id){ document.getElementById(id).classList.toggle('collapsed'); }
+function expandAll(){ document.querySelectorAll('.section').forEach(s => s.classList.remove('collapsed')); }
+function collapseAll(){ document.querySelectorAll('.section').forEach(s => s.classList.add('collapsed')); }
+function resetAll(){
+  if (!confirm('Clear ALL progress and notes for this process? This cannot be undone.')) return;
+  localStorage.removeItem(stateKey(currentId));
+  renderDashboard();
+}
+function renameProject(){
+  const p = getProject(currentId);
+  const t = prompt('Process title:', p.title);
+  if (t && t.trim()) { p.title = t.trim(); putProject(p); document.getElementById('dashTitle').textContent = '📋 ' + p.title; }
+}
+function addSection(){
+  const t = prompt('New section title:'); if (!t || !t.trim()) return;
+  const p = getProject(currentId);
+  p.sections.push({ title: t.trim(), steps: [], subsections: [] });
+  putProject(p); renderDashboard();
+}
+function renameSection(si){
+  const p = getProject(currentId);
+  const t = prompt('Section title:', p.sections[si].title);
+  if (t && t.trim()) { p.sections[si].title = t.trim(); putProject(p); renderDashboard(); }
+}
+function deleteSection(si){
+  const p = getProject(currentId);
+  if (!confirm('Delete section "' + p.sections[si].title + '" and its steps?')) return;
+  p.sections.splice(si,1); putProject(p); renderDashboard();
+}
+function addStep(si){
+  const label = prompt('Step description:'); if (!label || !label.trim()) return;
+  const p = getProject(currentId);
+  let maxN = 0; eachStep(p, s => { const m = String(s.id).match(/\d+$/); if (m) maxN = Math.max(maxN, +m[0]); });
+  p.sections[si].steps = p.sections[si].steps || [];
+  p.sections[si].steps.push({ id: 's' + (maxN+1), label: sanitizeInline(escapeHtml(label.trim())), detail:'', ref:'' });
+  putProject(p); renderDashboard();
+}
+function deleteStep(stepId){
+  const p = getProject(currentId);
+  p.sections.forEach(sec => {
+    if (sec.steps) sec.steps = sec.steps.filter(s => s.id !== stepId);
+    (sec.subsections||[]).forEach(sub => sub.steps = sub.steps.filter(s => s.id !== stepId));
+  });
+  putProject(p);
+  const st = loadState(currentId); delete st[stepId]; saveState(currentId, st);
+  renderDashboard();
+}
+
+/* ---------------- export / backup ---------------- */
+function download(name, content, type){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], {type}));
+  a.download = name; a.click();
+  setTimeout(() => { try { URL.revokeObjectURL(a.href); } catch(e){} }, 5000);
+}
+function slug(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60) || 'process'; }
+function exportCSV(){
+  const p = getProject(currentId), st = loadState(currentId);
+  let csv = 'Section,Step,Status,Notes\n';
+  const row = (sec, s) => {
+    const d = st[s.id] || {};
+    csv += `"${sec.replace(/"/g,'""')}","${stripTags(s.label).replace(/"/g,'""')}","${d.done?'Done':'Pending'}","${(d.notes||'').replace(/"/g,'""')}"\n`;
+  };
+  p.sections.forEach(sec => {
+    (sec.steps||[]).forEach(s => row(sec.title, s));
+    (sec.subsections||[]).forEach(sub => sub.steps.forEach(s => row(sec.title + ' › ' + sub.title, s)));
+  });
+  download(slug(p.title) + '-tracker.csv', csv, 'text/csv');
+}
+function exportJSON(){
+  const p = getProject(currentId);
+  download(slug(p.title) + '-tracker-backup.json', JSON.stringify({ project: p, state: loadState(currentId) }, null, 2), 'application/json');
+}
+function restoreBackupObject(obj){
+  const p = obj.project;
+  p.id = p.id && !getProject(p.id) ? p.id : uid();
+  putProject(p);
+  if (obj.state) saveState(p.id, obj.state);
+  openProject(p.id);
+}
+function importBackup(){ document.getElementById('backupPick').click(); }
+
+/* ---------------- input wiring ---------------- */
+const dz = document.getElementById('dropzone');
+['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('drag'); }));
+['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('drag'); }));
+dz.addEventListener('drop', e => { [...e.dataTransfer.files].forEach(readFileIn); });
+document.getElementById('filePick').addEventListener('change', function(){ [...this.files].forEach(readFileIn); this.value=''; });
+document.getElementById('backupPick').addEventListener('change', function(){
+  const f = this.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => { try { restoreBackupObject(JSON.parse(r.result)); } catch(e){ alert('Not a valid backup JSON.'); } };
+  r.readAsText(f); this.value='';
+});
+function readFileIn(f){
+  const r = new FileReader();
+  r.onload = () => importDocument(r.result, f.name);
+  r.readAsText(f);
+}
+function importPaste(){
+  const text = document.getElementById('pasteBox').value;
+  if (!text.trim()) { alert('Paste something first.'); return; }
+  const t = document.getElementById('pasteTitle').value.trim();
+  importDocument(text, t ? t + '.html' : '');
+  document.getElementById('pasteBox').value = ''; document.getElementById('pasteTitle').value = '';
+}
+
+/* ---------------- init ---------------- */
+(function init(){
+  const last = localStorage.getItem('upt_last_open');
+  if (last && getProject(last)) openProject(last); else renderLibrary();
+})();
+</script>
+</body>
+</html>
