@@ -295,6 +295,8 @@ function stripTags(h){ const d = document.createElement('div'); d.innerHTML = h;
 function parseGenericHtml(text){
   const doc = new DOMParser().parseFromString(text, 'text/html');
   doc.querySelectorAll('script,style,nav,footer,header select,noscript').forEach(e => e.remove());
+  // transcript-transformer chrome: video banner, metadata table, expand/collapse controls
+  doc.querySelectorAll('.video-container,.mtbl,.ttctrl,.caret').forEach(e => e.remove());
   const title = clean(doc.querySelector('title')?.textContent || doc.querySelector('h1')?.textContent || '');
 
   // Collect content blocks in document order
@@ -302,11 +304,14 @@ function parseGenericHtml(text){
   const sections = [];
   let cur = null, curSub = null, n = 0;
   const ensureSection = () => { if (!cur) { cur = { title: '📌 Steps', steps: [], subsections: [] }; sections.push(cur); } };
+  let lastStep = null;
   const addStep = (label, detail) => {
-    const r = refineStep(label, detail); if (!r.label) return;
+    const r = refineStep(label, detail); if (!r.label) return null;
     ensureSection();
     const step = { id: 's' + (++n), label: r.label, detail: r.detail, ref: r.ref };
     (curSub ? curSub.steps : cur.steps).push(step);
+    lastStep = step;
+    return step;
   };
 
   // choose section heading level: first of h2 → h2/h3, else h1 → h1/h2, else h3
@@ -322,9 +327,10 @@ function parseGenericHtml(text){
     const tag = node.tagName.toLowerCase();
     if (tag === secTag) {
       cur = { title: emojiFor(clean(node.textContent) || 'Section'), steps: [], subsections: [] };
-      curSub = null; sections.push(cur);
+      curSub = null; lastStep = null; sections.push(cur);
     } else if (tag === subTag && cur) {
       curSub = { title: clean(node.textContent), steps: [] };
+      lastStep = null;
       cur.subsections.push(curSub);
     } else if (tag === 'li') {
       if (seenLis.has(node)) continue;
@@ -348,9 +354,37 @@ function parseGenericHtml(text){
       const detail = cells.slice(1).map(c => clean(c.textContent)).filter(Boolean).join(' · ');
       if (clean(cells[0].textContent)) addStep(label, detail);
     } else if (tag === 'p') {
-      // numbered "Step 1:" style paragraphs
+      if (node.closest('li,blockquote,td,th')) continue;   // handled by their containers
       const t = clean(node.textContent);
-      if (/^(step\s*\d+|task\s*\d+|\d+[\.\)])\s/i.test(t)) addStep(node.innerHTML);
+      if (!t) continue;
+      // markdown pipe-tables rendered as literal <p>| a | b |</p> rows (timestamp tables etc.)
+      if (/^\|.*\|$/.test(t)) {
+        if (/^[\s|:\-—–]+$/.test(t)) {                     // separator row → previous row was a header
+          if (lastStep) {
+            const arr = curSub ? curSub.steps : (cur && cur.steps);
+            if (arr && arr[arr.length - 1] === lastStep) { arr.pop(); lastStep = null; }
+          }
+          continue;
+        }
+        const cells = t.split('|').map(c => c.trim()).filter(Boolean);
+        if (cells.length >= 2) addStep(escapeHtml(cells[0]), cells.slice(1).join(' · '));
+        else if (cells.length === 1) addStep(escapeHtml(cells[0]));
+        continue;
+      }
+      // numbered "Step 1:" style paragraphs
+      if (/^(step\s*\d+|task\s*\d+|\d+[\.\)])\s/i.test(t)) { addStep(node.innerHTML); continue; }
+      // short colon-ended lead-ins ("The process covers:") introduce a list — not steps themselves
+      if (/:$/.test(t) && t.length <= 120) continue;
+      // short, actionable-looking prose → a step (refineStep splits label — detail, pulls refs)
+      if (cur && t.length <= 280) { addStep(node.innerHTML); continue; }
+      // long narrative prose → context line for the step it follows
+      if (lastStep && !lastStep.detail) lastStep.detail = t.slice(0, 300);
+    } else if (tag === 'blockquote') {
+      if (node.closest('li')) continue;
+      const t = clean(node.textContent);
+      if (!t) continue;
+      if (lastStep && !lastStep.detail) lastStep.detail = '❝ ' + t.slice(0, 280);
+      else if (cur && t.length <= 280) addStep('<em>❝ ' + escapeHtml(t) + '</em>');
     }
   }
 
