@@ -75,6 +75,25 @@ textarea.paste:focus{outline:none;border-color:#3b82f6}
 .screen{display:none}
 .screen.active{display:block}
 .import-row{display:flex;gap:10px;align-items:center;margin:10px 0}
+/* ---- import review modal ---- */
+#reviewOverlay{position:fixed;inset:0;background:rgba(2,6,23,.78);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
+.review-card{background:#0f172a;border:1px solid #334155;border-radius:12px;max-width:600px;width:100%;max-height:84vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+.review-card header{padding:16px 20px 10px;border:none;margin:0}
+.review-card header h3{margin:0 0 4px;color:#f8fafc}
+.review-card header p{margin:0;font-size:12px;color:#64748b}
+.review-list{overflow-y:auto;padding:6px 12px;flex:1}
+.review-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px}
+.review-row:hover{background:#16213a}
+.review-row input{width:16px;height:16px;accent-color:#3b82f6;flex-shrink:0;cursor:pointer}
+.review-row .rtitle{flex:1;font-size:13px;color:#e2e8f0;cursor:pointer}
+.review-row .rcount{font-size:11px;color:#64748b;white-space:nowrap}
+.rbadge{font-size:10px;padding:1px 8px;border-radius:10px;white-space:nowrap}
+.rbadge.process{background:#052e16;color:#4ade80;border:1px solid #14532d}
+.rbadge.narrative{background:#2a2008;color:#fbbf24;border:1px solid #713f12}
+.rbadge.neutral{background:#172033;color:#94a3b8;border:1px solid #334155}
+.review-opts{padding:8px 20px;border-top:1px solid #1e293b;font-size:12px;color:#94a3b8;display:flex;gap:18px;flex-wrap:wrap}
+.review-opts label{display:flex;align-items:center;gap:6px;cursor:pointer}
+.review-actions{display:flex;gap:10px;padding:12px 20px 16px;justify-content:flex-end}
 @media print{body{background:#fff;color:#000}.section{background:#f8fafc;border-color:#e2e8f0}.step{color:#000}.controls,.step-del,.sec-tools,.dropzone{display:none!important}}
 </style>
 </head>
@@ -443,6 +462,15 @@ function importDocument(text, filename){
   }
   if (!sections.length) { alert('Could not find any sections or steps in that document.\nTip: it needs headings + lists/checkboxes/tables, or a tracker SECTIONS array.'); return; }
 
+  // lossless tracker/JSON imports go straight in; parsed imports get a review pass
+  if (mode.startsWith('tracker') || mode === 'JSON') {
+    finalizeImport(sections, title, filename, mode, text);
+  } else {
+    showImportReview(sections, title, filename, mode, text);
+  }
+}
+
+function finalizeImport(sections, title, filename, mode, text){
   const proj = { id: uid(), title: title || 'Untitled Process', source: (filename ? filename + ' — ' : '') + mode + ' — imported ' + new Date().toLocaleDateString(), created: Date.now(), sections };
   // pre-checked markdown boxes
   const st = {};
@@ -464,6 +492,84 @@ function importDocument(text, filename){
   putProject(proj);
   if (Object.keys(st).length) saveState(proj.id, st);
   openProject(proj.id);
+}
+
+/* ---------------- import review: keep the process, drop the class narrative ---------------- */
+/* A transcript outline is teaching-order (concepts, timestamps, takeaways); a tracker is
+   execution-order. This pass lets the operator keep only step-bearing sections. */
+const NARRATIVE_RE = /timestamp|overview|purpose|takeaway|warning|outdated|core concept|key concept|background|educational|philosoph|q\s*&(?:amp;)?\s*a|discussion|recap|summar|session note|about (?:the|this) class/i;
+const PROCEDURAL_RE = /prereq|step[- ]by[- ]step|protocol|process|procedure|how[- ]to|checklist|mailing|filing|draft|writing|send|submit|serve|verif|action item|next step|homework|assignment|template|instruction/i;
+function classifySection(title){
+  if (PROCEDURAL_RE.test(title)) return 'process';
+  if (NARRATIVE_RE.test(title)) return 'narrative';
+  return 'neutral';
+}
+const TS_STEP_RE = /^\s*\[?\s*[~≈]?\d{1,3}:\d{2}/;
+function applyStepFilters(sections, dropTs, dropQuotes){
+  const keep = st => {
+    const t = stripTags(st.label);
+    if (dropTs && TS_STEP_RE.test(t)) return false;
+    if (dropQuotes && /^\s*❝/.test(t)) return false;
+    return true;
+  };
+  return sections
+    .map(sec => Object.assign({}, sec, {
+      steps: (sec.steps || []).filter(keep),
+      subsections: (sec.subsections || [])
+        .map(sub => Object.assign({}, sub, { steps: (sub.steps || []).filter(keep) }))
+        .filter(sub => sub.steps.length),
+    }))
+    .filter(sec => sec.steps.length || sec.subsections.length);
+}
+function sectionStepCount(sec){
+  return (sec.steps || []).length + (sec.subsections || []).reduce((a, s) => a + (s.steps || []).length, 0);
+}
+function showImportReview(sections, title, filename, mode, text){
+  document.getElementById('reviewOverlay')?.remove();
+  const ov = document.createElement('div');
+  ov.id = 'reviewOverlay';
+  const rows = sections.map((sec, i) => {
+    const cls = classifySection(stripTags(sec.title));
+    const checked = cls !== 'narrative';
+    return `<div class="review-row">
+      <input type="checkbox" id="rv${i}" data-i="${i}" ${checked ? 'checked' : ''}>
+      <label class="rtitle" for="rv${i}">${escapeHtml(stripTags(sec.title))}</label>
+      <span class="rbadge ${cls}">${cls === 'process' ? 'process' : cls === 'narrative' ? 'class narrative' : 'unclassified'}</span>
+      <span class="rcount">${sectionStepCount(sec)} steps</span>
+    </div>`;
+  }).join('');
+  ov.innerHTML = `<div class="review-card">
+    <header>
+      <h3>📋 Review import — ${escapeHtml(title || 'Untitled Process')}</h3>
+      <p>Keep only the sections that are part of the <strong>process</strong>. Class narrative (overviews, timestamps, takeaways) already lives in the source transcript.</p>
+    </header>
+    <div class="review-list">${rows}</div>
+    <div class="review-opts">
+      <label><input type="checkbox" id="rvDropTs" checked> Drop timestamp steps ([0:00], ~8:00…)</label>
+      <label><input type="checkbox" id="rvDropQuotes" checked> Drop ❝ quote steps</label>
+    </div>
+    <div class="review-actions">
+      <button id="rvCancel">Cancel</button>
+      <button id="rvAll">Import All Sections</button>
+      <button id="rvGo" class="primary">Import Selected</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  const doImport = pickAll => {
+    const picked = pickAll ? sections.slice()
+      : [...ov.querySelectorAll('input[data-i]')].filter(c => c.checked).map(c => sections[+c.dataset.i]);
+    if (!picked.length) { alert('Select at least one section (or Cancel).'); return; }
+    const filtered = applyStepFilters(picked,
+      ov.querySelector('#rvDropTs').checked, ov.querySelector('#rvDropQuotes').checked);
+    if (!filtered.length) { alert('Nothing left after filters — loosen the options or pick more sections.'); return; }
+    ov.remove();
+    const kept = pickAll ? mode : mode + ' · curated to ' + filtered.length + '/' + sections.length + ' sections';
+    finalizeImport(filtered, title, filename, kept, text);
+  };
+  ov.querySelector('#rvGo').onclick = () => doImport(false);
+  ov.querySelector('#rvAll').onclick = () => doImport(true);
+  ov.querySelector('#rvCancel').onclick = () => ov.remove();
+  ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
 }
 
 function eachStep(proj, fn){
