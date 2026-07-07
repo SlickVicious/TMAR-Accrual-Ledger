@@ -152,13 +152,27 @@ textarea.paste:focus{outline:none;border-color:#3b82f6}
       <button onclick="renameProject()">Rename</button>
       <button onclick="addSection()">＋ Section</button>
       <button class="danger" onclick="resetAll()">Reset Progress</button>
-      <span style="font-size:11px;color:#64748b;margin-left:auto">Auto-saves to localStorage</span>
+      <span style="font-size:11px;color:#64748b;margin-left:auto">Auto-saves to LS</span>
     </div>
   </div>
   <div id="dashboard"></div>
 </div>
 
 <script>
+const LS = (() => {
+  /* Sandboxed previews (Teams/SharePoint/OneDrive) block localStorage entirely —
+     fall back to in-memory storage so the page still renders and works for the session. */
+  try { const t = '__lsprobe'; localStorage.setItem(t, '1'); localStorage.removeItem(t); return localStorage; }
+  catch (e) {
+    const m = new Map();
+    return { __mem: true,
+      getItem: k => m.has(k) ? m.get(k) : null,
+      setItem: (k, v) => { m.set(k, String(v)); },
+      removeItem: k => { m.delete(k); },
+      key: i => [...m.keys()][i] ?? null,
+      get length() { return m.size; } };
+  }
+})();
 /* =====================================================================
    Universal Process Tracker — generalized from Verizon-Process-Tracker
    Data model:
@@ -174,8 +188,8 @@ const PROJ_KEY = 'upt_projects_v1';
 let currentId = null;
 
 /* ---------------- storage ---------------- */
-function loadProjects(){ try{ return JSON.parse(localStorage.getItem(PROJ_KEY)) || []; }catch(e){ return []; } }
-function saveProjects(p){ localStorage.setItem(PROJ_KEY, JSON.stringify(p)); }
+function loadProjects(){ try{ return JSON.parse(LS.getItem(PROJ_KEY)) || []; }catch(e){ return []; } }
+function saveProjects(p){ LS.setItem(PROJ_KEY, JSON.stringify(p)); }
 function getProject(id){ return loadProjects().find(p => p.id === id); }
 function putProject(proj){
   const all = loadProjects();
@@ -184,8 +198,8 @@ function putProject(proj){
   saveProjects(all);
 }
 function stateKey(id){ return 'upt_state_' + id; }
-function loadState(id){ try{ return JSON.parse(localStorage.getItem(stateKey(id))) || {}; }catch(e){ return {}; } }
-function saveState(id, s){ localStorage.setItem(stateKey(id), JSON.stringify(s)); }
+function loadState(id){ try{ return JSON.parse(LS.getItem(stateKey(id))) || {}; }catch(e){ return {}; } }
+function saveState(id, s){ LS.setItem(stateKey(id), JSON.stringify(s)); }
 function uid(){ return 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 
 /* ---------------- sanitize (keep only harmless inline tags) ---------------- */
@@ -475,12 +489,12 @@ function finalizeImport(sections, title, filename, mode, text){
   // pre-checked markdown boxes
   const st = {};
   eachStep(proj, s => { if (s.preDone) { st[s.id] = {done:true}; delete s.preDone; } });
-  // migrate progress saved by the original tracker file itself (same-origin localStorage)
+  // migrate progress saved by the original tracker file itself (same-origin LS)
   if (mode.startsWith('tracker')) {
     const km = text.match(/LS_KEY\s*=\s*['"]([^'"]+)['"]/);
     if (km) {
       try {
-        const old = JSON.parse(localStorage.getItem(km[1]));
+        const old = JSON.parse(LS.getItem(km[1]));
         if (old && typeof old === 'object') {
           let hits = 0;
           eachStep(proj, s => { if (old[s.id]) { st[s.id] = Object.assign({}, old[s.id], st[s.id]); hits++; } });
@@ -605,12 +619,12 @@ function deleteProject(id){
   const p = getProject(id);
   if (!confirm('Delete "' + (p?.title||id) + '" and its progress? This cannot be undone.')) return;
   saveProjects(loadProjects().filter(x => x.id !== id));
-  localStorage.removeItem(stateKey(id));
+  LS.removeItem(stateKey(id));
   renderLibrary();
 }
 function showLibrary(){
   currentId = null;
-  localStorage.removeItem('upt_last_open');
+  LS.removeItem('upt_last_open');
   document.getElementById('screen-dash').classList.remove('active');
   document.getElementById('screen-library').classList.add('active');
   renderLibrary();
@@ -620,7 +634,7 @@ function showLibrary(){
 function openProject(id){
   const p = getProject(id); if (!p) return;
   currentId = id;
-  localStorage.setItem('upt_last_open', id);
+  LS.setItem('upt_last_open', id);
   document.getElementById('screen-library').classList.remove('active');
   document.getElementById('screen-dash').classList.add('active');
   document.getElementById('dashTitle').textContent = '📋 ' + p.title;
@@ -698,7 +712,7 @@ function expandAll(){ document.querySelectorAll('.section').forEach(s => s.class
 function collapseAll(){ document.querySelectorAll('.section').forEach(s => s.classList.add('collapsed')); }
 function resetAll(){
   if (!confirm('Clear ALL progress and notes for this process? This cannot be undone.')) return;
-  localStorage.removeItem(stateKey(currentId));
+  LS.removeItem(stateKey(currentId));
   renderDashboard();
 }
 function renameProject(){
@@ -796,17 +810,31 @@ function exportStandalone(){
   <button onclick="collapseAll()">Collapse All</button>
   <button onclick="resetAll()" class="danger">Reset All</button>
   <button onclick="exportProgress()">Export CSV</button>
-  <span style="font-size:11px;color:#64748b;display:flex;align-items:center;margin-left:auto">Auto-saves to localStorage</span>
+  <span style="font-size:11px;color:#64748b;display:flex;align-items:center;margin-left:auto">Auto-saves to LS</span>
 </div>
 </div>
 <div id="dashboard"></div>
 <script>
+const LS = (() => {
+  /* Sandboxed previews (Teams/SharePoint/OneDrive) block localStorage entirely —
+     fall back to in-memory storage so the page still renders and works for the session. */
+  try { const t = '__lsprobe'; localStorage.setItem(t, '1'); localStorage.removeItem(t); return localStorage; }
+  catch (e) {
+    const m = new Map();
+    return { __mem: true,
+      getItem: k => m.has(k) ? m.get(k) : null,
+      setItem: (k, v) => { m.set(k, String(v)); },
+      removeItem: k => { m.delete(k); },
+      key: i => [...m.keys()][i] ?? null,
+      get length() { return m.size; } };
+  }
+})();
 const LS_KEY = ${JSON.stringify(key)};
 const PRELOAD = ${pre};
 const SECTIONS = ${data};
-try{ if(PRELOAD && Object.keys(PRELOAD).length && !localStorage.getItem(LS_KEY)) localStorage.setItem(LS_KEY, JSON.stringify(PRELOAD)); }catch(e){}
-function loadState(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)) || {}; }catch(e){ return {}; } }
-function saveState(s){ localStorage.setItem(LS_KEY, JSON.stringify(s)); }
+try{ if(PRELOAD && Object.keys(PRELOAD).length && !LS.getItem(LS_KEY)) LS.setItem(LS_KEY, JSON.stringify(PRELOAD)); }catch(e){}
+function loadState(){ try{ return JSON.parse(LS.getItem(LS_KEY)) || {}; }catch(e){ return {}; } }
+function saveState(s){ LS.setItem(LS_KEY, JSON.stringify(s)); }
 function esc(x){ return String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function stepHtml(step, state){
   var d = state[step.id] || {};
@@ -865,7 +893,7 @@ function expandAll(){ document.querySelectorAll('.section').forEach(function(s){
 function collapseAll(){ document.querySelectorAll('.section').forEach(function(s){ s.classList.add('collapsed'); }); }
 function resetAll(){
   if (confirm('Clear ALL progress and notes? This cannot be undone.')) {
-    localStorage.removeItem(LS_KEY);
+    LS.removeItem(LS_KEY);
     render();
   }
 }
@@ -923,7 +951,7 @@ function importPaste(){
 
 /* ---------------- init ---------------- */
 (function init(){
-  const last = localStorage.getItem('upt_last_open');
+  const last = LS.getItem('upt_last_open');
   if (last && getProject(last)) openProject(last); else renderLibrary();
 })();
 </script>
