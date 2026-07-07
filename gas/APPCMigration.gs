@@ -59,8 +59,19 @@ function appcPomReadTab_(sheet) {
 }
 
 function appcPomMigrate_(dryRun) {
-  var hub = SpreadsheetApp.openById(APPC_HUB_ID_).getSheetByName(APPC_HUB_POM_TAB_);
-  if (!hub) throw new Error('Hub tab not found: ' + APPC_HUB_POM_TAB_);
+  // Emoji/variation-selector drift makes exact-name lookup unreliable — match fuzzily:
+  // a tab whose name contains "proof" + "mailing" and is NOT the (empty) "TMAR —" copy.
+  var hubSS = SpreadsheetApp.openById(APPC_HUB_ID_);
+  var hub = null;
+  hubSS.getSheets().forEach(function (s) {
+    var n = s.getName().toLowerCase();
+    if (n.indexOf('proof') !== -1 && n.indexOf('mailing') !== -1 && n.indexOf('tmar') === -1 && !hub) hub = s;
+  });
+  if (!hub) {
+    throw new Error('Hub Proof of Mailing tab not found. Tabs: ' +
+      hubSS.getSheets().map(function (s) { return s.getName(); }).join(' | '));
+  }
+  Logger.log('Hub tab matched: "%s"', hub.getName());
   var live = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(LIVE_POM_TAB_)
           || SpreadsheetApp.openById(TMAR_CONFIG.liveBookId).getSheetByName(LIVE_POM_TAB_);
   if (!live) throw new Error('Live tab not found: ' + LIVE_POM_TAB_);
