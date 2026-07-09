@@ -13606,6 +13606,9 @@ function exportFilingPDF(formType, data) {
           <option value="">— Select Trust —</option>
         </select>
         <button onclick="tosNewTrust()" class="px-4 py-2 rounded-lg text-sm font-bold text-white transition-all hover:opacity-90" style="background:#8b5cf6;">➕ New Trust</button>
+        <button onclick="tosExport()" title="Download a JSON backup of all Trust OS binder data" class="px-4 py-2 rounded-lg text-sm font-bold transition-all hover:opacity-90 border" style="background:transparent;border-color:#8b5cf6;color:#8b5cf6;">⬇️ Export</button>
+        <button onclick="document.getElementById('tosImportFile').click()" title="Restore Trust OS binder data from a JSON backup (merges by ID)" class="px-4 py-2 rounded-lg text-sm font-bold transition-all hover:opacity-90 border" style="background:transparent;border-color:#8b5cf6;color:#8b5cf6;">⬆️ Import</button>
+        <input type="file" id="tosImportFile" accept=".json" onchange="tosImport(event)" style="display:none;">
       </div>
     </div>
 
@@ -32003,6 +32006,8 @@ var GUIDE_FN = {
   tosGenForm56: 'Generate Form 56 (fiduciary relationship) for this trust.',
   tosMarkFormFiled: 'Mark this 1099 as filed.',
   tosNewTrust: 'Create a new trust record.',
+  tosExport: 'Download a JSON backup of all Trust OS binder data (trusts, banking, ledger, notices).',
+  tosImport: 'Restore Trust OS binder data from a JSON backup; merges by record ID without deleting existing records.',
   tosPrintF56: 'Print the generated Form 56.',
   tosSaveEIN: 'Save the EIN for this trust.',
   tosSaveTrust: 'Save the trust record.',
@@ -35394,6 +35399,66 @@ function ev2InitEntityVerifier() {
   window.tosSelectTrust = function(id) {
     _tosActiveTrustId = id || null;
     tosRenderAll();
+  };
+
+  // ─── Backup: Export / Import ─────────────────────────────────────────────────
+  // Trust OS lives in its own localStorage silo (TMAR_TOS_*), separate from appData
+  // and the Sync Center. Until it is wired into the join-key topology, JSON
+  // export/import is the only backup path against cache clears and origin drift.
+  var TOS_BACKUP_KEYS = [TOS_TRUSTS_KEY, TOS_ACCOUNTS_KEY, TOS_LEDGER_KEY, TOS_NOTICES_KEY];
+
+  window.tosExport = function() {
+    var payload = { _type: 'TMAR_TrustOS_Backup', _version: 1, exported: new Date().toISOString(), data: {} };
+    TOS_BACKUP_KEYS.forEach(function(k) { payload.data[k] = tosLoad(k); });
+    var counts = TOS_BACKUP_KEYS.map(function(k) { return (payload.data[k] || []).length; }).reduce(function(a, b) { return a + b; }, 0);
+    if (counts === 0 && !confirm('No Trust OS data found. Export an empty backup anyway?')) return;
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'TrustOS_Binder_' + new Date().toISOString().split('T')[0] + '.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
+  window.tosImport = function(event) {
+    var file = event && event.target && event.target.files && event.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var payload;
+      try { payload = JSON.parse(e.target.result); } catch (err) { alert('Import failed: file is not valid JSON.'); event.target.value = ''; return; }
+      if (!payload || payload._type !== 'TMAR_TrustOS_Backup' || !payload.data) {
+        alert('Import failed: not a Trust OS binder backup file.');
+        event.target.value = ''; return;
+      }
+      // Upsert by id: adds new records and updates matching ones; never deletes
+      // records that are absent from the file.
+      var summary = [];
+      TOS_BACKUP_KEYS.forEach(function(k) {
+        var incoming = payload.data[k];
+        if (!Array.isArray(incoming)) return;
+        var current = tosLoad(k);
+        var byId = {};
+        current.forEach(function(r) { if (r && r.id) byId[r.id] = r; });
+        var added = 0, updated = 0;
+        incoming.forEach(function(r) {
+          if (!r) return;
+          if (r.id && byId[r.id]) { Object.assign(byId[r.id], r); updated++; }
+          else { current.push(r); if (r.id) byId[r.id] = r; added++; }
+        });
+        tosSave(k, current);
+        if (added || updated) summary.push(k.replace('TMAR_TOS_', '') + ': +' + added + ' / ~' + updated);
+      });
+      event.target.value = '';
+      tosPopulateTrustSelector();
+      var trusts = tosLoad(TOS_TRUSTS_KEY);
+      if (!_tosActiveTrustId && trusts.length) _tosActiveTrustId = trusts[0].id;
+      var sel = document.getElementById('tosTrustSelector');
+      if (sel && _tosActiveTrustId) sel.value = _tosActiveTrustId;
+      tosRenderAll();
+      alert('Import complete.\n' + (summary.length ? summary.join('\n') + '\n\n(added / updated)' : 'No records applied.'));
+    };
+    reader.readAsText(file);
   };
 
   // ─── Tab Switching ───────────────────────────────────────────────────────────
