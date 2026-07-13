@@ -15236,8 +15236,9 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
       (entity ? '\n\nActive Entity: ' + entity : '');
 
     var rp = resolveProvider();
-    if (!rp) {
-      aiDiv.textContent = '⚠️ No API key configured. Go to Settings → API Keys and add your key.';
+    if (!rp || rp.error) {
+      aiDiv.textContent = '⚠️ ' + ((rp && rp.error) ||
+        'No API key configured. Go to Settings → API Keys and add your key.');
       return;
     }
 
@@ -15764,7 +15765,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
         <button onclick="pauseVoice()" id="vc-pause-btn" style="padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;border:1px solid rgba(245,158,11,.3);background:rgba(245,158,11,.1);color:#f59e0b;cursor:pointer">⏸️ Pause</button>
         <button onclick="stopVoiceTTS()" style="padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.1);color:#ef4444;cursor:pointer">⏹ Stop TTS</button>
         <button onclick="speakResponse()" style="padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;border:1px solid rgba(59,130,246,.3);background:rgba(59,130,246,.1);color:#3b82f6;cursor:pointer">🔊 Read Aloud</button>
-        <select id="vc-voice-select" style="padding:10px 12px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid rgba(245,158,11,.3);background:var(--bg-tertiary);color:var(--text-primary);cursor:pointer;min-width:150px;max-width:220px"><option value="0" data-voice-name="Microsoft David - English (United States)" data-voice-lang="en-US">Microsoft David - English (United States)</option><option value="1" data-voice-name="Microsoft Mark - English (United States)" data-voice-lang="en-US">Microsoft Mark - English (United States)</option><option value="2" data-voice-name="Microsoft Zira - English (United States)" data-voice-lang="en-US">Microsoft Zira - English (United States)</option><option value="3" data-voice-name="Google US English" data-voice-lang="en-US">Google US English [remote]</option><option value="4" data-voice-name="Google UK English Female" data-voice-lang="en-GB">Google UK English Female [remote]</option><option value="5" data-voice-name="Google UK English Male" data-voice-lang="en-GB">Google UK English Male [remote]</option></select>
+        <select id="vc-voice-select" onchange="tmarVoicePicked(this)" style="padding:10px 12px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid rgba(245,158,11,.3);background:var(--bg-tertiary);color:var(--text-primary);cursor:pointer;min-width:150px;max-width:220px"><option value="0" data-voice-name="Microsoft David - English (United States)" data-voice-lang="en-US">Microsoft David - English (United States)</option><option value="1" data-voice-name="Microsoft Mark - English (United States)" data-voice-lang="en-US">Microsoft Mark - English (United States)</option><option value="2" data-voice-name="Microsoft Zira - English (United States)" data-voice-lang="en-US">Microsoft Zira - English (United States)</option><option value="3" data-voice-name="Google US English" data-voice-lang="en-US">Google US English [remote]</option><option value="4" data-voice-name="Google UK English Female" data-voice-lang="en-GB">Google UK English Female [remote]</option><option value="5" data-voice-name="Google UK English Male" data-voice-lang="en-GB">Google UK English Male [remote]</option></select>
         <div style="display:flex;align-items:center;gap:6px;padding:4px 8px;border-radius:8px;border:1px solid rgba(245,158,11,.2);background:var(--bg-tertiary)">
           <span style="font-size:11px;color:var(--text-secondary);white-space:nowrap">Speed</span>
           <input type="range" id="vc-speed" min="0.5" max="2" step="0.1" value="1" oninput="document.getElementById('vc-speed-label').textContent=this.value+'x'" style="width:80px;accent-color:#f59e0b">
@@ -19835,6 +19836,9 @@ Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height
   function loadVoices() {
     var sel = document.getElementById('vc-voice-select');
     if (!sel) return;
+    // Neural engine on? List the Gemini voices instead of the OS ones — otherwise this
+    // picker shows system voices that speakWithHighlight() never actually uses.
+    if (typeof tmarFillNeuralVoices === 'function' && tmarFillNeuralVoices(sel)) return;
     var voices = speechSynthesis.getVoices();
     // Filter for English voices
     var englishVoices = voices.filter(function(v) {
@@ -41268,7 +41272,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <div class="card-head">🎤 Voice Control Center</div>
 <div class="card-body">
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-<div>
+<div style="min-width:0">
 <h4 style="margin-bottom:10px;color:var(--accent)">Speech-to-Text</h4>
 <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Click the mic to dictate. Works in Chrome/Edge.</p>
 <div style="text-align:center;padding:20px">
@@ -41282,10 +41286,10 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <button class="btn btn-sm btn-primary" onclick="document.getElementById('chatInput').value=document.getElementById('voiceOutput').value;goEonPage(null,'chat')">💬 To Chat</button>
 </div>
 </div>
-<div>
+<div style="min-width:0">
 <h4 style="margin-bottom:10px;color:var(--accent)">Text-to-Speech</h4>
 <textarea id="ttsInput" rows="4" placeholder="Enter text to speak..." style="width:100%;padding:10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;resize:vertical;font-family:inherit;margin-bottom:10px"></textarea>
-<div style="margin-bottom:8px"><label style="font-size:12px;color:var(--text2)">Voice:</label><select id="ttsVoiceSelect" style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;margin-top:4px"></select></div>
+<div style="margin-bottom:8px"><label style="font-size:12px;color:var(--text2)">Voice:</label><select id="ttsVoiceSelect" onchange="tmarVoicePicked(this)" data-guide="Neural (Gemini) voices when the neural engine is on in Settings → Voice &amp; TTS; otherwise your operating system's voices." style="width:100%;max-width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;margin-top:4px"></select></div>
 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
 <div><label style="font-size:11px;color:var(--text2)">Speed</label><input type="range" id="ttsRate" min="0.5" max="2" step="0.1" value="1" style="width:100%"></div>
 <div><label style="font-size:11px;color:var(--text2)">Pitch</label><input type="range" id="ttsPitch" min="0" max="2" step="0.1" value="1" style="width:100%"></div>
@@ -43946,6 +43950,15 @@ function importVaultBundle() {
   }
 })();
 
+// Per-provider OUTPUT token ceiling (max_tokens). Exceeding it is a hard error on most
+// OpenAI-compatible endpoints, so never send an Anthropic-sized value to them.
+var PROVIDER_MAX_OUTPUT = {
+  claude: 100000, anthropic: 100000,
+  deepseek: 8192, openai: 16384, xai: 8192, groq: 8192, cerebras: 8192,
+  zai: 8192, kimi: 8192, minimax: 8192, ernie: 4096, openrouter: 8192
+};
+function maxOutputTokens(pid) { return PROVIDER_MAX_OUTPUT[pid] || 4096; }
+
 // ── Provider Resolution ───────────────────────────────────────────────────
 function resolveProvider() {
   var pid = localStorage.getItem('eeon_active_provider') || 'claude';
@@ -43984,14 +43997,18 @@ function resolveProvider() {
     url = localStorage.getItem('eeon_custom_url') || '';
     model = localStorage.getItem('eeon_custom_model') || 'custom';
   }
+  // A provider you explicitly selected with no key is an error — NOT a reason to
+  // silently reroute to Anthropic. The old code did that, so a keyless DeepSeek
+  // selection quietly billed (and failed against) the Anthropic account instead.
   if (!key && pid !== 'ollama' && pid !== 'custom') {
-    key = localStorage.getItem('eeon_key_claude') || localStorage.getItem('_trustApiKey') || window._trustApiKey || '';
-    if (key) { p = PROVIDERS['claude']; pid = 'claude'; url = p.url; model = p.model; }
-    else return null;
+    return { error: 'No API key saved for ' + p.name + '. Go to Settings → API Keys and enter your ' +
+                    p.name + ' key, or pick a different provider.' };
   }
-  // Guard: if key is an Anthropic key but provider is not Anthropic, force claude
-  if (key && key.startsWith('sk-ant-') && p.auth !== 'anthropic') {
-    p = PROVIDERS['claude']; pid = 'claude'; url = p.url; model = p.model;
+  // Guard: an Anthropic key cannot authenticate a non-Anthropic endpoint. Say so rather
+  // than silently switching the provider out from under the user.
+  if (key && key.indexOf('sk-ant-') === 0 && p.auth !== 'anthropic') {
+    return { error: 'The key saved for ' + p.name + ' is an Anthropic key (sk-ant-…). ' +
+                    'Enter a real ' + p.name + ' key in Settings → API Keys, or switch the provider back to Claude.' };
   }
   return { pid: pid, provider: p, key: key, url: url, model: model };
 }
@@ -44242,8 +44259,9 @@ function buildFullSystemPrompt(agentSystemPrompt, _mem0Memories) {
 // ═══════════════════════════════════════════════════════════════════════════
 async function callLLMStream(agentSystemPrompt, userMessage, mem0Memories, onToken, conversationHistory) {
   var r = resolveProvider();
-  if (!r) {
-    var e1 = '[ERROR] No API key configured. Go to Settings → API Keys and configure a provider.';
+  if (!r || r.error) {
+    var e1 = '[ERROR] ' + ((r && r.error) ||
+      'No API key configured. Go to Settings → API Keys and configure a provider.');
     if (onToken) onToken(e1); return e1;
   }
   var systemPrompt = buildFullSystemPrompt(agentSystemPrompt, mem0Memories);
@@ -44338,7 +44356,7 @@ async function callLLMStream(agentSystemPrompt, userMessage, mem0Memories, onTok
       var anthropicMsgs = (conversationHistory && conversationHistory.length > 0)
         ? conversationHistory
         : [{ role: 'user', content: userMessage }];
-      var body = JSON.stringify({ model: model, max_tokens: 100000, stream: true, system: systemPrompt, messages: anthropicMsgs });
+      var body = JSON.stringify({ model: model, max_tokens: maxOutputTokens(pid), stream: true, system: systemPrompt, messages: anthropicMsgs });
     } else if (p.auth === 'ernie') {
       url = url + '?access_token=' + key;
       var ernieMsgText = Array.isArray(userMessage) ? userMessage.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('\n') : userMessage;
@@ -44349,13 +44367,30 @@ async function callLLMStream(agentSystemPrompt, userMessage, mem0Memories, onTok
       var bearerMsgs = (conversationHistory && conversationHistory.length > 0)
         ? [{ role: 'system', content: systemPrompt }].concat(conversationHistory.map(function(m) { return { role: m.role, content: typeof m.content === 'string' ? m.content : bearerMsgText }; }))
         : [{ role: 'system', content: systemPrompt }, { role: 'user', content: bearerMsgText }];
-      var body = JSON.stringify({ model: model, max_tokens: 100000, stream: true, messages: bearerMsgs });
+      // max_tokens is the OUTPUT cap and every provider has its own ceiling. This used to
+      // hardcode 100000 (an Anthropic-sized number) for all of them, which DeepSeek and the
+      // other OpenAI-compatible endpoints reject or choke on.
+      var body = JSON.stringify({ model: model, max_tokens: maxOutputTokens(pid), stream: true, messages: bearerMsgs });
     }
 
+    // Two separate guards. The connect timer covers "the server never answered"; it is
+    // cleared once headers arrive. A second, sliding timer then covers the stream itself —
+    // previously clearTimeout() killed the only timer at header time, so a stream that
+    // stalled mid-answer hung forever with nothing to abort it.
     var ctrl = new AbortController();
-    var tid = setTimeout(function() { ctrl.abort(); }, 900000);
+    var CONNECT_MS = 90000, STALL_MS = 120000;
+    var timedOutOn = '';
+    var tid = setTimeout(function() { timedOutOn = 'connect'; ctrl.abort(); }, CONNECT_MS);
     var resp = await fetch(url, { method: 'POST', headers: headers, body: body, signal: ctrl.signal });
     clearTimeout(tid);
+
+    var stallTid = null;
+    function armStall() {
+      if (stallTid) clearTimeout(stallTid);
+      stallTid = setTimeout(function() { timedOutOn = 'stall'; ctrl.abort(); }, STALL_MS);
+    }
+    function disarmStall() { if (stallTid) { clearTimeout(stallTid); stallTid = null; } }
+
     if (!resp.ok) {
       var ej = ''; try { var jj = await resp.json(); ej = (jj.error && jj.error.message) || JSON.stringify(jj).substring(0, 300); } catch(ex) { ej = 'HTTP ' + resp.status; }
       var em = '[ERROR — ' + p.name + '] HTTP ' + resp.status + ': ' + ej;
@@ -44370,8 +44405,11 @@ async function callLLMStream(agentSystemPrompt, userMessage, mem0Memories, onTok
     }
     // SSE streaming (Anthropic + bearer providers)
     var reader = resp.body.getReader(), decoder = new TextDecoder(), accumulated = '', buffer = '';
+    armStall();
     while (true) {
-      var chunk = await reader.read(); if (chunk.done) break;
+      var chunk = await reader.read();
+      if (chunk.done) { disarmStall(); break; }
+      armStall();                       // each chunk resets the stall clock
       buffer += decoder.decode(chunk.value, { stream: true });
       var lines = buffer.split('\n'); buffer = lines.pop() || '';
       for (var i = 0; i < lines.length; i++) {
@@ -44386,9 +44424,18 @@ async function callLLMStream(agentSystemPrompt, userMessage, mem0Memories, onTok
         }
       }
     }
+    disarmStall();
     return HARD_LOCK.processOutput(accumulated);
   } catch(e) {
-    var em = '[ERROR] ' + (e.name === 'AbortError' ? 'Request timed out (15 min). Try a shorter message.' : e.message);
+    if (typeof disarmStall === 'function') disarmStall();
+    var em;
+    if (e.name === 'AbortError') {
+      em = (timedOutOn === 'stall')
+        ? '[ERROR] The provider opened the stream then stopped sending tokens (no data for 2 min). Aborted.'
+        : '[ERROR] No response from the provider after 90s — the request never connected. Check the endpoint and your network.';
+    } else {
+      em = '[ERROR] ' + e.message;
+    }
     if (onToken) onToken(em); return em;
   }
 }
@@ -45782,6 +45829,27 @@ var GEMINI_TTS = (function () {
     return out;
   }
 
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+  // Google returns a JSON body on errors: { error: { message, status, details:[{retryDelay}] } }.
+  // Surfacing it is the difference between "HTTP 429" and "you hit the per-day TTS quota".
+  async function readErr(r, model) {
+    var msg = '', retryMs = 0;
+    try {
+      var d = await r.json();
+      var e = d && d.error;
+      if (e) {
+        msg = e.message || '';
+        (e.details || []).forEach(function (det) {
+          var rd = det && det.retryDelay;                 // e.g. "27s"
+          if (rd) retryMs = Math.round(parseFloat(rd) * 1000) || 0;
+        });
+      }
+    } catch (_) {}
+    return { status: r.status, model: model, message: msg, retryMs: retryMs,
+             text: 'HTTP ' + r.status + (msg ? ' — ' + msg : '') + ' (' + model + ')' };
+  }
+
   async function fetchAudio(text) {
     var key = getKey();
     var body = JSON.stringify({
@@ -45798,7 +45866,26 @@ var GEMINI_TTS = (function () {
                 ':generateContent?key=' + encodeURIComponent(key);
       try {
         var r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body });
-        if (!r.ok) { lastErr = 'HTTP ' + r.status + ' (' + models[i] + ')'; continue; }
+        if (!r.ok) {
+          var err = await readErr(r, models[i]);
+          lastErr = err.text;
+          if (r.status === 429) {
+            // Rate limit / quota. Trying the other model just spends more quota, so retry
+            // this one once after the delay Google asks for — but only if it's short enough
+            // to be a per-minute limit. A long (or absent) delay means the daily cap is gone.
+            if (err.retryMs > 0 && err.retryMs <= 60000) {
+              setStatus('Rate limited — retrying in ' + Math.ceil(err.retryMs / 1000) + 's…', false);
+              await sleep(err.retryMs + 500);
+              if (stopped) throw new Error('stopped');
+              r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body });
+              if (!r.ok) { lastErr = (await readErr(r, models[i])).text; throw new Error(lastErr); }
+            } else {
+              throw new Error(lastErr);   // quota exhausted — don't burn the other model too
+            }
+          } else {
+            continue;                     // other errors: the model fallback chain is still worth trying
+          }
+        }
         var d = await r.json();
         var part = d && d.candidates && d.candidates[0] && d.candidates[0].content &&
                    d.candidates[0].content.parts && d.candidates[0].content.parts[0];
@@ -45849,12 +45936,15 @@ var GEMINI_TTS = (function () {
     try {
       for (var i = 0; i < queue.length; i++) {
         if (stopped) break;
+        if (i > 0) await sleep(1200);   // pace requests; back-to-back chunks trip the per-minute quota
         var blob = await fetchAudio(queue[i]);
         if (stopped) break;
+        if (queue.length > 1) setStatus('🔊 Speaking ' + (i + 1) + '/' + queue.length + '…', true);
         await playBlob(blob, opts);
       }
       setStatus('', true);
     } catch (e) {
+      if (stopped || e.message === 'stopped') { setStatus('', true); return; }
       setStatus('Gemini TTS error: ' + e.message + ' — using system voice', false);
       console.warn('[GEMINI_TTS]', e);
       systemFallback(plain, opts);
@@ -45871,10 +45961,57 @@ var GEMINI_TTS = (function () {
 })();
 
 // ── Gemini TTS settings-panel glue ──
-function gttsSaveEngine(v) { try { localStorage.setItem('tmar_tts_engine', v); } catch (e) {} GEMINI_TTS.setStatus(v === 'gemini' ? 'Neural engine on' : 'System voice', true); }
+function gttsSaveEngine(v) { try { localStorage.setItem('tmar_tts_engine', v); } catch (e) {} GEMINI_TTS.setStatus(v === 'gemini' ? 'Neural engine on' : 'System voice', true); if (typeof tmarSyncVoicePickers === 'function') tmarSyncVoicePickers(); }
 function gttsSaveVoice(v) { try { localStorage.setItem('tmar_gemini_tts_voice', v); } catch (e) {} }
 function gttsSaveModel(v) { try { localStorage.setItem('tmar_gemini_tts_model', v); } catch (e) {} }
 function gttsSaveKey(v) { try { localStorage.setItem('eeon_key_gemini', (v || '').trim()); } catch (e) {} GEMINI_TTS.setStatus((v || '').trim() ? 'Key saved' : 'Key cleared', !!(v || '').trim()); }
+
+// ── Voice pickers (Voice Control Center + Voice & Chat) ──
+// Fill a <select> with the 30 Gemini voices. Returns false when the neural engine is
+// off or unkeyed so the caller falls back to listing OS voices.
+function tmarFillNeuralVoices(sel) {
+  if (!sel || typeof GEMINI_TTS === 'undefined') return false;
+  if (!GEMINI_TTS.enabled() || !GEMINI_TTS.hasKey()) return false;
+  var cur = GEMINI_TTS.getVoice();
+  sel.innerHTML = '';
+  GEMINI_TTS.VOICES.forEach(function (pair) {
+    var o = document.createElement('option');
+    o.value = pair[0];
+    o.textContent = pair[0] + ' — ' + pair[1];
+    if (pair[0] === cur) o.selected = true;
+    sel.appendChild(o);
+  });
+  sel._voices = null;
+  sel.dataset.ttsMode = 'gemini';
+  return true;
+}
+
+// Selecting a neural voice persists it globally (same key the Settings panel writes).
+function tmarVoicePicked(sel) {
+  if (sel && sel.dataset && sel.dataset.ttsMode === 'gemini') gttsSaveVoice(sel.value);
+}
+
+// The Voice Control Center's picker was never populated by anything — an empty <select>,
+// which is why it rendered as a sliver with no options.
+function tmarSyncVoicePickers() {
+  var sel = document.getElementById('ttsVoiceSelect');
+  if (sel && !tmarFillNeuralVoices(sel)) {
+    var voices = (typeof speechSynthesis !== 'undefined') ? speechSynthesis.getVoices() : [];
+    var eng = voices.filter(function (v) { return v.lang && v.lang.toLowerCase().indexOf('en') === 0; });
+    if (!eng.length) eng = voices;
+    sel.dataset.ttsMode = 'system';
+    sel.innerHTML = eng.length
+      ? eng.map(function (v, i) { return '<option value="' + i + '">' + v.name + '</option>'; }).join('')
+      : '<option value="">No voices available</option>';
+  }
+  if (typeof loadVoices === 'function') { try { loadVoices(); } catch (e) {} }
+}
+
+if (typeof speechSynthesis !== 'undefined') {
+  speechSynthesis.addEventListener('voiceschanged', tmarSyncVoicePickers);
+}
+document.addEventListener('DOMContentLoaded', tmarSyncVoicePickers);
+tmarSyncVoicePickers();
 function gttsTest() {
   var saved = (function(){ try { return localStorage.getItem('tmar_tts_engine'); } catch(e){ return null; } })();
   try { localStorage.setItem('tmar_tts_engine', 'gemini'); } catch (e) {}
@@ -47434,8 +47571,30 @@ function setFirm(firmId) {
 }
 
 function eonChatProviderChange(provider) {
-  localStorage.setItem('eon_chat_provider', provider);
+  // Same bug as settingsSetProvider had: this wrote only the dead 'eon_chat_provider' key.
+  settingsSetProvider(provider);
 }
+
+// Every provider selector in the app must show what resolveProvider() will actually use.
+// The chat page's <select> had no initializer, so it reset to its first option ("Claude")
+// on every load — and eonChatSend() writes that value straight into eeon_active_provider,
+// silently stomping the provider chosen in Settings.
+function tmarSyncProviderUI() {
+  var pid = 'claude';
+  try { pid = localStorage.getItem('eeon_active_provider') || 'claude'; } catch (e) {}
+  var chatProv = document.getElementById('chatProvider');
+  if (chatProv) chatProv.value = pid;
+  var active = document.getElementById('setActiveProvider');
+  if (active) active.value = pid;
+  var btns = document.querySelectorAll('.llm-prov-btn');
+  for (var i = 0; i < btns.length; i++) {
+    var on = btns[i].getAttribute('data-prov') === pid;
+    btns[i].style.borderColor = on ? 'var(--accent,#06b6d4)' : 'rgba(255,255,255,.15)';
+    btns[i].style.background  = on ? 'rgba(6,182,212,.15)' : 'transparent';
+    btns[i].style.color       = on ? 'var(--accent,#06b6d4)' : 'var(--text-secondary)';
+  }
+}
+document.addEventListener('DOMContentLoaded', tmarSyncProviderUI);
 
 // ── Settings functions ───────────────────────────────────────────
 function showSettingsPanel(panel) {
@@ -47480,9 +47639,25 @@ function settingsLoadKeys() {
 }
 
 function settingsSetProvider(provider) {
-  localStorage.setItem('eon_chat_provider', provider);
+  // resolveProvider() reads 'eeon_active_provider'. This used to write only
+  // 'eon_chat_provider' (one 'e', read by nothing), so picking a provider here
+  // changed the button highlight and nothing else — every call still went to Anthropic.
+  try {
+    localStorage.setItem('eeon_active_provider', provider);
+    localStorage.setItem('eon_chat_provider', provider);   // legacy key, kept in sync
+  } catch (e) {}
   var chatProv = document.getElementById('chatProvider');
   if (chatProv) chatProv.value = provider;
+  var active = document.getElementById('setActiveProvider');
+  if (active) active.value = provider;
+  // Reflect the selection in the Settings button row.
+  var btns = document.querySelectorAll('.llm-prov-btn');
+  for (var i = 0; i < btns.length; i++) {
+    var on = btns[i].getAttribute('data-prov') === provider;
+    btns[i].style.borderColor = on ? 'var(--accent,#06b6d4)' : 'rgba(255,255,255,.15)';
+    btns[i].style.background  = on ? 'rgba(6,182,212,.15)' : 'transparent';
+    btns[i].style.color       = on ? 'var(--accent,#06b6d4)' : 'var(--text-secondary)';
+  }
 }
 
 function settingsTestGateway() {
@@ -48899,10 +49074,20 @@ const AP = {
       if (msgs[i].role === 'assistant') { last = msgs[i].content; break; }
     }
     if (!last) { alert('No agent response to read aloud.'); return; }
+    this._say(last);
+  },
+
+  // Single speak path for every agent panel. Neural (Gemini) when enabled + keyed,
+  // otherwise the system voice. Previously these called speechSynthesis directly,
+  // which is why agent replies always came out robotic.
+  _say: function(text) {
+    if (typeof GEMINI_TTS !== 'undefined' && GEMINI_TTS.enabled() && GEMINI_TTS.hasKey()) {
+      GEMINI_TTS.speak(text, { rate: 1, volume: 1 });
+      return;
+    }
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      var u = new SpeechSynthesisUtterance(last);
-      window.speechSynthesis.speak(u);
+      window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
     } else {
       alert('Text-to-speech not supported in this browser.');
     }
@@ -48994,11 +49179,7 @@ const AP = {
         document.body.removeChild(ta);
       }
     } else if (action === 'speak') {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        var u = new SpeechSynthesisUtterance(m.content);
-        window.speechSynthesis.speak(u);
-      }
+      this._say(m.content);
     } else if (action === 'regen') {
       if (m.role === 'user') {
         var inp = document.getElementById('ap_in_' + page);
