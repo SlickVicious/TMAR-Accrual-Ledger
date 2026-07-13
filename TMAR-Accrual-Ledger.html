@@ -6536,6 +6536,24 @@
     };
     
     // Load data from localStorage or use defaults
+    // Retired Apps Script deployments, matched by deployment-ID prefix (never store the full
+    // dead URL — the block-secrets hook rejects it). A saved settings value overrides the
+    // default forever, so a machine that once stored one of these keeps calling it after every
+    // redeploy — and retired deployments are pinned to old code (the @3 one still opens the
+    // Wimberly workbook deleted 2026-06-27). Rewrite them to the current default on load.
+    const DEAD_GAS_DEPLOYMENT_PREFIXES = ['AKfycbwdLljh2'];   // @3, pre-consolidation
+    function migrateGasWebAppUrl(settings) {
+      if (!settings || !settings.gasWebAppUrl) return settings;
+      var stale = DEAD_GAS_DEPLOYMENT_PREFIXES.some(function(id) {
+        return settings.gasWebAppUrl.indexOf(id) !== -1;
+      });
+      if (stale) {
+        console.warn('[TMAR] Retired GAS deployment found in saved settings — repointing to the current Web App URL.');
+        settings.gasWebAppUrl = defaultAppData.settings.gasWebAppUrl;
+      }
+      return settings;
+    }
+
     function loadFromStorage() {
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
@@ -6543,7 +6561,9 @@
           const parsed = JSON.parse(saved);
           console.log('✅ Data loaded from localStorage');
           showAutoSaveStatus('Data loaded from browser storage');
-          return { ...defaultAppData, ...parsed };
+          const merged = { ...defaultAppData, ...parsed };
+          merged.settings = migrateGasWebAppUrl({ ...defaultAppData.settings, ...(parsed.settings || {}) });
+          return merged;
         }
       } catch (e) {
         console.error('Error loading from localStorage:', e);
