@@ -43714,7 +43714,7 @@ if (HARD_LOCK.enforced !== true) throw new Error('HARD LOCK INTEGRITY VIOLATION'
 // ── Token Budget Guard ────────────────────────────────────────────────────
 var PROVIDER_LIMITS = {
   ollama:9999999, anthropic:200000, claude:200000, openai:128000, openrouter:200000,
-  deepseek:64000, groq:32768, mistral:32000, zai:128000, kimi:128000,
+  deepseek:1000000, groq:32768, mistral:32000, zai:128000, kimi:128000,
   minimax:128000, ernie:8000, xai:131072, cerebras:8192, custom:128000
 };
 function estimateTokens(text) {
@@ -43954,7 +43954,11 @@ function importVaultBundle() {
 // OpenAI-compatible endpoints, so never send an Anthropic-sized value to them.
 var PROVIDER_MAX_OUTPUT = {
   claude: 100000, anthropic: 100000,
-  deepseek: 8192, openai: 16384, xai: 8192, groq: 8192, cerebras: 8192,
+  // DeepSeek v4 allows up to 384000 output tokens. 64K is a deliberate safety rail, not a
+  // provider limit — max_tokens only caps a response, it doesn't reserve or bill anything,
+  // so raise this freely if an agent needs to emit a longer document.
+  deepseek: 65536,
+  openai: 16384, xai: 8192, groq: 8192, cerebras: 8192,
   zai: 8192, kimi: 8192, minimax: 8192, ernie: 4096, openrouter: 8192
 };
 function maxOutputTokens(pid) { return PROVIDER_MAX_OUTPUT[pid] || 4096; }
@@ -43966,7 +43970,9 @@ function resolveProvider() {
     openai:    { name:'OpenAI',    auth:'bearer',    url:'https://api.openai.com/v1/chat/completions',                                                    model:'gpt-4.1-mini' },
     anthropic: { name:'Anthropic', auth:'anthropic', url:'https://api.anthropic.com/v1/messages',                                                         model:'claude-sonnet-4-6' },
     claude:    { name:'Anthropic', auth:'anthropic', url:'https://api.anthropic.com/v1/messages',                                                         model:'claude-sonnet-4-6' },
-    deepseek:  { name:'DeepSeek',  auth:'bearer',    url:'https://api.deepseek.com/chat/completions',                                                     model:'deepseek-chat' },
+    // 'deepseek-chat'/'deepseek-reasoner' are aliases DeepSeek deprecates 2026-07-24.
+    // deepseek-v4-flash = the non-thinking mode they used to point at; 1M context, 384K max output.
+    deepseek:  { name:'DeepSeek',  auth:'bearer',    url:'https://api.deepseek.com/chat/completions',                                                     model:'deepseek-v4-flash' },
     zai:       { name:'Z.AI',      auth:'bearer',    url:'https://api.z.ai/v1/chat/completions',                                                          model:'z1-preview' },
     kimi:      { name:'Kimi',      auth:'bearer',    url:'https://api.moonshot.cn/v1/chat/completions',                                                   model:'moonshot-v1-8k' },
     minimax:   { name:'MiniMax',   auth:'bearer',    url:'https://api.minimax.chat/v1/text/chatcompletion_v2',                                            model:'MiniMax-Text-01' },
@@ -44718,7 +44724,7 @@ async function testConnection() {
         'Authorization': 'Bearer ' + apiKey
       };
       testBody = {
-        model: 'deepseek-chat',
+        model: 'deepseek-v4-flash',
         max_tokens: 10,
         messages: [{ role: 'user', content: 'test' }]
       };
