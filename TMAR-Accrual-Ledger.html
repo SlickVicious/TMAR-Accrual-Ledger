@@ -43971,8 +43971,8 @@ function resolveProvider() {
     anthropic: { name:'Anthropic', auth:'anthropic', url:'https://api.anthropic.com/v1/messages',                                                         model:'claude-sonnet-4-6' },
     claude:    { name:'Anthropic', auth:'anthropic', url:'https://api.anthropic.com/v1/messages',                                                         model:'claude-sonnet-4-6' },
     // 'deepseek-chat'/'deepseek-reasoner' are aliases DeepSeek deprecates 2026-07-24.
-    // deepseek-v4-flash = the non-thinking mode they used to point at; 1M context, 384K max output.
-    deepseek:  { name:'DeepSeek',  auth:'bearer',    url:'https://api.deepseek.com/chat/completions',                                                     model:'deepseek-v4-flash' },
+    // deepseek-v4-pro = top-tier v4 model; 1M context, 384K max output.
+    deepseek:  { name:'DeepSeek',  auth:'bearer',    url:'https://api.deepseek.com/chat/completions',                                                     model:'deepseek-v4-pro' },
     zai:       { name:'Z.AI',      auth:'bearer',    url:'https://api.z.ai/v1/chat/completions',                                                          model:'z1-preview' },
     kimi:      { name:'Kimi',      auth:'bearer',    url:'https://api.moonshot.cn/v1/chat/completions',                                                   model:'moonshot-v1-8k' },
     minimax:   { name:'MiniMax',   auth:'bearer',    url:'https://api.minimax.chat/v1/text/chatcompletion_v2',                                            model:'MiniMax-Text-01' },
@@ -44724,7 +44724,7 @@ async function testConnection() {
         'Authorization': 'Bearer ' + apiKey
       };
       testBody = {
-        model: 'deepseek-v4-flash',
+        model: 'deepseek-v4-pro',
         max_tokens: 10,
         messages: [{ role: 'user', content: 'test' }]
       };
