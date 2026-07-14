@@ -465,8 +465,10 @@ var TMAR_SPREADSHEET_ID_ = TMAR_CONFIG.liveBookId;
 /** Wimberly Unified Master Register — workbook tabs to pull into TMAR */
 var WORKBOOK_ID_ = TMAR_CONFIG.sourceBookId;
 // Tabs the DFC "Sheets Data" view pulls — selected by NAME (GID-drift-proof; survives tab moves/merges).
-// Empty → defaults to the form-data tabs in FORM_PULL_CONFIG_. Override per-request with ?tabs=Name1,Name2.
-var WORKBOOK_TARGET_TABS_ = [];
+// Empty → defaults to the form-data tabs in FORM_PULL_CONFIG_, which is a tax-form config, not a
+// curated view (that fallback is why the panel used to show an arbitrary Schedule A / 1040 / W-2
+// slice). Override per-request with ?tabs=Name1,Name2.
+var WORKBOOK_TARGET_TABS_ = ['Acct Ledger', 'Proof of Mailing', '1099 Filing Chain'];
 
 /**
  * Table-driven config for Artifactory pull endpoints (GSheet → Artifactory).
@@ -904,12 +906,25 @@ function doGet(e) {
             sheetData[sheet.getName()] = { gid: gid, headers: [], rows: [] };
             return;
           }
-          var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0].map(function(h) {
+          // Several tabs open with a merged title banner ("CERTIFIED MAIL & PROOF OF MAILING
+          // LOG") whose row 1 holds a single cell. Taking row 1 as the header row collapsed
+          // those sheets to one junk column and made every data cell unreachable. Scan the
+          // first few rows and use the first one that looks like a real header (>=2 labels).
+          var scan = Math.min(5, lastRow);
+          var probe = sheet.getRange(1, 1, scan, lastCol).getValues();
+          var headerRow = 1;
+          for (var hr = 0; hr < scan; hr++) {
+            var filled = probe[hr].filter(function(c) {
+              return c !== null && c !== undefined && String(c).trim() !== '';
+            }).length;
+            if (filled >= 2) { headerRow = hr + 1; break; }
+          }
+          var headers = probe[headerRow - 1].map(function(h) {
             return (h !== null && h !== undefined) ? String(h).trim() : '';
           });
           var rows = [];
-          if (lastRow > 1) {
-            sheet.getRange(2, 1, lastRow - 1, lastCol).getValues().forEach(function(row) {
+          if (lastRow > headerRow) {
+            sheet.getRange(headerRow + 1, 1, lastRow - headerRow, lastCol).getValues().forEach(function(row) {
               var hasData = row.some(function(c) { return c !== '' && c !== null && c !== undefined; });
               if (!hasData) return;
               var obj = {};
@@ -921,7 +936,7 @@ function doGet(e) {
               rows.push(obj);
             });
           }
-          sheetData[sheet.getName()] = { gid: gid, headers: headers, rows: rows };
+          sheetData[sheet.getName()] = { gid: gid, headerRow: headerRow, headers: headers, rows: rows };
         });
         return jsonResponse_({ status: 'ok', action: 'pullWorkbookSheets', sheets: sheetData, timestamp: new Date().toISOString() });
       }
