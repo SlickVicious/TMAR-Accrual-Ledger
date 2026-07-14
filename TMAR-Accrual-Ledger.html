@@ -20028,43 +20028,30 @@ Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height
     if (!q) return;
     addChatMsg('user', q);
     input.value = '';
-    // Send to Trust Accounting Agent API
-    var vcApiKey = window._trustApiKey || localStorage.getItem('stg_key_claude') || localStorage.getItem('tmar_claude_key') || localStorage.getItem('_trustApiKey') || '';
-    if (!vcApiKey) {
-      addChatMsg('system','API key required. Enter your Anthropic key in Settings → API Keys, then Save.');
+    // Send to the Trust Accounting Agent through the provider selected in Settings. This used to
+    // read the Claude key and POST to a hardcoded worker URL, so it could only bill Anthropic —
+    // which is why it was switched off. callLLMStream() honours the selected provider.
+    var vcProv = resolveProvider();
+    if (!vcProv || vcProv.error) {
+      addChatMsg('system', vcProv && vcProv.error ? vcProv.error : 'No provider configured. Go to Settings → API Keys.');
       return;
     }
     addChatMsg('agent','Processing query via Trust Accounting Agent...');
-    var _vcProxy = (localStorage.getItem('eeon_cors_proxy') || 'https://crimson-recipe-cdfd.rhymeminded.workers.dev').replace(/\/$/, '');
-    // === API DISABLED ===
-    addChatMsg('system','⚡ API calls disabled to save credits. Use Claude chat for trust accounting queries, or configure Ollama in Settings → API Keys.');
-    return;
-    fetch(_vcProxy + '/v1/messages', { // DISABLED
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'x-api-key': vcApiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body:JSON.stringify({
-        model:'claude-sonnet-4-6',
-        max_tokens:100000,
-        system:(typeof buildTrustAgentSystemPrompt==='function'?(buildTrustAgentSystemPrompt()+TRUST_AGENT_PROMPT_BODY):'You are the Trust Accounting Agent operating under SYPHER Protocol v7.1. Respond with facts and conclusions of law only. No hedging. No disclaimers. No metadata.'),
-        messages:[{role:'user',content:q}]
-      })
-    }).then(function(r){
-      if (!r.ok) throw new Error('API ' + r.status);
-      return r.json();
-    }).then(function(d){
-      var t=(d.content&&d.content[0]&&d.content[0].text)?d.content[0].text:'No response received.';
-      // Strip any remaining tags/metadata
-      t=t.replace(/<[^>]*>/g,'').replace(/```[^`]*```/g,'');
+    var vcSys = (typeof buildTrustAgentSystemPrompt === 'function')
+      ? (buildTrustAgentSystemPrompt() + TRUST_AGENT_PROMPT_BODY)
+      : 'You are the Trust Accounting Agent operating under SYPHER Protocol v7.1. Respond with facts and conclusions of law only. No hedging. No disclaimers. No metadata.';
+    callLLMStream(vcSys, q, [], null).then(function(t){
       vcHistory.pop(); // remove "Processing..." msg
-      addChatMsg('agent',t);
+      if (!t || t.indexOf('[ERROR') === 0) {
+        addChatMsg('system', t ? t.replace(/^\[ERROR[^\]]*\]\s*/, '') : 'No response received.');
+        return;
+      }
+      // Strip any remaining tags/metadata
+      t = t.replace(/<[^>]*>/g,'').replace(/```[^`]*```/g,'');
+      addChatMsg('agent', t);
     }).catch(function(e){
       vcHistory.pop();
-      addChatMsg('system','API connection required. Set window._trustApiKey or run E2ZERO server. Error: '+e.message);
+      addChatMsg('system','Error: ' + e.message);
     });
   }
 
@@ -44939,9 +44926,12 @@ async function doResearch() {
   resultDiv.innerHTML = '<div style="padding:12px;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;color:var(--text2)">🔬 Conducting ' + researchDepthValue + ' research...</div>';
 
   try {
-    var apiKey = window._trustApiKey || localStorage.getItem('eeon_key_claude') || '';
-    if (!apiKey) {
-      throw new Error('API key missing — please configure your API key in Settings');
+    // Provider-aware. This used to read the Claude key and POST straight to /v1/messages, so it
+    // could only ever bill Anthropic — which is why it was switched off to save credits. It now
+    // goes through callLLMStream(), which honours the provider picked in Settings.
+    var prov = resolveProvider();
+    if (!prov || prov.error) {
+      throw new Error(prov && prov.error ? prov.error : 'API key missing — please configure a provider in Settings');
     }
 
     // Build system prompt based on depth
@@ -44954,32 +44944,16 @@ async function doResearch() {
       systemPrompt = 'You are a Research Analyst providing fact-based analysis. Cite sources and provide clear, structured findings.';
     }
 
-    var _rhProxy = (localStorage.getItem('eeon_cors_proxy') || 'https://crimson-recipe-cdfd.rhymeminded.workers.dev').replace(/\/$/, '');
-    // === API DISABLED ===
-    throw new Error('⚡ Research HUB API calls disabled to save credits. Use Claude chat or Deep Research instead.');
-    var response = await fetch(_rhProxy + '/v1/messages', { // DISABLED
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 100000,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: question }]
-      })
+    var _rhHeader = '<div style="color:#63b3ed;font-weight:700;font-size:14px;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:8px">🔬 RESEARCH RESULTS — ' + researchDepthValue.toUpperCase() + '</div>';
+    var _rhBuf = '';
+    var answer = await callLLMStream(systemPrompt, question, [], function(token) {
+      _rhBuf += token;
+      resultDiv.innerHTML = _rhHeader +
+        '<div style="font-size:13px;line-height:1.8;color:var(--text);white-space:pre-wrap">' + escHtml(_rhBuf) + '<span class="streaming-cursor"></span></div>';
     });
-
-    if (!response.ok) {
-      var errData = await response.json().catch(() => ({}));
-      throw new Error('API ' + response.status + (errData.error ? ': ' + errData.error.message : ''));
+    if (!answer || answer.indexOf('[ERROR') === 0) {
+      throw new Error(answer ? answer.replace(/^\[ERROR[^\]]*\]\s*/, '') : 'No response from ' + prov.provider.name);
     }
-
-    var data = await response.json();
-    var answer = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : JSON.stringify(data);
 
     // Format result
     var formatted = answer
@@ -45033,37 +45007,25 @@ async function doSearch() {
   resultDiv.innerHTML = '<div style="padding:12px;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;color:var(--text2)">🔍 Searching...</div>';
 
   try {
-    var apiKey = window._trustApiKey || localStorage.getItem('eeon_key_claude') || '';
-    if (!apiKey) {
-      throw new Error('API key missing — please configure your API key in Settings');
+    // Provider-aware. This read the Claude key and POSTed to a hardcoded worker URL, so it could
+    // only bill Anthropic — hence the credit-saving kill switch. It now streams through the
+    // provider selected in Settings.
+    var prov = resolveProvider();
+    if (!prov || prov.error) {
+      throw new Error(prov && prov.error ? prov.error : 'API key missing — please configure a provider in Settings');
     }
 
-    var _srProxy = (localStorage.getItem('eeon_cors_proxy') || 'https://crimson-recipe-cdfd.rhymeminded.workers.dev').replace(/\/$/, '');
-    // === API DISABLED ===
-    throw new Error('⚡ Search API calls disabled to save credits. Use Claude chat or web search instead.');
-    var response = await fetch(_srProxy + '/v1/messages', { // DISABLED
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 100000,
-        system: 'You are a Search Assistant. Provide relevant information and resources for the search query. Include key facts, explanations, and references where applicable.',
-        messages: [{ role: 'user', content: 'Search query: ' + query }]
-      })
+    var _srSystem = 'You are a Search Assistant. Provide relevant information and resources for the search query. Include key facts, explanations, and references where applicable.';
+    var _srHeader = '<div style="color:#22c55e;font-weight:700;font-size:14px;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:8px">🔍 SEARCH RESULTS</div>';
+    var _srBuf = '';
+    var answer = await callLLMStream(_srSystem, 'Search query: ' + query, [], function(token) {
+      _srBuf += token;
+      resultDiv.innerHTML = _srHeader +
+        '<div style="font-size:13px;line-height:1.8;color:var(--text);white-space:pre-wrap">' + escHtml(_srBuf) + '<span class="streaming-cursor"></span></div>';
     });
-
-    if (!response.ok) {
-      var errData = await response.json().catch(() => ({}));
-      throw new Error('API ' + response.status + (errData.error ? ': ' + errData.error.message : ''));
+    if (!answer || answer.indexOf('[ERROR') === 0) {
+      throw new Error(answer ? answer.replace(/^\[ERROR[^\]]*\]\s*/, '') : 'No response from ' + prov.provider.name);
     }
-
-    var data = await response.json();
-    var answer = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : JSON.stringify(data);
 
     var formatted = answer
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
