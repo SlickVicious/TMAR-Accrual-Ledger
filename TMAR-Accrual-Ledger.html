@@ -15430,34 +15430,29 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
     input.value = '';
 
     try {
-      var apiKey = window._trustApiKey || localStorage.getItem('stg_key_claude') || localStorage.getItem('tmar_claude_key') || localStorage.getItem('_trustApiKey') || '';
-      if (!apiKey) {
-        throw new Error('api_key missing — enter your Anthropic key in Settings → API Keys');
-      }
-      var _taProxy = (localStorage.getItem('eeon_cors_proxy') || 'https://crimson-recipe-cdfd.rhymeminded.workers.dev').replace(/\/$/, '');
-      var response = await fetch(_taProxy + '/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
-        },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 16000,
-          system: buildTrustAgentSystemPrompt() + TRUST_AGENT_PROMPT_BODY,
-          messages: [{ role: 'user', content: buildTrustAgentContent(question) }]
-        })
-      });
-
-      if (!response.ok) {
-        var errData = await response.json().catch(()=>({}));
-        throw new Error('API ' + response.status + (errData.error ? ': ' + errData.error.message : ''));
+      // Provider-aware. This read the Claude key and POSTed straight to /v1/messages, so it billed
+      // Anthropic no matter which provider was selected. callLLMStream() honours the selection
+      // (and applies buildFullSystemPrompt + HARD_LOCK, like every other agent).
+      var prov = resolveProvider();
+      if (!prov || prov.error) {
+        throw new Error(prov && prov.error ? prov.error : 'api_key missing — configure a provider in Settings → API Keys');
       }
 
-      var data = await response.json();
-      var answer = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : JSON.stringify(data);
+      var _taHeader = '<div style="color:#10b981;font-weight:700;font-size:12px;margin-bottom:8px;border-bottom:1px solid rgba(16,185,129,.2);padding-bottom:6px">⚖️ TRUST ACCOUNTING AGENT — RESPONSE</div>';
+      var _taBuf = '';
+      var answer = await callLLMStream(
+        buildTrustAgentSystemPrompt() + TRUST_AGENT_PROMPT_BODY,
+        buildTrustAgentContent(question),
+        [],
+        function(token) {
+          _taBuf += token;
+          respDiv.innerHTML = _taHeader +
+            '<div style="font-size:13px;line-height:1.7;color:#f1f5f9;white-space:pre-wrap">' + escHtml(_taBuf) + '<span class="streaming-cursor"></span></div>';
+        }
+      );
+      if (!answer || answer.indexOf('[ERROR') === 0) {
+        throw new Error(answer ? answer.replace(/^\[ERROR[^\]]*\]\s*/, '') : 'No response from ' + prov.provider.name);
+      }
 
       // Format the answer
       var formatted = answer
@@ -46107,52 +46102,77 @@ function pdkbSelectAll(elementId) {
     sel.removeAllRanges(); sel.addRange(range);
   }
 }
-// onProgress(partialText) optional — called with accumulated text as tokens stream in
-function pdkbCallAnthropic(prompt, options, onProgress) {
+// PDKB tools (Transcript Transformer, Etymology Analyzer) call this. It honours the provider
+// selected in Settings via resolveProvider() — it is NOT Anthropic-only. The old version
+// hardcoded the Anthropic key and /v1/messages, so picking DeepSeek still hit (and billed)
+// the Anthropic account, which is what produced the "credit balance is too low" 400.
+// onProgress(partialText) optional — called with ACCUMULATED text as tokens stream in.
+// Returns { success:true, result } or { success:false, error:{type,status,statusText,message} }.
+function pdkbCallLLM(prompt, options, onProgress) {
   options = options || {};
-  var apiKey = (
-    (window._trustApiKey || '') ||
-    (localStorage.getItem('eeon_key_claude') || '') ||
-    (localStorage.getItem('stg_key_claude') || '') ||
-    (localStorage.getItem('tmar_claude_key') || '') ||
-    (localStorage.getItem('_trustApiKey') || '')
-  ).trim();
-  if (!apiKey) {
-    return Promise.resolve({ success: false, error: { type: 'no_api_key', message: 'API key not set. Enter your Anthropic key in Settings \u2192 API Keys, then click Save All Keys.' } });
+  var r = resolveProvider();
+  if (!r || r.error) {
+    return Promise.resolve({ success: false, error: { type: 'no_api_key', message: (r && r.error) || 'No provider configured. Go to Settings → API Keys.' } });
   }
-  window._trustApiKey = apiKey;
-  var model = options.model || 'claude-sonnet-4-6';
-  var maxTokens = options.maxTokens || 100000;
+  var p = r.provider, pid = r.pid, key = r.key;
+  var model = options.model || r.model;
+  // max_tokens is the OUTPUT cap and every provider has its own ceiling — never send an
+  // Anthropic-sized 100000 to an OpenAI-compatible endpoint like DeepSeek.
+  var cap = maxOutputTokens(pid);
+  var maxTokens = Math.min(options.maxTokens || cap, cap);
   // Long timeout — streaming keeps connection alive so we just need to handle stalls
   var timeout = options.timeout || 300000;
-  var corsProxy = (localStorage.getItem('eeon_cors_proxy') || '').replace(/\/$/, '');
-  var endpoint = corsProxy ? corsProxy + '/v1/messages' : 'https://api.anthropic.com/v1/messages';
   var controller = new AbortController();
   var timer = setTimeout(function(){ controller.abort(); }, timeout);
 
-  return fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    },
-    body: JSON.stringify({ model: model, max_tokens: maxTokens, stream: true, messages: [{ role: 'user', content: prompt }] }),
-    signal: controller.signal
-  })
+  var url = r.url;
+  var headers = { 'Content-Type': 'application/json' };
+  var body;
+  if (p.auth === 'anthropic') {
+    var corsProxy = (localStorage.getItem('eeon_cors_proxy') || '').replace(/\/$/, '');
+    url = corsProxy ? corsProxy + '/v1/messages' : 'https://api.anthropic.com/v1/messages';
+    headers['x-api-key'] = key;
+    headers['anthropic-version'] = '2023-06-01';
+    headers['anthropic-dangerous-direct-browser-access'] = 'true';
+    body = JSON.stringify({ model: model, max_tokens: maxTokens, stream: true, messages: [{ role: 'user', content: prompt }] });
+  } else if (p.auth === 'ernie') {
+    url = url + '?access_token=' + key;
+    body = JSON.stringify({ messages: [{ role: 'user', content: prompt }] });
+  } else if (p.auth === 'ollama') {
+    body = JSON.stringify({ model: model, stream: true, messages: [{ role: 'user', content: prompt }] });
+  } else { // bearer: DeepSeek, OpenAI, xAI, Groq, Z.AI, Kimi, MiniMax, Cerebras, OpenRouter, custom
+    headers['Authorization'] = 'Bearer ' + key;
+    body = JSON.stringify({ model: model, max_tokens: maxTokens, stream: true, messages: [{ role: 'user', content: prompt }] });
+  }
+  var streams = (p.auth !== 'ernie');
+
+  return fetch(url, { method: 'POST', headers: headers, body: body, signal: controller.signal })
   .then(function(resp) {
     if (!resp.ok) {
       clearTimeout(timer);
-      return resp.text().then(function(body) {
-        return { success: false, error: { type: 'api_error', status: resp.status, statusText: resp.statusText, message: body } };
+      return resp.text().then(function(bodyText) {
+        return { success: false, error: { type: 'api_error', provider: p.name, status: resp.status, statusText: resp.statusText, message: '[' + p.name + '] ' + bodyText } };
       });
     }
-    // SSE streaming reader — tokens arrive immediately, no bulk-wait timeout
+    if (!streams) {   // Ernie has no SSE stream
+      clearTimeout(timer);
+      return resp.json().then(function(d) {
+        var text = (d && d.result) || '';
+        if (text && typeof onProgress === 'function') onProgress(text);
+        return { success: true, result: text };
+      });
+    }
+    // Streaming reader — tokens arrive immediately, no bulk-wait timeout
     var reader = resp.body.getReader();
     var decoder = new TextDecoder();
     var accumulated = '';
     var sseBuffer = '';
+
+    function emit(tok) {
+      if (!tok) return;
+      accumulated += tok;
+      if (typeof onProgress === 'function') onProgress(accumulated);
+    }
 
     function pump() {
       return reader.read().then(function(chunk) {
@@ -46165,15 +46185,19 @@ function pdkbCallAnthropic(prompt, options, onProgress) {
         sseBuffer = lines.pop(); // hold incomplete last line
         for (var i = 0; i < lines.length; i++) {
           var line = lines[i].trim();
+          if (!line) continue;
+          if (p.auth === 'ollama') {          // NDJSON — one JSON object per line, no "data: " prefix
+            try { var o = JSON.parse(line); emit(o.message && o.message.content); } catch(e) {}
+            continue;
+          }
           if (!line.startsWith('data: ')) continue;
           var raw = line.slice(6);
           if (raw === '[DONE]') continue;
           try {
             var evt = JSON.parse(raw);
-            if (evt.type === 'content_block_delta' && evt.delta && evt.delta.type === 'text_delta') {
-              accumulated += evt.delta.text;
-              if (typeof onProgress === 'function') onProgress(accumulated);
-            }
+            // Anthropic SSE: delta.text | OpenAI-compatible SSE: choices[0].delta.content
+            if (evt.delta && evt.delta.text) emit(evt.delta.text);
+            else if (evt.choices && evt.choices[0] && evt.choices[0].delta && evt.choices[0].delta.content) emit(evt.choices[0].delta.content);
           } catch(e) { /* skip malformed SSE line */ }
         }
         return pump();
@@ -46184,11 +46208,13 @@ function pdkbCallAnthropic(prompt, options, onProgress) {
   .catch(function(err) {
     clearTimeout(timer);
     if (err.name === 'AbortError') {
-      return { success: false, error: { type: 'timeout', message: 'Request stalled — no response after ' + Math.round(timeout/1000) + 's. Check network or configure a CORS proxy in Settings.' } };
+      return { success: false, error: { type: 'timeout', message: 'Request stalled — no response from ' + p.name + ' after ' + Math.round(timeout/1000) + 's. Check network or configure a CORS proxy in Settings.' } };
     }
-    return { success: false, error: { type: 'network_error', message: err.message } };
+    return { success: false, error: { type: 'network_error', message: '[' + p.name + '] ' + err.message } };
   });
 }
+// Back-compat alias — the old name lied about what it did; keep existing callers working.
+var pdkbCallAnthropic = pdkbCallLLM;
 
 // ═══════════════════════════════════════════════════════════════
 // TRANSCRIPT TRANSFORMER
@@ -46285,15 +46311,17 @@ async function ttTransform() {
   var input = document.getElementById('tt-input').value;
   var sourceUrl = document.getElementById('tt-source-url').value;
   if (!input.trim()) return alert('Paste a transcript first');
-  var apiKey = window._trustApiKey || localStorage.getItem('eeon_key_claude') || localStorage.getItem('stg_key_claude') || localStorage.getItem('tmar_claude_key') || localStorage.getItem('_trustApiKey') || '';
-  if (!apiKey) return alert('API key required. Enter your Anthropic key in Settings \u2192 API Keys, then Save All Keys.');
+  // Preflight through the ACTIVE provider, not the Anthropic key. Gating on eeon_key_claude
+  // was why a DeepSeek run demanded (and then spent) Anthropic credit.
+  var prov = resolveProvider();
+  if (!prov || prov.error) return alert(prov && prov.error ? prov.error : 'No provider configured. Go to Settings \u2192 API Keys.');
 
   var btn = document.getElementById('tt-transform-btn');
   var panel = document.getElementById('tt-output-panel');
   btn.disabled = true; btn.textContent = '\u23f3 Streaming...';
   document.getElementById('tt-error').style.display = 'none';
   document.getElementById('tt-output-actions').style.display = 'none';
-  panel.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:20px;color:#10b981"><span style="display:inline-block;width:16px;height:16px;border:2px solid #10b981;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite"></span>Streaming from claude-sonnet-4-6...</div>';
+  panel.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:20px;color:#10b981"><span style="display:inline-block;width:16px;height:16px;border:2px solid #10b981;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite"></span>Streaming from ' + prov.model + ' (' + prov.provider.name + ')...</div>';
 
   var stats = ttAnalyzeTranscript(input);
   var shouldChunk = ttState.mode === 'chunked' || (ttState.mode === 'auto' && stats.recommendChunking);
@@ -46622,8 +46650,8 @@ function etymBuildPrompt(content, dictionaries, chainDepth) {
 async function etymAnalyze() {
   var input = document.getElementById('etym-input').value;
   if (!input.trim()) return alert('Enter legal terms to analyze');
-  var apiKey = window._trustApiKey || localStorage.getItem('eeon_key_claude') || localStorage.getItem('stg_key_claude') || localStorage.getItem('tmar_claude_key') || localStorage.getItem('_trustApiKey') || '';
-  if (!apiKey) return alert('API key required. Enter your Anthropic key in Settings → API Keys, then Save.');
+  var prov = resolveProvider();
+  if (!prov || prov.error) return alert(prov && prov.error ? prov.error : 'No provider configured. Go to Settings → API Keys.');
 
   var btn = document.getElementById('etym-analyze-btn');
   btn.disabled = true; btn.textContent = '⏳ Analyzing...';
