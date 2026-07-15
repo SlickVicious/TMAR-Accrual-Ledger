@@ -181,7 +181,33 @@ function pomRecords_() {
       service: 'Certified + Return Receipt', status: 'MAILED — awaiting delivery',
       documentlocation: POM_BASE_ + '07JUL26_CM_IRS-KC-2022-2nd_289471.pdf',
       note: '2022 1040 filed TWICE: 1st = MAIL-003 (5/13, delivered 5/27); this 2nd filing 7/7, ' +
-            'est. delivery 7/11. Return receipt 1083 41 not yet returned.' }
+            'est. delivery 7/11. Return receipt 1083 41 not yet returned.' },
+
+    // --- 2026-04-01 IRS CAF Unit fax filings (NON-POSTAL; added under the "mail + confirmed
+    //     filings" scope). No USPS tracking #; cover sheets verified 2026-07-15. ---
+    { mailid: 'MAIL-014', datesent: '2026-04-01',
+      recipient: 'IRS CAF Unit — Memphis',
+      recipientaddress: 'Fax 855-214-7519 (Centralized Authorization File Processing)',
+      documentsent: 'Form 2848 Power of Attorney (2 pp, wet-ink signed) + trust instrument pp 1/9/10',
+      relatedform: 'Form 2848 (POA)',
+      uspstracking: '',
+      service: 'Fax filing (not USPS)', status: 'FILED — FAX',
+      documentlocation: '02-Recorded-Documents\\Filing Packages\\FAX_2848_with_Cover_and_Trust.pdf',
+      note: 'Filed by FAX 2026-04-01 to IRS CAF Unit Memphis (855-214-7519). CAF No. 0317-17351. ' +
+            '6 pages incl. cover. Taxpayer: A Provident Private Creditor RLT. NOT USPS mail — no tracking #. ' +
+            'Cover sheet verified; fax transmission-confirmation page not located.' },
+
+    { mailid: 'MAIL-015', datesent: '2026-04-01',
+      recipient: 'IRS CAF Unit — Memphis',
+      recipientaddress: 'Fax 855-214-7519 (Centralized Authorization File Processing)',
+      documentsent: 'Form 8821 Tax Information Authorization (1 p, wet-ink signed) + trust instrument pp 1/9/10',
+      relatedform: 'Form 8821 (TIA)',
+      uspstracking: '',
+      service: 'Fax filing (not USPS)', status: 'FILED — FAX',
+      documentlocation: '02-Recorded-Documents\\Filing Packages\\FAX_8821_with_Cover_and_Trust.pdf',
+      note: 'Filed by FAX 2026-04-01 to IRS CAF Unit Memphis (855-214-7519). CAF No. 0317-17351 ' +
+            '(designee Clinton Wimberly IV). 5 pages incl. cover. NOT USPS mail — no tracking #. ' +
+            'Cover sheet verified; fax transmission-confirmation page not located.' }
   ];
 }
 
