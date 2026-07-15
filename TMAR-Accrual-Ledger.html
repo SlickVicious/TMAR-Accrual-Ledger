@@ -14533,13 +14533,22 @@ function exportFilingPDF(formType, data) {
             <button onclick="settingsSetProvider('custom')" class="llm-prov-btn" data-prov="custom" style="padding:11px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:700;cursor:pointer;text-align:left">🔧 Custom Provider</button>
           </div>
         </div>
+        <!-- Active-provider model picker (generic) -->
+        <div id="stg-model-row" style="margin-bottom:12px;background:rgba(6,182,212,.06);border:1px solid rgba(6,182,212,.25);border-radius:8px;padding:14px">
+          <label style="font-size:11px;font-weight:700;color:var(--text-secondary);display:block;margin-bottom:6px">Model for <span id="stg-model-provname" style="color:#06b6d4">Claude</span></label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input id="stg-model-override" type="text" oninput="setActiveProviderModel(this.value)" placeholder="" style="flex:1;padding:8px 12px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(6,182,212,.3);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box" spellcheck="false">
+            <button onclick="setActiveProviderModel('')" style="padding:8px 12px;border:1px solid rgba(255,255,255,.15);border-radius:6px;background:transparent;color:var(--text-secondary);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap" title="Clear the override and use the provider default">&#8635; Default</button>
+          </div>
+          <div id="stg-model-hint" style="font-size:10px;color:var(--text-secondary);margin-top:6px"></div>
+        </div>
         <!-- Claude models -->
         <div id="llm-claude-cfg" style="background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.2);border-radius:8px;padding:14px;margin-top:10px">
           <div style="font-size:12px;font-weight:700;color:#a855f7;margin-bottom:8px">Claude Model</div>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:6px">
-            <label style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.06));border:1px solid rgba(168,85,247,.3);border-radius:6px;cursor:pointer;font-size:11px"><input type="radio" name="claudeModel" value="claude-sonnet-4-6" checked="" style="accent-color:#a855f7"> claude-sonnet-4-6 (Default)</label>
-            <label style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.06));border:1px solid rgba(255,255,255,.1);border-radius:6px;cursor:pointer;font-size:11px"><input type="radio" name="claudeModel" value="claude-opus-4-7" style="accent-color:#a855f7"> claude-opus-4-7</label>
-            <label style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.06));border:1px solid rgba(255,255,255,.1);border-radius:6px;cursor:pointer;font-size:11px"><input type="radio" name="claudeModel" value="claude-haiku-4-5-20251001" style="accent-color:#a855f7"> claude-haiku-4-5</label>
+            <label style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.06));border:1px solid rgba(168,85,247,.3);border-radius:6px;cursor:pointer;font-size:11px"><input type="radio" name="claudeModel" value="claude-sonnet-4-6" checked="" onchange="setClaudeModelPreset(this.value)" style="accent-color:#a855f7"> claude-sonnet-4-6 (Default)</label>
+            <label style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.06));border:1px solid rgba(255,255,255,.1);border-radius:6px;cursor:pointer;font-size:11px"><input type="radio" name="claudeModel" value="claude-opus-4-7" onchange="setClaudeModelPreset(this.value)" style="accent-color:#a855f7"> claude-opus-4-7</label>
+            <label style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.06));border:1px solid rgba(255,255,255,.1);border-radius:6px;cursor:pointer;font-size:11px"><input type="radio" name="claudeModel" value="claude-haiku-4-5-20251001" onchange="setClaudeModelPreset(this.value)" style="accent-color:#a855f7"> claude-haiku-4-5</label>
           </div>
         </div>
         <!-- Ollama config -->
@@ -43966,37 +43975,57 @@ var PROVIDER_MAX_OUTPUT = {
 function maxOutputTokens(pid) { return PROVIDER_MAX_OUTPUT[pid] || 4096; }
 
 // ── Provider Resolution ───────────────────────────────────────────────────
-function resolveProvider() {
-  var pid = localStorage.getItem('eeon_active_provider') || 'claude';
-  var PROVIDERS = {
-    openai:    { name:'OpenAI',    auth:'bearer',    url:'https://api.openai.com/v1/chat/completions',                                                    model:'gpt-4.1-mini' },
-    anthropic: { name:'Anthropic', auth:'anthropic', url:'https://api.anthropic.com/v1/messages',                                                         model:'claude-sonnet-4-6' },
-    claude:    { name:'Anthropic', auth:'anthropic', url:'https://api.anthropic.com/v1/messages',                                                         model:'claude-sonnet-4-6' },
+// Single source of truth for provider endpoints + default models. resolveProvider() and the
+// Settings model picker both read this map, so a model default can never drift between the
+// call site and the UI. Add a provider here and it works in both places.
+var TMAR_PROVIDERS = {
+    openai:    { name:'OpenAI',    auth:'bearer',    url:'https://api.openai.com/v1/chat/completions',        model:'gpt-4.1-mini' },
+    anthropic: { name:'Anthropic', auth:'anthropic', url:'https://api.anthropic.com/v1/messages',             model:'claude-sonnet-4-6' },
+    claude:    { name:'Anthropic', auth:'anthropic', url:'https://api.anthropic.com/v1/messages',             model:'claude-sonnet-4-6' },
     // 'deepseek-chat'/'deepseek-reasoner' are aliases DeepSeek deprecates 2026-07-24.
     // deepseek-v4-pro = top-tier v4 model; 1M context, 384K max output.
-    deepseek:  { name:'DeepSeek',  auth:'bearer',    url:'https://api.deepseek.com/chat/completions',                                                     model:'deepseek-v4-pro' },
-    zai:       { name:'Z.AI',      auth:'bearer',    url:'https://api.z.ai/v1/chat/completions',                                                          model:'z1-preview' },
-    kimi:      { name:'Kimi',      auth:'bearer',    url:'https://api.moonshot.cn/v1/chat/completions',                                                   model:'moonshot-v1-8k' },
-    minimax:   { name:'MiniMax',   auth:'bearer',    url:'https://api.minimax.chat/v1/text/chatcompletion_v2',                                            model:'MiniMax-Text-01' },
-    ernie:     { name:'Ernie',     auth:'ernie',     url:'https://qianfan.baidubce.com/v2/chat/completions',                                             model:'ernie-4.0-turbo-8k' },
-    xai:       { name:'xAI',       auth:'bearer',    url:'https://api.x.ai/v1/chat/completions',                                                          model:'grok-3-mini' },
-    groq:      { name:'Groq',      auth:'bearer',    url:'https://api.groq.com/openai/v1/chat/completions',                                               model:'llama-3.3-70b-versatile' },
-    cerebras:  { name:'Cerebras',  auth:'bearer',    url:'https://api.cerebras.ai/v1/chat/completions',                                                   model:'llama-3.3-70b' },
-    openrouter:{ name:'OpenRouter',auth:'bearer',    url:'https://openrouter.ai/api/v1/chat/completions',                                                  model:'openai/gpt-4o-mini' },
-    ollama:    { name:'Ollama',    auth:'ollama',    url:'',                                                                                               model:'' },
-    custom:    { name:'Custom',    auth:'bearer',    url:'',                                                                                               model:'' }
-  };
-  var keyMap = {
+    deepseek:  { name:'DeepSeek',  auth:'bearer',    url:'https://api.deepseek.com/chat/completions',         model:'deepseek-v4-pro' },
+    zai:       { name:'Z.AI',      auth:'bearer',    url:'https://api.z.ai/v1/chat/completions',              model:'z1-preview' },
+    kimi:      { name:'Kimi',      auth:'bearer',    url:'https://api.moonshot.cn/v1/chat/completions',       model:'moonshot-v1-8k' },
+    minimax:   { name:'MiniMax',   auth:'bearer',    url:'https://api.minimax.chat/v1/text/chatcompletion_v2', model:'MiniMax-Text-01' },
+    ernie:     { name:'Ernie',     auth:'ernie',     url:'https://qianfan.baidubce.com/v2/chat/completions',  model:'ernie-4.0-turbo-8k' },
+    xai:       { name:'xAI',       auth:'bearer',    url:'https://api.x.ai/v1/chat/completions',              model:'grok-3-mini' },
+    groq:      { name:'Groq',      auth:'bearer',    url:'https://api.groq.com/openai/v1/chat/completions',   model:'llama-3.3-70b-versatile' },
+    cerebras:  { name:'Cerebras',  auth:'bearer',    url:'https://api.cerebras.ai/v1/chat/completions',       model:'llama-3.3-70b' },
+    openrouter:{ name:'OpenRouter',auth:'bearer',    url:'https://openrouter.ai/api/v1/chat/completions',     model:'openai/gpt-4o-mini' },
+    ollama:    { name:'Ollama',    auth:'ollama',    url:'',                                                  model:'' },
+    custom:    { name:'Custom',    auth:'bearer',    url:'',                                                  model:'' }
+};
+var TMAR_PROVIDER_KEYMAP = {
     openai:'eeon_key_openai', anthropic:'eeon_key_claude', claude:'eeon_key_claude',
     deepseek:'eeon_key_deepseek', zai:'eeon_key_zai', kimi:'eeon_key_kimi',
     minimax:'eeon_key_minimax', ernie:'eeon_key_ernie', xai:'eeon_key_xai',
     groq:'eeon_key_groq', cerebras:'eeon_key_cerebras', openrouter:'eeon_key_openrouter'
-  };
+};
+// The model resolveProvider() uses for a provider absent any user override.
+function providerDefaultModel(pid) {
+  if (pid === 'ollama') return localStorage.getItem('eeon_ollama_model_custom') || localStorage.getItem('eeon_ollama_model') || 'deepseek-r1:14b';
+  if (pid === 'custom') return localStorage.getItem('eeon_custom_model') || 'custom';
+  return (TMAR_PROVIDERS[pid] || TMAR_PROVIDERS.claude).model;
+}
+// The model actually in effect: a user override (Settings) wins for standard providers.
+function providerActiveModel(pid) {
+  var o = (localStorage.getItem('eeon_model_' + pid) || '').trim();
+  if (o && pid !== 'ollama' && pid !== 'custom') return o;
+  return providerDefaultModel(pid);
+}
+function resolveProvider() {
+  var pid = localStorage.getItem('eeon_active_provider') || 'claude';
+  var PROVIDERS = TMAR_PROVIDERS;
+  var keyMap = TMAR_PROVIDER_KEYMAP;
   var p = PROVIDERS[pid] || PROVIDERS['claude'];
   var key = keyMap[pid] ? (localStorage.getItem(keyMap[pid]) || '') : '';
   if ((pid === 'claude' || pid === 'anthropic') && !key)
     key = localStorage.getItem('_trustApiKey') || window._trustApiKey || '';
   var url = p.url, model = p.model;
+  // User model override from Settings (per provider). Ollama/Custom keep their own model inputs.
+  var _modelOverride = (localStorage.getItem('eeon_model_' + pid) || '').trim();
+  if (_modelOverride && pid !== 'ollama' && pid !== 'custom') model = _modelOverride;
   if (pid === 'ollama') {
     url = (localStorage.getItem('eeon_ollama_url') || 'http://127.0.0.1:11434') + '/api/chat';
     model = localStorage.getItem('eeon_ollama_model_custom') || localStorage.getItem('eeon_ollama_model') || 'deepseek-r1:14b';
@@ -47611,6 +47640,7 @@ function tmarSyncProviderUI() {
   }
 }
 document.addEventListener('DOMContentLoaded', tmarSyncProviderUI);
+document.addEventListener('DOMContentLoaded', tmarSyncModelUI);
 
 // ── Settings functions ───────────────────────────────────────────
 function showSettingsPanel(panel) {
@@ -47673,6 +47703,60 @@ function settingsSetProvider(provider) {
     btns[i].style.borderColor = on ? 'var(--accent,#06b6d4)' : 'rgba(255,255,255,.15)';
     btns[i].style.background  = on ? 'rgba(6,182,212,.15)' : 'transparent';
     btns[i].style.color       = on ? 'var(--accent,#06b6d4)' : 'var(--text-secondary)';
+  }
+  tmarSyncModelUI();
+}
+
+// Model picker. resolveProvider() honours eeon_model_<pid> for standard providers; Ollama and
+// Custom keep their own dedicated model inputs. Blank override => provider default.
+function setActiveProviderModel(val) {
+  var pid = localStorage.getItem('eeon_active_provider') || 'claude';
+  if (pid === 'ollama' || pid === 'custom') return;  // handled by their own config blocks
+  val = (val || '').trim();
+  try {
+    if (val && val !== providerDefaultModel(pid)) localStorage.setItem('eeon_model_' + pid, val);
+    else localStorage.removeItem('eeon_model_' + pid);
+  } catch (e) {}
+  tmarSyncModelUI();
+}
+
+// Claude preset radios write the claude override (mirrored to the 'anthropic' pid).
+function setClaudeModelPreset(val) {
+  val = (val || '').trim();
+  var isDefault = (val === providerDefaultModel('claude'));
+  try {
+    ['claude', 'anthropic'].forEach(function(pid) {
+      if (val && !isDefault) localStorage.setItem('eeon_model_' + pid, val);
+      else localStorage.removeItem('eeon_model_' + pid);
+    });
+  } catch (e) {}
+  tmarSyncModelUI();
+}
+
+// Reflect the active provider's effective model in the picker UI.
+function tmarSyncModelUI() {
+  var pid = 'claude';
+  try { pid = localStorage.getItem('eeon_active_provider') || 'claude'; } catch (e) {}
+  var name = (typeof TMAR_PROVIDERS !== 'undefined' && TMAR_PROVIDERS[pid]) ? TMAR_PROVIDERS[pid].name : pid;
+  var def = (typeof providerDefaultModel === 'function') ? providerDefaultModel(pid) : '';
+  var active = (typeof providerActiveModel === 'function') ? providerActiveModel(pid) : def;
+  var override = (localStorage.getItem('eeon_model_' + pid) || '').trim();
+  var nameEl = document.getElementById('stg-model-provname');
+  var input = document.getElementById('stg-model-override');
+  var hint = document.getElementById('stg-model-hint');
+  if (nameEl) nameEl.textContent = name;
+  if (pid === 'ollama' || pid === 'custom') {
+    if (input) { input.value = ''; input.placeholder = active; input.disabled = true; }
+    if (hint) hint.innerHTML = 'Set the ' + escHtml(name) + ' model in its own section below (currently <b>' + escHtml(active) + '</b>).';
+  } else {
+    if (input) { input.disabled = false; input.placeholder = def; input.value = override; }
+    if (hint) hint.innerHTML = override
+      ? ('Override active: <b>' + escHtml(override) + '</b> &mdash; press Default to fall back to ' + escHtml(def) + '.')
+      : ('Provider default: <b>' + escHtml(def) + '</b>. Type a model id to override.');
+  }
+  if (pid === 'claude' || pid === 'anthropic') {
+    var radios = document.querySelectorAll('input[name="claudeModel"]');
+    for (var i = 0; i < radios.length; i++) radios[i].checked = (radios[i].value === active);
   }
 }
 
