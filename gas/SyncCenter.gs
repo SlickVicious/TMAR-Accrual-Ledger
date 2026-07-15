@@ -1266,8 +1266,17 @@ function doPost(e) {
         updateSyncTimestamp_(ss, 'Tax Worksheets', 'push');
         return jsonResponse_(wsResult);
 
+      // Rebuild the Proof of Mailing tab from the reconciled record in PopulateProofOfMailing.gs
+      // (clears every MAIL-* row, then re-inserts). Source of truth = pomRecords_() in that file.
+      // No payload required. refreshProofOfMailing() resolves the Live book via openById() itself.
+      case 'refreshProofOfMailing': {
+        var pomMsg = refreshProofOfMailing();
+        updateSyncTimestamp_(ss, 'Proof of Mailing', 'push');
+        return jsonResponse_({ status: 'ok', action: 'refreshProofOfMailing', message: pomMsg });
+      }
+
       default:
-        return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync, pushPrincipalRegister, pushContacts, pushWebsiteAccounts, importSubstituteW2, importForm1040, importForm2848, importScheduleA, importSchedule1, importSchedule2, importForm8275R, importAdminForms, importWorksheetData');
+        return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync, pushPrincipalRegister, pushContacts, pushWebsiteAccounts, importSubstituteW2, importForm1040, importForm2848, importScheduleA, importSchedule1, importSchedule2, importForm8275R, importAdminForms, importWorksheetData, refreshProofOfMailing');
     }
 
   } catch (err) {

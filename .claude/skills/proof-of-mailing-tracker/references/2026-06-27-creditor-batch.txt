@@ -1,0 +1,12 @@
+# 2026-06-27 creditor demand-letter batch — USPS delivery scans.
+# Format: MAIL-NNN | tracking | status | date[ time] | method | DELIVERED CITY ST ZIP
+# The MAIL-NNN here is the ORIGINAL asserted pairing (what was logged at send time).
+# The last field is where USPS actually delivered it — the swap signal.
+MAIL-005 | 9589 0710 5270 4022 2902 17 | delivered | 2026-07-13 11:29 AM | Left with Individual | SIOUX FALLS SD 57104
+MAIL-006 | 9589 0710 5270 4022 2902 24 | delivered | 2026-07-02 7:11 AM  | PO Box               | EVANSVILLE IN 47731
+MAIL-007 | 9589 0710 5270 4022 2902 31 | delivered | 2026-07-02 7:20 AM  | PO Box               | LINCOLN NE 68501
+MAIL-008 | 9589 0710 5270 4022 2901 18 | delivered | 2026-07-02 9:47 AM  | Left with Individual | BETHPAGE NY 11714
+MAIL-009 | 9589 0710 5270 4022 2900 64 | delivered | 2026-07-06 8:47 AM  | PO Box               | SALT LAKE CITY UT 84130
+MAIL-010 | 9589 0710 5270 4022 2900 95 | delivered | 2026-07-02          | Picked Up at Post Office | CHARLOTTE NC 28233
+MAIL-011 | 9589 0710 5270 4022 2901 25 | delivered | 2026-07-02 5:17 AM  | PO Box               | NEWARK NJ 07101
+MAIL-012 | 9589 0710 5270 4022 2901 01 | delivered | 2026-07-06          | Picked Up at Post Office | CLEVELAND OH 44101

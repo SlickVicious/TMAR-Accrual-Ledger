@@ -80,6 +80,9 @@ irs-forms/downloads/
 # gas/ later if formalized: CapitalOneCashFlow.gs, appc_import_delta.gs,
 # appc_import_full_replace.gs, path_remap.gs.
 scripts/
+# ...but skill scripts under the tracked .claude/skills/ whitelist are part of the skill.
+!.claude/skills/**/scripts/
+!.claude/skills/**/scripts/**
 tmar_cleanup.ps1
 
 # Obsidian workspace config (local editor state, not repo config)
