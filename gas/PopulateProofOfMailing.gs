@@ -207,7 +207,20 @@ function pomRecords_() {
       documentlocation: '02-Recorded-Documents\\Filing Packages\\FAX_8821_with_Cover_and_Trust.pdf',
       note: 'Filed by FAX 2026-04-01 to IRS CAF Unit Memphis (855-214-7519). CAF No. 0317-17351 ' +
             '(designee Clinton Wimberly IV). 5 pages incl. cover. NOT USPS mail — no tracking #. ' +
-            'Cover sheet verified; fax transmission-confirmation page not located.' }
+            'Cover sheet verified; fax transmission-confirmation page not located.' },
+
+    // --- 2026-01-22 Pima County AZ trust recording (NON-POSTAL confirmed filing) ---
+    { mailid: 'MAIL-016', datesent: '2026-01-22',
+      recipient: 'Pima County, AZ — Recorder (Gabriella Cázares-Kelly)',
+      recipientaddress: 'Pima County Official Records, Tucson AZ',
+      documentsent: 'A Provident Private Creditor Revocable Living Trust — trust instrument (10 pp)',
+      relatedform: 'County trust recording',
+      uspstracking: '',
+      deliveryconfirmed: 'Yes', deliverydate: '2026-01-22',
+      service: 'County e-Recording (not USPS)', status: 'RECORDED',
+      documentlocation: '02-Recorded-Documents\\Trust-Recordings\\Scan2026-05-12_115918_000.pdf',
+      note: 'eRECORDED in Official Records of Pima County AZ — recording #20260220007, ' +
+            '2026-01-22 08:00 AM, Grantor Clinton Wimberly IV. NOT USPS mail. Recording stamp verified 2026-07-15.' }
   ];
 }
 
