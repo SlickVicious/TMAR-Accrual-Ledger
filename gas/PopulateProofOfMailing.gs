@@ -134,20 +134,28 @@ function pomRecords_() {
     { mailid: 'MAIL-008', datesent: '2026-06-27', recipient: 'Altice USA Inc',
       recipientaddress: '1111 Stewart Ave, Bethpage NY 11714',
       documentsent: 'Creditor demand letter', relatedform: 'UCC demand letter',
-      uspstracking: '9589 0710 5270 4022 2901 18', service: 'Certified Mail', status: 'DELIVERED',
-      deliveryconfirmed: 'Yes', deliverydate: '2026-07-02',
+      uspstracking: '9589 0710 5270 4022 2901 18',
+      psform3811: '9590 9402 9939 5335 0121 11',
+      service: 'Certified + Return Receipt', status: 'DELIVERED',
+      deliveryconfirmed: 'Yes', deliverydate: '2026-07-02', returnreceipt: 'Yes - hardcopy',
       documentlocation: POM_BASE_ + '27JUN26_PO_creditors-8x-receipt.jpg',
-      note: '6/27/2026 demand-letter batch. Delivered 7/2/2026 9:47 AM — Left with Individual. LIKELY the mailing for return receipt ' +
-            '9590 9402 9939 5335 0121 11 (green card rec\'d 2026-07-08, postmarked Mid-Island NY — ' +
-            'Bethpage 11714 is served by that facility). VERIFY vs card front (' +
-            POM_BASE_ + '08JUL26_GC_pending-NY117_012111.jpg).' },
+      note: '6/27/2026 demand-letter batch. Delivered 7/2/2026 9:47 AM — Left with Individual. ' +
+            'Green card CONFIRMED 2026-07-16 vs card front: addressed Altice USA Inc, 1111 Stewart Ave ' +
+            'Bethpage NY 11714, article ...2901 18, PS 3811 ...0121 11. Card scans filed at ' +
+            '06-Account-Register\\Altice\\ (Altice Front_.jpg / Altice Back_1200px.jpg).' },
     { mailid: 'MAIL-009', datesent: '2026-06-27', recipient: 'Capital One Bank (USA) NA',
       recipientaddress: 'PO Box 30285, Salt Lake City UT 84130',
       documentsent: 'Creditor demand letter', relatedform: 'UCC demand letter',
-      uspstracking: '9589 0710 5270 4022 2900 64', service: 'Certified Mail', status: 'DELIVERED',
-      deliveryconfirmed: 'Yes', deliverydate: '2026-07-06',
+      uspstracking: '9589 0710 5270 4022 2900 64',
+      psform3811: '9590 9402 9486 5069 5525 42',
+      service: 'Certified + Return Receipt', status: 'DELIVERED',
+      deliveryconfirmed: 'Yes', deliverydate: '2026-07-06', returnreceipt: 'Yes - hardcopy',
       documentlocation: POM_BASE_ + '27JUN26_PO_creditors-8x-receipt.jpg',
-      note: '6/27/2026 demand-letter batch. Delivered 7/6/2026 8:47 AM — PO Box.' },
+      note: '6/27/2026 demand-letter batch. Delivered 7/6/2026 8:47 AM — PO Box (USPS scan). ' +
+            'Green card in hand 2026-07-16: article ...2900 64, PS 3811 ...5525 42, signed; card ' +
+            'delivery stamp reads JUL 07 2026 (one day after USPS electronic scan — kept USPS date). ' +
+            'Card scans filed at 06-Account-Register\\Capital_One_Bank\\ (CapOne_FRONT_label_1200px.jpg / ' +
+            'CapOne_BACK_greencard_1200px.jpg).' },
     { mailid: 'MAIL-010', datesent: '2026-06-27', recipient: 'Progressive Insurance',
       recipientaddress: 'PO Box 6807, Cleveland OH 44101',
       documentsent: 'Creditor demand letter', relatedform: 'UCC demand letter',
@@ -158,10 +166,15 @@ function pomRecords_() {
     { mailid: 'MAIL-011', datesent: '2026-06-27', recipient: 'Verizon Communications Inc',
       recipientaddress: 'PO Box 408, Newark NJ 07101',
       documentsent: 'Creditor demand letter', relatedform: 'UCC demand letter',
-      uspstracking: '9589 0710 5270 4022 2901 25', service: 'Certified Mail', status: 'DELIVERED',
-      deliveryconfirmed: 'Yes', deliverydate: '2026-07-02',
+      uspstracking: '9589 0710 5270 4022 2901 25',
+      psform3811: '9590 9402 9486 5069 5525 66',
+      service: 'Certified + Return Receipt', status: 'DELIVERED',
+      deliveryconfirmed: 'Yes', deliverydate: '2026-07-02', returnreceipt: 'Yes - hardcopy',
       documentlocation: POM_BASE_ + '27JUN26_PO_creditors-8x-receipt.jpg',
-      note: '6/27/2026 demand-letter batch. Pairing confirmed by USPS delivery (Newark NJ). Delivered 7/2/2026 5:17 AM — PO Box.' },
+      note: '6/27/2026 demand-letter batch. Pairing confirmed by USPS delivery (Newark NJ). ' +
+            'Delivered 7/2/2026 5:17 AM — PO Box; green card signed "Diego F", date of delivery 7-2-26. ' +
+            'Card CONFIRMED in hand 2026-07-16: article ...2901 25, PS 3811 ...5525 66. Card scans filed at ' +
+            '06-Account-Register\\Verizon\\ (Verizon_FRONT_greencard_1200px.jpg / Verizon_Back_TRACKING_labels_1200px.jpg).' },
     { mailid: 'MAIL-012', datesent: '2026-06-27', recipient: 'Piedmont Natural Gas',
       recipientaddress: 'PO Box 33068, Charlotte NC 28233',
       documentsent: 'Creditor demand letter', relatedform: 'UCC demand letter',
