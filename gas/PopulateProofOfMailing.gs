@@ -71,8 +71,9 @@ function pomRecords_() {
       uspstracking: '9414 8118 9876 5525 2665 53',
       service: 'Certified Mail', status: 'MAILED',
       documentlocation: POM_BASE_ + '02APR26_CM_IRS-KC_266553.pdf',
-      note: 'Ref "IRS FORM"; sender Clinton Wimberly IV, Trustee. POSSIBLE return receipt ' +
-            '9590 9402 9486 5069 5525 66 (green card rec\'d 2026-07-08) — UNCONFIRMED, verify card front.' },
+      note: 'Ref "IRS FORM"; sender Clinton Wimberly IV, Trustee. Earlier guess that green card ' +
+            '...5525 66 belonged to this piece RULED OUT 2026-07-16 — card front shows it is MAIL-011 ' +
+            '(Verizon). No return receipt for MAIL-001; delivery not yet confirmed.' },
 
     { mailid: 'MAIL-002', datesent: '2026-05-13',
       recipient: 'NYS Dept. of Health, Bureau of Vital Records Certification Unit',
@@ -81,8 +82,10 @@ function pomRecords_() {
       relatedform: 'DOH-4380 (Certificate of Live Birth)',
       uspstracking: '9589 0710 5270 4022 2902 86',
       service: 'Certified Mail', status: 'MAILED',
-      documentlocation: POM_BASE_ + '13MAY26_PO_taxbatch-detailed_290033.png',
-      note: 'Certified, no return receipt. Enclosed 2x Love stamps for SASE return envelopes.' },
+      documentlocation: POM_BASE_ + '13MAY26_PO_taxbatch-summary_290033.png',
+      note: 'Certified, no return receipt. Enclosed 2x Love stamps for SASE return envelopes. ' +
+            'Supporting scans: 13MAY26_MO_NYDOH-COLB.jpg (money orders + envelope), ' +
+            '13MAY26_MO_COLB-2x-stamps.png (MO stubs + stamps), 13MAY26_REQ_NYDOH-COLB.jpg (DOH-4380 request).' },
 
     { mailid: 'MAIL-003', datesent: '2026-05-13',
       recipient: 'Internal Revenue Service (Dept. of the Treasury)',
@@ -93,9 +96,11 @@ function pomRecords_() {
       psform3811: '9590 9402 9939 5335 0121 35',
       deliveryconfirmed: 'Yes', deliverydate: '2026-05-27', returnreceipt: 'Yes - hardcopy',
       service: 'Certified + Return Receipt', status: 'DELIVERED',
-      documentlocation: POM_BASE_ + '27MAY26_GC_IRS-KC-2022_012135.pdf',
-      note: 'Delivered 5/27/26 (IRS RECEIVED stamp #2231). Filing PDF: 04-Taxes\\IRS-Filings\\2022\\' +
-            '2022_Wimberly_Joint_1040_Filed_2026-05-13.pdf. Re-filed as MAIL-013 (2026-07-07).' },
+      documentlocation: POM_BASE_ + '27MAY26_GC_IRS-KC-2022-alt_012135.png',
+      note: 'Delivered 5/27/26 (IRS RECEIVED stamp #2231). Green card scan: 27MAY26_GC_IRS-KC-2022-alt_012135.png. ' +
+            'Certified receipt (5/13 batch): 13MAY26_CM_IRS-NCDOR-2022TR_290033.jpg. ' +
+            'Filing PDF: 04-Taxes\\IRS-Filings\\2022\\2022_Wimberly_Joint_1040_Filed_2026-05-13.pdf. ' +
+            'Re-filed as MAIL-013 (2026-07-07).' },
 
     { mailid: 'MAIL-004', datesent: '2026-05-13',
       recipient: 'NC Department of Revenue',
@@ -106,8 +111,9 @@ function pomRecords_() {
       psform3811: '9590 9402 9939 5335 0121 28',
       deliveryconfirmed: 'Yes', deliverydate: '2026-05-20', returnreceipt: 'Yes - hardcopy',
       service: 'Certified + Return Receipt', status: 'DELIVERED',
-      documentlocation: POM_BASE_ + '20MAY26_GC_NCDOR-2022_012128.pdf',
-      note: 'Delivered 5/20/26 (NCDOR delivery stamp).' },
+      documentlocation: POM_BASE_ + '20MAY26_GC_NCDOR-2022-alt_012128.png',
+      note: 'Delivered 5/20/26 (NCDOR delivery stamp). Green card scans: 20MAY26_GC_NCDOR-2022-alt_012128.png ' +
+            '+ -altB_012128.png. Certified receipt (5/13 batch): 13MAY26_CM_IRS-NCDOR-2022TR_290033.jpg.' },
 
     // --- 2026-06-27 creditor demand-letter batch (8 certified, no return receipts) ---
     { mailid: 'MAIL-005', datesent: '2026-06-27', recipient: 'First Premier Bank',
@@ -116,21 +122,21 @@ function pomRecords_() {
       uspstracking: '9589 0710 5270 4022 2902 17', service: 'Certified Mail', status: 'DELIVERED',
       deliveryconfirmed: 'Yes', deliverydate: '2026-07-13',
       documentlocation: POM_BASE_ + '27JUN26_PO_creditors-8x-receipt.jpg',
-      note: '6/27/2026 certified demand-letter batch (8). No return receipt purchased. Delivered 7/13/2026 11:29 AM — Left with Individual (electronic confirmation only).' },
+      note: '6/27/2026 certified demand-letter batch (8). No return receipt purchased. Delivered 7/13/2026 11:29 AM — Left with Individual (electronic confirmation only). PS 3800 stubs grid: 27JUN26_CM_creditors-8x-grid.jpg.' },
     { mailid: 'MAIL-006', datesent: '2026-06-27', recipient: 'OneMain Financial',
       recipientaddress: 'PO Box 3251, Evansville IN 47731',
       documentsent: 'Creditor demand letter', relatedform: 'UCC demand letter',
       uspstracking: '9589 0710 5270 4022 2902 24', service: 'Certified Mail', status: 'DELIVERED',
       deliveryconfirmed: 'Yes', deliverydate: '2026-07-02',
       documentlocation: POM_BASE_ + '27JUN26_PO_creditors-8x-receipt.jpg',
-      note: '6/27/2026 demand-letter batch. Delivered 7/2/2026 7:11 AM — PO Box.' },
+      note: '6/27/2026 demand-letter batch. Delivered 7/2/2026 7:11 AM — PO Box. PS 3800 stubs grid: 27JUN26_CM_creditors-8x-grid.jpg.' },
     { mailid: 'MAIL-007', datesent: '2026-06-27', recipient: 'NELNET',
       recipientaddress: 'PO Box 82561, Lincoln NE 68501',
       documentsent: 'Creditor demand letter', relatedform: 'UCC demand letter',
       uspstracking: '9589 0710 5270 4022 2902 31', service: 'Certified Mail', status: 'DELIVERED',
       deliveryconfirmed: 'Yes', deliverydate: '2026-07-02',
       documentlocation: POM_BASE_ + '27JUN26_PO_creditors-8x-receipt.jpg',
-      note: '6/27/2026 demand-letter batch. Delivered 7/2/2026 7:20 AM — PO Box.' },
+      note: '6/27/2026 demand-letter batch. Delivered 7/2/2026 7:20 AM — PO Box. PS 3800 stubs grid: 27JUN26_CM_creditors-8x-grid.jpg.' },
     { mailid: 'MAIL-008', datesent: '2026-06-27', recipient: 'Altice USA Inc',
       recipientaddress: '1111 Stewart Ave, Bethpage NY 11714',
       documentsent: 'Creditor demand letter', relatedform: 'UCC demand letter',
@@ -142,7 +148,8 @@ function pomRecords_() {
       note: '6/27/2026 demand-letter batch. Delivered 7/2/2026 9:47 AM — Left with Individual. ' +
             'Green card CONFIRMED 2026-07-16 vs card front: addressed Altice USA Inc, 1111 Stewart Ave ' +
             'Bethpage NY 11714, article ...2901 18, PS 3811 ...0121 11. Card scans filed at ' +
-            '06-Account-Register\\Altice\\ (Altice Front_.jpg / Altice Back_1200px.jpg).' },
+            '06-Account-Register\\Altice\\ (Altice Front_.jpg / Altice Back_1200px.jpg); sender-side scan: ' +
+            POM_BASE_ + '08JUL26_GC_Altice-demand_012111.jpg. PS 3800 stubs grid: 27JUN26_CM_creditors-8x-grid.jpg.' },
     { mailid: 'MAIL-009', datesent: '2026-06-27', recipient: 'Capital One Bank (USA) NA',
       recipientaddress: 'PO Box 30285, Salt Lake City UT 84130',
       documentsent: 'Creditor demand letter', relatedform: 'UCC demand letter',
@@ -155,14 +162,14 @@ function pomRecords_() {
             'Green card in hand 2026-07-16: article ...2900 64, PS 3811 ...5525 42, signed; card ' +
             'delivery stamp reads JUL 07 2026 (one day after USPS electronic scan — kept USPS date). ' +
             'Card scans filed at 06-Account-Register\\Capital_One_Bank\\ (CapOne_FRONT_label_1200px.jpg / ' +
-            'CapOne_BACK_greencard_1200px.jpg).' },
+            'CapOne_BACK_greencard_1200px.jpg). PS 3800 stubs grid: 27JUN26_CM_creditors-8x-grid.jpg.' },
     { mailid: 'MAIL-010', datesent: '2026-06-27', recipient: 'Progressive Insurance',
       recipientaddress: 'PO Box 6807, Cleveland OH 44101',
       documentsent: 'Creditor demand letter', relatedform: 'UCC demand letter',
       uspstracking: '9589 0710 5270 4022 2901 01', service: 'Certified Mail', status: 'DELIVERED',
       deliveryconfirmed: 'Yes', deliverydate: '2026-07-06',
       documentlocation: POM_BASE_ + '27JUN26_PO_creditors-8x-receipt.jpg',
-      note: '6/27/2026 demand-letter batch. Tracking CORRECTED 2026-07-14: swapped with MAIL-012 — USPS shows this piece (...2901 01) delivered CLEVELAND OH 44101, Progressive\'s city. Delivered 7/6/2026 — Picked Up at Post Office.' },
+      note: '6/27/2026 demand-letter batch. Tracking CORRECTED 2026-07-14: swapped with MAIL-012 — USPS shows this piece (...2901 01) delivered CLEVELAND OH 44101, Progressive\'s city. Delivered 7/6/2026 — Picked Up at Post Office. PS 3800 stubs grid: 27JUN26_CM_creditors-8x-grid.jpg.' },
     { mailid: 'MAIL-011', datesent: '2026-06-27', recipient: 'Verizon Communications Inc',
       recipientaddress: 'PO Box 408, Newark NJ 07101',
       documentsent: 'Creditor demand letter', relatedform: 'UCC demand letter',
@@ -174,14 +181,16 @@ function pomRecords_() {
       note: '6/27/2026 demand-letter batch. Pairing confirmed by USPS delivery (Newark NJ). ' +
             'Delivered 7/2/2026 5:17 AM — PO Box; green card signed "Diego F", date of delivery 7-2-26. ' +
             'Card CONFIRMED in hand 2026-07-16: article ...2901 25, PS 3811 ...5525 66. Card scans filed at ' +
-            '06-Account-Register\\Verizon\\ (Verizon_FRONT_greencard_1200px.jpg / Verizon_Back_TRACKING_labels_1200px.jpg).' },
+            '06-Account-Register\\Verizon\\ (Verizon_FRONT_greencard_1200px.jpg / Verizon_Back_TRACKING_labels_1200px.jpg); ' +
+            'sender-side scan: ' + POM_BASE_ + '08JUL26_GC_Verizon-demand_552566.jpg. ' +
+            'PS 3800 stubs grid: 27JUN26_CM_creditors-8x-grid.jpg.' },
     { mailid: 'MAIL-012', datesent: '2026-06-27', recipient: 'Piedmont Natural Gas',
       recipientaddress: 'PO Box 33068, Charlotte NC 28233',
       documentsent: 'Creditor demand letter', relatedform: 'UCC demand letter',
       uspstracking: '9589 0710 5270 4022 2900 95', service: 'Certified Mail', status: 'DELIVERED',
       deliveryconfirmed: 'Yes', deliverydate: '2026-07-02',
       documentlocation: POM_BASE_ + '27JUN26_PO_creditors-8x-receipt.jpg',
-      note: '6/27/2026 demand-letter batch. Tracking CORRECTED 2026-07-14: swapped with MAIL-010 — USPS shows this piece (...2900 95) delivered CHARLOTTE NC 28233, Piedmont\'s city. Delivered 7/2/2026 — Picked Up at Post Office.' },
+      note: '6/27/2026 demand-letter batch. Tracking CORRECTED 2026-07-14: swapped with MAIL-010 — USPS shows this piece (...2900 95) delivered CHARLOTTE NC 28233, Piedmont\'s city. Delivered 7/2/2026 — Picked Up at Post Office. PS 3800 stubs grid: 27JUN26_CM_creditors-8x-grid.jpg.' },
 
     { mailid: 'MAIL-013', datesent: '2026-07-07',
       recipient: 'Internal Revenue Service — Stop 6120',
