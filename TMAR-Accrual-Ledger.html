@@ -6515,6 +6515,9 @@
       journalEntries: [],
       receivables: [],
       payables: [],
+      websiteAccounts: [],
+      contacts: [],
+      principalRegister: [],
       eliminations: [],
       syncLog: [],
       settings: {
@@ -19540,6 +19543,9 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
               <button onclick="syncPush('chartOfAccounts')" class="sync-push-btn" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📋 CoA</button>
               <button onclick="syncPush('receivables')" class="sync-push-btn" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📥 A/R</button>
               <button onclick="syncPush('journalEntries')" class="sync-push-btn" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📝 Journal</button>
+              <button onclick="syncPush('contacts')" class="sync-push-btn" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">👤 Contacts</button>
+              <button onclick="syncPush('websiteAccounts')" class="sync-push-btn" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer" title="Platform/URL/username/MFA/notes only — never passwords">🔑 Web Accts</button>
+              <button onclick="syncPush('principalRegister')" class="sync-push-btn" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">🏛️ Principal</button>
               <button onclick="syncPushAll()" class="sync-push-btn" style="background:rgba(16,185,129,0.25);border:2px solid rgba(16,185,129,0.5);color:#10b981;padding:6px 16px;border-radius:6px;font-size:11px;font-weight:800;cursor:pointer">Push All ▶</button>
             </div>
           </div>
@@ -19553,6 +19559,9 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
               <button onclick="syncPull('chartOfAccounts')" class="sync-pull-btn" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📋 CoA</button>
               <button onclick="syncPull('receivables')" class="sync-pull-btn" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📥 A/R</button>
               <button onclick="syncPull('journalEntries')" class="sync-pull-btn" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">📝 Journal</button>
+              <button onclick="syncPull('contacts')" class="sync-pull-btn" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">👤 Contacts</button>
+              <button onclick="syncPull('websiteAccounts')" class="sync-pull-btn" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer" title="Platform/URL/username/MFA/notes only — never passwords">🔑 Web Accts</button>
+              <button onclick="syncPull('principalRegister')" class="sync-pull-btn" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">🏛️ Principal</button>
               <button onclick="syncPullAll()" class="sync-pull-btn" style="background:rgba(59,130,246,0.25);border:2px solid rgba(59,130,246,0.5);color:#3b82f6;padding:6px 16px;border-radius:6px;font-size:11px;font-weight:800;cursor:pointer">Pull All ▶</button>
             </div>
           </div>
@@ -33780,7 +33789,9 @@ function ev2InitEntityVerifier() {
     principalRegister: { tab: 'Principal Register',   tabAliases: [],      sync: 'pushPrincipalRegister / pullPrincipalRegister' },
     chartOfAccounts:   { tab: 'GAAP CoA',             tabAliases: [],      sync: 'pushChartOfAccounts / pullChartOfAccounts' },
     receivables:       { tab: 'Receivables',          tabAliases: [],      sync: 'pushReceivables / pullReceivables' },
-    journalEntries:    { tab: 'Journal',              tabAliases: [],      sync: 'pushJournalEntries / pullJournalEntries' }
+    journalEntries:    { tab: 'Journal',              tabAliases: [],      sync: 'pushJournalEntries / pullJournalEntries' },
+    contacts:          { tab: 'Contacts',             tabAliases: [],      sync: 'pushContacts / pullContacts' },
+    websiteAccounts:   { tab: 'Website Accounts',     tabAliases: [],      sync: 'pushWebsiteAccounts / pullWebsiteAccounts' }
   };
   // GUI model key → canonical workbook tab name (or null if unmapped).
   function sheetForModel(key) { return SHEET_MAP[key] ? SHEET_MAP[key].tab : null; }
@@ -34285,6 +34296,70 @@ function ev2InitEntityVerifier() {
     return { added: added, updated: 0 };
   }
 
+  function applyPullWebsiteAccounts(rows) {
+    var added = 0, updated = 0, byId = {};
+    if (!appData.websiteAccounts) appData.websiteAccounts = [];
+    appData.websiteAccounts.forEach(function(a) { if (a.accountId) byId[a.accountId] = a; });
+    (rows || []).forEach(function(r) {
+      if (!r.platform) return;
+      if (r.accountId && byId[r.accountId]) {
+        var a = byId[r.accountId];
+        a.platform = r.platform || a.platform; a.url = r.url || a.url; a.username = r.username || a.username;
+        a.linkedEntity = r.linkedEntity || a.linkedEntity; a.mfaMethod = r.mfaMethod || a.mfaMethod;
+        a.lastVerified = r.lastVerified || a.lastVerified; a.notes = r.notes || a.notes;
+        updated++;
+      } else {
+        appData.websiteAccounts.push({ id: Date.now() + Math.random(), accountId: r.accountId || '', platform: r.platform || '', url: r.url || '', username: r.username || '', linkedEntity: r.linkedEntity || '', mfaMethod: r.mfaMethod || '', lastVerified: r.lastVerified || '', notes: r.notes || '' });
+        added++;
+      }
+    });
+    return { added: added, updated: updated };
+  }
+
+  function applyPullContacts(rows) {
+    var added = 0, updated = 0, byId = {};
+    if (!appData.contacts) appData.contacts = [];
+    appData.contacts.forEach(function(c) { if (c.contactId) byId[c.contactId] = c; });
+    (rows || []).forEach(function(r) {
+      if (!r.fullName) return;
+      if (r.contactId && byId[r.contactId]) {
+        var c = byId[r.contactId];
+        c.role = r.role || c.role; c.fullName = r.fullName || c.fullName; c.organization = r.organization || c.organization;
+        c.phone = r.phone || c.phone; c.email = r.email || c.email; c.mailingAddress = r.mailingAddress || c.mailingAddress;
+        c.relatedEntity = r.relatedEntity || c.relatedEntity; c.notes = r.notes || c.notes;
+        updated++;
+      } else {
+        appData.contacts.push({ id: Date.now() + Math.random(), contactId: r.contactId || '', role: r.role || '', fullName: r.fullName || '', organization: r.organization || '', phone: r.phone || '', email: r.email || '', mailingAddress: r.mailingAddress || '', relatedEntity: r.relatedEntity || '', notes: r.notes || '' });
+        added++;
+      }
+    });
+    return { added: added, updated: updated };
+  }
+
+  var PRINCIPAL_REGISTER_FIELDS_ = ['entityType', 'legalName', 'dbaName', 'ein', 'mailingAddress', 'city', 'state', 'zip',
+    'primaryTrustee', 'coTrustee', 'registeredState', 'dateEstablished', 'bankName', 'branch',
+    'accountNumber', 'routingNumber', 'accountType', 'accountHolderName', 'notes'];
+
+  function applyPullPrincipalRegister(rows) {
+    var added = 0, updated = 0, byId = {};
+    if (!appData.principalRegister) appData.principalRegister = [];
+    appData.principalRegister.forEach(function(p) { if (p.entityId) byId[p.entityId] = p; });
+    (rows || []).forEach(function(r) {
+      if (!r.legalName && !r.entityId) return;
+      if (r.entityId && byId[r.entityId]) {
+        var p = byId[r.entityId];
+        PRINCIPAL_REGISTER_FIELDS_.forEach(function(k) { p[k] = r[k] || p[k]; });
+        updated++;
+      } else {
+        var entry = { id: Date.now() + Math.random(), entityId: r.entityId || '' };
+        PRINCIPAL_REGISTER_FIELDS_.forEach(function(k) { entry[k] = r[k] || ''; });
+        appData.principalRegister.push(entry);
+        added++;
+      }
+    });
+    return { added: added, updated: updated };
+  }
+
   function syncPush(type) {
     var bridge = getSyncBridge();
     if (!bridge) return;
@@ -34320,6 +34395,21 @@ function ev2InitEntityVerifier() {
         data = appData.journalEntries || [];
         method = bridge.pushJournalEntries.bind(bridge);
         label = '📝 Journal → Journal';
+        break;
+      case 'contacts':
+        data = appData.contacts || [];
+        method = bridge.pushContacts.bind(bridge);
+        label = '👤 Contacts → Contacts';
+        break;
+      case 'websiteAccounts':
+        data = appData.websiteAccounts || [];
+        method = bridge.pushWebsiteAccounts.bind(bridge);
+        label = '🔑 Website Accounts → Website Accounts';
+        break;
+      case 'principalRegister':
+        data = appData.principalRegister || [];
+        method = bridge.pushPrincipalRegister.bind(bridge);
+        label = '🏛️ Principal → Principal Register';
         break;
       case '1099':
         // Gather all 1099 filings from appData.filings
@@ -34405,6 +34495,21 @@ function ev2InitEntityVerifier() {
         method = bridge.pullJournalEntries.bind(bridge);
         applyFn = applyPullJournalEntries;
         label = 'Journal → 📝 Journal';
+        break;
+      case 'contacts':
+        method = bridge.pullContacts.bind(bridge);
+        applyFn = applyPullContacts;
+        label = 'Contacts → 👤 Contacts';
+        break;
+      case 'websiteAccounts':
+        method = bridge.pullWebsiteAccounts.bind(bridge);
+        applyFn = applyPullWebsiteAccounts;
+        label = 'Website Accounts → 🔑 Website Accounts';
+        break;
+      case 'principalRegister':
+        method = bridge.pullPrincipalRegister.bind(bridge);
+        applyFn = applyPullPrincipalRegister;
+        label = 'Principal Register → 🏛️ Principal';
         break;
       default:
         showAlert('Unknown pull type: ' + type, 'Error');
