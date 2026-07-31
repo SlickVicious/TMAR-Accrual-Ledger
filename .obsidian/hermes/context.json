@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "source": "lean-obsidian-terminal",
+  "vaultPath": "C:\\Users\\rhyme\\Documents\\TMAR-Accrual-Ledger",
+  "bridgePath": "C:\\Users\\rhyme\\Documents\\TMAR-Accrual-Ledger/.obsidian/hermes/context.json",
+  "updatedAt": "2026-07-31T19:52:42.957Z",
+  "updateTimestamp": 1785527562957,
+  "submitSequence": 5,
+  "attach": {
+    "enabled": false
+  },
+  "terminal": {
+    "id": "terminal-2",
+    "title": "Hermes 1"
+  },
+  "context": null
+}

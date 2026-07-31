@@ -1,0 +1,15 @@
+{
+  "theme": "obsidian",
+  "cssTheme": "Cobalt Peacock",
+  "showViewHeader": true,
+  "enabledCssSnippets": [
+    "hideproperties"
+  ],
+  "monospaceFontFamily": "Rubik",
+  "textFontFamily": "Rubik",
+  "interfaceFontFamily": "Rubik",
+  "showRibbon": true,
+  "baseFontSizeAction": true,
+  "baseFontSize": 17,
+  "accentColor": "#6946b9"
+}

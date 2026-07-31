@@ -86,5 +86,23 @@ scripts/
 !.claude/skills/**/scripts/**
 tmar_cleanup.ps1
 
-# Obsidian workspace config (local editor state, not repo config)
-.obsidian/
+# Hermes Agent vault context — share the vault identity file, ignore runtime state
+.hermes/runtime/*
+!.hermes/
+!.hermes/vault-context.md
+
+# Obsidian — ignore everything by default (local editor state)...
+.obsidian/*
+# ...but SHARE the vault standard configs so every clone has the same theme,
+# plugins, and homepage. Workspace state (workspace.json, hotkeys.json, etc.)
+# stays local.
+!.obsidian/app.json
+!.obsidian/appearance.json
+!.obsidian/community-plugins.json
+!.obsidian/core-plugins.json
+!.obsidian/core-plugins-migration.json
+!.obsidian/homepage.json
+# hermes/ subdir inside .obsidian/ (context bridge) — ignore runtime state, share config
+!.obsidian/hermes/
+!.obsidian/hermes/context.json
+.obsidian/hermes/runtime/*

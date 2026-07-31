@@ -1,0 +1,35 @@
+{
+  "alwaysUpdateLinks": true,
+  "newFileLocation": "folder",
+  "newFileFolderPath": "_new",
+  "attachmentFolderPath": "_attachments",
+  "showInlineTitle": true,
+  "promptDelete": false,
+  "pdfExportSettings": {
+    "includeName": true,
+    "pageSize": "A4",
+    "landscape": false,
+    "margin": "1",
+    "downscalePercent": 100
+  },
+  "showUnsupportedFiles": false,
+  "showLineNumber": true,
+  "readableLineLength": true,
+  "trashOption": "system",
+  "userIgnoreFilters": [
+    "node_modules/",
+    ".git/",
+    "_archive/",
+    ".tmar-build/",
+    "screenshots/",
+    "tt-screenshots/",
+    "backup_*/",
+    "OG files/",
+    "*.zip",
+    "*.rar",
+    "*.exe",
+    "*.dll",
+    "*.bin",
+    "*.dat"
+  ]
+}
