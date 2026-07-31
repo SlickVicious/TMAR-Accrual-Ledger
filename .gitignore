@@ -50,6 +50,7 @@ tt-test.html
 .env*
 .flaskenv*
 !.env.project
+scripts/.tmar-gas-key
 
 # Local IDE / editor settings
 .vscode/

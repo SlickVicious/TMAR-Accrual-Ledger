@@ -6528,6 +6528,7 @@
         address: '',
         grantor: '',
         gasWebAppUrl: 'https://script.google.com/macros/s/AKfycbzpeegvE52lvqCTMyKrsdaa_4JFfjM6MQrsJkU8zb17fkUJzPRasUU0fjONdaHkM5dh/exec',
+        gasApiKey: '',
         lastSyncTimestamp: null,
         googleClientId: '',
         spreadsheetId: ''
@@ -19408,6 +19409,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
           </div>
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
             <input type="text" id="sync-gas-url" placeholder="GAS Web App URL (https://script.google.com/...)" value="" oninput="onGasUrlChange()" style="width:360px;padding:8px 12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:6px;color:var(--text-primary);font-size:12px;font-family:monospace" data-guide="Paste your deployed Google Apps Script Web App /exec URL here. This is the bridge that pushes ledger data into the Master Register workbook. Saved locally; redeploy the GAS Web App if doGet/doPost changed.">
+            <input type="password" id="sync-gas-key" placeholder="API Key (TMAR_API_KEY)" value="" oninput="onGasKeyChange()" style="width:200px;padding:8px 12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:6px;color:var(--text-primary);font-size:12px;font-family:monospace" data-guide="The shared secret required by every GAS Web App action except ping. Set once as the TMAR_API_KEY Script Property in the Apps Script editor, then paste the same value here. Saved locally only — never committed to the repo.">
             <button onclick="testSyncConnection()" id="sync-test-btn" style="background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.5);color:#10b981;padding:8px 16px;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer" data-guide="Pings the GAS Web App URL above to verify the bridge responds. Green status dot = connected and ready to sync; red = check the URL or redeploy the Web App.">🔌 Test Connection</button>
           </div>
         </div>
@@ -32920,10 +32922,14 @@ function ev2InitEntityVerifier() {
     el = document.getElementById('sync-export-payables-count');
     if (el) el.textContent = pays + ' payables';
 
-    // Restore GAS URL from settings
+    // Restore GAS URL + API key from settings
     var urlInput = document.getElementById('sync-gas-url');
     if (urlInput && appData.settings && appData.settings.gasWebAppUrl) {
       urlInput.value = appData.settings.gasWebAppUrl;
+    }
+    var keyInput = document.getElementById('sync-gas-key');
+    if (keyInput && appData.settings && appData.settings.gasApiKey) {
+      keyInput.value = appData.settings.gasApiKey;
     }
 
     // Enable/disable Tier 2 panel
@@ -32946,6 +32952,14 @@ function ev2InitEntityVerifier() {
       saveToStorage();
     }
     updateTier2PanelState();
+  }
+
+  function onGasKeyChange() {
+    var keyInput = document.getElementById('sync-gas-key');
+    if (keyInput && appData.settings) {
+      appData.settings.gasApiKey = keyInput.value.trim();
+      saveToStorage();
+    }
   }
 
   function updateTier2PanelState() {
@@ -33785,6 +33799,7 @@ function ev2InitEntityVerifier() {
 
   function SyncBridge(gasUrl) {
     this.url = gasUrl;
+    this.key = (appData.settings && appData.settings.gasApiKey) ? appData.settings.gasApiKey.trim() : '';
     this.timeout = 30000;
   }
 
@@ -33792,8 +33807,11 @@ function ev2InitEntityVerifier() {
     var url = this.url + '?action=' + action;
     var opts = { method: method || 'GET', mode: 'cors' };
     if (body) {
+      if (this.key) body.key = this.key;
       opts.body = JSON.stringify(body);
       opts.headers = { 'Content-Type': 'text/plain' }; // text/plain avoids CORS preflight
+    } else if (this.key) {
+      url += '&key=' + encodeURIComponent(this.key);
     }
     var ctrl = new AbortController();
     var timer = setTimeout(function() { ctrl.abort(); }, this.timeout);

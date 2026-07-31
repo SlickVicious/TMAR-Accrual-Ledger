@@ -431,17 +431,31 @@ function importLedger1099s(filings) {
 // doGet/doPost endpoints for bidirectional sync between Accrual Ledger HTML
 // app and this Google Sheet. Deploy as Web App (Execute as: Me, Access: Anyone).
 //
+// Auth: every action except `ping` requires a key — GET: &key=<TMAR_API_KEY>,
+// POST: {..., key:'<TMAR_API_KEY>'}. Checked by checkApiKey_() against the
+// TMAR_API_KEY Script Property (Project Settings → Script Properties in the
+// Apps Script editor — never hardcode it here, this file is in a public repo).
+//
 // Usage from Accrual Ledger:
-//   GET  ?action=ping                → connection test
-//   GET  ?action=pullAccounts        → read Master Register → JSON
-//   GET  ?action=pullTransactions    → read Transaction Ledger → JSON
-//   GET  ?action=pullObligations     → read Household Obligations → JSON
-//   GET  ?action=pull1099            → read 1099 Filing Chain → JSON
-//   GET  ?action=pullValidation      → read _Validation lists → JSON
+//   GET  ?action=ping                     → connection test (no key required)
+//   GET  ?action=pullAccounts             → read Master Register → JSON
+//   GET  ?action=pullTransactions         → read Transaction Ledger → JSON
+//   GET  ?action=pullObligations          → read Household Obligations → JSON
+//   GET  ?action=pull1099                 → read 1099 Filing Chain → JSON
+//   GET  ?action=pullValidation           → read _Validation lists → JSON
+//   GET  ?action=pullChartOfAccounts      → read GAAP CoA → JSON
+//   GET  ?action=pullReceivables          → read Receivables → JSON
+//   GET  ?action=pullJournalEntries       → read Journal → JSON
+//   GET  ?action=pullPrincipalRegister    → read Principal Register → JSON
+//   GET  ?action=pullContacts             → read Contacts → JSON
+//   GET  ?action=pullWebsiteAccounts      → read Website Accounts (no password col) → JSON
+//   GET  ?action=listSheetTabs/listWorkbookTabs/pullRawTab/pullWorkbookSheets
 //   POST {action:'pushEntities', entities:[...]}     → write to Master Register
 //   POST {action:'pushTransactions', entries:[...]}  → write to Transaction Ledger
 //   POST {action:'pushPayables', payables:[...]}     → write to Household Obligations
 //   POST {action:'push1099', filings:[...]}          → write to 1099 Filing Chain
+//   POST {action:'pushChartOfAccounts'|'pushReceivables'|'pushJournalEntries'
+//         |'pushPrincipalRegister'|'pushContacts'|'pushWebsiteAccounts', ...}
 //   POST {action:'fullSync', data:{...}}             → write to all sheets
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -555,6 +569,20 @@ function jsonResponse_(data) {
  */
 function errorResponse_(message) {
   return jsonResponse_({ status: 'error', message: message });
+}
+
+/**
+ * Validate a caller-supplied key against the TMAR_API_KEY Script Property.
+ * The key is never stored in source (this file is in a public repo) — set it
+ * once via Apps Script editor: Project Settings → Script Properties.
+ * @param {string} providedKey - value of ?key= (GET) or payload.key (POST).
+ * @return {TextOutput|null} an error response if unauthorized, else null (OK).
+ */
+function checkApiKey_(providedKey) {
+  var expected = PropertiesService.getScriptProperties().getProperty('TMAR_API_KEY');
+  if (!expected) return errorResponse_('Server misconfigured: TMAR_API_KEY Script Property not set');
+  if (!providedKey || providedKey !== expected) return errorResponse_('Unauthorized — missing or invalid key');
+  return null;
 }
 
 /**
@@ -701,6 +729,11 @@ function pullSheetData_(ss, sheetName, startRow, headers, options) {
  */
 function doGet(e) {
   var action = (e && e.parameter && e.parameter.action) ? e.parameter.action : '';
+
+  if (action !== 'ping') {
+    var authErr = checkApiKey_(e && e.parameter && e.parameter.key);
+    if (authErr) return authErr;
+  }
 
   try {
     var ss = getTMARSpreadsheet_();
@@ -1101,6 +1134,9 @@ function doPost(e) {
     } catch (parseErr) {
       return errorResponse_('Invalid JSON: ' + parseErr.message);
     }
+
+    var authErr = checkApiKey_(payload.key);
+    if (authErr) return authErr;
 
     var action = payload.action || '';
     var ss = getTMARSpreadsheet_();
