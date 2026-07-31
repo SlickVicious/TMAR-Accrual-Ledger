@@ -41287,7 +41287,10 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <button class="btn btn-sm" onclick="genPW()" title="Generate password">🎲</button>
 <button class="btn btn-primary btn-sm" onclick="addVaultEntry()" data-guide="Add a new encrypted entry to your vault (API key, credential, or sensitive note)">💾 Save</button>
 </div>
-<input id="vSearch" placeholder="Search vault..." style="width:100%;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;margin-bottom:8px" oninput="renderVault()">
+<div style="display:flex;gap:8px;margin-bottom:8px">
+<input id="vSearch" placeholder="Search vault..." style="flex:1;padding:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px" oninput="renderVault()">
+<button class="btn btn-sm" onclick="exportVaultToCsv()" data-guide="Downloads a platform,password CSV of every vault entry — matches the format scripts/sync-credentials.mjs merges into the FileCabinet Credentials reference. Move the downloaded file to Desktop\\FileCabinet\\Credentials\\_passwords.local.csv.">⬇ Export CSV</button>
+</div>
 <div id="vaultTable" style="font-size:12px"></div>
 </div>
 </div>
@@ -52699,6 +52702,28 @@ async function vaultDelete(id) {
   entries = entries.filter(function(e){ return e.id !== id; });
   await _vaultSave(entries);
   renderVault();
+}
+
+async function exportVaultToCsv() {
+  if (!_vaultKey) { alert('Unlock vault first.'); return; }
+  var entries = await _vaultLoad();
+  if (!entries.length) { alert('Vault is empty — nothing to export.'); return; }
+  var escCsv = function(v) {
+    var s = String(v == null ? '' : v);
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+  var lines = ['accountId,platform,password'];
+  entries.forEach(function(e) {
+    lines.push(',' + escCsv(e.site) + ',' + escCsv(e.pass));
+  });
+  var blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '_passwords.local.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
 }
 
 function genPW() {
