@@ -2,7 +2,7 @@
 type: skill-index
 Category: ClaudeSkills
 status: active
-Date-Added: "[[2026-02-26]]"
+Date-Added: "2026-02-26"
 tags:
   - "#My/SysAdmin"
   - "#Claude/Skill"

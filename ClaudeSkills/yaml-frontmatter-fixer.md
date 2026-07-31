@@ -21,7 +21,7 @@ priority: critical
 platform: multi-platform
 status: production
 version: "2.0.0"
-Date-Added: "[[2026-03-06]]"
+Date-Added: "2026-03-06"
 tags:
   - "#My/SysAdmin"
   - "#Claude/Skill"
@@ -149,7 +149,7 @@ Generates a markdown report with wikilinks to every affected file:
 
 ## Files with Issues
 
-### [[path/to/file]]
+### `path/to/file`
 - Markdown heading prefix (##) inside frontmatter
 - Concatenated fields on single line (sidebar paste pattern)
 - Long inline description (should be >- block scalar)

@@ -19,7 +19,7 @@ priority: medium
 platform: multi-platform
 status: production
 version: "1.0.0"
-Date-Added: "[[2026-02-26]]"
+Date-Added: "2026-02-26"
 tags:
   - "#My/SysAdmin"
   - "#Claude/Skill"

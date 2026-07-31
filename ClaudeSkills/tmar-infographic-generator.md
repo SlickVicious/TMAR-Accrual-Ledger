@@ -19,7 +19,7 @@ priority: high
 platform: claude-ai
 status: production
 version: "1.0.0"
-Date-Added: "[[2026-03-03]]"
+Date-Added: "2026-03-03"
 tags:
   - "#My/SysAdmin"
   - "#Claude/Skill"
