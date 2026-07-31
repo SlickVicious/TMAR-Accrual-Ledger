@@ -49365,16 +49365,16 @@ const AP = {
 
   exportPDF: function(page) { this.printConv(page); },
 
-  exportWord: function(page) {
+  exportWord: async function(page) {
     var data = this._load(page);
     if (!data.current || !data.sessions[data.current]) { alert('No conversation to export.'); return; }
     var session = data.sessions[data.current];
-    var text = (session.title || page + ' Conversation') + '\n\n' + session.messages.map(function(m) { return (m.role === 'user' ? 'YOU:\n' : 'AGENT:\n') + m.content; }).join('\n\n---\n\n');
-    var blob = new Blob([text], { type: 'application/msword' });
-    var a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = (session.title || page).replace(/[^a-z0-9]/gi, '_') + '.doc';
-    a.click();
+    var topic = session.title || (page + ' Conversation');
+    var text = topic + '\n\n' + session.messages.map(function(m) { return (m.role === 'user' ? 'YOU:\n' : 'AGENT:\n') + m.content; }).join('\n\n---\n\n');
+    var result = await aigentSave(text, aigentFilename(topic, 'doc'), 'application/msword');
+    if (result.method === 'download') {
+      console.log('[AIgent export] Saved via download (no AIgent folder access granted) — move to Desktop\\FileCabinet\\_Unsorted\\AIgent, or export again and grant folder access to skip this next time.');
+    }
   },
 
   shareLink: function(page) {
@@ -53653,19 +53653,124 @@ function docDelete(id) {
   renderDocs();
 }
 
+// ── AIGENT EXPORT STANDARD ─────────────────────────────────────
+// Shared save target for every whole-conversation chat export (Chat tab +
+// AP panels — Research/Trust/Agents/Code Expert/etc). Naming: "{summary
+// topic}-{YYYY-MM-DD}.{ext}" (extension preserved from the original export
+// type). Target folder: Desktop\FileCabinet\_Unsorted\AIgent.
+//
+// A web page cannot silently write to an arbitrary filesystem path — the
+// closest available mechanism is the File System Access API: the user grants
+// one folder once via a native picker, the handle is persisted in IndexedDB,
+// and future saves re-verify permission (a quick "Allow", no dialog browsing)
+// before writing directly into it. Chrome/Edge only; other browsers (and a
+// declined/revoked grant) fall back to a normal download.
+
+var AIGENT_DB_NAME_ = 'tmar_aigent_export';
+var AIGENT_DB_STORE_ = 'handles';
+var AIGENT_DB_KEY_ = 'aigentDir';
+
+function _aigentOpenDb() {
+  return new Promise(function(resolve, reject) {
+    var req = indexedDB.open(AIGENT_DB_NAME_, 1);
+    req.onupgradeneeded = function() { req.result.createObjectStore(AIGENT_DB_STORE_); };
+    req.onsuccess = function() { resolve(req.result); };
+    req.onerror = function() { reject(req.error); };
+  });
+}
+
+function _aigentGetSavedHandle() {
+  return _aigentOpenDb().then(function(db) {
+    return new Promise(function(resolve) {
+      var tx = db.transaction(AIGENT_DB_STORE_, 'readonly');
+      var req = tx.objectStore(AIGENT_DB_STORE_).get(AIGENT_DB_KEY_);
+      req.onsuccess = function() { resolve(req.result || null); };
+      req.onerror = function() { resolve(null); };
+    });
+  }).catch(function() { return null; });
+}
+
+function _aigentSetSavedHandle(handle) {
+  return _aigentOpenDb().then(function(db) {
+    return new Promise(function(resolve) {
+      var tx = db.transaction(AIGENT_DB_STORE_, 'readwrite');
+      tx.objectStore(AIGENT_DB_STORE_).put(handle, AIGENT_DB_KEY_);
+      tx.oncomplete = function() { resolve(); };
+      tx.onerror = function() { resolve(); };
+    });
+  }).catch(function() {});
+}
+
+async function _aigentGetDirHandle() {
+  if (!window.showDirectoryPicker) return null;
+  var handle = await _aigentGetSavedHandle();
+  if (handle) {
+    try {
+      var perm = await handle.queryPermission({ mode: 'readwrite' });
+      if (perm !== 'granted') perm = await handle.requestPermission({ mode: 'readwrite' });
+      if (perm === 'granted') return handle;
+    } catch (e) { /* stale/revoked handle — fall through and re-pick */ }
+  }
+  try {
+    handle = await window.showDirectoryPicker({ id: 'aigent-export', mode: 'readwrite', startIn: 'desktop' });
+    await _aigentSetSavedHandle(handle);
+    return handle;
+  } catch (e) {
+    return null; // user cancelled the picker
+  }
+}
+
+function _aigentSanitizeTopic(topic) {
+  // Preserve spaces/case (per the standard's example) — strip only characters invalid in Windows filenames.
+  var s = String(topic || '').replace(/[<>:"/\\|?*\x00-\x1f]/g, '').trim().slice(0, 120);
+  return s || 'Untitled Chat';
+}
+
+function aigentFilename(topic, ext) {
+  var date = new Date().toISOString().slice(0, 10);
+  return _aigentSanitizeTopic(topic) + '-' + date + '.' + String(ext).replace(/^\./, '');
+}
+
+/** Saves `content` (string or Blob) as `filename` — AIgent folder if granted, else a normal download. */
+async function aigentSave(content, filename, mimeType) {
+  var blob = (content instanceof Blob) ? content : new Blob([content], { type: mimeType || 'text/plain' });
+  var dir = await _aigentGetDirHandle();
+  if (dir) {
+    try {
+      var fileHandle = await dir.getFileHandle(filename, { create: true });
+      var writable = await fileHandle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      return { ok: true, method: 'aigent-folder' };
+    } catch (e) {
+      console.warn('[AIgent export] folder write failed, falling back to download:', e);
+    }
+  }
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+  return { ok: true, method: 'download' };
+}
+
 // ── CHAT EXPORT / SHARE ───────────────────────────────────────
 
-function exportChat() {
+async function exportChat() {
   var msgs = document.getElementById('chatMsgs');
   if (!msgs || !msgs.children.length) { alert('No messages to export.'); return; }
   var text = Array.from(msgs.children).map(function(el) {
     var role = el.classList.contains('user-msg') ? 'YOU' : 'AGENT';
     return role + ': ' + (el.innerText||'');
   }).join('\n\n');
-  var blob = new Blob([text], {type:'text/plain'});
-  var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = 'chat-export-' + new Date().toISOString().slice(0,10) + '.txt';
-  a.click();
+  var firstUserEl = Array.from(msgs.children).find(function(el) { return el.classList.contains('user-msg'); });
+  var topic = firstUserEl ? firstUserEl.innerText.trim().slice(0, 60) : 'Chat Export';
+  var result = await aigentSave(text, aigentFilename(topic, 'txt'), 'text/plain');
+  if (result.method === 'download') {
+    console.log('[AIgent export] Saved via download (no AIgent folder access granted) — move to Desktop\\FileCabinet\\_Unsorted\\AIgent, or click Export again and grant folder access to skip this next time.');
+  }
 }
 
 function shareChat() {
