@@ -2,6 +2,11 @@ node_modules/
 .DS_Store
 coverage/
 
+# Plaintext credentials capture (Hermes dev, by design) — must never reach git,
+# regardless of intent. Move to FileCabinet\Credentials\ or the encrypted
+# Password Vault when convenient; this rule is the safety net either way.
+docs/Webaccts/
+
 # NOI Agent Browser — Do Not Upload
 bearer.token
 config.toml
