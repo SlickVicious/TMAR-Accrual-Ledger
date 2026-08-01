@@ -531,6 +531,14 @@ function importSyrinaCreditReportAccounts() {
 }
 
 
+/** 'MM/YYYY' -> 'YYYY-MM-01' (matches the sheet's date convention). Passes through '', already-ISO, or unparseable input unchanged. */
+function normalizeMonthYear_(val) {
+  if (!val) return '';
+  var m = String(val).match(/^(\d{2})\/(\d{4})$/);
+  if (!m) return val;
+  return m[2] + '-' + m[1] + '-01';
+}
+
 function importToMasterRegister_(ss, accounts) {
   const sheet = ss.getSheetByName('Master Register');
   if (!sheet) {
@@ -575,45 +583,51 @@ function importToMasterRegister_(ss, accounts) {
       continue;
     }
 
-    // Build 35-column row
+    // Build row matching the LIVE Master Register header (29 real columns —
+    // NOT the 35-column layout in domain-models.md, which is stale relative
+    // to this sheet; verified against the live header 2026-08-01 after this
+    // mismatch silently shifted MR-112/114/116/146 by several columns).
     const mrId = 'MR-' + String(nextId).padStart(3, '0');
-    const row = new Array(35).fill('');
+    const row = new Array(29).fill('');
 
-    row[0]  = mrId;                        // A: Row ID
-    row[1]  = today;                       // B: Date Added
-    row[2]  = acct.provider;               // C: Provider/Creditor
-    row[3]  = '';                           // D: Mailing Address
-    row[4]  = acct.ein;                    // E: Provider EIN
-    row[5]  = acct.acctNumber;             // F: Account Number
-    row[6]  = acct.acctType;               // G: Account Type
-    row[7]  = acct.acctSubtype;            // H: Account Subtype
-    row[8]  = '';                           // I: Account Agent
-    row[9]  = '';                           // J: Agent Address
-    row[10] = acct.status;                 // K: Status
-    row[11] = acct.opened;                 // L: Opened Date
-    row[12] = acct.closed;                 // M: Closed Date
-    row[13] = acct.balance;                // N: Current Balance
-    row[14] = acct.highBal;                // O: High Balance
-    row[15] = acct.monthlyPmt;             // P: Monthly Payment
-    row[16] = '';                           // Q: APR/Rate
-    row[17] = '';                           // R: Billing Frequency
-    row[18] = '';                           // S: Next Payment Due
-    row[19] = acct.primaryUser;            // T: Primary User
-    row[20] = '';                           // U: Secondary User
-    row[21] = '';                           // V: Account Purpose
-    row[22] = '';                           // W: Document Location
-    row[23] = '01/15/2026';                // X: Last Verified (credit report date)
-    row[24] = '';                           // Y: Linked MR Account
-    row[25] = '';                           // Z: Trust Assignment
-    row[26] = acct.taxRelevance;           // AA: Tax Relevance
-    row[27] = '';                           // AB: Tax Form
-    row[28] = '';                           // AC: Deduction Type
-    row[29] = acct.creditStatus;           // AD: Credit Report Status
-    row[30] = acct.removalDate;            // AE: Removal Date
-    row[31] = '';                           // AF: Dispute Status
-    row[32] = acct.notes;                  // AG: Notes
-    row[33] = acct.source;                 // AH: Source
-    row[34] = 'Newly Discovered';          // AI: Discovery Status
+    // Fold every field that has no dedicated live column into one Notes string.
+    const combinedNotes = [
+      acct.creditStatus,
+      acct.notes,
+      acct.taxRelevance,
+      acct.removalDate ? ('Removal: ' + normalizeMonthYear_(acct.removalDate)) : '',
+      acct.source ? ('Source: ' + acct.source) : ''
+    ].filter(Boolean).join(' ');
+
+    row[0]  = mrId;                            // Row ID
+    row[1]  = today;                           // Date Added
+    row[2]  = acct.provider;                   // Provider/Creditor
+    row[3]  = acct.ein;                        // Provider EIN
+    row[4]  = acct.acctNumber;                 // Account Number
+    row[5]  = acct.acctType;                   // Account Type
+    row[6]  = acct.acctSubtype;                // Account Subtype
+    row[7]  = acct.status;                     // Status
+    row[8]  = normalizeMonthYear_(acct.opened);   // Open Date
+    row[9]  = normalizeMonthYear_(acct.closed);   // Close Date
+    row[10] = acct.balance;                    // Current Balance
+    row[11] = acct.highBal;                    // Original Balance
+    row[12] = '';                               // Billing Frequency
+    row[13] = '';                               // Next Payment Due
+    row[14] = acct.primaryUser;                // Primary User
+    row[15] = '';                               // Authorized Users
+    row[16] = '';                               // Autopay Status
+    row[17] = '';                               // Payment Source
+    row[18] = '';                               // Contract/Terms File
+    row[19] = '';                               // Statements Complete
+    row[20] = '';                               // Tax Forms on File
+    row[21] = '';                               // PoP Documents
+    row[22] = '';                               // Document Location
+    row[23] = '';                               // Last Statement Date
+    row[24] = '2026-01-15';                    // Last Verified Date (credit report pull date)
+    row[25] = '';                               // Retention Period
+    row[26] = combinedNotes;                   // Notes
+    row[27] = '';                               // Tags
+    row[28] = 'Newly Discovered';              // Discovery Status
 
     sheet.appendRow(row);
     existingProviders.add(key);

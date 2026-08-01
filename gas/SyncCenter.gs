@@ -1230,6 +1230,16 @@ function doPost(e) {
         return jsonResponse_(waResult);
       }
 
+      case 'pushRegistryScan': {
+        if (!payload.text || typeof payload.text !== 'string') {
+          return errorResponse_('pushRegistryScan requires a "text" field with TSV/CSV content');
+        }
+        var mode = payload.mode || 'replace';  // 'replace' | 'append'
+        var rsResult = importRegistryScan(payload.text, mode);
+        updateSyncTimestamp_(ss, 'Document Registry', 'push');
+        return jsonResponse_(rsResult);
+      }
+
       case 'importSubstituteW2':
         if (!payload.payload || typeof payload.payload !== 'object') {
           return errorResponse_('importSubstituteW2 requires a nested "payload" object');
@@ -1368,9 +1378,29 @@ function pushEntities_(ss, entities) {
 
     var existingRow = existingProviders[name.toLowerCase()];
     if (existingRow) {
-      // Upsert: update existing row
-      if (ent.status) sheet.getRange(existingRow, 8).setValue(ent.status);
-      if (ent.notes) sheet.getRange(existingRow, 27).setValue(ent.notes);
+      // Upsert: update existing row with all provided fields.
+      // Uses !== undefined (not truthy) so a legitimate $0 balance or similar zero value writes correctly.
+      // Each field is written + flushed independently inside its own try/catch: a data-validation
+      // rejection on one column (e.g. a dropdown-restricted cell) throws, and without isolating it
+      // per field + an explicit flush(), that exception aborts the whole upsert AND rolls back every
+      // pending write that hadn't been flushed yet — silently dropping fields that "succeeded" earlier
+      // in the list. Found 2026-08-01 fixing the credit-report-import column shift (MR-112/114/116/146).
+      var fieldMap = [
+        ['acctType', 6], ['subtype', 7], ['status', 8], ['openDate', 9], ['closeDate', 10],
+        ['currentBalance', 11], ['originalBalance', 12], ['primaryUser', 15],
+        ['paymentSource', 18], ['statementsComplete', 20], ['documentLocation', 23],
+        ['lastStatementDate', 24], ['lastVerified', 25], ['notes', 27]
+      ];
+      for (var fi = 0; fi < fieldMap.length; fi++) {
+        var fKey = fieldMap[fi][0], fCol = fieldMap[fi][1];
+        if (ent[fKey] === undefined) continue;
+        try {
+          sheet.getRange(existingRow, fCol).setValue(ent[fKey]);
+          SpreadsheetApp.flush();
+        } catch (writeErr) {
+          // A rejected value (e.g. validation-restricted dropdown column) shouldn't block the rest.
+        }
+      }
       sheet.getRange(existingRow, 29).setValue('Synced from Ledger');
       updated++;
       continue;
@@ -1388,7 +1418,14 @@ function pushEntities_(ss, entities) {
     row[5] = typeMap[ent.type] || ent.type || '';
     row[6] = ent.subtype || '';
     row[7] = ent.status || 'Active';
+    row[8] = ent.openDate || '';
+    row[10] = ent.currentBalance || '';
     row[14] = ent.primaryUser || '';
+    row[17] = ent.paymentSource || '';
+    row[19] = ent.statementsComplete || '';
+    row[22] = ent.documentLocation || '';
+    row[23] = ent.lastStatementDate || '';
+    row[24] = ent.lastVerified || '';
     row[26] = ent.notes || '';
     row[28] = 'Synced from Ledger';
 
