@@ -1,6 +1,7 @@
 ---
 type: archived
-status: superseded_by: "Unified 13-tab workbook (Feb 2026) → 8-tab schema"
+status: superseded
+superseded_by: "Unified 13-tab workbook (Feb 2026) → 8-tab schema"
 source_vault: "Legal Document Generator"
 source_path: "06 Toolkit/Dev/SS Master Acct Reg/Master-Account-Register-SCALABLE-Design.md"
 ---
