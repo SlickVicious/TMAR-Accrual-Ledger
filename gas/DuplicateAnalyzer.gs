@@ -21,23 +21,26 @@ function analyzeDuplicateAccounts() {
       return { message: 'No accounts found in Master Register' };
     }
 
-    // Read all 35 columns
-    var data = sheet.getRange(2, 1, lastRow - 1, 35).getValues();
+    // Read the real live header (29 columns) — NOT the stale 35-column layout in
+    // domain-models.md. Verified against the live sheet 2026-08-01 after that
+    // mismatch was found silently corrupting three separate GAS files
+    // (CreditReportImport.gs, pushEntities_, and this one).
+    var data = sheet.getRange(2, 1, lastRow - 1, 29).getValues();
 
     var accounts = data.map(function(row, idx) {
       return {
         rowNum: idx + 2, // +2 because we start from row 2 and arrays are 0-indexed
-        id: row[0],                    // A: Row ID
-        dateAdded: row[1],             // B: Date Added
-        name: (row[2] || '').toString().trim(),  // C: Provider/Creditor Name
-        ein: (row[4] || '').toString().trim(),   // E: Provider EIN (based on CreditReportImport line 586)
-        accountNumber: (row[5] || '').toString().trim(), // F: Account Number
-        type: (row[6] || '').toString().trim(),  // G: Account Type
-        subtype: (row[7] || '').toString().trim(), // H: Account Subtype
-        status: (row[10] || '').toString().trim(), // K: Status
-        balance: row[13],              // N: Current Balance
-        primaryUser: (row[19] || '').toString().trim(), // T: Primary User
-        notes: (row[32] || '').toString().trim()  // AG: Notes
+        id: row[0],                    // Row ID
+        dateAdded: row[1],             // Date Added
+        name: (row[2] || '').toString().trim(),  // Provider/Creditor
+        ein: (row[3] || '').toString().trim(),   // Provider EIN
+        accountNumber: (row[4] || '').toString().trim(), // Account Number
+        type: (row[5] || '').toString().trim(),  // Account Type
+        subtype: (row[6] || '').toString().trim(), // Account Subtype
+        status: (row[7] || '').toString().trim(), // Status
+        balance: row[10],              // Current Balance
+        primaryUser: (row[14] || '').toString().trim(), // Primary User
+        notes: (row[26] || '').toString().trim()  // Notes
       };
     });
 

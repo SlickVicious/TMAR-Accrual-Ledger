@@ -5,55 +5,61 @@
 - Document assumptions before changing core calculations.
 - If a model change affects reports or exports, note downstream impact briefly.
 
-## Master Register Schema (35 columns, A–AI, strict order)
+## Master Register Schema (29 columns, A–AC, strict order)
+
+**Corrected 2026-08-01** — the table below was previously documented as 35 columns
+(A–AI) with a different field order. That version was stale and never matched the live
+sheet; it silently caused real bugs in three separate GAS files that were written
+against it instead of the live header (`CreditReportImport.gs`'s row builder,
+`pushEntities_` in `SyncCenter.gs`, and `DuplicateAnalyzer.gs`'s column reader — all
+fixed same day). This table is verified directly against the live header row, not
+assumed. If you touch Master Register column logic again, re-verify against
+`?action=pullRawTab&tab=Master%20Register` rather than trusting this doc blindly —
+schemas drift.
 
 | Col | Field | Notes |
 |-----|-------|-------|
-| A | ROW_ID | Format: MR-XXX (auto-generated, never reuse) |
-| B | DATE_ADDED | ISO date |
-| C | PROVIDER | Creditor / institution name |
-| D | MAILING_ADDRESS | |
-| E | PROVIDER_EIN | |
-| F | ACCOUNT_NUMBER | |
-| G | ACCOUNT_TYPE | See allowed values below |
-| H | ACCOUNT_SUBTYPE | |
-| I | ACCOUNT_AGENT | |
-| J | AGENT_ADDRESS | |
-| K | STATUS | Active / Closed / Pending / Disputed / Verified / Unverified |
-| L | OPENED_DATE | |
-| M | CLOSED_DATE | |
-| N | CURRENT_BALANCE | Number |
-| O | HIGH_BALANCE | |
-| P | MONTHLY_PAYMENT | |
-| Q | APR_RATE | |
-| R | BILLING_FREQUENCY | Monthly / Quarterly / Annual / Semi-Annual / Bi-Weekly / Weekly / On-Demand |
-| S | NEXT_PAYMENT_DUE | |
-| T | PRIMARY_USER | Clint / Syrina / Joint |
-| U | SECONDARY_USER | |
-| V | ACCOUNT_PURPOSE | |
-| W | DOCUMENT_LOCATION | |
-| X | LAST_VERIFIED | |
-| Y | LINKED_MR_ACCOUNT | |
-| Z | TRUST_ASSIGNMENT | |
-| AA | TAX_RELEVANCE | |
-| AB | TAX_FORM | See allowed values below |
-| AC | DEDUCTION_TYPE | |
-| AD | CREDIT_REPORT_STATUS | |
-| AE | REMOVAL_DATE | |
-| AF | DISPUTE_STATUS | |
-| AG | NOTES | |
-| AH | SOURCE | |
-| AI | DISCOVERY_STATUS | Known / Unknown / Suspected / Verified |
+| A | Row ID | Format: MR-XXX (auto-generated, never reuse) |
+| B | Date Added | ISO date |
+| C | Provider/Creditor | Creditor / institution name |
+| D | Provider EIN | |
+| E | Account Number | |
+| F | Account Type | Observed values include Credit Card, Auto Loan, Trust Entity, Employment W-2 — no confirmed exhaustive list; check the sheet's own data validation if precision matters |
+| G | Account Subtype | **Validated dropdown, confirmed 2026-08-01**: Bank Account - Checking, Bank Account - Savings, Bank Account - Money Market, Bank Account - CD, Bank Account - Business Checking, Bank Account - Business Savings, Credit Card - Personal, Credit Card - Business, Credit Card - Secured, Credit Card - Store Card, Line of Credit, Home Equity Line (HELOC), Mortgage - Primary Residence, Mortgage - Investment Property, Auto Loan, Student Loan - Federal, Student Loan - Private, Personal Loan, Business Loan, Payday Loan, Investment - Brokerage (Individual), Investment - Brokerage (Joint), Investment - IRA Traditional, Investment - IRA Roth, Investment - 401(k), Investment - 403(b), Investment - SEP IRA, Investment - Simple IRA, Investment - HSA, Investment - 529 Plan, Investment - Crypto Exchange, Investment - Real Estate, Insurance - Life, Insurance - Health, Insurance - Auto, Insurance - Home/Renters, Insurance - Disability, Insurance - Umbrella, Utility - Electric, Utility - Gas, Utility - Water/Sewer, Utility - Internet, Utility - Phone/Mobile, Utility - Cable/Streaming, Utility - Trash/Recycling, Tax Authority - IRS, Tax Authority - State, Tax Authority - Local, Court - Judgment, Court - Settlement, Government Benefit - SSA, Government Benefit - Medicare, Government Benefit - Medicaid, Collection Account, Charge-off - Bank, Charge-off - Credit Card, Medical Collection, Subscription - Streaming, Subscription - Software, Subscription - Gym/Fitness, Subscription - News/Media, Membership - Professional, Membership - Club/Organization, PayPal, Venmo, Cash App, Cryptocurrency Wallet, Prepaid Card, Gift Card Balance, Retail Financing, Buy Now Pay Later, Rental Agreement, Storage Unit, Other |
+| H | Status | Observed values include Active, Closed — no confirmed exhaustive validated list |
+| I | Open Date | ISO date |
+| J | Close Date | ISO date |
+| K | Current Balance | Number — a stale mis-applied validation (a Status-style dropdown) briefly blocked free-form values here; cleared 2026-08-01 via `gas/FixCurrentBalanceValidation.gs` |
+| L | Original Balance | Number — used for high-balance/original-principal figures |
+| M | Billing Frequency | Monthly / Quarterly / Annual / Semi-Annual / Bi-Weekly / Weekly / On-Demand (observed, not confirmed exhaustive) |
+| N | Next Payment Due | |
+| O | Primary User | Clint / Syrina / Joint (observed) |
+| P | Authorized Users | |
+| Q | Autopay Status | |
+| R | Payment Source | |
+| S | Contract/Terms File | |
+| T | Statements Complete | |
+| U | Tax Forms on File | |
+| V | PoP Documents | |
+| W | Document Location | |
+| X | Last Statement Date | |
+| Y | Last Verified Date | |
+| Z | Retention Period | |
+| AA | Notes | Free text — in practice also carries fields with no dedicated column (credit-report status, removal date, source citation) folded in as sentences, since there's no AD–AI equivalent in this schema |
+| AB | Tags | |
+| AC | Discovery Status | Observed: "Newly Discovered", "Synced from Ledger" — no confirmed exhaustive validated list |
 
-**Never reorder or remove columns** — GAS reads by index (`getRange(2, 1, lastRow-1, 35)`).
+**Never reorder or remove columns** — GAS reads by index (`getRange(2, 1, lastRow-1, 29)`).
+There is no dedicated Tax Form, Mailing Address, Account Agent, High Balance, APR/Rate,
+Secondary User, Account Purpose, Linked MR Account, Trust Assignment, Tax Relevance,
+Deduction Type, Credit Report Status, Removal Date, Dispute Status, or Source column in
+the live sheet, despite an earlier version of this doc claiming otherwise — any of that
+information that needs to be captured goes in Notes (AA) as free text.
 
-## Account Type Allowed Values
+## Account Subtype Allowed Values
 
-Bank Account - Checking, Bank Account - Savings, Credit Card, Loan, Trust Account, Investment, Other
-
-## Tax Form Allowed Values
-
-Form 1099-B, Schedule A, Form 990, Form 1065, Form 1120, Form 1041, Form 1120-S, Form 1120-W, Schedule C
+See column G above — this is the one column with a confirmed, validated, exhaustive
+dropdown list as of 2026-08-01.
 
 ## Transaction Model (src/services/TransactionService.js)
 

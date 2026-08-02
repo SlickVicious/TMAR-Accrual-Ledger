@@ -19430,11 +19430,11 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
           <div style="font-size:11px;color:var(--text-secondary);margin-bottom:14px">Generate CSV files formatted for direct import into the TMAR Google Sheets workbook</div>
 
           <div style="display:flex;flex-direction:column;gap:8px">
-            <button onclick="exportEntitiesToMasterRegisterCSV()" class="sync-export-btn" data-guide="Exports your entities as a 35-column Master Register CSV (strict column order, EINs masked, account types mapped). Import this into the Master Register sheet, or push via the GAS bridge." style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left;width:100%;transition:all 0.2s">
+            <button onclick="exportEntitiesToMasterRegisterCSV()" class="sync-export-btn" data-guide="Exports your entities as a 29-column Master Register CSV (strict column order, EINs masked, account types mapped). Import this into the Master Register sheet, or push via the GAS bridge." style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left;width:100%;transition:all 0.2s">
               <span style="font-size:18px">🏢</span>
               <div>
                 <div style="font-weight:700;font-size:13px;color:var(--text-primary)">Entities → Master Register</div>
-                <div style="font-size:11px;color:var(--text-secondary)">35-column CSV • EINs masked • Account type mapping</div>
+                <div style="font-size:11px;color:var(--text-secondary)">29-column CSV • EINs masked • Account type mapping</div>
               </div>
               <span id="sync-export-entities-count" style="margin-left:auto;font-size:11px;color:var(--accent-cyan);font-weight:700"></span>
             </button>
@@ -19489,7 +19489,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
               <span style="font-size:18px">🏢</span>
               <div>
                 <div style="font-weight:700;font-size:13px;color:var(--text-primary)">Master Register → 🏢 Entities + COA</div>
-                <div style="font-size:11px;color:var(--text-secondary)">35-column CSV • Conflict detection • Dedup by name</div>
+                <div style="font-size:11px;color:var(--text-secondary)">29-column CSV • Conflict detection • Dedup by name</div>
               </div>
               <input type="file" accept=".csv" onchange="importMasterRegisterCSV(this)" style="display:none">
             </label>

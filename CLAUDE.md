@@ -42,7 +42,7 @@ Its `references/source-books/` PDFs are gitignored (large/copyrighted reference 
 ## Key Rules
 
 - **CORS proxy is mandatory** for all LLM calls from GitHub Pages — never call Anthropic directly from the browser. See `.claude/docs/api-patterns.md`.
-- **Master Register is 35 columns, strict order** — never reorder or add columns without updating all GAS readers. See `.claude/docs/domain-models.md`.
+- **Master Register is 29 columns (A–AC), strict order** — never reorder or add columns without updating all GAS readers. Corrected 2026-08-01; the old "35 columns" figure was stale and caused real bugs in three GAS files written against it. Re-verify against `?action=pullRawTab` before trusting any doc's column count, including this one. See `.claude/docs/domain-models.md`.
 - **All service functions must return new objects** — immutability is enforced by tests.
 - **GAS deploy requires two steps** if `doGet`/`doPost` changed: `clasp push` + manual redeploy in Apps Script editor.
 - **No CI/CD** — run `npm test` locally before pushing HTML changes.
