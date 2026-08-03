@@ -76,7 +76,11 @@ var RUNNABLE_FUNCTIONS_ = {
 
   // AppScripts inventory — writes only to the AppScripts tab, safe to re-run
   'populateAppScriptsInventory': populateAppScriptsInventory,
-  'refreshAppScriptsHealth': refreshAppScriptsHealth
+  'refreshAppScriptsHealth': refreshAppScriptsHealth,
+
+  // Register Summary tab — additive, idempotent (no-ops if tab already exists)
+  'createRegisterSummaryTab': createRegisterSummaryTab,
+  'createExecutiveDashboardTab': createExecutiveDashboardTab
 };
 
 /**

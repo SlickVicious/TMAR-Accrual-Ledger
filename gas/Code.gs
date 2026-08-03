@@ -511,7 +511,14 @@ function onOpen() {
     .addItem('📄 Document Generator', 'showDocumentGenerator')
     .addSeparator()
     .addItem('🔍 Analyze Duplicates', 'showDuplicateAnalysisReport')
-    .addItem('🗑️ Execute Cleanup', 'confirmAndExecuteCleanup')
+    // 'Execute Cleanup' (confirmAndExecuteCleanup) removed from menu 2026-08-03:
+    // its hardcoded Feb-2026 target list would permanently delete 9 MR-IDs,
+    // including the Nelnet x7 rows a separate investigation in this project
+    // already confirmed are real, distinct accounts misidentified as
+    // duplicates by a column-shift artifact -- not true duplicates. Function
+    // left in ExecuteCleanup.gs for reference but is now unreachable from
+    // the UI. Do not re-add without re-deriving the target list from current
+    // Master Register state.
     .addSeparator()
 
     .addSubMenu(ui.createMenu('Year Settings')
@@ -573,6 +580,8 @@ function onOpen() {
     .addSubMenu(ui.createMenu('Setup & Administration')
       .addItem('Populate Dropdown Values', 'populateValidationSheet')
       .addSeparator()
+      .addItem('Create Register Summary Tab (run once)', 'createRegisterSummaryTab')
+      .addItem('Create Executive Dashboard Tab (run once)', 'createExecutiveDashboardTab')
       .addItem('Refresh Dashboard Formulas', 'refreshDashboard')
       .addItem('Add Sample Data', 'addSampleData')
       .addSeparator()
@@ -3162,140 +3171,13 @@ function importCSVTransactions(csvText) {
 }
 
 
-function showAddAccountDialog() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-
-  // Get validation lists
-  const valSheet = ss.getSheetByName('_Validation');
-  let acctTypes = ['Banking', 'Investment', 'Credit Card', 'Student Loan', 'Utilities'];
-  let statuses = ['Active', 'Closed', 'Pending'];
-  let users = ['Clint', 'Syrina', 'Joint', 'Trust'];
-
-  if (valSheet) {
-    const lastRow = valSheet.getLastRow();
-    const getCol = (col) => valSheet.getRange(2, col, lastRow - 1, 1).getValues().flat().filter(v => v);
-    acctTypes = getCol(1);
-    statuses = getCol(2);
-    users = getCol(4);
-  }
-
-  // Get next MR ID
-  const mrSheet = ss.getSheetByName('Master Register');
-  let nextId = 'MR-001';
-  if (mrSheet) {
-    const ids = mrSheet.getRange(2, 1, mrSheet.getLastRow() - 1, 1).getValues().flat().filter(v => v);
-    const maxNum = Math.max(0, ...ids.map(id => {
-      const m = String(id).match(/MR-(\d+)/);
-      return m ? parseInt(m[1]) : 0;
-    }));
-    nextId = 'MR-' + String(maxNum + 1).padStart(3, '0');
-  }
-
-  const typeOpts = acctTypes.map(t => '<option>' + t + '</option>').join('');
-  const statusOpts = statuses.map(s => '<option>' + s + '</option>').join('');
-  const userOpts = users.map(u => '<option>' + u + '</option>').join('');
-
-  const html = `
-    <style>
-      body { font-family: Calibri, Arial, sans-serif; padding: 16px; color: #333; }
-      h3 { color: #1B2A4A; margin-bottom: 8px; }
-      label { display: block; font-weight: bold; margin-top: 8px; margin-bottom: 2px; font-size: 11px; color: #1B2A4A; }
-      select, input { width: 100%; padding: 5px; font-size: 12px; border: 1px solid #CCC; border-radius: 4px; box-sizing: border-box; }
-      .row { display: flex; gap: 8px; }
-      .row > div { flex: 1; }
-      .btn { padding: 8px 20px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer; margin-top: 12px; margin-right: 6px; }
-      .btn-primary { background: #1B2A4A; color: white; }
-      .btn-secondary { background: #E0E0E0; color: #333; }
-      #status { margin-top: 8px; font-size: 12px; color: #2E7D32; }
-      .id-badge { background: #D6E4F0; padding: 4px 10px; border-radius: 4px; font-weight: bold; display: inline-block; margin-bottom: 8px; }
-    </style>
-    <h3>Add Account to Master Register</h3>
-    <div class="id-badge">${nextId}</div>
-
-    <label>Provider / Creditor *</label>
-    <input type="text" id="provider" required />
-
-    <div class="row">
-      <div><label>Account Type *</label><select id="acctType">${typeOpts}</select></div>
-      <div><label>Status *</label><select id="status_sel">${statusOpts}</select></div>
-    </div>
-
-    <label>Account Number</label>
-    <input type="text" id="acctNum" placeholder="Last 4 or full" />
-
-    <label>Provider EIN</label>
-    <input type="text" id="ein" placeholder="XX-XXXXXXX" />
-
-    <div class="row">
-      <div><label>Primary User</label><select id="user">${userOpts}</select></div>
-      <div><label>Current Balance</label><input type="number" id="balance" step="0.01" /></div>
-    </div>
-
-    <label>Notes</label>
-    <input type="text" id="notes" />
-
-    <div>
-      <button class="btn btn-primary" onclick="submitAccount()">Add Account</button>
-      <button class="btn btn-secondary" onclick="google.script.host.close()">Close</button>
-    </div>
-    <div id="result"></div>
-
-    <script>
-      function submitAccount() {
-        var data = {
-          id: '${nextId}',
-          provider: document.getElementById('provider').value,
-          acctType: document.getElementById('acctType').value,
-          status: document.getElementById('status_sel').value,
-          acctNum: document.getElementById('acctNum').value,
-          ein: document.getElementById('ein').value,
-          user: document.getElementById('user').value,
-          balance: document.getElementById('balance').value,
-          notes: document.getElementById('notes').value
-        };
-        if (!data.provider) { alert('Provider is required'); return; }
-        document.getElementById('result').textContent = 'Adding...';
-        google.script.run
-          .withSuccessHandler(function(msg) {
-            document.getElementById('result').textContent = msg;
-          })
-          .withFailureHandler(function(err) {
-            document.getElementById('result').textContent = 'Error: ' + err.message;
-          })
-          .addAccountToMasterRegister(data);
-      }
-    </script>
-  `;
-
-  const output = HtmlService.createHtmlOutput(html)
-    .setWidth(380).setHeight(520);
-  SpreadsheetApp.getUi().showSidebar(output);
-}
-
-
-function addAccountToMasterRegister(data) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName('Master Register');
-  if (!sheet) throw new Error('Master Register tab not found');
-
-  // Build 35-column row (matching schema)
-  const row = new Array(35).fill('');
-  row[0] = data.id;                            // A: Row ID
-  row[1] = new Date().toISOString().slice(0,10); // B: Date Added
-  row[2] = data.provider;                      // C: Provider/Creditor
-  row[3] = '';                                 // D: Mailing Address
-  row[4] = data.ein || '';                     // E: Provider EIN
-  row[5] = data.acctNum || '';                 // F: Account Number
-  row[6] = data.acctType || '';                // G: Account Type
-  row[10] = data.status || 'Active';           // K: Status
-  row[13] = data.balance ? Number(data.balance) : ''; // N: Current Balance
-  row[19] = data.user || '';                   // T: Primary User
-  row[32] = data.notes || '';                  // AG: Notes
-  row[34] = 'Newly Discovered';               // AI: Discovery Status
-
-  sheet.appendRow(row);
-  return data.id + ' (' + data.provider + ') added to Master Register';
-}
+// showAddAccountDialog / addAccountToMasterRegister removed 2026-08-03: this
+// was a dead-code duplicate of TMARBridge.gs's showAddAccountDialog (GAS's
+// flat namespace means only one function of that name can ever run -- this
+// one never did, since TMARBridge.gs loads after Code.gs). It also wrote the
+// same stale 35-column row shape as the surviving version did before being
+// fixed. Both "Add Account" menu items now consistently open the single
+// corrected implementation in TMARBridge.gs (AddAccount.html -> addTMARAccount).
 
 
 function showAddObligationDialog() {
@@ -3504,17 +3386,17 @@ function addSubscriptionEntry(data) {
  */
 function refreshDashboard() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var dashboard = ss.getSheetByName('Dashboard') || ss.getSheetByName('Executive Dashboard');
-  
+  var dashboard = ss.getSheetByName('Register Summary');
+
   if (!dashboard) {
     SpreadsheetApp.getUi().alert(
-      'Dashboard Not Found',
-      'Could not find "Dashboard" or "Executive Dashboard" tab.',
+      'Register Summary Not Found',
+      'Could not find the "Register Summary" tab. Run "Create Register Summary Tab" first (Setup & Administration menu).',
       SpreadsheetApp.getUi().ButtonSet.OK
     );
     return;
   }
-  
+
   dashboard.getRange('B5').setFormula("=IFERROR(COUNTA('Master Register'!C:C)-1,0)");
   dashboard.getRange('B6').setFormula("=IFERROR(COUNTIF('Master Register'!H:H,\"Active\"),0)");
   dashboard.getRange('B7').setFormula("=IFERROR(COUNTIF('Master Register'!H:H,\"Dormant\"),0)");
@@ -3523,9 +3405,102 @@ function refreshDashboard() {
   dashboard.getRange('B11').setFormula("=IFERROR(SUMIF('Master Register'!H:H,\"Active\",'Master Register'!K:K),0)");
   dashboard.getRange('B12').setFormula("=IFERROR(COUNTIF('Master Register'!V:V,\"Y\")/COUNTA('Master Register'!V:V),0)");
   dashboard.getRange('B13').setFormula("=IFERROR(COUNTIF('Master Register'!V:V,\"N\")+COUNTIF('Master Register'!U:U,\"N\"),0)");
-  dashboard.getRange('B14').setFormula("=IFERROR(COUNTIF('Master Register'!AA:AA,\"<\"&TODAY()-90),0)");
-  
+  // Was 'Master Register'!AA:AA (Notes, free text) -- fixed 2026-08-03 to the real
+  // Last Verified Date column (Y) so this actually measures staleness as intended.
+  dashboard.getRange('B14').setFormula("=IFERROR(COUNTIF('Master Register'!Y:Y,\"<\"&TODAY()-90),0)");
+
   SpreadsheetApp.getActiveSpreadsheet().toast('Dashboard formulas refreshed!', 'Complete', 3);
+}
+
+/**
+ * One-time creation of the "Register Summary" tab that refreshDashboard()
+ * populates. Added 2026-08-03: refreshDashboard was written for a tab that
+ * never existed under any name in the live workbook (previously looked for
+ * "Dashboard" or "Executive Dashboard", neither real) -- this creates it
+ * fresh with the row labels the formulas expect, rather than repurposing
+ * "📋 Dashboard" (a separate, hand-built trust-binder cover page).
+ */
+function createRegisterSummaryTab() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (ss.getSheetByName('Register Summary')) {
+    return 'Register Summary tab already exists.';
+  }
+
+  var sheet = ss.insertSheet('Register Summary');
+  sheet.getRange('A1').setValue('MASTER REGISTER SUMMARY').setFontWeight('bold').setFontSize(14);
+  sheet.getRange('A3').setValue('Metric').setFontWeight('bold');
+  sheet.getRange('B3').setValue('Value').setFontWeight('bold');
+
+  var labels = [
+    ['A5', 'Total Accounts'],
+    ['A6', 'Active'],
+    ['A7', 'Dormant'],
+    ['A8', 'Closed'],
+    ['A9', 'Disputed'],
+    ['A11', 'Total Active Balance'],
+    ['A12', '% Verified (PoP Documents)'],
+    ['A13', 'Unverified (PoP or Tax Forms missing)'],
+    ['A14', 'Stale Accounts (not verified in 90+ days)']
+  ];
+  labels.forEach(function(l) { sheet.getRange(l[0]).setValue(l[1]); });
+
+  sheet.setColumnWidth(1, 260);
+  sheet.setColumnWidth(2, 140);
+  sheet.setTabColor('#1B2A4A');
+
+  refreshDashboard();
+
+  return 'Created Register Summary tab and populated formulas.';
+}
+
+/**
+ * One-time creation of the "Executive Dashboard" tab. Added 2026-08-03: this
+ * tab never existed in the live workbook, but a real, working feature
+ * (applyToExecDashboard_, the gap scanner's scanTabExecutiveDashboard_, the
+ * CPA-question dropdown, tab-color/protection/attribution formatting) has
+ * expected it by this exact name all along and silently no-ops without it.
+ * Recreating it under its original name means none of those call sites need
+ * to change -- they start working the moment the tab exists. Distinct from
+ * "Register Summary" (Master Register account counts) and "📋 Dashboard" (a
+ * separate, hand-built trust-binder cover page) -- this one holds W-2/income
+ * summary, federal+NC tax outcome, and a free-form action-items list.
+ */
+function createExecutiveDashboardTab() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (ss.getSheetByName('Executive Dashboard')) {
+    return 'Executive Dashboard tab already exists.';
+  }
+
+  var sheet = ss.insertSheet('Executive Dashboard');
+  sheet.getRange('A1').setValue('EXECUTIVE DASHBOARD').setFontWeight('bold').setFontSize(14);
+
+  sheet.getRange('A3').setValue('INCOME SUMMARY').setFontWeight('bold');
+  sheet.getRange('A4:D4').setValues([['Item', 'Clinton', 'Syrina', 'Combined']]).setFontWeight('bold');
+  var incomeLabels = [
+    'W-2 Wages (Box 1)', 'Federal Tax Withheld (Box 2)', 'Social Security Wages (Box 3)',
+    'Social Security Tax (Box 4)', 'Medicare Wages (Box 5)', 'Medicare Tax (Box 6)',
+    'State Wages (Box 16)', 'State Tax Withheld (Box 17)'
+  ];
+  incomeLabels.forEach(function(label, i) { sheet.getRange(5 + i, 1).setValue(label); });
+
+  sheet.getRange('A14').setValue('TAX OUTCOME').setFontWeight('bold');
+  sheet.getRange('A15:B15').setValues([['Item', 'Amount']]).setFontWeight('bold');
+  var taxLabels = [
+    'Combined AGI', 'Standard Deduction (MFJ)', 'Taxable Income', 'Federal Tax Owed',
+    'Federal Tax Withheld', 'Est. Federal Refund', 'NC Tax Withheld', 'Est. NC Refund'
+  ];
+  taxLabels.forEach(function(label, i) { sheet.getRange(16 + i, 1).setValue(label); });
+  // Placeholder row for the rate-labeled "NC Tax Owed (X.X%)" line applyToExecDashboard_
+  // rewrites by partial match (label.startsWith('NC Tax Owed')) each time year data is applied.
+  sheet.getRange('A24').setValue('NC Tax Owed (—)');
+
+  sheet.getRange('A26').setValue('ACTION ITEMS').setFontWeight('bold');
+
+  sheet.setColumnWidth(1, 240);
+  sheet.setColumnWidths(2, 3, 110);
+  sheet.setTabColor('#FFD700');
+
+  return 'Created Executive Dashboard tab.';
 }
 
 /**

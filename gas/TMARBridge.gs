@@ -26,19 +26,15 @@ function showAddAccountDialog() {
 }
 
 /**
- * Shows Financial Summary dialog
+ * Shows Financial Summary. Retargeted 2026-08-03: this originally rendered
+ * FinancialSummary.html via createTemplateFromFile(), but that file never
+ * existed anywhere in the repo -- the menu item threw immediately on click.
+ * Rather than build a new dialog blind, this reuses the existing, working
+ * Dashboard sidebar (same one showTMARDashboard opens) until/unless a
+ * dedicated Financial Summary view is built.
  */
 function showFinancialSummary() {
-  var summary = getTMARFinancialSummary();
-
-  var html = HtmlService.createTemplateFromFile('FinancialSummary');
-  html.data = summary;
-
-  var htmlOutput = html.evaluate()
-    .setWidth(600)
-    .setHeight(500);
-
-  SpreadsheetApp.getUi().showModalDialog(htmlOutput, 'Financial Summary');
+  showTMARDashboard();
 }
 
 /**
@@ -108,9 +104,21 @@ function getTMARFinancialSummary() {
 
 /**
  * Adds a new account to Master Register
- * Called from Add Account dialog
+ * Called from Add Account dialog (AddAccount.html)
  * @param {Object} accountData - Account data from form
  * @returns {Object} Result with success status
+ *
+ * Column mapping corrected 2026-08-03 against the real 29-col (A-AC) schema
+ * (domain-models.md) -- this previously wrote a 35-value row built for a
+ * schema that never matched the live sheet, silently corrupting every field
+ * position on every "Add Account" use. Two things worth noting:
+ *  - AddAccount.html's "type" dropdown (Bank Account - Checking, Auto Loan,
+ *    etc.) is actually the real, validated Account Subtype (G) list, not
+ *    the loosely-observed Account Type (F) list -- mapped to G accordingly;
+ *    F is left blank since the form collects no data for it.
+ *  - monthlyPayment and mailingAddress have no dedicated column in the real
+ *    schema (confirmed in domain-models.md) -- folded into Notes (AA) as
+ *    free text, the documented convention for fields with no home column.
  */
 function addTMARAccount(accountData) {
   try {
@@ -124,48 +132,48 @@ function addTMARAccount(accountData) {
     // Generate next MR-XXX ID
     var nextId = generateNextMRId_();
 
-    // Prepare row data (35 columns)
+    var noteParts = [];
+    if (accountData.monthlyPayment) noteParts.push('Monthly Payment: $' + accountData.monthlyPayment);
+    if (accountData.mailingAddress) noteParts.push('Mailing Address: ' + accountData.mailingAddress);
+    if (accountData.notes) noteParts.push(accountData.notes);
+    var combinedNotes = noteParts.join('. ');
+
+    // Prepare row data (29 columns, A-AC)
     var row = [
-      nextId,                          // A: Row ID
-      new Date(),                      // B: Date Added
-      accountData.name || '',          // C: Provider/Creditor
-      accountData.mailingAddress || '',// D: Mailing Address
-      accountData.providerEin || '',   // E: Provider EIN
-      accountData.accountNumber || '', // F: Account Number
-      accountData.type || '',          // G: Account Type
-      accountData.subtype || '',       // H: Account Subtype
-      accountData.agent || '',         // I: Account Agent
-      accountData.agentAddress || '',  // J: Agent Address
-      accountData.status || 'Active',  // K: Status
-      accountData.openedDate || '',    // L: Opened Date
-      '',                              // M: Closed Date
-      accountData.balance || 0,        // N: Current Balance
-      accountData.highBalance || 0,    // O: High Balance
-      accountData.monthlyPayment || 0, // P: Monthly Payment
-      accountData.aprRate || 0,        // Q: APR/Rate
-      accountData.billingFrequency || '', // R: Billing Frequency
-      accountData.nextPaymentDue || '', // S: Next Payment Due
-      accountData.primaryUser || '',   // T: Primary User
-      accountData.secondaryUser || '', // U: Secondary User
-      accountData.purpose || '',       // V: Account Purpose
-      accountData.documentLocation || '', // W: Document Location
-      '',                              // X: Last Verified
-      accountData.linkedAccount || '', // Y: Linked MR Account
-      accountData.trustAssignment || '', // Z: Trust Assignment
-      accountData.taxRelevance || '',  // AA: Tax Relevance
-      accountData.taxForm || '',       // AB: Tax Form
-      accountData.deductionType || '', // AC: Deduction Type
-      '',                              // AD: Credit Report Status
-      '',                              // AE: Removal Date
-      '',                              // AF: Dispute Status
-      accountData.notes || '',         // AG: Notes
-      'Manual Entry',                  // AH: Source
-      'Known'                          // AI: Discovery Status
+      nextId,                            // A: Row ID
+      new Date(),                        // B: Date Added
+      accountData.name || '',            // C: Provider/Creditor
+      '',                                // D: Provider EIN (not collected by this form)
+      accountData.accountNumber || '',   // E: Account Number
+      '',                                // F: Account Type (not collected by this form)
+      accountData.type || '',            // G: Account Subtype (form's "type" field is really subtype)
+      accountData.status || 'Active',    // H: Status
+      '',                                // I: Open Date
+      '',                                // J: Close Date
+      accountData.balance || 0,          // K: Current Balance
+      '',                                // L: Original Balance
+      accountData.billingFrequency || '', // M: Billing Frequency
+      '',                                // N: Next Payment Due
+      accountData.primaryUser || '',     // O: Primary User
+      '',                                // P: Authorized Users
+      '',                                // Q: Autopay Status
+      '',                                // R: Payment Source
+      '',                                // S: Contract/Terms File
+      '',                                // T: Statements Complete
+      '',                                // U: Tax Forms on File
+      '',                                // V: PoP Documents
+      '',                                // W: Document Location
+      '',                                // X: Last Statement Date
+      '',                                // Y: Last Verified Date
+      '',                                // Z: Retention Period
+      combinedNotes,                     // AA: Notes
+      '',                                // AB: Tags
+      'Newly Discovered'                 // AC: Discovery Status
     ];
 
     // Append row
     var lastRow = mrSheet.getLastRow();
-    mrSheet.getRange(lastRow + 1, 1, 1, 35).setValues([row]);
+    mrSheet.getRange(lastRow + 1, 1, 1, 29).setValues([row]);
 
     Logger.log('Account added: ' + nextId);
 

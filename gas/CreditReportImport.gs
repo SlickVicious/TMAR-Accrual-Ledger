@@ -563,9 +563,13 @@ function importToMasterRegister_(ss, accounts) {
     const match = idStr.match(/MR-(\d+)/);
     if (match) maxId = Math.max(maxId, parseInt(match[1]));
 
-    // Build dedup key: Provider + Account Type
+    // Build dedup key: Provider + Account Type. Fixed 2026-08-03 -- was
+    // reading row[6] (Account Subtype, e.g. "Paid C/O") and comparing it
+    // against the incoming record's real Account Type (e.g. "Credit Card"),
+    // so this almost never matched and reruns would duplicate rows. row[5]
+    // is the real Account Type column, matching what acct.acctType holds.
     const provider = String(row[2] || '').trim().toLowerCase();
-    const acctType = String(row[6] || '').trim().toLowerCase();
+    const acctType = String(row[5] || '').trim().toLowerCase();
     if (provider) existingProviders.add(provider + '|' + acctType);
   }
 
@@ -768,33 +772,37 @@ function createAcctLedgerSheet_(ss) {
 
 // ─── COLOR CODING ───────────────────────────────────────────────────────────
 
+/**
+ * Colors newly-imported rows by Status. Simplified 2026-08-03: previously
+ * also branched on a "Credit Report Status" column (creditCol=30/AD) that
+ * doesn't exist in the real 29-col schema -- that data is folded into
+ * free-text Notes instead (see combinedNotes in importToMasterRegister_),
+ * so there's no structured column left to color by charge-off/collection
+ * detail. Dropped that logic rather than parse it back out of Notes text;
+ * status-based coloring (statusCol corrected 11->8) still works.
+ */
 function colorCodeMasterRegisterRows_(sheet) {
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return;
 
-  const statusCol = 11;  // K: Status
-  const creditCol = 30;  // AD: Credit Report Status
+  const statusCol = 8;  // H: Status
   const statuses = sheet.getRange(2, statusCol, lastRow - 1, 1).getValues().flat();
-  const creditStatuses = sheet.getRange(2, creditCol, lastRow - 1, 1).getValues().flat();
 
   for (let i = 0; i < statuses.length; i++) {
     const status = String(statuses[i]).toLowerCase();
-    const credit = String(creditStatuses[i]).toLowerCase();
     const rowNum = i + 2;
 
     let bgColor = null;
-    if (credit.includes('charge-off') || credit.includes('charge off') || credit.includes('c/o')) {
-      bgColor = '#FFCDD2';  // Red — charge-off
-    } else if (credit.includes('collection')) {
-      bgColor = '#FFE0B2';  // Orange — collection
-    } else if (status === 'closed' && (credit.includes('paid') || credit.includes('transferred') || credit.includes('refinanced'))) {
-      bgColor = '#E0E0E0';  // Gray — closed/paid
-    } else if (status === 'active' && credit.includes('current')) {
-      bgColor = '#E8F5E9';  // Green — active/current
+    if (status === 'closed') {
+      bgColor = '#E0E0E0';  // Gray — closed
+    } else if (status === 'active') {
+      bgColor = '#E8F5E9';  // Green — active
+    } else if (status === 'disputed') {
+      bgColor = '#FFE0B2';  // Orange — disputed
     }
 
     if (bgColor) {
-      sheet.getRange(rowNum, 1, 1, 35).setBackground(bgColor);
+      sheet.getRange(rowNum, 1, 1, 29).setBackground(bgColor);
     }
   }
 }

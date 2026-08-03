@@ -2,7 +2,18 @@
  * ExecuteCleanup.gs
  * Executes the duplicate account cleanup based on 2026-02-28 analysis
  *
- * SUMMARY:
+ * ⚠️ DISABLED 2026-08-03 — removed from the TMAR Tools menu. The "exact
+ * duplicates" list below (MR-006, MR-016, MR-055-060, MR-017) was built from
+ * a Feb-2026 analysis that a later, separate investigation in this project
+ * found to be wrong for at least the Nelnet x7 rows: they are real, distinct
+ * accounts that only looked identical because of a column-shift import bug,
+ * not true duplicates. Master Register account rows must never be removed
+ * for convenience (standing project rule) -- do not run any function in
+ * this file, and do not re-add the menu item, without first re-deriving the
+ * target list against current Master Register state and confirming each ID
+ * against real source documents.
+ *
+ * SUMMARY (as originally written, now unverified):
  * - Remove: 9 exact duplicates (HIGH confidence)
  * - Archive: 3 closed accounts (MEDIUM - preserves data)
  * - Net reduction: 72 accounts → 60 accounts
