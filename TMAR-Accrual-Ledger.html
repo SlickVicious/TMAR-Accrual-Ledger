@@ -19596,7 +19596,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
   <section id="transcriptTransformerSection" class="form-section hidden">
     <div style="padding:20px;max-width:1400px;margin:0 auto">
       <div style="background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(6,182,212,0.12));border:2px solid rgba(16,185,129,0.4);border-radius:12px;padding:20px;margin-bottom:20px;text-align:center">
-        <div style="font-size:24px;font-weight:900;background:linear-gradient(135deg,#10b981,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px">📝 TRANSCRIPT TRANSFORMER v2.0.0</div>
+        <div style="font-size:24px;font-weight:900;background:linear-gradient(135deg,#10b981,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px">📝 TRANSCRIPT TRANSFORMER v2.1.0</div>
         <div style="font-size:13px;color:var(--text-secondary)">AI-Powered Transcript → Structured README.md</div>
         <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;opacity:0.7">Supports auto/full/chunked processing modes • YAML frontmatter • Timestamp preservation</div>
       </div>
@@ -19617,6 +19617,29 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
             <button onclick="ttSetMode('auto')" id="tt-mode-auto" style="flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid #10b981;background:#10b981;color:white">Auto</button>
             <button onclick="ttSetMode('full')" id="tt-mode-full" style="flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#9ca3af">Full (12K)</button>
             <button onclick="ttSetMode('chunked')" id="tt-mode-chunked" style="flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#9ca3af">Chunked</button>
+          </div>
+
+          <!-- YouTube Playlist -> Download + Transcribe pipeline (requires transcript-transformer-local/server.js running on :3457) -->
+          <div style="border:1px solid rgba(6,182,212,0.25);background:rgba(6,182,212,0.04);border-radius:8px;padding:12px;margin-bottom:10px">
+            <div style="font-size:11px;font-weight:700;color:#06b6d4;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">Download + Transcribe (YouTube Playlist)</div>
+            <input type="url" id="tt-playlist-url" placeholder="YouTube playlist URL" oninput="ttDlUpdateButtonState()" style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text-primary);font-size:13px;margin-bottom:8px;box-sizing:border-box;font-family:monospace">
+            <div style="display:flex;gap:6px;margin-bottom:8px">
+              <input type="text" id="tt-output-dir" placeholder="Output folder" oninput="ttDlUpdateButtonState()" style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text-primary);font-size:13px;box-sizing:border-box;font-family:monospace">
+              <button onclick="ttDlBrowseFolder()" style="padding:8px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#9ca3af;cursor:pointer;font-size:12px;white-space:nowrap">Browse...</button>
+            </div>
+            <button onclick="ttDlStart()" id="tt-download-btn" disabled style="width:100%;padding:10px;border-radius:8px;border:none;background:#06b6d4;color:white;font-weight:700;cursor:not-allowed;font-size:13px;opacity:0.5;transition:opacity 0.15s">⬇ Download + Transcribe</button>
+
+            <div id="tt-dl-status" style="display:none;margin-top:10px;padding:10px;border-radius:8px;background:rgba(0,0,0,0.2);font-size:12px;font-family:monospace;color:#9ca3af">
+              <div id="tt-dl-status-text">⏳ Starting...</div>
+            </div>
+            <div id="tt-dl-log" style="display:none;margin-top:6px;max-height:150px;overflow-y:auto;background:rgba(0,0,0,0.3);border-radius:6px;padding:8px;font-family:monospace;font-size:10px;color:#6b7280;white-space:pre-wrap;line-height:1.5"></div>
+
+            <div id="tt-dl-batch" style="display:none;margin-top:10px">
+              <div style="display:flex;gap:6px;align-items:center">
+                <select id="tt-dl-file-select" onchange="ttDlSelectFile(this.value)" style="flex:1;padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text-primary);font-size:12px"></select>
+                <button onclick="ttDlFormatAll()" style="padding:6px 12px;border-radius:6px;border:1px solid rgba(16,185,129,0.4);background:rgba(16,185,129,0.1);color:#10b981;cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap">Format All</button>
+              </div>
+            </div>
           </div>
 
           <input type="url" id="tt-source-url" placeholder="Source URL (optional, for YAML metadata)" style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text-primary);font-size:13px;margin-bottom:10px;box-sizing:border-box">
@@ -46337,7 +46360,7 @@ var pdkbCallAnthropic = pdkbCallLLM;
 // TRANSCRIPT TRANSFORMER
 // ═══════════════════════════════════════════════════════════════
 
-var ttState = { mode: 'auto', output: '', stats: null };
+var ttState = { mode: 'auto', output: '', stats: null, dlFiles: [] };
 
 function ttSetMode(mode) {
   ttState.mode = mode;
@@ -46409,7 +46432,7 @@ function ttBuildPrompt(content, sourceUrl, isChunk, chunkInfo) {
   var chunkField = isChunk ? '\nchunk: ' + chunkInfo.index + ' of ' + chunkInfo.total : '';
   var safeUrl = (sourceUrl || 'Not specified').replace(/'/g, '"');
 
-  return 'Transform this transcript into a COMPREHENSIVE README.md that merges both actionable guidance AND educational context.' + chunkNote + '\n\n## CRITICAL: YAML FRONTMATTER RULES\n\nYour response MUST start with raw YAML frontmatter. Do NOT wrap it in code blocks or backticks.\n\nALL of the following rules are MANDATORY — not suggestions:\n\n1. The opening `---` must be the VERY FIRST line — no blank lines, no whitespace before it.\n2. Each property MUST be on its own dedicated line. Never put multiple key-value pairs on one line.\n3. List items MUST each be on their own line with the `-` prefix, indented under the parent key.\n4. Values containing colons (:), commas (,), or pipe symbols (|) MUST be wrapped in double quotes.\n5. The closing `---` MUST be on its own line with nothing else on it.\n6. After the closing `---` there MUST be one blank line before the first `#` heading.\n\nStart your response EXACTLY like this (copy the structure precisely):\n---\ndate_created: ' + dateCreated + '\nsource_url: \'' + safeUrl + '\'\npurpose: "[Extract the main purpose in 1-2 sentences — be specific about subject matter covered]"\ntransformation_mode: comprehensive' + chunkField + '\nartifact_version: v2.0.0\ngenerator: Transcript Transformer\nsession_type: "[Q&A Zoom Call | Bootcamp | Class Session | Workshop — pick the most accurate]"\nparticipants:\n  - "[Host/instructor name and role]"\n  - "[Co-host or admin name and role if present]"\n  - Community Members\ntags:\n  - relevant-tag\n  - topic-tag\n  - additional-tag\n  - add-more-as-needed\n---\n\n# [Title Here]\n\nContent starts here.\n\n## ANTI-PATTERNS — NEVER generate these:\n\n❌ Multiple properties on one line: `date_created: 2025-12-21 source_url: Not specified`\n❌ List items mixed with property declarations: `- Item One\\n- Item Two tags:\\n- tag-one`\n❌ Missing blank line after closing `---`\n❌ Closing `---` not on its own line\n❌ YAML wrapped in a code block\n❌ Section headers or tags using "Sovereign", "Sovereignty", "Sovereign Citizen", or any sovereignty framing — use "Private Equity" instead\n\n## VALIDATION — Before outputting, mentally check:\n[ ] Is `---` the very first line with nothing before it?\n[ ] Is every property on its own line?\n[ ] Are all list items indented with `-` on separate lines?\n[ ] Is the closing `---` alone on its line?\n[ ] Is there a blank line between `---` and the first `#` heading?\nIf ANY answer is no, fix the frontmatter first.\n\n## DOCUMENT STRUCTURE\n\n### Section Pattern for Each Major Topic:\n1. Header with emoji + timestamp range -> **[MM:SS-MM:SS]**\n2. Brief explanatory paragraph (2-3 sentences of context)\n3. Actionable checklist items with individual timestamps\n4. Key quote or critical point highlighted\n5. Transition to next section\n\n### Required Sections (in order):\nA. Overview with purpose statement\nB. Key Timestamps Reference\nC. Prerequisites as checklist items\nD. Warnings/Outdated Methods\nE. Core Content Sections\nF. Step-by-Step Protocols with timestamps AND explanations\nG. Common Misconceptions\nH. Glossary of specialized terms\nI. Next Steps checklist\n\n### Formatting Rules:\n- Checklists: - [ ] **[MM:SS]** Action item with context\n- Blockquotes for key statements\n- Tables for comparisons\n- Casual speech -> Professional tone\n- Every timestamp appears somewhere\n- No information from transcript is lost\n\n---\n\nTRANSCRIPT TO TRANSFORM:\n' + content + '\n\nFINAL REMINDER: Output raw YAML frontmatter first (no code block), blank line after closing ---, then markdown content.';
+  return 'Transform this transcript into a COMPREHENSIVE README.md that merges both actionable guidance AND educational context.' + chunkNote + '\n\n## CRITICAL: YAML FRONTMATTER RULES\n\nYour response MUST start with raw YAML frontmatter. Do NOT wrap it in code blocks or backticks.\n\nALL of the following rules are MANDATORY — not suggestions:\n\n1. The opening `---` must be the VERY FIRST line — no blank lines, no whitespace before it.\n2. Each property MUST be on its own dedicated line. Never put multiple key-value pairs on one line.\n3. List items MUST each be on their own line with the `-` prefix, indented under the parent key.\n4. Values containing colons (:), commas (,), or pipe symbols (|) MUST be wrapped in double quotes.\n5. The closing `---` MUST be on its own line with nothing else on it.\n6. After the closing `---` there MUST be one blank line before the first `#` heading.\n\nStart your response EXACTLY like this (copy the structure precisely):\n---\ndate_created: ' + dateCreated + '\nsource_url: \'' + safeUrl + '\'\npurpose: "[Extract the main purpose in 1-2 sentences — be specific about subject matter covered]"\ntransformation_mode: comprehensive' + chunkField + '\nartifact_version: v2.1.0\ngenerator: Transcript Transformer\nsession_type: "[Q&A Zoom Call | Bootcamp | Class Session | Workshop — pick the most accurate]"\nparticipants:\n  - "[Host/instructor name and role]"\n  - "[Co-host or admin name and role if present]"\n  - Community Members\ntags:\n  - relevant-tag\n  - topic-tag\n  - additional-tag\n  - add-more-as-needed\n---\n\n# [Title Here]\n\nContent starts here.\n\n## ANTI-PATTERNS — NEVER generate these:\n\n❌ Multiple properties on one line: `date_created: 2025-12-21 source_url: Not specified`\n❌ List items mixed with property declarations: `- Item One\\n- Item Two tags:\\n- tag-one`\n❌ Missing blank line after closing `---`\n❌ Closing `---` not on its own line\n❌ YAML wrapped in a code block\n❌ Section headers or tags using "Sovereign", "Sovereignty", "Sovereign Citizen", or any sovereignty framing — use "Private Equity" instead\n\n## VALIDATION — Before outputting, mentally check:\n[ ] Is `---` the very first line with nothing before it?\n[ ] Is every property on its own line?\n[ ] Are all list items indented with `-` on separate lines?\n[ ] Is the closing `---` alone on its line?\n[ ] Is there a blank line between `---` and the first `#` heading?\nIf ANY answer is no, fix the frontmatter first.\n\n## DOCUMENT STRUCTURE\n\n### Section Pattern for Each Major Topic:\n1. Header with emoji + timestamp range -> **[MM:SS-MM:SS]**\n2. Brief explanatory paragraph (2-3 sentences of context)\n3. Actionable checklist items with individual timestamps\n4. Key quote or critical point highlighted\n5. Transition to next section\n\n### Required Sections (in order):\nA. Overview with purpose statement\nB. Key Timestamps Reference\nC. Prerequisites as checklist items\nD. Warnings/Outdated Methods\nE. Core Content Sections\nF. Step-by-Step Protocols with timestamps AND explanations\nG. Common Misconceptions\nH. Glossary of specialized terms\nI. Next Steps checklist\n\n### Formatting Rules:\n- Checklists: - [ ] **[MM:SS]** Action item with context\n- Blockquotes for key statements\n- Tables for comparisons\n- Casual speech -> Professional tone\n- Every timestamp appears somewhere\n- No information from transcript is lost\n\n---\n\nTRANSCRIPT TO TRANSFORM:\n' + content + '\n\nFINAL REMINDER: Output raw YAML frontmatter first (no code block), blank line after closing ---, then markdown content.';
 }
 
 // Live streaming preview — updates output panel as tokens arrive
@@ -46689,6 +46712,187 @@ function ttClearAll() {
   document.getElementById('tt-output-actions').style.display = 'none';
   document.getElementById('tt-output-panel').innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:rgba(255,255,255,0.3)"><div style="font-size:32px;margin-bottom:8px;opacity:0.3">📝</div><p>Paste transcript and click Transform</p></div>';
   ttState.output = ''; ttState.stats = null;
+}
+
+// ── Download + Transcribe (YouTube playlist -> WSL pipeline -> raw .txt) ──
+// Requires transcript-transformer-local/server.js running on localhost:3457.
+// (Deliberately not :3456 — that port already belongs to a separate, working
+// "Transcript Transformer v2.0.0 - Local" server providing /api/transform.)
+var TT_DL_SERVER = 'http://localhost:3457';
+
+function ttDlUpdateButtonState() {
+  var url = document.getElementById('tt-playlist-url').value.trim();
+  var dir = document.getElementById('tt-output-dir').value.trim();
+  var btn = document.getElementById('tt-download-btn');
+  var ready = !!url && !!dir;
+  btn.disabled = !ready;
+  btn.style.opacity = ready ? '1' : '0.5';
+  btn.style.cursor = ready ? 'pointer' : 'not-allowed';
+}
+
+function ttDlInit() {
+  var saved = localStorage.getItem('tt_last_output_dir');
+  if (saved) document.getElementById('tt-output-dir').value = saved;
+  ttDlUpdateButtonState();
+}
+document.addEventListener('DOMContentLoaded', ttDlInit);
+
+function ttDlSetStatus(text, isError) {
+  var wrap = document.getElementById('tt-dl-status');
+  var txt = document.getElementById('tt-dl-status-text');
+  wrap.style.display = 'block';
+  txt.textContent = text;
+  txt.style.color = isError ? '#f87171' : '#9ca3af';
+}
+
+// Full raw pipeline output, always appended regardless of classification —
+// the status line only ever shows a short "headline"; this is where the
+// actual detail lives so "check the log" is something a user can really do.
+function ttDlAppendLog(line) {
+  var log = document.getElementById('tt-dl-log');
+  log.style.display = 'block';
+  log.textContent += line + '\n';
+  log.scrollTop = log.scrollHeight;
+}
+
+function ttDlClearLog() {
+  var log = document.getElementById('tt-dl-log');
+  log.textContent = '';
+  log.style.display = 'none';
+}
+
+// Classify a raw pipeline log line into a short human status HEADLINE.
+// Returns null for lines not worth headlining — they still get appended to
+// the full log via ttDlAppendLog above. In particular the pipeline's
+// optional Step 3 (DeepSeek reformat) failing is noise for the headline
+// (this UI only needs the raw .txt), but still visible in the full log.
+function ttDlClassifyLine(line) {
+  var m;
+  if ((m = line.match(/^═══ STEP \d: (.+?) ═══$/))) return '▶ ' + m[1];
+  if ((m = line.match(/^\s*transcribing (.+?)\s*\.\.\.$/))) return '🎙️ Transcribing: ' + m[1];
+  if ((m = line.match(/^\s*→ (.+\.txt)/))) return '✅ Done: ' + m[1];
+  if (/^\s*transforming /.test(line)) return null;
+  if (/❌ TT (error|request failed)/.test(line)) return null;
+  if (/^\[download\]/.test(line)) return '⬇ Downloading audio...';
+  return null;
+}
+
+async function ttDlStart() {
+  var playlistUrl = document.getElementById('tt-playlist-url').value.trim();
+  var outputDir = document.getElementById('tt-output-dir').value.trim();
+  if (!playlistUrl || !outputDir) return;
+
+  localStorage.setItem('tt_last_output_dir', outputDir);
+
+  var dlBtn = document.getElementById('tt-download-btn');
+  var transformBtn = document.getElementById('tt-transform-btn');
+  dlBtn.disabled = true; dlBtn.style.opacity = '0.5'; dlBtn.style.cursor = 'not-allowed';
+  if (transformBtn) transformBtn.disabled = true;
+  document.getElementById('tt-dl-batch').style.display = 'none';
+  ttDlClearLog();
+  ttDlSetStatus('⏳ Starting...', false);
+
+  try {
+    var resp = await fetch(TT_DL_SERVER + '/api/transcribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playlistUrl: playlistUrl, outputDir: outputDir })
+    });
+    if (!resp.ok || !resp.body) {
+      var errBody = '';
+      try { errBody = (await resp.json()).error || ''; } catch (e) {}
+      throw new Error(errBody || ('HTTP ' + resp.status));
+    }
+
+    var reader = resp.body.getReader();
+    var decoder = new TextDecoder();
+    var buffer = '';
+    var seen = 0;
+
+    while (true) {
+      var chunk = await reader.read();
+      if (chunk.done) break;
+      buffer += decoder.decode(chunk.value, { stream: true });
+      var lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+      for (var i = 0; i < lines.length; i++) {
+        if (!lines[i].trim()) continue;
+        var msg;
+        try { msg = JSON.parse(lines[i]); } catch (e) { continue; }
+
+        if (msg.type === 'log') {
+          ttDlAppendLog(msg.line);
+          if (/^\s*transcribing /.test(msg.line)) seen++;
+          var label = ttDlClassifyLine(msg.line);
+          if (label) ttDlSetStatus(seen > 0 ? label + ' (item ' + seen + ')' : label, false);
+        } else if (msg.type === 'error') {
+          ttDlAppendLog('❌ ' + msg.message);
+          ttDlSetStatus('❌ ' + msg.message + ' — see log below', true);
+        } else if (msg.type === 'done') {
+          ttDlOnComplete(msg.files, playlistUrl);
+        }
+      }
+    }
+  } catch (err) {
+    ttDlAppendLog('❌ ' + err.message);
+    ttDlSetStatus('❌ ' + err.message + ' — is transcript-transformer-local/server.js running on :3457? See log below', true);
+  } finally {
+    dlBtn.disabled = false; dlBtn.style.opacity = '1'; dlBtn.style.cursor = 'pointer';
+    if (transformBtn) transformBtn.disabled = false;
+  }
+}
+
+function ttDlOnComplete(files, playlistUrl) {
+  if (!files || !files.length) { ttDlSetStatus('❌ No transcripts were produced', true); return; }
+
+  ttState.dlFiles = files;
+  document.getElementById('tt-source-url').value = playlistUrl;
+  ttDlSelectFile(0);
+
+  ttDlSetStatus('✅ ' + files.length + ' transcript' + (files.length === 1 ? '' : 's') + ' ready for formatting', false);
+
+  var sel = document.getElementById('tt-dl-file-select');
+  sel.innerHTML = files.map(function(f, i) { return '<option value="' + i + '">' + f.name.replace(/</g,'&lt;') + '</option>'; }).join('');
+  document.getElementById('tt-dl-batch').style.display = files.length > 1 ? 'block' : 'none';
+}
+
+function ttDlSelectFile(index) {
+  index = parseInt(index, 10) || 0;
+  var files = ttState.dlFiles || [];
+  if (!files[index]) return;
+  document.getElementById('tt-input').value = files[index].content;
+  ttHandleInput(document.getElementById('tt-input'));
+  var sel = document.getElementById('tt-dl-file-select');
+  if (sel) sel.value = String(index);
+}
+
+async function ttDlFormatAll() {
+  var files = ttState.dlFiles || [];
+  if (!files.length) return;
+  for (var i = 0; i < files.length; i++) {
+    ttDlSelectFile(i);
+    await ttTransform();
+    if (ttState.output) {
+      var mdName = files[i].name.replace(/\.txt$/i, '.md');
+      pdkbDownloadFile(ttState.output, mdName);
+    }
+  }
+}
+
+async function ttDlBrowseFolder() {
+  try {
+    var resp = await fetch(TT_DL_SERVER + '/api/pick-folder', { method: 'POST' });
+    var data = await resp.json();
+    if (data.path) {
+      document.getElementById('tt-output-dir').value = data.path;
+      localStorage.setItem('tt_last_output_dir', data.path);
+      ttDlUpdateButtonState();
+    } else if (data.error) {
+      alert(data.error);
+    }
+  } catch (e) {
+    alert('Could not reach the local server (transcript-transformer-local/server.js) on localhost:3457. Start it with: node server.js');
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════
