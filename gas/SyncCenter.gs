@@ -456,6 +456,8 @@ function importLedger1099s(filings) {
 //   POST {action:'push1099', filings:[...]}          → write to 1099 Filing Chain
 //   POST {action:'pushChartOfAccounts'|'pushReceivables'|'pushJournalEntries'
 //         |'pushPrincipalRegister'|'pushContacts'|'pushWebsiteAccounts', ...}
+//   POST {action:'deleteWebsiteAccounts', accountIds:['WA-100',...], platforms:[...]}
+//         → removes matching rows from Website Accounts, backs them up first
 //   POST {action:'fullSync', data:{...}}             → write to all sheets
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -1243,6 +1245,17 @@ function doPost(e) {
         return jsonResponse_(waResult);
       }
 
+      case 'deleteWebsiteAccounts': {
+        var wdIds = Array.isArray(payload.accountIds) ? payload.accountIds : [];
+        var wdPlatforms = Array.isArray(payload.platforms) ? payload.platforms : [];
+        if (wdIds.length === 0 && wdPlatforms.length === 0) {
+          return errorResponse_('Provide accountIds (array of WA-NNN) and/or platforms (array of exact platform names, for rows with no accountId)');
+        }
+        var wdResult = deleteWebsiteAccounts_(ss, wdIds, wdPlatforms);
+        updateSyncTimestamp_(ss, 'Website Accounts', 'push');
+        return jsonResponse_(wdResult);
+      }
+
       case 'pushRegistryScan': {
         if (!payload.text || typeof payload.text !== 'string') {
           return errorResponse_('pushRegistryScan requires a "text" field with TSV/CSV content');
@@ -1335,7 +1348,7 @@ function doPost(e) {
       }
 
       default:
-        return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync, pushPrincipalRegister, pushContacts, pushWebsiteAccounts, importSubstituteW2, importForm1040, importForm2848, importScheduleA, importSchedule1, importSchedule2, importForm8275R, importAdminForms, importWorksheetData, refreshProofOfMailing, runFunction');
+        return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync, pushPrincipalRegister, pushContacts, pushWebsiteAccounts, deleteWebsiteAccounts, importSubstituteW2, importForm1040, importForm2848, importScheduleA, importSchedule1, importSchedule2, importForm8275R, importAdminForms, importWorksheetData, refreshProofOfMailing, runFunction');
     }
 
   } catch (err) {
@@ -2241,6 +2254,78 @@ function pushWebsiteAccounts_(ss, accounts) {
     }
   }
   return { status: 'ok', action: 'pushWebsiteAccounts', imported: imported, updated: updated };
+}
+
+
+/**
+ * Delete rows from "Website Accounts" by accountId (WA-NNN) and/or exact
+ * platform-name match (for the rare row with no accountId at all).
+ * Backs up every deleted row to a new sheet ("WA_PreDelete_<timestamp>")
+ * before removing anything, mirroring the PreReplace/PreRewrite backup
+ * pattern used elsewhere in this file (e.g. importRegistryFromSheet) —
+ * deletion is always reversible by copying rows back out of that tab.
+ */
+function deleteWebsiteAccounts_(ss, accountIds, platforms) {
+  var sheet = ss.getSheetByName('Website Accounts');
+  if (!sheet) return { status: 'error', action: 'deleteWebsiteAccounts', message: 'Website Accounts tab not found' };
+
+  var lastRow = sheet.getLastRow();
+  if (lastRow <= 1) {
+    return { status: 'ok', action: 'deleteWebsiteAccounts', deleted: 0, notFound: accountIds, notFoundPlatforms: platforms };
+  }
+
+  var idSet = {};
+  for (var i = 0; i < accountIds.length; i++) idSet[String(accountIds[i]).trim().toUpperCase()] = true;
+  var platSet = {};
+  for (var p = 0; p < platforms.length; p++) platSet[String(platforms[p]).trim().toLowerCase()] = true;
+
+  var data = sheet.getRange(2, 1, lastRow - 1, 8).getValues();
+  var matchedIds = {}, matchedPlatforms = {};
+  var deletedRows = [];
+  var rowsToDelete = []; // sheet row numbers, will sort descending before deleting
+
+  for (var r = 0; r < data.length; r++) {
+    var row = data[r];
+    var id = String(row[0] || '').trim().toUpperCase();
+    var platform = String(row[1] || '').trim().toLowerCase();
+    var isMatch = false;
+
+    if (id && idSet[id]) { isMatch = true; matchedIds[id] = true; }
+    else if (!id && platform && platSet[platform]) { isMatch = true; matchedPlatforms[platform] = true; }
+
+    if (isMatch) {
+      deletedRows.push(row);
+      rowsToDelete.push(r + 2); // +2: header row + 1-based index
+    }
+  }
+
+  if (rowsToDelete.length === 0) {
+    return { status: 'ok', action: 'deleteWebsiteAccounts', deleted: 0, notFound: accountIds, notFoundPlatforms: platforms };
+  }
+
+  // Backup before delete — full 8-column snapshot of exactly the rows being removed.
+  var headers = ['accountId', 'platform', 'url', 'username', 'linkedEntity', 'mfaMethod', 'lastVerified', 'notes'];
+  var stamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone() || 'America/Chicago', 'yyyyMMdd_HHmmss');
+  var backupName = 'WA_PreDelete_' + stamp;
+  var backupSheet = ss.insertSheet(backupName);
+  backupSheet.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight('bold');
+  backupSheet.getRange(2, 1, deletedRows.length, headers.length).setValues(deletedRows);
+  backupSheet.setTabColor('#ef4444');
+
+  // Delete bottom-up so earlier row indices stay valid.
+  rowsToDelete.sort(function(a, b) { return b - a; });
+  for (var d = 0; d < rowsToDelete.length; d++) sheet.deleteRow(rowsToDelete[d]);
+
+  var notFoundIds = [];
+  for (var idKey in idSet) if (!matchedIds[idKey]) notFoundIds.push(idKey);
+  var notFoundPlatforms = [];
+  for (var platKey in platSet) if (!matchedPlatforms[platKey]) notFoundPlatforms.push(platKey);
+
+  return {
+    status: 'ok', action: 'deleteWebsiteAccounts',
+    deleted: rowsToDelete.length, backupSheet: backupName,
+    notFound: notFoundIds, notFoundPlatforms: notFoundPlatforms
+  };
 }
 
 
