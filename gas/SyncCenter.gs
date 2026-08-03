@@ -214,17 +214,17 @@ function importLedgerEntities(entities) {
   // Get existing providers for dedup
   const lastRow = sheet.getLastRow();
   const existingProviders = {};
-  if (lastRow > 2) {
-    const existingData = sheet.getRange(3, 3, lastRow - 2, 1).getValues(); // Col C = Provider
+  if (lastRow > 1) {
+    const existingData = sheet.getRange(2, 3, lastRow - 1, 1).getValues(); // Col C = Provider
     existingData.forEach(function(r, i) {
-      if (r[0]) existingProviders[String(r[0]).toLowerCase().trim()] = i + 3;
+      if (r[0]) existingProviders[String(r[0]).toLowerCase().trim()] = i + 2;
     });
   }
 
   // Find next Row ID number
   let nextId = 1;
-  if (lastRow > 2) {
-    const ids = sheet.getRange(3, 1, lastRow - 2, 1).getValues();
+  if (lastRow > 1) {
+    const ids = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
     ids.forEach(function(r) {
       const match = String(r[0]).match(/MR-(\d+)/);
       if (match) nextId = Math.max(nextId, parseInt(match[1]) + 1);
@@ -906,6 +906,9 @@ function doGet(e) {
         }
         return jsonResponse_({ status: 'ok', action: 'pullRawTab', tab: tabName, headers: rawHeaders, rows: rawRows });
 
+      case 'listRunnableFunctions':
+        return jsonResponse_({ status: 'ok', action: 'listRunnableFunctions', functions: Object.keys(RUNNABLE_FUNCTIONS_) });
+
       // ─── Workbook Sheet Integration (Wimberly Unified Master Register) ──
       case 'listWorkbookTabs': {
         var wbSS = SpreadsheetApp.openById(WORKBOOK_ID_);
@@ -1106,8 +1109,11 @@ function doGet(e) {
         return jsonResponse_({ status: 'ok', action: action, count: dataAdm.length, data: dataAdm });
       }
 
+      case 'analyzeDuplicates':
+        return jsonResponse_({ status: 'ok', action: 'analyzeDuplicates', report: analyzeDuplicateAccounts() });
+
       default:
-        return errorResponse_('Unknown action: ' + action + '. Valid: ping, pullAccounts, pullTransactions, pullObligations, pull1099, pullValidation, pullPrincipalRegister, pullContacts, pullWebsiteAccounts, listSheetTabs, pullRawTab, listWorkbookTabs, pullWorkbookSheets, pullSubstituteW2, pullForm1040, pullScheduleA, pullSchedule1, pullSchedule2, pullWorksheetData, pullForm2848, pullForm8275R, pullAdminForms');
+        return errorResponse_('Unknown action: ' + action + '. Valid: ping, pullAccounts, pullTransactions, pullObligations, pull1099, pullValidation, pullPrincipalRegister, pullContacts, pullWebsiteAccounts, listSheetTabs, pullRawTab, listWorkbookTabs, pullWorkbookSheets, pullSubstituteW2, pullForm1040, pullScheduleA, pullSchedule1, pullSchedule2, pullWorksheetData, pullForm2848, pullForm8275R, pullAdminForms, analyzeDuplicates, listRunnableFunctions');
     }
 
   } catch (err) {
@@ -1222,6 +1228,13 @@ function doPost(e) {
         return jsonResponse_(ctResult);
       }
 
+      case 'runFunction': {
+        if (!payload.functionName || typeof payload.functionName !== 'string') {
+          return errorResponse_('runFunction requires a "functionName" field');
+        }
+        return jsonResponse_(runAllowlistedFunction_(payload.functionName));
+      }
+
       case 'pushWebsiteAccounts': {
         var waV = validatePayload_(payload.accounts, ['platform']);
         if (!waV.valid) return errorResponse_(waV.message);
@@ -1322,7 +1335,7 @@ function doPost(e) {
       }
 
       default:
-        return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync, pushPrincipalRegister, pushContacts, pushWebsiteAccounts, importSubstituteW2, importForm1040, importForm2848, importScheduleA, importSchedule1, importSchedule2, importForm8275R, importAdminForms, importWorksheetData, refreshProofOfMailing');
+        return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync, pushPrincipalRegister, pushContacts, pushWebsiteAccounts, importSubstituteW2, importForm1040, importForm2848, importScheduleA, importSchedule1, importSchedule2, importForm8275R, importAdminForms, importWorksheetData, refreshProofOfMailing, runFunction');
     }
 
   } catch (err) {
@@ -1345,16 +1358,19 @@ function pushEntities_(ss, entities) {
 
   var lastRow = sheet.getLastRow();
   var existingProviders = {};
-  if (lastRow > 2) {
-    var existingData = sheet.getRange(3, 3, lastRow - 2, 1).getValues();
+  if (lastRow > 1) {
+    // Data starts at row 2 (row 1 is the header) — starting this scan at row 3
+    // silently skipped MR-001 forever, so any "update" to it appended a
+    // duplicate row instead. Found 2026-08-02 fixing Boys & Girls Club Wayne.
+    var existingData = sheet.getRange(2, 3, lastRow - 1, 1).getValues();
     for (var i = 0; i < existingData.length; i++) {
-      if (existingData[i][0]) existingProviders[String(existingData[i][0]).toLowerCase().trim()] = i + 3;
+      if (existingData[i][0]) existingProviders[String(existingData[i][0]).toLowerCase().trim()] = i + 2;
     }
   }
 
   var nextId = 1;
-  if (lastRow > 2) {
-    var ids = sheet.getRange(3, 1, lastRow - 2, 1).getValues();
+  if (lastRow > 1) {
+    var ids = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
     for (var k = 0; k < ids.length; k++) {
       var match = String(ids[k][0]).match(/MR-(\d+)/);
       if (match) nextId = Math.max(nextId, parseInt(match[1]) + 1);
