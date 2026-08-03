@@ -113,3 +113,86 @@ function populateAppScriptsInventory() {
 
   return 'Wrote ' + out.length + ' rows to AppScripts.';
 }
+
+/**
+ * refreshAppScriptsHealth() — adds Health (G) and Notes (H) columns to the
+ * AppScripts tab from a real live-test + static-review pass (2026-08-03: 5
+ * parallel agents covering all 65 non-archived menu functions). Also updates
+ * Status (F) for the 3 functions that got a real code fix this pass. Keyed
+ * by function name against whatever populateAppScriptsInventory() already
+ * wrote to column A -- run that first if the sheet is empty.
+ *
+ * Usage (Apps Script editor, bound to Live): run refreshAppScriptsHealth()
+ */
+function refreshAppScriptsHealth() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('AppScripts');
+  if (!sheet) return 'AppScripts tab not found';
+
+  var health = {
+    'showFinancialSummary': ['FLAG-HIGH: BROKEN', 'FinancialSummary.html does not exist anywhere in the repo -- menu item throws on click. Its data source readMasterRegisterAccounts_() also never got the 2026-08-01 29-col fix (balance reads Next Payment Due, not Current Balance). Needs a decision, not a quick patch.'],
+    'showAddAccountDialog': ['FLAG-HIGH: DUPLICATE DEF', 'Defined twice under the identical global name (Code.gs:3188 and TMARBridge.gs:20) -- only one survives; both "Add Account" menu items trigger whichever wins. Needs a decision on which implementation to keep.'],
+    'confirmAndExecuteCleanup': ['FLAG-HIGH', 'Its archive step (archiveDuplicateAccounts) still uses stale getRange(...,35); hardcoded Feb-2026 MR-ID list is likely stale. Do not run until reviewed.'],
+    'refreshDashboard': ['FLAG-HIGH: BROKEN', 'Looks for "Dashboard"/"Executive Dashboard" -- neither exists; real tab is emoji-prefixed "📋 Dashboard", which is a hand-built trust-binder cover page, NOT this function\'s expected summary layout. Pointing it there would overwrite real content. Needs an operator decision, not an auto-fix.',],
+    'addSampleData': ['FLAG (by design)', 'Read-only review confirms it writes 4 demo rows with a blank Row ID (breaks MR-NNN join key) and an invalid Account Subtype value. Excluded from live-invoke; do not run against production.'],
+    'importClintCreditReportAccounts': ['FLAG-HIGH: DEDUP BROKEN', 'Existing-account check compares Account Subtype (col G) to incoming Account Type -- essentially never matches, so reruns will duplicate rows. Do not run until fixed.'],
+    'importSyrinaAutoLoan': ['FLAG-HIGH: DEDUP BROKEN', 'Same shared dedup bug as importClintCreditReportAccounts.'],
+    'importAllCreditReportAccounts': ['FLAG-HIGH: DEDUP BROKEN', 'Same dedup bug. colorCodeMasterRegisterRows_() (called after every import) is also a silent no-op -- wrong column anchors, never colors a row.'],
+    'menuApplyAllFormatting': ['FIXED', 'Was FAIL (merge-cell filter crash via createFilterViews()). Fixed 2026-08-03 by delegating to the already-safe createFilterViewsSafe_(); re-verified live, deployed @37.'],
+    'menuRefreshFilters': ['FIXED', 'Same merge-cell crash, same fix, same root cause as menuApplyAllFormatting. Re-verified live: status ok.'],
+    'runFormattingHealthAudit': ['FIXED', 'Dropdowns check had all 4 Master Register column indices drifted from the pre-2026-08-01 schema (checking Balance/Statements-Complete/out-of-range instead of Subtype/Status/Primary-User/Discovery-Status). Fixed 2026-08-03, deployed @37.'],
+    'installDocRegistryTrigger': ['FIXED (minor)', 'DOC-ID regex was exact 4-digit only, inconsistent with the 4-or-more convention used elsewhere -- would misfire past DOC-9999. Fixed 2026-08-03.'],
+    'runFullGapScan': ['CLEAN (minor)', 'Live-tested PASS, wrote real Gap Report. Hardcodes a dead "Executive Dashboard" scanner key -- harmless no-op for that one scanner.'],
+    'scanCurrentTab': ['CLEAN (minor)', 'Same dead scanner-map key as runFullGapScan; harmless.'],
+    'showAddQuestionDialog': ['FLAG', 'Related-Tab dropdown offers a dead "Executive Dashboard" option. Non-crashing.'],
+    'navigateToCPASheet': ['FLAG', 'Shares ensureCPASheet_() which hardcodes the same dead tab name in a dropdown list; dormant since CPA Questions already exists.'],
+    'filterCPAOpen': ['FLAG', 'Same latent ensureCPASheet_() dependency.'],
+    'filterCPAPriority': ['FLAG', 'Same latent ensureCPASheet_() dependency.'],
+    'clearCPAFilters': ['FLAG', 'Same latent ensureCPASheet_() dependency.'],
+    'menuRefreshTabColors': ['CLEAN (minor)', 'Live-tested PASS. Dead "Executive Dashboard" color-map entry, harmless.'],
+    'menuRefreshHeaderProtection': ['CLEAN (minor)', 'Live-tested PASS. Dead "Executive Dashboard" protection-target entry, harmless.'],
+    'menuApplyFinePrint': ['CLEAN (minor)', 'Live-tested PASS. Dead "Executive Dashboard" stamp-target entry, harmless.'],
+    'diagnoseLegendAndAttribution': ['CLEAN (minor)', 'Live-tested, real logic ran. Dead "Executive Dashboard" entry, harmless.'],
+    'menuApplyLegendBlocks': ['CLEAN (cosmetic)', 'Live-tested PASS. Legend-column requirement still based on old 35-col width, but numerically safe (37/39 > real 29-col data) -- just extra blank columns before the legend.'],
+    'fixAllFormattingIssues': ['CLEAN (caveat)', 'Live-tested PASS, but each of its 9 phases swallows exceptions internally (Logger.log only) -- a PASS only proves the wrapper did not throw, not that all 9 phases succeeded.'],
+    'calculateDNI': ['UNTESTABLE', 'getUi() called as its 2nd statement, before any real computation -- headless test can never validate the actual DNI math.'],
+    'viewTrialBalance': ['UNTESTABLE', 'Same early-getUi() pattern.'],
+    'viewOverdueTasks': ['UNTESTABLE', 'Shared _loadComplianceSheet_() calls getUi() before its fallback tab lookup even runs.'],
+    'viewUpcomingTasks': ['UNTESTABLE', 'Same _loadComplianceSheet_() pattern.'],
+    'refreshComplianceSheet': ['UNTESTABLE', 'Same _loadComplianceSheet_() pattern.'],
+    'refreshDocumentList': ['UNTESTABLE', 'getUi() called before its Document Inventory -> Document Registry fallback lookup runs.'],
+    'colorCodeMasterRegisterRows_': ['FLAG: DEAD CODE', 'Internal helper, wrong column anchors (status/credit-status), never colors a row.'],
+    'pushRegistryScan': ['NOT RE-VERIFIED', 'doPost endpoint, out of scope for this menu-function pass; carried over reminder it needed a redeploy as of 2026-08-01.']
+  };
+  var defaultHealth = ['CLEAN', 'Live-tested or statically reviewed 2026-08-03, no issues found.'];
+  var notRetested = ['NOT RE-TESTED', 'Correctly triaged as Superseded/Archived-one-time-use; out of scope for this pass.'];
+
+  sheet.getRange(1, 7).setValue('Health (2026-08-03)');
+  sheet.getRange(1, 8).setValue('Notes');
+
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return 'No inventory rows found -- run populateAppScriptsInventory() first.';
+
+  var names = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+  var statuses = sheet.getRange(2, 6, lastRow - 1, 1).getValues();
+  var out = [];
+  for (var i = 0; i < names.length; i++) {
+    var fn = String(names[i][0] || '').trim();
+    var status = String(statuses[i][0] || '');
+    var isArchived = status.indexOf('Archived') !== -1 || status === 'Superseded';
+    var h = health[fn] || (isArchived ? notRetested : defaultHealth);
+    out.push(h);
+  }
+  sheet.getRange(2, 7, out.length, 2).setValues(out);
+
+  // Update Status for the 3 functions that received a real code fix this pass.
+  var statusFixes = { 'menuApplyAllFormatting': true, 'menuRefreshFilters': true };
+  for (var j = 0; j < names.length; j++) {
+    var fname = String(names[j][0] || '').trim();
+    if (statusFixes[fname]) {
+      sheet.getRange(j + 2, 6).setValue('Active (fixed 2026-08-03)');
+    }
+  }
+
+  return 'Wrote health/notes for ' + out.length + ' rows to AppScripts.';
+}

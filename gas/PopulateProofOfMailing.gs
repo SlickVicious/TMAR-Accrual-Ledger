@@ -20,10 +20,23 @@
  * All 8 creditor letters (MAIL-005..012) delivered 7/2-7/13/2026; delivery data recorded below.
  *
  * Re-apply after editing: refreshProofOfMailing()  (clears MAIL-* rows, then re-inserts).
+ *
+ * 2026-08-02: full review of the Postal folder (every image opened, not just filenames matched)
+ * against the live sheet. Found and fixed: (1) MAIL-016 (NY Dept of State, 07/29, tracking
+ * ...2900 88) was mailed but never logged at all — added. (2) Nearly every documentlocation and
+ * several note-embedded filenames referenced the pre-reorg path (04-Taxes\Receipts\Postal\) and/or
+ * pre-rename filenames — updated throughout to the current 00-Receipts-Invoices\Postal\ paths and
+ * the DDMmmYY_TYPE_Subject_last6[-Side] filenames from that day's rename pass. (3) Two filenames
+ * that were never real ("27JUN26_PO_creditors-8x-receipt.jpg", "27JUN26_CM_creditors-8x-grid.jpg",
+ * "13MAY26_CM_IRS-NCDOR-2022TR_290033.jpg") were replaced with the actual files found on disk.
  */
 
 var POM_TAB_NAME_ = 'Proof of Mailing';
-var POM_BASE_ = '04-Taxes\\Receipts\\Postal\\';
+// 2026-08-02: folder moved from 04-Taxes\Receipts\Postal\ during the v2 reorg, and files within
+// it were renamed to the DDMmmYY_TYPE_Subject_last6[-Side].ext standard (see
+// 00-Receipts-Invoices\Postal\_RENAME_MANIFEST_02AUG26.md). Every documentlocation below now
+// includes its real subfolder (PS Form-3800\, PS Form-3811\, USPS-Receipts\, MoneyOrderReceipts\).
+var POM_BASE_ = '00-Receipts-Invoices\\Postal\\';
 
 function pomNorm_(h) { return String(h || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
 
@@ -70,10 +83,12 @@ function pomRecords_() {
       relatedform: 'Form 1040 (2022)',
       uspstracking: '9414 8118 9876 5525 2665 53',
       service: 'Certified Mail', status: 'MAILED',
-      documentlocation: POM_BASE_ + '02APR26_CM_IRS-KC_266553.pdf',
+      documentlocation: POM_BASE_ + 'PS Form-3800\\02APR26_TRK_IRS-KC_266553.jpg',
       note: 'Ref "IRS FORM"; sender Clinton Wimberly IV, Trustee. Earlier guess that green card ' +
             '...5525 66 belonged to this piece RULED OUT 2026-07-16 — card front shows it is MAIL-011 ' +
-            '(Verizon). No return receipt for MAIL-001; delivery not yet confirmed.' },
+            '(Verizon). No return receipt for MAIL-001; delivery not yet confirmed. [2026-08-02: doc ' +
+            'location corrected — the scan on file is a .jpg tracking-summary screenshot, not the .pdf ' +
+            'previously referenced; a separate .pdf was not located.]' },
 
     { mailid: 'MAIL-002', datesent: '2026-05-13',
       recipient: 'NYS Dept. of Health, Bureau of Vital Records Certification Unit',
@@ -82,10 +97,12 @@ function pomRecords_() {
       relatedform: 'DOH-4380 (Certificate of Live Birth)',
       uspstracking: '9589 0710 5270 4022 2902 86',
       service: 'Certified Mail', status: 'MAILED',
-      documentlocation: POM_BASE_ + '13MAY26_PO_taxbatch-summary_290033.png',
+      documentlocation: POM_BASE_ + 'USPS-Receipts\\13MAY26_PO_taxbatch-summary_290033.png',
       note: 'Certified, no return receipt. Enclosed 2x Love stamps for SASE return envelopes. ' +
-            'Supporting scans: 13MAY26_MO_NYDOH-COLB.jpg (money orders + envelope), ' +
-            '13MAY26_MO_COLB-2x-stamps.png (MO stubs + stamps), 13MAY26_REQ_NYDOH-COLB.jpg (DOH-4380 request).' },
+            'Supporting scans: MoneyOrderReceipts\\13MAY26_MO_NYDOH-COLB.jpg (money orders + envelope), ' +
+            'USPS-Receipts\\13MAY26_MO_COLB-2x-stamps.png (MO stubs + stamps), ' +
+            'PS Form-3800\\13MAY26_CM_NYDOH-COLB_290286.jpg (the certified-mail receipt itself — ' +
+            '[2026-08-02: this was mislabeled REQ in the old filename; it is a receipt, not a request form]).' },
 
     { mailid: 'MAIL-003', datesent: '2026-05-13',
       recipient: 'Internal Revenue Service (Dept. of the Treasury)',
@@ -96,9 +113,12 @@ function pomRecords_() {
       psform3811: '9590 9402 9939 5335 0121 35',
       deliveryconfirmed: 'Yes', deliverydate: '2026-05-27', returnreceipt: 'Yes - hardcopy',
       service: 'Certified + Return Receipt', status: 'DELIVERED',
-      documentlocation: POM_BASE_ + '27MAY26_GC_IRS-KC-2022-alt_012135.png',
-      note: 'Delivered 5/27/26 (IRS RECEIVED stamp #2231). Green card scan: 27MAY26_GC_IRS-KC-2022-alt_012135.png. ' +
-            'Certified receipt (5/13 batch): 13MAY26_CM_IRS-NCDOR-2022TR_290033.jpg. ' +
+      documentlocation: POM_BASE_ + 'PS Form-3811\\27MAY26_GC-F_IRS-KC-2022_290026.png',
+      note: 'Delivered 5/27/26 (IRS RECEIVED stamp #2231). Green card scan: ' +
+            'PS Form-3811\\27MAY26_GC-F_IRS-KC-2022_290026.png (front only, no back captured). ' +
+            'Certified receipt: PS Form-3800\\13MAY26_CM_IRS-KC_290026.jpg. [2026-08-02: corrected — ' +
+            'previously cited "13MAY26_CM_IRS-NCDOR-2022TR_290033.jpg", a filename that does not exist; ' +
+            'that tracking suffix (290033) actually belongs to MAIL-004/NCDOR, not this IRS mailing.] ' +
             'Filing PDF: 04-Taxes\\IRS-Filings\\2022\\2022_Wimberly_Joint_1040_Filed_2026-05-13.pdf. ' +
             'Re-filed as MAIL-013 (2026-07-07).' },
 
@@ -111,9 +131,11 @@ function pomRecords_() {
       psform3811: '9590 9402 9939 5335 0121 28',
       deliveryconfirmed: 'Yes', deliverydate: '2026-05-20', returnreceipt: 'Yes - hardcopy',
       service: 'Certified + Return Receipt', status: 'DELIVERED',
-      documentlocation: POM_BASE_ + '20MAY26_GC_NCDOR-2022-alt_012128.png',
-      note: 'Delivered 5/20/26 (NCDOR delivery stamp). Green card scans: 20MAY26_GC_NCDOR-2022-alt_012128.png ' +
-            '+ -altB_012128.png. Certified receipt (5/13 batch): 13MAY26_CM_IRS-NCDOR-2022TR_290033.jpg.' },
+      documentlocation: POM_BASE_ + 'PS Form-3811\\20MAY26_GC-F_NCDOR-2022_290033.png',
+      note: 'Delivered 5/20/26 (NCDOR delivery stamp). Green card scans: ' +
+            'PS Form-3811\\20MAY26_GC-F_NCDOR-2022_290033.png (front) + ' +
+            'PS Form-3811\\20MAY26_GC-B_NCDOR-2022_290033.png (back). ' +
+            'Certified receipt: PS Form-3800\\13MAY26_CM_NCDOR_290033.jpg.' },
 
     // --- 2026-06-27 creditor demand-letter batch (8 certified, no return receipts) ---
     { mailid: 'MAIL-005', datesent: '2026-06-27', recipient: 'First Premier Bank',
@@ -121,22 +143,22 @@ function pomRecords_() {
       documentsent: 'Creditor demand letter', relatedform: 'UCC demand letter',
       uspstracking: '9589 0710 5270 4022 2902 17', service: 'Certified Mail', status: 'DELIVERED',
       deliveryconfirmed: 'Yes', deliverydate: '2026-07-13',
-      documentlocation: POM_BASE_ + '27JUN26_PO_creditors-8x-receipt.jpg',
-      note: '6/27/2026 certified demand-letter batch (8). No return receipt purchased. Delivered 7/13/2026 11:29 AM — Left with Individual (electronic confirmation only). PS 3800 stubs grid: 27JUN26_CM_creditors-8x-grid.jpg.' },
+      documentlocation: POM_BASE_ + 'PS Form-3800\\27JUN26_CM_FirstPremier-SiouxFalls-SD_290217.jpg',
+      note: '6/27/2026 certified demand-letter batch (8). No return receipt purchased. Delivered 7/13/2026 11:29 AM — Left with Individual (electronic confirmation only). Batch retail receipt (all 8): USPS-Receipts\\27JUN26_PO_8x_KinstonNC.jpg. [2026-08-02: the previously-cited "27JUN26_CM_creditors-8x-grid.jpg" was never found on disk — replaced with the individual CM receipt, which does exist.]' },
     { mailid: 'MAIL-006', datesent: '2026-06-27', recipient: 'OneMain Financial',
       recipientaddress: 'PO Box 3251, Evansville IN 47731',
       documentsent: 'Creditor demand letter', relatedform: 'UCC demand letter',
       uspstracking: '9589 0710 5270 4022 2902 24', service: 'Certified Mail', status: 'DELIVERED',
       deliveryconfirmed: 'Yes', deliverydate: '2026-07-02',
-      documentlocation: POM_BASE_ + '27JUN26_PO_creditors-8x-receipt.jpg',
-      note: '6/27/2026 demand-letter batch. Delivered 7/2/2026 7:11 AM — PO Box. PS 3800 stubs grid: 27JUN26_CM_creditors-8x-grid.jpg.' },
+      documentlocation: POM_BASE_ + 'PS Form-3800\\27JUN26_CM_OneMain-Evansville-IN_290224.jpg',
+      note: '6/27/2026 demand-letter batch. Delivered 7/2/2026 7:11 AM — PO Box. Batch retail receipt (all 8): USPS-Receipts\\27JUN26_PO_8x_KinstonNC.jpg.' },
     { mailid: 'MAIL-007', datesent: '2026-06-27', recipient: 'NELNET',
       recipientaddress: 'PO Box 82561, Lincoln NE 68501',
       documentsent: 'Creditor demand letter', relatedform: 'UCC demand letter',
       uspstracking: '9589 0710 5270 4022 2902 31', service: 'Certified Mail', status: 'DELIVERED',
       deliveryconfirmed: 'Yes', deliverydate: '2026-07-02',
-      documentlocation: POM_BASE_ + '27JUN26_PO_creditors-8x-receipt.jpg',
-      note: '6/27/2026 demand-letter batch. Delivered 7/2/2026 7:20 AM — PO Box. PS 3800 stubs grid: 27JUN26_CM_creditors-8x-grid.jpg.' },
+      documentlocation: POM_BASE_ + 'PS Form-3800\\27JUN26_CM_Nelnet-Lincoln-NE_290231.jpg',
+      note: '6/27/2026 demand-letter batch. Delivered 7/2/2026 7:20 AM — PO Box. Batch retail receipt (all 8): USPS-Receipts\\27JUN26_PO_8x_KinstonNC.jpg.' },
     { mailid: 'MAIL-008', datesent: '2026-06-27', recipient: 'Altice USA Inc',
       recipientaddress: '1111 Stewart Ave, Bethpage NY 11714',
       documentsent: 'Creditor demand letter', relatedform: 'UCC demand letter',
@@ -144,12 +166,14 @@ function pomRecords_() {
       psform3811: '9590 9402 9939 5335 0121 11',
       service: 'Certified + Return Receipt', status: 'DELIVERED',
       deliveryconfirmed: 'Yes', deliverydate: '2026-07-02', returnreceipt: 'Yes - hardcopy',
-      documentlocation: POM_BASE_ + '27JUN26_PO_creditors-8x-receipt.jpg',
+      documentlocation: POM_BASE_ + 'PS Form-3800\\27JUN26_CM_Altice-Bethpage-NY_290118.jpg',
       note: '6/27/2026 demand-letter batch. Delivered 7/2/2026 9:47 AM — Left with Individual. ' +
             'Green card CONFIRMED 2026-07-16 vs card front: addressed Altice USA Inc, 1111 Stewart Ave ' +
             'Bethpage NY 11714, article ...2901 18, PS 3811 ...0121 11. Card scans filed at ' +
-            '06-Account-Register\\Altice\\ (Altice Front_.jpg / Altice Back_1200px.jpg); sender-side scan: ' +
-            POM_BASE_ + '08JUL26_GC_Altice-demand_012111.jpg. PS 3800 stubs grid: 27JUN26_CM_creditors-8x-grid.jpg.' },
+            '06-Account-Register\\Altice\\ (Altice Front_.jpg / Altice Back_1200px.jpg); local Postal-folder ' +
+            'copies: PS Form-3811\\08JUL26_GC-F_Altice-demand_290118.jpg (front) and ' +
+            'PS Form-3811\\08JUL26_GC-B_Altice-demand_290118.jpg (back, postmark 8 JUL 2026). ' +
+            'Batch retail receipt (all 8): USPS-Receipts\\27JUN26_PO_8x_KinstonNC.jpg.' },
     { mailid: 'MAIL-009', datesent: '2026-06-27', recipient: 'Capital One Bank (USA) NA',
       recipientaddress: 'PO Box 30285, Salt Lake City UT 84130',
       documentsent: 'Creditor demand letter', relatedform: 'UCC demand letter',
@@ -157,19 +181,21 @@ function pomRecords_() {
       psform3811: '9590 9402 9486 5069 5525 42',
       service: 'Certified + Return Receipt', status: 'DELIVERED',
       deliveryconfirmed: 'Yes', deliverydate: '2026-07-06', returnreceipt: 'Yes - hardcopy',
-      documentlocation: POM_BASE_ + '27JUN26_PO_creditors-8x-receipt.jpg',
+      documentlocation: POM_BASE_ + 'PS Form-3800\\27JUN26_CM_CapitalOne-SLC-UT_290064.jpg',
       note: '6/27/2026 demand-letter batch. Delivered 7/6/2026 8:47 AM — PO Box (USPS scan). ' +
             'Green card in hand 2026-07-16: article ...2900 64, PS 3811 ...5525 42, signed; card ' +
             'delivery stamp reads JUL 07 2026 (one day after USPS electronic scan — kept USPS date). ' +
             'Card scans filed at 06-Account-Register\\Capital_One_Bank\\ (CapOne_FRONT_label_1200px.jpg / ' +
-            'CapOne_BACK_greencard_1200px.jpg). PS 3800 stubs grid: 27JUN26_CM_creditors-8x-grid.jpg.' },
+            'CapOne_BACK_greencard_1200px.jpg); local Postal-folder copy (front only): ' +
+            'PS Form-3811\\07JUL26_GC-F_CapitalOne-demand_290064.jpg. ' +
+            'Batch retail receipt (all 8): USPS-Receipts\\27JUN26_PO_8x_KinstonNC.jpg.' },
     { mailid: 'MAIL-010', datesent: '2026-06-27', recipient: 'Progressive Insurance',
       recipientaddress: 'PO Box 6807, Cleveland OH 44101',
       documentsent: 'Creditor demand letter', relatedform: 'UCC demand letter',
       uspstracking: '9589 0710 5270 4022 2901 01', service: 'Certified Mail', status: 'DELIVERED',
       deliveryconfirmed: 'Yes', deliverydate: '2026-07-06',
-      documentlocation: POM_BASE_ + '27JUN26_PO_creditors-8x-receipt.jpg',
-      note: '6/27/2026 demand-letter batch. Tracking CORRECTED 2026-07-14: swapped with MAIL-012 — USPS shows this piece (...2901 01) delivered CLEVELAND OH 44101, Progressive\'s city. Delivered 7/6/2026 — Picked Up at Post Office. PS 3800 stubs grid: 27JUN26_CM_creditors-8x-grid.jpg.' },
+      documentlocation: POM_BASE_ + 'PS Form-3800\\27JUN26_CM_Progressive-Cleveland-OH_290101.jpg',
+      note: '6/27/2026 demand-letter batch. Tracking CORRECTED 2026-07-14: swapped with MAIL-012 — USPS shows this piece (...2901 01) delivered CLEVELAND OH 44101, Progressive\'s city. Delivered 7/6/2026 — Picked Up at Post Office. Green card front/back on file: PS Form-3811\\27JUN26_GC-F_Progressive-demand_290101.jpg / PS Form-3811\\27JUN26_GC-B_Progressive-demand_290101.jpg (no delivery date visible on either — used the mailing date as a documented fallback prefix, true delivery date unconfirmed on the card itself). Batch retail receipt (all 8): USPS-Receipts\\27JUN26_PO_8x_KinstonNC.jpg.' },
     { mailid: 'MAIL-011', datesent: '2026-06-27', recipient: 'Verizon Communications Inc',
       recipientaddress: 'PO Box 408, Newark NJ 07101',
       documentsent: 'Creditor demand letter', relatedform: 'UCC demand letter',
@@ -177,20 +203,21 @@ function pomRecords_() {
       psform3811: '9590 9402 9486 5069 5525 66',
       service: 'Certified + Return Receipt', status: 'DELIVERED',
       deliveryconfirmed: 'Yes', deliverydate: '2026-07-02', returnreceipt: 'Yes - hardcopy',
-      documentlocation: POM_BASE_ + '27JUN26_PO_creditors-8x-receipt.jpg',
+      documentlocation: POM_BASE_ + 'PS Form-3800\\27JUN26_CM_Verizon-Newark-NJ_290125.jpg',
       note: '6/27/2026 demand-letter batch. Pairing confirmed by USPS delivery (Newark NJ). ' +
             'Delivered 7/2/2026 5:17 AM — PO Box; green card signed "Diego F", date of delivery 7-2-26. ' +
             'Card CONFIRMED in hand 2026-07-16: article ...2901 25, PS 3811 ...5525 66. Card scans filed at ' +
             '06-Account-Register\\Verizon\\ (Verizon_FRONT_greencard_1200px.jpg / Verizon_Back_TRACKING_labels_1200px.jpg); ' +
-            'sender-side scan: ' + POM_BASE_ + '08JUL26_GC_Verizon-demand_552566.jpg. ' +
-            'PS 3800 stubs grid: 27JUN26_CM_creditors-8x-grid.jpg.' },
+            'local Postal-folder copies: PS Form-3811\\08JUL26_GC-F_Verizon-demand_290125.jpg (front) and ' +
+            'PS Form-3811\\08JUL26_GC-B_Verizon-demand_290125.jpg (back). ' +
+            'Batch retail receipt (all 8): USPS-Receipts\\27JUN26_PO_8x_KinstonNC.jpg.' },
     { mailid: 'MAIL-012', datesent: '2026-06-27', recipient: 'Piedmont Natural Gas',
       recipientaddress: 'PO Box 33068, Charlotte NC 28233',
       documentsent: 'Creditor demand letter', relatedform: 'UCC demand letter',
       uspstracking: '9589 0710 5270 4022 2900 95', service: 'Certified Mail', status: 'DELIVERED',
       deliveryconfirmed: 'Yes', deliverydate: '2026-07-02',
-      documentlocation: POM_BASE_ + '27JUN26_PO_creditors-8x-receipt.jpg',
-      note: '6/27/2026 demand-letter batch. Tracking CORRECTED 2026-07-14: swapped with MAIL-010 — USPS shows this piece (...2900 95) delivered CHARLOTTE NC 28233, Piedmont\'s city. Delivered 7/2/2026 — Picked Up at Post Office. PS 3800 stubs grid: 27JUN26_CM_creditors-8x-grid.jpg.' },
+      documentlocation: POM_BASE_ + 'PS Form-3800\\27JUN26_CM_Piedmont-Charlotte-NC_290095.jpg',
+      note: '6/27/2026 demand-letter batch. Tracking CORRECTED 2026-07-14: swapped with MAIL-010 — USPS shows this piece (...2900 95) delivered CHARLOTTE NC 28233, Piedmont\'s city. Delivered 7/2/2026 — Picked Up at Post Office. Batch retail receipt (all 8): USPS-Receipts\\27JUN26_PO_8x_KinstonNC.jpg.' },
 
     { mailid: 'MAIL-013', datesent: '2026-07-07',
       recipient: 'Internal Revenue Service — Stop 6120',
@@ -201,9 +228,24 @@ function pomRecords_() {
       psform3811: '9590 9402 0097 6058 1083 41',
       returnreceipt: 'Yes - hardcopy (return pending)',
       service: 'Certified + Return Receipt', status: 'MAILED — awaiting delivery',
-      documentlocation: POM_BASE_ + '07JUL26_CM_IRS-KC-2022-2nd_289471.pdf',
+      documentlocation: POM_BASE_ + 'PS Form-3800\\07JUL26_CM_IRS-KC_289471.jpg',
       note: '2022 1040 filed TWICE: 1st = MAIL-003 (5/13, delivered 5/27); this 2nd filing 7/7, ' +
-            'est. delivery 7/11. Return receipt 1083 41 not yet returned.' },
+            'est. delivery 7/11. Return receipt 1083 41 not yet returned. Batch retail receipt: ' +
+            'USPS-Receipts\\07JUL26_PO_IRS-KC_289471.jpg. [2026-08-02: doc location corrected — the ' +
+            'scan on file is a .jpg, not the .pdf previously referenced.]' },
+
+    // --- Found 2026-08-02 during a full review of the Postal folder; had no Proof of Mailing row at all ---
+    { mailid: 'MAIL-016', datesent: '2026-07-29',
+      recipient: 'NY Dept of State — Division of Licensing Services',
+      recipientaddress: 'PO Box 22001, Albany NY 12201',
+      documentsent: 'Subject/purpose not confirmed — no accompanying request-form scan found alongside the receipt.',
+      relatedform: '',
+      uspstracking: '9589 0710 5270 4022 2900 88',
+      service: 'Certified Mail', status: 'MAILED',
+      documentlocation: POM_BASE_ + 'PS Form-3800\\29JUL26_CM_NYDeptState-Albany-NY_290088.jpg',
+      note: 'Added 2026-08-02 — found during a full review of the Postal folder; had never been logged. ' +
+            'No return receipt purchased, no green card on file, delivery not confirmed. Subject of the ' +
+            'mailing is unconfirmed; flag for follow-up if the underlying filing/request needs identifying.' },
 
     // --- 2026-04-01 IRS CAF Unit fax filings. NON-POSTAL (fax, no USPS tracking) but logged here
     //     per operator request; also tracked in Proof-of-Filing/Filing-Status-Tracker.md (FS-05/06). ---

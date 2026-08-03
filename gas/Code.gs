@@ -432,34 +432,11 @@ function applyConditionalFormatting(ss) {
 // ─── FILTER VIEWS ───────────────────────────────────────────────────────────
 
 function createFilterViews(ss) {
-  const mrSheet = ss.getSheetByName('Master Register');
-  if (!mrSheet) return;
-
-  // Apply basic filter to Master Register
-  const range = mrSheet.getDataRange();
-  if (!mrSheet.getFilter()) {
-    range.createFilter();
-  }
-
-  // Apply basic filter to Transaction Ledger
-  const tlSheet = ss.getSheetByName('Transaction Ledger');
-  if (tlSheet) {
-    const tlRange = tlSheet.getDataRange();
-    if (!tlSheet.getFilter()) {
-      tlRange.createFilter();
-    }
-  }
-
-  // Apply basic filter to Household Obligations
-  const hoSheet = ss.getSheetByName('Household Obligations');
-  if (hoSheet) {
-    const hoRange = hoSheet.getDataRange();
-    if (!hoSheet.getFilter()) {
-      hoRange.createFilter();
-    }
-  }
-
-  Logger.log('Filter views applied to Master Register, Transaction Ledger, Household Obligations');
+  // Delegates to createFilterViewsSafe_() (FormattingComplement.gs) — this function's
+  // own filter-creation logic broke on any sheet with merged cells ("You can't create
+  // a filter within a range containing merges"), confirmed live 2026-08-03. The safe
+  // wrapper unmerges each target range first, which this one never did.
+  createFilterViewsSafe_(ss);
 }
 
 

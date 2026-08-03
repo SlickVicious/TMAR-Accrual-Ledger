@@ -1,83 +1,84 @@
-Function	File	What it does	Status
-showControlPanel	GUIFunctions.gs	Opens Control Panel HTML dialog	Active
-showGAAPInterface	GUIFunctions.gs	Opens Universal Accrual Ledger (GAAP) interface	Active
-showBillOfExchange	GUIFunctions.gs	Opens Bill of Exchange dialog	Active
-showEINVerifier	GUIFunctions.gs	Opens EIN Verifier tool	Active
-showDocumentGenerator	GUIFunctions.gs	Opens Document Generator dialog	Active
-showDuplicateAnalysisReport	DuplicateAnalyzer.gs	Analyzes Master Register for duplicate accounts	Active
-confirmAndExecuteCleanup	ExecuteCleanup.gs	Confirms and runs cleanup of flagged rows	Active
-showYearSelector	GUIFunctions.gs	Shows dialog to set active tax year	Active
-showCurrentYear	GUIFunctions.gs	Displays current active year	Active
-showDataCompletenessDashboard	GUIFunctions.gs	Opens data completeness diagnostic dashboard	Active
-resetToDefaultYear	GUIFunctions.gs	Resets year to current calendar year	Active
-showTMARDashboard	GUIFunctions.gs	Opens TMAR dashboard HTML view	Active
-showFinancialSummary	TMARBridge.gs	Shows financial summary dialog	Active
-showAddAccountDialog	GUIFunctions.gs	Opens Add Account dialog (also in Import Tools)	Active
-runFullGapScan	Code.gs	Runs full workbook gap scan across all tabs	Active
-scanCurrentTab	Code.gs	Scans only the currently active tab for gaps	Active
-navigateToGapReport	Code.gs	Navigates to the Gap Report tab	Active
-navigateToDocRegistry	Code.gs	Navigates to the Document Registry tab	Active
-showImportRegistryScanDialog	ImportRegistryScan.gs	Opens dialog to paste and import registry scan output	Active
-runDriveFileCabinetScan	ScanDriveFileCabinet.gs	Scans Google Drive mirror of FileCabinet for file inventory	Active
-applyDriveFileCabinetScan	ScanDriveFileCabinet.gs	Applies Drive FC scan results to Document Registry	Active
-undoDriveScanApply	ScanDriveFileCabinet.gs	Undoes last Drive FC scan apply	Active
-showReconcileDialog	GUIFunctions.gs	Opens Reconcile & Cross-Fill dialog	Active
-installDocRegistryTrigger	DocumentRegistryTrigger.gs	Installs auto-ID and date trigger on Document Registry	Active
-removeDocRegistryTrigger	DocumentRegistryTrigger.gs	Removes auto-ID and date trigger from Document Registry	Active
-migrateDocRegistryPaths	Code.gs	One-time migration of absolute→relative paths in Document Registry	Archived-one-time-use
-emailGapReport	Code.gs	Emails gap scan report	Active
-showAddQuestionDialog	GUIFunctions.gs	Opens dialog to add new CPA question	Active
-navigateToCPASheet	Code.gs	Navigates to CPA Questions tab	Active
-filterCPAOpen	Code.gs	Filters CPA Questions to show open items only	Active
-filterCPAPriority	Code.gs	Filters CPA Questions by priority level	Active
-clearCPAFilters	Code.gs	Clears all CPA Questions filters	Active
-generateCPAMeetingPrep	Code.gs	Generates CPA meeting preparation document	Active
-showCSVImportDialog	GUIFunctions.gs	Opens CSV transaction import dialog	Active
-showAddObligationDialog	GUIFunctions.gs	Opens Add Obligation entry dialog	Active
-showAddSubscriptionDialog	GUIFunctions.gs	Opens Add Subscription entry dialog	Active
-showLedgerImportDialog	SyncCenter.gs	Opens Import from Accrual Ledger dialog	Active
-importClintCreditReportAccounts	CreditReportImport.gs	Imports Clinton's credit report accounts to Master Register	Active (schema fixed 2026-08-01)
-importSyrinaAutoLoan	CreditReportImport.gs	Imports Syrina's Kia auto loan to Master Register	Active (schema fixed 2026-08-01)
-importAllCreditReportAccounts	CreditReportImport.gs	Imports ALL credit report accounts (Clint + Syrina)	Active (schema fixed 2026-08-01)
-populateValidationSheet	PopulateValidation.gs	Populates dropdown validation values on _Validation tab	Active
-refreshDashboard	Code.gs	Refreshes dashboard formulas	Active
-addSampleData	Code.gs	Adds demo sample data for testing	Active
-exportToPdf	Code.gs	Exports current tab to PDF	Active
-menuApplyAllFormatting	FormattingComplement.gs	Applies all formatting (tabs, validation, conditional, filters, headers)	Active
-menuRefreshTabColors	FormattingComplement.gs	Refreshes tab color coding	Active
-menuRefreshDataValidation	FormattingComplement.gs	Refreshes data validation dropdowns	Active
-menuRefreshConditionalFmt	FormattingComplement.gs	Refreshes conditional formatting rules	Active
-menuRefreshFilters	FormattingComplement.gs	Refreshes filter views	Active
-menuRefreshHeaderProtection	FormattingComplement.gs	Refreshes header row protection	Active
-applyAllEnhancements	FormattingComplement.gs	Applies legend blocks, attribution stamps, and party row colors	Active
-menuApplyLegendBlocks	FormattingComplement.gs	Adds color legend blocks to sheets	Active
-menuApplyFinePrint	FormattingComplement.gs	Adds fine-print attribution stamps	Active
-menuApplyPartyColors	FormattingComplement.gs	Applies party-based row color coding	Active
-runFormattingHealthAudit	FormattingComplement.gs	Runs workbook formatting health audit	Active
-fixAllFormattingIssues	FormattingComplement.gs	Auto-fixes detected formatting issues	Active
-diagnoseLegendAndAttribution	FormattingComplement.gs	Diagnoses issues with legend blocks and attribution stamps	Active
-calculateDNI	TMAREngine.gs	Calculates Distributable Net Income for trust	Active
-viewTrialBalance	TMAREngine.gs	Displays trial balance report	Active
-viewOverdueTasks	TMAREngine.gs	Shows overdue compliance tasks	Active
-viewUpcomingTasks	TMAREngine.gs	Shows upcoming compliance tasks (next 30 days)	Active
-refreshComplianceSheet	TMAREngine.gs	Refreshes compliance tracking sheet	Active
-refreshDocumentList	TMAREngine.gs	Refreshes document list from registry	Active
-showAboutDialog	GUIFunctions.gs	Shows workbook info dialog	Active
-showHelpDialog	GUIFunctions.gs	Shows help & documentation dialog	Active
-refreshProofOfMailing	PopulateProofOfMailing.gs	Refreshes Proof of Mailing data (called from SyncCenter doPost)	Library (internal)
-pomRecords_	PopulateProofOfMailing.gs	Internal helper for proof of mailing records (called from SyncCenter)	Library (internal)
-pushRegistryScan	SyncCenter.gs	doPost endpoint: imports registry scan TSV (added 2026-08-01)	Active (needs redeploy)
-runDriveFileCabinetScan	ScanDriveFileCabinet.gs	Standalone Drive FC scanner (also menu-wired)	Active
-runHealthAudit	TMAR_AestheticsAndAudit.gs	ORIGINAL health audit — superseded by runFormattingHealthAudit in FormattingComplement.gs	Superseded
-colorMasterRegisterRows	TMAR_AestheticsAndAudit.gs	ORIGINAL row coloring — superseded by applyPartyRowColoring in FormattingComplement.gs	Superseded
-insertAllLegends	TMAR_AestheticsAndAudit.gs	ORIGINAL legend blocks — superseded by applyLegendBlocks in FormattingComplement.gs	Superseded
-applyAesthetics	TMAR_AestheticsAndAudit.gs	ORIGINAL aesthetics wrapper — superseded by applyAllEnhancements in FormattingComplement.gs	Superseded
-addFillingPackage2025.gs (all functions)	addFillingPackage2025.gs	One-time 2025 tax filing package generation	Archived-one-time-use
-DeleteSdhcDuplicateRow (all)	DeleteSdhcDuplicateRow.gs	One-time SDHC duplicate row deletion script	Archived-one-time-use
-FixCurrentBalanceValidation (all)	FixCurrentBalanceValidation.gs	One-time fix for Current Balance column validation	Archived-one-time-use
-FixOriginalBalanceDateFormat (all)	FixOriginalBalanceDateFormat.gs	One-time fix for Original Balance date format	Archived-one-time-use
-RemoveArchiveBanner.gs (all)	RemoveArchiveBanner.gs	One-time cleanup: removes archive banner	Archived-one-time-use
-RetireTrustLedger.gs (all)	RetireTrustLedger.gs	One-time retirement of Trust Ledger tab	Archived-one-time-use
-TabConsolidationAudit.gs (all)	TabConsolidationAudit.gs	One-time tab consolidation audit toolkit	Archived-one-time-use
-TransactionLedgerTrackingFix.gs (all)	TransactionLedgerTrackingFix.gs	One-time fix for Transaction Ledger tracking columns	Archived-one-time-use
-migrateDocRegistryPaths	Code.gs	One-time path migration (absolute→relative) — run once, already done	Archived-one-time-use
+Function	File	What it does	Status	Health (2026-08-03)	Notes
+showControlPanel	GUIFunctions.gs	Opens Control Panel HTML dialog	Active	CLEAN	Static review: ControlPanel.html confirmed on disk, no stale refs
+showGAAPInterface	GUIFunctions.gs	Opens Universal Accrual Ledger (GAAP) interface	Active	CLEAN	GAAPInterface.html confirmed on disk
+showBillOfExchange	GUIFunctions.gs	Opens Bill of Exchange dialog	Active	CLEAN	BillOfExchange.html confirmed on disk
+showEINVerifier	GUIFunctions.gs	Opens EIN Verifier tool	Active	CLEAN	EINVerifier.html confirmed on disk
+showDocumentGenerator	GUIFunctions.gs	Opens Document Generator dialog	Active	CLEAN	DocumentGenerator.html confirmed on disk
+showDuplicateAnalysisReport	DuplicateAnalyzer.gs	Analyzes Master Register for duplicate accounts	Active	CLEAN	Reads 29 cols correctly (already covered by 2026-08-01 fix)
+confirmAndExecuteCleanup	ExecuteCleanup.gs	Confirms and runs cleanup of flagged rows	Active	FLAG-HIGH	Its archive step (archiveDuplicateAccounts, DuplicateAnalyzer.gs:506) still reads/writes with stale getRange(...,35) — never covered by the 2026-08-01 fix. Also has a hardcoded Feb-2026 MR-ID list almost certainly stale after subsequent hand-corrections. Do not run until reviewed.
+showYearSelector	GUIFunctions.gs	Shows dialog to set active tax year	Active	CLEAN	No stale references
+showCurrentYear	GUIFunctions.gs	Displays current active year	Active	CLEAN	Alert only, no tab refs
+showDataCompletenessDashboard	GUIFunctions.gs	Opens data completeness diagnostic dashboard	Active	CLEAN	Inline HTML, no stale refs
+resetToDefaultYear	GUIFunctions.gs	Resets year to current calendar year	Active	CLEAN	Delegates to setActiveYear()
+showTMARDashboard	GUIFunctions.gs (actually TMARBridge.gs)	Opens TMAR dashboard HTML view	Active	CLEAN	Dashboard.html confirmed on disk
+showFinancialSummary	TMARBridge.gs	Shows financial summary dialog	Active	FLAG-HIGH: BROKEN	Confirmed broken: loads HtmlService.createTemplateFromFile('FinancialSummary') but gas/FinancialSummary.html does not exist anywhere in the repo. Live-wired on the menu (Code.gs "Financial Summary" item) — throws immediately on click. Its data source readMasterRegisterAccounts_() (TMARBridge.gs:190-219) also never got the 2026-08-01 29-col fix (balance field reads Next Payment Due col instead of Current Balance). Two independent breaks; needs a decision on rebuild vs retarget, not a quick patch.
+showAddAccountDialog	GUIFunctions.gs (duplicate: Code.gs:3188 AND TMARBridge.gs:20)	Opens Add Account dialog (also in Import Tools)	Active	FLAG-HIGH: DUPLICATE DEF	Two independent functions share the identical global name showAddAccountDialog (GAS has one flat namespace) — Code.gs's inline-HTML version and TMARBridge.gs's AddAccount.html modal. Only one can survive; both "Add Account" menu items (Code.gs:552, Code.gs:585) currently trigger whichever one wins, regardless of operator intent. Needs a decision on which implementation to keep.
+runFullGapScan	Code.gs	Runs full workbook gap scan across all tabs	Active	CLEAN (minor)	Live-tested PASS clean, status:ok, wrote Gap Report. Minor: hardcodes 'Executive Dashboard' as a scanner-map key (line 2288) which is a confirmed-dead tab name, so that one scanner silently never runs (harmless no-op, not a crash).
+scanCurrentTab	Code.gs	Scans only the currently active tab for gaps	Active	CLEAN (minor)	Same dead 'Executive Dashboard' scanner-map key as runFullGapScan (line 2342); harmless no-op for that one tab only.
+navigateToGapReport	Code.gs	Navigates to the Gap Report tab	Active	CLEAN	Static review: valid tab ref
+navigateToDocRegistry	Code.gs	Navigates to the Document Registry tab	Active	CLEAN	Static review: correctly targets 'Document Registry', not the legacy Mac tab
+showImportRegistryScanDialog	ImportRegistryScan.gs	Opens dialog to paste and import registry scan output	Active	CLEAN	ImportRegistryScanUI.html confirmed on disk
+runDriveFileCabinetScan	ScanDriveFileCabinet.gs	Scans Google Drive mirror of FileCabinet for file inventory	Active	CLEAN	Static review only (excluded from live-invoke by design); 10-col Document Registry schema used consistently
+applyDriveFileCabinetScan	ScanDriveFileCabinet.gs	Applies Drive FC scan results to Document Registry	Active	CLEAN	Static review only; no Master Register column risk
+undoDriveScanApply	ScanDriveFileCabinet.gs	Undoes last Drive FC scan apply	Active	CLEAN	Static review only
+showReconcileDialog	GUIFunctions.gs (actually ReconcileCrossFill.gs)	Opens Reconcile & Cross-Fill dialog	Active	CLEAN	ReconcileCrossFillUI.html confirmed on disk
+installDocRegistryTrigger	DocumentRegistryTrigger.gs	Installs auto-ID and date trigger on Document Registry	Active	FIXED (minor)	DOC-ID regex was exact \d{4} (4-digit only), inconsistent with the \d{4,} convention used elsewhere — would undercount lastDocNum and could reissue a duplicate ID past DOC-9999. Fixed 2026-08-03, deployed @37.
+removeDocRegistryTrigger	DocumentRegistryTrigger.gs	Removes auto-ID and date trigger from Document Registry	Active	CLEAN	No issues found
+migrateDocRegistryPaths	Code.gs	One-time migration of absolute->relative paths in Document Registry	Archived-one-time-use	NOT RE-TESTED	Already correctly triaged, out of scope for this pass
+emailGapReport	Code.gs	Emails gap scan report	Active	CLEAN	Static review: no hardcoded/stale recipient (collected live via prompt each run, correct pattern); guards against empty Gap Report before sending
+showAddQuestionDialog	Code.gs	Opens dialog to add new CPA question	Active	FLAG	Hardcodes 'Executive Dashboard' in its Related-Tab dropdown options array (line 2836) — confirmed dead tab name, offers a non-existent option. Non-crashing.
+navigateToCPASheet	Code.gs	Navigates to CPA Questions tab	Active	FLAG	Shares ensureCPASheet_() helper (line 728) which hardcodes 'Executive Dashboard' in a dropdown validation list. Currently dormant (CPA Questions tab already exists so the create-block never re-runs) but would resurrect if the tab were ever recreated.
+filterCPAOpen	Code.gs	Filters CPA Questions to show open items only	Active	FLAG	Same latent ensureCPASheet_() dependency as navigateToCPASheet. Column index (8, Status) itself is correct.
+filterCPAPriority	Code.gs	Filters CPA Questions by priority level	Active	FLAG	Same latent ensureCPASheet_() dependency. Column index (7, Priority) itself is correct.
+clearCPAFilters	Code.gs	Clears all CPA Questions filters	Active	FLAG	Same latent ensureCPASheet_() dependency.
+generateCPAMeetingPrep	Code.gs	Generates CPA meeting preparation document	Active	CLEAN	Live-tested, hit expected UI wall (final showModalDialog) after real logic ran
+showCSVImportDialog	GUIFunctions.gs (actually Code.gs)	Opens CSV transaction import dialog	Active	CLEAN	No stale refs
+showAddObligationDialog	GUIFunctions.gs (actually Code.gs)	Opens Add Obligation entry dialog	Active	CLEAN	No stale refs
+showAddSubscriptionDialog	GUIFunctions.gs (actually Code.gs)	Opens Add Subscription entry dialog	Active	CLEAN	No stale refs
+showLedgerImportDialog	SyncCenter.gs	Opens Import from Accrual Ledger dialog	Active	CLEAN	Self-contained inline HTML, dropdown tab options all valid
+importClintCreditReportAccounts	CreditReportImport.gs	Imports Clinton's credit report accounts to Master Register	Active (schema fixed 2026-08-01)	FLAG-HIGH: DEDUP BROKEN	importToMasterRegister_()'s existing-account check (line 568) reads row[6] (Account Subtype, col G) and calls it acctType, comparing it against the incoming record's real Account Type value — subtype and type strings essentially never match, so "skip if already exists" almost never fires. Re-running this will very likely duplicate rows it should have skipped. Do not run against production until this is corrected; directly relevant to the in-progress Master Register hand-correction effort.
+importSyrinaAutoLoan	CreditReportImport.gs	Imports Syrina's Kia auto loan to Master Register	Active (schema fixed 2026-08-01)	FLAG-HIGH: DEDUP BROKEN	Same dedup bug as importClintCreditReportAccounts (shared helper).
+importAllCreditReportAccounts	CreditReportImport.gs	Imports ALL credit report accounts (Clint + Syrina)	Active (schema fixed 2026-08-01)	FLAG-HIGH: DEDUP BROKEN	Same dedup bug. Also see colorCodeMasterRegisterRows_ below (called after every successful import).
+colorCodeMasterRegisterRows_	CreditReportImport.gs (internal, called by the 3 import fns)	Color-codes newly imported rows by status/credit-status	(internal helper)	FLAG: DEAD CODE	statusCol=11 (K, actually Current Balance) and creditCol=30 (AD, out of range on a 29-col sheet) — both anchor columns wrong, so every comparison runs against blank/wrong data. Complete silent no-op: no row is ever colored, no error thrown.
+populateValidationSheet	PopulateValidation.gs	Populates dropdown validation values on _Validation tab	Active	CLEAN	Live-tested, logic completed (all 8 dropdown columns written) before expected UI wall. Note: _Validation is a real system tab on the live workbook — it's just hidden from the listSheetTabs API output (which deliberately filters any tab starting with "_"), not actually missing. No bug here.
+refreshDashboard	Code.gs	Refreshes dashboard formulas	Active	FLAG-HIGH: BROKEN, DO NOT AUTO-FIX	Live-tested FAIL: looks up 'Dashboard' or 'Executive Dashboard', neither matches any live tab (real dashboard-looking tab is emoji-prefixed '📋 Dashboard'). Confirmed by inspecting '📋 Dashboard' directly: it's a hand-built trust-binder cover page (Entity Profile, Binder Status, Tab Index), NOT the Master-Register-summary layout this function's formulas expect at B5:B14. Simply pointing the lookup at '📋 Dashboard' would silently overwrite real hand-crafted binder content with COUNTA/COUNTIF formulas. The tab this function was designed for does not currently exist under any name -- needs an operator decision (recreate the summary tab, retarget, or retire the function), not a mechanical rename.
+addSampleData	Code.gs	Adds demo sample data for testing	Active	FLAG (by design, never run)	Confirmed by reading only (never executed): writes 4 hardcoded demo rows to live Master Register cols C-K, leaves Row ID (col A) blank (breaks the MR-NNN join-key contract), and uses Account Subtype value 'Checking' which is not in the validated dropdown enum (real value is 'Bank Account - Checking'). No dedupe -- reruns would duplicate demo rows indefinitely. Excluded from live-invoke by design; do not run against production.
+exportToPdf	Code.gs	Exports current tab to PDF	Active	CLEAN	Live-tested, logic completed before expected UI wall (showModalDialog)
+menuApplyAllFormatting	FormattingComplement.gs (actually Code.gs, thin wrapper)	Applies all formatting (tabs, validation, conditional, filters, headers)	Active	FIXED	Was FAIL: "You can't create a filter within a range containing merges" via createFilterViews() (Code.gs:434), which never unmerged before creating a filter. Fixed 2026-08-03: createFilterViews() now delegates to the already-proven-safe createFilterViewsSafe_() (FormattingComplement.gs:880). Re-verified live: now reaches its expected UI wall cleanly, no crash. Deployed @37.
+menuRefreshTabColors	FormattingComplement.gs (actually Code.gs)	Refreshes tab color coding	Active	CLEAN (minor)	Live-tested PASS clean. applyTabColors() hardcodes 'Executive Dashboard' (dead, harmless no-op for that one tab's color) and '_Validation' (correct -- real hidden system tab, see populateValidationSheet note).
+menuRefreshDataValidation	FormattingComplement.gs (actually Code.gs)	Refreshes data validation dropdowns	Active	CLEAN	Live-tested PASS clean; correctly targets the real hidden '_Validation' system tab
+menuRefreshConditionalFmt	FormattingComplement.gs (actually Code.gs)	Refreshes conditional formatting rules	Active	CLEAN	Live-tested PASS clean, no stale refs
+menuRefreshFilters	FormattingComplement.gs (actually Code.gs)	Refreshes filter views	Active	FIXED	Was FAIL, same merge-cell crash as menuApplyAllFormatting (same root cause, createFilterViews()). Fixed 2026-08-03, re-verified live: status:ok. Deployed @37.
+menuRefreshHeaderProtection	FormattingComplement.gs (actually Code.gs)	Refreshes header row protection	Active	CLEAN (minor)	Live-tested PASS clean. protectHeaderRows() hardcodes 'Executive Dashboard' (dead, silently skipped -- no error).
+applyAllEnhancements	FormattingComplement.gs	Applies legend blocks, attribution stamps, and party row colors	Active	CLEAN	Live-tested PASS clean, no stale refs found
+menuApplyLegendBlocks	FormattingComplement.gs	Adds color legend blocks to sheets	Active	CLEAN (cosmetic)	Live-tested PASS clean. applyLegendBlocks()'s Master Register legend-column requirement (39) and the generic startCol default (37, comment says "past col 35 (AI)") are both based on the stale 35-col schema, but since 37/39 > the real 29-col data width they're still numerically safe -- just leaves extra blank columns before the legend instead of placing it tightly after col 29. Cosmetic only, not fixed (low value, low risk either way).
+menuApplyFinePrint	FormattingComplement.gs	Adds fine-print attribution stamps	Active	CLEAN (minor)	Live-tested PASS clean. applyFinePrintAttribution() hardcodes 'Executive Dashboard' in its sheetNames array (line 405) -- dead, harmless no-op for that tab.
+menuApplyPartyColors	FormattingComplement.gs	Applies party-based row color coding	Active	CLEAN	Live-tested PASS clean, no stale refs
+runFormattingHealthAudit	FormattingComplement.gs	Runs workbook formatting health audit	Active	FIXED	Live-tested, hits expected UI wall (by design, always has). Its Dropdowns validTargets list had ALL FOUR Master Register entries checking the wrong column relative to their own labels (schema drift from the pre-2026-08-01 layout): Account Subtype was col 7 mislabeled "Account Type", Status was checking col 11 (Current Balance) instead of col 8, Primary User was checking col 20 (Statements Complete) instead of col 15, Discovery Status was checking col 35 (out of range) instead of col 29. Fixed 2026-08-03, deployed @37; re-verified it still completes cleanly with no new errors. Also still hardcodes 'Executive Dashboard' in 3 places (expectedTabColors, protTargets, stampSheets) -- will permanently report that tab as FAIL/MISSING; not touched, bundled with the broader Executive Dashboard decision.
+fixAllFormattingIssues	FormattingComplement.gs	Auto-fixes detected formatting issues	Active	CLEAN (caveat)	Live-tested PASS clean, but each of its 9 phases catches exceptions internally and only Logger.logs them (invisible via Web App exec) -- a PASS here only proves the outer wrapper didn't throw, not that all 9 phases actually succeeded. Observability gap, not itself fixed.
+diagnoseLegendAndAttribution	FormattingComplement.gs	Diagnoses issues with legend blocks and attribution stamps	Active	CLEAN (minor)	Live-tested, hits expected UI wall after real diagnostic logic ran. Hardcodes 'Executive Dashboard' in attrSheets -- same dead-reference pattern as elsewhere, harmless.
+calculateDNI	TMAREngine.gs	Calculates Distributable Net Income for trust	Active	UNTESTABLE (design gap)	getUi() is called as literally the function's 2nd statement, before any Transaction Ledger read -- a headless call always hits the wall before exercising any real DNI math. Not a bug, but means this harness can never validate the actual logic; would need the UI/prompt moved behind the computation to be headlessly testable.
+viewTrialBalance	TMAREngine.gs	Displays trial balance report	Active	UNTESTABLE (design gap)	Same early-getUi() pattern as calculateDNI.
+viewOverdueTasks	TMAREngine.gs	Shows overdue compliance tasks	Active	UNTESTABLE (design gap)	Shared _loadComplianceSheet_() calls getUi() as its 2nd statement, before the Freeway/1099 Filing Chain fallback lookup even runs.
+viewUpcomingTasks	TMAREngine.gs	Shows upcoming compliance tasks (next 30 days)	Active	UNTESTABLE (design gap)	Same _loadComplianceSheet_() early-getUi() pattern.
+refreshComplianceSheet	TMAREngine.gs	Refreshes compliance tracking sheet	Active	UNTESTABLE (design gap)	Same _loadComplianceSheet_() early-getUi() pattern.
+refreshDocumentList	TMAREngine.gs	Refreshes document list from registry	Active	UNTESTABLE (design gap)	getUi() called as 2nd statement, before the Document Inventory -> Document Registry fallback lookup runs (both tabs do exist live).
+showAboutDialog	GUIFunctions.gs (actually Code.gs)	Shows workbook info dialog	Active	CLEAN	Refs '_Settings' (real hidden system tab, same pattern as '_Validation') and 'CPA Questions' (valid)
+showHelpDialog	GUIFunctions.gs (actually Code.gs)	Shows help & documentation dialog	Active	CLEAN	Pure static HTML, no data dependency
+refreshProofOfMailing	PopulateProofOfMailing.gs	Refreshes Proof of Mailing data (called from SyncCenter doPost)	Library (internal)	CLEAN	Verified working throughout 2026-08-02/03 Proof of Mailing reconciliation work (separate effort, same session)
+pomRecords_	PopulateProofOfMailing.gs	Internal helper for proof of mailing records (called from SyncCenter)	Library (internal)	CLEAN	Same as above
+pushRegistryScan	SyncCenter.gs	doPost endpoint: imports registry scan TSV (added 2026-08-01)	Active (needs redeploy)	NOT RE-VERIFIED	Out of scope for this pass (doPost endpoint, not a menu function); flagged here only as a carryover reminder it needed a redeploy as of 2026-08-01
+runDriveFileCabinetScan	ScanDriveFileCabinet.gs	Standalone Drive FC scanner (also menu-wired)	Active	CLEAN	Duplicate inventory row (same function as above), see that entry
+runHealthAudit	TMAR_AestheticsAndAudit.gs	ORIGINAL health audit -- superseded by runFormattingHealthAudit	Superseded	NOT RE-TESTED	Correctly triaged, out of scope
+colorMasterRegisterRows	TMAR_AestheticsAndAudit.gs	ORIGINAL row coloring -- superseded by applyPartyRowColoring	Superseded	NOT RE-TESTED	Correctly triaged, out of scope
+insertAllLegends	TMAR_AestheticsAndAudit.gs	ORIGINAL legend blocks -- superseded by applyLegendBlocks	Superseded	NOT RE-TESTED	Correctly triaged, out of scope
+applyAesthetics	TMAR_AestheticsAndAudit.gs	ORIGINAL aesthetics wrapper -- superseded by applyAllEnhancements	Superseded	NOT RE-TESTED	Correctly triaged, out of scope
+addFillingPackage2025.gs (all functions)	addFillingPackage2025.gs	One-time 2025 tax filing package generation	Archived-one-time-use	NOT RE-TESTED	Correctly triaged, out of scope
+DeleteSdhcDuplicateRow (all)	DeleteSdhcDuplicateRow.gs	One-time SDHC duplicate row deletion script	Archived-one-time-use	NOT RE-TESTED	Correctly triaged, out of scope
+FixCurrentBalanceValidation (all)	FixCurrentBalanceValidation.gs	One-time fix for Current Balance column validation	Archived-one-time-use	NOT RE-TESTED	Correctly triaged, out of scope
+FixOriginalBalanceDateFormat (all)	FixOriginalBalanceDateFormat.gs	One-time fix for Original Balance date format	Archived-one-time-use	NOT RE-TESTED	Correctly triaged, out of scope
+RemoveArchiveBanner.gs (all)	RemoveArchiveBanner.gs	One-time cleanup: removes archive banner	Archived-one-time-use	NOT RE-TESTED	Correctly triaged, out of scope
+RetireTrustLedger.gs (all)	RetireTrustLedger.gs	One-time retirement of Trust Ledger tab	Archived-one-time-use	NOT RE-TESTED	Correctly triaged, out of scope
+TabConsolidationAudit.gs (all)	TabConsolidationAudit.gs	One-time tab consolidation audit toolkit	Archived-one-time-use	NOT RE-TESTED	Correctly triaged, out of scope
+TransactionLedgerTrackingFix.gs (all)	TransactionLedgerTrackingFix.gs	One-time fix for Transaction Ledger tracking columns	Archived-one-time-use	NOT RE-TESTED	Correctly triaged, out of scope
+migrateDocRegistryPaths	Code.gs	One-time path migration (absolute->relative) -- run once, already done	Archived-one-time-use	NOT RE-TESTED	Correctly triaged, out of scope

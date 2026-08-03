@@ -72,7 +72,11 @@ var RUNNABLE_FUNCTIONS_ = {
   'scanCurrentTab': scanCurrentTab,
 
   // CPA Questions — read-oriented
-  'generateCPAMeetingPrep': generateCPAMeetingPrep
+  'generateCPAMeetingPrep': generateCPAMeetingPrep,
+
+  // AppScripts inventory — writes only to the AppScripts tab, safe to re-run
+  'populateAppScriptsInventory': populateAppScriptsInventory,
+  'refreshAppScriptsHealth': refreshAppScriptsHealth
 };
 
 /**

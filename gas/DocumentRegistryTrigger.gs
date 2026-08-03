@@ -34,7 +34,7 @@ function onEditDocumentRegistry_(e) {
     const colAVals = sheet.getRange(1, 1, sheet.getMaxRows(), 1).getValues().flat();
     let lastDocNum = 0;
     for (const v of colAVals) {
-      if (/^DOC-\d{4}$/.test(String(v))) {
+      if (/^DOC-\d{4,}$/.test(String(v))) {
         const n = parseInt(String(v).slice(4), 10);
         if (n > lastDocNum) lastDocNum = n;
       }

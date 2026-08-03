@@ -596,10 +596,13 @@ function runFormattingHealthAudit() {
 
   // 2. Data validation presence check
   const valTargets = [
-    { sheet: 'Master Register', col: 7, label: 'Account Type (G)' },
-    { sheet: 'Master Register', col: 11, label: 'Status (K)' },
-    { sheet: 'Master Register', col: 20, label: 'Primary User (T)' },
-    { sheet: 'Master Register', col: 35, label: 'Discovery Status (AI)' },
+    // Column indices corrected 2026-08-03 against the real 29-col (A-AC) Master
+    // Register schema (domain-models.md) — all 4 were still on the stale
+    // pre-2026-08-01 layout, so this audit was checking the wrong cells entirely.
+    { sheet: 'Master Register', col: 7, label: 'Account Subtype (G)' },
+    { sheet: 'Master Register', col: 8, label: 'Status (H)' },
+    { sheet: 'Master Register', col: 15, label: 'Primary User (O)' },
+    { sheet: 'Master Register', col: 29, label: 'Discovery Status (AC)' },
     { sheet: 'Transaction Ledger', col: 3, label: 'Category (C)' },
     { sheet: '1099 Filing Chain', col: 6, label: 'Filing Status (F)' },
   ];
