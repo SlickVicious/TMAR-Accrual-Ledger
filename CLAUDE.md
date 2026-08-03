@@ -10,8 +10,8 @@ Single-file HTML legal/accounting portal + Google Apps Script backend + **Obsidi
 TMAR-Accrual-Ledger/          ← ALSO an Obsidian vault (open in Obsidian for visual nav)
   VaultIndex.md               🔑 MASTER ECOSYSTEM MAP — load first
   TMAR-Accrual-Ledger.html    3.4 MB — main app (246 functions, 19 agents, LLM streaming)
-  tmar-transcript-transformer-v2.html
-  TMAR-System-Status-Dashboard.html
+  tools/tmar-transcript-transformer-v2.html
+  tools/TMAR-System-Status-Dashboard.html
   src/
     index.js                 entry point
     services/                AccountService, TransactionService, TMARService,

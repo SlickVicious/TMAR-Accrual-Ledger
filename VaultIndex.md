@@ -79,8 +79,8 @@
 ### Account Spine
 | Tab | Key Columns | Join Key |
 |-----|------------|----------|
-| Master Register | 35 cols (A–AI) | MR-NNN |
-| Master Register Archive | 35 cols | Dedup quarantine |
+| Master Register | 29 cols (A–AC) | MR-NNN |
+| Master Register Archive | 29 cols | Dedup quarantine |
 | Account Entities | Entity metadata | — |
 | CoA (Chart of Accounts) | GAAP account codes | — |
 | Principal Register | Bank routing/account numbers | — |
@@ -312,26 +312,26 @@ See [[Function Reference Cards Index]] — covers Chat & Communication (3), Memo
 |-----|--------|
 | [[README]] | Full project overview, surfaces, deployment, roadmap |
 | [[CLAUDE]] | Claude Code instructions, repo map, key rules |
-| [[TMAR-ACCRUAL-LEDGER-DESIGN]] | Design decisions, visual identity, tab structure |
-| [[TMAR-Implementation-Status]] | Architecture evolution, schema versions |
-| [[TMAR-User-Manual]] | User guide |
-| [[TMAR WebApp Details & 'push pull' data flow maps]] | GAS Web App URL, data flow diagrams |
-| [[Universal Accrual Ledger App]] | App overview |
-| [[DEPLOYMENT_GUIDE]] | GAS deploy, Apps Script ID |
-| [[GUI_GUIDE]] | GUI usage guide |
-| [[UNIFIED_MENU_README]] | Unified menu system |
-| [[DROPDOWN_VALUES_GUIDE]] | Dropdown configuration |
-| [[DUPLICATE_ANALYZER_GUIDE]] | Dedup tool guide |
-| [[GAAP_INTERFACE_GUIDE]] | GAAP interface |
-| [[JAVASCRIPT_SETUP_GUIDE]] | JS setup |
-| [[BILL_OF_EXCHANGE_GUIDE]] | BOE processing |
-| [[Start TMAR Servers & Provide Shareable URL]] | Server startup |
-| [[How to interact with previews]] | Preview workflow |
-| [[MENU_TROUBLESHOOTING]] | Menu debugging |
-| [[PgSources]] | Upstream page sources |
-| [[GAAP-SOURCE-ASSOCIATION-CHART]] | GAAP source mapping |
-| [[Templater User Script (JS) Functions]] | Templater JS API |
-| [[TMAR&Vault Preview]] | Vault integration review |
+| [[docs/TMAR-ACCRUAL-LEDGER-DESIGN]] | Design decisions, visual identity, tab structure |
+| [[docs/TMAR-Implementation-Status]] | Architecture evolution, schema versions |
+| [[docs/TMAR-User-Manual]] | User guide |
+| [[docs/TMAR WebApp Details & 'push pull' data flow maps]] | GAS Web App URL, data flow diagrams |
+| [[docs/Universal Accrual Ledger App]] | App overview |
+| [[docs/DEPLOYMENT_GUIDE]] | GAS deploy, Apps Script ID |
+| [[docs/GUI_GUIDE]] | GUI usage guide |
+| [[docs/UNIFIED_MENU_README]] | Unified menu system |
+| [[docs/DROPDOWN_VALUES_GUIDE]] | Dropdown configuration |
+| [[docs/DUPLICATE_ANALYZER_GUIDE]] | Dedup tool guide |
+| [[docs/GAAP_INTERFACE_GUIDE]] | GAAP interface |
+| [[docs/JAVASCRIPT_SETUP_GUIDE]] | JS setup |
+| [[docs/BILL_OF_EXCHANGE_GUIDE]] | BOE processing |
+| [[docs/Start TMAR Servers & Provide Shareable URL]] | Server startup |
+| [[docs/How to interact with previews]] | Preview workflow |
+| [[docs/MENU_TROUBLESHOOTING]] | Menu debugging |
+| [[docs/PgSources]] | Upstream page sources |
+| [[docs/GAAP-SOURCE-ASSOCIATION-CHART]] | GAAP source mapping |
+| [[docs/Templater User Script (JS) Functions]] | Templater JS API |
+| [[docs/TMAR&Vault Preview]] | Vault integration review |
 
 ### GSheet/ Docs
 | Doc | Covers |
@@ -351,7 +351,7 @@ See [[Function Reference Cards Index]] — covers Chat & Communication (3), Memo
 | Doc | Covers |
 |-----|--------|
 | `data-topology.md` | Full data-relationship map (join keys, canonical sources) |
-| `domain-models.md` | Master Register 35-col schema, Account/Transaction models |
+| `domain-models.md` | Master Register 29-col schema, Account/Transaction models |
 | `ledger-calculation-rules.md` | Balance/income/verification rules |
 | `api-patterns.md` | LLM call stack, CORS, provider routing, TTS |
 | `gas-patterns.md` | GAS backend conventions |

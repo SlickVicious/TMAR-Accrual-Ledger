@@ -245,7 +245,7 @@ TMAR-Accrual-Ledger/
   TMAR-Accrual-Ledger.html      Main app (agents, engines, topology, doc creator)
   tmar-key-manager.js           Floating 🔐 API-key manager
   cloudflare-worker-v2.js       CORS proxy worker (deploy to Cloudflare)
-  TMAR-System-Status-Dashboard.html · TMAR_Audit_Dashboard.html
+  tools/TMAR-System-Status-Dashboard.html · tools/TMAR_Audit_Dashboard.html
   src/                          Service layer + Jest tests
   gas/                          Apps Script backend (clasp) + gas/README.md
   scripts/                      Local tools (gen-vault-index, parity-sync) — gitignored
@@ -281,6 +281,76 @@ TMAR-Accrual-Ledger/
 ---
 
 ## 14. Version history (condensed)
+
+> Full granular detail lives in git history. Highlights per release:
+
+| Version | Date | Highlights |
+|---|---|---|
+| **4.2** | 2026-07-31 | Vault reorganization — 21 docs → `docs/`, 7 HTML tools → `tools/`, 5 archival files → `_archive/`; 36 broken wiki-links fixed; YAML frontmatter repair; 4 new vault-management agent skills |
+| **4.1** | 2026-06-27 | **Ledger Data Topology** injected into every agent (`ledgerTopology` + `buildFullSystemPrompt`); workbook consolidation (APPC hub → Live, registry promotion, `TabConsolidationAudit.gs` toolkit); VAULT_INDEX regenerated from the live cabinet; localhost key-persistence fix |
+| **4.0** | 2026-06-17 | fiduciary-doc-factory v2.1.0 merged + wired into all agents and the 3 Document features; Gemini neural TTS (`GEMINI_TTS`); UCC 9-210 demand template |
+| **3.9** | 2026 | Clear button + file upload across all 24 AP agents |
+| **3.8** | 2026-04-07 | `tmar-key-manager.js`; vault→`eeon_key_*` injection bridge; Digital File Cabinet (3-tab); GAS workbook-tab integration |
+| **3.7** | 2026 | `tmar-updater.js` (replaces inline parity banner); Cloudflare Worker v2; EON portal layout fixes |
+| **3.5** | 2026-04-05 | 14 EON legal-firm chat agents (25 total) + LEGAL FIRMS sidebar |
+| **3.4** | 2026-04-04 | GAAPCLAW Master agent; OpenClaw page; image paste; token guard; CAMT + buyback tax |
+| **3.3** | 2026 | SPV module; UK Accounting (FRS 102/IFRS); Groq/Cerebras/OpenRouter providers; parity-drift CI |
+| **3.0** | 2026-03-14 | GCMemory (IndexedDB) + MEM0; OpenClawRuntime SYPHER-7.8; HARD_LOCK; `callLLMStream` v7.1 |
+| **2.0** | 2026-03-09 | All 17 custom functions + reference cards + audit system (246 fns) |
+| **1.0** | 2026-03-08 | 6 AI agents + Claude API; Research HUB; API-key management |
+
+---
+
+## 15. Vault reorganization (2026-07-31)
+
+On 2026-07-31 the repo root was cleaned up to separate documentation, standalone tools, and archival files from the active codebase. **All file moves used `git mv`** — no paths were destroyed, no code dependencies were broken.
+
+### New directory map
+
+| Dir | Contents |
+|---|---|
+| `docs/` | All user guides, design docs, deployment guide, BOE guide, GAAP guides — 21 markdown files |
+| `tools/` | Standalone HTML tools and the transcript transformer bundle — 9 files |
+| `_archive/` | Backups, stale CSVs/xlsx, Huey Hardy class library HTML |
+| `gas/` | Apps Script source — unchanged |
+| `scripts/` | Utility scripts — unchanged |
+| `Function_Reference_Cards/` | 22 function cards + README — unchanged |
+
+### What stays at root
+
+Only files the app, build pipeline, or deploy process depends on: live app HTML, `index.html`, JS runtime modules (`tmar-*.js`), GAS scripts, Cloudflare workers, launchers (`.bat`/`.command`/`.ps1`), `package.json`, `CLAUDE.md`, this README, and `VaultIndex.md`.
+
+### Commit & push
+
+All moves are staged as `git mv` renames — `git status` shows `R` entries. Files modified in-place during the cleanup (VaultIndex.md, CLAUDE.md, README.md, and two `.claude/skills/` files) show as `M` or `RM`.
+
+```bash
+cd "C:\Users\rhyme\Documents\TMAR-Accrual-Ledger"
+
+# Review what's staged
+git status
+
+# The key changes:
+#   R  = git mv rename (file moved, content identical)
+#   RM = git mv rename + content modified (VaultIndex, CLAUDE, README)
+#   M  = content modified in-place
+
+# Commit everything
+git add -A
+git commit -m "chore: reorganize vault — docs/ tools/ _archive/
+
+- Move 21 documentation .md files to docs/
+- Move 7 standalone HTML tools + transcript transformer to tools/
+- Move 5 archival/backup files to _archive/
+- Update VaultIndex.md, CLAUDE.md, README.md cross-references
+- Fix 36 broken wiki-links and YAML frontmatter
+- All moves via git mv — zero path breakage"
+
+# Push to GitHub Pages (auto-deploys)
+git push origin master
+```
+
+The live app (`TMAR-Accrual-Ledger.html`) and `index.html` were not moved — GitHub Pages deployment is unaffected.
 
 > Full granular detail lives in git history. Highlights per release:
 

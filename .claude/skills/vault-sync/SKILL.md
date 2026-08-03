@@ -47,10 +47,10 @@ files directly — and sort into one of two buckets:
   settings/plugin-list/theme values consistent with normal Obsidian use. Not safe if a large,
   unrelated rewrite rides along, or if a diff introduces something that looks like a path,
   token, or credential rather than a UI preference.
-- YAML frontmatter repairs in `*.md` files — e.g. a wikilinked date `"[[2026-02-26]]"` turned
+- YAML frontmatter repairs in `*.md` files — e.g. a wikilinked date `"2026-02-26"` turned
   into a plain string `"2026-02-26"`, or a smashed line like `status: superseded_by: "..."`
   split into separate `status:` / `superseded_by:` keys. Safe when the change is confined to
-  the frontmatter block (or an isolated structural fix like an inline `[[wikilink]]` used where
+  the frontmatter block (or an isolated structural fix like an inline wikilink used where
   a heading was needed) — not safe if body content was deleted or rewritten alongside it.
 - Line-ending-only changes — `git status` reports the file modified, but `git diff <file>`
   produces zero lines of output. This is CRLF/LF normalization noise from a checkout, not a
