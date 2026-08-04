@@ -46730,9 +46730,14 @@ function ttDlUpdateButtonState() {
   btn.style.cursor = ready ? 'pointer' : 'not-allowed';
 }
 
+// Eeon vault's per-video transcript folder — matches yt_playlist_transcribe.py's
+// own default so a bare playlist URL (no manual folder entry) lands in the
+// same place either way this pipeline gets triggered.
+var TT_DL_DEFAULT_OUTPUT_DIR = 'D:\\00_YTubiversity Vaults\\Eeon\\VO\'s';
+
 function ttDlInit() {
   var saved = localStorage.getItem('tt_last_output_dir');
-  if (saved) document.getElementById('tt-output-dir').value = saved;
+  document.getElementById('tt-output-dir').value = saved || TT_DL_DEFAULT_OUTPUT_DIR;
   ttDlUpdateButtonState();
 }
 document.addEventListener('DOMContentLoaded', ttDlInit);
@@ -46772,9 +46777,17 @@ function ttDlClassifyLine(line) {
   if ((m = line.match(/^\s*transcribing (.+?)\s*\.\.\.$/))) return '🎙️ Transcribing: ' + m[1];
   if ((m = line.match(/^\s*→ (.+\.txt)/))) return '✅ Done: ' + m[1];
   if (/^\s*transforming /.test(line)) return null;
-  if (/❌ TT (error|request failed)/.test(line)) return null;
   if (/^\[download\]/.test(line)) return '⬇ Downloading audio...';
   return null;
+}
+
+// Step 3 (auto-format via the DeepSeek proxy on :3456) fails silently from
+// the pipeline's own perspective — it logs and moves on so the multi-hour
+// download+transcribe run isn't aborted over a missing formatting server.
+// That's fine for the script, but it must NOT be silent in this UI: surface
+// it as a loud (isError) status line, not just another buried log entry.
+function ttDlIsFormatFailureLine(line) {
+  return /❌ TT (error|request failed)|STEP 3 SKIPPED/.test(line);
 }
 
 async function ttDlStart() {
@@ -46823,8 +46836,12 @@ async function ttDlStart() {
         if (msg.type === 'log') {
           ttDlAppendLog(msg.line);
           if (/^\s*transcribing /.test(msg.line)) seen++;
-          var label = ttDlClassifyLine(msg.line);
-          if (label) ttDlSetStatus(seen > 0 ? label + ' (item ' + seen + ')' : label, false);
+          if (ttDlIsFormatFailureLine(msg.line)) {
+            ttDlSetStatus('⚠️ Format step (DeepSeek :3456) failed — raw .txt saved, see log', true);
+          } else {
+            var label = ttDlClassifyLine(msg.line);
+            if (label) ttDlSetStatus(seen > 0 ? label + ' (item ' + seen + ')' : label, false);
+          }
         } else if (msg.type === 'error') {
           ttDlAppendLog('❌ ' + msg.message);
           ttDlSetStatus('❌ ' + msg.message + ' — see log below', true);
