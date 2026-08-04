@@ -19596,9 +19596,9 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
   <section id="transcriptTransformerSection" class="form-section hidden">
     <div style="padding:20px;max-width:1400px;margin:0 auto">
       <div style="background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(6,182,212,0.12));border:2px solid rgba(16,185,129,0.4);border-radius:12px;padding:20px;margin-bottom:20px;text-align:center">
-        <div style="font-size:24px;font-weight:900;background:linear-gradient(135deg,#10b981,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px">📝 TRANSCRIPT TRANSFORMER v2.1.0</div>
+        <div style="font-size:24px;font-weight:900;background:linear-gradient(135deg,#10b981,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px">📝 TRANSCRIPT TRANSFORMER v2.2.0</div>
         <div style="font-size:13px;color:var(--text-secondary)">AI-Powered Transcript → Structured README.md</div>
-        <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;opacity:0.7">Supports auto/full/chunked processing modes • YAML frontmatter • Timestamp preservation</div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;opacity:0.7">Merged output (educational + argument structure) by default • auto/full/chunked control chunking only • YAML frontmatter • Timestamp preservation</div>
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
@@ -19617,29 +19617,6 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
             <button onclick="ttSetMode('auto')" id="tt-mode-auto" style="flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid #10b981;background:#10b981;color:white">Auto</button>
             <button onclick="ttSetMode('full')" id="tt-mode-full" style="flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#9ca3af">Full (12K)</button>
             <button onclick="ttSetMode('chunked')" id="tt-mode-chunked" style="flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#9ca3af">Chunked</button>
-          </div>
-
-          <!-- YouTube Playlist -> Download + Transcribe pipeline (requires transcript-transformer-local/server.js running on :3457) -->
-          <div style="border:1px solid rgba(6,182,212,0.25);background:rgba(6,182,212,0.04);border-radius:8px;padding:12px;margin-bottom:10px">
-            <div style="font-size:11px;font-weight:700;color:#06b6d4;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">Download + Transcribe (YouTube Playlist)</div>
-            <input type="url" id="tt-playlist-url" placeholder="YouTube playlist URL" oninput="ttDlUpdateButtonState()" style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text-primary);font-size:13px;margin-bottom:8px;box-sizing:border-box;font-family:monospace">
-            <div style="display:flex;gap:6px;margin-bottom:8px">
-              <input type="text" id="tt-output-dir" placeholder="Output folder" oninput="ttDlUpdateButtonState()" style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text-primary);font-size:13px;box-sizing:border-box;font-family:monospace">
-              <button onclick="ttDlBrowseFolder()" style="padding:8px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#9ca3af;cursor:pointer;font-size:12px;white-space:nowrap">Browse...</button>
-            </div>
-            <button onclick="ttDlStart()" id="tt-download-btn" disabled style="width:100%;padding:10px;border-radius:8px;border:none;background:#06b6d4;color:white;font-weight:700;cursor:not-allowed;font-size:13px;opacity:0.5;transition:opacity 0.15s">⬇ Download + Transcribe</button>
-
-            <div id="tt-dl-status" style="display:none;margin-top:10px;padding:10px;border-radius:8px;background:rgba(0,0,0,0.2);font-size:12px;font-family:monospace;color:#9ca3af">
-              <div id="tt-dl-status-text">⏳ Starting...</div>
-            </div>
-            <div id="tt-dl-log" style="display:none;margin-top:6px;max-height:150px;overflow-y:auto;background:rgba(0,0,0,0.3);border-radius:6px;padding:8px;font-family:monospace;font-size:10px;color:#6b7280;white-space:pre-wrap;line-height:1.5"></div>
-
-            <div id="tt-dl-batch" style="display:none;margin-top:10px">
-              <div style="display:flex;gap:6px;align-items:center">
-                <select id="tt-dl-file-select" onchange="ttDlSelectFile(this.value)" style="flex:1;padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text-primary);font-size:12px"></select>
-                <button onclick="ttDlFormatAll()" style="padding:6px 12px;border-radius:6px;border:1px solid rgba(16,185,129,0.4);background:rgba(16,185,129,0.1);color:#10b981;cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap">Format All</button>
-              </div>
-            </div>
           </div>
 
           <input type="url" id="tt-source-url" placeholder="Source URL (optional, for YAML metadata)" style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text-primary);font-size:13px;margin-bottom:10px;box-sizing:border-box">
@@ -19682,6 +19659,23 @@ Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Upgrade Existing Output — re-runs an already-generated .md/.html through the -->
+      <!-- current v2.2.0 merged rules and overwrites the SAME file in place via the -->
+      <!-- File System Access API (Chrome/Edge/Brave only — no local server involved). -->
+      <div style="border:1px solid rgba(168,85,247,0.25);background:rgba(168,85,247,0.04);border-radius:8px;padding:16px;margin-top:20px">
+        <div style="font-size:13px;font-weight:700;color:#a855f7;margin-bottom:4px">⬆ Upgrade Existing Output to v2.2.0</div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:10px">Point at a previously-generated .md or .html from any older version of this tool — it gets restructured into the current merged format and the SAME file is overwritten in place. No raw transcript needed, but quality is bounded by what survived the original processing.</div>
+
+        <div id="tt-upgrade-dropzone" ondragover="ttUpgradeDragOver(event)" ondrop="ttUpgradeDrop(event)" onclick="ttUpgradeBrowse()" style="border:2px dashed rgba(168,85,247,0.35);border-radius:8px;padding:16px;text-align:center;cursor:pointer;font-size:12px;color:#9ca3af;margin-bottom:10px">
+          <span id="tt-upgrade-filename">Drop a .md or .html file here, or click to browse...</span>
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center">
+          <button onclick="ttUpgradeRun()" id="tt-upgrade-run-btn" disabled style="flex:1;padding:10px;border-radius:8px;border:none;background:#a855f7;color:white;font-weight:700;cursor:not-allowed;font-size:13px;opacity:0.5">⬆ Upgrade In Place</button>
+        </div>
+        <div id="tt-upgrade-status" style="font-size:11px;color:var(--text-secondary);margin-top:8px"></div>
       </div>
     </div>
   </section>
@@ -46360,7 +46354,7 @@ var pdkbCallAnthropic = pdkbCallLLM;
 // TRANSCRIPT TRANSFORMER
 // ═══════════════════════════════════════════════════════════════
 
-var ttState = { mode: 'auto', output: '', stats: null, dlFiles: [] };
+var ttState = { mode: 'auto', output: '', stats: null };
 
 function ttSetMode(mode) {
   ttState.mode = mode;
@@ -46432,7 +46426,24 @@ function ttBuildPrompt(content, sourceUrl, isChunk, chunkInfo) {
   var chunkField = isChunk ? '\nchunk: ' + chunkInfo.index + ' of ' + chunkInfo.total : '';
   var safeUrl = (sourceUrl || 'Not specified').replace(/'/g, '"');
 
-  return 'Transform this transcript into a COMPREHENSIVE README.md that merges both actionable guidance AND educational context.' + chunkNote + '\n\n## CRITICAL: YAML FRONTMATTER RULES\n\nYour response MUST start with raw YAML frontmatter. Do NOT wrap it in code blocks or backticks.\n\nALL of the following rules are MANDATORY — not suggestions:\n\n1. The opening `---` must be the VERY FIRST line — no blank lines, no whitespace before it.\n2. Each property MUST be on its own dedicated line. Never put multiple key-value pairs on one line.\n3. List items MUST each be on their own line with the `-` prefix, indented under the parent key.\n4. Values containing colons (:), commas (,), or pipe symbols (|) MUST be wrapped in double quotes.\n5. The closing `---` MUST be on its own line with nothing else on it.\n6. After the closing `---` there MUST be one blank line before the first `#` heading.\n\nStart your response EXACTLY like this (copy the structure precisely):\n---\ndate_created: ' + dateCreated + '\nsource_url: \'' + safeUrl + '\'\npurpose: "[Extract the main purpose in 1-2 sentences — be specific about subject matter covered]"\ntransformation_mode: comprehensive' + chunkField + '\nartifact_version: v2.1.0\ngenerator: Transcript Transformer\nsession_type: "[Q&A Zoom Call | Bootcamp | Class Session | Workshop — pick the most accurate]"\nparticipants:\n  - "[Host/instructor name and role]"\n  - "[Co-host or admin name and role if present]"\n  - Community Members\ntags:\n  - relevant-tag\n  - topic-tag\n  - additional-tag\n  - add-more-as-needed\n---\n\n# [Title Here]\n\nContent starts here.\n\n## ANTI-PATTERNS — NEVER generate these:\n\n❌ Multiple properties on one line: `date_created: 2025-12-21 source_url: Not specified`\n❌ List items mixed with property declarations: `- Item One\\n- Item Two tags:\\n- tag-one`\n❌ Missing blank line after closing `---`\n❌ Closing `---` not on its own line\n❌ YAML wrapped in a code block\n❌ Section headers or tags using "Sovereign", "Sovereignty", "Sovereign Citizen", or any sovereignty framing — use "Private Equity" instead\n\n## VALIDATION — Before outputting, mentally check:\n[ ] Is `---` the very first line with nothing before it?\n[ ] Is every property on its own line?\n[ ] Are all list items indented with `-` on separate lines?\n[ ] Is the closing `---` alone on its line?\n[ ] Is there a blank line between `---` and the first `#` heading?\nIf ANY answer is no, fix the frontmatter first.\n\n## DOCUMENT STRUCTURE\n\n### Section Pattern for Each Major Topic:\n1. Header with emoji + timestamp range -> **[MM:SS-MM:SS]**\n2. Brief explanatory paragraph (2-3 sentences of context)\n3. Actionable checklist items with individual timestamps\n4. Key quote or critical point highlighted\n5. Transition to next section\n\n### Required Sections (in order):\nA. Overview with purpose statement\nB. Key Timestamps Reference\nC. Prerequisites as checklist items\nD. Warnings/Outdated Methods\nE. Core Content Sections\nF. Step-by-Step Protocols with timestamps AND explanations\nG. Common Misconceptions\nH. Glossary of specialized terms\nI. Next Steps checklist\n\n### Formatting Rules:\n- Checklists: - [ ] **[MM:SS]** Action item with context\n- Blockquotes for key statements\n- Tables for comparisons\n- Casual speech -> Professional tone\n- Every timestamp appears somewhere\n- No information from transcript is lost\n\n---\n\nTRANSCRIPT TO TRANSFORM:\n' + content + '\n\nFINAL REMINDER: Output raw YAML frontmatter first (no code block), blank line after closing ---, then markdown content.';
+  return 'Transform this transcript into a MERGED README.md (v2.2.0) that fuses actionable guidance (arguments, protocols, verbatim quotes) with educational context (concept explanations, precise definitions) into a single default output — do not produce two separate passes, produce one document that has both.' + chunkNote + '\n\n## CRITICAL: YAML FRONTMATTER RULES\n\nYour response MUST start with raw YAML frontmatter. Do NOT wrap it in code blocks or backticks.\n\nALL of the following rules are MANDATORY — not suggestions:\n\n1. The opening `---` must be the VERY FIRST line — no blank lines, no whitespace before it.\n2. Each property MUST be on its own dedicated line. Never put multiple key-value pairs on one line.\n3. List items MUST each be on their own line with the `-` prefix, indented under the parent key.\n4. Values containing colons (:), commas (,), or pipe symbols (|) MUST be wrapped in double quotes.\n5. The closing `---` MUST be on its own line with nothing else on it.\n6. After the closing `---` there MUST be one blank line before the first `#` heading.\n\nStart your response EXACTLY like this (copy the structure precisely):\n---\ndate_created: ' + dateCreated + '\nsource_url: \'' + safeUrl + '\'\npurpose: "[Extract the main purpose in 1-2 sentences — be specific about subject matter covered]"\ntransformation_mode: merged' + chunkField + '\nartifact_version: v2.2.0\ngenerator: Transcript Transformer\nsession_type: "[Q&A Zoom Call | Bootcamp | Class Session | Workshop — pick the most accurate]"\nparticipants:\n  - "[Host/instructor name and role]"\n  - "[Co-host or admin name and role if present]"\n  - Community Members\ntags:\n  - relevant-tag\n  - topic-tag\n  - additional-tag\n  - add-more-as-needed\n---\n\n# [Title Here]\n\nContent starts here.\n\n## ANTI-PATTERNS — NEVER generate these:\n\n❌ Multiple properties on one line: `date_created: 2025-12-21 source_url: Not specified`\n❌ List items mixed with property declarations: `- Item One\\n- Item Two tags:\\n- tag-one`\n❌ Missing blank line after closing `---`\n❌ Closing `---` not on its own line\n❌ YAML wrapped in a code block\n❌ Section headers or tags using "Sovereign", "Sovereignty", "Sovereign Citizen", or any sovereignty framing — use "Private Equity" instead\n\n## VALIDATION — Before outputting, mentally check:\n[ ] Is `---` the very first line with nothing before it?\n[ ] Is every property on its own line?\n[ ] Are all list items indented with `-` on separate lines?\n[ ] Is the closing `---` alone on its line?\n[ ] Is there a blank line between `---` and the first `#` heading?\nIf ANY answer is no, fix the frontmatter first.\n\n## DOCUMENT STRUCTURE\n\n### Section Pattern for Each Major Topic:\n1. Header with emoji + timestamp range -> **[MM:SS-MM:SS]**\n2. Brief explanatory paragraph (2-3 sentences of context)\n3. Actionable checklist items with individual timestamps\n4. Key quote or critical point highlighted\n5. Transition to next section\n\n' + ttMergedModeRulesBlock() + 'TRANSCRIPT TO TRANSFORM:\n' + content + '\n\nFINAL REMINDER: Output raw YAML frontmatter first (no code block), blank line after closing ---, then markdown content.';
+}
+
+// Shared v2.2.0 merged-mode structure/formatting rules — used by both
+// ttBuildPrompt() (raw transcript in) and ttUpgradePrompt() (existing old
+// output in), so the two paths can never drift out of sync with each other.
+function ttMergedModeRulesBlock() {
+  return '### Required Sections (in order) — v2.2.0 MERGED MODE:\n\nA. **Overview** — purpose statement; name every distinct tool, method, or resource discussed; preserve at least one speaker-attributed core-thesis blockquote.\n\nB. **Key Timestamps Reference** — a markdown table (`Timestamp | Topic`) covering every distinct topic shift in the transcript, not just major section breaks. Err toward MORE entries over fewer.\n\nC. **Prerequisites** — checklist items with full-sentence explanations AND **bold** key-term emphasis. Include every distinct prerequisite mentioned, however minor.\n\nD. **Warnings** — ALWAYS a 3-column markdown table with these exact headers: `Ineffective Approach | Why It Fails | Correct Alternative`. Never render this section as a checkbox or bullet list.\n\nE. **Core Content Sections — the hardest and most important merge.** For each major topic, FUSE two organizing principles into one subsection instead of picking one:\n  1. Open with an educational concept intro answering "What Is [X]?" in plain prose\n  2. Follow with the argument/procedural structure: numbered chains of reasoning, bullet lists of rules or consequences, checkboxes for concrete actions\n  3. Include every case name (italicized `*Name v. Name*`, year on first mention), every verbatim quote with speaker + timestamp attribution (`— Speaker, [timestamp]`), and every statute/citation exactly as stated\n  Never give a topic ONLY the educational framing or ONLY the argument framing when the transcript contains both — merge them.\n\nF. **Step-by-Step Protocols** — group related action items under named protocols. Each protocol opens with a short paragraph explaining WHEN to use it, then ONE merged checklist of every step for that protocol found anywhere in the transcript (do not split one protocol across redundant duplicate lists).\n\nG. **Common Misconceptions** — a table (`Misconception | Correction | Timestamp`). The Correction column must explain WHY the misconception is wrong, not just restate the correct fact.\n\nH. **Glossary** — every specialized/technical term used more than once, defined precisely using the transcript\'s own explanation where one was given.\n\nI. **Next Steps** — an action checklist synthesizing the whole document into an ordered roadmap, with inline timestamp anchors on each item.\n\n### Formatting Rules:\n- Checklists: - [ ] **[MM:SS]** Action item with context\n- Blockquotes: always speaker-attributed, format `— Speaker, [timestamp]`\n- Case names: always italicized `*Name v. Name*`, year on first mention\n- Tables: always native markdown pipe tables, properly closed — never render a table as prose\n- Casual speech -> Professional tone\n- Every timestamp appears somewhere\n- No information from transcript is lost, with ONE exception — **self-correction**: if the speaker revises or contradicts an earlier statement later in the transcript (e.g. reversing a recommended step, correcting a term, naming the right escalation path after first stating a wrong one), the LATER/corrected statement governs the output. Do not present a superseded statement as current guidance; where the correction is materially important, note explicitly what was corrected.\n- Proper nouns, case names, and named doctrines: if the transcript is inconsistent about a name across mentions, use the clearest and most complete instance consistently throughout — never propagate an inconsistent or evidently mistaken variant.\n\n---\n\n';
+}
+
+// Restructures an EXISTING transcript-transformer output (any prior version —
+// v1.2.x, v2.0.0, v2.0.0-local "Direct Chat", v2.1.0 — into the current
+// v2.2.0 merged format. Unlike ttBuildPrompt(), the input here is already a
+// generated document, not a raw transcript: no new facts can be recovered
+// beyond what survived the original processing, so this can only reorganize
+// and relabel what is already present, not add fidelity back.
+function ttUpgradePrompt(oldContent) {
+  return 'You are upgrading an EXISTING, already-generated transcript-transformer output to the current v2.2.0 merged format. This is NOT a raw transcript — it was produced by an older version of this same tool (possibly v1.2.x, v2.0.0, the "Direct Chat" variant, or v2.1.0), so its structure and frontmatter fields may not match the current schema at all (e.g. older versions used fields like `instructor`, `session_duration`, `jurisdiction`, or a flat `tags: [a, b, c]` array instead of the current schema). Some older exports may be raw HTML markup with the content buried inside — extract the substantive document content and ignore markup noise.\n\nCRITICAL CONSTRAINT: you do not have access to the original transcript, only what already survived into this document. Do NOT invent new facts, quotes, timestamps, or case citations that are not already present in the source document below — this is a restructuring and relabeling task, not a re-transformation from source audio. Preserve every fact, quote, timestamp, and citation that IS already present.\n\nMap old/nonstandard frontmatter fields into the current schema sensibly: fold `instructor` into `participants`, fold `session_duration`/`jurisdiction` into `purpose` or `tags` if there is no dedicated current field for them, reformat a flat `tags: [a, b, c]` array into the required multi-line list form. Preserve the original `source_url` if present. Add an `upgraded_from` field recording the old `artifact_version` if one was found in the source (omit this field if the source had no discernible prior version).\n\n## CRITICAL: YAML FRONTMATTER RULES\n\nYour response MUST start with raw YAML frontmatter. Do NOT wrap it in code blocks or backticks.\n\n1. The opening `---` must be the VERY FIRST line — no blank lines, no whitespace before it.\n2. Each property MUST be on its own dedicated line. Never put multiple key-value pairs on one line.\n3. List items MUST each be on their own line with the `-` prefix, indented under the parent key.\n4. Values containing colons (:), commas (,), or pipe symbols (|) MUST be wrapped in double quotes.\n5. The closing `---` MUST be on its own line with nothing else on it.\n6. After the closing `---` there MUST be one blank line before the first `#` heading.\n\nSet `transformation_mode: merged` and `artifact_version: v2.2.0` and `generator: Transcript Transformer` regardless of what the source document had.\n\n## ANTI-PATTERNS — NEVER generate these:\n\n❌ Multiple properties on one line\n❌ Missing blank line after closing `---`\n❌ YAML wrapped in a code block\n❌ Section headers or tags using "Sovereign", "Sovereignty", "Sovereign Citizen", or any sovereignty framing — use "Private Equity" instead\n❌ Fabricating any fact, quote, timestamp, or citation not already present in the source document below\n\n' + ttMergedModeRulesBlock() + 'EXISTING DOCUMENT TO UPGRADE (may be an old format, or raw HTML with the content embedded inside):\n' + oldContent + '\n\nFINAL REMINDER: Output raw YAML frontmatter first (no code block), blank line after closing ---, then the upgraded markdown content. Do not add any fact not already present above.';
 }
 
 // Live streaming preview — updates output panel as tokens arrive
@@ -46518,9 +46529,10 @@ function ttCopyOutput() { pdkbCopyToClipboard(ttState.output).then(function(ok) 
 function ttSelectOutput() { pdkbSelectAll('tt-output-pre'); }
 function ttDownloadOutput() { pdkbDownloadFile(ttState.output, 'README_' + new Date().toISOString().split('T')[0] + '.md'); }
 
-function ttExportHtml() {
-  if (!ttState.output) return alert('No output to export');
-  var md = ttState.output;
+// Builds the full exported HTML page from markdown — shared by ttExportHtml()
+// (downloads a new file) and ttUpgradeRun() (writes back over an existing
+// .html file in place), so both paths always render identically.
+function ttMarkdownToExportedHtml(md) {
   var dateSlug = new Date().toISOString().split('T')[0];
 
   // ── Strip YAML frontmatter and extract metadata ──────────────────────────
@@ -46581,6 +46593,28 @@ function ttExportHtml() {
           var esc = preLines.join('\n').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
           out.push('<pre><code' + (fenceLang ? ' class="lang-' + fenceLang + '"' : '') + '>' + esc + '</code></pre>');
         } else { preLines.push(line); }
+        continue;
+      }
+
+      // GFM pipe tables — render as native <table> (previously fell through to <p>,
+      // which is why exported HTML showed markdown tables as escaped paragraph text).
+      if (/^\s*\|.*\|\s*$/.test(line) && i + 1 < lines.length && /^\s*\|?[\s:|-]+\|?\s*$/.test(lines[i + 1])) {
+        closeList();
+        var trimCells = function(row) { return row.trim().replace(/^\||\|$/g, '').split('|').map(function(c) { return c.trim(); }); };
+        var tHead = trimCells(line).map(inline);
+        var tAligns = trimCells(lines[i + 1]).map(function(c) {
+          if (/^:-+:$/.test(c)) return 'center';
+          if (/^-+:$/.test(c)) return 'right';
+          if (/^:-+$/.test(c)) return 'left';
+          return '';
+        });
+        var tRows = [];
+        var j = i + 2;
+        while (j < lines.length && /^\s*\|.*\|\s*$/.test(lines[j])) { tRows.push(trimCells(lines[j]).map(inline)); j++; }
+        var cellTag = function(tag) { return function(c, ci) { var al = tAligns[ci] ? ' style="text-align:' + tAligns[ci] + '"' : ''; return '<' + tag + al + '>' + c + '</' + tag + '>'; }; };
+        out.push('<table><thead><tr>' + tHead.map(cellTag('th')).join('') + '</tr></thead><tbody>' +
+          tRows.map(function(r) { return '<tr>' + r.map(cellTag('td')).join('') + '</tr>'; }).join('') + '</tbody></table>');
+        i = j - 1;
         continue;
       }
 
@@ -46648,6 +46682,53 @@ function ttExportHtml() {
   });
   if (metaRows.length) metaHtml = '<table class="mtbl">' + metaRows.join('') + '</table>';
 
+  // ── Source video banner ──────────────────────────────────────────────────
+  // Mirrors the "VIDEO_BANNER" pattern used by the Huey class-recording HTML
+  // exports (banner card + player, placed right after the metadata table) —
+  // but those embed a local .mp4 via <video><source>, while source_url here
+  // is a remote link (YouTube etc), so a recognized host gets an <iframe>
+  // embed instead. Unrecognized hosts still get the banner with an "Open
+  // Source" link, just without a playable embed.
+  function ttYoutubeEmbedInfo(url) {
+    var m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|live\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
+    if (!m) return null;
+    var start = 0;
+    var tMatch = url.match(/[?&](?:t|start)=([0-9hms]+)/i);
+    if (tMatch) {
+      if (/^\d+$/.test(tMatch[1])) { start = parseInt(tMatch[1], 10); }
+      else {
+        var hm = tMatch[1].match(/(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?/i);
+        if (hm) start = (parseInt(hm[1] || 0, 10) * 3600) + (parseInt(hm[2] || 0, 10) * 60) + parseInt(hm[3] || 0, 10);
+      }
+    }
+    return { embedUrl: 'https://www.youtube-nocookie.com/embed/' + m[1] + (start ? ('?start=' + start) : '') };
+  }
+
+  var videoBannerHtml = '';
+  var sourceUrl = (meta.source_url && meta.source_url !== 'Not specified') ? meta.source_url : '';
+  if (sourceUrl) {
+    var safeSourceUrl = sourceUrl.replace(/"/g, '&quot;');
+    var ytEmbed = ttYoutubeEmbedInfo(sourceUrl);
+    var playerHtml = ytEmbed
+      ? '<div style="position:relative;width:100%;padding-top:56.25%;border-radius:6px;overflow:hidden;background:#000">' +
+          '<iframe src="' + ytEmbed.embedUrl + '" title="Source Recording" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;border:0"></iframe>' +
+        '</div>'
+      : '';
+    videoBannerHtml = '<div class="video-container" style="margin:20px 0;padding:16px;background-color:#f6f8fa;border:1px solid #d1d9e0;border-radius:6px">' +
+      '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:' + (playerHtml ? '12px' : '0') + '">' +
+        '<div style="font-size:28px;display:flex;align-items:center;justify-content:center;width:48px;height:48px;background:#eaf5ff;border-radius:50%">&#127909;</div>' +
+        '<div style="flex:1;min-width:200px">' +
+          '<h3 style="margin:0 0 4px 0;font-size:14px;font-weight:600;color:#1f2328;border:none;padding:0">Source Recording</h3>' +
+          '<p style="margin:0;font-size:13px;color:#656d76">' + (playerHtml ? 'Watch the recording right here, alongside the transcript.' : 'View the original source for this transcript.') + '</p>' +
+        '</div>' +
+        '<div><a href="' + safeSourceUrl + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;padding:8px 16px;background-color:#0969da;color:#ffffff;border-radius:6px;font-size:13px;font-weight:600;text-decoration:none">Open Source' +
+          '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.5 2V10L9.5 6L3.5 2Z" fill="currentColor"/></svg>' +
+        '</a></div>' +
+      '</div>' +
+      playerHtml +
+    '</div>';
+  }
+
   var body = mdToHtml(mdBody);
 
   var css = [
@@ -46698,9 +46779,15 @@ function ttExportHtml() {
 
   var controls = '<div class="ttctrl"><button id="tt-tog" onclick="ttToggle()">&#9660; Collapse All</button></div>';
 
-  var html = '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>' + title.replace(/</g,'&lt;') + '</title>\n<style>\n' + css + '\n</style>\n' + toggleJs + '\n</head>\n<body>\n' + controls + '\n' + metaHtml + body + '\n</body>\n</html>';
+  var html = '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>' + title.replace(/</g,'&lt;') + '</title>\n<style>\n' + css + '\n</style>\n' + toggleJs + '\n</head>\n<body>\n' + controls + '\n' + metaHtml + videoBannerHtml + body + '\n</body>\n</html>';
 
-  pdkbDownloadFile(html, 'README_' + dateSlug + '.html');
+  return { html: html, title: title, dateSlug: dateSlug };
+}
+
+function ttExportHtml() {
+  if (!ttState.output) return alert('No output to export');
+  var built = ttMarkdownToExportedHtml(ttState.output);
+  pdkbDownloadFile(built.html, 'README_' + built.dateSlug + '.html');
 }
 
 function ttClearAll() {
@@ -46714,202 +46801,129 @@ function ttClearAll() {
   ttState.output = ''; ttState.stats = null;
 }
 
-// ── Download + Transcribe (YouTube playlist -> WSL pipeline -> raw .txt) ──
-// Requires transcript-transformer-local/server.js running on localhost:3457.
-// (Deliberately not :3456 — that port already belongs to a separate, working
-// "Transcript Transformer v2.0.0 - Local" server providing /api/transform.)
-var TT_DL_SERVER = 'http://localhost:3457';
+// ── Upgrade Existing Output — restructure an old .md/.html into v2.2.0 and ──
+// overwrite the SAME file in place via the File System Access API. Chrome/
+// Edge/Brave only (window.showOpenFilePicker + FileSystemHandle.createWritable);
+// no local server involved, unlike the removed Download + Transcribe pipeline.
+var ttUpgradeState = { handle: null, fileName: null, kind: null };
 
-function ttDlUpdateButtonState() {
-  var url = document.getElementById('tt-playlist-url').value.trim();
-  var dir = document.getElementById('tt-output-dir').value.trim();
-  var btn = document.getElementById('tt-download-btn');
-  var ready = !!url && !!dir;
-  btn.disabled = !ready;
-  btn.style.opacity = ready ? '1' : '0.5';
-  btn.style.cursor = ready ? 'pointer' : 'not-allowed';
+function ttUpgradeSetStatus(text, isError) {
+  var el = document.getElementById('tt-upgrade-status');
+  el.textContent = text;
+  el.style.color = isError ? '#f87171' : 'var(--text-secondary)';
 }
 
-// Eeon vault's per-video transcript folder — matches yt_playlist_transcribe.py's
-// own default so a bare playlist URL (no manual folder entry) lands in the
-// same place either way this pipeline gets triggered.
-var TT_DL_DEFAULT_OUTPUT_DIR = 'D:\\00_YTubiversity Vaults\\Eeon\\VO\'s';
-
-function ttDlInit() {
-  var saved = localStorage.getItem('tt_last_output_dir');
-  document.getElementById('tt-output-dir').value = saved || TT_DL_DEFAULT_OUTPUT_DIR;
-  ttDlUpdateButtonState();
-}
-document.addEventListener('DOMContentLoaded', ttDlInit);
-
-function ttDlSetStatus(text, isError) {
-  var wrap = document.getElementById('tt-dl-status');
-  var txt = document.getElementById('tt-dl-status-text');
-  wrap.style.display = 'block';
-  txt.textContent = text;
-  txt.style.color = isError ? '#f87171' : '#9ca3af';
+function ttUpgradeSetButtonEnabled(enabled) {
+  var btn = document.getElementById('tt-upgrade-run-btn');
+  btn.disabled = !enabled;
+  btn.style.opacity = enabled ? '1' : '0.5';
+  btn.style.cursor = enabled ? 'pointer' : 'not-allowed';
 }
 
-// Full raw pipeline output, always appended regardless of classification —
-// the status line only ever shows a short "headline"; this is where the
-// actual detail lives so "check the log" is something a user can really do.
-function ttDlAppendLog(line) {
-  var log = document.getElementById('tt-dl-log');
-  log.style.display = 'block';
-  log.textContent += line + '\n';
-  log.scrollTop = log.scrollHeight;
-}
-
-function ttDlClearLog() {
-  var log = document.getElementById('tt-dl-log');
-  log.textContent = '';
-  log.style.display = 'none';
-}
-
-// Classify a raw pipeline log line into a short human status HEADLINE.
-// Returns null for lines not worth headlining — they still get appended to
-// the full log via ttDlAppendLog above. In particular the pipeline's
-// optional Step 3 (DeepSeek reformat) failing is noise for the headline
-// (this UI only needs the raw .txt), but still visible in the full log.
-function ttDlClassifyLine(line) {
-  var m;
-  if ((m = line.match(/^═══ STEP \d: (.+?) ═══$/))) return '▶ ' + m[1];
-  if ((m = line.match(/^\s*transcribing (.+?)\s*\.\.\.$/))) return '🎙️ Transcribing: ' + m[1];
-  if ((m = line.match(/^\s*→ (.+\.txt)/))) return '✅ Done: ' + m[1];
-  if (/^\s*transforming /.test(line)) return null;
-  if (/^\[download\]/.test(line)) return '⬇ Downloading audio...';
-  return null;
-}
-
-// Step 3 (auto-format via the DeepSeek proxy on :3456) fails silently from
-// the pipeline's own perspective — it logs and moves on so the multi-hour
-// download+transcribe run isn't aborted over a missing formatting server.
-// That's fine for the script, but it must NOT be silent in this UI: surface
-// it as a loud (isError) status line, not just another buried log entry.
-function ttDlIsFormatFailureLine(line) {
-  return /❌ TT (error|request failed)|STEP 3 SKIPPED/.test(line);
-}
-
-async function ttDlStart() {
-  var playlistUrl = document.getElementById('tt-playlist-url').value.trim();
-  var outputDir = document.getElementById('tt-output-dir').value.trim();
-  if (!playlistUrl || !outputDir) return;
-
-  localStorage.setItem('tt_last_output_dir', outputDir);
-
-  var dlBtn = document.getElementById('tt-download-btn');
-  var transformBtn = document.getElementById('tt-transform-btn');
-  dlBtn.disabled = true; dlBtn.style.opacity = '0.5'; dlBtn.style.cursor = 'not-allowed';
-  if (transformBtn) transformBtn.disabled = true;
-  document.getElementById('tt-dl-batch').style.display = 'none';
-  ttDlClearLog();
-  ttDlSetStatus('⏳ Starting...', false);
-
+async function ttUpgradeAdoptHandle(handle) {
   try {
-    var resp = await fetch(TT_DL_SERVER + '/api/transcribe', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ playlistUrl: playlistUrl, outputDir: outputDir })
-    });
-    if (!resp.ok || !resp.body) {
-      var errBody = '';
-      try { errBody = (await resp.json()).error || ''; } catch (e) {}
-      throw new Error(errBody || ('HTTP ' + resp.status));
-    }
-
-    var reader = resp.body.getReader();
-    var decoder = new TextDecoder();
-    var buffer = '';
-    var seen = 0;
-
-    while (true) {
-      var chunk = await reader.read();
-      if (chunk.done) break;
-      buffer += decoder.decode(chunk.value, { stream: true });
-      var lines = buffer.split('\n');
-      buffer = lines.pop() || '';
-      for (var i = 0; i < lines.length; i++) {
-        if (!lines[i].trim()) continue;
-        var msg;
-        try { msg = JSON.parse(lines[i]); } catch (e) { continue; }
-
-        if (msg.type === 'log') {
-          ttDlAppendLog(msg.line);
-          if (/^\s*transcribing /.test(msg.line)) seen++;
-          if (ttDlIsFormatFailureLine(msg.line)) {
-            ttDlSetStatus('⚠️ Format step (DeepSeek :3456) failed — raw .txt saved, see log', true);
-          } else {
-            var label = ttDlClassifyLine(msg.line);
-            if (label) ttDlSetStatus(seen > 0 ? label + ' (item ' + seen + ')' : label, false);
-          }
-        } else if (msg.type === 'error') {
-          ttDlAppendLog('❌ ' + msg.message);
-          ttDlSetStatus('❌ ' + msg.message + ' — see log below', true);
-        } else if (msg.type === 'done') {
-          ttDlOnComplete(msg.files, playlistUrl);
-        }
-      }
-    }
-  } catch (err) {
-    ttDlAppendLog('❌ ' + err.message);
-    ttDlSetStatus('❌ ' + err.message + ' — is transcript-transformer-local/server.js running on :3457? See log below', true);
-  } finally {
-    dlBtn.disabled = false; dlBtn.style.opacity = '1'; dlBtn.style.cursor = 'pointer';
-    if (transformBtn) transformBtn.disabled = false;
-  }
-}
-
-function ttDlOnComplete(files, playlistUrl) {
-  if (!files || !files.length) { ttDlSetStatus('❌ No transcripts were produced', true); return; }
-
-  ttState.dlFiles = files;
-  document.getElementById('tt-source-url').value = playlistUrl;
-  ttDlSelectFile(0);
-
-  ttDlSetStatus('✅ ' + files.length + ' transcript' + (files.length === 1 ? '' : 's') + ' ready for formatting', false);
-
-  var sel = document.getElementById('tt-dl-file-select');
-  sel.innerHTML = files.map(function(f, i) { return '<option value="' + i + '">' + f.name.replace(/</g,'&lt;') + '</option>'; }).join('');
-  document.getElementById('tt-dl-batch').style.display = files.length > 1 ? 'block' : 'none';
-}
-
-function ttDlSelectFile(index) {
-  index = parseInt(index, 10) || 0;
-  var files = ttState.dlFiles || [];
-  if (!files[index]) return;
-  document.getElementById('tt-input').value = files[index].content;
-  ttHandleInput(document.getElementById('tt-input'));
-  var sel = document.getElementById('tt-dl-file-select');
-  if (sel) sel.value = String(index);
-}
-
-async function ttDlFormatAll() {
-  var files = ttState.dlFiles || [];
-  if (!files.length) return;
-  for (var i = 0; i < files.length; i++) {
-    ttDlSelectFile(i);
-    await ttTransform();
-    if (ttState.output) {
-      var mdName = files[i].name.replace(/\.txt$/i, '.md');
-      pdkbDownloadFile(ttState.output, mdName);
-    }
-  }
-}
-
-async function ttDlBrowseFolder() {
-  try {
-    var resp = await fetch(TT_DL_SERVER + '/api/pick-folder', { method: 'POST' });
-    var data = await resp.json();
-    if (data.path) {
-      document.getElementById('tt-output-dir').value = data.path;
-      localStorage.setItem('tt_last_output_dir', data.path);
-      ttDlUpdateButtonState();
-    } else if (data.error) {
-      alert(data.error);
-    }
+    var file = await handle.getFile();
+    var kind = /\.html?$/i.test(file.name) ? 'html' : 'md';
+    ttUpgradeState = { handle: handle, fileName: file.name, kind: kind };
+    document.getElementById('tt-upgrade-filename').textContent = '📄 ' + file.name;
+    ttUpgradeSetStatus('');
+    ttUpgradeSetButtonEnabled(true);
   } catch (e) {
-    alert('Could not reach the local server (transcript-transformer-local/server.js) on localhost:3457. Start it with: node server.js');
+    ttUpgradeSetStatus('❌ Could not read file: ' + e.message, true);
   }
+}
+
+async function ttUpgradeBrowse() {
+  if (!window.showOpenFilePicker) {
+    return alert('Your browser does not support the File System Access API required for in-place upgrade. Use Chrome, Edge, or Brave.');
+  }
+  try {
+    var handles = await window.showOpenFilePicker({
+      types: [{ description: 'Transcript Transformer output', accept: { 'text/markdown': ['.md'], 'text/html': ['.html', '.htm'] } }],
+      multiple: false
+    });
+    await ttUpgradeAdoptHandle(handles[0]);
+  } catch (e) {
+    if (e.name !== 'AbortError') ttUpgradeSetStatus('❌ File picker error: ' + e.message, true);
+  }
+}
+
+function ttUpgradeDragOver(ev) { ev.preventDefault(); }
+
+async function ttUpgradeDrop(ev) {
+  ev.preventDefault();
+  var item = ev.dataTransfer && ev.dataTransfer.items && ev.dataTransfer.items[0];
+  if (!item) return;
+  if (item.getAsFileSystemHandle) {
+    var handle = await item.getAsFileSystemHandle();
+    if (handle.kind === 'file') await ttUpgradeAdoptHandle(handle);
+  } else {
+    ttUpgradeSetStatus('❌ Your browser does not support drag-and-drop write-back. Use Browse instead (Chrome/Edge/Brave).', true);
+  }
+}
+
+// Old .html exports vary a lot by tool era. One known malformed pattern
+// (seen across the pre-v2.1 backlog) embeds the ENTIRE markdown document as
+// a JS string literal passed to marked.parse() inside an inline <script> —
+// decode that directly via JSON.parse (safe: no eval/Function of file
+// content) rather than falling through to the generic tag-stripper, which
+// would otherwise mangle it beyond recognition.
+function ttUpgradeStripHtml(raw) {
+  var markedMatch = raw.match(/marked\.parse\("([\s\S]*?)"\)/);
+  if (markedMatch) {
+    try { return JSON.parse('"' + markedMatch[1] + '"'); } catch (e) { /* fall through */ }
+  }
+  return raw
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(p|div|li|h[1-6]|tr|blockquote|details|summary)>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+async function ttUpgradeRun() {
+  if (!ttUpgradeState.handle) return alert('Pick a file first');
+  var prov = resolveProvider();
+  if (!prov || prov.error) return alert(prov && prov.error ? prov.error : 'No provider configured. Go to Settings → API Keys.');
+
+  ttUpgradeSetButtonEnabled(false);
+  var btn = document.getElementById('tt-upgrade-run-btn');
+  btn.textContent = '⏳ Upgrading...';
+
+  try {
+    ttUpgradeSetStatus('Reading ' + ttUpgradeState.fileName + '...');
+    var file = await ttUpgradeState.handle.getFile();
+    var raw = await file.text();
+    var oldContent = ttUpgradeState.kind === 'html' ? ttUpgradeStripHtml(raw) : raw;
+    if (!oldContent.trim()) throw new Error('File appears to be empty (or could not be extracted from HTML)');
+
+    ttUpgradeSetStatus('Streaming from ' + prov.model + ' (' + prov.provider.name + ')...');
+    var prompt = ttUpgradePrompt(oldContent);
+    var result = await pdkbCallAnthropic(prompt, { maxTokens: 100000 }, function(partial) {
+      ttUpgradeSetStatus('Streaming... (' + partial.length.toLocaleString() + ' chars so far)');
+    });
+    if (!result.success) throw new Error((result.error && result.error.message) || 'Upgrade failed');
+
+    var newMarkdown = result.result;
+    ttUpgradeSetStatus('Writing ' + ttUpgradeState.fileName + '...');
+    var writable = await ttUpgradeState.handle.createWritable();
+    if (ttUpgradeState.kind === 'html') {
+      var built = ttMarkdownToExportedHtml(newMarkdown);
+      await writable.write(built.html);
+    } else {
+      await writable.write(newMarkdown);
+    }
+    await writable.close();
+
+    ttUpgradeSetStatus('✅ ' + ttUpgradeState.fileName + ' upgraded to v2.2.0 in place');
+  } catch (e) {
+    ttUpgradeSetStatus('❌ ' + e.message, true);
+  }
+  btn.textContent = '⬆ Upgrade In Place';
+  ttUpgradeSetButtonEnabled(true);
 }
 
 // ═══════════════════════════════════════════════════════════════
