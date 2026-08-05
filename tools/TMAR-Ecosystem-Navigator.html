@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TMAR Ecosystem Navigator</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Rubik:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Cobalt Peacock — the vault's own established identity (VaultIndex.md, .obsidian theme),
+       extended into a full token system rather than reinvented. */
+    --bg: #090b13;
+    --bg-elevated: #0e111c;
+    --surface: #141828;
+    --surface-hover: #1a2036;
+    --border: rgba(154, 147, 216, 0.14);
+    --border-bright: rgba(154, 147, 216, 0.32);
+    --violet: #6946b9;
+    --violet-bright: #9575e0;
+    --violet-dim: #3d2a6b;
+    --teal: #2dd4bf;
+    --gold: #d4a72c;
+    --danger: #e08a8a;
+    --text: #e8e5f5;
+    --text-dim: #a29bc4;
+    --text-faint: #6b6690;
+    --mono: #7fd8cc;
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'Rubik', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Header: instrument-panel strip, not a marketing hero ─────── */
+  header {
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .brand .mark {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 19px;
+    letter-spacing: 0.01em;
+    background: linear-gradient(120deg, var(--violet-bright), var(--teal));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .brand .sub {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-faint);
+    letter-spacing: 0.04em;
+  }
+
+  .status-strip {
+    display: flex;
+    gap: 16px;
+    margin-left: auto;
+    flex-wrap: wrap;
+  }
+
+  .status-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--text-dim);
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .status-dot.hub { background: var(--violet-bright); box-shadow: 0 0 6px var(--violet-bright); }
+  .status-dot.record { background: var(--teal); box-shadow: 0 0 6px var(--teal); }
+  .status-dot.proxy { background: var(--gold); box-shadow: 0 0 6px var(--gold); }
+  .status-dot.vault { background: var(--danger); box-shadow: 0 0 6px var(--danger); }
+
+  /* ── Body: left rail + main ─────────────────────────────────── */
+  .body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  nav.rail {
+    width: 230px;
+    flex-shrink: 0;
+    background: var(--bg-elevated);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 10px 0;
+  }
+
+  .rail-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 18px;
+    background: transparent;
+    border: none;
+    border-left: 2px solid transparent;
+    color: var(--text-dim);
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s, border-color 0.12s;
+  }
+
+  .rail-btn .glyph { font-size: 15px; flex-shrink: 0; width: 18px; text-align: center; }
+
+  .rail-btn:hover { background: var(--surface); color: var(--text); }
+
+  .rail-btn.active {
+    background: var(--surface);
+    color: var(--text);
+    border-left-color: var(--violet-bright);
+  }
+
+  main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px 32px 60px;
+  }
+
+  .panel { display: none; }
+  .panel.active { display: block; animation: fadein 0.18s ease; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  .panel h1 {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .panel .desc {
+    color: var(--text-dim);
+    font-size: 13.5px;
+    max-width: 780px;
+    margin-bottom: 20px;
+    line-height: 1.55;
+  }
+
+  .diagram-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 18px;
+    overflow-x: auto;
+  }
+
+  .diagram-card .diagram-title {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 14px;
+  }
+
+  .diagram-card .mermaid { display: flex; justify-content: center; }
+
+  /* ── Linked files panel — always shows this tab's files; clicking ── */
+  /* a diagram node filters it to that node, it never starts empty.   */
+  .files-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+
+  .files-panel .files-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .files-panel .files-header h3 {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 500;
+  }
+
+  .files-panel .reset-btn {
+    background: transparent;
+    border: 1px solid var(--border-bright);
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 3px 9px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: none;
+  }
+  .files-panel .reset-btn.visible { display: inline-block; }
+  .files-panel .reset-btn:hover { color: var(--text); border-color: var(--violet-bright); }
+
+  .file-row {
+    display: flex;
+    gap: 12px;
+    padding: 9px 0;
+    border-top: 1px solid var(--border);
+  }
+  .file-row:first-child { border-top: none; }
+
+  .file-row .node-tag {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    color: var(--violet-bright);
+    background: var(--violet-dim);
+    padding: 2px 6px;
+    border-radius: 4px;
+    height: fit-content;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .file-row .file-info { flex: 1; min-width: 0; }
+  .file-row .file-path { font-family: var(--font-mono); font-size: 12px; color: var(--mono); word-break: break-word; }
+  .file-row .file-desc { font-size: 12px; color: var(--text-dim); margin-top: 2px; line-height: 1.4; }
+
+  .empty-files { color: var(--text-faint); font-size: 12px; font-style: italic; }
+
+  footer.kbd-hint {
+    position: fixed;
+    bottom: 14px;
+    right: 18px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-faint);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    padding: 5px 10px;
+    border-radius: 6px;
+  }
+
+  @media (max-width: 860px) {
+    .body { flex-direction: column; }
+    nav.rail { width: 100%; display: flex; overflow-x: auto; overflow-y: hidden; padding: 6px; }
+    .rail-btn { border-left: none; border-bottom: 2px solid transparent; white-space: nowrap; }
+    .rail-btn.active { border-bottom-color: var(--violet-bright); }
+    main { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="mark">TMAR Ecosystem Navigator</span>
+    <span class="sub">v4.3 · 2026-08-04</span>
+  </div>
+  <div class="status-strip">
+    <span class="status-item"><span class="status-dot hub"></span>Browser App — control hub</span>
+    <span class="status-item"><span class="status-dot record"></span>Live Workbook — system of record</span>
+    <span class="status-item"><span class="status-dot proxy"></span>Cloudflare Worker — CORS proxy</span>
+    <span class="status-item"><span class="status-dot vault"></span>AES-256 Vault — keys never leave browser</span>
+  </div>
+</header>
+
+<div class="body">
+  <nav class="rail" id="rail"></nav>
+  <main id="main"></main>
+</div>
+
+<footer class="kbd-hint">← → to switch subsystems · click a node for its files</footer>
+
+<script>
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'base',
+  securityLevel: 'loose',
+  themeVariables: {
+    darkMode: true,
+    background: '#0e111c',
+    primaryColor: '#1a2036',
+    primaryTextColor: '#e8e5f5',
+    primaryBorderColor: '#6946b9',
+    lineColor: '#5c5586',
+    secondaryColor: '#141828',
+    tertiaryColor: '#141828',
+    fontFamily: 'Rubik, sans-serif',
+    fontSize: '13px',
+    clusterBkg: '#141828',
+    clusterBorder: '#3d2a6b',
+    edgeLabelBackground: '#0e111c'
+  },
+  flowchart: { htmlLabels: true, useMaxWidth: true, curve: 'basis' }
+});
+
+// ══════════════════════════════════════════════════════════════════
+// SUBSYSTEMS — 12 real tabs grounded in README.md / VaultIndex.md /
+// CLAUDE.md / .claude/docs/*.md and this session's own verified work.
+// Each diagram's node IDs are the join key into FILES below — click
+// bindings are generated automatically from that, never hand-typed
+// per diagram, so they can't drift out of sync with the file data.
+// ══════════════════════════════════════════════════════════════════
+
+const TABS = [
+{
+  id: 'overview', glyph: '\ud83c\udfe0', label: 'Ecosystem',
+  title: 'Ecosystem — All Surfaces & Data Flows',
+  desc: 'One browser app drives a Sheets workbook, a GAS backend, local document vaults, and a fleet of LLM agents — wired together as one living relational database, not a set of isolated tools.',
+  mermaid: `flowchart TD
+    subgraph Browser["TMAR App — CENTRAL CONTROL HUB"]
+        UI["Tabs · Agents · Document Creator"]
+        ENG["callLLMStream · resolveProvider · MEM0/GCMemory · HARD_LOCK"]
+        VAULT[("AES-256 Vault — API keys")]
+        TT["Transcript Transformer v2.2.0"]
+    end
+    PROXY["Cloudflare Worker — CORS proxy"]
+    LLM["Anthropic · OpenAI · DeepSeek · xAI · Ollama"]
+    GEMINI["Gemini Neural TTS — direct, CORS-allowed"]
+    subgraph GAS["Apps Script Backend"]
+        WEBAPP["doGet / doPost Web App"]
+        BRIDGE["TMARBridge · SyncCenter"]
+    end
+    SHEET[("TMAR Live Workbook — ~52 tabs")]
+    ARCHIVE[("Freeway 2025 Archive — read-only")]
+    VAULTS[("YTubiversity Vaults")]
+    FILECAB[("FileCabinet PC")]
+    PROCESSES["Process Dashboards — _engine.html"]
+
+    UI --> ENG --> PROXY --> LLM
+    ENG -.->|TTS| GEMINI
+    VAULT -->|inject keys| ENG
+    UI -->|push/pull JSON| WEBAPP --> BRIDGE --> SHEET
+    BRIDGE -. read-only .-> ARCHIVE
+    VAULTS --> FILECAB -->|scanned, DOC-NNNN| SHEET
+    TT -->|merged output| VAULTS
+    TT -->|Process Tracker JSON| PROCESSES`
+},
+{
+  id: 'agents', glyph: '\ud83e\udd16', label: 'Agents',
+  title: 'Agent System — OpenClawRuntime + EON/AP',
+  desc: 'Two cooperating layers: 19 frozen CPA-firm agents under SYPHER-7.8-HARDLOCK, and 24+ legal-firm chat specialists — both funnel through callLLMStream and carry the same injected knowledge.',
+  mermaid: `flowchart TD
+    USER(("Operator"))
+    HUB["aiHubAskAgent — master router"]
+    subgraph OpenClaw["OpenClawRuntime SYPHER-7.8-HARDLOCK — 19 agents, frozen"]
+        MASTER["GAAPCLAW Master"]
+        FIRMS["6 CPA firms × 3 sub-agents
+Tax · Financial · Audit"]
+        MASTER --> FIRMS
+    end
+    subgraph EON["EON / AP Chat Agents — 24+"]
+        DOC["Document Creation / Format"]
+        SPEC["Trust · UK/FRS 102 · Writs · Amicus
+Presumption Killer · Jurisdictional"]
+    end
+    ENGCALL["callLLMStream v7.1 — multi-provider SSE/NDJSON"]
+    MEM["GCMemory — IndexedDB, 60+ keyword scoring"]
+    LOCK["HARD_LOCK — frozen output sanitizer"]
+    KNOW["DOCUMENT_KNOWLEDGE — injected topology + standards"]
+
+    USER --> HUB
+    HUB --> OpenClaw
+    HUB --> EON
+    OpenClaw --> ENGCALL
+    EON --> ENGCALL
+    ENGCALL --> MEM --> LOCK
+    KNOW --> OpenClaw
+    KNOW --> EON`
+},
+{
+  id: 'tt', glyph: '\ud83e\udde0', label: 'Transcript Transformer',
+  title: 'Transcript Transformer v2.2.0 — Pipeline',
+  desc: 'Raw transcript to structured README.md via one merged-mode LLM pass (fuses the old separate Auto/Full runs), plus three companion capabilities reusing the same call stack.',
+  mermaid: `flowchart TD
+    INPUT["Paste or Load .md"]
+    PERSIST["localStorage persistence
+input + output survive reload"]
+    MERGE["Merged Mode — ttBuildPrompt
+Section E fuses concept + argument"]
+    OUTPUT["ttState.output"]
+    UPGRADE["Upgrade Existing Output
+ttUpgradePrompt — no raw transcript needed"]
+    TRACKER["Generate Process Tracker
+ttProcessTrackerPrompt → JSON"]
+    MINDMAP["Mind Map tab — deterministic
+built from parsed section tree, not the LLM"]
+    HTMLEXPORT["HTML Export
+video banner + native tables"]
+    PROCESSOUT["Self-contained HTML
+data embedded into _engine.html copy"]
+
+    INPUT --> PERSIST --> MERGE --> OUTPUT
+    OUTPUT --> UPGRADE -->|download, same filename| OUTPUT
+    OUTPUT --> TRACKER --> MINDMAP --> PROCESSOUT
+    OUTPUT --> HTMLEXPORT`
+},
+{
+  id: 'dataflow', glyph: '\ud83d\udd04', label: 'Data Flow',
+  title: 'Data Flow — Push, Pull, Scan, Inject',
+  desc: 'How a fact actually moves between surfaces: the browser never writes the workbook directly, everything crosses through the GAS Web App bridge.',
+  mermaid: `flowchart LR
+    APP["TMAR App (browser)"]
+    GAS["GAS Web App
+doGet / doPost"]
+    SHEET["Live Workbook
+~52 tabs"]
+    ARCHIVE["Freeway Archive
+read-only"]
+    FC["FileCabinet PC"]
+    VAULTS["YTubiversity Vaults"]
+    LLM["LLM Providers"]
+
+    APP -->|"POST pushEntities / pushTransactions / push1099s"| GAS
+    GAS -->|write| SHEET
+    APP -->|"GET pullAccounts / pullRawTab / listSheetTabs"| GAS
+    GAS -->|read| SHEET
+    GAS -. read-only .-> ARCHIVE
+    FC -->|"ImportRegistryScan → DOC-NNNN"| SHEET
+    VAULTS -->|docs born here| FC
+    APP -->|callLLMStream SSE/NDJSON| LLM
+    GAS -->|JSON response| APP
+    LLM -->|streaming text| APP`
+},
+{
+  id: 'gas', glyph: '\u2699\ufe0f', label: 'GAS Backend',
+  title: 'Apps Script Backend — Files & Endpoints',
+  desc: 'gas/ source: entry points, core CRUD/bridge logic, importers, and the HTML dialogs the Sheets menu launches.',
+  mermaid: `flowchart TD
+    subgraph Entry["Entry Points"]
+        MENU["onOpen() — sheet menu"]
+        GET["doGet"]
+        POST["doPost"]
+    end
+    subgraph Core["Core Logic"]
+        SYNC["SyncCenter.gs — TMAR_CONFIG"]
+        BRIDGE["TMARBridge.gs — financial CRUD"]
+        GUI["GUIFunctions.gs — dialogs + queries"]
+        CODE["Code.gs — formatting + importers"]
+    end
+    subgraph Importers["Data Importers"]
+        REGISTRY["ImportRegistryScan.gs"]
+        DUPE["DuplicateAnalyzer.gs"]
+        TABAUDIT["TabConsolidationAudit.gs"]
+    end
+    MENU --> CODE
+    GET --> SYNC --> BRIDGE
+    POST --> SYNC
+    GUI --> SYNC
+    REGISTRY --> SYNC
+    DUPE --> SYNC
+    TABAUDIT --> SYNC`
+},
+{
+  id: 'schema', glyph: '\ud83d\udcca', label: 'Master Register',
+  title: 'Master Register — Account Spine (29 cols, A–AC)',
+  desc: 'Corrected 2026-08-01 — the account spine is 29 strict columns, not the previously-misdocumented 35. GAS reads by index; never reorder.',
+  mermaid: `flowchart TD
+    MR["Master Register
+29 cols A–AC · MR-NNN"]
+    MRA["Master Register Archive
+dedup quarantine — never merge back"]
+    AE["Account Entities
+entity metadata"]
+    COA["Chart of Accounts
+GAAP codes"]
+    PR["Principal Register
+bank routing/account #"]
+    TL["Transaction Ledger — 16 cols"]
+    BOA["BOA / PNC Cash Flow — 8 cols"]
+
+    MR -->|dedup analysis| MRA
+    MR -.->|EIN| AE
+    MR -.->|account #| TL
+    MR -.->|account #| BOA
+    COA -.-> MR
+    PR -.-> MR`
+},
+{
+  id: 'keys', glyph: '\ud83d\udd17', label: 'Join Keys',
+  title: 'Ledger Data Topology — Join-Key Chain',
+  desc: 'A blank cell is almost never missing data — the value lives in a related tab, reachable by a join key. This is the chain that actually connects the 52-tab workbook.',
+  mermaid: `flowchart LR
+    MR["Master Register
+EIN + Acct#"]
+    CR["Creditor Registry
+28-creditor master, EIN/S-NNN"]
+    CC["Creditor Checklist
+20-subset enriched, EIN/T-NNN"]
+    FWMC["FWM — Creditor Detail
+canonical addresses"]
+    FC1099["1099 Filing Chain
+3-layer uplift"]
+    POM["Proof of Mailing
+MAIL-NNN, certified"]
+    DR["Document Registry
+DOC-NNNN, canonical"]
+    DI["Document Inventory
+⚠ same IDs, different files"]
+
+    MR -->|EIN| CR --> CC --> FWMC --> FC1099 -->|Account| POM
+    MR -->|MR-NNN| DR
+    DR -.->|never cross-join| DI`
+},
+{
+  id: 'docfactory', glyph: '\ud83d\udcdd', label: 'Doc Factory',
+  title: 'Fiduciary Document Pipeline — Creation to Registry',
+  desc: 'One standard, two synced places (the skill + DOCUMENT_KNOWLEDGE) — injected into every agent so any drafted document already meets GPO 2016 / Weiss trustee substance before export.',
+  mermaid: `flowchart TD
+    KNOW["fiduciary-doc-factory skill
+source of truth"]
+    INJECT["DOCUMENT_KNOWLEDGE.fiduciaryDocFactory
+distilled, injected via buildFullSystemPrompt"]
+    CREATOR["Document Creator
+Profile-B formatting"]
+    DOCX["JSZip .docx export
+GPO 2016 editorial"]
+    FC["FileCabinet PC
+signed → scanned"]
+    SCAN["ImportRegistryScan.gs"]
+    REGISTRY["Document Registry
+DOC-NNNN canonical"]
+    SHEET["Master Register
+account linkage"]
+
+    KNOW --> INJECT --> CREATOR --> DOCX --> FC --> SCAN --> REGISTRY --> SHEET`
+},
+{
+  id: 'vault', glyph: '\ud83d\udd10', label: 'Vault & Security',
+  title: 'Security Model — Multi-Layer Defense',
+  desc: 'Keys never leave the browser unencrypted. CORS proxy is mandatory for every LLM call except Gemini TTS (the one CORS-allowed exception).',
+  mermaid: `flowchart TD
+    USER(("Operator"))
+    AES[("AES-256-GCM Vault
+PBKDF2 100k · 15-min auto-lock · 5-attempt lockout")]
+    KEYS["eeon_key_* localStorage
+10 providers"]
+    PROXY["Cloudflare Worker
+strips Origin/Referer"]
+    GASAUTH["GAS API Key Gate
+TMAR_API_KEY Script Property"]
+    PII["PII Masking
+public source: last-4 only"]
+    FREEZE["Frozen Runtimes
+Object.freeze: registry, HARD_LOCK, KNOWLEDGE"]
+
+    USER --> AES --> KEYS --> PROXY
+    AES --> PII
+    GASAUTH --> FREEZE`
+},
+{
+  id: 'processes', glyph: '\ud83d\udccb', label: 'Process Dashboards',
+  title: 'Process Dashboards — A Separate Personal Tool',
+  desc: 'Not part of this repo — a local checklist-dashboard system in Desktop\\FileCabinet\\.FC\\Processes. Generate Process Tracker targets its schema; embedding data directly sidesteps file:// fetch/query-string limits the engine itself documents.',
+  mermaid: `flowchart TD
+    ENGINE["_engine.html — blank template
+.FC/Processes/"]
+    TRACKERGEN["ttGenerateProcessTracker()
+reads template, injects JSON"]
+    FAT1["_Execution_Trajectory_Dashboard.html
+fat, embedded-data copy"]
+    FAT2["_Verizon_Tracker.html
+fat, embedded-data copy"]
+    TABS["Dashboard Tabs
+Overview · Tracker · Mind Map"]
+    MINDMAP["Mind Map tab
+deterministic tree, not LLM"]
+    STEPS["Checklist steps
+localStorage-persisted checkboxes"]
+
+    ENGINE --> TRACKERGEN --> FAT1
+    TRACKERGEN --> FAT2
+    FAT1 --> TABS
+    FAT2 --> TABS
+    TABS --> MINDMAP
+    TABS --> STEPS`
+},
+{
+  id: 'filecabinet', glyph: '\ud83d\udcc1', label: 'FileCabinet',
+  title: 'FileCabinet — Directory Map',
+  desc: 'Local document storage, scanned into Document Registry as canonical DOC-NNNN. This is where signed/finalized documents live after the drafting pipeline.',
+  mermaid: `flowchart TD
+    ROOT["FileCabinet\\"]
+    NUMBERED["00–09 numbered dirs
+Receipts · Trust · Banking · Taxes · Ledgers"]
+    CREDS["Credentials/
+GAS-synced, no passwords"]
+    BINDERS["Digital-Binders/
+xlsx, TSV, COA"]
+    ESTATES["Estates/
+Dynasty, Virtuous Veteran"]
+    FCPROC["Processes/
+_engine.html + trackers"]
+    FORMS["Forms-Library/ · Legal-Reference/"]
+
+    ROOT --> NUMBERED
+    ROOT --> CREDS
+    ROOT --> BINDERS
+    ROOT --> ESTATES
+    ROOT --> FCPROC
+    ROOT --> FORMS`
+},
+{
+  id: 'deploy', glyph: '\ud83d\ude80', label: 'Deploy',
+  title: 'Deployment Flow — Pages + GAS',
+  desc: 'Two independent deploy paths. GAS needs a manual redeploy step only when doGet/doPost or a new case statement changed — the exec URL itself never changes.',
+  mermaid: `flowchart LR
+    DEV["Local edit"]
+    GIT["git push origin master"]
+    PAGES["GitHub Pages
+auto-deploy ~30s"]
+    APP["Live App"]
+    GASCODE["gas/ source"]
+    CLASP["clasp push --force"]
+    EDITOR["Apps Script Editor"]
+    REDEPLOY["Manual redeploy
+only if doGet/doPost changed"]
+    EXEC["exec URL
+stays the same"]
+
+    DEV --> GIT --> PAGES --> APP
+    GASCODE --> CLASP --> EDITOR
+    EDITOR -. code only .-> EXEC
+    EDITOR -->|entry point changed| REDEPLOY --> EXEC`
+}
+];
+
+// ══════════════════════════════════════════════════════════════════
+// FILES — keyed "tabId__NODEID", matching the diagram node ids above.
+// Click bindings are generated FROM these keys (see buildClickDirectives),
+// so a node only becomes clickable once it actually has file data —
+// no dead clicks, and no hand-typed click lines to drift out of sync.
+// ══════════════════════════════════════════════════════════════════
+
+const FILES = {
+  'overview__TT': [{ path: 'TMAR-Accrual-Ledger.html — tt* functions', desc: 'ttBuildPrompt, ttUpgradePrompt, ttProcessTrackerPrompt and the rest of the Transcript Transformer panel.' }, { path: '.claude/docs/transcript-transformer.md', desc: 'Full architecture doc for this subsystem.' }],
+  'overview__SHEET': [{ path: 'TMAR Live Workbook', desc: '1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ — ~52 tabs, sole read/write source of truth.' }],
+  'overview__ARCHIVE': [{ path: 'Freeway 2025 Archive', desc: '1kbulI33th8uOmrumj7RkiJ8aqZs48gqzujrXUmNRjk8 — read-only legacy, never written.' }],
+  'overview__GAS': [{ path: 'gas/SyncCenter.gs', desc: 'doGet/doPost Web App bridge + TMAR_CONFIG.' }],
+  'overview__PROXY': [{ path: 'cloudflare-worker-v2.js', desc: 'Mandatory CORS proxy — never call Anthropic directly from Pages.' }],
+  'overview__VAULT': [{ path: 'tmar-key-manager.js', desc: 'Floating key manager panel, 10 providers.' }, { path: 'README.md §10', desc: 'Security section — AES-256-GCM, PBKDF2 100k, PII masking.' }],
+  'overview__FILECAB': [{ path: 'FileCabinet/', desc: 'C:\\Users\\rhyme\\Desktop\\FileCabinet\\ — see the FileCabinet tab for the full directory map.' }],
+  'overview__PROCESSES': [{ path: '.FC/Processes/_engine.html', desc: 'See the Process Dashboards tab.' }],
+
+  'agents__OpenClaw': [{ path: 'TMAR-Accrual-Ledger.html — OpenClawRuntime', desc: 'SYPHER-7.8-HARDLOCK registry — frozen via Object.freeze, never mutated at runtime.' }],
+  'agents__EON': [{ path: 'TMAR-Accrual-Ledger.html — EON/AP dispatchers', desc: 'aiHubAskAgent, trustAgentQ, ukAgentQuery, askAgent, AP.send.' }],
+  'agents__ENGCALL': [{ path: '.claude/docs/api-patterns.md', desc: 'LLM call stack, CORS proxy, provider routing.' }],
+  'agents__KNOW': [{ path: '.claude/docs/data-topology.md', desc: 'Source of truth for the injected ledgerTopology block.' }, { path: '.claude/skills/fiduciary-doc-factory/', desc: 'Source of truth for the injected fiduciaryDocFactory block.' }],
+
+  'tt__MERGE': [{ path: 'TMAR-Accrual-Ledger.html — ttBuildPrompt / ttMergedModeRulesBlock', desc: 'The shared v2.2.0 Section A–I rules, reused by both the raw-transcript and Upgrade prompts.' }],
+  'tt__UPGRADE': [{ path: 'TMAR-Accrual-Ledger.html — ttUpgradePrompt', desc: 'Restructures any prior-version output; no raw transcript needed. Reads via <input type=file>, not the File System Access API — Brave blocks that outright.' }],
+  'tt__TRACKER': [{ path: 'TMAR-Accrual-Ledger.html — ttProcessTrackerPrompt', desc: 'JSON schema reverse-engineered from _engine.html\u2019s actual source, not guessed.' }],
+  'tt__MINDMAP': [{ path: 'TMAR-Accrual-Ledger.html — ttTrackerBuildMindmap', desc: 'Deterministic indented-tree builder — never asked of the LLM, so it can\u2019t come out misaligned.' }],
+  'tt__HTMLEXPORT': [{ path: 'TMAR-Accrual-Ledger.html — ttMarkdownToExportedHtml', desc: 'Shared by Export HTML and the Upgrade tool\u2019s .html output path.' }],
+  'tt__PROCESSOUT': [{ path: '.claude/docs/transcript-transformer.md', desc: 'Full Process Tracker schema + engine-integration gotchas.' }],
+
+  'dataflow__APP': [{ path: 'TMAR-Accrual-Ledger.html — SyncBridge', desc: 'The only thing that ever initiates a push/pull — the workbook never gets written from anywhere else.' }],
+  'dataflow__GAS': [{ path: 'gas/SyncCenter.gs — doGet / doPost', desc: 'Every push/pull crosses through here; see the GAS Backend tab for the full file map.' }],
+  'dataflow__LLM': [{ path: '.claude/docs/api-patterns.md', desc: 'Provider routing, resolveProvider() key lookup order.' }],
+
+  'gas__SYNC': [{ path: 'gas/SyncCenter.gs', desc: 'Web App bridge; TMAR_CONFIG is the single source of truth for workbook IDs.' }],
+  'gas__BRIDGE': [{ path: 'gas/TMARBridge.gs', desc: 'Financial summary, account/transaction CRUD.' }],
+  'gas__GUI': [{ path: 'gas/GUIFunctions.gs', desc: 'Dialog/sidebar launchers + data query functions.' }],
+  'gas__REGISTRY': [{ path: 'gas/ImportRegistryScan.gs', desc: 'FileCabinet scan → Document Registry, mints DOC-NNNN.' }],
+  'gas__DUPE': [{ path: 'gas/DuplicateAnalyzer.gs', desc: 'Moves duplicate/closed accounts to Master Register Archive.' }],
+
+  'schema__MR': [{ path: '.claude/docs/domain-models.md', desc: 'Verified 29-column schema (A–AC) — corrected 2026-08-01, was previously misdocumented as 35.' }],
+  'schema__MRA': [{ path: 'gas/DuplicateAnalyzer.gs', desc: 'Writes into this quarantine tab. Never merge back — re-injects duplicates.' }],
+  'schema__TL': [{ path: '.claude/docs/ledger-calculation-rules.md', desc: 'Balance/income/verification rules.' }],
+
+  'keys__MR': [{ path: '.claude/docs/data-topology.md', desc: 'Full join-key map — canonical source per fact, so a blank cell is never assumed missing.' }],
+  'keys__DR': [{ path: 'gas/ImportRegistryScan.gs', desc: 'The canonical PC scan — Document Inventory uses colliding IDs for different files, never cross-join.' }],
+  'keys__FC1099': [{ path: '1099 Filing Chain (workbook tab)', desc: '15 cols, 3-layer uplift, joined by EIN.' }],
+
+  'docfactory__KNOW': [{ path: '.claude/skills/fiduciary-doc-factory/', desc: 'v2.1.0 — GPO 2016 editorial + Weiss trustee substance. Source of truth; update alongside DOCUMENT_KNOWLEDGE together.' }],
+  'docfactory__CREATOR': [{ path: 'TMAR-Accrual-Ledger.html — Document Creator', desc: 'Applies Profile-B fiduciary formatting on .docx export via JSZip.' }],
+  'docfactory__REGISTRY': [{ path: 'gas/ImportRegistryScan.gs', desc: 'Mints the DOC-NNNN that binds a drafted document back to its account.' }],
+
+  'vault__AES': [{ path: 'TMAR-Accrual-Ledger.html — vault module', desc: '_vaultInjectApiKeys reseeds eeon_key_* on unlock/save.' }],
+  'vault__PROXY': [{ path: 'cloudflare-worker-v2.js', desc: 'Strips Origin/Referer, injects anthropic-dangerous-direct-browser-access.' }],
+  'vault__GASAUTH': [{ path: 'gas/SyncCenter.gs — checkApiKey_()', desc: 'Gate added 2026-07-31 on every doGet/doPost action except ping.' }],
+
+  'processes__ENGINE': [{ path: '.FC/Processes/_engine.html', desc: 'Blank template — not part of this repo, lives in Desktop\\FileCabinet\\.FC\\Processes.' }],
+  'processes__TRACKERGEN': [{ path: 'TMAR-Accrual-Ledger.html — ttGenerateProcessTracker', desc: 'Reads the template fresh each run, injects <script id="embedded-data">, writes one self-contained .html.' }],
+  'processes__MINDMAP': [{ path: 'TMAR-Accrual-Ledger.html — ttTrackerBuildMindmap', desc: 'Must be its own top-level tab, not nested under overview — the engine skips renderSection() for the overview tab id specifically.' }],
+
+  'filecabinet__CREDS': [{ path: 'scripts/sync-credentials.mjs', desc: 'Pulls Website Accounts from GAS → FileCabinet/Credentials/master-reference.md.' }],
+  'filecabinet__FCPROC': [{ path: '.FC/Processes/', desc: 'See the Process Dashboards tab.' }],
+
+  'deploy__PAGES': [{ path: 'README.md §8', desc: 'git push origin master → GitHub Pages auto-deploys in ~30s.' }],
+  'deploy__CLASP': [{ path: '.clasp.json', desc: 'rootDir "." — always run clasp push from within gas/.' }],
+  'deploy__REDEPLOY': [{ path: '.claude/docs/deployment.md', desc: 'Full redeploy checklist — when a manual Apps Script version bump is actually required.' }]
+};
+
+// ── Render ──────────────────────────────────────────────────────
+
+let activeIdx = 0;
+
+function buildClickDirectives(tabId) {
+  const prefix = tabId + '__';
+  return Object.keys(FILES)
+    .filter(k => k.startsWith(prefix))
+    .map(k => 'click ' + k.slice(prefix.length) + ' call navClick(' + JSON.stringify(tabId) + ',' + JSON.stringify(k.slice(prefix.length)) + ')')
+    .join('\n');
+}
+
+function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function renderFilesFor(tabId, nodeId) {
+  const panel = document.getElementById('files-list-' + tabId);
+  const resetBtn = document.getElementById('files-reset-' + tabId);
+  if (!panel) return;
+  let keys = Object.keys(FILES).filter(k => k.startsWith(tabId + '__'));
+  if (nodeId) { keys = keys.filter(k => k === tabId + '__' + nodeId); resetBtn.classList.add('visible'); }
+  else { resetBtn.classList.remove('visible'); }
+
+  if (!keys.length) { panel.innerHTML = '<div class="empty-files">No linked files recorded for this node yet.</div>'; return; }
+
+  panel.innerHTML = keys.map(k => {
+    const nid = k.split('__')[1];
+    return FILES[k].map(f =>
+      '<div class="file-row"><span class="node-tag">' + escapeHtml(nid) + '</span><div class="file-info">' +
+      '<div class="file-path">' + escapeHtml(f.path) + '</div>' +
+      '<div class="file-desc">' + escapeHtml(f.desc) + '</div></div></div>'
+    ).join('');
+  }).join('');
+}
+
+window.navClick = function(tabId, nodeId) { renderFilesFor(tabId, nodeId); };
+
+function buildUI() {
+  const rail = document.getElementById('rail');
+  const main = document.getElementById('main');
+
+  TABS.forEach((tab, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'rail-btn' + (i === 0 ? ' active' : '');
+    btn.innerHTML = '<span class="glyph">' + tab.glyph + '</span>' + escapeHtml(tab.label);
+    btn.onclick = () => showTab(i);
+    rail.appendChild(btn);
+
+    const panel = document.createElement('div');
+    panel.className = 'panel' + (i === 0 ? ' active' : '');
+    panel.id = 'panel-' + tab.id;
+    panel.innerHTML =
+      '<h1>' + escapeHtml(tab.title) + '</h1>' +
+      '<p class="desc">' + escapeHtml(tab.desc) + '</p>' +
+      '<div class="diagram-card"><div class="diagram-title">Architecture</div><pre class="mermaid" id="mmd-' + tab.id + '"></pre></div>' +
+      '<div class="files-panel"><div class="files-header"><h3>Linked Files</h3><button class="reset-btn" id="files-reset-' + tab.id + '" onclick="renderFilesFor(' + JSON.stringify(tab.id) + ')">Show all</button></div><div id="files-list-' + tab.id + '"></div></div>';
+    main.appendChild(panel);
+  });
+
+  renderActiveDiagram();
+}
+
+async function renderActiveDiagram() {
+  const tab = TABS[activeIdx];
+  const container = document.getElementById('mmd-' + tab.id);
+  if (!container.dataset.rendered) {
+    const src = tab.mermaid + '\n' + buildClickDirectives(tab.id);
+    try {
+      const { svg, bindFunctions } = await mermaid.render('svg-' + tab.id, src);
+      container.innerHTML = svg;
+      container.dataset.rendered = '1';
+      if (bindFunctions) bindFunctions(container);
+    } catch (e) {
+      container.innerHTML = '<div style="color:var(--danger);font-family:var(--font-mono);font-size:12px">Diagram failed to render: ' + escapeHtml(e.message) + '</div>';
+    }
+  }
+  renderFilesFor(tab.id);
+}
+
+function showTab(idx) {
+  activeIdx = idx;
+  document.querySelectorAll('.rail-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+  document.querySelectorAll('.panel').forEach((p, i) => p.classList.toggle('active', i === idx));
+  renderActiveDiagram();
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' && activeIdx < TABS.length - 1) showTab(activeIdx + 1);
+  if (e.key === 'ArrowLeft' && activeIdx > 0) showTab(activeIdx - 1);
+});
+
+buildUI();
+</script>
+</body>
+</html>

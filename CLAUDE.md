@@ -10,7 +10,11 @@ Single-file HTML legal/accounting portal + Google Apps Script backend + **Obsidi
 TMAR-Accrual-Ledger/          ← ALSO an Obsidian vault (open in Obsidian for visual nav)
   VaultIndex.md               🔑 MASTER ECOSYSTEM MAP — load first
   TMAR-Accrual-Ledger.html    3.4 MB — main app (246 functions, 19 agents, LLM streaming)
-  tools/tmar-transcript-transformer-v2.html
+  tools/tmar-transcript-transformer-v2.html   ← still an empty placeholder — the real
+                                                 Transcript Transformer v2.2.0 (ttBuildPrompt
+                                                 etc.) lives inline in TMAR-Accrual-Ledger.html
+  tools/tmar-transcript-transformer-v2.md     ← companion docs
+  tools/TMAR-Ecosystem-Navigator.html        ← interactive Mermaid navigator (12 tabs, clickable nodes)
   tools/TMAR-System-Status-Dashboard.html
   src/
     index.js                 entry point
@@ -97,3 +101,4 @@ This repo is also an **Obsidian vault**. Changes in VSC are instantly visible in
 @.claude/docs/gas-patterns.md
 @.claude/docs/ledger-calculation-rules.md
 @.claude/docs/data-topology.md
+@.claude/docs/transcript-transformer.md

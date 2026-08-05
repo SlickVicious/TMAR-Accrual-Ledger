@@ -2,7 +2,7 @@
 
 > A single-file, AI-driven legal/accounting portal that acts as the **central control hub** for an estate-planning, ledger-keeping, and document-tracking system. One browser app drives a Google Sheets workbook (the system of record), a Google Apps Script backend, local document vaults, and a fleet of LLM agents — all wired together as one **living relational database**.
 
-**Version:** 4.1 · **Updated:** 2026-06-27 · **Status:** ✅ Production
+**Version:** 4.3 · **Updated:** 2026-08-04 · **Status:** ✅ Production
 **Live app:** https://slickvicious.github.io/TMAR-Accrual-Ledger/TMAR-Accrual-Ledger.html
 **Repo:** https://github.com/SlickVicious/TMAR-Accrual-Ledger (`master` → GitHub Pages auto-deploys)
 **Stack:** vanilla JS SPA (no build step) · Google Apps Script (V8) · Google Sheets · multi-provider LLM streaming
@@ -27,24 +27,26 @@ It is used for three overlapping jobs:
 ```mermaid
 flowchart TD
     subgraph Browser["🖥️ TMAR App (GitHub Pages) — CENTRAL CONTROL HUB"]
-        UI[Tabs · Agents · Document Creator]
-        ENG[Engines: callLLMStream · resolveProvider · MEM0/GCMemory · HARD_LOCK]
-        VAULT[(🔐 AES-256 Vault — API keys)]
+        UI["Tabs · Agents · Document Creator"]
+        ENG["Engines: callLLMStream · resolveProvider · MEM0/GCMemory · HARD_LOCK"]
+        VAULT[("🔐 AES-256 Vault — API keys")]
+        TT["🧠 Transcript Transformer v2.2.0"]
     end
 
-    PROXY[Cloudflare Worker — CORS proxy]
-    LLM[Anthropic · OpenAI · DeepSeek · xAI · Ollama …]
-    GEMINI[Gemini Neural TTS — direct, CORS-allowed]
+    PROXY[/"Cloudflare Worker — CORS proxy"/]
+    LLM[/"Anthropic · OpenAI · DeepSeek · xAI · Ollama …"/]
+    GEMINI[/"Gemini Neural TTS — direct, CORS-allowed"/]
 
     subgraph GAS["⚙️ Apps Script backend (gas/)"]
-        WEBAPP[doGet / doPost Web App]
-        BRIDGE[TMARBridge · SyncCenter · ImportRegistryScan]
+        WEBAPP["doGet / doPost Web App"]
+        BRIDGE["TMARBridge · SyncCenter · ImportRegistryScan"]
     end
 
-    SHEET[(📊 TMAR Live Workbook — 1k6J2… · ~52 tabs · system of record)]
-    ARCHIVE[(📦 Freeway 2025 Archive — 1kbulI… · read-only)]
-    VAULTS[/🗄️ YTubiversity Vaults — docs born here/]
-    FILECAB[/📁 FileCabinet PC — doc storage/]
+    SHEET[("📊 TMAR Live Workbook — 1k6J2… · ~52 tabs · system of record")]
+    ARCHIVE[("📦 Freeway 2025 Archive — 1kbulI… · read-only")]
+    VAULTS[("🗄️ YTubiversity Vaults — docs born here")]
+    FILECAB[("📁 FileCabinet PC — doc storage")]
+    PROCESSES["📋 Process Dashboards — _engine.html · Mind Maps"]
 
     UI --> ENG --> PROXY --> LLM
     ENG -.->|TTS| GEMINI
@@ -52,6 +54,20 @@ flowchart TD
     UI -->|push/pull JSON| WEBAPP --> BRIDGE --> SHEET
     BRIDGE -. read-only .-> ARCHIVE
     VAULTS --> FILECAB -->|scanned → DOC-NNNN| SHEET
+    TT -->|merged output| VAULTS
+    TT -->|Process Tracker JSON| PROCESSES
+
+    style Browser fill:#1e3a8a,stroke:#1e40af,stroke-width:2px,color:#e2e8f0
+    style GAS fill:#14532d,stroke:#166534,stroke-width:2px,color:#dcfce7
+    style SHEET fill:#0f766e,stroke:#115e59,stroke-width:2px,color:#ccfbf1
+    style ARCHIVE fill:#78716c,stroke:#57534e,stroke-width:2px,color:#e7e5e4
+    style FILECAB fill:#7c3aed,stroke:#6d28d9,stroke-width:2px,color:#ede9fe
+    style VAULTS fill:#7c3aed,stroke:#6d28d9,stroke-width:2px,color:#ede9fe
+    style PROXY fill:#b45309,stroke:#92400e,stroke-width:2px,color:#fef3c7
+    style LLM fill:#b91c1c,stroke:#991b1b,stroke-width:2px,color:#fecaca
+    style GEMINI fill:#0d9488,stroke:#0f766e,stroke-width:2px,color:#ccfbf1
+    style TT fill:#0891b2,stroke:#0e7490,stroke-width:2px,color:#cffafe
+    style PROCESSES fill:#a21caf,stroke:#86198f,stroke-width:2px,color:#f5d0fe
 ```
 
 | Surface | Role |
@@ -96,6 +112,14 @@ Every agent carries shared, plain-prose knowledge blocks appended after the SYPH
 - **🔐 Vault** — AES-256-GCM / PBKDF2(100k) key store; `_vaultInjectApiKeys` reseeds `eeon_key_*` on unlock. Floating `tmar-key-manager.js` panel (10 providers).
 - Modules: SPV, UK Accounting (FRS 102/IFRS), Tax Estimator (incl. IRC §55 CAMT, §4501 buyback), Entity Verifier v2, Sync Center.
 
+### Transcript Transformer (v2.2.0)
+Raw transcript → structured README.md via a single **merged-mode** LLM pass (`ttBuildPrompt` → `ttMergedModeRulesBlock`) that fuses educational concept framing with argument/protocol structure in one document — no separate Auto/Full runs. Three companion capabilities layer on top, all reusing the same call stack:
+- **Upgrade Existing Output** (`ttUpgradePrompt`) — restructures any prior-version `.md`/`.html` into the current format without needing the original transcript; reads via `<input type=file>` and downloads the result (not a true in-place overwrite — Brave blocks the File System Access API's write side outright, so this works identically across every browser instead of only Chromium).
+- **Generate Process Tracker** (`ttProcessTrackerPrompt`) — converts the merged output into a JSON payload for the local `_engine.html` dashboard (`Desktop\FileCabinet\.FC\Processes`), embedding the data directly into a self-contained copy of the template rather than relying on `?data=`+`fetch()` (both unreliable on `file://`). Includes a deterministic (non-LLM) Mind Map tab built from the parsed section tree, and a self-healing JSON parser that repairs the most common LLM mistake — an unescaped quote inside a verbatim quoted phrase — using the parser's own error position.
+- **HTML export** (`ttMarkdownToExportedHtml`) — adds a source-video banner (YouTube iframe embed when recognized, link-out otherwise) matching the Huey class-library's video-banner layout, and fixed a bug where markdown tables rendered as escaped prose instead of native `<table>` elements.
+
+The YouTube playlist Download + Transcribe pipeline (and its local companion server) was removed as unreliable — external transcription workflows are used instead. `tt-input`/`tt-source-url`/output now persist to localStorage across reloads, with a Load `.md` button to resume work on a previously-saved file without re-transforming. See `.claude/docs/transcript-transformer.md`.
+
 ---
 
 ## 4. The workbook (system of record)
@@ -112,7 +136,7 @@ Every agent carries shared, plain-prose knowledge blocks appended after the SYPH
 | **Trust binder** | emoji-prefixed pages (`📋 HUB INDEX`, `📒 General Ledger`, `📊 Corpus & M-2`, …) |
 | **System (hidden)** | `_Validation`, `_Settings`, `_SyncMeta`, `_YearData` |
 
-> **Master Register is 35 strict columns (A–AI).** GAS reads by index (`getRange(2,1,lastRow-1,35)`) — never reorder. See `.claude/docs/domain-models.md`.
+> **Master Register is 29 strict columns (A–AC).** GAS reads by index (`getRange(2,1,lastRow-1,29)`) — never reorder. Corrected 2026-08-01 (previously documented, incorrectly, as 35 cols); see `.claude/docs/domain-models.md`.
 
 ---
 
@@ -246,6 +270,7 @@ TMAR-Accrual-Ledger/
   tmar-key-manager.js           Floating 🔐 API-key manager
   cloudflare-worker-v2.js       CORS proxy worker (deploy to Cloudflare)
   tools/TMAR-System-Status-Dashboard.html · tools/TMAR_Audit_Dashboard.html
+  tools/TMAR-Ecosystem-Navigator.html  ← interactive Mermaid navigator (12 tabs)
   src/                          Service layer + Jest tests
   gas/                          Apps Script backend (clasp) + gas/README.md
   scripts/                      Local tools (gen-vault-index, parity-sync) — gitignored
@@ -254,7 +279,8 @@ TMAR-Accrual-Ledger/
   .github/workflows/            Weekly parity-check cron
   .claude/
     docs/                       Instruction docs (api-patterns, domain-models, gas-patterns,
-                                ledger-calculation-rules, deployment, data-topology) — local
+                                ledger-calculation-rules, deployment, data-topology,
+                                transcript-transformer) — local
     skills/                     fiduciary-doc-factory, tmar-deploy, … (shared)
     agents/                     ledger-guardian, llm-security-reviewer (shared)
 ```
@@ -275,6 +301,7 @@ TMAR-Accrual-Ledger/
 | `.claude/docs/domain-models.md` | Schemas — Master Register 35-col, Account/Transaction models |
 | `.claude/docs/ledger-calculation-rules.md` | Balance / income / verification rules |
 | `.claude/docs/api-patterns.md` | LLM call stack, CORS, provider routing, TTS |
+| `.claude/docs/transcript-transformer.md` | Merged-mode prompt rules, Upgrade tool, Process Tracker JSON schema, File System Access API constraints |
 | `.claude/docs/gas-patterns.md` · `deployment.md` | Backend & deploy conventions |
 | `gas/README.md` · `GSheet/README.md` · `Function_Reference_Cards/` | Module & function references |
 
@@ -286,6 +313,7 @@ TMAR-Accrual-Ledger/
 
 | Version | Date | Highlights |
 |---|---|---|
+| **4.3** | 2026-08-04 | Transcript Transformer v2.2.0 — merged-mode default output (fuses Auto/Full); Upgrade Existing Output; Generate Process Tracker (JSON payload + deterministic Mind Map tab for the `_engine.html` dashboard, self-healing JSON parser); HTML export video banner + fixed table rendering; input/output persist across reloads; removed the unreliable Download + Transcribe pipeline |
 | **4.2** | 2026-07-31 | Vault reorganization — 21 docs → `docs/`, 7 HTML tools → `tools/`, 5 archival files → `_archive/`; 36 broken wiki-links fixed; YAML frontmatter repair; 4 new vault-management agent skills |
 | **4.1** | 2026-06-27 | **Ledger Data Topology** injected into every agent (`ledgerTopology` + `buildFullSystemPrompt`); workbook consolidation (APPC hub → Live, registry promotion, `TabConsolidationAudit.gs` toolkit); VAULT_INDEX regenerated from the live cabinet; localhost key-persistence fix |
 | **4.0** | 2026-06-17 | fiduciary-doc-factory v2.1.0 merged + wired into all agents and the 3 Document features; Gemini neural TTS (`GEMINI_TTS`); UCC 9-210 demand template |

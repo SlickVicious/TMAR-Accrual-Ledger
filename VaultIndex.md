@@ -3,60 +3,74 @@
 > **This vault is the development control center for the Trust Master Account Register ecosystem.**  
 > It documents every surface, script, endpoint, agent, and data flow — one index to navigate the entire project.
 
-**Last updated:** 2026-07-31  
+**Last updated:** 2026-08-04  
 **Vault theme:** Cobalt Peacock · **Font:** Rubik · **Accent:** `#6946b9`
 
 ---
 
 ## 🗺️ Ecosystem Map
 
-```
-                          ┌──────────────────────────────────┐
-                          │   TMAR-Accrual-Ledger.html       │
-                          │   (GitHub Pages + localhost:5501) │
-                          │   CENTRAL CONTROL HUB             │
-                          │   · 25 agents · 22 functions      │
-                          │   · Document Creator · Vault      │
-                          └──────┬──────────┬────────────────┘
-                                 │          │
-                    fetch() GET/POST    fetch() SSE/JSON
-                                 │          │
-              ┌──────────────────┘          └──────────────────┐
-              ▼                                                 ▼
-┌──────────────────────────┐                    ┌──────────────────────────┐
-│  GAS Web App             │                    │  LLM Providers           │
-│  doGet/doPost            │                    │  Anthropic · OpenAI      │
-│  SyncCenter.gs           │                    │  DeepSeek · xAI · Ollama │
-│  TMARBridge.gs           │                    │  via Cloudflare Worker   │
-│  ┌─────────────────────┐ │                    └──────────────────────────┘
-│  │   TMAR_CONFIG       │ │
-│  │   Sheet IDs         │ │
-│  └─────────────────────┘ │
-└──────────┬───────────────┘
-           │
-           ▼
-┌──────────────────────────────────────────┐
-│  TMAR Live Workbook                       │
-│  1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT…    │
-│  ~52 tabs · System of Record              │
-│  Master Register · Ledgers · 1099s        │
-│  Creditors · Documents · Tax              │
-└──────────────────────────────────────────┘
-           ↕ (DOC-NNNN scan)
-┌──────────────────────────────────────────┐
-│  FileCabinet (PC)                         │
-│  C:\Users\rhyme\Desktop\FileCabinet\      │
-│  · 00–09 numbered dirs                    │
-│  · Credentials/ (new)                     │
-│  · Estates/ · HHHW/ · Digital-Binders/    │
-└──────────────────────────────────────────┘
-           ↕ (documents born here)
-┌──────────────────────────────────────────┐
-│  YTubiversity Vaults (Obsidian)           │
-│  D:\00_YTubiversity Vaults\               │
-│  Eeon · Free Way Mechanics · Huey Hardy   │
-│  New Earth Living · Zero% · 7_Ways        │
-└──────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph Browser["🖥️ TMAR App — CENTRAL CONTROL HUB"]
+        UI["Tabs · Agents · Document Creator"]
+        ENG["Engines: callLLMStream · resolveProvider"]
+        MEM["MEM0 / GCMemory · HARD_LOCK"]
+        VAULT[("🔐 AES-256 Vault")]
+        TT["🧠 Transcript Transformer v2.2.0"]
+    end
+
+    PROXY[/"Cloudflare Worker — CORS proxy"/]
+    LLM[/"LLM Providers
+    Anthropic · OpenAI
+    DeepSeek · xAI · Ollama"/]
+    GEMINI[/"Gemini Neural TTS
+    direct, CORS-allowed"/]
+
+    subgraph GAS["⚙️ Apps Script Backend (gas/)"]
+        WEBAPP["doGet / doPost Web App"]
+        BRIDGE["TMARBridge · SyncCenter"]
+        IMPORT["ImportRegistryScan"]
+    end
+
+    SHEET[("📊 TMAR Live Workbook
+    1k6J2s0…WInQ
+    ~52 tabs · System of Record")]
+    ARCHIVE[("📦 Freeway 2025 Archive
+    1kbulI…
+    read-only")]
+    FILE_CAB[("📁 FileCabinet PC
+    C:\\Users\\rhyme\\Desktop\\
+    DOC-NNNN scan-in")]
+    VAULTS[("🗄️ YTubiversity Vaults
+    D:\\00_YTubiversity Vaults\\
+    Eeon · FWM · Huey Hardy
+    New Earth · Zero%")]
+    PROCESSES["📋 Process Dashboards
+    _engine.html
+    .FC\\Processes\\"]
+
+    UI --> ENG
+    ENG --> PROXY --> LLM
+    ENG -.->|TTS| GEMINI
+    VAULT -->|inject keys| ENG
+    UI -->|push/pull JSON| WEBAPP --> BRIDGE --> SHEET
+    BRIDGE -. read-only .-> ARCHIVE
+    VAULTS --> FILE_CAB -->|scanned → DOC-NNNN| SHEET
+    TT -->|merged output| VAULTS
+    TT -->|Process Tracker JSON| PROCESSES
+
+    style Browser fill:#1e3a8a,stroke:#1e40af,stroke-width:2px,color:#e2e8f0
+    style GAS fill:#14532d,stroke:#166534,stroke-width:2px,color:#dcfce7
+    style SHEET fill:#0f766e,stroke:#115e59,stroke-width:2px,color:#ccfbf1
+    style ARCHIVE fill:#78716c,stroke:#57534e,stroke-width:2px,color:#e7e5e4
+    style FILE_CAB fill:#7c3aed,stroke:#6d28d9,stroke-width:2px,color:#ede9fe
+    style VAULTS fill:#7c3aed,stroke:#6d28d9,stroke-width:2px,color:#ede9fe
+    style PROXY fill:#b45309,stroke:#92400e,stroke-width:2px,color:#fef3c7
+    style LLM fill:#b91c1c,stroke:#991b1b,stroke-width:2px,color:#fecaca
+    style GEMINI fill:#0d9488,stroke:#0f766e,stroke-width:2px,color:#ccfbf1
+    style TT fill:#0891b2,stroke:#0e7490,stroke-width:2px,color:#cffafe
+    style PROCESSES fill:#a21caf,stroke:#86198f,stroke-width:2px,color:#f5d0fe
 ```
 
 ---
@@ -209,6 +223,7 @@ Emoji-prefixed: 📋 HUB INDEX · 📒 General Ledger · 📊 Corpus & M-2 · �
     gas-patterns.md
     ledger-calculation-rules.md
     data-topology.md
+    transcript-transformer.md
   skills/        ← Reusable Claude Code skills
     fiduciary-doc-factory/   ← v2.1.0 (GPO 2016 + Weiss)
     gen-test/
@@ -265,7 +280,7 @@ TMAR runtime inspection toolkit
 | `tmar-updater.js` | Auto-updater (replaces inline parity banner) |
 | `tmar-corrections.gs` | Sheet corrections |
 | `tmar-theme.gs` | Theme application |
-| `tt_block.js` | Transcript Transformer block |
+| `tt_block.js` | Mislabeled — despite the name, this is EON sidebar/page-navigation JS (`toggleEonSidebar`, `goEonPage`), not Transcript Transformer code; not referenced anywhere in the live app. The real Transcript Transformer (`ttBuildPrompt` etc.) lives inline in `TMAR-Accrual-Ledger.html`; see `.claude/docs/transcript-transformer.md` |
 | `check_errors.py` · `portal_pruner.py` · `md2github_export.py` | Utilities |
 
 ### EntityVerifier-v2/
@@ -299,6 +314,7 @@ TMAR runtime inspection toolkit
 - **Tax Estimator** — IRC §55 CAMT, §4501 buyback
 - **Entity Verifier v2** — EIN/entity validation
 - **Sync Center** — bidirectional GAS sync (push/pull)
+- **Transcript Transformer v2.2.0** — raw transcript → merged-mode README.md (`ttBuildPrompt`); Upgrade Existing Output (`ttUpgradePrompt`, restructures any prior-version output, download-based — Brave blocks the File System Access API's write side); Generate Process Tracker (`ttProcessTrackerPrompt`, JSON payload embedded into a self-contained copy of `_engine.html`, deterministic Mind Map tab, self-healing JSON parser); HTML export video banner + fixed table rendering. See `.claude/docs/transcript-transformer.md`.
 
 ### Function Reference Cards (22/22 implemented)
 See [[Function Reference Cards Index]] — covers Chat & Communication (3), Memory & Storage (3), Settings (3), Voice & Speech (4), Utilities (4), Key Management (1), Digital File Cabinet (4).
@@ -357,6 +373,7 @@ See [[Function Reference Cards Index]] — covers Chat & Communication (3), Memo
 | `gas-patterns.md` | GAS backend conventions |
 | `deployment.md` | Deploy conventions |
 | `testing-conventions.md` | Test patterns |
+| `transcript-transformer.md` | Merged-mode prompt rules, Upgrade tool, Process Tracker JSON schema, File System Access API constraints |
 
 ### docs/ (Human Docs)
 `Bank_Statement_Extraction_Guide.md` · `Bank_Statement_Extractor_CHANGELOG.md` · `Extractor_API_Reference.md` · `GAAPCLAW-Parity-Implementation.md` · `LLM Provider Status.md` · `TMAR-IRS-Autofill-Revision-2026-05-20.md` · `TMAR_Context.md` · `TMAR_Handoff_v3.md`
@@ -441,6 +458,9 @@ See [[Function Reference Cards Index]] — covers Chat & Communication (3), Memo
 | Parity sync | `node scripts/parity-sync.mjs` |
 | Deploy HTML to Pages | `git push origin master` (auto-deploys in ~30s) |
 | Open live app | https://slickvicious.github.io/TMAR-Accrual-Ledger/TMAR-Accrual-Ledger.html |
+| Open Ecosystem Navigator | Double-click `TMAR-Navigator.bat` or open `tools/TMAR-Ecosystem-Navigator.html` |
+| Open Architecture Diagram | Open `tools/TMAR-Architecture-Diagram.html` (SVG, dark-mode aware) |
+| Open Excalidraw Map | https://excalidraw.com/#json=Ws2ojXmeXzCPgIRNNrIC_,0zHCwD6dnrLWyV5E3ZExcA |
 | Open GAS editor | https://script.google.com/u/0/home/projects/1fIfAfYbMw8udn2AggFnMDc-dwVNvrQeJT6qVOdJI1VdehZQzDoCdoyYr/edit |
 
 ---
@@ -449,6 +469,8 @@ See [[Function Reference Cards Index]] — covers Chat & Communication (3), Memo
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| **4.3** | 2026-08-04 | Transcript Transformer v2.2.0 — merged-mode default output, Upgrade Existing Output, Generate Process Tracker (JSON + Mind Map tab), HTML export video banner + table fix, input/output persistence; removed Download + Transcribe pipeline |
+| **4.2** | 2026-07-31 | Vault reorganization — docs/ tools/ _archive/; 36 broken wiki-links fixed |
 | **4.1** | 2026-06-27 | Ledger Data Topology injected into all agents; workbook consolidation; VAULT_INDEX v2 |
 | **4.0** | 2026-06-17 | fiduciary-doc-factory v2.1.0; Gemini Neural TTS; UCC 9-210 demand template |
 | **3.9** | 2026 | Clear + file upload across 24 AP agents |
