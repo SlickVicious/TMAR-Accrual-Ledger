@@ -284,6 +284,9 @@
       "originalText": "TT / Pipeline", "autoResize": true }
   ],
   "appState": {
-    "viewBackgroundColor": "#ffffff"
+    "viewBackgroundColor": "#ffffff",
+    "zoom": { "value": 0.72 },
+    "scrollX": 0,
+    "scrollY": 0
   }
 }

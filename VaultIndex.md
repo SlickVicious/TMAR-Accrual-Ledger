@@ -460,7 +460,7 @@ See [[Function Reference Cards Index]] — covers Chat & Communication (3), Memo
 | Open live app | https://slickvicious.github.io/TMAR-Accrual-Ledger/TMAR-Accrual-Ledger.html |
 | Open Ecosystem Navigator | Double-click `TMAR-Navigator.bat` or open `tools/TMAR-Ecosystem-Navigator.html` |
 | Open Architecture Diagram | Open `tools/TMAR-Architecture-Diagram.html` (SVG, dark-mode aware) |
-| Open Excalidraw Map | https://excalidraw.com/#json=Ws2ojXmeXzCPgIRNNrIC_,0zHCwD6dnrLWyV5E3ZExcA |
+| Open Excalidraw Map | https://excalidraw.com/#json=FMWteruK-6Bs223yWDtFD,eciyFvgHxdfxzIMDVuQMBg |
 | Open GAS editor | https://script.google.com/u/0/home/projects/1fIfAfYbMw8udn2AggFnMDc-dwVNvrQeJT6qVOdJI1VdehZQzDoCdoyYr/edit |
 
 ---

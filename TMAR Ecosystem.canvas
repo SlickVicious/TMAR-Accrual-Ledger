@@ -1,19 +1,19 @@
 {
 	"nodes":[
 		{"id":"hub","type":"text","text":"# 🖥️ TMAR App\n## Central Control Hub\nGitHub Pages + localhost:5501\n- 25 agents · 22 functions\n- Document Creator\n- AES-256 Vault\n- Transcript Transformer v2.2.0","x":0,"y":0,"width":340,"height":285,"color":"1"},
-		{"id":"sheet","type":"text","text":"# 📊 TMAR Live Workbook\n1k6J2s0…WInQ\n~52 tabs · System of Record\nMaster Register · Ledgers\n1099s · Creditors · Documents","x":500,"y":-200,"width":300,"height":100,"color":"2"},
-		{"id":"gas","type":"text","text":"# ⚙️ Apps Script Backend\ngas/\n- SyncCenter.gs (doGet/doPost)\n- TMARBridge.gs\n- ImportRegistryScan\n- TMAR_CONFIG","x":400,"y":100,"width":280,"height":100,"color":"3"},
 		{"id":"llm","type":"text","text":"# 🤖 LLM Providers\n- Anthropic (Claude)\n- OpenAI\n- DeepSeek\n- xAI\n- Ollama (local)","x":-400,"y":-60,"width":250,"height":260,"color":"5"},
 		{"id":"gemini","type":"text","text":"# 🔊 Gemini Neural TTS\nDirect · CORS-allowed\nRealistic voices\nPCM→WAV","x":-400,"y":250,"width":250,"height":190,"color":"2"},
-		{"id":"vaults","type":"text","text":"# 🗄️ YTubiversity Vaults\nD:\\00_YTubiversity Vaults\\\nEeon · FWM · Huey Hardy\nNew Earth · Zero%\ndocs born here","x":200,"y":-400,"width":280,"height":100,"color":"6"},
-		{"id":"filecab","type":"text","text":"# 📁 FileCabinet PC\nC:\\Users\\rhyme\\Desktop\\\n00–09 dirs · Credentials\nEstates · Digital-Binders\nDOC-NNNN scan-in","x":500,"y":-400,"width":280,"height":100,"color":"6"},
-		{"id":"processes","type":"text","text":"# 📋 Process Dashboards\n_engine.html\n.FC\\Processes\\\nData-driven · Mind Maps","x":800,"y":-200,"width":260,"height":80,"color":"1"},
-		{"id":"tt","type":"text","text":"# 🧠 Transcript Transformer v2.2.0\nMerged-mode default\nUpgrade Existing Output\nProcess Tracker JSON\nHTML export + video banner","x":-200,"y":-400,"width":280,"height":110,"color":"1"},
-		{"id":"archive","type":"text","text":"# 📦 Freeway 2025 Archive\n1kbulI…\nRead-only legacy\nNever written","x":800,"y":100,"width":240,"height":70,"color":"5"},
-		{"id":"readme","type":"file","file":"README.md","x":0,"y":-600,"width":400,"height":130,"color":"1"},
-		{"id":"vaultindex","type":"file","file":"VaultIndex.md","x":500,"y":-600,"width":400,"height":130,"color":"1"},
-		{"id":"claude","type":"file","file":"CLAUDE.md","x":250,"y":-750,"width":400,"height":100,"color":"1"},
-		{"id":"proxy","type":"text","text":"# ☁️ Cloudflare Worker\nCORS proxy\nBrowser → LLM calls\nGeneric pass-through","x":-620,"y":-400,"width":250,"height":180,"color":"4"}
+		{"id":"claude","type":"file","file":"CLAUDE.md","x":-1570,"y":-2440,"width":1045,"height":2725,"color":"1"},
+		{"id":"readme","type":"file","file":"README.md","x":-440,"y":-2105,"width":2560,"height":945,"color":"1"},
+		{"id":"archive","type":"text","text":"# 📦 Freeway 2025 Archive\n1kbulI…\nRead-only legacy\nNever written","x":1440,"y":345,"width":240,"height":175,"color":"5"},
+		{"id":"processes","type":"text","text":"# 📋 Process Dashboards\n_engine.html\n.FC\\Processes\\\nData-driven · Mind Maps","x":1180,"y":-180,"width":260,"height":180,"color":"1"},
+		{"id":"gas","type":"text","text":"# ⚙️ Apps Script Backend\ngas/\n- SyncCenter.gs (doGet/doPost)\n- TMARBridge.gs\n- ImportRegistryScan\n- TMAR_CONFIG","x":760,"y":345,"width":280,"height":245,"color":"3"},
+		{"id":"filecab","type":"text","text":"# 📁 FileCabinet PC\nC:\\Users\\rhyme\\Desktop\\\n00–09 dirs · Credentials\nEstates · Digital-Binders\nDOC-NNNN scan-in","x":1400,"y":-550,"width":280,"height":150,"color":"6"},
+		{"id":"vaultindex","type":"file","file":"VaultIndex.md","x":-1540,"y":440,"width":1100,"height":510,"color":"1"},
+		{"id":"vaults","type":"text","text":"# 🗄️ YTubiversity Vaults\nD:\\00_YTubiversity Vaults\\\nEeon · FWM · Huey Hardy\nNew Earth · Zero%\ndocs born here","x":560,"y":-475,"width":280,"height":220,"color":"6"},
+		{"id":"sheet","type":"text","text":"# 📊 TMAR Live Workbook\n1k6J2s0…WInQ\n~52 tabs · System of Record\nMaster Register · Ledgers\n1099s · Creditors · Documents","x":740,"y":-90,"width":300,"height":170,"color":"2"},
+		{"id":"proxy","type":"text","text":"# ☁️ Cloudflare Worker\nCORS proxy\nBrowser → LLM calls\nGeneric pass-through","x":-275,"y":-435,"width":250,"height":180,"color":"4"},
+		{"id":"tt","type":"text","text":"# 🧠 Transcript Transformer v2.2.0\nMerged-mode default\nUpgrade Existing Output\nProcess Tracker JSON\nHTML export + video banner","x":-150,"y":-1077,"width":280,"height":200,"color":"1"}
 	],
 	"edges":[
 		{"id":"e1","fromNode":"hub","fromSide":"left","toNode":"proxy","toSide":"right","label":"LLM calls"},
