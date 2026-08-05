@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TMAR Ecosystem — System Architecture</title>
+<style>
+  :root {
+    --text-primary: #1a1a18;
+    --text-secondary: #5f5e5a;
+    --text-tertiary: #88877f;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f6f5f0;
+    --bg-tertiary: #eeedeb;
+    --border: rgba(0,0,0,0.15);
+    --border-hover: rgba(0,0,0,0.3);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --text-primary: #e8e6de;
+      --text-secondary: #b4b2a9;
+      --text-tertiary: #888780;
+      --bg-primary: #1a1a18;
+      --bg-secondary: #2c2c2a;
+      --bg-tertiary: #3d3d3a;
+      --border: rgba(255,255,255,0.15);
+      --border-hover: rgba(255,255,255,0.3);
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: var(--bg-tertiary);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 40px 20px;
+  }
+  .card {
+    background: var(--bg-primary);
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 1060px;
+    width: 100%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  h1 { font-size: 18px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px; }
+  .subtitle { font-size: 13px; color: var(--text-tertiary); margin-bottom: 24px; }
+  svg { width: 100%; height: auto; }
+  .t  { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: var(--text-primary); }
+  .ts { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: var(--text-secondary); }
+  .th { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: var(--text-primary); font-weight: 500; }
+  .box { fill: var(--bg-secondary); stroke: var(--border); stroke-width: 0.5px; }
+  .arr { stroke: var(--text-secondary); stroke-width: 1.5px; fill: none; }
+  .leader { stroke: var(--text-tertiary); stroke-width: 0.5px; stroke-dasharray: 4 3; fill: none; }
+  .node { cursor: pointer; transition: opacity 0.15s; }
+  .node:hover { opacity: 0.82; }
+  .c-purple > rect, .c-purple > circle, .c-purple > ellipse { fill: #EEEDFE; stroke: #534AB7; }
+  .c-purple > .th, .c-purple > text.th { fill: #3C3489; }
+  .c-purple > .ts, .c-purple > text.ts { fill: #534AB7; }
+  .c-teal > rect, .c-teal > circle, .c-teal > ellipse { fill: #E1F5EE; stroke: #0F6E56; }
+  .c-teal > .th, .c-teal > text.th { fill: #085041; }
+  .c-teal > .ts, .c-teal > text.ts { fill: #0F6E56; }
+  .c-coral > rect, .c-coral > circle, .c-coral > ellipse { fill: #FAECE7; stroke: #993C1D; }
+  .c-coral > .th, .c-coral > text.th { fill: #712B13; }
+  .c-coral > .ts, .c-coral > text.ts { fill: #993C1D; }
+  .c-pink > rect, .c-pink > circle, .c-pink > ellipse { fill: #FBEAF0; stroke: #993556; }
+  .c-pink > .th, .c-pink > text.th { fill: #72243E; }
+  .c-pink > .ts, .c-pink > text.ts { fill: #993556; }
+  .c-gray > rect, .c-gray > circle, .c-gray > ellipse { fill: #F1EFE8; stroke: #5F5E5A; }
+  .c-gray > .th, .c-gray > text.th { fill: #444441; }
+  .c-gray > .ts, .c-gray > text.ts { fill: #5F5E5A; }
+  .c-blue > rect, .c-blue > circle, .c-blue > ellipse { fill: #E6F1FB; stroke: #185FA5; }
+  .c-blue > .th, .c-blue > text.th { fill: #0C447C; }
+  .c-blue > .ts, .c-blue > text.ts { fill: #185FA5; }
+  .c-green > rect, .c-green > circle, .c-green > ellipse { fill: #EAF3DE; stroke: #3B6D11; }
+  .c-green > .th, .c-green > text.th { fill: #27500A; }
+  .c-green > .ts, .c-green > text.ts { fill: #3B6D11; }
+  .c-amber > rect, .c-amber > circle, .c-amber > ellipse { fill: #FAEEDA; stroke: #854F0B; }
+  .c-amber > .th, .c-amber > text.th { fill: #633806; }
+  .c-amber > .ts, .c-amber > text.ts { fill: #854F0B; }
+  .c-red > rect, .c-red > circle, .c-red > ellipse { fill: #FCEBEB; stroke: #A32D2D; }
+  .c-red > .th, .c-red > text.th { fill: #791F1F; }
+  .c-red > .ts, .c-red > text.ts { fill: #A32D2D; }
+  @media (prefers-color-scheme: dark) {
+    .c-purple > rect, .c-purple > circle, .c-purple > ellipse { fill: #3C3489; stroke: #AFA9EC; }
+    .c-purple > .th, .c-purple > text.th { fill: #CECBF6; }
+    .c-purple > .ts, .c-purple > text.ts { fill: #AFA9EC; }
+    .c-teal > rect, .c-teal > circle, .c-teal > ellipse { fill: #085041; stroke: #5DCAA5; }
+    .c-teal > .th, .c-teal > text.th { fill: #9FE1CB; }
+    .c-teal > .ts, .c-teal > text.ts { fill: #5DCAA5; }
+    .c-coral > rect, .c-coral > circle, .c-coral > ellipse { fill: #712B13; stroke: #F0997B; }
+    .c-coral > .th, .c-coral > text.th { fill: #F5C4B3; }
+    .c-coral > .ts, .c-coral > text.ts { fill: #F0997B; }
+    .c-pink > rect, .c-pink > circle, .c-pink > ellipse { fill: #72243E; stroke: #ED93B1; }
+    .c-pink > .th, .c-pink > text.th { fill: #F4C0D1; }
+    .c-pink > .ts, .c-pink > text.ts { fill: #ED93B1; }
+    .c-gray > rect, .c-gray > circle, .c-gray > ellipse { fill: #444441; stroke: #B4B2A9; }
+    .c-gray > .th, .c-gray > text.th { fill: #D3D1C7; }
+    .c-gray > .ts, .c-gray > text.ts { fill: #B4B2A9; }
+    .c-blue > rect, .c-blue > circle, .c-blue > ellipse { fill: #0C447C; stroke: #85B7EB; }
+    .c-blue > .th, .c-blue > text.th { fill: #B5D4F4; }
+    .c-blue > .ts, .c-blue > text.ts { fill: #85B7EB; }
+    .c-green > rect, .c-green > circle, .c-green > ellipse { fill: #27500A; stroke: #97C459; }
+    .c-green > .th, .c-green > text.th { fill: #C0DD97; }
+    .c-green > .ts, .c-green > text.ts { fill: #97C459; }
+    .c-amber > rect, .c-amber > circle, .c-amber > ellipse { fill: #633806; stroke: #EF9F27; }
+    .c-amber > .th, .c-amber > text.th { fill: #FAC775; }
+    .c-amber > .ts, .c-amber > text.ts { fill: #EF9F27; }
+    .c-red > rect, .c-red > circle, .c-red > ellipse { fill: #791F1F; stroke: #F09595; }
+    .c-red > .th, .c-red > text.th { fill: #F7C1C1; }
+    .c-red > .ts, .c-red > text.ts { fill: #F09595; }
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>TMAR Ecosystem — System Architecture & Data Flow</h1>
+  <p class="subtitle">v4.3 · Trust Master Account Register · All surfaces, data flows, and integration points</p>
+
+<svg width="100%" viewBox="0 0 1000 800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5"
+            markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke"
+            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <!-- ══ ORIGIN: YTubiversity Vaults ══ -->
+  <g class="node c-pink">
+    <rect x="40" y="40" width="220" height="80" rx="8" stroke-width="0.5"/>
+    <text class="th" x="150" y="68" text-anchor="middle" dominant-baseline="central">YTubiversity Vaults</text>
+    <text class="ts" x="150" y="88" text-anchor="middle" dominant-baseline="central">D: 5 vaults · Eeon · FWM · Huey · NEL · Zero</text>
+    <text class="ts" x="150" y="104" text-anchor="middle" dominant-baseline="central">Documents born here — lessons → drafts</text>
+  </g>
+
+  <!-- ══ FILE CABINET ══ -->
+  <g class="node c-coral">
+    <rect x="340" y="40" width="220" height="80" rx="8" stroke-width="0.5"/>
+    <text class="th" x="450" y="68" text-anchor="middle" dominant-baseline="central">FileCabinet PC</text>
+    <text class="ts" x="450" y="88" text-anchor="middle" dominant-baseline="central">Desktop storage · 20+ dirs</text>
+    <text class="ts" x="450" y="104" text-anchor="middle" dominant-baseline="central">Signed → scanned → DOC-NNNN</text>
+  </g>
+
+  <!-- Arrow: Vaults → FileCabinet -->
+  <line x1="260" y1="80" x2="333" y2="80" class="arr" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="272" y="62" width="50" height="16" rx="3" fill="var(--bg-primary)"/>
+    <text class="ts" x="297" y="73" text-anchor="middle" dominant-baseline="central">drafts</text>
+  </g>
+
+  <!-- ══ GOOGLE SHEETS ══ -->
+  <g class="node c-green">
+    <rect x="640" y="40" width="220" height="100" rx="8" stroke-width="0.5"/>
+    <text class="th" x="750" y="68" text-anchor="middle" dominant-baseline="central">Google Sheets</text>
+    <text class="ts" x="750" y="88" text-anchor="middle" dominant-baseline="central">~52 tabs · System of Record</text>
+    <text class="ts" x="750" y="108" text-anchor="middle" dominant-baseline="central">Master Register · Creditors · Tax</text>
+    <text class="ts" x="750" y="126" text-anchor="middle" dominant-baseline="central">Join keys: EIN · DOC-NNNN · MR-NNN</text>
+  </g>
+
+  <!-- Arrow: FileCabinet → Sheets (scan) -->
+  <line x1="560" y1="80" x2="633" y2="80" class="arr" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="570" y="62" width="52" height="16" rx="3" fill="var(--bg-primary)"/>
+    <text class="ts" x="596" y="73" text-anchor="middle" dominant-baseline="central">scan-in</text>
+  </g>
+
+  <!-- ══ Apps Script Backend ══ -->
+  <g class="node c-purple">
+    <rect x="640" y="170" width="220" height="80" rx="8" stroke-width="0.5"/>
+    <text class="th" x="750" y="198" text-anchor="middle" dominant-baseline="central">Apps Script Backend</text>
+    <text class="ts" x="750" y="218" text-anchor="middle" dominant-baseline="central">doGet / doPost Web App</text>
+    <text class="ts" x="750" y="234" text-anchor="middle" dominant-baseline="central">TMARBridge · SyncCenter · 20+ .gs files</text>
+  </g>
+
+  <!-- Bidirectional: GAS ↔ Sheets -->
+  <line x1="750" y1="140" x2="750" y2="163" class="arr" marker-end="url(#arrow)"/>
+  <line x1="750" y1="250" x2="750" y2="263" class="arr" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="760" y="176" width="70" height="16" rx="3" fill="var(--bg-primary)"/>
+    <text class="ts" x="795" y="187" text-anchor="middle" dominant-baseline="central">push/pull</text>
+  </g>
+
+  <!-- ══ TMAR App — CENTRAL HUB ══ -->
+  <g class="node c-blue">
+    <rect x="340" y="280" width="300" height="120" rx="12" stroke-width="1"/>
+    <text class="th" x="490" y="310" text-anchor="middle" dominant-baseline="central">TMAR App · GitHub Pages</text>
+    <text class="ts" x="490" y="330" text-anchor="middle" dominant-baseline="central">Central Control Hub · 3.7 MB SPA</text>
+    <text class="ts" x="490" y="350" text-anchor="middle" dominant-baseline="central">19 agents · 246 functions · 24+ chat agents</text>
+    <text class="ts" x="490" y="370" text-anchor="middle" dominant-baseline="central">ENGINES: callLLMStream · resolveProvider · HARD_LOCK</text>
+    <text class="ts" x="490" y="386" text-anchor="middle" dominant-baseline="central">KNOWLEDGE: fiduciaryDocFactory · ledgerTopology</text>
+  </g>
+
+  <!-- Arrow: App → GAS (JSON) -->
+  <line x1="640" y1="320" x2="633" y2="210" class="arr" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="650" y="258" width="40" height="16" rx="3" fill="var(--bg-primary)"/>
+    <text class="ts" x="670" y="269" text-anchor="middle" dominant-baseline="central">JSON</text>
+  </g>
+
+  <!-- ══ CORS PROXY ══ -->
+  <g class="node c-amber">
+    <rect x="140" y="480" width="200" height="70" rx="8" stroke-width="0.5"/>
+    <text class="th" x="240" y="508" text-anchor="middle" dominant-baseline="central">Cloudflare Worker</text>
+    <text class="ts" x="240" y="528" text-anchor="middle" dominant-baseline="central">CORS Proxy · mandatory browser gate</text>
+  </g>
+
+  <!-- ══ LLM PROVIDERS ══ -->
+  <g class="node c-red">
+    <rect x="40" y="600" width="200" height="70" rx="8" stroke-width="0.5"/>
+    <text class="th" x="140" y="628" text-anchor="middle" dominant-baseline="central">LLM Providers</text>
+    <text class="ts" x="140" y="648" text-anchor="middle" dominant-baseline="central">Anthropic · OpenAI · DeepSeek · xAI</text>
+  </g>
+
+  <!-- ══ Gemini TTS ══ -->
+  <g class="node c-teal">
+    <rect x="340" y="600" width="180" height="60" rx="8" stroke-width="0.5"/>
+    <text class="th" x="430" y="626" text-anchor="middle" dominant-baseline="central">Gemini Neural TTS</text>
+    <text class="ts" x="430" y="644" text-anchor="middle" dominant-baseline="central">Direct · CORS-allowed</text>
+  </g>
+
+  <!-- Arrows: App → Proxy → LLM -->
+  <line x1="490" y1="400" x2="490" y2="470" class="arr" marker-end="url(#arrow)"/>
+  <line x1="490" y1="470" x2="340" y2="470" class="arr" marker-end="url(#arrow)"/>
+  <line x1="240" y1="470" x2="240" y2="473" class="arr" marker-end="url(#arrow)"/>
+  <line x1="240" y1="550" x2="240" y2="593" class="arr" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="370" y="458" width="80" height="16" rx="3" fill="var(--bg-primary)"/>
+    <text class="ts" x="410" y="469" text-anchor="middle" dominant-baseline="central">callLLMStream</text>
+  </g>
+
+  <!-- Arrow: App → Gemini TTS (dashed — direct) -->
+  <line x1="490" y1="400" x2="490" y2="460" class="leader"/>
+  <line x1="490" y1="460" x2="430" y2="593" class="leader" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="500" y="448" width="40" height="16" rx="3" fill="var(--bg-primary)"/>
+    <text class="ts" x="520" y="459" text-anchor="middle" dominant-baseline="central">TTS</text>
+  </g>
+
+  <!-- ══ TRANSCRIPT TRANSFORMER ══ -->
+  <g class="node c-teal">
+    <rect x="640" y="480" width="250" height="80" rx="8" stroke-width="0.5"/>
+    <text class="th" x="765" y="508" text-anchor="middle" dominant-baseline="central">Transcript Transformer v2.2.0</text>
+    <text class="ts" x="765" y="528" text-anchor="middle" dominant-baseline="central">Merged mode · Upgrade · Process Tracker</text>
+    <text class="ts" x="765" y="544" text-anchor="middle" dominant-baseline="central">HTML export + video banner + table fix</text>
+  </g>
+
+  <!-- ══ PROCESS DASHBOARDS ══ -->
+  <g class="node c-pink">
+    <rect x="640" y="610" width="250" height="80" rx="8" stroke-width="0.5"/>
+    <text class="th" x="765" y="638" text-anchor="middle" dominant-baseline="central">Process Dashboards</text>
+    <text class="ts" x="765" y="658" text-anchor="middle" dominant-baseline="central">_engine.html · Mind Maps</text>
+    <text class="ts" x="765" y="674" text-anchor="middle" dominant-baseline="central">.FC/Processes/ · embedded data</text>
+  </g>
+
+  <!-- Arrow: TT → Process Dashboards -->
+  <line x1="765" y1="560" x2="765" y2="603" class="arr" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="775" y="575" width="50" height="16" rx="3" fill="var(--bg-primary)"/>
+    <text class="ts" x="800" y="586" text-anchor="middle" dominant-baseline="central">JSON</text>
+  </g>
+
+  <!-- Arrow: TT → Vaults -->
+  <line x1="640" y1="520" x2="290" y2="520" class="arr" marker-end="url(#arrow)"/>
+  <line x1="290" y1="520" x2="290" y2="120" class="arr" marker-end="url(#arrow)"/>
+  <line x1="290" y1="120" x2="260" y2="120" class="arr" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="440" y="508" width="90" height="16" rx="3" fill="var(--bg-primary)"/>
+    <text class="ts" x="485" y="519" text-anchor="middle" dominant-baseline="central">merged .md output</text>
+  </g>
+
+  <!-- ══ LEGEND ══ -->
+  <g>
+    <text class="th" x="40" y="740">Legend</text>
+    <rect x="40" y="752" width="14" height="14" rx="2" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+    <text class="ts" x="60" y="763" dominant-baseline="central">App / Core</text>
+    <rect x="160" y="752" width="14" height="14" rx="2" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/>
+    <text class="ts" x="180" y="763" dominant-baseline="central">Data / Sheets</text>
+    <rect x="290" y="752" width="14" height="14" rx="2" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+    <text class="ts" x="310" y="763" dominant-baseline="central">Backend / GAS</text>
+    <rect x="430" y="752" width="14" height="14" rx="2" fill="#FBEAF0" stroke="#993556" stroke-width="0.5"/>
+    <text class="ts" x="450" y="763" dominant-baseline="central">Vaults / Dashboards</text>
+    <rect x="600" y="752" width="14" height="14" rx="2" fill="#FCEBEB" stroke="#A32D2D" stroke-width="0.5"/>
+    <text class="ts" x="620" y="763" dominant-baseline="central">AI / LLM</text>
+    <rect x="710" y="752" width="14" height="14" rx="2" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+    <text class="ts" x="730" y="763" dominant-baseline="central">TT / TTS / Pipeline</text>
+    <rect x="870" y="752" width="14" height="14" rx="2" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+    <text class="ts" x="890" y="763" dominant-baseline="central">Proxy / Gate</text>
+  </g>
+</svg>
+
+</div>
+</body>
+</html>
