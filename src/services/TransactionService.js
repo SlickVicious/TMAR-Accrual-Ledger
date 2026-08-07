@@ -183,7 +183,8 @@ export function calculateMonthlySpending(transactions, year, month) {
 
   const monthlyTransactions = transactions.filter(transaction => {
     const txnDate = new Date(transaction.date);
-    return txnDate.getFullYear() === year && txnDate.getMonth() + 1 === month;
+    return txnDate.getFullYear() === year && txnDate.getMonth() + 1 === month
+      && transaction.type === 'Expense';
   });
 
   return groupTransactionsByCategory(monthlyTransactions);
