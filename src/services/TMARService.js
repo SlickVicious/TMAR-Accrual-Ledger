@@ -375,20 +375,34 @@ export function importFromJSON(jsonString) {
       throw new Error('Invalid JSON format: accounts array required');
     }
 
+    const accounts = [];
+    const rejected = [];
+
+    data.accounts.forEach((account, index) => {
+      const validation = AccountService.validateAccount(account);
+      if (validation.valid) {
+        accounts.push(account);
+      } else {
+        rejected.push({ index, errors: validation.errors });
+      }
+    });
+
     if (!tmarState) {
       initializeTMAR();
     }
 
     tmarState.setState({
-      accounts: data.accounts,
+      accounts,
       transactions: data.transactions || [],
       lastSync: new Date().toISOString()
     });
 
     return {
       success: true,
-      accountCount: data.accounts.length,
-      transactionCount: (data.transactions || []).length
+      accountCount: accounts.length,
+      transactionCount: (data.transactions || []).length,
+      rejectedCount: rejected.length,
+      rejected
     };
   } catch (error) {
     return {

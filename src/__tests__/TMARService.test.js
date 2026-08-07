@@ -250,5 +250,28 @@ describe('TMARService', () => {
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
     });
+
+    test('rejects malformed accounts instead of accepting them into state', () => {
+      const jsonData = JSON.stringify({
+        accounts: [
+          { id: 'MR-001', name: 'Valid Account', type: 'Checking', balance: 1000 },
+          { id: 'MR-002', balance: 'not-a-number' }, // missing name/type, bad balance type
+          { id: 'MR-003', name: 'Missing Type' }     // missing type
+        ],
+        transactions: []
+      });
+
+      const result = TMARService.importFromJSON(jsonData);
+
+      expect(result.success).toBe(true);
+      expect(result.accountCount).toBe(1);
+      expect(result.rejectedCount).toBe(2);
+      expect(result.rejected).toHaveLength(2);
+      expect(result.rejected[0].errors.length).toBeGreaterThan(0);
+
+      const state = TMARService.getState();
+      expect(state.accounts.length).toBe(1);
+      expect(state.accounts[0].id).toBe('MR-001');
+    });
   });
 });
