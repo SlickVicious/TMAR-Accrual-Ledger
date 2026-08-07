@@ -26,7 +26,7 @@ const ss = SpreadsheetApp.getActiveSpreadsheet();
 const sheet = ss.getSheetByName('Master Register');
 const lastRow = sheet.getLastRow();
 if (lastRow < 2) return []; // empty sheet guard
-const data = sheet.getRange(2, 1, lastRow - 1, 35).getValues(); // skip header, all 35 cols
+const data = sheet.getRange(2, 1, lastRow - 1, 29).getValues(); // skip header, all 29 cols (A-AC)
 ```
 
 Row index is 1-based in GAS. Column A = index 1.
@@ -35,10 +35,12 @@ Row index is 1-based in GAS. Column A = index 1.
 
 ```javascript
 sheet.insertRows(2, 1);                           // insert before existing data
-sheet.getRange(2, 1, 1, 35).setValues([rowArray]); // write single row (array of 35 values)
+sheet.getRange(2, 1, 1, 29).setValues([rowArray]); // write single row (array of 29 values)
 ```
 
-Always provide all 35 values for the Master Register — use `""` for empty cells.
+Always provide all 29 values for the Master Register — use `""` for empty cells. See
+`.claude/docs/domain-models.md` for the verified 29-column (A–AC) schema — re-verify against
+`?action=pullRawTab` before trusting any doc's column count, including this one.
 
 ## Dialog/Sidebar Launchers
 
@@ -125,4 +127,6 @@ The exec URL does not change on redeploy.
 
 ## Sheet Name Constants (never misspell)
 
-Master Register, Transaction Ledger, _Validation, Executive Dashboard, W-2 & Income Detail, BOA Cash Flow, PNC Cash Flow, Household Obligations, Subscriptions & Services, Tax Strategy, Trust Ledger, 1099 Filing Chain, Forms & Authority, Proof of Mailing, Document Inventory, Document Registry, _HealthAudit
+Master Register, Transaction Ledger, _Validation, Executive Dashboard, W-2 & Income Detail, BOA Cash Flow, PNC Cash Flow, Household Obligations, Subscriptions & Services, Tax Strategy, 1099 Filing Chain, Forms & Authority, Proof of Mailing, Document Inventory, Document Registry, _HealthAudit
+
+`Trust Ledger` is retired (2026-07-31, hidden not deleted, `gas/RetireTrustLedger.gs`) — do not read/write it; trust corpus assets live in `📦 Asset Transfer Log`'s Schedule A section instead.

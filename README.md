@@ -128,8 +128,8 @@ The YouTube playlist Download + Transcribe pipeline (and its local companion ser
 
 | Group | Tabs (examples) |
 |---|---|
-| **Account spine** | `Master Register` (35-col canonical, `MR-NNN`), `Master Register Archive` (dedup quarantine), `Account Entities`, `CoA`, `Principal Register` |
-| **Ledgers** | `Transaction Ledger`, `Trust Ledger`, `Acct Ledger`, cash flows (`BOA`, `PNC`) |
+| **Account spine** | `Master Register` (29-col canonical, A–AC, `MR-NNN`), `Master Register Archive` (dedup quarantine), `Account Entities`, `CoA`, `Principal Register` |
+| **Ledgers** | `Transaction Ledger`, `Acct Ledger`, cash flows (`BOA`, `PNC`) — `Trust Ledger` retired 2026-07-31 (hidden; trust corpus assets now live in `📦 Asset Transfer Log`'s Schedule A section) |
 | **Creditors / 1099** | `Creditor Registry` + `Checklist` (enriched 20-subsets) · `FWM — Creditor Detail` + `FWM — Forms Checklist` (28-creditor master) · `1099 Filing Chain`, `1099 Filings`, `Forms & Authority`, `Proof of Mailing` |
 | **Documents** | `Document Registry` (PC FileCabinet scan, canonical `DOC-NNNN`), `Document Inventory` (separate catalog) |
 | **Tax** | `W-2 & Income Detail`, `Schedule A`, `1040 Submissions`, `Tax Strategy` |
@@ -154,7 +154,7 @@ The YouTube playlist Download + Transcribe pipeline (and its local companion ser
 | `RemoveArchiveBanner.gs` | One-shot guarded cleanup utility |
 | `PopulateValidation.gs` · `FormattingComplement.gs` · `TMAR_AestheticsAndAudit.gs` | Validation lists, conditional formatting, health audit |
 
-**Web App actions:** `getMasterRegister`, `getTransactionLedger`, `pushEntities`, `pushTransactions`, `pushPayables`, `push1099s`, `listWorkbookTabs`, `pullWorkbookSheets`, `listSheetTabs`, `pullRawTab`, importers (`importSubstituteW2`, `importForm1040`, `importForm2848`, `importScheduleA`).
+**Web App actions:** `pullAccounts`, `pullTransactions`, `pushEntities`, `pushTransactions`, `pushPayables`, `push1099`, `listWorkbookTabs`, `pullWorkbookSheets`, `listSheetTabs`, `pullRawTab`, `runFunction`/`listRunnableFunctions` (safe-invoke, 23-function allowlist), `deleteWebsiteAccounts` (backed-up delete), importers (`importSubstituteW2`, `importForm1040`, `importForm2848`, `importScheduleA`).
 
 All workbook IDs are centralized in **`TMAR_CONFIG`** (top of `SyncCenter.gs`): `liveBookId`, `sourceBookId` (= live), `appcHubId` (folded into live 2026-06-27), `archiveBookId`. Never hardcode an ID elsewhere. See `gas/README.md`.
 
@@ -298,7 +298,7 @@ TMAR-Accrual-Ledger/
 | Doc | Covers |
 |---|---|
 | `.claude/docs/data-topology.md` | Full data-relationship map (source of truth for injected `ledgerTopology`) |
-| `.claude/docs/domain-models.md` | Schemas — Master Register 35-col, Account/Transaction models |
+| `.claude/docs/domain-models.md` | Schemas — Master Register 29-col (A–AC), Account/Transaction models |
 | `.claude/docs/ledger-calculation-rules.md` | Balance / income / verification rules |
 | `.claude/docs/api-patterns.md` | LLM call stack, CORS, provider routing, TTS |
 | `.claude/docs/transcript-transformer.md` | Merged-mode prompt rules, Upgrade tool, Process Tracker JSON schema, File System Access API constraints |

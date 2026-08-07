@@ -103,7 +103,6 @@ flowchart TD
 | Tab | Key Columns | Join Key |
 |-----|------------|----------|
 | Transaction Ledger | 16 cols | Date/Vendor |
-| Trust Ledger | 8 cols | Asset |
 | Acct Ledger | 16 cols | EIN |
 | BOA Cash Flow | 8 cols | Month |
 | PNC Cash Flow | 8 cols | Month |
@@ -141,6 +140,7 @@ flowchart TD
 | _Validation | Dropdown lists |
 | _SyncMeta | Sync state tracking |
 | _YearData | Year-specific config |
+| Trust Ledger | **Retired 2026-07-31** (hidden, not deleted — `gas/RetireTrustLedger.gs`). Trust corpus assets now live in `📦 Asset Transfer Log`'s embedded Schedule A section. Do not resurrect. |
 
 ### Trust Binder
 Emoji-prefixed: 📋 HUB INDEX · 📒 General Ledger · 📊 Corpus & M-2 · …
@@ -171,6 +171,7 @@ Emoji-prefixed: 📋 HUB INDEX · 📒 General Ledger · 📊 Corpus & M-2 · �
 | `pullContacts` | GET | Key required | Contacts |
 | `pullWebsiteAccounts` | GET | Key required | Website logins (no passwords) |
 | `listSheetTabs` | GET | Key required | Tab names |
+| `listRunnableFunctions` | GET | Key required | Names of the 23 hard-allowlisted GAS functions `runFunction` (doPost) may invoke |
 | `listWorkbookTabs` | GET | Key required | All workbook tabs |
 | `pullWorkbookSheets` | GET | Key required | Selected tabs as JSON |
 | `pullRawTab` | GET | Key required | Raw tab data |
@@ -199,6 +200,8 @@ Emoji-prefixed: 📋 HUB INDEX · 📒 General Ledger · 📊 Corpus & M-2 · �
 | `TMAR_AestheticsAndAudit.gs` | Health audit + aesthetics |
 | `TransactionLedgerTrackingFix.gs` | Ledger tracking fixes |
 | `ReconcileCrossFill.gs` | Capture-once propagation (in progress) |
+| `RunnableFunctionsAllowlist.gs` | 23-function hard-allowlist backing the `runFunction`/`listRunnableFunctions` safe-invoke endpoints |
+| `embedUrlsAsHyperlinks.gs` | Converts platform-name cells → `=HYPERLINK()` formulas from the URL column |
 | `RemoveArchiveBanner.gs` | One-shot cleanup |
 | `ExecuteCleanup.gs` | Cleanup execution |
 | `addFillingPackage2025.gs` | 2025 filing package |

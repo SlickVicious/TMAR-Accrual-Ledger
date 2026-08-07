@@ -194,6 +194,23 @@ function addTMARAccount(accountData) {
 /**
  * Reads accounts from Master Register (helper)
  * @returns {Array<Object>} Array of account objects
+ *
+ * Column mapping corrected 2026-08-06 against the real 29-col (A-AC) schema
+ * (domain-models.md) -- this previously read via getRange(...,35) with offsets
+ * built for the stale 35-column layout, so every field silently pulled from
+ * the wrong column against the live 29-col sheet (e.g. "balance" was reading
+ * Next Payment Due (N) instead of Current Balance (K), "status" was reading
+ * Current Balance (K) instead of Status (H)). This is the read-side twin of
+ * the addTMARAccount() write-side fix from 2026-08-03 -- that one only
+ * covered writes, this covers every caller of this helper (financial
+ * summary, search, per-user filter, JSON export).
+ * "type" reads Account Subtype (G), not Account Type (F), matching
+ * addTMARAccount()'s write convention: F has no confirmed validated dropdown
+ * and is frequently blank, while G is the one column with a confirmed,
+ * exhaustive, validated dropdown (see domain-models.md). monthlyPayment has
+ * no dedicated column in the real schema -- addTMARAccount() folds it into
+ * Notes (AA) as free text, so it is dropped here rather than pointed at a
+ * meaningless column.
  */
 function readMasterRegisterAccounts_() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -208,20 +225,19 @@ function readMasterRegisterAccounts_() {
     return [];
   }
 
-  var data = sheet.getRange(2, 1, lastRow - 1, 35).getValues();
+  var data = sheet.getRange(2, 1, lastRow - 1, 29).getValues();
 
   return data.map(function(row) {
     return {
-      id: row[0],
-      dateAdded: row[1],
-      name: row[2],
-      accountNumber: row[5],
-      type: row[6],
-      status: row[10],
-      balance: row[13],
-      monthlyPayment: row[15],
-      primaryUser: row[19],
-      notes: row[32]
+      id: row[0],            // A: Row ID
+      dateAdded: row[1],     // B: Date Added
+      name: row[2],          // C: Provider/Creditor
+      accountNumber: row[4], // E: Account Number
+      type: row[6],          // G: Account Subtype
+      status: row[7],        // H: Status
+      balance: row[10],      // K: Current Balance
+      primaryUser: row[14],  // O: Primary User
+      notes: row[26]         // AA: Notes
     };
   });
 }
