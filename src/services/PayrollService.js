@@ -63,7 +63,7 @@ export function createEmployee(data = {}) {
  * @returns {string} Unique ID
  */
 function generateEmployeeId() {
-  return `EMP-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return `EMP-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 }
 
 /**

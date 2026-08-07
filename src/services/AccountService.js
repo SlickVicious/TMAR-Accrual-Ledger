@@ -69,7 +69,7 @@ export function createAccount(data = {}) {
  * @returns {string} Unique ID
  */
 function generateAccountId() {
-  return `ACC-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return `ACC-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 }
 
 /**

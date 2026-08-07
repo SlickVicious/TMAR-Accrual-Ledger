@@ -7,3 +7,5 @@ backup_20260228/**
 # Node.js / local-only files — not valid GAS
 env-vault-setup/**
 *.bak*
+# Superseded scripts kept for reference, not loaded into the live project
+_superseded/**

@@ -68,7 +68,7 @@ export function createTransaction(data = {}) {
  * @returns {string} Unique ID
  */
 function generateTransactionId() {
-  return `TXN-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return `TXN-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 }
 
 /**

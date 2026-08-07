@@ -83,7 +83,7 @@ export function createInvoice(data = {}) {
  * @returns {string} Unique ID
  */
 function generateInvoiceId() {
-  return `INV-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return `INV-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 }
 
 /**
