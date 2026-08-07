@@ -4,43 +4,50 @@
  * Uses Apps Script globals when available, mock data otherwise
  */
 
-// Master Register 35-column schema
+// Master Register 29-column schema (A-AC) -- corrected 2026-08-06 against the
+// real live-sheet layout (domain-models.md). This previously modeled a
+// 35-column layout that never matched the sheet, so every rowToAccount()/
+// accountToRow() field silently pulled from or wrote to the wrong column.
+// This is the JS-side twin of TMARBridge.gs's addTMARAccount()/
+// readMasterRegisterAccounts_() column fix (2026-08-03/06) -- same 29-col
+// schema, kept in sync so a round-trip through either layer agrees on
+// position. Columns with no dedicated home in the real schema (mailing
+// address, a standalone monthly-payment field, account agent/agent address,
+// high balance, APR/rate, secondary user, account purpose, linked MR
+// account, trust assignment, tax relevance, deduction type, credit report
+// status, removal date, dispute status, source) do not exist on the live
+// sheet -- domain-models.md's documented convention is to fold that
+// information into Notes (AA) as free text rather than invent a column.
 export const MASTER_REGISTER_SCHEMA = {
-  ROW_ID: 0,           // A: MR-XXX
-  DATE_ADDED: 1,       // B: Date Added
-  PROVIDER: 2,         // C: Provider/Creditor
-  MAILING_ADDRESS: 3,  // D: Mailing Address
-  PROVIDER_EIN: 4,     // E: Provider EIN
-  ACCOUNT_NUMBER: 5,   // F: Account Number
-  ACCOUNT_TYPE: 6,     // G: Account Type
-  ACCOUNT_SUBTYPE: 7,  // H: Account Subtype
-  ACCOUNT_AGENT: 8,    // I: Account Agent
-  AGENT_ADDRESS: 9,    // J: Agent Address
-  STATUS: 10,          // K: Status
-  OPENED_DATE: 11,     // L: Opened Date
-  CLOSED_DATE: 12,     // M: Closed Date
-  CURRENT_BALANCE: 13, // N: Current Balance
-  HIGH_BALANCE: 14,    // O: High Balance
-  MONTHLY_PAYMENT: 15, // P: Monthly Payment
-  APR_RATE: 16,        // Q: APR/Rate
-  BILLING_FREQUENCY: 17, // R: Billing Frequency
-  NEXT_PAYMENT_DUE: 18,  // S: Next Payment Due
-  PRIMARY_USER: 19,      // T: Primary User
-  SECONDARY_USER: 20,    // U: Secondary User
-  ACCOUNT_PURPOSE: 21,   // V: Account Purpose
-  DOCUMENT_LOCATION: 22, // W: Document Location
-  LAST_VERIFIED: 23,     // X: Last Verified
-  LINKED_MR_ACCOUNT: 24, // Y: Linked MR Account
-  TRUST_ASSIGNMENT: 25,  // Z: Trust Assignment
-  TAX_RELEVANCE: 26,     // AA: Tax Relevance
-  TAX_FORM: 27,          // AB: Tax Form
-  DEDUCTION_TYPE: 28,    // AC: Deduction Type
-  CREDIT_REPORT_STATUS: 29, // AD: Credit Report Status
-  REMOVAL_DATE: 30,      // AE: Removal Date
-  DISPUTE_STATUS: 31,    // AF: Dispute Status
-  NOTES: 32,             // AG: Notes
-  SOURCE: 33,            // AH: Source
-  DISCOVERY_STATUS: 34   // AI: Discovery Status
+  ROW_ID: 0,               // A: MR-XXX
+  DATE_ADDED: 1,            // B: Date Added
+  PROVIDER: 2,              // C: Provider/Creditor
+  PROVIDER_EIN: 3,          // D: Provider EIN
+  ACCOUNT_NUMBER: 4,        // E: Account Number
+  ACCOUNT_TYPE: 5,          // F: Account Type
+  ACCOUNT_SUBTYPE: 6,       // G: Account Subtype (validated dropdown)
+  STATUS: 7,                // H: Status
+  OPEN_DATE: 8,             // I: Open Date
+  CLOSE_DATE: 9,            // J: Close Date
+  CURRENT_BALANCE: 10,      // K: Current Balance
+  ORIGINAL_BALANCE: 11,     // L: Original Balance
+  BILLING_FREQUENCY: 12,    // M: Billing Frequency
+  NEXT_PAYMENT_DUE: 13,     // N: Next Payment Due
+  PRIMARY_USER: 14,         // O: Primary User
+  AUTHORIZED_USERS: 15,     // P: Authorized Users
+  AUTOPAY_STATUS: 16,       // Q: Autopay Status
+  PAYMENT_SOURCE: 17,       // R: Payment Source
+  CONTRACT_TERMS_FILE: 18,  // S: Contract/Terms File
+  STATEMENTS_COMPLETE: 19,  // T: Statements Complete
+  TAX_FORMS_ON_FILE: 20,    // U: Tax Forms on File
+  POP_DOCUMENTS: 21,        // V: PoP Documents
+  DOCUMENT_LOCATION: 22,    // W: Document Location
+  LAST_STATEMENT_DATE: 23,  // X: Last Statement Date
+  LAST_VERIFIED: 24,        // Y: Last Verified Date
+  RETENTION_PERIOD: 25,     // Z: Retention Period
+  NOTES: 26,                // AA: Notes
+  TAGS: 27,                 // AB: Tags
+  DISCOVERY_STATUS: 28      // AC: Discovery Status
 };
 
 // Transaction Ledger schema
@@ -95,7 +102,7 @@ export function readMasterRegister() {
   }
 
   // Read all data (skip header row)
-  const data = sheet.getRange(2, 1, lastRow - 1, 35).getValues();
+  const data = sheet.getRange(2, 1, lastRow - 1, 29).getValues();
 
   return data.map(row => rowToAccount(row));
 }
@@ -112,37 +119,31 @@ function rowToAccount(row) {
     id: row[S.ROW_ID] || '',
     dateAdded: row[S.DATE_ADDED] || null,
     name: row[S.PROVIDER] || '',
-    mailingAddress: row[S.MAILING_ADDRESS] || '',
     providerEin: row[S.PROVIDER_EIN] || '',
     accountNumber: row[S.ACCOUNT_NUMBER] || '',
     type: row[S.ACCOUNT_TYPE] || '',
     subtype: row[S.ACCOUNT_SUBTYPE] || '',
-    agent: row[S.ACCOUNT_AGENT] || '',
-    agentAddress: row[S.AGENT_ADDRESS] || '',
     status: row[S.STATUS] || 'Active',
-    openedDate: row[S.OPENED_DATE] || null,
-    closedDate: row[S.CLOSED_DATE] || null,
+    openedDate: row[S.OPEN_DATE] || null,
+    closedDate: row[S.CLOSE_DATE] || null,
     balance: parseFloat(row[S.CURRENT_BALANCE]) || 0,
-    highBalance: parseFloat(row[S.HIGH_BALANCE]) || 0,
-    monthlyPayment: parseFloat(row[S.MONTHLY_PAYMENT]) || 0,
-    aprRate: parseFloat(row[S.APR_RATE]) || 0,
+    originalBalance: parseFloat(row[S.ORIGINAL_BALANCE]) || 0,
     billingFrequency: row[S.BILLING_FREQUENCY] || '',
     nextPaymentDue: row[S.NEXT_PAYMENT_DUE] || null,
     primaryUser: row[S.PRIMARY_USER] || '',
-    secondaryUser: row[S.SECONDARY_USER] || '',
-    purpose: row[S.ACCOUNT_PURPOSE] || '',
+    authorizedUsers: row[S.AUTHORIZED_USERS] || '',
+    autopayStatus: row[S.AUTOPAY_STATUS] || '',
+    paymentSource: row[S.PAYMENT_SOURCE] || '',
+    contractTermsFile: row[S.CONTRACT_TERMS_FILE] || '',
+    statementsComplete: row[S.STATEMENTS_COMPLETE] || '',
+    taxFormsOnFile: row[S.TAX_FORMS_ON_FILE] || '',
+    popDocuments: row[S.POP_DOCUMENTS] || '',
     documentLocation: row[S.DOCUMENT_LOCATION] || '',
+    lastStatementDate: row[S.LAST_STATEMENT_DATE] || null,
     lastVerified: row[S.LAST_VERIFIED] || null,
-    linkedAccount: row[S.LINKED_MR_ACCOUNT] || '',
-    trustAssignment: row[S.TRUST_ASSIGNMENT] || '',
-    taxRelevance: row[S.TAX_RELEVANCE] || '',
-    taxForm: row[S.TAX_FORM] || '',
-    deductionType: row[S.DEDUCTION_TYPE] || '',
-    creditReportStatus: row[S.CREDIT_REPORT_STATUS] || '',
-    removalDate: row[S.REMOVAL_DATE] || null,
-    disputeStatus: row[S.DISPUTE_STATUS] || '',
+    retentionPeriod: row[S.RETENTION_PERIOD] || '',
     notes: row[S.NOTES] || '',
-    source: row[S.SOURCE] || '',
+    tags: row[S.TAGS] || '',
     discoveryStatus: row[S.DISCOVERY_STATUS] || 'Known'
   };
 }
@@ -154,42 +155,36 @@ function rowToAccount(row) {
  */
 function accountToRow(account) {
   const S = MASTER_REGISTER_SCHEMA;
-  const row = new Array(35).fill('');
+  const row = new Array(29).fill('');
 
   row[S.ROW_ID] = account.id || '';
   row[S.DATE_ADDED] = account.dateAdded || new Date();
   row[S.PROVIDER] = account.name || '';
-  row[S.MAILING_ADDRESS] = account.mailingAddress || '';
   row[S.PROVIDER_EIN] = account.providerEin || '';
   row[S.ACCOUNT_NUMBER] = account.accountNumber || '';
   row[S.ACCOUNT_TYPE] = account.type || '';
   row[S.ACCOUNT_SUBTYPE] = account.subtype || '';
-  row[S.ACCOUNT_AGENT] = account.agent || '';
-  row[S.AGENT_ADDRESS] = account.agentAddress || '';
   row[S.STATUS] = account.status || 'Active';
-  row[S.OPENED_DATE] = account.openedDate || '';
-  row[S.CLOSED_DATE] = account.closedDate || '';
+  row[S.OPEN_DATE] = account.openedDate || '';
+  row[S.CLOSE_DATE] = account.closedDate || '';
   row[S.CURRENT_BALANCE] = account.balance || 0;
-  row[S.HIGH_BALANCE] = account.highBalance || 0;
-  row[S.MONTHLY_PAYMENT] = account.monthlyPayment || 0;
-  row[S.APR_RATE] = account.aprRate || 0;
+  row[S.ORIGINAL_BALANCE] = account.originalBalance || 0;
   row[S.BILLING_FREQUENCY] = account.billingFrequency || '';
   row[S.NEXT_PAYMENT_DUE] = account.nextPaymentDue || '';
   row[S.PRIMARY_USER] = account.primaryUser || '';
-  row[S.SECONDARY_USER] = account.secondaryUser || '';
-  row[S.ACCOUNT_PURPOSE] = account.purpose || '';
+  row[S.AUTHORIZED_USERS] = account.authorizedUsers || '';
+  row[S.AUTOPAY_STATUS] = account.autopayStatus || '';
+  row[S.PAYMENT_SOURCE] = account.paymentSource || '';
+  row[S.CONTRACT_TERMS_FILE] = account.contractTermsFile || '';
+  row[S.STATEMENTS_COMPLETE] = account.statementsComplete || '';
+  row[S.TAX_FORMS_ON_FILE] = account.taxFormsOnFile || '';
+  row[S.POP_DOCUMENTS] = account.popDocuments || '';
   row[S.DOCUMENT_LOCATION] = account.documentLocation || '';
+  row[S.LAST_STATEMENT_DATE] = account.lastStatementDate || '';
   row[S.LAST_VERIFIED] = account.lastVerified || '';
-  row[S.LINKED_MR_ACCOUNT] = account.linkedAccount || '';
-  row[S.TRUST_ASSIGNMENT] = account.trustAssignment || '';
-  row[S.TAX_RELEVANCE] = account.taxRelevance || '';
-  row[S.TAX_FORM] = account.taxForm || '';
-  row[S.DEDUCTION_TYPE] = account.deductionType || '';
-  row[S.CREDIT_REPORT_STATUS] = account.creditReportStatus || '';
-  row[S.REMOVAL_DATE] = account.removalDate || '';
-  row[S.DISPUTE_STATUS] = account.disputeStatus || '';
+  row[S.RETENTION_PERIOD] = account.retentionPeriod || '';
   row[S.NOTES] = account.notes || '';
-  row[S.SOURCE] = account.source || '';
+  row[S.TAGS] = account.tags || '';
   row[S.DISCOVERY_STATUS] = account.discoveryStatus || 'Known';
 
   return row;
@@ -216,7 +211,7 @@ export function writeMasterRegisterAccount(account) {
   const row = accountToRow(account);
   const lastRow = sheet.getLastRow();
 
-  sheet.getRange(lastRow + 1, 1, 1, 35).setValues([row]);
+  sheet.getRange(lastRow + 1, 1, 1, 29).setValues([row]);
 
   return true;
 }
