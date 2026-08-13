@@ -1230,6 +1230,25 @@ function doPost(e) {
         return jsonResponse_(ctResult);
       }
 
+      case 'pushCreditorDetail': {
+        var cdV = validatePayload_(payload.rows, ['obligor', 'creditor']);
+        if (!cdV.valid) return errorResponse_(cdV.message);
+        var cdResult = pushCreditorDetail_(ss, payload.rows);
+        updateSyncTimestamp_(ss, 'FWM — Creditor Detail', 'push');
+        return jsonResponse_(cdResult);
+      }
+
+      case 'deleteCreditorDetail': {
+        var tabIds = Array.isArray(payload.tabIds) ? payload.tabIds : [];
+        var keys = Array.isArray(payload.keys) ? payload.keys : [];
+        if (tabIds.length === 0 && keys.length === 0) {
+          return errorResponse_('Provide tabIds (array of Tab #) and/or keys (array of {obligor, creditor})');
+        }
+        var delResult = deleteCreditorDetail_(ss, tabIds, keys);
+        updateSyncTimestamp_(ss, 'FWM — Creditor Detail', 'push');
+        return jsonResponse_(delResult);
+      }
+
       case 'runFunction': {
         if (!payload.functionName || typeof payload.functionName !== 'string') {
           return errorResponse_('runFunction requires a "functionName" field');
@@ -1348,7 +1367,7 @@ function doPost(e) {
       }
 
       default:
-        return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync, pushPrincipalRegister, pushContacts, pushWebsiteAccounts, deleteWebsiteAccounts, importSubstituteW2, importForm1040, importForm2848, importScheduleA, importSchedule1, importSchedule2, importForm8275R, importAdminForms, importWorksheetData, refreshProofOfMailing, runFunction');
+        return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync, pushPrincipalRegister, pushContacts, pushCreditorDetail, deleteCreditorDetail, pushWebsiteAccounts, deleteWebsiteAccounts, importSubstituteW2, importForm1040, importForm2848, importScheduleA, importSchedule1, importSchedule2, importForm8275R, importAdminForms, importWorksheetData, refreshProofOfMailing, runFunction');
     }
 
   } catch (err) {
@@ -2195,6 +2214,131 @@ function pushContacts_(ss, contacts) {
     }
   }
   return { status: 'ok', action: 'pushContacts', imported: imported, updated: updated };
+}
+
+
+/**
+ * Push creditor/entity rows into the "FWM — Creditor Detail" registry.
+ * Columns: A=Tab #, B=Obligor, C=Creditor/Entity, D=EIN, E=TIN Type, F=Name Type,
+ *          G=Address Line 1, H=City, I=State, J=ZIP, K=Country.
+ * Layout: row 1 = title banner, row 2 = column header, data starts row 3.
+ * Upsert key = obligor + '|' + creditor/entity name (case-insensitive).
+ * New rows append with the next Tab # in the obligor's prefix series (C-### / S-###).
+ */
+function pushCreditorDetail_(ss, rows) {
+  var sheet = ss.getSheetByName('FWM — Creditor Detail');
+  if (!sheet) return { status: 'error', action: 'pushCreditorDetail', message: 'FWM — Creditor Detail tab not found' };
+
+  var lastRow = sheet.getLastRow();
+  var headerRow = 2; // row 1 is the title banner; row 2 is the column header
+
+  var keyMap = {}, nextNum = { 'C': 0, 'S': 0 };
+  if (lastRow >= headerRow + 1) {
+    var n = lastRow - headerRow;
+    var tabCol = sheet.getRange(headerRow + 1, 1, n, 1).getValues(); // A
+    var obCol  = sheet.getRange(headerRow + 1, 2, n, 1).getValues(); // B
+    var crCol  = sheet.getRange(headerRow + 1, 3, n, 1).getValues(); // C
+    for (var i = 0; i < n; i++) {
+      var tabVal = String(tabCol[i][0] || '').trim();
+      var obligor = String(obCol[i][0] || '').trim();
+      var creditor = String(crCol[i][0] || '').trim();
+      if (obligor && creditor) {
+        keyMap[(obligor + '|' + creditor).toLowerCase()] = headerRow + 1 + i;
+      }
+      var m = tabVal.match(/^([CS])-(\d+)$/);
+      if (m) {
+        var prefix = m[1], num = parseInt(m[2], 10);
+        if (num > (nextNum[prefix] || 0)) nextNum[prefix] = num;
+      }
+    }
+  }
+
+  var imported = 0, updated = 0, skipped = 0;
+  for (var r = 0; r < rows.length; r++) {
+    var row = rows[r];
+    var obligor = (row.obligor || '').trim();
+    var creditor = (row.creditor || '').trim();
+    if (!obligor || !creditor) { skipped++; continue; }
+
+    var prefix = obligor.toLowerCase().indexOf('syrina') >= 0 ? 'S' : 'C';
+    var key = (obligor + '|' + creditor).toLowerCase();
+
+    var values = [
+      '', // Tab # (filled below)
+      obligor,
+      creditor,
+      row.ein || '',
+      row.tinType || 'EIN',
+      row.nameType || 'B',
+      row.addr || '',
+      row.city || '',
+      row.state || '',
+      row.zip || '',
+      row.country || 'US'
+    ];
+
+    if (keyMap[key]) {
+      values[0] = String(sheet.getRange(keyMap[key], 1).getValue() || '').trim();
+      sheet.getRange(keyMap[key], 1, 1, 11).setValues([values]);
+      updated++;
+    } else {
+      nextNum[prefix] = (nextNum[prefix] || 0) + 1;
+      values[0] = prefix + '-' + String(nextNum[prefix]).padStart(3, '0');
+      sheet.appendRow(values);
+      keyMap[key] = sheet.getLastRow();
+      imported++;
+    }
+  }
+
+  SpreadsheetApp.flush();
+  return { status: 'ok', action: 'pushCreditorDetail', imported: imported, updated: updated, skipped: skipped };
+}
+
+
+/**
+ * Delete rows from "FWM — Creditor Detail" by Tab # (e.g. C-013) or by obligor|creditor key.
+ * @param {Array<string>} tabIds - exact Tab # values to delete (highest priority).
+ * @param {Array<Object>} keys - {obligor, creditor} pairs to delete.
+ */
+function deleteCreditorDetail_(ss, tabIds, keys) {
+  var sheet = ss.getSheetByName('FWM — Creditor Detail');
+  if (!sheet) return { status: 'error', action: 'deleteCreditorDetail', message: 'FWM — Creditor Detail tab not found' };
+
+  var lastRow = sheet.getLastRow();
+  var headerRow = 2;
+  var toDelete = {}; // sheet row number -> true
+
+  if (lastRow >= headerRow + 1) {
+    var n = lastRow - headerRow;
+    var tabCol = sheet.getRange(headerRow + 1, 1, n, 1).getValues();
+    var obCol  = sheet.getRange(headerRow + 1, 2, n, 1).getValues();
+    var crCol  = sheet.getRange(headerRow + 1, 3, n, 1).getValues();
+
+    var tabSet = {};
+    (tabIds || []).forEach(function (t) { if (t) tabSet[String(t).trim()] = true; });
+    var keySet = {};
+    (keys || []).forEach(function (k) {
+      if (k && k.obligor && k.creditor) keySet[(k.obligor + '|' + k.creditor).toLowerCase()] = true;
+    });
+
+    for (var i = 0; i < n; i++) {
+      var tabVal = String(tabCol[i][0] || '').trim();
+      var obligor = String(obCol[i][0] || '').trim();
+      var creditor = String(crCol[i][0] || '').trim();
+      var rowNum = headerRow + 1 + i;
+      if (tabSet[tabVal]) { toDelete[rowNum] = true; continue; }
+      if (keySet[(obligor + '|' + creditor).toLowerCase()]) { toDelete[rowNum] = true; }
+    }
+  }
+
+  // Delete bottom-up so row numbers stay valid.
+  var rowNums = Object.keys(toDelete).map(Number).sort(function (a, b) { return b - a; });
+  for (var d = 0; d < rowNums.length; d++) {
+    sheet.deleteRow(rowNums[d]);
+  }
+
+  SpreadsheetApp.flush();
+  return { status: 'ok', action: 'deleteCreditorDetail', deleted: rowNums.length };
 }
 
 
