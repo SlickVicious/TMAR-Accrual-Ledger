@@ -42186,15 +42186,67 @@ async function dtSend() {
   if (!input) return;
   var msg = input.value.trim();
   if (!msg) return;
+
+  // Guard: reject send if any FileReader callbacks haven't fired yet
+  if ((window._dtPendingLoads || 0) > 0) {
+    alert('Files are still loading — please wait a moment and try again.');
+    return;
+  }
   input.value = '';
 
   var msgs = document.getElementById('dtChatMsgs');
   if (!msgs) return;
 
+  // Build user content — include any file attachments (mirrors eonChatSend's pattern)
+  var attachments = (window._dtAttachments || []).filter(Boolean);
+  var userContent;
+  if (attachments.length === 0) {
+    userContent = msg;
+  } else {
+    var activePid = localStorage.getItem('eeon_active_provider') || 'claude';
+    var isAnthropic = (activePid === 'claude' || activePid === 'anthropic');
+    if (isAnthropic) {
+      // Anthropic enforces a 5 PDF document limit per request
+      var pdfAtts = attachments.filter(function(a) { return a.type === 'pdf'; });
+      var nonPdfAtts = attachments.filter(function(a) { return a.type !== 'pdf'; });
+      if (pdfAtts.length > 5) {
+        alert('Anthropic supports up to 5 PDF documents per message. Only the first 5 will be sent.');
+        pdfAtts = pdfAtts.slice(0, 5);
+      }
+      userContent = [];
+      pdfAtts.concat(nonPdfAtts).forEach(function(att) {
+        if (att.type === 'pdf') {
+          userContent.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: att.base64 } });
+        } else if (att.type === 'image') {
+          userContent.push({ type: 'image', source: { type: 'base64', media_type: att.mediaType || 'image/png', data: att.base64 } });
+        } else {
+          userContent.push({ type: 'text', text: '═══ FILE: ' + att.name + ' ═══\n' + att.content + '\n═══ END ═══' });
+        }
+      });
+      userContent.push({ type: 'text', text: msg });
+    } else {
+      var injected = '\n\n═══ UPLOADED DOCUMENTS ═══\n';
+      attachments.forEach(function(att) {
+        if (att.type === 'pdf') {
+          injected += '\n[PDF: ' + att.name + ' — switch to Claude provider for full PDF reading]\n';
+        } else if (att.type === 'image') {
+          injected += '\n[Image: ' + att.name + ' — switch to Claude (Anthropic) provider for image analysis]\n';
+        } else {
+          injected += '\n[File: ' + att.name + ']\n' + att.content + '\n';
+        }
+      });
+      userContent = msg + injected;
+    }
+    window._dtAttachments = [];
+    var fp = document.getElementById('dtFilePreview');
+    if (fp) { fp.innerHTML = ''; fp.style.display = 'none'; }
+  }
+
   // User bubble
   var userDiv = document.createElement('div');
   userDiv.style.cssText = 'margin-bottom:12px;padding:8px 12px;background:rgba(0,229,255,.08);border-radius:8px;border-left:3px solid #3b82f6';
-  userDiv.innerHTML = '<strong style="color:#3b82f6">You:</strong> ' + msg.replace(/</g,'&lt;');
+  userDiv.innerHTML = '<strong style="color:#3b82f6">You:</strong> ' + msg.replace(/</g,'&lt;') +
+    (attachments.length ? ' <span style="color:#94a3b8;font-size:11px">(' + attachments.length + ' file' + (attachments.length > 1 ? 's' : '') + ' attached)</span>' : '');
   msgs.appendChild(userDiv);
   msgs.scrollTop = msgs.scrollHeight;
 
@@ -42224,7 +42276,7 @@ async function dtSend() {
     var memories = [];
     try { memories = (await MEM0.search(msg, 4)) || []; } catch(e) {}
 
-    var finalText = await callLLMStream(sysPrompt, msg, memories, function(tok) {
+    var finalText = await callLLMStream(sysPrompt, userContent, memories, function(tok) {
       rawBuf += tok;
       agentDiv.innerHTML = '<strong style="color:#ffd700">Dream Team:</strong> ' +
         rawBuf.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
@@ -42482,8 +42534,6 @@ function calcBuyback() {
     ? 'Net repurchase base under $10M de minimis threshold (IRC §4501(e)) — no excise tax due.'
     : 'Excise tax ' + fmt(tax) + ' due. Report on Form 720 by April 30 of following calendar year. Not deductible per IRC §4501(f).';
 }
-
-function dtHandleFiles() { alert('Dream Team file upload'); }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    EEON FOUNDATION TAX SYSTEM — STATE + FORM BUILDER + SYNC BRIDGE
@@ -46279,10 +46329,22 @@ function pdkbCallLLM(prompt, options, onProgress) {
   // Anthropic-sized 100000 to an OpenAI-compatible endpoint like DeepSeek.
   var cap = maxOutputTokens(pid);
   var maxTokens = Math.min(options.maxTokens || cap, cap);
-  // Long timeout — streaming keeps connection alive so we just need to handle stalls
-  var timeout = options.timeout || 300000;
+  // Two separate guards, matching callLLMStream(): a connect timer for "the server never
+  // answered" (cleared once headers arrive), and a sliding stall timer that resets on every
+  // streamed chunk. This used to be one flat 300s timer that was never reset once streaming
+  // started, so a transcript large enough to legitimately stream past 5 minutes got hard-aborted
+  // mid-stream — reported as "stalled" even though tokens were still actively arriving.
+  var CONNECT_MS = options.connectTimeout || 90000;
+  var STALL_MS = options.stallTimeout || 120000;
   var controller = new AbortController();
-  var timer = setTimeout(function(){ controller.abort(); }, timeout);
+  var timedOutOn = '';
+  var connectTimer = setTimeout(function(){ timedOutOn = 'connect'; controller.abort(); }, CONNECT_MS);
+  var stallTimer = null;
+  function armStall() {
+    if (stallTimer) clearTimeout(stallTimer);
+    stallTimer = setTimeout(function(){ timedOutOn = 'stall'; controller.abort(); }, STALL_MS);
+  }
+  function disarmStall() { if (stallTimer) { clearTimeout(stallTimer); stallTimer = null; } }
 
   var url = r.url;
   var headers = { 'Content-Type': 'application/json' };
@@ -46307,21 +46369,21 @@ function pdkbCallLLM(prompt, options, onProgress) {
 
   return fetch(url, { method: 'POST', headers: headers, body: body, signal: controller.signal })
   .then(function(resp) {
+    clearTimeout(connectTimer);
     if (!resp.ok) {
-      clearTimeout(timer);
       return resp.text().then(function(bodyText) {
         return { success: false, error: { type: 'api_error', provider: p.name, status: resp.status, statusText: resp.statusText, message: '[' + p.name + '] ' + bodyText } };
       });
     }
     if (!streams) {   // Ernie has no SSE stream
-      clearTimeout(timer);
       return resp.json().then(function(d) {
         var text = (d && d.result) || '';
         if (text && typeof onProgress === 'function') onProgress(text);
         return { success: true, result: text };
       });
     }
-    // Streaming reader — tokens arrive immediately, no bulk-wait timeout
+    // Streaming reader — the stall timer resets on every chunk (armStall below), so total
+    // duration is unbounded as long as data keeps arriving; only genuine silence aborts it.
     var reader = resp.body.getReader();
     var decoder = new TextDecoder();
     var accumulated = '';
@@ -46333,12 +46395,14 @@ function pdkbCallLLM(prompt, options, onProgress) {
       if (typeof onProgress === 'function') onProgress(accumulated);
     }
 
+    armStall();
     function pump() {
       return reader.read().then(function(chunk) {
         if (chunk.done) {
-          clearTimeout(timer);
+          disarmStall();
           return { success: true, result: accumulated };
         }
+        armStall();                       // each chunk resets the stall clock
         sseBuffer += decoder.decode(chunk.value, { stream: true });
         var lines = sseBuffer.split('\n');
         sseBuffer = lines.pop(); // hold incomplete last line
@@ -46365,9 +46429,13 @@ function pdkbCallLLM(prompt, options, onProgress) {
     return pump();
   })
   .catch(function(err) {
-    clearTimeout(timer);
+    clearTimeout(connectTimer);
+    disarmStall();
     if (err.name === 'AbortError') {
-      return { success: false, error: { type: 'timeout', message: 'Request stalled — no response from ' + p.name + ' after ' + Math.round(timeout/1000) + 's. Check network or configure a CORS proxy in Settings.' } };
+      var msg = (timedOutOn === 'stall')
+        ? 'The provider opened the stream then stopped sending tokens (no data for ' + Math.round(STALL_MS/1000) + 's). Aborted.'
+        : 'No response from ' + p.name + ' after ' + Math.round(CONNECT_MS/1000) + 's — the request never connected. Check network or configure a CORS proxy in Settings.';
+      return { success: false, error: { type: 'timeout', message: '[' + p.name + '] ' + msg } };
     }
     return { success: false, error: { type: 'network_error', message: '[' + p.name + '] ' + err.message } };
   });
@@ -47022,8 +47090,16 @@ function ttProcessTrackerPrompt(markdown) {
 // already used by ttMarkdownToExportedHtml's toggleJs.
 function ttTrackerInjectEmbeddedData(templateHtml, data) {
   var tag = '<script id="embedded-data" type="application/json">' + JSON.stringify(data) + '<\/script>';
-  if (/<\/head>/i.test(templateHtml)) return templateHtml.replace(/<\/head>/i, tag + '\n</head>');
-  return tag + '\n' + templateHtml;
+  // Every _engine.html template ships its own default "Ready — no data loaded" placeholder
+  // under this same id (and a previously-generated tracker file, if picked by mistake as the
+  // template, carries a real one). getElementById() only ever returns the FIRST match in the
+  // DOM, so appending a second tag without removing the first left the old one permanently
+  // shadowing whatever was injected — the dashboard rendered the placeholder's single Overview
+  // tab forever, regardless of what data this function produced. Strip any existing tag first
+  // so there is always exactly one.
+  var stripped = templateHtml.replace(/<script\b[^>]*\bid=["']embedded-data["'][^>]*>[\s\S]*?<\/script>/i, '');
+  if (/<\/head>/i.test(stripped)) return stripped.replace(/<\/head>/i, tag + '\n</head>');
+  return tag + '\n' + stripped;
 }
 
 function ttTrackerSlug(text) {
@@ -54462,33 +54538,96 @@ function createAgent() {
 }
 
 // ── DREAM TEAM FILE UPLOAD ────────────────────────────────────
+// Feeds window._dtAttachments, consumed by dtSend() the same way eonChatSend()
+// consumes window._chatAttachments — PDFs/images are base64-encoded, not just
+// text-sniffed, and every file (not just the first) is read.
 
 function dtHandleFiles(input) {
   if (!input || !input.files || !input.files.length) return;
+  if (!window._dtAttachments) window._dtAttachments = [];
+  if (window._dtPendingLoads == null) window._dtPendingLoads = 0;
+
+  var MAX_FILES = 10;
+  var existingCount = window._dtAttachments.filter(Boolean).length;
+  if (existingCount >= MAX_FILES) {
+    alert('Maximum ' + MAX_FILES + ' files per message.');
+    input.value = '';
+    return;
+  }
+  var allowedCount = MAX_FILES - existingCount;
+  var allFiles = Array.from(input.files);
+  if (allFiles.length > allowedCount) {
+    alert('Adding ' + allowedCount + ' file(s) — max ' + MAX_FILES + ' per message.');
+    allFiles = allFiles.slice(0, allowedCount);
+  }
+
   var preview = document.getElementById('dtFilePreview');
-  if (preview) {
-    preview.style.display = 'flex';
-    Array.from(input.files).forEach(function(file) {
-      var chip = document.createElement('div');
-      chip.style.cssText = 'padding:4px 10px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);border-radius:20px;font-size:11px;color:#ffd700;display:flex;align-items:center;gap:5px';
-      chip.innerHTML = '📎 ' + file.name.substring(0,30) + (file.name.length>30?'…':'') +
-        ' <span onclick="this.parentElement.remove()" style="cursor:pointer;color:#ef4444;font-size:14px">×</span>';
-      preview.appendChild(chip);
-    });
-  }
-  // Read first file and append to input context
-  var reader = new FileReader();
-  reader.onload = function(ev) {
-    var input = document.getElementById('dtInput');
-    if (input) {
-      input.value = (input.value ? input.value + '\n\n' : '') +
-        '[Attached: ' + Array.from(input.files||[]).map(function(f){return f.name;}).join(', ') + ']\n' +
-        (ev.target.result||'').substring(0,2000);
+  allFiles.forEach(function(file) {
+    var isPdf   = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    var isImage = file.type.startsWith('image/');
+    var reader  = new FileReader();
+    window._dtPendingLoads++;
+    if (isPdf) {
+      reader.onload = function(e) {
+        var raw = e.target.result || '';
+        var comma = raw.indexOf(',');
+        var base64 = (comma >= 0 ? raw.slice(comma + 1) : raw).replace(/\s+/g, '');
+        window._dtPendingLoads = Math.max(0, window._dtPendingLoads - 1);
+        if (!base64) return;
+        var idx = window._dtAttachments.length;
+        window._dtAttachments.push({ name: file.name, type: 'pdf', base64: base64 });
+        _dtAddAttachPill(file.name, idx);
+        if (preview) preview.style.display = 'flex';
+      };
+      reader.onerror = function() { window._dtPendingLoads = Math.max(0, window._dtPendingLoads - 1); };
+      reader.readAsDataURL(file);
+    } else if (isImage) {
+      reader.onload = function(e) {
+        var raw = e.target.result || '';
+        var comma = raw.indexOf(',');
+        var base64 = (comma >= 0 ? raw.slice(comma + 1) : raw).replace(/\s+/g, '');
+        window._dtPendingLoads = Math.max(0, window._dtPendingLoads - 1);
+        if (!base64) return;
+        var idx = window._dtAttachments.length;
+        window._dtAttachments.push({ name: file.name, type: 'image', base64: base64, mediaType: file.type || 'image/png' });
+        _dtAddAttachPill(file.name, idx);
+        if (preview) preview.style.display = 'flex';
+      };
+      reader.onerror = function() { window._dtPendingLoads = Math.max(0, window._dtPendingLoads - 1); };
+      reader.readAsDataURL(file);
+    } else {
+      reader.onload = function(e) {
+        window._dtPendingLoads = Math.max(0, window._dtPendingLoads - 1);
+        var idx = window._dtAttachments.length;
+        window._dtAttachments.push({ name: file.name, type: 'text', content: e.target.result });
+        _dtAddAttachPill(file.name, idx);
+        if (preview) preview.style.display = 'flex';
+      };
+      reader.onerror = function() { window._dtPendingLoads = Math.max(0, window._dtPendingLoads - 1); };
+      reader.readAsText(file);
     }
-  };
-  if (input.files[0].type.startsWith('text') || input.files[0].name.match(/\.(txt|md|json|csv|html|log)$/i)) {
-    reader.readAsText(input.files[0]);
-  }
+  });
+  input.value = '';
+}
+
+function _dtAddAttachPill(name, idx) {
+  var preview = document.getElementById('dtFilePreview');
+  if (!preview) return;
+  preview.style.display = 'flex';
+  var pill = document.createElement('div');
+  pill.id = 'dt-attach-pill-' + idx;
+  pill.style.cssText = 'padding:4px 10px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);border-radius:20px;font-size:11px;color:#ffd700;display:flex;align-items:center;gap:5px';
+  pill.innerHTML = '📎 ' + escHtml(name.substring(0,30)) + (name.length > 30 ? '…' : '') +
+    ' <span onclick="_dtRemoveAttach(' + idx + ')" style="cursor:pointer;color:#ef4444;font-size:14px">×</span>';
+  preview.appendChild(pill);
+}
+
+function _dtRemoveAttach(idx) {
+  if (window._dtAttachments) window._dtAttachments[idx] = null;
+  var pill = document.getElementById('dt-attach-pill-' + idx);
+  if (pill) pill.remove();
+  var preview = document.getElementById('dtFilePreview');
+  if (preview && !preview.querySelector('[id^="dt-attach-pill-"]')) preview.style.display = 'none';
 }
 
 // ── PAGE INIT HOOKS ───────────────────────────────────────────
