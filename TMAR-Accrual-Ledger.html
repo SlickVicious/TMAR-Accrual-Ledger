@@ -16003,6 +16003,11 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
         <span style="border-left:1px solid rgba(255,255,255,.1);margin:0 4px"></span>
         <button onclick="applyFiduciaryStandard()" title="Conform to fiduciary-doc-factory Profile B: Times New Roman 12pt, 1in margins, justified, black-on-white" style="padding:6px 12px;border:1px solid rgba(168,85,247,.4);border-radius:4px;background:rgba(168,85,247,.12);color:#a855f7;cursor:pointer;font-weight:700;font-size:11px">⚖ Fiduciary Standard</button>
         <span style="border-left:1px solid rgba(255,255,255,.1);margin:0 4px"></span>
+        <button onclick="docEditorReview('review')" title="List grammar, citation, and AI-tell issues without changing the document" style="padding:6px 12px;border:1px solid rgba(212,160,23,.4);border-radius:4px;background:rgba(212,160,23,.12);color:#d4a017;cursor:pointer;font-weight:700;font-size:11px">🔍 Review</button>
+        <button onclick="docEditorReview('humanize')" title="Rewrite to remove hedging and AI-typical phrasing, same facts and citations" style="padding:6px 12px;border:1px solid rgba(212,160,23,.4);border-radius:4px;background:rgba(212,160,23,.12);color:#d4a017;cursor:pointer;font-weight:700;font-size:11px">🖋 Humanize</button>
+        <button onclick="docEditorReview('proofread')" title="Fix only spelling, grammar, and punctuation — voice and citations untouched" style="padding:6px 12px;border:1px solid rgba(212,160,23,.4);border-radius:4px;background:rgba(212,160,23,.12);color:#d4a017;cursor:pointer;font-weight:700;font-size:11px">✓ Proofread</button>
+        <button onclick="docStripAIMarkers()" title="Instantly strip known AI-tell phrases (no LLM call)" style="padding:6px 12px;border:1px solid rgba(212,160,23,.4);border-radius:4px;background:rgba(212,160,23,.12);color:#d4a017;cursor:pointer;font-weight:700;font-size:11px">🛡 Strip AI Markers</button>
+        <span style="border-left:1px solid rgba(255,255,255,.1);margin:0 4px"></span>
         <button onclick="exportDocPDF()" style="padding:6px 12px;border:1px solid rgba(239,68,68,.3);border-radius:4px;background:rgba(239,68,68,.1);color:#ef4444;cursor:pointer;font-weight:700;font-size:11px">📄 PDF</button>
         <button onclick="exportDocWord()" style="padding:6px 12px;border:1px solid rgba(59,130,246,.3);border-radius:4px;background:rgba(59,130,246,.1);color:#3b82f6;cursor:pointer;font-weight:700;font-size:11px">📝 Word</button>
         <button onclick="printDoc()" style="padding:6px 12px;border:1px solid rgba(16,185,129,.3);border-radius:4px;background:rgba(16,185,129,.1);color:#10b981;cursor:pointer;font-weight:700;font-size:11px">🖨️ Print</button>
@@ -27672,6 +27677,12 @@ async function ev2SafeFetch(url, options) {
         errMsg.indexOf('NetworkError') !== -1 ||
         errMsg.indexOf('Failed to fetch') !== -1 ||
         errMsg.indexOf('Load failed') !== -1) {
+      // Retry through the configured CORS proxy (Settings → API Keys → CORS Proxy URL)
+      // before giving up — the Worker allowlists SEC IAPD / CFPB, which refuse direct
+      // browser CORS. Falls through to the manual-lookup error if no proxy is set or
+      // the proxy itself fails.
+      var proxied = await ev2FetchViaProxy(url, fetchOpts);
+      if (proxied) return proxied;
       return {
         ok: false,
         status: 0,
@@ -27688,6 +27699,26 @@ async function ev2SafeFetch(url, options) {
       json: null,
       error: 'Network error: ' + errMsg
     };
+  }
+}
+
+/**
+ * Retries a request through the CORS proxy configured in Settings (eeon_cors_proxy).
+ * Returns a normalized response object, or null if no proxy is configured or the
+ * proxy request itself fails — callers fall back to their original CORS error.
+ */
+async function ev2FetchViaProxy(url, fetchOpts) {
+  var proxy = (localStorage.getItem('eeon_cors_proxy') || '').replace(/\/$/, '');
+  if (!proxy) return null;
+  try {
+    var response = await fetch(proxy + '?url=' + encodeURIComponent(url), fetchOpts);
+    var bodyText = '';
+    try { bodyText = await response.text(); } catch (e) { bodyText = ''; }
+    var jsonData = null;
+    if (bodyText) { try { jsonData = JSON.parse(bodyText); } catch (e) { jsonData = null; } }
+    return { ok: response.ok, status: response.status, body: bodyText, json: jsonData, error: response.ok ? null : 'HTTP ' + response.status };
+  } catch (e) {
+    return null;
   }
 }
 
@@ -36490,8 +36521,8 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 
 <aside class="sidebar" id="eonSidebar" data-theme="dark" style="display:none">
   <div style="padding:8px 0 16px;border-bottom:1px solid var(--border-color);margin-bottom:8px">
-    <div style="font-size:18px;font-weight:700;color:var(--accent-green)">🏛️ E2ZERO AGENT</div>
-    <div style="font-size:11px;color:var(--text-secondary)">TMAR + AI Platform</div>
+    <div style="font-size:18px;font-weight:700;color:var(--accent-green)">🏛️ TMAR AGENT SUITE</div>
+    <div style="font-size:11px;color:var(--text-secondary)">Legal &amp; Financial AI Platform</div>
   </div>
 
   <div class="sidebar-title">MAIN</div>
@@ -36540,6 +36571,9 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <button class="side-btn" onclick="goEonPage(this,'calendar')"><i class="fas fa-calendar-alt" style="width:18px"></i> Calendar</button>
   <button class="side-btn" onclick="goEonPage(this,'vault')"><i class="fas fa-lock" style="width:18px"></i> Passwords</button>
   <button class="side-btn" onclick="goEonPage(this,'gmailify')" style="border-left:3px solid #ea4335"><i class="fas fa-envelope" style="width:18px;color:#ea4335"></i> E-Mailify</button>
+  <button class="side-btn" onclick="goEonPage(this,'prompts')" style="border-left:3px solid #8b5cf6"><i class="fas fa-list-check" style="width:18px;color:#8b5cf6"></i> Prompt Library</button>
+  <button class="side-btn" onclick="goEonPage(this,'ai_browser')" style="border-left:3px solid #00c48c"><i class="fas fa-globe" style="width:18px;color:#00c48c"></i> AI Browser</button>
+  <button class="side-btn" onclick="goEonPage(this,'downloader')" style="border-left:3px solid #f5a623"><i class="fas fa-download" style="width:18px;color:#f5a623"></i> Downloader</button>
 
   <div class="sidebar-title">SPECIALISTS</div>
   <button class="side-btn" onclick="goEonPage(this,'corporation')"><i class="fas fa-building" style="width:18px"></i> Corporation</button>
@@ -41628,6 +41662,63 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
     </div>
 </div>
 
+<!-- EON: PROMPT LIBRARY -->
+<div class="page" id="page-prompts">
+<div class="card" style="border-color:#8b5cf6">
+  <div class="card-head" style="color:#8b5cf6;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+    <span>📋 Prompt Library</span>
+    <input id="plSearch" type="text" placeholder="Filter saved prompts…" oninput="plRender()" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:var(--input-bg);color:var(--text);font-size:12px;min-width:200px">
+  </div>
+  <div class="card-body">
+    <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Save reusable prompts and reuse them from Chat. Type <code>/</code> in the Chat box to autocomplete a saved prompt by title. Use <code>{{variable}}</code> placeholders — Insert asks for each one.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+      <input id="plTitle" type="text" placeholder="Title" style="flex:1;min-width:160px;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--input-bg);color:var(--text);font-size:12px">
+      <input id="plTags" type="text" placeholder="tags (comma-separated)" style="flex:1;min-width:160px;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--input-bg);color:var(--text);font-size:12px">
+    </div>
+    <textarea id="plText" rows="3" placeholder="Prompt text… use {{variable}} for placeholders" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--input-bg);color:var(--text);font-size:12px;font-family:inherit;resize:vertical;margin-bottom:8px"></textarea>
+    <button class="btn btn-primary btn-sm" onclick="plSave()">💾 Save Prompt</button>
+    <div id="plList" style="margin-top:16px;display:flex;flex-direction:column;gap:8px"></div>
+  </div>
+</div>
+</div>
+
+<!-- EON: AI BROWSER -->
+<div class="page" id="page-ai_browser">
+<div class="card" style="border-color:#00c48c">
+  <div class="card-head" style="color:#00c48c">🌐 AI Browser</div>
+  <div class="card-body">
+    <p style="font-size:12px;color:var(--text2);margin-bottom:14px">Jump into the internal agent chat, or open an external AI service in a new tab. External services send X-Frame-Options/CSP headers that block embedding, so this opens them directly instead of showing a broken iframe.</p>
+    <button class="btn btn-primary" onclick="goEonPage(null,'chat')" style="margin-bottom:16px">🤖 Open Internal Agent Chat</button>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px">
+      <a class="btn" target="_blank" rel="noopener" href="https://chat.openai.com" style="text-decoration:none;text-align:center">ChatGPT ↗</a>
+      <a class="btn" target="_blank" rel="noopener" href="https://claude.ai" style="text-decoration:none;text-align:center">Claude ↗</a>
+      <a class="btn" target="_blank" rel="noopener" href="https://gemini.google.com" style="text-decoration:none;text-align:center">Gemini ↗</a>
+      <a class="btn" target="_blank" rel="noopener" href="https://www.perplexity.ai" style="text-decoration:none;text-align:center">Perplexity ↗</a>
+      <a class="btn" target="_blank" rel="noopener" href="https://grok.com" style="text-decoration:none;text-align:center">Grok ↗</a>
+      <a class="btn" target="_blank" rel="noopener" href="https://www.deepseek.com" style="text-decoration:none;text-align:center">DeepSeek ↗</a>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- EON: DOWNLOADER -->
+<div class="page" id="page-downloader">
+<div class="card" style="border-color:#f5a623">
+  <div class="card-head" style="color:#f5a623">⬇️ Downloader</div>
+  <div class="card-body">
+    <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Fetch a direct file URL and save it locally. Works for URLs the host serves with permissive CORS (raw GitHub, public buckets, etc.) — a browser fetch can't read cross-origin bytes without the host's consent, so a blocked URL opens in a new tab instead where your browser can save it directly.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+      <input id="dlUrl" type="url" placeholder="https://example.com/file.pdf" style="flex:1;min-width:240px;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--input-bg);color:var(--text);font-size:12px">
+      <input id="dlName" type="text" placeholder="save as (optional)" style="width:180px;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--input-bg);color:var(--text);font-size:12px">
+      <button class="btn btn-primary btn-sm" onclick="dlFetch()">⬇ Download</button>
+    </div>
+    <div id="dlStatus" style="font-size:12px;color:var(--text2);margin-bottom:12px"></div>
+    <div style="font-size:11px;color:var(--text2);font-weight:700;letter-spacing:.5px;margin-bottom:6px">HISTORY</div>
+    <div id="dlHistory" style="display:flex;flex-direction:column;gap:6px;font-size:12px"></div>
+  </div>
+</div>
+</div>
+
 <!-- ── Bottom clearance spacer for all EON pages ── -->
 <div style="height:80px;width:100%;display:block;flex-shrink:0;pointer-events:none"></div>
 
@@ -41791,7 +41882,162 @@ function initEonPage(page) {
     if (w && !w.querySelector('.irs-form-wrap')) onYearChange(EEON_STATE.year);
   } else if (page === 'eeonfull') {
     initEmbeddedEeonSuite();
+  } else if (page === 'prompts') {
+    plRender();
+  } else if (page === 'downloader') {
+    dlRenderHistory();
   }
+}
+
+// Auto-open a specific EoN page via ?tmarpage=<id> — used by tools/TMAR-Master-Command.html
+window.addEventListener('load', function() {
+  var qp = new URLSearchParams(location.search).get('tmarpage');
+  if (!qp) return;
+  var sidebar = document.getElementById('eonSidebar');
+  if (sidebar && sidebar.style.display === 'none') toggleEonSidebar();
+  goEonPage(null, qp);
+});
+
+// ===== Prompt Library (save/reuse prompts, slash-command autocomplete, {{variable}} substitution) =====
+var PL_KEY = 'tmar_prompt_library';
+function plGetAll() { try { return JSON.parse(localStorage.getItem(PL_KEY) || '[]'); } catch(e) { return []; } }
+function plSetAll(arr) { localStorage.setItem(PL_KEY, JSON.stringify(arr)); }
+function plEsc(s) { return String(s).replace(/[&<>]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
+function plSave() {
+  var title = document.getElementById('plTitle').value.trim();
+  var text = document.getElementById('plText').value.trim();
+  var tags = document.getElementById('plTags').value.trim();
+  if (!title || !text) { alert('Title and prompt text are required.'); return; }
+  var arr = plGetAll();
+  arr.unshift({ id: 'pl_' + Date.now(), title: title, text: text, tags: tags, created: new Date().toISOString() });
+  plSetAll(arr);
+  document.getElementById('plTitle').value = '';
+  document.getElementById('plTags').value = '';
+  document.getElementById('plText').value = '';
+  plRender();
+}
+function plDelete(id) {
+  plSetAll(plGetAll().filter(function(p){ return p.id !== id; }));
+  plRender();
+}
+function plFillVars(text) {
+  var vars = {};
+  return text.replace(/\{\{(\w+)\}\}/g, function(m, name) {
+    if (!(name in vars)) vars[name] = window.prompt('Value for "' + name + '":', '') || '';
+    return vars[name];
+  });
+}
+function plInsert(id) {
+  var p = plGetAll().find(function(x){ return x.id === id; });
+  if (!p) return;
+  var text = plFillVars(p.text);
+  goEonPage(null, 'chat');
+  var input = document.getElementById('chatInput');
+  if (input) { input.value = text; input.focus(); }
+}
+function plCopy(id) {
+  var p = plGetAll().find(function(x){ return x.id === id; });
+  if (p && navigator.clipboard) navigator.clipboard.writeText(p.text);
+}
+function plRender() {
+  var q = ((document.getElementById('plSearch') || {}).value || '').toLowerCase();
+  var arr = plGetAll().filter(function(p) {
+    return !q || p.title.toLowerCase().indexOf(q) > -1 || (p.tags||'').toLowerCase().indexOf(q) > -1 || p.text.toLowerCase().indexOf(q) > -1;
+  });
+  var list = document.getElementById('plList');
+  if (!list) return;
+  if (!arr.length) { list.innerHTML = '<p style="font-size:12px;color:var(--text2)">No saved prompts yet.</p>'; return; }
+  list.innerHTML = arr.map(function(p) {
+    return '<div style="border:1px solid var(--border);border-radius:8px;padding:10px 12px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">' +
+      '<b style="font-size:13px">' + plEsc(p.title) + '</b>' +
+      '<div style="display:flex;gap:6px">' +
+      '<button class="btn btn-sm" onclick="plInsert(\'' + p.id + '\')">➤ Insert</button>' +
+      '<button class="btn btn-sm" onclick="plCopy(\'' + p.id + '\')">📋 Copy</button>' +
+      '<button class="btn btn-sm" style="color:var(--err)" onclick="plDelete(\'' + p.id + '\')">🗑</button>' +
+      '</div></div>' +
+      (p.tags ? '<div style="font-size:10px;color:var(--accent);margin-top:2px">' + plEsc(p.tags) + '</div>' : '') +
+      '<div style="font-size:12px;color:var(--text2);margin-top:6px;white-space:pre-wrap">' + plEsc(p.text) + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+// Slash-command autocomplete: typing "/title" in the chat box shows matching saved prompts
+var plSlashBox = null;
+document.addEventListener('input', function(e) {
+  if (e.target && e.target.id === 'chatInput') plSlashCheck(e.target);
+});
+function plSlashCheck(input) {
+  var m = /(^|\s)\/(\w*)$/.exec(input.value);
+  if (!m) { plSlashClose(); return; }
+  var q = m[2].toLowerCase();
+  var matches = plGetAll().filter(function(p){ return p.title.toLowerCase().indexOf(q) > -1; }).slice(0, 6);
+  if (!matches.length) { plSlashClose(); return; }
+  if (!plSlashBox) {
+    plSlashBox = document.createElement('div');
+    plSlashBox.id = 'plSlashBox';
+    plSlashBox.style.cssText = 'position:absolute;bottom:60px;left:70px;right:70px;background:var(--bg2,#0d1330);border:1px solid #8b5cf6;border-radius:8px;max-height:200px;overflow-y:auto;z-index:1000';
+    input.parentElement.style.position = 'relative';
+    input.parentElement.appendChild(plSlashBox);
+  }
+  plSlashBox.innerHTML = matches.map(function(p) {
+    return '<div style="padding:8px 12px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--border)" onmousedown="plSlashPick(\'' + p.id + '\')">/' + plEsc(p.title) + '</div>';
+  }).join('');
+}
+function plSlashPick(id) {
+  var p = plGetAll().find(function(x){ return x.id === id; });
+  plSlashClose();
+  if (!p) return;
+  var input = document.getElementById('chatInput');
+  input.value = input.value.replace(/(^|\s)\/(\w*)$/, '$1' + plFillVars(p.text));
+  input.focus();
+}
+function plSlashClose() { if (plSlashBox) { plSlashBox.remove(); plSlashBox = null; } }
+document.addEventListener('click', function(e) {
+  if (plSlashBox && e.target.id !== 'chatInput' && !plSlashBox.contains(e.target)) plSlashClose();
+});
+
+// ===== Downloader (URL fetch + save, with history) =====
+// ponytail: cross-origin fetch only works when the host sends permissive CORS headers;
+// a blocked host falls back to window.open so the browser's native save still works.
+var DL_KEY = 'tmar_downloader_history';
+function dlHistGet() { try { return JSON.parse(localStorage.getItem(DL_KEY) || '[]'); } catch(e) { return []; } }
+function dlHistAdd(entry) {
+  var arr = dlHistGet(); arr.unshift(entry);
+  localStorage.setItem(DL_KEY, JSON.stringify(arr.slice(0, 50)));
+  dlRenderHistory();
+}
+function dlRenderHistory() {
+  var el = document.getElementById('dlHistory'); if (!el) return;
+  var arr = dlHistGet();
+  el.innerHTML = arr.length ? arr.map(function(h) {
+    return '<div style="display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid var(--border);padding:4px 0">' +
+      '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + plEsc(h.name) + '</span>' +
+      '<span style="color:' + (h.ok ? '#00c48c' : 'var(--err)') + ';white-space:nowrap">' + (h.ok ? 'saved' : 'opened') + ' · ' + new Date(h.at).toLocaleString() + '</span></div>';
+  }).join('') : '<p style="color:var(--text2)">No downloads yet.</p>';
+}
+function dlFetch() {
+  var url = document.getElementById('dlUrl').value.trim();
+  if (!url) return;
+  var name = document.getElementById('dlName').value.trim() || url.split('/').pop().split('?')[0] || 'download';
+  var status = document.getElementById('dlStatus');
+  status.textContent = 'Fetching…';
+  fetch(url).then(function(r) {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.blob();
+  }).then(function(blob) {
+    var objUrl = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = objUrl; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(objUrl);
+    status.textContent = 'Saved: ' + name;
+    dlHistAdd({ name: name, url: url, ok: true, at: Date.now() });
+  }).catch(function(err) {
+    status.textContent = 'Cross-origin blocked (' + err.message + ') — opened in a new tab instead.';
+    window.open(url, '_blank');
+    dlHistAdd({ name: name, url: url, ok: false, at: Date.now() });
+  });
 }
 
 // Compatibility guards for parity-sync globals used by agents UI + prompt builders
@@ -41886,7 +42132,10 @@ var AGENTS = (function(existing) {
         arbitration:        { name: 'Arbitration Specialist', role: 'Arbitration doctrine, procedure, and award analysis', icon: '⚖️' },
         corporation:        { name: 'Corporation Specialist', role: 'Corporate governance, structuring, and compliance', icon: '🏢' },
         trust:              { name: 'Trust Specialist', role: 'Trust formation, fiduciary duties, and administration', icon: '🔐' },
-        ledger:             { name: 'Ledger and Accounting Expert', role: 'Ledger integrity, reconciliation, and accounting controls', icon: '📒' }
+        ledger:             { name: 'Ledger and Accounting Expert', role: 'Ledger integrity, reconciliation, and accounting controls', icon: '📒' },
+        landlord_tenant:    { name: 'Landlord-Tenant Rights Team', role: 'Lease disputes, eviction defense, habitability, and fair housing', icon: '🏠' },
+        civil_rights:       { name: 'Civil Rights Team', role: 'Equal protection, Section 1983, discrimination, and civil liberties', icon: '✊' },
+        admin_procedure:    { name: 'Administrative Procedure Team', role: 'APA challenges, agency overreach, and rulemaking procedure', icon: '🏛️' }
     };
 })(typeof AGENTS !== 'undefined' ? AGENTS : undefined);
 
@@ -44456,6 +44705,12 @@ function getSystemPrompt(agentId) {
 
     if (agentId === 'html_arch') return "You are the HTML ARCHITECT TEAM — 25 web design professionals covering HTML5 semantics, CSS3 layout/grid, responsive design, cross-browser testing, WCAG accessibility, performance, animation, typography, UI components, design systems, SVG/Canvas, CSS variables, print-to-web, landing pages, dashboards, forms, navigation/IA, mobile-first, dark mode, progressive enhancement, web fonts, image optimization, CSS frameworks, standards compliance, and design direction. All produce clean, semantic, production-grade HTML/CSS.";
 
+    if (agentId === 'landlord_tenant') return "You are the LANDLORD-TENANT RIGHTS TEAM — 25 professionals: Lease Agreement Specialist, Eviction Defense Expert, Habitability Standards Analyst, Security Deposit Specialist, Fair Housing Act Expert, Constructive Eviction Analyst, Retaliatory Eviction Specialist, Warranty of Habitability Scholar, Notice-to-Quit Procedure Expert, Landlord Duty-of-Care Analyst, Tenant Screening Compliance Specialist, Rent Withholding Strategist, Repair-and-Deduct Specialist, Lease Termination Expert, Subletting/Assignment Specialist, Commercial Lease Analyst, ADA Housing Accommodation Expert, State Landlord-Tenant Code Analyst, Local Housing Court Procedure Specialist, Utility Shutoff Defense Expert, Lockout/Self-Help Eviction Defense Specialist, Mobile Home Park Tenancy Expert, Section 8/Housing Voucher Specialist, Foreclosure-Eviction Interaction Analyst, Citation Verification Officer. All 25 attorneys collaborate and deliver cohesive work product. When a state is identified, cite that state's Supreme Court holdings alongside federal fair-housing authority.";
+
+    if (agentId === 'civil_rights') return "You are the CIVIL RIGHTS TEAM — 25 professionals: Fourteenth Amendment Equal Protection Specialist, Section 1983 Litigation Expert, Qualified Immunity Analyst, Due Process Scholar, First Amendment Retaliation Specialist, Fourth Amendment Excessive-Force Analyst, Municipal/Monell Liability Expert, Civil Rights Act of 1866/1871 Historian, Discrimination Claims Specialist, Disability Rights (ADA/Rehabilitation Act) Expert, Voting Rights Specialist, Prisoner Civil Rights Analyst, Employment Discrimination Expert, Housing Discrimination Specialist, Bivens Action Analyst, Color-of-Law Specialist, Conspiracy-Against-Rights (Section 1985) Expert, Damages and Remedies Specialist, Injunctive Relief Strategist, State Action Doctrine Analyst, Whistleblower Retaliation Specialist, Title VI/VII Specialist, Supreme Court Civil Rights Precedent Analyst, Federal Court Procedure Specialist, Citation Verification Officer. All 25 attorneys collaborate and deliver cohesive work product. The People are the sovereignty of the United States; every civil rights claim is built on facts and conclusions of law, never presumption.";
+
+    if (agentId === 'admin_procedure') return "You are the ADMINISTRATIVE PROCEDURE TEAM — 25 professionals: Administrative Procedure Act Specialist, Agency Rulemaking Analyst, Notice-and-Comment Procedure Expert, Agency Adjudication Specialist, Judicial Review of Agency Action Expert, Chevron/Loper Bright Deference Analyst, Ultra Vires Agency Action Specialist, FOIA Request Specialist, Agency Enforcement Action Defense Expert, Delegation Doctrine Scholar, Administrative Law Judge Procedure Specialist, Exhaustion of Remedies Analyst, Agency Subpoena/Investigation Defense Specialist, Federal Register Publication Analyst, Regulatory Flexibility Act Specialist, Agency Overreach Litigation Strategist, Sovereign Immunity/Waiver Analyst, Standing Doctrine Specialist, Final Agency Action Analyst, Arbitrary-and-Capricious Standard Expert, Agency Guidance-vs-Rule Distinction Analyst, Congressional Delegation of Authority Historian, State Administrative Procedure Specialist, Supreme Court APA Precedent Analyst, Citation Verification Officer. All 25 attorneys collaborate and deliver cohesive work product. Agencies derive authority strictly from Acts of Congress, by name and date, as published in the Statutes at Large — never from their own rulemaking, and never from the U.S. Code standing alone.";
+
     if (agentId === 'doc_creation') return "You are the DOCUMENT CREATION FIRM — 25 fiduciary drafting professionals operating the fiduciary-doc-factory (v2.1.0). You generate filing-ready trust and private-administrative instruments. Before emitting any document you run the pre-flight gate: identify the document type, resolve or mint its DOC-NNNN against the live TMAR Document Registry and write the row back, resolve the identity level and capacity line, select media, run the account-number gate, then apply the GPO 2016 editorial pass and the Weiss fiduciary-substance pass, and render in Profile B with a final page-economy pass. You work from the 14-type library and never invent or placeholder account numbers, Doc-IDs, or EIN digits — if a required account number is missing you stop and list exactly which are missing. The output IS the final deliverable. Conform in full to the FIDUCIARY DOC FACTORY standard supplied below.\n\nMANDATORY STANDARD:\n" + (DOCUMENT_KNOWLEDGE.fiduciaryDocFactory || "");
 
     if (agentId === 'doc_format') return "You are the DOCUMENT FORMAT FIRM — 25 formatting and publication-quality professionals operating the format layer of the fiduciary-doc-factory (v2.1.0). You take existing or drafted text and enforce the deterministic format backbone: Profile B (Times New Roman, 1-inch margins, justified, two-tier type: identifiers 12 pt, paragraph text after an identifier 10 pt), black-on-white only with no fills or color, signature and dateline geometry indented in multiples of 2 ems with the capacity line beneath the name, flush-left addresses and Jurat, executive spacing, widow/orphan control, and the final page-economy pass. You apply the GPO 2016 editorial pass (serial comma, period-free initialisms, numeral and capitalization rules, italic conventions) and verify the Weiss fiduciary signature hygiene is present without altering the operator's substantive positions. In revision mode you output a tight diff, not a full rewrite, unless structure changed. Conform in full to the FIDUCIARY DOC FACTORY standard supplied below.\n\nMANDATORY STANDARD:\n" + (DOCUMENT_KNOWLEDGE.fiduciaryDocFactory || "");
@@ -44743,6 +44998,96 @@ async function askAgent(agentId, question) {
     resultDiv.textContent = finalText;
     try { await MEM0.add(question, finalText, agentId); } catch(e) {}
   }
+}
+
+// ── Document Editor Review / Humanize / Proofread / Strip AI Markers ──────
+async function docEditorReview(mode) {
+  var editor = document.getElementById('doc-editor');
+  if (!editor) return;
+  var text = editor.innerText.trim();
+  if (!text) { alert('Nothing to review — the editor is empty.'); return; }
+
+  var prompts = {
+    review: 'Review the following document for errors. List, one per line: '
+      + '1) grammar errors 2) spelling mistakes 3) punctuation issues '
+      + '4) awkward or unclear phrasing 5) AI-generated language patterns '
+      + '6) incorrect or missing legal citations. For each: quote the original '
+      + 'text, the correction, and a brief reason. Findings only, no rewrite.\n\n'
+      + 'DOCUMENT:\n' + text,
+    humanize: 'Rewrite the following document so it reads as entirely '
+      + 'human-written. Remove hedging language, filler transitions, and '
+      + 'AI-typical vocabulary. Vary sentence length naturally. Keep the exact '
+      + 'same meaning, facts, and citations. Output ONLY the rewritten document '
+      + 'text, no commentary.\n\nDOCUMENT:\n' + text,
+    proofread: 'Proofread the following document. Correct ONLY misspellings, '
+      + 'grammar, and punctuation. Do not change style, voice, word choice, or '
+      + 'legal citations. Output ONLY the corrected document text, no '
+      + 'commentary.\n\nDOCUMENT:\n' + text
+  };
+  var titles = { review: '🔍 Document Review', humanize: '🖋 Humanized Draft', proofread: '✓ Proofread Draft' };
+
+  _gcOpenModal(titles[mode], '<div id="docReviewBody">⏳ Working<span class="streaming-cursor"></span></div>');
+  var sys = 'You are an editorial and citation-review specialist inside the TMAR '
+    + 'Document Creator. Perform the requested action on the supplied document '
+    + 'text only — do not add commentary before or after your output.';
+
+  var rawBuf = '';
+  var finalText = await callLLMStream(sys, prompts[mode], [], function(token) {
+    rawBuf += token;
+    var liveBody = document.getElementById('docReviewBody');
+    if (liveBody) liveBody.innerHTML = escHtml(rawBuf) + '<span class="streaming-cursor"></span>';
+  });
+
+  var body = document.getElementById('docReviewBody');
+  if (!body) return;
+  if (finalText && finalText.indexOf('[ERROR') === 0) {
+    body.innerHTML = '<div style="color:#ef4444">' + escHtml(finalText) + '</div>';
+    return;
+  }
+  if (mode === 'review') {
+    body.innerHTML = escHtml(finalText).replace(/\n/g, '<br>');
+  } else {
+    window._docReviewPending = finalText;
+    body.innerHTML = '<div style="white-space:pre-wrap;margin-bottom:12px">' + escHtml(finalText) + '</div>'
+      + '<button onclick="docApplyReviewResult()" style="padding:6px 14px;border:1px solid rgba(16,185,129,.4);border-radius:4px;background:rgba(16,185,129,.15);color:#10b981;cursor:pointer;font-weight:700;font-size:12px">✓ Apply to Editor</button>';
+  }
+}
+
+function docApplyReviewResult() {
+  var editor = document.getElementById('doc-editor');
+  var text = window._docReviewPending;
+  if (!editor || !text) return;
+  editor.innerHTML = text.split(/\n{2,}/).map(function(p) {
+    return '<div>' + escHtml(p).replace(/\n/g, '<br>') + '</div>';
+  }).join('');
+  window._docReviewPending = null;
+  var modal = document.getElementById('gc-panel-modal');
+  if (modal) modal.remove();
+}
+
+var AI_TELL_PATTERNS = [
+  /\b(as an ai|i'm an ai|language model|i cannot|i don't have personal)\b/gi,
+  /\b(it'?s worth noting|it'?s important to note|in conclusion|to summarize|overall)\b/gi,
+  /\b(furthermore|moreover|additionally|consequently|nevertheless|nonetheless)\b/gi,
+  /\b(delve|utilize|leverage|facilitate|endeavor|comprehend|elucidate)\b/gi,
+  /\b(paramount|plethora|myriad|multifaceted|holistic|synergy|paradigm)\b/gi,
+  /\b(robust|seamless|cutting-edge|state-of-the-art|innovative|groundbreaking)\b/gi,
+  /\b(i hope this helps|let me know if|feel free to|don't hesitate)\b/gi
+];
+
+function docStripAIMarkers() {
+  var editor = document.getElementById('doc-editor');
+  if (!editor) return;
+  var html = editor.innerHTML;
+  var count = 0;
+  AI_TELL_PATTERNS.forEach(function(rx) {
+    var m = html.match(rx);
+    if (m) count += m.length;
+    html = html.replace(rx, '');
+  });
+  if (!count) { alert('No AI-tell markers found.'); return; }
+  editor.innerHTML = html.replace(/\s{2,}/g, ' ');
+  alert('Stripped ' + count + ' AI-tell marker(s).');
 }
 
 // Save all API keys to localStorage
@@ -47265,14 +47610,31 @@ function ttTrackerBuildPrinciple(data) {
     parts.push('</table>');
   }
 
-  // Sequence table from section titles
+  // Sequence table from the actual steps (sections -> subsections -> steps), not section titles.
+  // 2026-08-18: previously listed section TITLES (3 rows) mislabeled "Step 1/2/3" — the
+  // user flagged that the Overview "failed to list the sequence steps." Enumerate every
+  // step in order, color-coded by its parent section (blue=prereq, purple=protocols, amber=next).
   var sections = (data.tracker && data.tracker.sections) || [];
-  if (sections.length) {
+  var pcolors = ['#58a6ff', '#a371f7', '#d29922', '#f85149'];
+  var seqSteps = [];
+  sections.forEach(function(sec, si) {
+    var color = pcolors[si % pcolors.length];
+    var collect = function(steps) {
+      (steps || []).forEach(function(st) {
+        seqSteps.push({ label: st.label || st.title || st.id || '', ref: st.ref || '', color: color });
+      });
+    };
+    if (sec.subsections) sec.subsections.forEach(function(sub) { collect(sub.steps); });
+    else collect(sec.steps);
+  });
+  if (seqSteps.length) {
     parts.push('<h3 style="font-size:0.78rem;color:#c9a44c;margin:10px 0 6px 0;font-weight:600">⚡ Sequence</h3>');
     parts.push('<table style="width:100%;font-size:0.72rem;border-collapse:collapse;margin:4px 0">');
-    var pcolors = ['#58a6ff', '#a371f7', '#d29922', '#f85149'];
-    sections.slice(0, 8).forEach(function(s, i) {
-      parts.push('<tr><td style="padding:3px 8px;color:' + pcolors[i % 4] + ';font-weight:700;white-space:nowrap">Step ' + (i + 1) + ' →</td><td style="padding:3px 8px;color:#8b949e">' + esc(s.title || s.id || '') + '</td></tr>');
+    seqSteps.forEach(function(st, i) {
+      var lbl = ttTrackerStripTagsForTree(st.label);
+      if (lbl.length > 90) lbl = lbl.slice(0, 89).replace(/\s+$/, '') + '…';
+      var ref = st.ref ? ' <span style="color:#6e7681">' + esc(String(st.ref)) + '</span>' : '';
+      parts.push('<tr><td style="padding:3px 8px;color:' + st.color + ';font-weight:700;white-space:nowrap">Step ' + (i + 1) + ' →</td><td style="padding:3px 8px;color:#8b949e">' + esc(lbl) + ref + '</td></tr>');
     });
     parts.push('</table>');
   }
@@ -54980,9 +55342,23 @@ function gmailSendEmail() {
   var subject = (document.getElementById('gm-compose-subject')||{}).value || '';
   var body = (document.getElementById('gm-compose-body')||{}).value || '';
   if (!to) { alert('Please enter a recipient.'); return; }
-  alert('Email queued (no backend connected).\nTo: '+to+'\nSubject: '+subject);
-  var modal = document.getElementById('gm-compose-modal');
-  if (modal) modal.remove();
+  var proxy = (localStorage.getItem('eeon_cors_proxy') || '').replace(/\/$/, '');
+  if (!proxy) { alert('Set a CORS Proxy URL in Settings → API Keys first — sending routes through the Cloudflare Worker.'); return; }
+  var from = localStorage.getItem('tmar_email_from') || 'TMAR <onboarding@resend.dev>';
+  fetch(proxy + '/send-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ to: to, subject: subject, body: body, from: from })
+  }).then(function(r) {
+    return r.text().then(function(t) { var j = null; try { j = JSON.parse(t); } catch (e) {} return { ok: r.ok, json: j, text: t }; });
+  }).then(function(res) {
+    if (!res.ok) throw new Error((res.json && (res.json.message || res.json.error)) || res.text || 'Send failed');
+    var modal = document.getElementById('gm-compose-modal');
+    if (modal) modal.remove();
+    alert('Email sent to ' + to);
+  }).catch(function(err) {
+    alert('Send failed: ' + err.message + '\n\nThe Worker needs a RESEND_API_KEY secret configured — see cloudflare-worker-v2.js header.');
+  });
 }
 function gmailSaveDraft() {
   var subject = (document.getElementById('gm-compose-subject')||{}).value||'';

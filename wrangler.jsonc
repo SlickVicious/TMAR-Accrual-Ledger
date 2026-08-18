@@ -1,0 +1,5 @@
+{
+  "name": "crimson-recipe-cdfd",
+  "main": "cloudflare-worker-v2.js",
+  "compatibility_date": "2026-08-18"
+}

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TMAR MASTER COMMAND — Command Center</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#080c1a;--bg2:#0d1330;--bg3:#151d45;--accent:#10b981;--accent2:#00d4ff;
+  --gold:#f5a623;--text:#fff;--text2:#8899bb;--err:#ff4c6a;--ok:#10b981;
+  --border:#1a3070;--glass:rgba(13,19,48,.92);--shadow:0 4px 24px rgba(0,0,0,.5);
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+.container{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:20px}
+header{text-align:center;padding:40px 0 20px}
+header h1{font-size:36px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+header p{color:var(--text2);font-size:14px;margin-top:8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:20px 0}
+.card{background:var(--glass);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:14px;padding:24px;transition:all .3s}
+.card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 32px rgba(16,185,129,.12)}
+.card h3{font-size:16px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card p{color:var(--text2);font-size:13px;line-height:1.6}
+.card a{display:inline-block;margin-top:12px;padding:10px 20px;background:var(--accent);color:#000;border-radius:8px;text-decoration:none;font-weight:600;font-size:13px;transition:all .25s}
+.card a:hover{box-shadow:0 4px 20px rgba(16,185,129,.4);transform:translateY(-1px)}
+.card.legal{border-color:rgba(245,166,35,.3)}.card.legal a{background:var(--gold);color:#000}
+.card.tax{border-color:rgba(34,197,94,.3)}.card.tax a{background:#22c55e;color:#000}
+.card.ledger{border-color:rgba(0,212,255,.35)}.card.ledger a{background:var(--accent2);color:#000}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:20px 0}
+.stat{background:var(--glass);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center}
+.stat-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px}
+.stat-val{font-size:32px;font-weight:700;margin-top:6px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.footer{text-align:center;padding:30px;color:var(--text2);font-size:11px;border-top:1px solid var(--border);margin-top:40px}
+.footer a{color:var(--accent);text-decoration:none}
+.env-toggle{display:flex;gap:8px;justify-content:center;margin-top:14px;font-size:11px}
+.env-toggle button{background:transparent;border:1px solid var(--border);color:var(--text2);padding:5px 12px;border-radius:20px;cursor:pointer;font-size:11px;transition:all .2s}
+.env-toggle button.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:600}
+@media(max-width:640px){header h1{font-size:24px}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<div class="container">
+  <header>
+    <h1>&#127963; TMAR MASTER COMMAND</h1>
+    <p>TMAR Accrual Ledger — Multi-Agent Legal &amp; Financial System — v3.8</p>
+    <div class="env-toggle" id="envToggle">
+      <button data-env="local" onclick="setEnv('local')">Local Dev</button>
+      <button data-env="live" onclick="setEnv('live')">Live (GitHub Pages)</button>
+    </div>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-label">Tool Pages</div><div class="stat-val">55</div></div>
+    <div class="stat"><div class="stat-label">AI Agents</div><div class="stat-val">19</div></div>
+    <div class="stat"><div class="stat-label">CPA Firms</div><div class="stat-val">6</div></div>
+    <div class="stat"><div class="stat-label">Ledger Columns</div><div class="stat-val">29</div></div>
+  </div>
+
+  <h2 style="margin:30px 0 16px;font-size:18px">&#128203; Agent Consoles</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>&#129302; Full Agent Console</h3>
+      <p>Chat, Dream Team, Noi Ask, Prompt Library, Search, Research HUB, AI Browser, GAAP Ledger, E-Mailify, Downloader, and every specialist agent — one sidebar.</p>
+      <a href="#" data-page="dashboard">Launch Agent Console</a>
+    </div>
+    <div class="card legal">
+      <h3>&#9878;&#65039; Legal Expert</h3>
+      <p>Constitutional, Commercial/UCC, Criminal, Civil, Trust Law, Foreclosure. Presumption Killer methodology with full citation chains.</p>
+      <a href="#" data-page="legal">Open Legal Expert</a>
+    </div>
+    <div class="card tax">
+      <h3>&#128176; Tax &amp; Financial Expert</h3>
+      <p>Federal tax law, financial asset classification, NOLs, Revenue Acts, IRS challenge defense.</p>
+      <a href="#" data-page="tax">Open Tax Expert</a>
+    </div>
+    <div class="card">
+      <h3>&#127963; Dream Team — 600 Attorneys</h3>
+      <p>Full-spectrum legal, contract, litigation, dispute, tax, trust, corporation, arbitration, accounting, writ, appeal, and document war room.</p>
+      <a href="#" data-page="dream_team">Open Dream Team</a>
+    </div>
+    <div class="card">
+      <h3>&#9889; Noi Ask — All Agents</h3>
+      <p>Send one question to every agent simultaneously. Each responds in their domain — compare and synthesize across perspectives.</p>
+      <a href="#" data-page="noi">Open Noi Ask</a>
+    </div>
+    <div class="card">
+      <h3>&#128269; Search Engine</h3>
+      <p>Multi-source search with source credibility scoring and direct links to authorized legal databases.</p>
+      <a href="#" data-page="search">Open Search</a>
+    </div>
+  </div>
+
+  <h2 style="margin:30px 0 16px;font-size:18px">&#9881;&#65039; Specialist Agents</h2>
+  <div class="grid">
+    <div class="card"><h3>&#9878; Arbitration</h3><p>FAA arbitration clauses, demand drafting, award enforcement, commercial disputes.</p><a href="#" data-page="arbitration">Open</a></div>
+    <div class="card"><h3>&#127970; Corporation</h3><p>Entity formation, governance, SPV, religious corporations, compliance.</p><a href="#" data-page="corporation">Open</a></div>
+    <div class="card"><h3>&#128272; Trust</h3><p>Common-law trust instruments, trustee duties, C.L.O.C.E.S.T., asset protection.</p><a href="#" data-page="trust">Open</a></div>
+    <div class="card"><h3>&#128210; Accounting</h3><p>GAAP double-entry, journal entries, multi-entity books, financial statements.</p><a href="#" data-page="accounting">Open</a></div>
+    <div class="card"><h3>&#128196; Tax Forms</h3><p>Federal and state tax form preparation, filing posture, schedules.</p><a href="#" data-page="taxforms">Open</a></div>
+    <div class="card"><h3>&#128218; Research HUB</h3><p>Fact checker, legal database search, source authority guide.</p><a href="#" data-page="research">Open</a></div>
+  </div>
+
+  <h2 style="margin:30px 0 16px;font-size:18px">&#128225; System Tools</h2>
+  <div class="grid">
+    <div class="card"><h3>&#9993; E-Mailify</h3><p>Admin-approved email client. Gmail, Yahoo, Outlook, iCloud, IMAP/POP3.</p><a href="#" data-page="gmailify">Open</a></div>
+    <div class="card"><h3>&#128203; Prompt Library</h3><p>Save and reuse prompts. Slash-command autocomplete in Chat. Variable substitution.</p><a href="#" data-page="prompts">Open</a></div>
+    <div class="card"><h3>&#127760; AI Browser</h3><p>Internal agent chat plus one-click links to external AI services (ChatGPT, Claude, Gemini, Grok...).</p><a href="#" data-page="ai_browser">Open</a></div>
+    <div class="card"><h3>&#11123; Downloader</h3><p>Fetch a direct file URL and save it locally, with download history.</p><a href="#" data-page="downloader">Open</a></div>
+    <div class="card"><h3>&#128295; Settings</h3><p>LLM configuration, API keys, CORS proxy URL, preferences.</p><a href="#" data-page="settings">Open Settings</a></div>
+    <div class="card ledger"><h3>&#128210; GAAP Ledger</h3><p>The native Master Register accrual ledger — full double-entry accounting, not a chat agent.</p><a href="#" data-page="">Open Ledger</a></div>
+  </div>
+
+  <div class="footer">
+    <p>TMAR ACCRUAL LEDGER — THE EEON FOUNDATION</p>
+    <p style="margin-top:4px">Cards route into <a id="targetLabel" href="#">TMAR-Accrual-Ledger.html</a> via <code>?tmarpage=</code> — no separate agent file, it's one app.</p>
+  </div>
+</div>
+
+<script>
+// Local vs Live target for the main app — remembered in localStorage so the choice sticks.
+var TARGETS = {
+  local: 'http://localhost:5501/TMAR-Accrual-Ledger.html',
+  live: 'https://slickvicious.github.io/TMAR-Accrual-Ledger/TMAR-Accrual-Ledger.html'
+};
+function currentBase() {
+  return localStorage.getItem('tmar_cmd_env') === 'live' ? TARGETS.live : (localStorage.getItem('tmar_cmd_env') === 'local' ? TARGETS.local : '../TMAR-Accrual-Ledger.html');
+}
+function setEnv(env) {
+  localStorage.setItem('tmar_cmd_env', env);
+  applyEnv();
+}
+function applyEnv() {
+  var env = localStorage.getItem('tmar_cmd_env') || '';
+  document.querySelectorAll('#envToggle button').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.env === env);
+  });
+  var base = currentBase();
+  document.getElementById('targetLabel').href = base;
+  document.querySelectorAll('a[data-page]').forEach(function(a) {
+    var page = a.dataset.page;
+    a.href = page ? base + '?tmarpage=' + encodeURIComponent(page) : base;
+  });
+}
+applyEnv();
+
+// Animated particle background
+(function(){
+  var c=document.getElementById('bg-canvas'),ctx=c.getContext('2d'),w,h,particles=[];
+  function resize(){w=c.width=window.innerWidth;h=c.height=window.innerHeight}
+  resize();window.addEventListener('resize',resize);
+  for(var i=0;i<60;i++)particles.push({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,o:Math.random()*.4+.1});
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    for(var i=0;i<particles.length;i++){
+      var p=particles[i];
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x=w;if(p.x>w)p.x=0;if(p.y<0)p.y=h;if(p.y>h)p.y=0;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(16,185,129,'+p.o+')';ctx.fill();
+    }
+    for(var i=0;i<particles.length;i++){
+      for(var j=i+1;j<particles.length;j++){
+        var dx=particles[i].x-particles[j].x,dy=particles[i].y-particles[j].y,dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<120){ctx.beginPath();ctx.moveTo(particles[i].x,particles[i].y);ctx.lineTo(particles[j].x,particles[j].y);ctx.strokeStyle='rgba(16,185,129,'+(.08*(1-dist/120))+')';ctx.lineWidth=.5;ctx.stroke()}
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>

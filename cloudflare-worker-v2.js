@@ -1,14 +1,18 @@
 /**
- * TMAR CORS Proxy — Cloudflare Worker (v2)
+ * TMAR CORS Proxy — Cloudflare Worker (v3)
  *
- * DUAL MODE:
- *   1. /v1/* routes → Anthropic API proxy (existing behavior, unchanged)
- *   2. ?url=<encoded_url> → Generic CORS proxy for allowed domains
+ * THREE MODES:
+ *   1. /v1/* routes        → Anthropic API proxy (existing behavior, unchanged)
+ *   2. ?url=<encoded_url>  → Generic CORS proxy for allowed domains
+ *   3. POST /send-email    → Transactional email via Resend (requires RESEND_API_KEY secret)
  *
- * The generic proxy is used by tmar-updater.js to fetch upstream
- * source from redressright.me (which has no CORS headers).
+ * The generic proxy is used by tmar-updater.js to fetch upstream source from
+ * redressright.me, and by the Entity Verification research engine (ev2SafeFetch
+ * in TMAR-Accrual-Ledger.html) to reach SEC IAPD / CFPB, which refuse CORS directly.
  *
- * SETUP: Same as before — deploy to Cloudflare Workers.
+ * SETUP: Deploy via workers.cloudflare.com dashboard (paste this file). For email
+ * sending, add a Worker secret named RESEND_API_KEY (Settings → Variables and Secrets)
+ * with a Resend API key — https://resend.com. Without it, /send-email returns 501.
  */
 
 // ── Anthropic API proxy config ──
@@ -19,6 +23,8 @@ const ALLOWED_API_TARGETS = ['https://api.anthropic.com'];
 const ALLOWED_PROXY_DOMAINS = [
   'redressright.me',
   'www.redressright.me',
+  'api.adviserinfo.sec.gov',
+  'www.consumerfinance.gov',
 ];
 
 const CORS_HEADERS = {
@@ -38,7 +44,7 @@ const CORS_HEADERS = {
 };
 
 export default {
-  async fetch(request) {
+  async fetch(request, env) {
     // Handle CORS preflight for all routes
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: CORS_HEADERS });
@@ -46,24 +52,81 @@ export default {
 
     const url = new URL(request.url);
 
-    // ── Route 0: Health check (root GET) ──
-    if (request.method === 'GET' && url.pathname === '/') {
-      return new Response(
-        JSON.stringify({ status: 'ok', service: 'TMAR CORS Proxy', version: 2 }),
-        { status: 200, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } }
-      );
+    // ── Route 0: Send email (POST /send-email) ──
+    if (request.method === 'POST' && url.pathname === '/send-email') {
+      return handleSendEmail(request, env);
     }
 
     // ── Route 1: Generic CORS proxy (?url= parameter) ──
+    // Must be checked before the health check below — a proxy request's pathname
+    // is still '/' (the target URL lives in the query string), so checking
+    // pathname === '/' first would swallow every proxy call as a health check.
+    // (This is exactly what was happening before this fix: ?url= never reached
+    // handleGenericProxy, so the generic proxy silently never worked.)
     const proxyTarget = url.searchParams.get('url');
     if (proxyTarget) {
       return handleGenericProxy(proxyTarget);
     }
 
-    // ── Route 2: Anthropic API proxy (/v1/* passthrough) ──
+    // ── Route 2: Health check (root GET, no query params) ──
+    if (request.method === 'GET' && url.pathname === '/') {
+      return new Response(
+        JSON.stringify({ status: 'ok', service: 'TMAR CORS Proxy', version: 3 }),
+        { status: 200, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // ── Route 3: Anthropic API proxy (/v1/* passthrough) ──
     return handleAnthropicProxy(request, url);
   },
 };
+
+// ── Send Email (Resend) ──
+async function handleSendEmail(request, env) {
+  if (!env || !env.RESEND_API_KEY) {
+    return new Response(
+      JSON.stringify({ error: 'Email sending not configured — add a RESEND_API_KEY Worker secret (see file header).' }),
+      { status: 501, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } }
+    );
+  }
+
+  let payload;
+  try {
+    payload = await request.json();
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid JSON body' }), { status: 400, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } });
+  }
+
+  const to = payload.to;
+  const subject = payload.subject || '(no subject)';
+  const text = payload.body || payload.text || '';
+  const from = payload.from || env.EMAIL_FROM || 'TMAR <onboarding@resend.dev>';
+
+  if (!to) {
+    return new Response(JSON.stringify({ error: '"to" is required' }), { status: 400, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } });
+  }
+
+  try {
+    const resendResp = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + env.RESEND_API_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ from, to: [to], subject, text }),
+    });
+    const bodyText = await resendResp.text();
+    return new Response(bodyText, {
+      status: resendResp.status,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    });
+  } catch (err) {
+    return new Response(
+      JSON.stringify({ error: 'Send failed', message: err.message }),
+      { status: 502, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } }
+    );
+  }
+}
 
 // ── Generic CORS Proxy (for redressright.me) ──
 async function handleGenericProxy(targetUrlStr) {
