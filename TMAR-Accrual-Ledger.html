@@ -21468,7 +21468,8 @@ Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height
       { id: 'estate-entity-name', token: '{{ENTITY_NAME}}', fieldPatterns: [/\.f1_03\[0\]$/] },
       { id: 'fiduciary-address', token: '{{ADDRESS}}', fieldPatterns: [/\.f1_0[4-9]\[0\]$/, /\.f1_10\[0\]$/] },
       { id: 'fiduciary-ein', token: '{{EIN}}', fieldPatterns: [/\.f1_11\[0\]$/, /\.f1_12\[0\]$/] }
-    ],
+    ]
+,
     irs_f3911: [
       { id: 'taxpayer-name', token: '{{TRUSTEE}}', fieldPatterns: [/taxpayer.*name/i, /^name$/i] },
       { id: 'taxpayer-address', token: '{{ADDRESS}}', fieldPatterns: [/taxpayer.*address/i, /mailing.*address/i] },
@@ -33925,6 +33926,16 @@ function ev2InitEntityVerifier() {
   };
   SyncBridge.prototype.pushWebsiteAccounts = function(data) {
     return this.request('pushWebsiteAccounts', 'POST', { action: 'pushWebsiteAccounts', accounts: data });
+  };
+  // rows: [{obligor, creditor, ein, tinType, nameType, addr, city, state, zip, country}]
+  // (obligor+creditor) is the upsert key server-side — no pullCreditorDetail exists yet,
+  // so there is no round-trip verification available beyond the push response itself.
+  SyncBridge.prototype.pushCreditorDetail = function(data) {
+    return this.request('pushCreditorDetail', 'POST', { action: 'pushCreditorDetail', rows: data });
+  };
+  // tabIds: ['C-013', ...], keys: [{obligor, creditor}, ...] — provide either or both.
+  SyncBridge.prototype.deleteCreditorDetail = function(tabIds, keys) {
+    return this.request('deleteCreditorDetail', 'POST', { action: 'deleteCreditorDetail', tabIds: tabIds || [], keys: keys || [] });
   };
 
   // ══════════════════════════════════════════════════════════════════
@@ -47134,14 +47145,11 @@ function ttTrackerCountSteps(data) {
 }
 
 // Mind Map tab — built deterministically from the already-parsed tracker
-// data (never asked of the LLM): an indented tree always renders correctly,
-// unlike a freeform ASCII box-diagram, which is prone to misaligned borders
-// when an LLM generates one across a wide layout. Engine wiring: the tab
-// dispatch in _engine.html skips renderSection() for the 'overview' tab id
-// specifically, so this must live under its OWN tab id, not inside
-// `overview` — and renderSection('mindmap', DATA.mindmap) checks
-// `sec.mindmap`, so the value has to be nested one level in (DATA.mindmap
-// = { mindmap: "<tree text>" }), not a bare string at the top level.
+// data (never asked of the LLM). 2026-08-17: emits a NATIVE SVG flow diagram
+// (colored <rect> boxes + arrow markers + grid), not an ASCII tree. The
+// engine's renderSection() checks sec.mindmap.startsWith('<svg') and routes
+// to the .mm-svg card; ASCII was retired (validator Rule 8 hard-fails it).
+// The value stays nested one level in (DATA.mindmap = { mindmap: "<svg…>" }).
 function ttTrackerStripTagsForTree(html) {
   return (html || '').replace(/<[^>]+>/g, '').trim();
 }
@@ -47151,40 +47159,127 @@ function ttTrackerTruncateForTree(text, max) {
   return text.length > max ? text.slice(0, max - 1) + '…' : text;
 }
 
+function ttTrackerEscapeSvg(s) {
+  return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 function ttTrackerBuildMindmap(data) {
-  var lines = [data.title || 'Process'];
+  var GOLD = '#c9a44c', CYAN = '#58a6ff', AMBER = '#d29922', PURPLE = '#a371f7',
+      GREEN = '#3fb950', SLATE = '#64748b';
+  var strokes = [CYAN, AMBER, PURPLE, GREEN];
   var sections = (data.tracker && data.tracker.sections) || [];
 
-  function addStepLines(steps, indent) {
-    steps.forEach(function(step, i) {
-      var last = i === steps.length - 1;
-      lines.push(indent + (last ? '└─ ' : '├─ ') + ttTrackerTruncateForTree(ttTrackerStripTagsForTree(step.label), 60));
-    });
-  }
+  // Build node list: [{title, details:[...], stroke, h}]
+  var nodes = [];
+  nodes.push({ title: ttTrackerTruncateForTree(data.title || 'Process', 66), details: [], stroke: GOLD, h: 56 });
 
-  sections.forEach(function(sec, si) {
-    var lastSection = si === sections.length - 1;
-    var prefix = lastSection ? '└─ ' : '├─ ';
-    var childIndent = lastSection ? '   ' : '│  ';
-    var secLabel = ttTrackerStripTagsForTree(sec.title || sec.id || 'Section');
-
-    if (sec.subsections && sec.subsections.length) {
-      lines.push(prefix + secLabel);
-      sec.subsections.forEach(function(sub, subi) {
-        var lastSub = subi === sec.subsections.length - 1;
-        var subPrefix = childIndent + (lastSub ? '└─ ' : '├─ ');
-        var subChildIndent = childIndent + (lastSub ? '   ' : '│  ');
-        lines.push(subPrefix + ttTrackerStripTagsForTree(sub.title || 'Subsection'));
-        addStepLines(sub.steps || [], subChildIndent);
+  sections.forEach(function(sec, i) {
+    var heading = ttTrackerTruncateForTree(sec.title || sec.id || 'Section', 60);
+    var details = [];
+    var subs = sec.subsections || [];
+    var steps = sec.steps || [];
+    if (subs.length) {
+      subs.forEach(function(sub) {
+        var n = (sub.steps || []).length;
+        details.push(ttTrackerTruncateForTree(ttTrackerStripTagsForTree(sub.title || 'Subsection'), 60) + '  ·  ' + n + ' steps');
       });
     } else {
-      var steps = sec.steps || [];
-      lines.push(prefix + secLabel + ' (' + steps.length + ' step' + (steps.length === 1 ? '' : 's') + ')');
-      addStepLines(steps, childIndent);
+      steps.slice(0, 3).forEach(function(st) {
+        details.push(ttTrackerTruncateForTree(ttTrackerStripTagsForTree(st.label), 72));
+      });
+      if (steps.length > 3) details.push('… ' + (steps.length - 3) + ' more steps');
     }
+    var h = details.length ? 40 + 16 * details.length : 56;
+    nodes.push({ title: heading, details: details, stroke: strokes[i % strokes.length], h: h });
   });
 
-  return lines.join('\n');
+  // Layout: vertical stack, centered at x=550, boxes 760 wide (x=170).
+  var svgW = 1100, cx = 550, gap = 30, y = 20;
+  var pieces = [];
+  nodes.forEach(function(node, i) {
+    pieces.push('<rect x="170" y="' + y + '" width="760" height="' + node.h + '" rx="8" fill="#0f172a" stroke="' + node.stroke + '" stroke-width="1.5"/>');
+    pieces.push('<text x="550" y="' + (y + 24) + '" fill="#ffffff" font-size="13" font-weight="700" text-anchor="middle">' + ttTrackerEscapeSvg(node.title) + '</text>');
+    var cy = y + 42;
+    node.details.forEach(function(ln) {
+      pieces.push('<text x="550" y="' + cy + '" fill="#8b949e" font-size="9" text-anchor="middle">' + ttTrackerEscapeSvg(ln) + '</text>');
+      cy += 16;
+    });
+    var bottom = y + node.h;
+    if (i < nodes.length - 1) {
+      pieces.push('<line x1="550" y1="' + bottom + '" x2="550" y2="' + (bottom + gap - 6) + '" stroke="' + SLATE + '" stroke-width="1.5" marker-end="url(#arr)"/>');
+      y = bottom + gap;
+    } else {
+      y = bottom;
+    }
+  });
+  var svgH = y + 20;
+
+  return '<svg viewBox="0 0 ' + svgW + ' ' + svgH + '" xmlns="http://www.w3.org/2000/svg">' +
+    '<defs>' +
+    '<marker id="arr" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="' + SLATE + '"/></marker>' +
+    '<pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/></pattern>' +
+    '</defs>' +
+    '<rect width="100%" height="100%" fill="url(#grid)"/>' +
+    pieces.join('\n') +
+    '<text x="550" y="' + (svgH - 6) + '" fill="#475569" font-size="9" text-anchor="middle">' + ttTrackerEscapeSvg(ttTrackerTruncateForTree(data.title || 'Process', 80)) + '</text>' +
+    '</svg>';
+}
+
+// Wrap the LLM's plain-prose principle into the GitHub-README HTML structure
+// the Overview tab standard requires (opens with <p>, contains <table> + <hr>).
+// Deterministic post-processing — the prompt stays simple, the shape is
+// guaranteed. validator Rule 6 hard-fails a principle that isn't this shape.
+function ttTrackerBuildPrinciple(data) {
+  var prose = (data.overview && data.overview.principle) || '';
+  if (!prose) return '';
+  if (prose.trim().charAt(0) === '<' && prose.indexOf('<table') !== -1 && prose.indexOf('<hr') !== -1) return prose;
+
+  var esc = function(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  var parts = [];
+  // The prose is ALREADY real HTML (the prompt instructs the LLM to emit
+  // <strong> emphasis, and the engine injects principle as raw HTML), so
+  // preserve it verbatim — only trim. esc() is reserved for metadata/table
+  // cells that are plain text.
+  parts.push('<p style="font-size:0.82rem;color:#c9d1d9;margin:0 0 8px 0">' + prose.trim() + '</p>');
+
+  // At a Glance table from metadata + kpis
+  var rows = [];
+  var md = data.metadata || [];
+  if (Array.isArray(md)) {
+    md.forEach(function(kv) {
+      if (Array.isArray(kv) && kv.length >= 2) rows.push([esc(kv[0]), esc(kv[1])]);
+    });
+  }
+  var kpis = (data.overview && data.overview.kpis) || [];
+  if (kpis.length) rows.push(['Steps', esc(String(kpis[0].value)) + ' total']);
+  if (rows.length) {
+    parts.push('<hr style="border:none;border-top:1px solid #30363d;margin:10px 0">');
+    parts.push('<h3 style="font-size:0.78rem;color:#c9a44c;margin:10px 0 6px 0;font-weight:600">📋 At a Glance</h3>');
+    parts.push('<table style="width:100%;font-size:0.72rem;border-collapse:collapse;margin:4px 0">');
+    for (var i = 0; i < rows.length; i += 2) {
+      var a = rows[i], b = (i + 1 < rows.length) ? rows[i + 1] : null;
+      var ca = '<td style="padding:3px 8px;color:#8b949e;white-space:nowrap;width:50%">' + a[0] + ' <span style="color:#c9d1d9;font-weight:700">' + a[1] + '</span></td>';
+      var cb = b ? '<td style="padding:3px 8px;color:#8b949e;white-space:nowrap">' + b[0] + ' <span style="color:#c9d1d9;font-weight:700">' + b[1] + '</span></td>' : '<td></td>';
+      parts.push('<tr style="border-bottom:1px solid #21262d">' + ca + cb + '</tr>');
+    }
+    parts.push('</table>');
+  }
+
+  // Sequence table from section titles
+  var sections = (data.tracker && data.tracker.sections) || [];
+  if (sections.length) {
+    parts.push('<h3 style="font-size:0.78rem;color:#c9a44c;margin:10px 0 6px 0;font-weight:600">⚡ Sequence</h3>');
+    parts.push('<table style="width:100%;font-size:0.72rem;border-collapse:collapse;margin:4px 0">');
+    var pcolors = ['#58a6ff', '#a371f7', '#d29922', '#f85149'];
+    sections.slice(0, 8).forEach(function(s, i) {
+      parts.push('<tr><td style="padding:3px 8px;color:' + pcolors[i % 4] + ';font-weight:700;white-space:nowrap">Step ' + (i + 1) + ' →</td><td style="padding:3px 8px;color:#8b949e">' + esc(s.title || s.id || '') + '</td></tr>');
+    });
+    parts.push('</table>');
+  }
+
+  parts.push('<hr style="border:none;border-top:1px solid #30363d;margin:10px 0">');
+  parts.push('<p style="font-size:0.65rem;color:#6e7681;margin:4px 0">Source: <code>' + esc((data.subtitle || data.title || '').slice(0, 80)) + '</code> — Hermes Agent (law profile)</p>');
+  return parts.join('\n');
 }
 
 // The most common way this JSON breaks: the source document has a verbatim
@@ -47260,6 +47355,9 @@ async function ttGenerateProcessTracker() {
     if (!Array.isArray(data.tabs)) data.tabs = [];
     if (!data.tabs.some(function(t) { return t.id === 'mindmap'; })) data.tabs.push({ id: 'mindmap', label: '🧠 Mind Map' });
     data.mindmap = { mindmap: ttTrackerBuildMindmap(data) };
+    if (data.overview && typeof data.overview.principle === 'string') {
+      data.overview.principle = ttTrackerBuildPrinciple(data);
+    }
 
     statusEl.textContent = 'Reading engine template...';
     var templateHtml = await ttTrackerEngineFile.text();

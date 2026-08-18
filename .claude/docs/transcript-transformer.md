@@ -56,7 +56,11 @@ Gotchas specific to this engine, not obvious from the schema alone:
 
 ### Mind Map tab
 
-Built **deterministically by `ttTrackerBuildMindmap()`**, never asked of the LLM — an indented tree (`├─`/`└─`/`│`) from the already-parsed `tracker.sections`. This was a deliberate choice over an LLM-generated ASCII box-diagram (matching the visual style of older reference files like `_verizon.json`): box-diagrams require an LLM to keep border characters aligned across a wide 2D layout, which is unreliable, while a simple indented tree is pure string logic that can never come out misaligned.
+Built **deterministically by `ttTrackerBuildMindmap()`**, never asked of the LLM. As of 2026-08-17 it emits a **native SVG flow diagram** (colored `<rect>` boxes + arrow markers + grid) from the already-parsed `tracker.sections` — no longer the old ASCII tree (`├─`/`└─`/`│`). The engine's `renderSection()` routes `sec.mindmap.startsWith('<svg')` to the `.mm-svg` card; ASCII was retired and `validate_dashboard_json.py` Rule 8 hard-fails any `mindmap` that isn't SVG. A deterministic string-built SVG keeps the same reliability win the ASCII tree had (no LLM-generated 2D border alignment to go wrong) while matching the current dashboard standard.
+
+### Overview principle
+
+Built **deterministically by `ttTrackerBuildPrinciple()`** (called from `ttGenerateProcessTracker()` after parse). The LLM still emits a plain 2–4 sentence prose `principle` (may contain `<strong>` emphasis); the post-processor wraps it into the GitHub-README HTML structure the Overview standard requires — opens with `<p>`, then `📋 At a Glance` (`<table>` from `metadata` + KPIs) and `⚡ Sequence` (`<table>` from section titles), closed by a source-citation `<hr>`. `validate_dashboard_json.py` Rule 6 hard-fails a principle that isn't this shape, so the post-processor guarantees compliance rather than trusting the LLM to emit valid HTML tables.
 
 ### Self-healing JSON parser (`ttTrackerParseJson`)
 
