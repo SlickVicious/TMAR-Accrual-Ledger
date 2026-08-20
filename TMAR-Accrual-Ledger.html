@@ -41498,7 +41498,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
 <div style="min-width:0">
 <h4 style="margin-bottom:10px;color:var(--accent)">Speech-to-Text</h4>
-<p style="font-size:12px;color:var(--text2);margin-bottom:12px">Click the mic to dictate. Works in Chrome/Edge.</p>
+<p style="font-size:12px;color:var(--text2);margin-bottom:12px">Click the mic to dictate. Works in Chrome/Edge. Always uses your OS's current default microphone — browsers don't let a page pick a specific input device. To use a different mic, set it as default in your OS sound settings, or check your browser's per-site microphone permission (the padlock/tune icon in the address bar) if more than one device is available.</p>
 <div style="text-align:center;padding:20px">
 <label class="voice-btn mic" id="voiceMicBtn" onclick="toggleVoiceMic()" data-guide="Start or stop real-time voice recognition for hands-free input" style="width:80px;height:80px;font-size:36px;display:inline-flex">🎤</label>
 <p id="voiceStatus" style="margin-top:10px;color:var(--text2);font-size:12px">Click to start</p>
@@ -42581,26 +42581,56 @@ function shareChat() {
         navigator.clipboard.writeText(text).then(function() { alert('Chat copied to clipboard!'); });
     }
 }
+// Target-agnostic mic dictation — writes the live transcript into any input/textarea by id.
+// NOT the same as startVoiceRec()/stopVoiceRec() above, which hardcode the voice-chat panel's
+// own #vc-input/#vc-rec-btn elements and stats tracking — reusing those from toggleMic()/
+// toggleVoiceMic() was the actual bug: the transcript went looking for #vc-input on pages that
+// don't have one and threw inside the recognition callback, so the button looked "active" while
+// nothing ever appeared in #chatInput or #voiceOutput. This never asks which mic to use because
+// the Web Speech API has no device-selection capability at all — it always uses the OS/browser's
+// current default input device (Windows Sound settings, or the browser's per-site mic permission
+// if more than one device is available).
+var _tmarSTT = { rec: null };
+function tmarStartSTT(targetId) {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return false;
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var rec = new SR();
+  rec.continuous = true;
+  rec.interimResults = true;
+  rec.lang = 'en-US';
+  rec.onresult = function(e) {
+    var t = '';
+    for (var i = e.resultIndex; i < e.results.length; i++) t += e.results[i][0].transcript;
+    var el = document.getElementById(targetId);
+    if (el) el.value = t;
+  };
+  rec.onend = function() { if (_tmarSTT.rec === rec) _tmarSTT.rec = null; };
+  rec.onerror = function() { if (_tmarSTT.rec === rec) _tmarSTT.rec = null; };
+  rec.start();
+  _tmarSTT.rec = rec;
+  return true;
+}
+function tmarStopSTT() {
+  if (_tmarSTT.rec) { _tmarSTT.rec.stop(); _tmarSTT.rec = null; }
+}
+
 function toggleMic() {
   var btn = document.getElementById('micBtn');
   if (!btn && event) btn = event.target.closest('[onclick*="toggleMic"]');
   if (!btn) return;
   var isActive = btn.classList.toggle('active');
   if (isActive) {
+    if (!tmarStartSTT('chatInput')) {
+      btn.classList.remove('active');
+      showAlert('Voice recognition requires Chrome, Edge, or Safari.');
+      return;
+    }
     btn.textContent = '🔴';
     btn.title = 'Stop Recording';
-    if (typeof startVoiceRec === 'function') {
-      startVoiceRec();
-    } else if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      btn.classList.remove('active');
-      btn.textContent = '🎤';
-      btn.title = 'Voice Input (Speech-to-Text)';
-      showAlert('Voice recognition requires Chrome, Edge, or Safari.');
-    }
   } else {
+    tmarStopSTT();
     btn.textContent = '🎤';
     btn.title = 'Voice Input (Speech-to-Text)';
-    if (typeof stopVoiceRec === 'function') stopVoiceRec();
   }
 }
 function handleFileUpload(input) {
@@ -46276,16 +46306,22 @@ function addCalEvent() {
 
 // Voice/Speech functions
 function toggleVoiceMic() {
-  console.log('🎤 Toggle voice mic');
   var btn = document.getElementById('voiceMicBtn');
-  if (btn) {
-    var isActive = btn.classList.toggle('active');
-    btn.textContent = isActive ? '🎤 Recording...' : '🎤 Click to Speak';
-    if (isActive && typeof startVoiceRec === 'function') {
-      startVoiceRec();
-    } else if (!isActive && typeof stopVoiceRec === 'function') {
-      stopVoiceRec();
+  var status = document.getElementById('voiceStatus');
+  if (!btn) return;
+  var isActive = btn.classList.toggle('active');
+  if (isActive) {
+    if (!tmarStartSTT('voiceOutput')) {
+      btn.classList.remove('active');
+      if (status) status.textContent = 'Speech recognition requires Chrome, Edge, or Safari.';
+      return;
     }
+    btn.textContent = '🔴';
+    if (status) status.textContent = 'Listening… (uses your OS default microphone)';
+  } else {
+    tmarStopSTT();
+    btn.textContent = '🎤';
+    if (status) status.textContent = 'Click to start';
   }
 }
 
