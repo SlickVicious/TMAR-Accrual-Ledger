@@ -14523,6 +14523,7 @@ function exportFilingPDF(formType, data) {
           <label style="font-size:11px;font-weight:700;color:var(--text-secondary);display:block;margin-bottom:8px">Active Provider</label>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:7px" id="llm-provider-grid">
             <button onclick="settingsSetProvider('ollama')" class="llm-prov-btn" data-prov="ollama" style="padding:11px;border:2px solid rgba(16,185,129,.4);border-radius:8px;background:rgba(16,185,129,.1);color:#10b981;font-size:12px;font-weight:700;cursor:pointer;text-align:left">🏠 Ollama (Local)</button>
+            <button onclick="settingsSetProvider('hermes')" class="llm-prov-btn" data-prov="hermes" style="padding:11px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:700;cursor:pointer;text-align:left">🤖 Hermes Agent (WSL)</button>
             <button onclick="settingsSetProvider('openai')" class="llm-prov-btn" data-prov="openai" style="padding:11px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:700;cursor:pointer;text-align:left">🟢 OpenAI</button>
             <button onclick="settingsSetProvider('deepseek')" class="llm-prov-btn" data-prov="deepseek" style="padding:11px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:700;cursor:pointer;text-align:left">🔵 DeepSeek</button>
             <button onclick="settingsSetProvider('zai')" class="llm-prov-btn" data-prov="zai" style="padding:11px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:700;cursor:pointer;text-align:left">⚡ Z.ai (GLM)</button>
@@ -14595,6 +14596,18 @@ function exportFilingPDF(formType, data) {
             <div><label style="font-size:10px;color:var(--text-secondary);display:block;margin-bottom:4px">API Key</label><input type="password" id="keyCustom" placeholder="..." style="width:100%;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
           </div>
         </div>
+        <!-- Hermes Agent (WSL) -->
+        <div id="llm-hermes-cfg" style="background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.2);border-radius:8px;padding:14px;margin-top:10px">
+          <div style="font-size:12px;font-weight:700;color:#a78bfa;margin-bottom:8px">🤖 Hermes Agent (WSL) — Your Real Agent, Not a Model</div>
+          <div style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;line-height:1.6">Routes chat to your <b>actual Hermes CLI agent</b> running in WSL (law profile): its own SOUL.md persona, persistent memory, and all skills (fiduciary-doc-factory, legal drafting, etc.). Requires the Hermes gateway's API server to be running — <code style="background:rgba(255,255,255,.08);padding:2px 6px;border-radius:4px">hermes gateway run</code>.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div><label style="font-size:10px;color:var(--text-secondary);display:block;margin-bottom:4px">Endpoint URL</label><input id="keyHermesUrl" placeholder="http://127.0.0.1:8642/v1/chat/completions" style="width:100%;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(139,92,246,.25);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
+            <div><label style="font-size:10px;color:var(--text-secondary);display:block;margin-bottom:4px">API Server Key (API_SERVER_KEY)</label><input type="password" id="keyHermes" placeholder="auto-filled from law profile" style="width:100%;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(139,92,246,.25);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
+            <div><label style="font-size:10px;color:var(--text-secondary);display:block;margin-bottom:4px">Model (advertised)</label><input id="keyHermesModel" placeholder="law" style="width:100%;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(139,92,246,.25);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
+          </div>
+          <button onclick="hermesTestConnection()" style="margin-top:8px;padding:6px 12px;border:1px solid rgba(139,92,246,.4);border-radius:6px;background:rgba(139,92,246,.12);color:#a78bfa;font-size:11px;font-weight:700;cursor:pointer">🔌 Test Connection</button>
+          <span id="hermesTestStatus" style="font-size:11px;color:var(--text-secondary);margin-left:8px"></span>
+        </div>
       </div>
 
       <!-- API KEYS PANEL -->
@@ -14662,6 +14675,10 @@ function exportFilingPDF(formType, data) {
           <div>
             <label style="font-size:11px;color:#8a96b0;display:block;margin-bottom:5px;font-weight:600">OpenRouter <span id="kdOpenrouter" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px;vertical-align:middle"></span></label>
             <input type="password" id="stg-api-openrouter" placeholder="sk-or-..." oninput="settingsSaveKey('openrouter',this.value)" style="width:100%;padding:8px 12px;background:#0d1020;border:1px solid #3a4560;border-radius:6px;color:#e4ddd0;font-size:12px;box-sizing:border-box;outline:none">
+          </div>
+          <div>
+            <label style="font-size:11px;color:#8a96b0;display:block;margin-bottom:5px;font-weight:600">Hermes Agent (WSL) <span id="kdHermes" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px;vertical-align:middle"></span></label>
+            <input type="password" id="stg-api-hermes" placeholder="API_SERVER_KEY (auto-defaults)" oninput="settingsSaveKey('hermes',this.value)" style="width:100%;padding:8px 12px;background:#0d1020;border:1px solid #3a4560;border-radius:6px;color:#e4ddd0;font-size:12px;box-sizing:border-box;outline:none">
           </div>
         </div>
 
@@ -37446,6 +37463,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
   <option value="openai">OpenAI</option>
   <option value="deepseek">DeepSeek</option>
   <option value="ollama">Ollama (Local)</option>
+  <option value="hermes">Hermes Agent (WSL)</option>
   <option value="zai">Z.AI (GLM)</option>
   <option value="kimi">Kimi / Moonshot</option>
   <option value="minimax">MiniMax</option>
@@ -44502,18 +44520,26 @@ var TMAR_PROVIDERS = {
     cerebras:  { name:'Cerebras',  auth:'bearer',    url:'https://api.cerebras.ai/v1/chat/completions',       model:'llama-3.3-70b' },
     openrouter:{ name:'OpenRouter',auth:'bearer',    url:'https://openrouter.ai/api/v1/chat/completions',     model:'openai/gpt-4o-mini' },
     ollama:    { name:'Ollama',    auth:'ollama',    url:'',                                                  model:'' },
-    custom:    { name:'Custom',    auth:'bearer',    url:'',                                                  model:'' }
+    custom:    { name:'Custom',    auth:'bearer',    url:'',                                                  model:'' },
+    // Hermes Agent (WSL) — NOT a model provider. Routes to the local Hermes API server
+    // (gateway/platforms/api_server.py) which runs the FULL agent: law-profile SOUL.md
+    // persona + persistent memory + all skills (fiduciary-doc-factory, etc.). Endpoint is
+    // OpenAI-compatible, but auth:'hermes' triggers a dedicated branch in callLLMStream()
+    // that skips TMAR's own system prompt so the agent's real persona governs.
+    hermes:    { name:'Hermes Agent (WSL)', auth:'hermes', url:'http://127.0.0.1:8642/v1/chat/completions', model:'law' }
 };
 var TMAR_PROVIDER_KEYMAP = {
     openai:'eeon_key_openai', anthropic:'eeon_key_claude', claude:'eeon_key_claude',
     deepseek:'eeon_key_deepseek', zai:'eeon_key_zai', kimi:'eeon_key_kimi',
     minimax:'eeon_key_minimax', ernie:'eeon_key_ernie', xai:'eeon_key_xai',
-    groq:'eeon_key_groq', cerebras:'eeon_key_cerebras', openrouter:'eeon_key_openrouter'
+    groq:'eeon_key_groq', cerebras:'eeon_key_cerebras', openrouter:'eeon_key_openrouter',
+    hermes:'eeon_key_hermes'
 };
 // The model resolveProvider() uses for a provider absent any user override.
 function providerDefaultModel(pid) {
   if (pid === 'ollama') return localStorage.getItem('eeon_ollama_model_custom') || localStorage.getItem('eeon_ollama_model') || 'deepseek-r1:14b';
   if (pid === 'custom') return localStorage.getItem('eeon_custom_model') || 'custom';
+  if (pid === 'hermes') return localStorage.getItem('eeon_hermes_model') || 'law';
   return (TMAR_PROVIDERS[pid] || TMAR_PROVIDERS.claude).model;
 }
 // The model actually in effect: a user override (Settings) wins for standard providers.
@@ -44541,6 +44567,12 @@ function resolveProvider() {
   if (pid === 'custom') {
     url = localStorage.getItem('eeon_custom_url') || '';
     model = localStorage.getItem('eeon_custom_model') || 'custom';
+  }
+  // Hermes Agent (WSL): local endpoint. API_SERVER_KEY must be entered in Settings —
+  // no default, same as every other provider (never hardcode secrets in source).
+  if (pid === 'hermes') {
+    url = localStorage.getItem('eeon_hermes_url') || 'http://127.0.0.1:8642/v1/chat/completions';
+    model = localStorage.getItem('eeon_hermes_model') || 'law';
   }
   // A provider you explicitly selected with no key is an error — NOT a reason to
   // silently reroute to Anthropic. The old code did that, so a keyless DeepSeek
@@ -44830,6 +44862,49 @@ async function callLLMStream(agentSystemPrompt, userMessage, mem0Memories, onTok
   if (p.auth === 'ernie') canStream = false;
 
   try {
+    // ── HERMES AGENT (WSL): full agent, no TMAR system prompt ─────────────
+    // The local Hermes API server already loads the law-profile persona (SOUL.md),
+    // persistent memory, and skills. Sending TMAR's SYPHER system prompt would layer
+    // a second persona on top, so this branch forwards ONLY the user message.
+    if (p.auth === 'hermes') {
+      var hermesMsgText = Array.isArray(userMessage) ? userMessage.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('\n') : userMessage;
+      var hermesBody = JSON.stringify({ model: model, stream: true, messages: [{ role: 'user', content: hermesMsgText }] });
+      headers['Authorization'] = 'Bearer ' + key;
+      var hctrl = new AbortController();
+      var htid = setTimeout(function() { hctrl.abort(); }, 900000);
+      var hresp;
+      try {
+        hresp = await fetch(url, { method: 'POST', headers: headers, body: hermesBody, signal: hctrl.signal });
+      } catch(fetchErr) {
+        clearTimeout(htid);
+        var hconn = '[ERROR — Hermes Agent] Cannot connect to ' + url + '\n\nCHECKLIST:\n1. Is the Hermes gateway running? (WSL) Run: hermes gateway run\n2. Is the API server enabled? config: gateway.platforms.api_server.enabled = true\n3. Port reachable from the browser? Current: ' + url + '\n4. CORS: API_SERVER_CORS_ORIGINS must include this page origin';
+        if (onToken) onToken(hconn); return hconn;
+      }
+      clearTimeout(htid);
+      if (!hresp.ok) {
+        var hej = ''; try { var hjj = await hresp.json(); hej = (hjj.error && hjj.error.message) || JSON.stringify(hjj).substring(0, 300); } catch(ex) { hej = 'HTTP ' + hresp.status; }
+        var hem = hresp.status === 401 ? '[ERROR — Hermes Agent] HTTP 401: invalid API key. Check API_SERVER_KEY in the law profile .env.' : '[ERROR — Hermes Agent] HTTP ' + hresp.status + ': ' + hej;
+        if (onToken) onToken(hem); return hem;
+      }
+      var hreader = hresp.body.getReader(), hdecoder = new TextDecoder(), hacc = '', hbuf = '';
+      while (true) {
+        var hchunk = await hreader.read(); if (hchunk.done) break;
+        hbuf += hdecoder.decode(hchunk.value, { stream: true });
+        var hlines = hbuf.split('\n'); hbuf = hlines.pop() || '';
+        for (var hi = 0; hi < hlines.length; hi++) {
+          var hline = hlines[hi].trim(); if (!hline || hline === 'data: [DONE]') continue;
+          if (hline.startsWith('data: ')) {
+            try {
+              var hpd = JSON.parse(hline.slice(6)); var htk = '';
+              if (hpd.choices && hpd.choices[0] && hpd.choices[0].delta && hpd.choices[0].delta.content) htk = hpd.choices[0].delta.content;
+              if (htk) { hacc += htk; if (onToken) onToken(htk); }
+            } catch(he) {}
+          }
+        }
+      }
+      return HARD_LOCK.processOutput(hacc);
+    }
+
     // ── OLLAMA: newline-delimited JSON streaming ──────────────────────────
     if (p.auth === 'ollama') {
       var ollamaWebSearch = localStorage.getItem('eeon_ollama_web_search') === 'true';
@@ -45160,6 +45235,9 @@ function saveKeys() {
       'keyCustomName':         'eeon_custom_name',
       'keyCustomUrl':          'eeon_custom_url',
       'keyCustomModel':        'eeon_custom_model',
+      'keyHermes':             'eeon_key_hermes',
+      'keyHermesUrl':          'eeon_hermes_url',
+      'keyHermesModel':        'eeon_hermes_model',
       'setActiveProvider':     'eeon_active_provider'
     };
     Object.keys(keyMappings).forEach(function(fieldId) {
@@ -45285,7 +45363,8 @@ function updateKeyDots() {
     'kdErnie': 'eeon_key_ernie',
     'kdXai': 'eeon_key_xai',
     'kdOllamaApi': 'eeon_ollama_api_key',
-    'kdCustom': 'eeon_key_custom'
+    'kdCustom': 'eeon_key_custom',
+    'kdHermes': 'eeon_key_hermes'
   };
 
   for (var dotId in dotMappings) {
@@ -45429,6 +45508,9 @@ function loadSavedKeys() {
     'keyCustomUrl': 'eeon_custom_url',
     'keyCustom': 'eeon_key_custom',
     'keyCustomModel': 'eeon_custom_model',
+    'keyHermes': 'eeon_key_hermes',
+    'keyHermesUrl': 'eeon_hermes_url',
+    'keyHermesModel': 'eeon_hermes_model',
     'keyTelegram': 'eeon_key_telegram',
     'keyDiscord': 'eeon_key_discord',
     'keyCorsProxy': 'eeon_cors_proxy',
@@ -45478,6 +45560,7 @@ function loadSavedKeys() {
       { value: 'minimax', label: 'MiniMax' },
       { value: 'ernie', label: 'Ernie / Baidu' },
       { value: 'ollama', label: 'Ollama (Local)' },
+      { value: 'hermes', label: 'Hermes Agent (WSL)' },
       { value: 'custom', label: 'Custom Provider' }
     ];
 
@@ -48871,6 +48954,29 @@ function settingsSaveKey(provider, value) {
       localStorage.setItem('tmar_claude_key', value);
       localStorage.setItem('_trustApiKey', value);
     }
+  }
+}
+
+// Test the local Hermes API server connection (health + a one-word agent probe).
+async function hermesTestConnection() {
+  var statusEl = document.getElementById('hermesTestStatus');
+  var url = (document.getElementById('keyHermesUrl').value || '').trim() || 'http://127.0.0.1:8642/v1/chat/completions';
+  var key = (document.getElementById('keyHermes').value || '').trim();
+  if (!key) { if (statusEl) statusEl.innerHTML = '<span style="color:#ef4444">✗ Enter API_SERVER_KEY first</span>'; return; }
+  if (statusEl) statusEl.innerHTML = '⏳ Testing…';
+  try {
+    var r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+      body: JSON.stringify({ model: 'law', stream: false, messages: [{ role: 'user', content: 'Reply with the single word: online' }] }) });
+    if (!r.ok) {
+      var ej = ''; try { var j = await r.json(); ej = (j.error && j.error.message) || JSON.stringify(j).substring(0, 200); } catch(e) { ej = 'HTTP ' + r.status; }
+      if (statusEl) statusEl.innerHTML = '<span style="color:#ef4444">✗ ' + (r.status === 401 ? '401 Unauthorized — check API_SERVER_KEY' : r.status + ' ' + ej) + '</span>';
+      return;
+    }
+    var d = await r.json();
+    var text = (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) || '';
+    if (statusEl) statusEl.innerHTML = '<span style="color:#22c55e">✓ Connected — agent replied: "' + (text || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').slice(0, 120) + '"</span>';
+  } catch (e) {
+    if (statusEl) statusEl.innerHTML = '<span style="color:#ef4444">✗ Cannot reach ' + url + ' — is the gateway running? (hermes gateway run)</span>';
   }
 }
 
