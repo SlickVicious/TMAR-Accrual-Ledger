@@ -39,10 +39,124 @@
     {
       id:          'gemini',
       label:       'Gemini (Google)',
-      lsKey:       'eeon_key_zai',
+      lsKey:       'eeon_key_gemini',
       envKeys:     ['GEMINI_API_KEY', 'GEMINI_LEDGER_KEY'],
       placeholder: 'AIza...',
       testType:    'gemini'
+    },
+    {
+      id:          'zai',
+      label:       'Z.AI (GLM)',
+      lsKey:       'eeon_key_zai',
+      envKeys:     ['ZAI_API_KEY'],
+      placeholder: 'API key...',
+      testType:    'bearer',
+      testUrl:     'https://api.z.ai/v1/models'
+    },
+    {
+      id:          'kimi',
+      label:       'Kimi / Moonshot',
+      lsKey:       'eeon_key_kimi',
+      envKeys:     ['KIMI_API_KEY', 'MOONSHOT_API_KEY'],
+      placeholder: 'sk-...',
+      testType:    'bearer',
+      testUrl:     'https://api.moonshot.cn/v1/models'
+    },
+    {
+      id:          'minimax',
+      label:       'MiniMax',
+      lsKey:       'eeon_key_minimax',
+      envKeys:     ['MINIMAX_API_KEY'],
+      placeholder: 'API key...',
+      testType:    'bearer'
+    },
+    {
+      id:          'ernie',
+      label:       'Ernie / Baidu',
+      lsKey:       'eeon_key_ernie',
+      envKeys:     ['ERNIE_API_KEY', 'BAIDU_API_KEY'],
+      placeholder: 'API key...',
+      testType:    'bearer'
+    },
+    {
+      id:          'groq',
+      label:       'Groq (free tier)',
+      lsKey:       'eeon_key_groq',
+      envKeys:     ['GROQ_API_KEY'],
+      placeholder: 'gsk_...',
+      testType:    'bearer',
+      testUrl:     'https://api.groq.com/openai/v1/models'
+    },
+    {
+      id:          'cerebras',
+      label:       'Cerebras (free tier)',
+      lsKey:       'eeon_key_cerebras',
+      envKeys:     ['CEREBRAS_API_KEY'],
+      placeholder: 'csk-...',
+      testType:    'bearer',
+      testUrl:     'https://api.cerebras.ai/v1/models'
+    },
+    {
+      id:          'hermes',
+      label:       'Hermes Agent (WSL)',
+      lsKey:       'eeon_key_hermes',
+      envKeys:     ['HERMES_API_KEY'],
+      placeholder: 'API_SERVER_KEY...',
+      testType:    'hermes'
+    },
+    {
+      id:          'tavily',
+      label:       'Tavily',
+      lsKey:       'eeon_key_tavily',
+      aliases:     ['stg_key_tavily'],
+      envKeys:     ['TAVILY_API_KEY'],
+      placeholder: 'tvly-...',
+      testType:    'bearer'
+    },
+    {
+      id:          'firecrawl',
+      label:       'Firecrawl',
+      lsKey:       'eeon_key_firecrawl',
+      aliases:     ['stg_key_firecrawl'],
+      envKeys:     ['FIRECRAWL_API_KEY'],
+      placeholder: 'fc-...',
+      testType:    'bearer'
+    },
+    {
+      id:          'mem0',
+      label:       'Mem0',
+      lsKey:       'eeon_key_mem0',
+      aliases:     ['stg_key_mem0'],
+      envKeys:     ['MEM0_API_KEY'],
+      placeholder: 'm0-...',
+      testType:    'mem0'
+    },
+    {
+      id:          'apify',
+      label:       'Apify',
+      lsKey:       'eeon_key_apify',
+      aliases:     ['stg_key_apify'],
+      envKeys:     ['APIFY_API_TOKEN'],
+      placeholder: 'apify_api_...',
+      testType:    'apify'
+    },
+    {
+      id:          'openclaw',
+      label:       'OpenClaw Legal API',
+      lsKey:       'eeon_key_openclaw',
+      aliases:     ['stg_key_openclaw'],
+      envKeys:     ['OPENCLAW_API_KEY'],
+      placeholder: 'Enter OpenClaw API key...',
+      testType:    'bearer'
+    },
+    {
+      id:          'courtlistener',
+      label:       'CourtListener',
+      lsKey:       'eeon_key_courtlistener',
+      aliases:     ['stg_key_courtlistener'],
+      envKeys:     ['COURTLISTENER_API_KEY'],
+      placeholder: 'Token ...',
+      testType:    'courtlistener'
     },
     {
       id:          'perplexity',
@@ -122,6 +236,19 @@
     'MEM0_API_KEY':         'stg_key_mem0',
     'SUPABASE_SERVICE_KEY': 'eeon_key_supabase'
   };
+  // localStorage key names only, not secret values — see PROVIDERS above.
+  ENV_MAP.ZAI_API_KEY = 'eeon_key_zai';
+  ENV_MAP.KIMI_API_KEY = 'eeon_key_kimi';
+  ENV_MAP.MOONSHOT_API_KEY = 'eeon_key_kimi';
+  ENV_MAP.MINIMAX_API_KEY = 'eeon_key_minimax';
+  ENV_MAP.ERNIE_API_KEY = 'eeon_key_ernie';
+  ENV_MAP.BAIDU_API_KEY = 'eeon_key_ernie';
+  ENV_MAP.GROQ_API_KEY = 'eeon_key_groq';
+  ENV_MAP.CEREBRAS_API_KEY = 'eeon_key_cerebras';
+  ENV_MAP.HERMES_API_KEY = 'eeon_key_hermes';
+  ENV_MAP.APIFY_API_TOKEN = 'eeon_key_apify';
+  ENV_MAP.OPENCLAW_API_KEY = 'eeon_key_openclaw';
+  ENV_MAP.COURTLISTENER_API_KEY = 'eeon_key_courtlistener';
 
   // ── CSS ────────────────────────────────────────────────────────────────────
   var css = [
@@ -364,12 +491,16 @@
     var corsProxy = (localStorage.getItem('eeon_cors_proxy') || '').replace(/\/$/, '');
     var proxy = (_isLocal || !corsProxy) ? '' : corsProxy;
     switch (p.testType) {
-      case 'anthropic': return testAnthropic(key, proxy);
-      case 'gemini':    return testGemini(key);
-      case 'hf':        return testHF(key);
-      case 'github':    return testGitHub(key);
-      case 'datagov':   return testDataGov(key);
-      default:          return testBearer(key, p.testUrl);
+      case 'anthropic':     return testAnthropic(key, proxy);
+      case 'gemini':        return testGemini(key);
+      case 'hf':            return testHF(key);
+      case 'github':        return testGitHub(key);
+      case 'datagov':       return testDataGov(key);
+      case 'hermes':        return testHermes(key);
+      case 'mem0':          return testMem0(key);
+      case 'apify':         return testApify(key);
+      case 'courtlistener': return testCourtListener(key);
+      default:              return testBearer(key, p.testUrl);
     }
   }
 
@@ -443,6 +574,52 @@
         if (r.status === 0)   return { ok: null,  text: 'CORS blocked — cannot verify' };
         return { ok: false, text: 'HTTP ' + r.status };
       });
+  }
+
+  function testHermes(key) {
+    var url = localStorage.getItem('eeon_key_hermes_url') || 'http://127.0.0.1:8642/v1/chat/completions';
+    return fetchJSON(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+      body: JSON.stringify({ model: 'law', stream: false, messages: [{ role: 'user', content: 'ping' }] })
+    }).then(function (r) {
+      if (r.status === 200) return { ok: true,  text: 'Connected — Hermes gateway' };
+      if (r.status === 401) return { ok: false, text: 'Invalid API_SERVER_KEY (401)' };
+      if (r.status === 0)   return { ok: null,  text: 'Gateway unreachable — is it running? (hermes gateway run)' };
+      return { ok: false, text: 'HTTP ' + r.status };
+    });
+  }
+
+  function testMem0(key) {
+    return fetchJSON('https://api.mem0.ai/v1/memories/?page_size=1', {
+      headers: { 'Authorization': 'Token ' + key }
+    }).then(function (r) {
+      if (r.status === 200) return { ok: true,  text: 'Valid — Mem0' };
+      if (r.status === 401 || r.status === 403) return { ok: false, text: 'Invalid key (' + r.status + ')' };
+      if (r.status === 0)   return { ok: null,  text: 'CORS blocked — cannot verify' };
+      return { ok: false, text: 'HTTP ' + r.status };
+    });
+  }
+
+  function testApify(key) {
+    return fetchJSON('https://api.apify.com/v2/users/me?token=' + encodeURIComponent(key))
+      .then(function (r) {
+        if (r.status === 200) return { ok: true,  text: 'Valid — Apify' };
+        if (r.status === 401) return { ok: false, text: 'Invalid token (401)' };
+        if (r.status === 0)   return { ok: null,  text: 'CORS blocked — cannot verify' };
+        return { ok: false, text: 'HTTP ' + r.status };
+      });
+  }
+
+  function testCourtListener(key) {
+    return fetchJSON('https://www.courtlistener.com/api/rest/v3/search/?q=test&format=json', {
+      headers: { 'Authorization': 'Token ' + key }
+    }).then(function (r) {
+      if (r.status === 200) return { ok: true,  text: 'Valid — CourtListener' };
+      if (r.status === 401 || r.status === 403) return { ok: false, text: 'Invalid token (' + r.status + ')' };
+      if (r.status === 0)   return { ok: null,  text: 'CORS blocked — cannot verify' };
+      return { ok: false, text: 'HTTP ' + r.status };
+    });
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
