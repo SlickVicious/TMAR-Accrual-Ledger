@@ -9,6 +9,9 @@ REM  Bookmark this URL and use it for ALL local testing:
 REM      http://localhost:5501/TMAR-Accrual-Ledger.html
 REM  (Configure your CORS proxy + API key ONCE on that origin;
 REM   they'll persist as long as you keep using localhost:5501.)
+REM
+REM  NOTE: if the "TMAR Local Server" auto-start task is already
+REM  running, this script detects it and just opens the browser.
 REM ============================================================
 setlocal
 set "PORT=5501"
@@ -16,6 +19,11 @@ set "PAGE=TMAR-Accrual-Ledger.html"
 
 REM Always serve from THIS script's folder, even if double-clicked from elsewhere.
 cd /d "%~dp0"
+
+REM If a server is already listening on the port (e.g. the auto-start task),
+REM don't spawn a second one -- just open the browser.
+netstat -ano | find ":%PORT%" | find "LISTENING" >nul 2>&1
+if not errorlevel 1 goto :browser
 
 where python >nul 2>nul
 if errorlevel 1 (
@@ -50,6 +58,7 @@ REM wait a moment for it to bind, then open the browser to the app.
 start "TMAR Local Server" cmd /k python -m http.server %PORT%
 timeout /t 1 /nobreak >nul
 
+:browser
 REM Prefer Brave; fall back to the system default browser if not found.
 set "BRAVE=%ProgramFiles%\BraveSoftware\Brave-Browser\Application\brave.exe"
 if not exist "%BRAVE%" set "BRAVE=%LocalAppData%\BraveSoftware\Brave-Browser\Application\brave.exe"

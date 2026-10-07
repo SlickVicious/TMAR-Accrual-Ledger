@@ -1,0 +1,227 @@
+TMAR ACCRUAL LEDGER — COMPREHENSIVE TAX REMEDIATION GUIDE
+SOLE PROPRIETOR — ACCRUAL METHOD — TAX YEARS 2016 TO PRESENT
+CHANGE OF ACCOUNTING METHOD — FORM 3115 FRAMEWORK
+
+═══════════════════════════════════════════════════════════════
+
+PRELIMINARY ORIENTATION
+
+This guide walks you through the complete process of filing as a sole proprietor using the accrual method of accounting, correcting prior years back to 2016, and filing Form 3115 to formalize the change of accounting method. Every step is sequenced so that each phase builds on the one before it. Nothing is assumed to be in place. You will be directed to gather, compute, document, and file — in that order — for each phase.
+
+The legal authority governing the change of accounting method is the Internal Revenue Code of 1986 as amended, with the procedural mechanics governed by Revenue Procedure 2015-13 (as updated by Revenue Procedure 2019-43 for the automatic change procedures) and the underlying statute codified through the Revenue Act of 1954 and its successors. The accrual method is governed by the all-events test: income is recognized when all events have occurred that fix the right to receive it and the amount can be determined with reasonable accuracy; deductions are recognized when all events have occurred that establish the fact of the liability, the amount can be determined with reasonable accuracy, and economic performance has occurred.
+
+═══════════════════════════════════════════════════════════════
+
+PHASE ONE — FOUNDATIONAL ASSEMBLY
+
+Before any form is touched, the following must be assembled. This is not optional. Every computation in every subsequent phase depends on these materials being complete and accurate.
+
+Step 1 — Gather All Bank and Financial Records for 2016 Through Present
+
+You need every bank statement, payment processor statement (PayPal, Stripe, Cash App, Venmo business), credit card statement used for business, and any platform that moved money through your business — for every single month from January 2016 through the most recently completed month. Organize these by year, then by account. The objective is a complete cash-in and cash-out picture for each year.
+
+Step 2 — Identify Every Income-Producing Activity
+
+List every service you provided, product you sold, or right you licensed during each year. Assign each to a category: services rendered, goods sold, royalties, rents, or other. Note the date the right to payment was earned (not necessarily received), the amount, and the payor. Under the accrual method, you recognize income when earned, not when cash arrives. This distinction will drive the Section 481(a) adjustment computed in Phase Four.
+
+Step 3 — Identify Every Business Expense
+
+For each year, list every expense incurred in connection with your business. Categorize them: cost of goods sold, advertising, home office, vehicle, supplies, professional fees, software, education, travel, meals (at the applicable 50 percent limitation), insurance, and any other ordinary and necessary business expense under the governing standard established by the Revenue Act of 1954, Section 162. The critical distinction under the accrual method is that expenses are deductible when the liability is fixed and economic performance has occurred — not necessarily when you paid the bill.
+
+Step 4 — Identify All Entities
+
+You referenced entities in the plural. For each entity you own, control, or through which income flows, you need to determine: (a) its legal form — sole proprietorship, single-member LLC disregarded entity, multi-member LLC, S corporation, or C corporation; (b) its EIN or Social Security Number used for filing; (c) whether it has ever filed a return; and (d) whether it is the same taxpayer as you for federal tax purposes or a separate taxpayer. A single-member LLC with no S or C corporation election is a disregarded entity — its income and loss flow to your Schedule C exactly as if the LLC did not exist. This guide covers the sole proprietor and disregarded entity track. If any entity has a separate tax identity, it requires separate treatment that must be layered onto this guide.
+
+Step 5 — Compile Prior Year Returns as Filed
+
+Pull every Form 1040 you filed for 2016 through the most recent year. If returns were not filed for any year, that is a separate urgency addressed in Phase Two. For each filed return, note: the accounting method declared (cash or accrual), the Schedule C net profit or loss reported, any depreciation schedules (Form 4562), any carryforward items (losses, credits), and any IRS correspondence received for that year.
+
+═══════════════════════════════════════════════════════════════
+
+PHASE TWO — UNFILED YEARS — DELINQUENCY RESOLUTION
+
+If any year from 2016 to present has no filed return, those years must be addressed before or simultaneously with the method change. The IRS will not process a Form 3115 in a vacuum if the returns to which it attaches are missing.
+
+Step 6 — Reconstruct Each Unfiled Year
+
+For each unfiled year, you will prepare a complete Form 1040 with Schedule C using the accrual method from the outset for that year. If you have never filed under the accrual method, the change of method analysis applies only to the first year you are placing under accrual going forward — the year you file Form 3115. Prior unfiled years can be prepared under accrual directly if you elect to use accrual as your method of accounting for those returns when filed, treating each unfiled year as if accrual was always your intended method. Document this election position clearly in a contemporaneous memorandum.
+
+Step 7 — Statute of Limitations Assessment
+
+For any year where you may have overpaid (a refund scenario), the claim for refund must generally be filed within 3 years of the original due date of the return or 2 years from the date of actual payment, whichever is later, per the Revenue Act framework governing refund claims. For years prior to 2022, refund claims are likely time-barred. However, the filing of returns for those years still matters for: (a) eliminating the possibility of substitute for return assessments by the IRS under which no deductions are allowed; (b) establishing the correct NOL computation; and (c) demonstrating good-faith compliance for penalty abatement purposes.
+
+Step 8 — Penalty Abatement Strategy
+
+For each delinquent year, upon filing the return, simultaneously file a written request for penalty abatement under the reasonable cause standard or, if you have a clean compliance history for the immediately prior year, under the First Time Abatement administrative waiver. The request must accompany or immediately follow the delinquent return. Document every circumstance that prevented timely filing.
+
+═══════════════════════════════════════════════════════════════
+
+PHASE THREE — ENTITY AND TRUST INTEGRATION
+
+Step 9 — Map Every Income Stream to the Correct Taxpayer
+
+Given that you operate through a trust (A Provident Private Creditor Revocable Living Trust), a critical determination governs everything: a revocable living trust is a grantor trust under the Internal Revenue Code, meaning all income, deductions, and credits of the trust are attributed directly to you as the grantor on your Form 1040. There is no separate trust return for a grantor trust unless a separate EIN has been obtained and a Form 1041 has been filed — and even then, the income flows through to you. Every dollar earned through the trust is your dollar for tax purposes and belongs on your Schedule C or the appropriate schedule of your Form 1040.
+
+Step 10 — EIN Discipline
+
+Every EIN associated with your business activities must be mapped to the correct return. If the trust EIN (ending in 9588 per the ledger) has been used to receive business income or issue 1099 forms, every 1099 that names that EIN must be reconciled on your return. The IRS matching program will flag any 1099 that does not appear on a return associated with the EIN on the form. Prepare a master reconciliation schedule for every EIN used, every 1099 received, and every return to which it flows.
+
+Step 11 — Form 56 Filings
+
+For each EIN under which you act as fiduciary — including the trust — confirm that a Form 56 (Notice Concerning Fiduciary Relationship) is on file with the IRS. If not filed, file it. This establishes your authority to act and receive notices for each entity and prevents IRS correspondence from being directed to an unmonitored address or ignored.
+
+═══════════════════════════════════════════════════════════════
+
+PHASE FOUR — THE SECTION 481(a) ADJUSTMENT
+
+This is the mathematical heart of the method change. When you change from the cash method to the accrual method, you must compute a Section 481(a) adjustment that either accelerates income you previously deferred or allows deductions you previously could not take — netting to a single adjustment included on the return for the year of change.
+
+Step 12 — Compute the Cutoff Balance Sheet
+
+The Section 481(a) adjustment is the difference between what your books would show under the accrual method at the beginning of the year of change versus what they showed under the cash method. You need to construct a cutoff balance sheet as of January 1 of the year you designate as the year of change. That balance sheet must include:
+
+Accounts receivable — income earned but not yet received as of that date. These amounts were never included in income under cash method; they represent income that must now be included.
+
+Accounts payable — expenses incurred but not yet paid as of that date. These amounts were never deducted under cash method; they represent deductions you may now take.
+
+Prepaid expenses — amounts paid in cash before the service was received. Under accrual, these are assets, not immediate deductions.
+
+Deferred income — amounts received in cash but not yet earned. Under accrual, these are liabilities, not immediate income.
+
+The net of these four items is your Section 481(a) adjustment. A positive adjustment (net income acceleration) is spread over 4 years if it exceeds 25,000 dollars. A negative adjustment (net deduction) is taken entirely in the year of change.
+
+Step 13 — Document Every Component of the 481(a) Adjustment
+
+For each item on the cutoff balance sheet, you need source documentation: invoices, contracts, statements of work, or any contemporaneous record that establishes the date the right to income arose or the date the liability became fixed. The IRS will scrutinize this adjustment. Every dollar must be traceable to a document.
+
+═══════════════════════════════════════════════════════════════
+
+PHASE FIVE — FORM 3115 — APPLICATION FOR CHANGE IN ACCOUNTING METHOD
+
+Step 14 — Determine Whether Automatic or Non-Automatic Change
+
+Revenue Procedure 2019-43 lists the automatic changes that do not require advance IRS consent. The change from cash to accrual for a sole proprietor is an automatic change listed in that Revenue Procedure (Designated Change Number 122 or the applicable current DCN for your situation). An automatic change means you attach Form 3115 to your timely filed return for the year of change and file a duplicate copy with the IRS National Office — the address is the Ogden Submission Processing Center for most filers, but confirm the current address from the Form 3115 instructions for the filing year.
+
+Step 15 — Complete Form 3115 — Part I
+
+Part I requires: the applicant's name, EIN or Social Security Number, the form of business entity, the tax year of change (the calendar year you are designating as the first accrual year going forward), the designated change number from Revenue Procedure 2019-43, and a statement that the applicant is not under examination for the year of change. If you are under examination, the automatic change procedures are suspended and you must follow the non-automatic procedure — advance consent from the IRS National Office before the year of change closes.
+
+Step 16 — Complete Form 3115 — Part II
+
+Part II asks about prior method changes — whether you have filed a Form 3115 within the prior 5 years. If you have not, answer accordingly. If you have previously changed methods for any trade or business, disclose it here.
+
+Step 17 — Complete Form 3115 — Part IV
+
+Part IV is the Section 481(a) adjustment schedule. Enter the total adjustment computed in Step 12, the 4-year spread election if applicable, and the amount includable in income (or deductible) in the year of change. Attach the detailed computation schedule from Step 13 as an exhibit to Form 3115.
+
+Step 18 — Complete Schedule B of Form 3115
+
+Schedule B is the detailed description of the change. Describe: the old method (cash receipts and disbursements), the new method (accrual — all-events test with economic performance), the reason for the change (desire to use the method that clearly reflects income as the business has grown in complexity and has receivables and payables that the cash method does not capture), and the items affected by the change.
+
+Step 19 — File the Duplicate Copy
+
+A signed duplicate of Form 3115 must be filed with the IRS National Office by the due date of the return for the year of change. The address for the duplicate copy is separate from the return itself and is specified in the current Form 3115 instructions. Failure to file the duplicate copy is a procedural defect that can invalidate the automatic change.
+
+═══════════════════════════════════════════════════════════════
+
+PHASE SIX — SCHEDULE C — YEAR BY YEAR RECONSTRUCTION
+
+Step 20 — For Each Year, Prepare a Complete Profit and Loss Statement Under Accrual
+
+For each year from 2016 through the year immediately prior to the year of change, reconstruct the income and expense picture under accrual. These reconstructed statements serve two purposes: they establish your actual economic history, and they generate the correct NOL (net operating loss) figures if any year produced a loss.
+
+Step 21 — NOL Computation and Carryforward Chain
+
+If any year produced a net operating loss under the accrual method, that loss is a financial asset with dollar-for-dollar carrying value. Compute each year's NOL. The carryforward rules changed with the Tax Cuts and Jobs Act of 2017 (the Revenue Act of 2017 as enacted). For losses arising in tax years beginning before January 1, 2018, the 20-year carryforward and 2-year carryback rules apply. For losses arising in tax years beginning after December 31, 2017, the carryback is eliminated (with narrow exceptions) and the carryforward is indefinite but limited to 80 percent of taxable income in the carryforward year.
+
+Build a complete NOL schedule: year generated, amount generated, any amounts previously used (if returns were filed), and the remaining balance available as of the current year. This schedule is the NOL Accrual Ledger and must be maintained and updated with each subsequent filing.
+
+Step 22 — Self-Employment Tax Computation
+
+On Schedule C, the net profit (after deducting the Section 481(a) adjustment share for the year) is subject to self-employment tax. Compute self-employment tax on Schedule SE. One-half of the self-employment tax is deductible on Form 1040 as an above-the-line deduction, reducing adjusted gross income. This interacts with the Section 481(a) spread and must be recomputed for each year in the spread period.
+
+═══════════════════════════════════════════════════════════════
+
+PHASE SEVEN — DEPRECIATION RECONCILIATION
+
+Step 23 — Reconstruct All Depreciation Schedules
+
+Every depreciable asset placed in service from 2016 to present must appear on a Form 4562 for the year it was placed in service. If prior returns did not include depreciation, the depreciation was not taken — and you have lost those deductions unless you file amended returns or a Change of Method on a separate Form 3115 for the depreciation method (there are separate automatic change numbers for depreciation method corrections). Reconstruct the asset register: asset description, date placed in service, original cost basis, applicable depreciation system (MACRS general or alternative), applicable recovery period, and the depreciation method (200 percent declining balance switching to straight line is the standard MACRS method for most property classes).
+
+Step 24 — Section 179 and Bonus Depreciation Analysis
+
+For each year, evaluate whether Section 179 expensing was available and appropriate. Also evaluate bonus depreciation (100 percent for qualifying property placed in service between September 27, 2017, and December 31, 2022, phasing down thereafter). If prior returns omitted these elections, the rules for making late elections or correcting depreciation errors through the method change procedures must be applied.
+
+═══════════════════════════════════════════════════════════════
+
+PHASE EIGHT — THE TRUST AND ADMINISTRATIVE CLAIM LAYER
+
+Step 25 — 1099 Reconstruction and Reconciliation
+
+If you have issued 1099 forms to contractors or received 1099 forms from payors under the trust EIN or your Social Security Number, every one of those must appear correctly on the return for the year it was issued or received. Pull every 1099-NEC, 1099-MISC, 1099-K, and 1099-INT for every year. Cross-reference against the TMAR Master Register and Creditor Registry. Any 1099-C (cancellation of debt) received from creditors is a separate issue addressed below.
+
+Step 26 — 1099-C Analysis — Cancellation of Debt
+
+Any 1099-C received from a creditor represents a claim that a debt was cancelled and that the cancelled amount is income to you. This is directly implicated by your existing dispute framework and creditor claim activities. For each 1099-C:
+
+First, determine whether the discharge occurred in a title 11 bankruptcy case — if so, it is excluded from income entirely.
+
+Second, determine whether you were insolvent at the moment of discharge — to the extent liabilities exceeded assets at that moment, the cancelled debt is excluded from income. The insolvency exclusion requires a Form 982 and a contemporaneous balance sheet as of the date of discharge.
+
+Third, determine whether the debt was a qualified farm or real property business indebtedness.
+
+Fourth, if none of the exclusions apply, the amount is income in the year of discharge and must appear on the applicable return.
+
+Every disputed 1099-C must be answered with either a correct inclusion on the return with applicable exclusion claimed on Form 982, or a formal dispute to the issuer under the administrative record framework already established in your creditor dispute files.
+
+═══════════════════════════════════════════════════════════════
+
+PHASE NINE — FILING SEQUENCE AND EXECUTION ORDER
+
+Step 27 — Determine the Year of Change
+
+Designate the year of change as the earliest open year (not time-barred for assessment and capable of receiving a Form 3115 attachment). Given the passage of time, for most filers this will be the current tax year or the immediately prior tax year if that return has not yet been filed. The year of change must be a year for which a return can be filed or is pending.
+
+Step 28 — Sequence of Filing
+
+The correct filing sequence is:
+
+First, prepare all unfiled prior year returns (2016 through the year before the year of change) under the reconstructed accrual-equivalent methodology, attach all applicable schedules, and submit them with penalty abatement requests.
+
+Second, prepare the return for the year of change with Form 3115 attached, the Section 481(a) adjustment included on Schedule C, and the duplicate Form 3115 sent to the IRS National Office.
+
+Third, for each of the 4 years following the year of change (if the Section 481(a) adjustment is positive and spread over 4 years), include the applicable installment of the adjustment on each year's Schedule C.
+
+Step 29 — Maintain the Contemporaneous Records Requirement
+
+The accrual method requires contemporaneous books and records. From the year of change forward, you must maintain: a general ledger with journal entries, an accounts receivable aging schedule, an accounts payable schedule, a depreciation schedule, and monthly reconciliations of bank accounts to the general ledger. These records must be preserved for a minimum of 7 years from the date the return is filed.
+
+═══════════════════════════════════════════════════════════════
+
+PHASE TEN — IMMEDIATE NEXT ACTIONS
+
+Step 30 — Your Immediate Action List in Priority Order
+
+One: Pull every bank statement and financial record for every year from 2016 to present. Begin with the years for which you believe the largest income or deduction discrepancies exist.
+
+Two: List every trade or business activity you conducted in each year, with start and stop dates, and the primary revenue model for each.
+
+Three: Identify every entity and EIN you have used, and pull every return filed under each.
+
+Four: Determine which years have returns filed and which do not. Prepare a year-by-year filing status chart.
+
+Five: Designate your year of change. This is the cornerstone decision that structures everything else.
+
+Six: Begin reconstructing the cutoff balance sheet as of January 1 of the year of change to compute the Section 481(a) adjustment.
+
+Seven: Once the Section 481(a) adjustment is computed, complete Form 3115 and attach it to the year-of-change return.
+
+Eight: File in sequence as described in Step 28.
+
+═══════════════════════════════════════════════════════════════
+
+STANDING INSTRUCTION
+
+At any point in this process, bring a specific year, a specific account, a specific income stream, or a specific document into this session and the analysis will be applied with full precision to that fact pattern. The framework above is the skeleton. The flesh is applied fact by fact as you bring the data forward. Nothing in this guide is speculative — every rule stated is operative law and IRS administrative authority.
+
+When you are ready to begin Phase One in detail, state the years for which you have records available and the nature of your business activities, and the next layer of this analysis will be generated immediately.

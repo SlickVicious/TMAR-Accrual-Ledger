@@ -1,0 +1,137 @@
+TMAR ACCRUAL LEDGER — BANK OF AMERICA ACCOUNT ANALYSIS
+Account Number: 2370 1289 6198
+Tax Year 2019 — July Through December 2019
+Tax Year 2020 — January Through December 2020
+
+═══════════════════════════════════════════════════════════════
+
+PRELIMINARY OBSERVATIONS AND CRITICAL FINDINGS
+
+Before proceeding to the income and expense reconstruction, the following material facts extracted from these statements require your immediate attention and will shape every subsequent filing decision.
+
+The employer of record throughout this period is B7965 INTER TECH, Company ID 1364227403, paying via Prearranged Payment and Deposit (PPD) direct deposit. This is a W-2 employment relationship, not self-employment income. The implications are significant: this income does not flow to Schedule C. It flows to Line 1 of your Form 1040 as wages. Before the sole proprietor and accrual analysis can be completed for any of these years, the question of whether you also operated an independent trade or business — separate from the Inter Tech employment — must be answered. From the statements provided, the following potential business activities are visible and require classification.
+
+
+THE DEPARTMENT OF EDUCATION STUDENT LOAN — CRITICAL FLAG
+
+Every statement from July 2019 through at least early 2020 shows a monthly ACH debit to DEPT EDUCATION, Company ID 9102001501, in the amount of 73.47 dollars per month. This is a recurring, consistent, contractual payment on a student loan obligation. This is not a business expense and does not belong on Schedule C. However, it is directly implicated by the Perkins Loan dispute work you have referenced in prior sessions. The fact that this payment was being made consistently every month is critical evidence for your dispute record — it establishes that you were not in default during this period, that payments were being processed, and that the loan servicer was actively debiting your account. This establishes a contemporaneous, bank-authenticated payment record that must be referenced in any Perkins Loan dispute document.
+
+
+INCOME RECONSTRUCTION — TAX YEAR 2019
+
+The statements provided cover July 26, 2019 through December 24, 2019. The following direct deposits from B7965 INTER TECH are documented across those statements.
+
+August 1, 2019: 2,404.46
+August 15, 2019: 2,304.47
+August 29, 2019: 1,984.46
+September 12, 2019: 2,124.47
+September 26, 2019: 2,864.50
+October 10, 2019: 2,164.46
+October 24, 2019: 2,304.47
+November 7, 2019: 2,344.46
+November 21, 2019: 1,984.47
+November 29, 2019: 1,300.00
+December 5, 2019: 2,404.46
+December 19, 2019: 2,164.47
+
+Total documented W-2 wages deposited from July through December 2019 from these statements: approximately 26,343.69 dollars. This represents only the second half of 2019. You will need the statements for January through July 2019 to complete the full-year 2019 income picture. The annualized figure based on this run rate places your gross W-2 income in 2019 at approximately 50,000 to 55,000 dollars. The employer would have issued a Form W-2 for this amount. If you have not received or retained that W-2, request a wage and income transcript from the IRS for tax year 2019, which will reflect all income reported under your Social Security Number.
+
+
+POTENTIAL SELF-EMPLOYMENT ACTIVITY IDENTIFIED — 2019 AND 2020
+
+The following transactions in the statements suggest possible self-employment or side-business activity that must be evaluated and properly classified before any Schedule C is prepared.
+
+First, on October 16, 2019, there is a CHECKCARD entry of 60.00 dollars identified as a payment received from UNCHC 701 DOCTORS KINSTON NC. This is listed in the deposits column, not the withdrawals column. A payment from a medical provider could represent a reimbursement, a refund, or payment for a service rendered. The nature of this deposit must be determined.
+
+Second, the February 2020 statements show two outbound international wire transfers to CHOICE APPAREL LIMITED, a United Kingdom entity (IBAN GB97ABBY09012881, Bank: Abbey National PLC). The first wire on February 18, 2020 was 223.71 dollars (equivalent to 167.45 British pounds at 1.336 exchange rate), and the second wire on June 22, 2020 was 173.31 dollars (equivalent to 136.45 British pounds at 1.2701 exchange rate). Both are described as "Fashionware POP Services." These international wire transfers to a garment or apparel entity in the United Kingdom are a significant indicator of potential self-employment activity — specifically, the purchase of wholesale inventory or apparel goods for resale. If you were purchasing goods for a clothing or apparel business, these are business expenses, potentially cost of goods sold, and belong on Schedule C. Bring all documentation related to these transactions forward.
+
+Third, the May and June 2020 statements show multiple PayPal transfers to an entity identified as PAYPAL GBOSS, totaling 401.00 dollars in outbound payments and 271.86 dollars in an inbound return from BESTBUY. The PayPal transfers labeled GBOSS warrant identification — if this was a vendor, contractor, or business-related purchase, it is a potential Schedule C deduction.
+
+Fourth, the April 2020 statement shows a Cash App payment of 450.00 dollars sent to STEPHEN PE. This may or may not be business-related and requires your confirmation.
+
+Fifth, throughout the statements there are recurring PAYPAL transfers to entities identified as PATREON MEMBER. These are monthly payments to a content subscription platform. If you were using Patreon as a business platform — either subscribing to creators for business research, or receiving payments from subscribers for your own content — both the income and expense treatment differ substantially. Patreon creator income is self-employment income. Patreon subscriber payments for personal content consumption are personal expenses.
+
+Sixth, multiple references to BLIZZARD ENTERTAINMENT payments via PayPal appear throughout 2019 and 2020. These are personal gaming expenditures and do not belong on Schedule C. However, if you were engaged in any form of gaming-related content creation, streaming, or esports during this period, a portion of these expenditures may qualify as ordinary and necessary business expenses.
+
+
+INCOME RECONSTRUCTION — TAX YEAR 2020
+
+The statements provided cover January 2020 through December 2020. The following direct deposits from B7965 INTER TECH are documented.
+
+January 2, 2020: 2,453.53
+January 16, 2020: 2,053.53
+January 30, 2020: 2,293.54
+February 13, 2020: 2,313.53
+February 27, 2020: 2,133.54
+March 12, 2020: 2,273.53
+March 26, 2020: 2,313.54
+April 9, 2020: 2,123.53
+April 23, 2020: 2,363.57
+May 7, 2020: 2,626.51
+May 21, 2020: 3,936.84
+June 4, 2020: 2,713.53
+June 18, 2020: 2,593.54
+July 2, 2020: 2,713.53
+July 16, 2020: 2,545.85
+July 30, 2020: 2,533.53
+August 13, 2020: 1,993.58
+September 10, 2020: 2,593.54
+September 24, 2020: 2,233.53
+October 8, 2020: 3,073.54
+October 22, 2020: 2,593.53
+November 5, 2020: 2,593.54
+November 13, 2020: 3,249.50
+November 19, 2020: 2,293.53
+December 3, 2020: 2,113.54
+December 17, 2020: 2,713.57
+
+Total documented W-2 wages from Inter Tech for 2020 from these statements: approximately 64,741.87 dollars. Note that not every pay period is represented in the documents uploaded — there are gaps in the statement coverage for certain months — so the actual W-2 gross may differ. The May 21, 2020 deposit of 3,936.84 dollars is substantially larger than the regular paycheck amount and may represent a one-time bonus, back pay, overtime, or other supplemental wages. Flag this for verification against the W-2.
+
+Additionally, in April 2020 a deposit of 643.50 dollars arrived via Apple Cash / Visa Direct on April 20, 2020 described as APPLE CASH PMNT RCVD. In July 2020, a Zelle transfer of 703.00 dollars was received from WIMBERLY SYRINA. These inbound transfers from individuals require classification — if they represent repayment of personal loans, they are non-taxable; if they represent payment for services, they are income.
+
+
+ACORNS INVESTMENT ACCOUNT — TAX YEAR 2020
+
+Beginning in January 2020 and continuing through December 2020, there are systematic transfers to Acorns Invest (CO ID 9000142693) and Acorns Later (CO ID 9000142693), plus a monthly Acorns subscription fee. These are investment contributions and are not deductible as business expenses. However, the Acorns Later transfers are contributions to a retirement account. If the Acorns Later account is an IRA, those contributions may be deductible above the line on Form 1040. You need to determine the account type and confirm the total annual contributions for 2020 to evaluate the IRA deduction.
+
+
+THE DEPARTMENT OF EDUCATION PAYMENT — 2020 CONTINUITY
+
+The 73.47-dollar monthly Department of Education payment continued through at least the end of January 2020, per the statement dated December 25, 2019 to January 27, 2020. This is documented proof of active repayment through January 2020. If payments stopped after that date — which is consistent with the COVID-19 administrative forbearance period that began in March 2020 — that fact is legally significant. Under the CARES Act of 2020, federal student loan payments were administratively suspended beginning March 13, 2020. If the Department of Education continued to report this account as delinquent or in default after March 13, 2020 despite the administrative suspension, that is a substantive claim. Your bank records from this period are the evidentiary foundation of that claim.
+
+
+ASSURANT INSURANCE PREMIUM — RECURRING OBLIGATION
+
+Every statement shows a monthly ACH debit from Assurant, ID RIN43443370500, in amounts ranging from 18.26 to 18.84 dollars, payable in the name of WIMBERLY SYRINA. This is a renters insurance or device insurance policy in the name of Syrina Wimberly that has been paid from your account consistently. If this insurance covered a home office or a business-use location, a portion may be deductible. If it is purely personal, it is not deductible.
+
+
+CLASSIFICATION OF ZELLE TRANSFERS TO WIMBERLY SYRINA
+
+Throughout both 2019 and 2020, there are numerous and substantial Zelle transfers to Wimberly Syrina. These range from 8.00 dollars to 1,600.00 dollars per transfer, with multiple transfers in a single month routinely totaling between 1,500 and 2,500 dollars per month. These transfers are not deductible business expenses unless they represent arm's-length payments to an independent contractor for services rendered, supported by invoices and a Form 1099-NEC where the total annual payments to that individual exceed 600 dollars. Personal support payments, family financial transfers, and contributions to household expenses are not deductible. The aggregate annual amount of these transfers is substantial — likely in excess of 12,000 dollars in 2019 and a comparable or larger amount in 2020. These must be classified before the Schedule C picture can be completed.
+
+
+MEDICAL EXPENSES — POTENTIAL ITEMIZED DEDUCTION
+
+Several statements show recurring payments to Kinston Medical Specialists, P.A. of 25.00 dollars per month as a bill payment. Additionally, there are payments to Vidant Health Hospitals ranging from 40.00 to 100.00 dollars, payments to Rooks Dentistry in Pink Hill, NC, payments to Walgreens and other pharmacies, and a payment to Kinston Clinic of 62.74 dollars. These aggregate medical expenses, if they exceed 7.5 percent of your adjusted gross income, may support an itemized deduction on Schedule A. Whether itemizing exceeds the standard deduction for your filing status in 2019 and 2020 depends on the total picture, but these expenses should be aggregated and evaluated.
+
+
+WHAT YOU NEED TO DO IMMEDIATELY
+
+Step 1 — Obtain your W-2 from B7965 INTER TECH for both 2019 and 2020. If you cannot locate these documents, request a Wage and Income Transcript from the IRS for both years using Form 4506-T. This will also reveal every 1099 reported under your Social Security Number for those years.
+
+Step 2 — Determine whether you operated any trade or business separate from your Inter Tech employment during 2019 and 2020. The apparel wire transfers to Choice Apparel Limited are the most significant indicator requiring an immediate answer.
+
+Step 3 — Confirm the nature of the Acorns Later account — specifically whether it is a Roth IRA or a traditional IRA — to evaluate deductibility of the contributions.
+
+Step 4 — Gather your January through July 2019 bank statements to complete the full-year 2019 income picture. The statements you provided begin in July 2019.
+
+Step 5 — Confirm whether Inter Tech withheld federal and state income taxes from each paycheck. If so, those withholding amounts will appear on the W-2 and will be credited against any tax liability computed on the returns.
+
+Step 6 — Determine your filing status for 2019 and 2020. Married filing jointly, married filing separately, single, or head of household each produces a different standard deduction and rate structure.
+
+Step 7 — Bring forward any additional documents — 1099 forms, prior year returns, or other account statements — so that the full income picture for each year can be completed before any return is prepared.
+
+
+STANDING INSTRUCTION
+
+The bank statements provided are now logged as source documents for the 2019 and 2020 Schedule C and Form 1040 reconstruction. The Inter Tech wages are established. The potential business activity indicators have been flagged. The Department of Education payment record is established as contemporaneous evidence for the Perkins Loan dispute record. Answer the seven steps above and the return preparation analysis will proceed immediately.

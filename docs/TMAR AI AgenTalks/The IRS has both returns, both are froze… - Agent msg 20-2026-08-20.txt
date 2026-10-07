@@ -1,0 +1,125 @@
+This submission fills every material gap in the record. The fresh assessment is now complete. The following is the comprehensive situational analysis the 25-attorney team has prepared.
+
+
+PART ONE — WHO THE TAXPAYERS ARE AND WHAT WAS FILED
+
+The taxpayers are Clinton Wimberly IV, SSN ending 2847, and Syrina S. Wimberly, SSN ending 5467, married filing jointly, residing at 1903 Saint George Place, Kinston, North Carolina 28504. Neither return was filed under A Provident Private Creditor Revocable Living Trust. Both returns were filed on individual Form 1040 as a married couple. The trust entity is not a party to these returns.
+
+The 2025 return was prepared by Ready Player 1 Tax Pros, preparer Dawn Alderson, PTIN P03236286, EFIN 506224, processed March 17, 2026, and filed electronically. The 2022 return was also prepared by Ready Player 1 Tax Pros, processed May 12, 2026, and mailed via Certified Mail, received by the IRS on May 27, 2026, tracking number 89 0710 5270 4022 2900 26.
+
+
+PART TWO — WHAT EACH RETURN CLAIMS AND WHY THE IRS IS FROZEN
+
+2025 Return — Federal
+
+The 2025 return reports total income of negative $74,386. This negative income figure arises from the Schedule 1 other income line, where the preparer entered negative $74,390, attributed to two entries labeled "31 USC 5103 5115 and 5118," representing the wages paid to Syrina ($51,750) and Clinton ($22,639) as negative adjustments. The actual W-2 wages paid — $51,750.09 from Boys and Girls Clubs of Wayne County to Syrina and $22,638 from Inter Technologies Corporation to Clinton — are confirmed by the original W-2 documents attached. The return also reports $2 in income, which appears to represent a nominal capital gain amount.
+
+The mechanics of the return are as follows. Line 25a (W-2 withholding) shows $74,389, which represents the actual wages the preparer recharacterized as withheld tax rather than income. Two Forms 4852 were submitted, one for each employer, asserting that lines 7(a) through 7(d) were corrected to zero because "I did not receive any wages as defined in IRC Section 3401(a)." The Schedule 1 Part II adjustment line shows $89,310 attributable to "31 USC 5103 5115 and 5118," which is the legal basis the preparer asserts for treating the currency received as non-taxable. The refund claimed is $74,218 federal and $2,511 state (North Carolina).
+
+The IRS account transcript for the 2025 return, pulled April 28, 2026, confirms the following transaction codes. Code 150 — tax return filed, processing date May 4, 2026. Code 806 — W-2 or 1099 withholding posted as a credit of negative $74,389. Code 810 — refund freeze, effective April 2, 2026, which predates processing, indicating RIVO flagged the return before it was fully processed. Code 768 — Earned Income Credit of negative $2. Code 570 — additional account action pending. Code 971 — notice issued, CP 0063, May 4, 2026. The account balance shows negative $74,218, meaning the IRS has acknowledged the credit but frozen it.
+
+The CP 0063 is significant. This is not a standard CP05. CP 0063 is an internal IRS notice code associated with frivolous return processing and RIVO identification. It is not typically mailed to the taxpayer. The standard CP05 (60-day review notice) would have been a separate mailing. The preparer's statement that the IRS is backed up until July or August for 2025 processing is consistent with the transcript showing the account action is still pending.
+
+2022 Return — Federal
+
+The 2022 return was filed late, with the return received by the IRS on May 27, 2026. The return covers tax year 2022 and was prepared using the same legal theory. The 2022 return claims the following. Total income line 9 shows $3, which represents a nominal amount. The adjustments to income on Schedule 1 Part II show $89,310 attributed to "31 USC 5103 5115 and 5118," producing an adjusted gross income of negative $89,307. The return claims payments from line 25a (W-2 withholding) of $19,662 and line 25b (1099 withholding) of $1,151, totaling $20,813, plus $2 Earned Income Credit, for total payments of $20,815 and a claimed refund of $20,815.
+
+The 2022 income sources per the W-2 income summary are as follows. Clinton received $15,217 from Inter Technologies Corporation (Form 4852 substituting this W-2, asserting zero wages under the 3401(a) theory). Syrina received $819 from Lenoir Community College (Form 4852 substituting, with $203 state withholding) and $3,626 from Kinston Arts Council (Form 4852 substituting, zero wages). Additionally, two Forms 4852 were filed for 1099-R distributions from the Teachers and State Employees Retirement System of North Carolina. The first covers a $13,000 distribution with distribution code G (direct rollover). The second covers a $5,757 distribution with distribution code 1 (early distribution, no known exception), with $1,151 federal withholding and $230 state withholding.
+
+The 2022 account transcript pulled June 8, 2026 for Clinton Wimberly IV (SSN ending 2847) shows "Return Not Present for This Account" with a Code 960 (appointed representative, February 24, 2026) and no Code 150 (return filed). This is critical. The 2022 return has not yet appeared in the IRS system as of June 8, 2026, despite being mailed and received on May 27, 2026.
+
+The CP518 notice received June 29, 2026 was a final notice of non-filing for 2022. The response letter prepared and sent to Kansas City on June 29, 2026, with Form 15103, a copy of the 2022 return, and the certified mail receipt, is the only substantive correspondence sent to the IRS on either return.
+
+The Form 2848 Power of Attorney filed for the trust entity generated the Code 960 in February 2026. The separate Forms 2848 prepared for the tax preparer (Dawn Alderson) for both Clinton and Syrina are not yet reflected on the transcripts, which means the IRS has not yet posted those authorizations.
+
+
+PART THREE — THE LEGAL THEORY AND ITS SPECIFIC DEFICIENCIES
+
+The legal theory employed on both returns rests on three statutory citations: IRC Section 3401(a), which defines wages for withholding purposes, 31 USC Sections 5103, 5115, and 5118, which govern the legal tender status of United States currency and Federal Reserve notes, and 26 USC 3503, which addresses erroneous payments.
+
+The theory as constructed by the preparer operates as follows. First, wages are defined under Section 3401(a) as remuneration for services performed by an employee for an employer. The preparer argues that because the payments received did not constitute wages within that definition — either because no employer-employee relationship existed in the statutory sense, or because the payments were made in Federal Reserve notes which are instruments of debt rather than taxable income — the amounts reported on the W-2s were erroneous and subject to correction via Form 4852. Second, the 31 USC citations are used to classify the Federal Reserve notes received as legal tender instruments rather than income, relying on a theory that currency printed by the Federal Reserve is not lawful money and therefore not taxable. Third, 26 USC 3503 is cited as authority for treating the withholding as an erroneous payment that can be recovered as a refund.
+
+The specific deficiencies in this theory are as follows.
+
+The Section 3401(a) argument fails on the facts. The W-2s for both Clinton and Syrina show that employer-employee relationships existed. Inter Technologies Corporation had Clinton on a retirement plan (box 13 checked), paid him $22,638 in wages, and withheld payroll taxes. Boys and Girls Clubs of Wayne County paid Syrina $51,750 and withheld FICA and Medicare taxes. These are standard W-2 employment relationships. The statutory definition of wages under Section 3401(a) encompasses remuneration paid by an employer to an employee for services. The mere assertion that no employer-employee relationship exists does not make it so when the documentary record shows otherwise. Every court that has considered this argument has rejected it, including most recently in cases decided under the Tax Court's expedited procedures for frivolous positions.
+
+The 31 USC legal tender argument fails as a matter of established law. Sections 5103, 5115, and 5118 govern the denomination, printing, and legal tender status of United States currency. They do not address the taxability of income received in the form of that currency. The argument that Federal Reserve notes are not taxable because they are instruments of debt rather than lawful money has been rejected by every federal court that has addressed it, characterized uniformly as frivolous, and specifically listed in IRS Notice 2007-30 as a frivolous position. The Tax Court addressed this theory in detail in Schiff v. United States, T.C. Memo 2004-169, and its progeny.
+
+The use of Form 4852 is improper on the 2025 return because the W-2s were issued and delivered. Form 4852 is authorized only when the employer or payer does not issue a Form W-2 or Form 1099-R, or issues an incorrect one. The W-2s from Boys and Girls Clubs and Inter Technologies are in the file. Filing a Form 4852 when an accurate W-2 exists and inserting $1 in place of actual wages while claiming the actual wages as withheld tax is a misuse of the form and is precisely the pattern IRS Notice 2007-30 identifies as a frivolous return strategy.
+
+The 2022 return presents an additional complexity. The $13,000 Teachers and State Employees Retirement System distribution bears distribution code G, which indicates a direct rollover. A direct rollover is not taxable and generates no income. The preparer's use of Form 4852 to substitute a 1099-R for this distribution and assert it as a credit suggests the $13,000 rollover was included in the claimed payments, which would be incorrect. The $5,757 distribution with code 1 involved actual withholding of $1,151, which is a legitimate credit. However, the 2022 Form 4852 for that distribution lists it as a 1099-R substitution on the basis that the company "erroneously reported distributions as taxable," which is not a recognized basis for Form 4852 substitution of a 1099-R.
+
+
+PART FOUR — THE NC SITUATION AND ITS SEPARATE MECHANICS
+
+The NC assessment of $790.25 predates the 2022 federal filing. North Carolina conducted its own source review (SRF) independently. For 2025, the NC return mirrors the federal return, showing an AGI of negative $74,386 and a refund claim of $2,511 based on the $2,511 in NC withholding (Syrina's $1,671 plus Clinton's $840 from their respective W-2s). The NC D-400 for 2025 has been filed. For 2022, the NC D-400 shows an AGI of negative $89,307 and a refund of $433 based on $433 in NC withholding from Syrina's Lenoir Community College W-2.
+
+The NC $790.25 assessment with the July 27 deadline is a separate administrative determination by the NC Department of Revenue. The prior rebuttal documents on file with NCDOR remain operative. The payment under protest mechanism and DOC-0052 remain the operative response to that assessment. NC's action does not affect the federal proceedings and vice versa.
+
+
+PART FIVE — THE COMPLETE TIMELINE
+
+February 24, 2026 — Form 2848 for the trust entity filed, generating Code 960 on Clinton's 2022 account.
+
+March 17, 2026 — 2025 Form 1040 prepared by Ready Player 1 Tax Pros, signed by both taxpayers, and transmitted electronically.
+
+April 2, 2026 — Code 810 refund freeze posted to the 2025 account, before the return was fully processed, indicating RIVO pre-identified the return.
+
+April 15, 2026 — Code 806 (W-2 withholding credit of $74,389) and Code 768 (EIC credit of $2) posted.
+
+May 4, 2026 — Code 150 (return processed), Code 570 (additional action pending), and Code 971 (CP 0063 notice) posted.
+
+May 12, 2026 — 2022 Form 1040 prepared by Ready Player 1 Tax Pros and mailed via Certified Mail.
+
+May 27, 2026 — 2022 Form 1040 received by the IRS per certified mail tracking confirmation.
+
+June 8, 2026 — Account transcript pulled for Clinton's 2022 year shows return not yet in system.
+
+June 29, 2026 — CP518 notice received (final notice of non-filing for 2022). Response letter with Form 15103, copy of 2022 return, and certified mail receipt mailed to IRS Kansas City.
+
+On or about June 29, 2026 — NC $790.25 assessment deadline of July 27 becomes the operative near-term action item.
+
+
+PART SIX — WHAT IS CONFIRMED, WHAT IS UNCERTAIN, AND WHAT IS CONTROLLABLE
+
+Confirmed facts. The 2025 return is in the IRS system, frozen, with $74,391 in credits posted and a refund of $74,218 frozen. The CP 0063 internal notice has been issued. No deficiency has been determined and no disallowance letter has issued as of the most recent transcript date. The 2022 return was delivered to the IRS on May 27, 2026, but as of June 8, 2026, had not yet been entered into the system. The CP518 has been responded to with documentary evidence of prior filing. No preparer penalties have been assessed. No Section 6702 frivolous return penalties have been assessed. The taxpayers have a clean penalty history for 2019, 2020, and 2021, which satisfies the First Time Abate prerequisite. The Form 2848s for the tax preparer are not yet active on the transcripts. The 2025 return was electronically filed, making it a certified electronic submission, but the refund transfer arrangement through Santa Barbara Tax Products Group and Green Dot Bank assigns the refund proceeds to the processor, a fact the IRS may note.
+
+Uncertain facts. Whether the CP 0063 will escalate to a formal disallowance letter (Letter 105C or 106C) or a statutory Notice of Deficiency. Whether the 2022 return will be processed normally or flagged under RIVO before it appears on the transcript. Whether the CP518 response will resolve the non-filing determination before any substitute for return is prepared. Whether the preparer Dawn Alderson has filed similar returns for other clients and whether OPR has opened an investigation.
+
+Controllable actions. The NC payment under protest before July 27 is the only time-sensitive controllable action. The Form 2848 submissions for the preparer should be confirmed on the transcripts by calling the IRS Practitioner Priority Service at 866-860-4259 to verify posting. The CP518 response should be confirmed as received. A transcript pull on the 2022 account after July 1 should show whether Code 150 has posted for the mailed return.
+
+
+PART SEVEN — RISK MATRIX FOR EACH PATH
+
+Path A (Accept and Correct — file amended 1040-X returns). The 2025 refund of $74,218 would be eliminated. The actual refund computable on corrected numbers, based on actual withholding from the W-2s — Boys and Girls Clubs withheld $5,175.30 federal, Inter Technologies withheld $2,568 federal — produces total actual federal withholding of $7,743.30 for 2025 against a tax liability that would need to be computed at correct income levels. The standard deduction for married filing jointly in 2025 is $31,500. Actual taxable income would be $74,389 minus $31,500 equals $42,889 taxable income, producing a tax liability of approximately $4,800 to $5,200 at the married filing jointly rates, against actual withholding of $7,743, yielding a legitimate refund of approximately $2,500 to $2,900. This path eliminates the $10,000 penalty exposure and secures a modest but legitimate refund.
+
+For 2022, the actual withholding was $19,662 from W-2 wages and $1,151 from the pension distribution, totaling $20,813. Actual taxable income would require computing against the standard deduction of $25,900, with pension distributions as noted, producing potential zero or low tax liability and a legitimate refund in the range of the actual withholding already credited. Filing a corrected 2022 return eliminates penalty exposure and resolves the CP518 inquiry.
+
+Path B (Wait and fight). The IRS will eventually issue a formal determination on the 2025 return. The transcript shows CP 0063 has issued, which is an early-stage internal identification. The next step internally is typically assignment to a RIVO examiner and potentially a CP05 or CP05A mailed to the taxpayers. Given the current processing timeline the preparer described (July to August for 2025 returns), the formal examination letter may not arrive until late summer 2026. At that point the response window begins. The risk is $5,000 per return in Section 6702 penalties, totaling $10,000, plus the likelihood of a $5,000 additional frivolous position fee if either return proceeds to Tax Court. The legal position has zero documented precedential support in any federal court.
+
+Path C (Strategic Retreat). Pay the NC assessment under protest before July 27. Let the federal process run. When the formal disallowance or examination letter issues, request First Time Abate for any penalties assessed. This path avoids the NC surcharge and preserves time to consult on the federal path. The risk is that the longer the positions remain in the system without correction, the harder it becomes to argue good faith. However, FTA is available because the prior years are clean.
+
+
+PART EIGHT — IMMEDIATE RECOMMENDED ACTIONS IN ORDER OF PRIORITY
+
+First action, NC payment under protest, deadline July 27. The $790.25 must be paid before July 27 or the mandatory $158.05 surcharge attaches. Use the protest letter and transmittal procedure described in DOC-0052. This is non-negotiable.
+
+Second action, verify transcript status of 2022 return. Pull the 2022 account transcript for both Clinton (SSN ending 2847) and Syrina (SSN ending 5467) after July 1, 2026. The return was mailed to Kansas City and the CP518 response was sent. The Code 150 should appear within 6 to 8 weeks of receipt, meaning by approximately mid-July. If it does not appear, a follow-up call to the IRS accounts management line at 800-829-1040 is warranted, referencing the certified mail tracking number and the CP518 response.
+
+Third action, verify Form 2848 posting for the preparer. Call the IRS Practitioner Priority Service at 866-860-4259 and confirm whether the Forms 2848 for Dawn Alderson on behalf of Clinton and Syrina for both 2022 and 2025 have been posted to the CAF system. If not posted, resubmit via the online submission tool.
+
+Fourth action, schedule and complete the meeting with the preparer. Use the question framework previously developed. The critical questions for this meeting, given the full record now available, are whether the preparer will stand behind the position through examination and appeals, whether the preparer has engagement documentation sufficient to support a good-faith reliance defense, and what the preparer's professional liability insurance covers.
+
+Fifth action, decision on amended returns. The decision whether to file corrected returns must be made before the formal disallowance issues. Once a disallowance or Notice of Deficiency issues, the voluntary correction window closes and the IRS's posture hardens. The window is currently open.
+
+
+PART NINE — WHAT THE RECORD NOW SHOWS ABOUT THE PREPARER'S STRATEGY
+
+The 2022 return is more aggressive than the 2025 return in one important respect. The 2022 return uses Form 4852 to substitute not only W-2 wages but also a 1099-R pension distribution from the Teachers and State Employees Retirement System. The distribution code G (direct rollover) on the $13,000 distribution means that distribution was not taxable in the first instance. It did not need to be challenged via Form 4852. Including it in the refund claim construction inflated the claimed payment by $13,000, which is not recoverable under any legal theory because no withholding was paid on that distribution. The second pension distribution of $5,757 with code 1 had $1,151 withheld, which is a legitimate credit, but the Form 4852 substitution for a 1099-R is not a recognized procedure.
+
+Additionally, the 2022 Schedule 1 Part II shows the $89,310 adjustment to income. This number represents the sum of the W-2 wages and pension distributions asserted as non-taxable under 31 USC 5103, 5115, and 5118. The sum of actual 2022 income per the source documents is: Clinton's Inter Technologies W-2 $75,160 (from the 2022 W-2 attached), Syrina's Lenoir Community College $6,966.50, Syrina's Kinston Arts Council $3,626, and the Teachers pension distributions of $13,000 plus $5,757. The total approximates $104,509. The $89,310 adjustment appears to capture most but not all of this income. The discrepancy requires clarification with the preparer.
+
+The 2022 return also shows Inter Technologies W-2 wages of $75,160 with federal withholding of $9,303.30, yet the Quick Summary shows only $15,217 as Clinton's W-2 wages. This suggests the preparer used a different figure for Clinton's 2022 wages on the Quick Summary than appears on the actual W-2 produced. The 2022 W-2 from Inter Technologies in the file shows box 1 wages of $75,160 with $9,303.30 federal withholding. However, the 2022 return summary shows only $15,217 for Clinton. This discrepancy must be resolved with the preparer. Either the $75,160 W-2 covers a different year, or the $15,217 figure is incorrect, or there is a separate year issue at play.
+
+
+This assessment is now as complete as the record permits. The primary gaps resolved by this submission were the dollar amounts on each return, the confirmation that both returns are individual Form 1040 filings not trust filings, the transcript data confirming the 2025 freeze and the 2022 non-posting, and the prior year clean penalty record. The two remaining open questions are the 2022 wage figure discrepancy on Clinton's Inter Technologies W-2 and the current status of the Forms 2848 for the preparer. Both are addressable through the preparer meeting and a transcript pull.

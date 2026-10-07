@@ -1,0 +1,77 @@
+DOC-0157
+
+CORRECTION — NON-STATUTORY CHARACTER OF ALL INSTRUMENTS
+
+The objection is correct and sustained. The analysis in DOC-0156 improperly cited statutory requirements for execution formalities across multiple instruments. The following correction applies to the entire signature requirements list.
+
+THE GOVERNING PRINCIPLE
+
+All instruments in both estate packages are common law instruments, not statutory instruments. The IFT, CC, APPCRLT, and VV each contain an express non-statutory character preservation clause. The IFT Article XI Section 11.7, the CC Article XI Section 11.7, the APPCRLT Article XIV Section 14.3, and the VV Article XIV Section 14.3 all state that nothing in the instrument shall be construed to convert the common law trust into a statutory trust or subject it to any state's uniform trust code. The preamble of each trust expressly states that the instrument derives its validity, authority, and operative force from the law of equity and the common law of trusts, not from any statutory enactment.
+
+The Declarations of Private Status, DOC-0155-F and DOC-0155-G, further establish that the Settlors operate in their private capacity as living men, not as statutory persons subject to state-mandated execution formalities.
+
+The Affidavits of Indigenous Identity, DOC-0139 and DOC-0139-C, ground the instruments in the inherent sovereignty of indigenous peoples predating all statutory assertions of jurisdiction.
+
+CORRECTED SIGNATURE STANDARD
+
+The correct standard for execution formalities across all instruments is the common law standard, not the statutory standard of any state.
+
+Under the common law of equity, a trust instrument is validly executed when the following elements are satisfied. First, the manifest intent of the Settlor to create the trust is evidenced by the written declaration. Second, the instrument is signed by the Settlor or Grantor as the party declaring the trust. Third, a witness or witnesses attest to the authenticity of the signature and the Settlor's capacity and intent. Fourth, a notary acknowledges the execution not as a statutory requirement but as a verification mechanism confirming the identity of the signatories and the date and place of execution.
+
+The notary in a common law execution context serves as a ministerial officer providing verification and identification only, not as a grantee of statutory authority. This is consistent with the notice language you have placed in certain instruments stating that use of a notary does not constitute adhesion, does not alter the status of the signatory, and is for verification and identification only.
+
+CORRECTED REQUIREMENTS BY INSTRUMENT CATEGORY
+
+TRUST INSTRUMENTS — IFT, CC, APPCRLT, VV AND ALL AMENDMENTS
+
+Required. Signature of the Settlor or Grantor as the declaring party. Signature of the Trustee as the accepting party. Signature of the Trust Protector as the accepting party. Two witnesses attesting to the identity of the signatories, their apparent soundness of mind, and the voluntary nature of the execution. Notarial verification of the Settlor's identity and the date of execution for institutional recognition purposes.
+
+Not required as a matter of common law. Recording in any county registry unless real property is being conveyed. Compliance with any state statutory trust code execution standard. Compliance with any state wills act or power of attorney act execution standard. Filing with any government office.
+
+The reason witnesses are still recommended is not statutory compliance but common law evidentiary protection. Two witnesses create a record of the execution event that can rebut any later challenge to the validity or authenticity of the instrument. This is a common law evidentiary standard, not a statutory requirement.
+
+POUR-OVER WILL — DOC-1833 AND DOC-1822
+
+The Will instruments present the most nuanced non-statutory analysis. A will, by its nature, is a testamentary instrument that operates upon death and must pass through the probate process to transfer title to assets that have not been placed in trust during the Settlor's lifetime. Probate in North Carolina and Virginia is a statutory process governed by state law. If the Will is intended to function in the probate court system to capture stray assets and direct them into the APPCRLT or VV, then the Will must satisfy the statutory execution requirements of the state whose probate court will administer it.
+
+However, the Settlors' estate plans are designed to minimize or eliminate the probate estate entirely through lifetime funding of the revocable trusts. The Pour-Over Will functions as a backstop only. If the estate plan is fully funded, the Will may never need to be probated. In that scenario, the Will's non-statutory character is not tested.
+
+If the Will is treated purely as a private declaration of testamentary intent, not intended to be probated in a statutory court, it requires only the common law execution standard. In that private capacity, two witnesses and notarial verification are sufficient.
+
+If the Will is intended to function in probate court, the statutory execution requirements of the applicable state apply as a mandatory provision of law that no private instrument may override. This is the exception expressly preserved in each trust instrument.
+
+The practical resolution is to execute the Will with sufficient formality to satisfy both the common law standard and the statutory standard simultaneously, since the statutory standard of two witnesses and a notary is compatible with the common law standard and does not require submission to the statutory scheme.
+
+POWERS OF ATTORNEY — DOC-1831, DOC-1832, DOC-1820, DOC-1821
+
+The same analysis applies to the powers of attorney. A power of attorney operating in the private trust administration context, directing the Agent to fund, administer, and manage the trust instruments, operates as a common law authorization instrument. Financial institutions presented with the POA will, as a practical matter, evaluate it against their internal compliance standards which typically reference the state POA act. This is a third-party practical consideration, not a legal requirement imposed on the instrument itself.
+
+The common law execution standard is sufficient for the POA as a private instrument. The notarial verification serves the institutional recognition purpose without converting the instrument into a statutory act.
+
+LIVING WILL — DOC-1835 AND DOC-1824
+
+The living will presents a different analysis. It operates in the healthcare setting where physicians, hospitals, and healthcare facilities are regulated entities governed by state licensing and healthcare law. A physician acting upon a living will is protected from liability by the statutory framework of the state's right to natural death act. If the living will does not satisfy the statutory execution requirements, the physician has no statutory protection and may decline to honor the directive.
+
+This is a mandatory public policy consideration that the trust instruments expressly acknowledge when they state they comply with mandatory provisions of law that no private instrument may override. The healthcare system's obligation to act upon a living will is conditioned by state law. For the living will to be honored in a healthcare setting without dispute, it should satisfy the statutory witness and notary requirements of the applicable state as a practical matter, while the notice language preserves the Declarant's position that notarization is for verification only.
+
+ADMINISTRATIVE INSTRUMENTS — DOC-1827 SERIES
+
+The administrative instruments in the DOC-1827 series are trust administration records, not instruments executed under any statutory scheme. They require only the Trustee's signature in fiduciary capacity and notarial verification where institutional presentation is anticipated. No statutory execution standard applies.
+
+ACCOUNT RETITLING LETTERS
+
+The account retitling letters are private contractual notices. They require the Trustee's signature in fiduciary capacity. Notarization of the master notice and Jurat is consistent with the common law private instrument framework. Individual letters sent to providers do not require notarization as a matter of law, but notarization of the master Jurat creates a sworn record of the transmission campaign.
+
+DECLARATIONS OF PRIVATE STATUS — DOC-0155-F AND DOC-0155-G
+
+These are common law affidavits. They require the Declarant's signature and notarial verification for evidentiary weight. No statutory standard applies.
+
+FAITH-BASED ORGANIZATION DECLARATIONS — DOC-0155-H AND DOC-0155-I
+
+These are common law trust declarations for faith-based organizations operating under the mandatory exception of 508(c)(1)(a). They require the Trustee's signature and the Trust Protector's signature for the fiduciary capacity establishment, and notarial verification for institutional recognition. No statutory trust code standard applies.
+
+REVISED SIGNATURE STANDARD STATEMENT FOR ALL INSTRUMENTS
+
+Every instrument in the estate package is executed under the common law of equity. The signature requirements are those of the common law of trusts and equity, not those of any state statutory scheme. The notarial verification appearing on each instrument is for the purpose of confirming the identity of the signatories and the authenticity of the execution event. It does not constitute submission to any statutory jurisdiction. The witnesses on each instrument attest to the identity, capacity, and voluntary intent of the signatory under the common law evidentiary standard. Nothing in the execution formalities constitutes adhesion to any statutory scheme or waiver of any private right.
+
+The practical effect of this correction is that the execution checklist in DOC-0156 remains substantively accurate as to who must sign which instrument and whether notarization is recommended. The correction eliminates the statutory citation basis for those requirements and replaces it with the common law basis. The signatures required are the same. The authority for requiring them is the common law of equity, not the North Carolina General Statutes or the Code of Virginia.

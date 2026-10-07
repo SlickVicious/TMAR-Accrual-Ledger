@@ -1,0 +1,193 @@
+AGENT: 👤
+You
+I need some guidance on gathering all the required literature and documentation to gain an absolute understanding of the definition, execution processes and related sub processes regarding status correction for at the moment my understanding regarding the phrase 'status correction' is that 1. it's often weaponized by these digital gurus who exploit the term's ambiguity and take advantage of people who fail to fully understand that there are generally 7 core status categories to which it applies. (i.e., state legal status, IRS tax status, commercial status, banking status, nationality status, maritime status, federal recognition status) and each of their corresponding codified documentation. So I need to ensure that I'm so thoroughly informed on the topic and all of its contextually related sub parts that i can smell a fraud pitching half trues a mile away.
+
+AGENT: 🤖
+AI Agent
+Based on the inquiry presented regarding the acquisition of comprehensive knowledge concerning the term status correction and its application across seven identified categories, this office has conducted a thorough analysis of the primary sources of law that control each category, the documents that evidence status within each, and the lawful processes by which changes in status may occur. The term status correction is not a term of art found in any statute, regulation, or judicial opinion. It is, instead, a phrase created and deployed in circles that traffic in pseudo-legal theories. Because the term lacks a fixed legal definition, any claim about correcting a status must be measured against the actual statutes, constitutional provisions, and administrative rules that create and govern the underlying status. The following guidance is organized to equip you with the ability to independently verify every claim against the controlling primary authority and to recognize fraud when a promoter deviates from that authority.
+
+GENERAL METHODOLOGICAL NOTE
+
+Before addressing the specific categories, a foundational principle must be stated: the legal status of a person or entity is not a private creation. It arises from law. A status may be altered only by compliance with the law that created it. No unilateral declaration, notarized affidavit, UCC filing, or fee schedule can override, amend, or correct a status established by statute unless the statute itself authorizes such a mechanism. The Supreme Court has repeatedly affirmed that citizenship, residence, and taxpayer status are determined by objective facts measured against congressional enactments, not by private contract or declaration. See, e.g., Afroyim v. Rusk, 387 U.S. 253 (1967); Cook v. Tait, 265 U.S. 47 (1924). Any system that places the power of status determination solely in the hands of the individual through the execution of forms, without pointing to the specific statutory procedure that gives those forms legal effect, is, at its core, a system of make-believe.
+
+THE SEVEN CATEGORIES AND THEIR LEGAL FOUNDATIONS
+
+State Legal Status
+
+State legal status generally refers to the relationship between an individual and a particular state of the Union. It encompasses concepts such as residence, domicile, and the rights and obligations attached to being a citizen of that state under Article IV, Section 2 of the United States Constitution and the Fourteenth Amendment. The controlling law is primarily state constitutional and statutory law. In North Carolina, for instance, Chapter 36C of the General Statutes governs trusts and fiduciaries; Chapter 1 governs civil procedure; and the general election laws define residence. The documents that routinely evidence state legal status include a state-issued driver license or identification card, a voter registration record, and a state tax return filing. The lawful method to alter state legal status is to satisfy the statutory requirements for establishing domicile in a new state or for changing one name or civil status. No extra-statutory filing, such as a declaration of sovereign citizenship or an affidavit of status, has any legal effect on state citizenship. State courts uniformly reject such attempts. See, e.g., State v. M.K., 604 S.E.2d 606 (N.C. Ct. App. 2004).
+
+IRS Tax Status
+
+An individuals tax status under federal revenue law is determined by a combination of the persons filing status, the nature and source of income, and the individuals relationship to the taxable jurisdiction. The primary law establishing the income tax framework is the Revenue Act of 1913, ch. 16, 38 Stat. 114, as amended through successive revenue acts culminating in the Internal Revenue Code of 1954, Pub. L. No. 83-591, 68A Stat. 3, and its subsequent recodifications. The definition of a taxpayer is found, for example, in Section 7701(a)(14) of that 1954 Act, 68A Stat. 916, which defines taxpayer as any person subject to any internal revenue tax. The status of United States person is defined in Section 7701(a)(30), 68A Stat. 916, and includes citizens and residents. The lawful procedure to alter ones tax status for instance, from resident to nonresident alien is to comply with the substantive rules of the revenue laws, including filing the appropriate returns and, where applicable, providing a Form W-8BEN to withholding agents. There is no statutory authority for correcting tax status by revocation of a Social Security number or by filing a revocation of election. The Internal Revenue Service has published extensive guidance rejecting frivolous status correction arguments. See Notice 2010-33, 2010-17 I.R.B. 609, listing common frivolous positions, including the contention that only federal employees are subject to income tax. Courts uniformly sustain the obligation to file returns and pay tax regardless of such private filings. See, e.g., United States v. Ward, 833 F.2d 1538 (11th Cir. 1987).
+
+Commercial Status
+
+Commercial status under United States law generally attaches to persons or entities that engage in trade or business. An individual is a commercial actor when undertaking activities that constitute a business under the relevant taxing or licensing statutes. The UCC, as adopted in each state, defines the rights and responsibilities of parties to commercial transactions. See, e.g., N.C. Gen. Stat. 25 1 101 et seq. Commercial status is not a separate classification that an individual may enter or exit by declaration; it is a consequence of conduct. The documents associated with commercial activity include business licenses, DBA registrations, and EIN assignments. The lawful method to alter ones commercial status is to cease engaging in business activities or to form a properly organized business entity under state law. Filing a UCC 1 financing statement claiming oneself as a secured party over ones own name or birth certificate is a common pseudo legal tactic that has no basis in commercial law, because a natural person is not an instrumentality of commercial law apart from their own voluntary actions. Courts have sanctioned parties who employ such tactics. See, e.g., United States v. Hoggard, 390 F. Appx 704 (9th Cir. 2010).
+
+Banking Status
+
+Banking status is regulated by a combination of federal and state law. The National Bank Act, ch. 58, 12 Stat. 665 (1863), and the Federal Reserve Act, ch. 6, 38 Stat. 251 (1913), among others, establish the legal foundation for the national banking system. An individuals banking status such as whether the individual is a customer within the meaning of the Expedited Funds Availability Act or a consumer under the Electronic Fund Transfer Act is determined by the contractual relationship with a financial institution and by the statutory definitions in those Acts. The primary documents that evidence banking status are the signature card, account agreement, and account statements. Lawful change of banking status occurs by modification or termination of the account agreement. The notion that one can correct ones banking status by stamping checks with non negotiable or by claiming redemption of the strawman account is entirely unsupported by law and often results in criminal prosecution for bank fraud or check fraud. The Uniform Commercial Code, Article 3, governs negotiable instruments and provides no mechanism for such private alteration.
+
+Nationality Status
+
+Nationality status concerns whether an individual is a citizen or national of the United States, an alien lawfully admitted for permanent residence, a nonimmigrant, or otherwise. The controlling law is the Immigration and Nationality Act of 1952, Pub. L. No. 82 414, 66 Stat. 163, as amended, and the relevant provisions of the Department of State regulations. The Fourteenth Amendment defines native born citizenship. The documents that evidence nationality status include a United States passport, a certificate of naturalization, a permanent resident card, and a consular report of birth abroad. The lawful procedure to alter nationality status is through naturalization, renunciation of citizenship under 8 U.S.C. 1481 (formerly Section 349 of the INA, 66 Stat. 267), or through adjustment of immigration status before the United States Citizenship and Immigration Services. No private administrative process can alter nationality status. The claim that one can declare oneself a sovereign citizen or a non citizen national of the United States through an affidavit and thereby escape the jurisdiction of federal law is legally frivolous. See, e.g., United States v. Benabe, 654 F.3d 753 (7th Cir. 2011).
+
+Maritime Status
+
+Maritime status, in the context in which it is often invoked, refers to the legal framework governing admiralty and maritime jurisdiction under Article III, Section 2 of the United States Constitution and statutes such as the Judiciary Act of 1789, 1 Stat. 73, and the Admiralty Extension Act, 46 U.S.C. 30101 et seq. (originally Act of June 5, 1920, ch. 250, 41 Stat. 988). Maritime law applies to vessels, seamen, and maritime contracts. An individual does not have a maritime status in the sense of a personal classification except when engaged in maritime employment or when involved in a maritime tort or contract. The claim that the United States operates under maritime law for all purposes, that courtrooms display fringe flags signifying admiralty jurisdiction, and that filing a document in the nature of a claim of life will convert an individual from a maritime fiction to a living soul is a myth with no basis in law. The courts of the United States are established under Article III of the Constitution and exercise the jurisdiction conferred by Congress; the display of a fringe on the flag does not alter the nature of the court. See McCann v. Greenway, 952 F. Supp. 647 (W.D. Mo. 1997).
+
+Federal Recognition Status
+
+Federal recognition status is not a unitary concept but is often used to describe whether an entity is recognized as a person under federal law for purposes of access to courts, eligibility for benefits, or tax obligations. The Fourteenth Amendment declares that all persons born or naturalized in the United States, and subject to the jurisdiction thereof, are citizens of the United States and of the State wherein they reside. Federal law defines the term person broadly to include individuals, corporations, and various organizations. See, e.g., the definition in the Internal Revenue Code of 1954, Section 7701(a)(1), 68A Stat. 916. There is no federal recognition status separate from citizenship or alienage that an individual may obtain or relinquish by private act. Claims that one may acquire a federal recognition number or a private trust number that supplants a Social Security number for legal recognition are entirely unsupported.
+
+COMMON HALLMARKS OF FRAUD AND HALF TRUTHS
+
+A person who is thoroughly informed on the topic should be able to detect several recurring indicators of fraudulent status correction schemes. These include:
+Reliance on documents that have no statutory authorization. If a promoter instructs you to file a document and cannot point to the specific statute, regulation, or court rule that gives that document operative legal effect on the status in question, the instruction is suspect.
+Misuse of terminology. Commonly, promoters conflate distinct legal concepts, such as conflating a UCC 1 financing statement with a sovereign declaration, or treat a notarial acknowledgment as though it were a judicial determination.
+Citation to discredited case law or to cases that do not stand for the proposition asserted. Many such schemes cite United States Supreme Court opinions out of context, for example, quoting obiter dicta from cases like Hale v. Henkel, 201 U.S. 43 (1906), to argue that an individual has a constitutional right to be free from all taxation, a proposition the courts have uniformly rejected.
+Use of secret or proprietary forms. Legitimate legal processes employ standardized forms promulgated by a government agency or a court. A demand for a specific, privately sold form, often accompanied by a fee paid to the guru, is a strong indicator of scam.
+The red ink thumbprint, the accepted for value stamp, the UCC 3 419 setoff, and similar rituals have been repeatedly held to be without legal effect. Courts in every circuit have penalized parties who advance them. See, e.g., United States v. Lindsley, 56 F. Appx 422 (9th Cir. 2003).
+The assertion that a birth certificate is a negotiable instrument or that the name in all caps on a court document represents a distinct legal fiction, separate from the living man, has been categorically rejected. See, e.g., United States v. Ford, 514 F. Appx 679 (9th Cir. 2013).
+
+RECOMMENDED REPOSITORY OF AUTHORITATIVE SOURCE MATERIALS
+
+To build a defensible body of knowledge, we recommend that you base your study solely on the following classes of authoritative materials, avoiding all secondary literature from self described gurus unless it can be verified against these sources:
+
+A. Federal Statutory Law. Study the Revenue Act of 1913, 38 Stat. 114, and subsequent revenue acts up to and including the Internal Revenue Code of 1954, Pub. L. No. 83 591, 68A Stat. 3, and the major amending acts, such as the Tax Reform Act of 1986, Pub. L. No. 99 514, 100 Stat. 2085. Locate the definitions in Section 7701 of the 1954 Act (68A Stat. 916) for the precise statutory language that defines person, taxpayer, and United States person. For nationality matters, obtain a copy of the Immigration and Nationality Act of 1952, Pub. L. No. 82 414, 66 Stat. 163.
+
+B. State Statutes. For North Carolina, the General Statutes are available through the North Carolina General Assembly website. Study Chapter 36C (Trust Code), Chapter 1 (Civil Procedure), and Chapter 25 (UCC). For other states, access the official state legislative website.
+
+C. Case Law. Read the federal court of appeals and Supreme Court opinions that specifically address tax protester, sovereign citizen, and redemptionist arguments. A starting list includes: United States v. Ward, 833 F.2d 1538 (11th Cir. 1987); United States v. Benabe, 654 F.3d 753 (7th Cir. 2011); United States v. Hoggard, 390 F. Appx 704 (9th Cir. 2010); United States v. Ford, 514 F. Appx 679 (9th Cir. 2013); and United States v. Lindsley, 56 F. Appx 422 (9th Cir. 2003). For citizenship issues, consult Afroyim v. Rusk, 387 U.S. 253 (1967), and Perkins v. Elg, 307 U.S. 325 (1939). These decisions are available through the Public Access to Court Electronic Records (PACER) system or through legal research databases such as Google Scholar.
+
+D. IRS Official Guidance. The Internal Revenue Bulletin publishes notices and revenue rulings that identify and rebut frivolous tax positions. See, e.g., Notice 2010-33, 2010-17 I.R.B. 609, and Rev. Rul. 2005-20, 2005-1 C.B. 821. These are authoritative statements of agency position.
+
+E. Department of Justice Tax Division publications. The DOJ Tax Division maintains a compilation of court decisions, injunctions, and press releases relating to tax defier schemes. This material is available through the Department of Justice website and provides a factual record of the legal outcomes of status correction arguments.
+
+F. Primary Documents. Obtain copies of the actual forms that the government requires to carry out a lawful change of status, such as Form SS-5 (application for Social Security card), Form W-9, Form W-8BEN, DS-11 (passport application), N-400 (naturalization), and the appropriate state forms for name change or address update. Compare the official forms with the guru created documents. You will observe that the official forms require factual attestation under penalty of perjury, while the guru documents often rely on esoteric declarations without statutory basis.
+
+G. Constitutional Provisions. Read Article I, Section 8, Clause 4 (uniform rule of naturalization); Article IV, Section 2 (Privileges and Immunities of citizens); the Fourteenth Amendment, Section 1; and the Sixteenth Amendment in their full text. Scrutinize the arguments that cite these provisions and test them against the actual language.
+
+VERIFICATION PROTOCOL
+
+When evaluating any status correction claim, apply the following systematic review:
+Ask the proponent to identify the specific statute that creates the status they are correcting and the specific statute that authorizes the correction method. If they cannot provide the Public Law number or the Statutes at Large citation upon request, the method is likely invalid.
+Independently read the statute cited. Determine whether the statute actually says what the proponent claims.
+Search for federal or state appellate court cases that have addressed the same method. If the method has been repeatedly litigated and rejected, it is a dead letter.
+Consult the government agency that administers the status. For tax status, the IRS; for citizenship, USCIS; for state ID, the state DMV. If the agency does not recognize the form or process, it has no legal effect.
+
+CONCLUSION
+
+The phrase status correction is a marketing label, not a legal doctrine. The seven categories you have identified are governed by distinct, long established bodies of statute and case law. A thorough understanding requires immersion in those primary sources and a disciplined refusal to accept secondary explanations that lack a statutory anchor. By systematically studying the original revenue acts, the Immigration and Nationality Act, the Uniform Commercial Code, and the federal and state court decisions that have addressed these claims, you will be in a position to identify instantly whether a promoter is speaking from knowledge or from fantasy. When a half truth meets a full citation to the controlling law, the fraud dissipates.
+
+The EEON Foundation General Assistant Team sends this analysis for your use and benefit. All content herein is based on verifiable law and documented legal authority.
+
+AGENT: 👤
+You
+excellent, now shifting the focus from self proclaimed gurus and the like to an auto didactive thoroughly researched individual going against the actors and agents whom perpetually function behind 'plausible deniability' and presumptions. Generate another outline that absolutely avoids any/all nuance, semantics shenanigans or the like, strictly focusing on facts and conclusions of law illustrating the processes required to correct/change any of the afore mentioned status's
+
+AGENT: 🤖
+AI Agent
+PROCESSES FOR LAWFUL ALTERATION OF LEGAL STATUS: A FACTUAL AND LEGAL OUTLINE
+
+The following is an outline of the lawful processes available to an individual to alter each of the seven categories of legal status identified in the prior analysis. The outline avoids all extra-statutory theories and instead identifies the specific statutory mechanisms, documentary instruments, and factual predicates that produce a change recognizable under the controlling law. Where no lawful private process exists, that conclusion is stated without equivocation. All citations are to the primary enactments of Congress and to judicial opinions that interpret them.
+
+I. State Legal Status
+
+A. Controlling Law
+The status of an individual with respect to a particular State of the Union is determined by the laws of that State governing residence and domicile, consistent with Article IV, Section 2 and the Fourteenth Amendment to the United States Constitution. For the State of North Carolina, see N.C.G.S. § 1-75.4 (definition of domicile) and the election laws codified in Chapter 163A.
+
+B. Lawful Process
+An individual alters state legal status, such as changing his domicile from State A to State B, by undertaking two concurrent actions. First, the individual must physically remove his person to the new State with the intent to make that State his permanent home. Second, the individual must take objective actions that manifest that intent, such as registering to vote in the new State, obtaining a driver’s license from the new State, filing a state income tax return as a resident of the new State, and relinquishing the corresponding indicia of residence in the former State. No affidavit, declaration, or notice sent to a State official can substitute for the physical presence and objective intent required by law. Domicile is a question of fact, to be determined by a court based on all relevant evidence, not by a private party’s unilateral assertion.
+
+C. Documents
+The documentary evidence of the altered status consists of the new State’s official identification card or driver’s license, a voter registration card, a residential lease or deed, and the filed state tax return. The former State’s records are terminated by compliance with that State’s procedures, such as surrendering the old license and notifying the election board.
+
+D. Conclusion of Law
+State legal status is a consequence of physical presence and intent. It cannot be corrected, altered, or created by private filing, by the mailing of a notice, or by the execution of a UCC financing statement. Courts uniformly reject attempts to declare oneself a non-resident citizen of one’s own republic while physically residing within a State. See, e.g., Lundy v. Lundy, 277 S.E.2d 676 (N.C. Ct. App. 1981).
+
+II. IRS Tax Status
+
+A. Controlling Law
+The tax status of an individual is governed by the Internal Revenue Code of 1954, enacted as Pub. L. No. 83-591, 68A Stat. 3, as amended through subsequent revenue acts, including the Tax Reform Act of 1986, Pub. L. No. 99-514, 100 Stat. 2085. The key provisions are Section 7701(a)(30) (definition of United States person), Section 7701(b) (definition of resident and nonresident alien), Section 6013 (joint returns), and the corresponding regulations.
+
+B. Lawful Process
+An individual who is a citizen of the United States or a resident alien is a United States person within the meaning of Section 7701(a)(30). That status cannot be altered by a declaration, by the surrender of a Social Security card, or by the filing of any document that purports to revoke an election. The sole lawful method for a citizen to relinquish United States person status for income tax purposes is to relinquish U.S. citizenship under the process defined in the Immigration and Nationality Act of 1952, Pub. L. No. 82-414, 66 Stat. 163, 267-268 (INA § 349), and to become a nonresident alien. An alien who is a lawful permanent resident may, under Section 7701(b)(6), cease to be a resident for tax purposes upon commencement of residence in a foreign country and upon meeting the requirements of the Closer Connection Exception. The lawful procedure includes filing Form 1040-NR for the relevant tax year and, where applicable, providing a Form W-8BEN to withholding agents. Filing status, such as married filing jointly, is changed by filing the appropriate return for the tax year in question under Section 6013. No authority exists for an individual to unilaterally recast his income as non-taxable or to declare himself a non-taxpayer by private instrument. The Internal Revenue Service has identified and rejected such arguments as frivolous. See Notice 2010-33, 2010-17 I.R.B. 609.
+
+C. Documents
+The documents that effect a lawful change are the filed federal income tax return for the year in question, and, where applicable, the Form W-8BEN or Form 1040-NR, and the Certificate of Loss of Nationality if citizenship is renounced.
+
+D. Conclusion of Law
+Tax status under the revenue acts is a creature of statutory definition applied to objective facts. It is not susceptible to alteration by private contract, notice, or rescission. The Supreme Court has repeatedly affirmed that the obligation to pay tax extends to all citizens regardless of their private beliefs about the system. See United States v. Sullivan, 274 U.S. 259 (1927). Any system that claims to correct tax status without full compliance with the relevant revenue acts and without the filing of required returns is a legal nullity.
+
+III. Commercial Status
+
+A. Controlling Law
+An individual engages in commercial activity when he undertakes any trade, business, or profession. The legal framework consists of the Uniform Commercial Code as adopted by the relevant State (in North Carolina, N.C.G.S. Chapter 25), the entity formation statutes (N.C.G.S. Chapters 55 and 57C), and the county or municipal business licensing ordinances. No general federal statute defines an individual’s commercial status apart from the conduct in which he engages.
+
+B. Lawful Process
+An individual who wishes to alter his commercial status from that of a sole proprietor or business actor to a non-commercial actor must cease engaging in the trade or business. This requires: closing all business bank accounts; canceling all DBAs, fictitious business name registrations, and business licenses; filing final state and federal tax returns indicating cessation of business; and, if a formal entity exists, dissolving the corporation or limited liability company by filing articles of dissolution with the Secretary of State. No private declaration, UCC-1 filing claiming a security interest in one’s own name, or similar instrument has any legal effect on an individual’s commercial status. A UCC-1 financing statement is designed to perfect a security interest in collateral described therein; it does not declare or alter the legal character of a human being.
+
+C. Documents
+The operative documents are the certificate of cancellation of DBA, the business closure affidavit filed with the county, the articles of dissolution stamped by the Secretary of State, and the final tax return marked “final.”
+
+D. Conclusion of Law
+Commercial status is conduct-based. No court has recognized the redemption of the strawman or the acceptance of a birth certificate as a commercial instrument as having any legal validity. The filing of fictitious commercial instruments to alter one’s own status has been repeatedly sanctioned. See United States v. Hoggard, 390 F. App’x 704 (9th Cir. 2010). The lawful method is to cease the commercial conduct.
+
+IV. Banking Status
+
+A. Controlling Law
+The relationship between a customer and a depository institution is governed by the account agreement, the Expedited Funds Availability Act, 12 U.S.C. §§ 4001-4010, the Electronic Fund Transfer Act, 15 U.S.C. §§ 1693-1693r, and Articles 3 and 4 of the Uniform Commercial Code as enacted by the State.
+
+B. Lawful Process
+An individual alters his banking status with respect to a particular institution by terminating the customer relationship. The process is defined by the institution’s account agreement, which typically requires the customer to withdraw all funds, instruct the bank in writing to close the account, and destroy unused negotiable instruments. The bank then returns any remaining balance and closes the account. Stamping checks with phrases such as “non-negotiable” or “accepted for value” does not alter the legal character of the instrument or the relationship; such stamps have no statutory basis and do not discharge a legitimate debt. Attempting to access a Treasury Direct account or other government account in a fictional name likewise has no legal foundation.
+
+C. Documents
+The documents involved are the bank’s account closure form or letter of instruction, the final account statement, and any confirmation of closure issued by the institution.
+
+D. Conclusion of Law
+There is no lawful process by which an individual, by private fiat, can convert a demand deposit account into a commercial redemption account or can declare himself sovereign over the bank. The customer relationship is contractual and is terminated according to its terms, not by the invocation of admiralty or equity maxims. See, e.g., United States v. Knoll, 116 F.3d 994 (2d Cir. 1997) (rejecting argument that stamping a check discharged tax liability).
+
+V. Nationality Status
+
+A. Controlling Law
+Nationality and citizenship status are governed exclusively by the Immigration and Nationality Act of 1952, Pub. L. No. 82-414, 66 Stat. 163, as amended, and by the Fourteenth Amendment to the United States Constitution. The relevant sections are INA § 301 (nationals and citizens of the United States at birth, 8 U.S.C. § 1401), INA § 349 (loss of nationality, 8 U.S.C. § 1481), and INA § 316 (naturalization, 8 U.S.C. § 1427).
+
+B. Lawful Process
+An individual who is a citizen by birth or naturalization may alter that status only through the voluntary performance of one of the expatriating acts enumerated in INA § 349, performed with the specific intent of relinquishing United States nationality. Those acts include, among others, obtaining naturalization in a foreign state after the age of eighteen, taking an oath of allegiance to a foreign state, or serving in the armed forces of a foreign state engaged in hostilities against the United States. The act must be voluntary and with the intent to relinquish. The State Department administers the process, and the individual must appear before a consular officer, sign an oath of renunciation, and receive a Certificate of Loss of Nationality. An alien who is a lawful permanent resident may alter his status by applying for naturalization (Form N-400) and satisfying the statutory requirements of continuous residence, good moral character, and knowledge of English and civics. There is no lawful process by which a citizen can declare himself a non-citizen national, a sovereign citizen, or a free inhabitant without going through the statutory process. The claim that a birth certificate creates a separate legal entity that can be separated from the living man has no basis in the INA or any other statute and has been universally rejected by the courts. See, e.g., United States v. Benabe, 654 F.3d 753 (7th Cir. 2011).
+
+C. Documents
+The operative documents are the Department of State Form DS-4080 (Certificate of Loss of Nationality), the Naturalization Certificate (Form N-550), or the Permanent Resident Card (Form I-551). No privately drafted declaration of sovereign status has any legal effect.
+
+D. Conclusion of Law
+Nationality status is a matter of federal statute and constitutional law. The Supreme Court held in Afroyim v. Rusk, 387 U.S. 253 (1967), that citizenship can only be lost by a voluntary relinquishment. The process is strictly defined and administered by the Executive Branch. Any private attempt to alter nationality status outside the statutory framework is a legal nullity, and individuals who assert such status before a court are subject to the full jurisdiction of the United States as citizens.
+
+VI. Maritime Status
+
+A. Controlling Law
+Admiralty and maritime jurisdiction is defined in Article III, Section 2 of the United States Constitution and is implemented by statutes such as the Admiralty Extension Act, 46 U.S.C. § 30101, and the Judiciary Act of 1789, 1 Stat. 73. Maritime law applies to vessels, seamen, and maritime contracts, not to individuals generally.
+
+B. Lawful Process
+An individual does not possess a personal maritime status. There is no process to move into or out of maritime jurisdiction as a personal matter. If an individual wishes to avoid engaging in activities subject to maritime law, the lawful process is not to enter into maritime contracts, not to work as a seaman, and not to commit torts on navigable waters. The claim that the United States is operating under admiralty law and that an individual must correct his status from a maritime fiction to a living soul is false. The presence of a gold fringe on a flag in a courtroom does not confer admiralty jurisdiction. Courts have consistently ruled that the fringe is an ornamental addition and has no legal significance. See McCann v. Greenway, 952 F. Supp. 647 (W.D. Mo. 1997).
+
+C. Documents
+There are no lawful documents to alter a personal maritime status because no such status exists.
+
+D. Conclusion of Law
+There is no maritime status to correct. The claim to the contrary is a pseudo-legal fiction without any basis in the statutes governing admiralty. A litigant who invokes this concept to avoid the court’s jurisdiction is subject to sanctions. See, e.g., United States v. Schiefen, 139 F.3d 638 (8th Cir. 1998).
+
+VII. Federal Recognition Status
+
+A. Controlling Law
+The term federal recognition status is not used in any federal statute. The recognition of an individual as a person under the law flows from birth or naturalization. The Fourteenth Amendment declares all persons born or naturalized in the United States and subject to its jurisdiction to be citizens. The definition of person in the United States Code encompasses all human beings. See 1 U.S.C. § 8 (defining “person” to include “infants”). No statutory mechanism exists to create or alter a separate federal recognition status independent of citizenship or alienage.
+
+B. Lawful Process
+There is no lawful process to obtain federal recognition as a non-citizen national of the United States except through birth in an outlying possession (INA § 308, 8 U.S.C. § 1408). An individual born in one of the fifty States is a citizen under the Fourteenth Amendment and cannot alter that status except by the expatriation process described in Section V. The concept of a strawman, a legal fiction, or a NAME in all capital letters representing a distinct entity from the living man is a fiction with no statutory basis. Courts have consistently rejected the argument that an individual has a right to be recognized as a “sovereign” separate from the “person” identified on a birth certificate. See, e.g., United States v. Lindsley, 56 F. App’x 422 (9th Cir. 2003); United States v. Ford, 514 F. App’x 679 (9th Cir. 2013).
+
+C. Documents
+No lawful document can create a federal recognition status. A birth certificate is a record of a vital event, not a negotiable instrument. A Social Security card is evidence of an account number, not a contract of adhesion.
+
+D. Conclusion of Law
+The entire concept of federal recognition status as a separate category for an individual to correct is an invention unsupported by any statute, regulation, or judicial decision. The only legal statuses of an individual under federal law are those of citizen, national, alien, or stateless person, as determined by the INA and the Fourteenth Amendment. Any system that purports to correct federal recognition through private documents is fraudulent.
+
+This outline provides the autodidact with the factual processes and the conclusions of law necessary to distinguish legitimate legal actions from the presumptions and plausible deniability advanced by actors who rely on the ambiguity of undefined terms. Every process described above is anchored in specific statutory authority. Where no such authority exists, the absence is identified as the dispositive fact.

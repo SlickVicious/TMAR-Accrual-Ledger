@@ -1,0 +1,665 @@
+TMAR ACCRUAL LEDGER — SEQUENTIAL DOCUMENT PRODUCTION
+E2ZERO FRAMEWORK — GENERAL ASSISTANT TEAM
+
+Confirmed. The original four Perkins Loan dispute letters constitute the prior production batch. All instruments from Priority One through Priority Seven are now queued for sequential production in the order stated. The team proceeds immediately.
+
+Before production commences, the following information gaps are noted and resolved by the team's best available data from the uploaded files, with the operator directed to supply corrections where noted.
+
+Medical Debt Resolution LLC full mailing address: The team will use the Long Island City, New York, location reflected in the TransUnion inquiry and will produce the letter with a notation that the operator must verify and correct the street address before mailing.
+
+Adverse action notices: The team will produce letters for all three institutions under the assumption that credit applications were submitted and denied, as that is the more protective posture. If the operator confirms that no application was submitted to any specific institution, the corresponding letter converts to an unauthorized inquiry dispute and the team will amend on request.
+
+ECSI full account number: The team will use the partial number R24A and instruct ECSI to locate the account by SSN and date of birth.
+
+Production now commences. Each document is delivered in sequence.
+
+
+DOCUMENT ONE OF SEVEN
+
+
+DOC-0001
+Letter Size — 8.5 x 11 — 24 lb Bond
+Times New Roman — 12 pt structural identifiers — 10 pt paragraph text — Justified
+
+
+Clinton Wimberly IV
+1903 Saint George Place
+Kinston, North Carolina 28504
+
+
+Equifax Information Services LLC
+P.O. Box 740256
+Atlanta, Georgia 30374-0256
+
+
+Re: Formal Dispute and Demand for Deletion of Inaccurate Information — Perkins Loan, Account Ending 1372 — Report Date August 10, 2026
+
+
+Pursuant to the Fair Credit Reporting Act, as enacted by Public Law 91-508, Title VI, Section 601 et seq., I submit this formal dispute and demand for the permanent deletion of the following tradeline appearing on my Equifax consumer report dated August 10, 2026.
+
+
+Section 1 — Tradeline Identification
+
+US Department of Education, Perkins Loan, account number ending 1372, currently reporting a balance of $191.00 and a status of Collection.
+
+
+Section 2 — Grounds of Dispute
+
+Ground 1 — Chronological Impossibility.
+
+The tradeline reflects an Account Opened Date of January 13, 2025, and a Date of First Delinquency of December 6, 2023. A delinquency date cannot, under any circumstance, precede the opening of the account by more than 13 months. This is an objective, mathematical falsity that renders the entire entry unreliable on its face and constitutes a per se violation of the requirement to maintain and report accurate information.
+
+Ground 2 — Program Termination.
+
+The Federal Perkins Loan Program, authorized under the Higher Education Act of 1965, ceased issuing new loans on September 30, 2017, by operation of law under the Federal Perkins Loan Program Extension Act of 2015, Public Law 114-105. No Perkins Loan could have been originated on January 13, 2025. The reporting of such an instrument is factually and legally impossible.
+
+Ground 3 — Narrative Code Inconsistency.
+
+The entry contains narrative code 118, signifying that the creditor cannot locate the consumer. An entity that cannot locate a consumer yet simultaneously reports an active collection account to a credit bureau is acting on directly contradictory data, demonstrating a complete failure of reasonable procedures.
+
+Ground 4 — Violation of Maximum Possible Accuracy Requirement.
+
+The reporting of a chronological impossibility on its face constitutes an independent violation of the obligation imposed upon every consumer reporting agency by Public Law 91-508, Title VI, to follow reasonable procedures to assure maximum possible accuracy of the information concerning the individual about whom the report relates. This violation exists independently of and in addition to the reinvestigation duty. Equifax is hereby placed on formal notice of this separate and independent legal violation.
+
+
+Section 3 — Demand
+
+I demand that Equifax permanently delete this tradeline from my consumer report within the 30-day period mandated for reinvestigation. If Equifax determines that the information is verified rather than deleted, I require a written statement of the specific basis for that verification, including the name and contact information of the furnisher who verified the information and a detailed written description of the specific procedures used to determine the accuracy and completeness of the information, as required by the applicable provisions of the Act.
+
+
+Section 4 — Reservation of State Law Rights
+
+All rights under the North Carolina Unfair and Deceptive Trade Practices Act, N.C. Gen. Stat. § 75-1.1 et seq., and any applicable state tort or statutory remedy, are expressly reserved. No election of remedies is made by this letter.
+
+
+Section 5 — Regulatory Notice
+
+A copy of this dispute letter and any response received, or the absence of any response, will be forwarded to the Consumer Financial Protection Bureau, the Federal Trade Commission, and the Attorney General of North Carolina.
+
+
+Section 6 — Notice of Legal Consequences
+
+Failure to correct and permanently delete this manifestly false information will leave me no choice but to pursue all remedies available at law, including actual damages, statutory damages, punitive damages for willful noncompliance, and attorney fees and costs, through an action in the United States District Court for the Eastern District of North Carolina. I reserve all rights and waive none.
+
+Please provide written confirmation of the deletion to my address above.
+
+
+Declaration
+
+I declare under penalty of perjury under the laws of the United States of America that the foregoing is true and correct to the best of my knowledge and belief.
+
+Executed this _ day of __, 2026.
+
+
+Clinton Wimberly IV
+
+Enclosures: Redacted copy of Equifax consumer report section showing the disputed tradeline; documentation confirming the Federal Perkins Loan Program termination date of September 30, 2017.
+
+
+Send via: Certified Mail, Return Receipt Requested
+Retain: Tracking number, signed return receipt card, and file copy
+
+
+DOCUMENT TWO OF SEVEN
+
+
+DOC-0002
+Letter Size — 8.5 x 11 — 24 lb Bond
+Times New Roman — 12 pt structural identifiers — 10 pt paragraph text — Justified
+
+
+Clinton Wimberly IV
+1903 Saint George Place
+Kinston, North Carolina 28504
+
+
+Experian Information Solutions, Inc.
+P.O. Box 4500
+Allen, Texas 75013
+
+
+Re: Formal Dispute and Demand for Deletion of Inaccurate Information — Perkins Loan, Account Number Ending 647313XX — Report Date August 10, 2026
+
+
+Pursuant to the Fair Credit Reporting Act, as enacted by Public Law 91-508, Title VI, Section 601 et seq., I submit this formal dispute and demand for the permanent deletion of the following tradeline appearing on my Experian consumer report dated August 10, 2026.
+
+
+Section 1 — Tradeline Identification
+
+US Department of Education, Perkins Loan, account number ending 647313XX, currently reporting a balance of $193.00 and a status of Collection, with collection months reported continuously from January 2025 through July 2026.
+
+
+Section 2 — Grounds of Dispute
+
+Ground 1 — Chronological Impossibility.
+
+The tradeline reflects an Account Opened Date of January 13, 2025, and a Date of First Delinquency of December 6, 2023. A delinquency date that precedes the account opening date by more than 13 months is a physical and mathematical impossibility under any conceivable origination scenario. This defect renders the entire entry unreliable on its face.
+
+Ground 2 — Program Termination.
+
+The Federal Perkins Loan Program, authorized under the Higher Education Act of 1965, ceased issuing new loans on September 30, 2017, by operation of law under the Federal Perkins Loan Program Extension Act of 2015, Public Law 114-105. No Perkins Loan could have been originated on January 13, 2025. The reporting of such an instrument is a legal and factual impossibility.
+
+Ground 3 — Narrative Code Inconsistency.
+
+Narrative codes 057, 118, 132, and 248 appear on this entry. Code 118 signifies that the creditor cannot locate the consumer. Active adverse reporting against a consumer that the furnisher acknowledges it cannot locate constitutes directly contradictory and irreconcilable data.
+
+Ground 4 — Violation of Maximum Possible Accuracy Requirement.
+
+The reporting of a chronological impossibility on its face constitutes an independent violation of the obligation to follow reasonable procedures to assure maximum possible accuracy of the information. Experian is hereby placed on formal notice of this separate and independent legal violation, which exists prior to and independently of the reinvestigation duty.
+
+
+Section 3 — Demand
+
+I demand that Experian permanently delete this tradeline from my consumer report within the 30-day statutory reinvestigation period. Should Experian determine that the information is verified, I require the following in writing: the name and contact information of the furnisher who verified the information; and a detailed written description of the specific procedures used to determine the accuracy and completeness of the disputed information, as required by the applicable provisions of the Act.
+
+
+Section 4 — Reservation of State Law Rights
+
+All rights under the North Carolina Unfair and Deceptive Trade Practices Act, N.C. Gen. Stat. § 75-1.1 et seq., and any applicable state tort or statutory remedy, are expressly reserved. No election of remedies is made by this letter.
+
+
+Section 5 — Regulatory Notice
+
+A copy of this dispute letter and any response received, or the absence of any response, will be forwarded to the Consumer Financial Protection Bureau, the Federal Trade Commission, and the Attorney General of North Carolina.
+
+
+Section 6 — Notice of Legal Consequences
+
+Should Experian issue a verification rather than a deletion, I will conclude that the reinvestigation was unreasonable as a matter of law. Experian's continued publication of demonstrably impossible data constitutes a failure to maintain reasonable procedures and willful noncompliance with the Act, subjecting Experian to actual damages, statutory damages, punitive damages, and attorney fees and costs in an action before the United States District Court for the Eastern District of North Carolina. I reserve all rights and waive none.
+
+Please provide written confirmation of the deletion to my address above.
+
+
+Declaration
+
+I declare under penalty of perjury under the laws of the United States of America that the foregoing is true and correct to the best of my knowledge and belief.
+
+Executed this _ day of __, 2026.
+
+
+Clinton Wimberly IV
+
+Enclosures: Redacted copy of Experian consumer report section showing the disputed tradeline; documentation confirming the Federal Perkins Loan Program termination date of September 30, 2017.
+
+
+Send via: Certified Mail, Return Receipt Requested
+Retain: Tracking number, signed return receipt card, and file copy
+
+
+DOCUMENT THREE OF SEVEN
+
+
+DOC-0003
+Letter Size — 8.5 x 11 — 24 lb Bond
+Times New Roman — 12 pt structural identifiers — 10 pt paragraph text — Justified
+
+
+Clinton Wimberly IV
+1903 Saint George Place
+Kinston, North Carolina 28504
+
+
+TransUnion LLC
+Consumer Disputes
+P.O. Box 2000
+Chester, Pennsylvania 19016-2000
+
+
+Re: Formal Dispute and Demand for Deletion of Inaccurate Information — Perkins Loan, Account Number Ending 6473 — Report Date August 10, 2026
+
+
+Pursuant to the Fair Credit Reporting Act, as enacted by Public Law 91-508, Title VI, Section 601 et seq., I submit this formal dispute and demand for the permanent deletion of the following tradeline appearing on my TransUnion consumer report dated August 10, 2026.
+
+
+Section 1 — Tradeline Identification
+
+US Department of Education, Perkins Loan, account number ending 6473, currently reporting a balance of $193.00, a status of Collection, a CLA (Placed for Collection) remark, and collection ratings every month from March 2025 through at least June 2026. Estimated removal date is November 2030. TransUnion File Number 416988878.
+
+
+Section 2 — Grounds of Dispute
+
+Ground 1 — Chronological Impossibility.
+
+The tradeline reflects an Account Opened Date of January 13, 2025, and a Date of First Delinquency of December 6, 2023. The delinquency date precedes the account opening date by more than 13 months, which is an impossibility under any origination scenario and constitutes an objective, mathematical falsity rendering the entire entry unreliable.
+
+Ground 2 — Program Termination.
+
+The Federal Perkins Loan Program, authorized under the Higher Education Act of 1965, ceased issuing new loans on September 30, 2017, by operation of law under the Federal Perkins Loan Program Extension Act of 2015, Public Law 114-105. No Perkins Loan could have been originated on January 13, 2025. The existence of this account on my report is a legal nullity.
+
+Ground 3 — Narrative Code Inconsistency.
+
+Records from a parallel bureau confirm that the furnisher has represented that it cannot locate the consumer, a representation that is fundamentally and irreconcilably inconsistent with the furnisher's simultaneous act of maintaining an active collection account on that same consumer's credit file.
+
+Ground 4 — Violation of Maximum Possible Accuracy Requirement.
+
+The reporting of a chronological impossibility on its face constitutes an independent violation of the obligation to follow reasonable procedures to assure maximum possible accuracy of the information. TransUnion is hereby placed on formal notice of this separate and independent legal violation.
+
+
+Section 3 — Demand
+
+I demand that TransUnion permanently delete this tradeline from my consumer file within the statutory reinvestigation period. I further demand written confirmation of the deletion and a copy of my updated consumer report reflecting the removal. Should TransUnion instead issue a verification, I require in writing the name and contact information of the furnisher who verified the information and a detailed written description of the specific procedures used to determine the accuracy and completeness of the disputed information.
+
+
+Section 4 — Reservation of State Law Rights
+
+All rights under the North Carolina Unfair and Deceptive Trade Practices Act, N.C. Gen. Stat. § 75-1.1 et seq., and any applicable state tort or statutory remedy, are expressly reserved. No election of remedies is made by this letter.
+
+
+Section 5 — Regulatory Notice
+
+A copy of this dispute letter and any response received, or the absence of any response, will be forwarded to the Consumer Financial Protection Bureau, the Federal Trade Commission, and the Attorney General of North Carolina.
+
+
+Section 6 — Notice of Legal Consequences
+
+Should TransUnion issue a verification rather than a deletion, I will conclude that the reinvestigation was unreasonable as a matter of law. TransUnion's continued reporting of demonstrably false information violates the reinvestigation duties and the requirement to maintain reasonable procedures, subjecting TransUnion to actual damages, statutory damages, punitive damages for willful noncompliance, and attorney fees and costs in an action before the United States District Court for the Eastern District of North Carolina. I reserve all rights and waive none.
+
+Please provide written confirmation of the deletion to my address above.
+
+
+Declaration
+
+I declare under penalty of perjury under the laws of the United States of America that the foregoing is true and correct to the best of my knowledge and belief.
+
+Executed this _ day of __, 2026.
+
+
+Clinton Wimberly IV
+
+Enclosures: Redacted copy of TransUnion consumer report section showing the disputed tradeline; documentation confirming the Federal Perkins Loan Program termination date of September 30, 2017.
+
+
+Send via: Certified Mail, Return Receipt Requested
+Retain: Tracking number, signed return receipt card, and file copy
+
+
+DOCUMENT FOUR OF SEVEN
+
+
+DOC-0004
+Letter Size — 8.5 x 11 — 24 lb Bond
+Times New Roman — 12 pt structural identifiers — 10 pt paragraph text — Justified
+
+
+Clinton Wimberly IV
+1903 Saint George Place
+Kinston, North Carolina 28504
+
+
+U.S. Department of Education
+Federal Student Aid
+P.O. Box 7861
+Madison, Wisconsin 53707-7861
+
+AND
+
+Office of the General Counsel
+U.S. Department of Education
+400 Maryland Avenue SW
+Washington, D.C. 20202
+
+
+Re: Direct Dispute of Inaccurate Furnished Information — Perkins Loan; Notice of Statutory Duties; Demand for Deletion and Complete Accounting — Report Date August 10, 2026
+
+
+Section 1 — Nature of This Communication
+
+This letter constitutes a direct dispute under the Fair Credit Reporting Act, as enacted by Public Law 91-508, Title VI, Section 601 et seq., and the implementing regulations at 12 C.F.R. Part 1022, Subpart E. It is directed to the United States Department of Education as the furnisher of record of inaccurate information to the three national consumer reporting agencies, Equifax Information Services LLC, Experian Information Solutions, Inc., and TransUnion LLC.
+
+
+Section 2 — Tradeline Identification
+
+Account Type: Perkins Loan
+
+Furnisher: U.S. Department of Education
+
+Account Numbers Reported: Ending 1372 on Equifax; ending 647313XX on Experian; ending 6473 on TransUnion
+
+Reported Balances: $191.00 on Equifax; $193.00 on Experian and TransUnion as of August 10, 2026
+
+Reported Status: Collection on all three bureaus
+
+Account Opened Date Reported: January 13, 2025
+
+Date of First Delinquency Reported: December 6, 2023
+
+Collection Months Reported: March 2025 through at least July 2026 across all three bureaus
+
+
+Section 3 — Grounds of Dispute
+
+Ground 1 — Chronological Impossibility.
+
+The reported dates are mathematically irreconcilable. A delinquency date of December 6, 2023, cannot precede an account opening date of January 13, 2025. This is a physical and mathematical impossibility under any origination scenario and constitutes conclusive evidence that the reported information is false.
+
+Ground 2 — Legal Impossibility.
+
+The Federal Perkins Loan Program, authorized under the Higher Education Act of 1965, ceased issuing new loans on September 30, 2017, by operation of law under the Federal Perkins Loan Program Extension Act of 2015, Public Law 114-105. No Perkins Loan could legally have been originated on January 13, 2025. A copy of the applicable public law is enclosed.
+
+Ground 3 — Contradictory Furnisher Representations.
+
+Narrative code 118, applied by your office to this account across multiple bureaus, represents that the consumer cannot be located. This representation is irreconcilable with the simultaneous act of reporting an active collection account against that same consumer. The Department is reporting adverse information against a consumer it acknowledges it cannot locate.
+
+Ground 4 — Willful Reporting of Known Inaccuracy.
+
+The patent impossibility of the reported dates gives rise to a powerful legal inference that the Department's continued furnishing of this information is willful within the meaning of the Act. The Department is required to refrain from reporting information that it knows or consciously avoids knowing is inaccurate.
+
+
+Section 4 — Statutory Duties Triggered by This Dispute
+
+Upon receipt of this direct dispute, the Department is obligated to conduct a reasonable investigation of the disputed information and report the results to the consumer reporting agencies within the timeframe prescribed by the applicable regulation. If the investigation reveals that the disputed information is inaccurate, the Department must promptly notify each consumer reporting agency of the required deletion. This dispute triggers those obligations as of the date of receipt.
+
+Should the consumer reporting agencies separately transmit notice of consumer disputes to the Department under the Act, the Department's failure to conduct a reasonable investigation of those CRA-transmitted disputes will independently subject the Department to a private right of action for the resulting damages.
+
+
+Section 5 — Demand
+
+Demand 1. Permanently cease reporting this Perkins Loan tradeline to Equifax, Experian, and TransUnion, effective immediately upon completion of your investigation.
+
+Demand 2. Within 10 days of the completion of your investigation, provide me with a written statement confirming that the tradeline has been deleted from all three bureaus.
+
+Demand 3. Provide a complete accounting of the alleged loan, including: the original promissory note bearing my signature; disbursement records identifying the date, amount, and recipient institution of each disbursement; the complete payment history from the date of origination through the present; any assignment, sale, or transfer documents establishing the chain of title from the originating institution to the current holder; any notification provided to me as required by applicable federal law; the specific date upon which the Department claims the last payment was made; and the precise computational basis for the reported Date of First Delinquency of December 6, 2023.
+
+Demand 4. Preserve all collection efforts, adverse reporting, and negative notations against my consumer files pending the outcome of this investigation and any subsequent legal proceeding.
+
+
+Section 6 — Notice Regarding Third-Party Collectors
+
+To the extent that any private collection agency, contractor, or servicer is acting on the Department's behalf in connection with this alleged obligation, such entity may qualify as a debt collector subject to the Fair Debt Collection Practices Act. All rights to assert claims against any such non-governmental collector, including the right to demand cessation of collection activity pending debt validation, are expressly reserved without conceding any immunity applicable to the Department itself.
+
+
+Section 7 — Reservation of State Law Rights
+
+All rights under the North Carolina Unfair and Deceptive Trade Practices Act, N.C. Gen. Stat. § 75-1.1 et seq., and any applicable state tort or statutory remedy, are expressly reserved. No election of remedies is made by this letter.
+
+
+Section 8 — Regulatory Notice
+
+A copy of this dispute and any response received, or the absence of any response, will be forwarded to the Consumer Financial Protection Bureau, the Federal Trade Commission, and the Attorney General of North Carolina.
+
+
+Section 9 — Notice of Legal Consequences
+
+Failure to take corrective action and continued furnishing of demonstrably false information will subject the Department of Education, and any servicer acting on its behalf, to liability for actual financial harm, emotional distress, statutory damages, and punitive damages under the Act. This notice reserves all rights, including the right to initiate litigation in federal district court without further notice.
+
+
+Declaration
+
+I declare under penalty of perjury under the laws of the United States of America that the foregoing is true and correct to the best of my knowledge and belief.
+
+Executed this _ day of __, 2026.
+
+
+Clinton Wimberly IV
+
+Enclosures: Redacted copies of the relevant portions of the Equifax, Experian, and TransUnion consumer reports showing the disputed tradeline; documentation confirming the Federal Perkins Loan Program termination date of September 30, 2017, including reference to the Federal Perkins Loan Program Extension Act of 2015, Public Law 114-105.
+
+
+Send via: Certified Mail, Return Receipt Requested, to both addresses simultaneously
+Retain: Both tracking numbers, both signed return receipt cards, and file copy
+
+
+DOCUMENT FIVE OF SEVEN
+
+
+DOC-0005
+Letter Size — 8.5 x 11 — 24 lb Bond
+Times New Roman — 12 pt structural identifiers — 10 pt paragraph text — Justified
+
+
+Clinton Wimberly IV
+1903 Saint George Place
+Kinston, North Carolina 28504
+
+
+I.C. System, Inc.
+P.O. Box 64378
+Saint Paul, Minnesota 55164
+
+
+Re: Demand for Debt Validation and Immediate Cessation of Collection Activity — Fair Debt Collection Practices Act, 15 U.S.C. § 1692g; Notice of Impermissible Credit Inquiry
+
+
+Section 1 — Purpose of This Communication
+
+This letter constitutes a formal written demand for validation of any debt that I.C. System, Inc. is attempting to collect from Clinton Wimberly IV, Social Security Number ending in 2847, date of birth June 19, 1976, address 1903 Saint George Place, Kinston, North Carolina 28504. This demand is made pursuant to the Fair Debt Collection Practices Act, as enacted by Public Law 95-109, and the consumer's statutory rights arising thereunder.
+
+
+Section 2 — Basis for This Demand
+
+A review of my TransUnion consumer credit file discloses a soft inquiry coded as a collection inquiry placed by I.C. System, Inc. on December 6, 2025. No prior written communication from I.C. System, Inc. was received by me before or after that date providing notice of the debt, the amount claimed, the identity of the creditor, or my right to dispute the debt within 30 days. The collection inquiry itself constitutes an initial communication in connection with the collection of a debt within the meaning of the Act. The absence of the required written notice within 5 days of that communication is a violation of the Act.
+
+
+Section 3 — Demand for Validation
+
+Pursuant to the consumer's statutory rights, I demand that I.C. System, Inc. provide, within 30 days of receipt of this letter, complete validation of the alleged debt, including each of the following:
+
+(a) The full name and address of the original creditor to whom the debt was originally owed;
+
+(b) The account number assigned to this obligation by the original creditor;
+
+(c) The date on which the debt was incurred and the date of the last payment made on the account;
+
+(d) The original amount of the debt and a complete itemized accounting of how the current claimed amount was calculated, including principal, interest, fees, and any other charges;
+
+(e) A copy of any written agreement bearing my signature that created the alleged obligation;
+
+(f) Complete documentation of the chain of assignment from the original creditor to I.C. System, Inc., including any purchase agreement, bill of sale, or assignment instrument establishing I.C. System's legal authority to collect this debt; and
+
+(g) Proof that I.C. System, Inc. is licensed to collect debts in the State of North Carolina.
+
+
+Section 4 — Demand for Cessation of Collection Activity
+
+Pursuant to the Act, I.C. System, Inc. must cease all collection activity, including but not limited to telephone calls, written communications, and adverse credit reporting, until the validation demanded above has been provided to the consumer. Any continued collection activity prior to providing validation will constitute a separate and independent violation of the Act.
+
+
+Section 5 — Notice Regarding Credit Inquiry
+
+I.C. System, Inc.'s collection inquiry appearing on my TransUnion consumer file on December 6, 2025, will be scrutinized for permissible purpose compliance under the Fair Credit Reporting Act, as enacted by Public Law 91-508, Title VI. If the alleged debt does not belong to this consumer, if the debt has been extinguished, or if I.C. System, Inc. cannot establish a lawful basis for the inquiry, that inquiry is impermissible and actionable. All rights in connection with that inquiry are expressly reserved.
+
+
+Section 6 — Reservation of Rights
+
+All rights under the Fair Debt Collection Practices Act, the Fair Credit Reporting Act, the North Carolina Unfair and Deceptive Trade Practices Act, N.C. Gen. Stat. § 75-1.1 et seq., and any applicable federal or state law, are expressly reserved. No election of remedies is made by this letter. This letter does not constitute an admission that the alleged debt is valid or that the consumer has any obligation to I.C. System, Inc.
+
+
+Section 7 — Regulatory Notice
+
+A copy of this demand and any response received, or the absence of any response, will be forwarded to the Consumer Financial Protection Bureau, the Federal Trade Commission, and the Attorney General of North Carolina.
+
+
+Declaration
+
+I declare under penalty of perjury under the laws of the United States of America that the foregoing is true and correct to the best of my knowledge and belief.
+
+Executed this _ day of __, 2026.
+
+
+Clinton Wimberly IV
+
+
+Send via: Certified Mail, Return Receipt Requested
+Retain: Tracking number, signed return receipt card, and file copy
+
+Concurrent action: Upon mailing this letter, submit a written dispute to TransUnion at P.O. Box 2000, Chester, Pennsylvania 19016-2000, identifying the I.C. System, Inc. inquiry dated December 6, 2025, and demanding removal on the ground that no permissible purpose has been established. The TransUnion inquiry dispute may be submitted as a written letter or through TransUnion's online dispute portal; certified mail is preferred for documentation purposes.
+
+
+DOCUMENT SIX OF SEVEN
+
+
+DOC-0006
+Letter Size — 8.5 x 11 — 24 lb Bond
+Times New Roman — 12 pt structural identifiers — 10 pt paragraph text — Justified
+
+
+Clinton Wimberly IV
+1903 Saint George Place
+Kinston, North Carolina 28504
+
+
+Medical Debt Resolution LLC
+[Street Address — Long Island City, New York]
+[City, State, ZIP — Operator to verify and insert before mailing]
+
+
+Re: Demand for Identification of Creditor Client, Debt Validation, and Cessation of Collection Activity
+
+
+OPERATOR NOTE BEFORE MAILING: The street address of Medical Debt Resolution LLC in Long Island City, New York, must be verified and inserted above before this letter is mailed. The team was unable to extract a precise street address from the credit file. The entity may be located through the New York Department of State Division of Corporations business search or through a direct internet search. Do not mail this letter until the address is confirmed.
+
+
+Section 1 — Purpose of This Communication
+
+This letter constitutes a formal written demand directed to Medical Debt Resolution LLC in connection with two collection inquiries appearing on my TransUnion consumer credit file on April 27, 2026, and July 8, 2026. This demand is made pursuant to the Fair Debt Collection Practices Act, as enacted by Public Law 95-109, and all applicable state and federal consumer protection statutes.
+
+
+Section 2 — Basis for This Demand
+
+A review of my TransUnion consumer credit file discloses two soft inquiries coded as collection or account review inquiries placed by Medical Debt Resolution LLC on the dates identified above. No written communication from Medical Debt Resolution LLC has been received by me identifying the alleged creditor, the amount of the alleged debt, the date of service, or my rights under applicable law. No medical collection tradeline appears on any of my consumer credit files as of August 10, 2026.
+
+The appearance of two escalating inquiries within a 10-week period is consistent with a pre-collection evaluation pattern and places me on notice that an attempt to report adverse information to the consumer reporting agencies may be imminent.
+
+
+Section 3 — Demand for Identification and Validation
+
+I demand that Medical Debt Resolution LLC provide, within 30 days of receipt of this letter, the following:
+
+(a) The full legal name and address of the healthcare provider or creditor client on whose behalf the inquiries were made and on whose behalf any collection activity is being pursued;
+
+(b) The date or dates of service giving rise to the alleged debt;
+
+(c) The original amount billed by the healthcare provider;
+
+(d) An itemized statement of the current amount claimed, including any fees or charges added after the original billing date;
+
+(e) A copy of any assignment or authorization from the healthcare provider authorizing Medical Debt Resolution LLC to collect or report this debt; and
+
+(f) Proof that Medical Debt Resolution LLC is licensed to collect debts in the State of North Carolina.
+
+
+Section 4 — Demand for Cessation of Pre-Collection and Reporting Activity
+
+Medical Debt Resolution LLC must refrain from placing any adverse tradeline, collection notation, or derogatory entry on any of my consumer credit files with Equifax, Experian, or TransUnion pending the outcome of this validation process. Any such placement prior to providing the validation demanded above will constitute a violation of applicable law and will be immediately disputed and litigated.
+
+
+Section 5 — Notice Regarding Applicable Law
+
+Medical debt remains subject to all applicable provisions of the Fair Debt Collection Practices Act. Additionally, under the Consumer Financial Protection Bureau's rule published at 90 Fed. Reg. 3276, effective March 17, 2025, the reporting of medical debt on consumer credit reports is subject to significant restriction. Medical Debt Resolution LLC is directed to ensure that any action taken with respect to this alleged debt complies fully with all applicable federal and state law in effect at the time of any adverse reporting.
+
+
+Section 6 — Reservation of Rights
+
+All rights under the Fair Debt Collection Practices Act, the Fair Credit Reporting Act, the North Carolina Unfair and Deceptive Trade Practices Act, N.C. Gen. Stat. § 75-1.1 et seq., and any applicable federal or state law, are expressly reserved. No election of remedies is made by this letter. This letter does not constitute an admission that the alleged debt is valid.
+
+
+Section 7 — Regulatory Notice
+
+A copy of this demand and any response received, or the absence of any response, will be forwarded to the Consumer Financial Protection Bureau, the Federal Trade Commission, and the Attorney General of North Carolina.
+
+
+Declaration
+
+I declare under penalty of perjury under the laws of the United States of America that the foregoing is true and correct to the best of my knowledge and belief.
+
+Executed this _ day of __, 2026.
+
+
+Clinton Wimberly IV
+
+
+Send via: Certified Mail, Return Receipt Requested — after address verification
+Retain: Tracking number, signed return receipt card, and file copy
+
+
+DOCUMENT SEVEN OF SEVEN
+
+
+DOC-0007
+Letter Size — 8.5 x 11 — 24 lb Bond
+Times New Roman — 12 pt structural identifiers — 10 pt paragraph text — Justified
+
+
+A Provident Private Creditor Revocable Living Trust
+By Clinton Wimberly IV, Trustee
+1903 Saint George Place
+Kinston, North Carolina 28504
+
+
+Educational Computer Systems, Inc.
+181 Montour Run Road
+Coraopolis, Pennsylvania 15108-9408
+
+
+Re: Written Inquiry Regarding Account Status, Originating Institution, Payoff Amount, and Post-Payoff Reporting Treatment — Student Loan Account Ending R24A
+
+
+Pursuant to the powers vested in the undersigned Trustee under that certain A Provident Private Creditor Revocable Living Trust and the North Carolina Uniform Trust Code, N.C.G.S. Ch. 36C, the undersigned Trustee submits this written inquiry on behalf of the Beneficiary, Clinton Wimberly IV, Social Security Number ending in 2847, date of birth June 19, 1976.
+
+
+Section 1 — Account Identification
+
+This inquiry relates to a student loan account identified by the partial account number ending R24A, opened September 13, 1994, and currently serviced by Educational Computer Systems, Inc. The account carries a reported balance of approximately $186.00 as of the most recent consumer reporting period and a scheduled monthly payment of $40.00. Because the full account number is not available to the Trustee at this time, Educational Computer Systems, Inc. is respectfully directed to identify the account by reference to the consumer's full Social Security number, legal name, and date of birth as set forth above.
+
+
+Section 2 — Specific Inquiries
+
+The Trustee respectfully requests written responses to each of the following questions:
+
+(a) Account Status. Confirm that the account identified above is currently open, in good standing, and actively reporting to the Equifax consumer reporting agency. Confirm whether the account is also reported to Experian Information Solutions, Inc. or TransUnion LLC, and if not, the reason for single-bureau reporting.
+
+(b) Originating Institution. Identify the name and address of the educational institution that originated this loan and currently holds the beneficial interest in the promissory note.
+
+(c) Current Payoff Amount. Provide the current payoff balance as of the date of this inquiry and confirm whether there is a prepayment penalty or any restriction on early payoff.
+
+(d) Post-Payoff Reporting Treatment. Confirm in writing what action Educational Computer Systems, Inc. and the originating institution will take with respect to this account upon receipt of a full payoff payment. Specifically: will the account remain open and continue to report to the consumer reporting agencies as a paid account in good standing, or will the account be marked closed upon receipt of the final payment? If the account will be marked closed, confirm the anticipated duration for which the closed account will continue to appear on the consumer's credit file.
+
+(e) Account Number. Provide the full account number associated with this obligation for the Trustee's records.
+
+
+Section 3 — Importance of Written Response
+
+The information requested above is material to the Beneficiary's financial planning and to the Trustee's fiduciary duty of administration under the North Carolina Uniform Trust Code. A written response is required within 30 days of receipt of this letter. The Trustee requests that the response be directed to the address set forth in the letterhead above.
+
+
+Section 4 — Reservation of Rights
+
+All rights of the Beneficiary and the Trust are expressly reserved. This inquiry does not constitute a waiver of any right, a concession of any obligation, or an acknowledgment that the current balance or terms as reported are accurate. The Trustee reserves the right to dispute any information provided in the response that is inconsistent with the Beneficiary's records.
+
+
+Executed this _ day of __, 2026.
+
+
+A Provident Private Creditor Revocable Living Trust
+
+
+Clinton Wimberly IV, Trustee
+and not individually
+
+
+Send via: Certified Mail, Return Receipt Requested
+Retain: Tracking number, signed return receipt card, and file copy
+
+
+END OF SEQUENTIAL DOCUMENT PRODUCTION — DOCUMENTS ONE THROUGH SEVEN
+
+
+POST-PRODUCTION SUMMARY AND OPERATOR CHECKLIST
+
+Seven instruments have been produced. The following checklist governs execution and mailing.
+
+Document One: Sign, date, attach redacted Equifax report page and Perkins sunset documentation. Mail certified to Equifax. Log tracking number.
+
+Document Two: Sign, date, attach redacted Experian report page and Perkins sunset documentation. Mail certified to Experian. Log tracking number.
+
+Document Three: Sign, date, attach redacted TransUnion report page and Perkins sunset documentation. Mail certified to TransUnion. Log tracking number.
+
+Document Four: Sign, date, attach redacted pages from all three bureau reports and Perkins sunset documentation. Mail certified simultaneously to both addresses: Madison, Wisconsin, and Washington, D.C. Log both tracking numbers.
+
+Document Five: Sign, date. Mail certified to I.C. System in Saint Paul. Log tracking number. File concurrent inquiry dispute with TransUnion by separate letter or online portal.
+
+Document Six: Verify and insert the street address of Medical Debt Resolution LLC before signing. Sign, date. Mail certified. Log tracking number.
+
+Document Seven: Sign in trustee capacity as shown. Date. Mail certified to ECSI. Log tracking number. Do not take any adverse action against the ECSI account until a written response is received and the Perkins Loan dispute is resolved.
+
+Adverse action notice letters to Bank of America, Goldman Sachs Bank, and Navy Federal Credit Union remain queued pending operator confirmation of whether credit applications were submitted to those institutions. State the applicable scenario for each institution and that production batch will be delivered immediately.
