@@ -730,6 +730,7 @@ function pullSheetData_(ss, sheetName, startRow, headers, options) {
  * Deploy as: Execute as Me, Access Anyone.
  */
 function doGet(e) {
+  var __t0 = Date.now(), __status = 'OK', __err = '';
   var action = (e && e.parameter && e.parameter.action) ? e.parameter.action : '';
 
   if (action !== 'ping') {
@@ -1122,7 +1123,11 @@ function doGet(e) {
     }
 
   } catch (err) {
+    __status = 'ERROR';
+    __err = err.message || String(err);
     return errorResponse_(err.message || String(err));
+  } finally {
+    logExecution_('GET:' + action, __status, Date.now() - __t0, __err);
   }
 }
 
@@ -1134,8 +1139,10 @@ function doGet(e) {
  * Content-Type must be 'text/plain' to avoid CORS preflight.
  */
 function doPost(e) {
+  var __t0 = Date.now(), __status = 'OK', __err = '', __action = '';
   try {
     if (!e || !e.postData || !e.postData.contents) {
+      __status = 'ERROR'; __err = 'No POST body';
       return errorResponse_('No POST body received');
     }
 
@@ -1143,13 +1150,17 @@ function doPost(e) {
     try {
       payload = JSON.parse(e.postData.contents);
     } catch (parseErr) {
+      __status = 'ERROR'; __err = 'Invalid JSON: ' + parseErr.message;
       return errorResponse_('Invalid JSON: ' + parseErr.message);
     }
 
+    __action = (payload && payload.action) || '';
+
     var authErr = checkApiKey_(payload.key);
-    if (authErr) return authErr;
+    if (authErr) { __status = 'ERROR'; __err = 'Auth error'; return authErr; }
 
     var action = payload.action || '';
+    __action = action;
     var ss = getTMARSpreadsheet_();
 
     switch (action) {
@@ -1472,12 +1483,23 @@ function doPost(e) {
         return jsonResponse_({ status: 'ok', action: 'runConsolidationNow', result: runScheduledConsolidation() });
       }
 
+      case 'pruneGuides': {
+        var pg = pruneGuides_(ss);
+        var pgHub = regenerateHubIndex_(ss);
+        updateSyncTimestamp_(ss, 'Master Register', 'push');
+        return jsonResponse_({ status: 'ok', action: 'pruneGuides', pruned: pg, hubIndex: pgHub });
+      }
+
       default:
         return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync, pushPrincipalRegister, pushContacts, pushCreditorDetail, deleteCreditorDetail, pushWebsiteAccounts, deleteWebsiteAccounts, importSubstituteW2, importForm1040, importForm2848, importScheduleA, importSchedule1, importSchedule2, importForm8275R, importAdminForms, importWorksheetData, refreshProofOfMailing, archiveTabs, pushCreditScorecard, runFunction');
     }
 
   } catch (err) {
+    __status = 'ERROR';
+    __err = err.message || String(err);
     return errorResponse_(err.message || String(err));
+  } finally {
+    logExecution_('POST:' + __action, __status, Date.now() - __t0, __err);
   }
 }
 
@@ -2641,6 +2663,35 @@ function pushScriptExecutions_(ss, rows) {
 
   SpreadsheetApp.flush();
   return { status: 'ok', action: 'pushScriptExecutions', updated: out.length };
+}
+
+
+/**
+ * Append one row to the "Script Executions" tab. Zero-OAuth: this runs inside the
+ * script and writes to its own sheet, so no external API scopes are required.
+ * Capped at 500 rows so it can't grow unbounded. Never throws.
+ */
+function logExecution_(action, status, durationMs, errorMsg) {
+  try {
+    var ss = getTMARSpreadsheet_();
+    var sheet = ss.getSheetByName('Script Executions');
+    if (!sheet) {
+      sheet = ss.insertSheet('Script Executions');
+      sheet.getRange(1, 1, 1, 5).setValues([['Function', 'Status', 'Start Time', 'Duration (s)', 'Error']]);
+    }
+    sheet.appendRow([
+      action || '',
+      status || '',
+      new Date().toISOString(),
+      durationMs != null ? (durationMs / 1000).toFixed(3) : '',
+      errorMsg || ''
+    ]);
+    var lastRow = sheet.getLastRow();
+    if (lastRow > 501) sheet.deleteRows(2, lastRow - 500);
+    SpreadsheetApp.flush();
+  } catch (e) {
+    // logging must never break the request
+  }
 }
 
 

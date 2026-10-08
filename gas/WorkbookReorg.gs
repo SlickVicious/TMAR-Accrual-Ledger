@@ -9,15 +9,15 @@ var HUB_SECTIONS_ = [
   ['Index & Dashboard',   ['📋 HUB INDEX', '📋 Dashboard', '📊 Credit Scorecard']],
   ['Core Registers',      ['Master Register', 'TIN Registry', 'FWM — Creditor Detail']],
   ['Ledgers & Accounting',['Transaction Ledger', 'General Ledger', 'Chart of Accounts']],
-  ['Banking',             ['🏦 Banking Records', 'BOA Cash Flow', 'PNC Cash Flow', 'Principal Register']],
-  ['Tax Filings',         ['1040 Submissions', 'W-2 & Income Detail', 'Schedule A', '📄 Tax Filings', '⚖️ Tax Determinations', 'Tax Strategy', 'CPA Questions']],
-  ['1099 Pipeline',       ['1099 Filing Chain', '1099 Filings', '🧾 IRIS 1099-B Generator']],
-  ['Mailings & Authority',['Proof of Mailing', 'Forms & Authority', 'Website Accounts']],
-  ['Trust Instruments',   ['📑 Trust Instrument', '🔑 Trustee Authority', '📜 Trustee Resolutions', '📦 Asset Transfer Log', '📊 Corpus & M-2']],
+  ['Banking',             ['BOA Cash Flow', 'PNC Cash Flow', 'Principal Register']],
+  ['Tax Filings',         ['1040 Submissions', 'W-2 & Income Detail', 'Schedule A', '📄 Tax Filings']],
+  ['1099 Pipeline',       ['1099 Filings']],
+  ['Mailings & Authority',['Proof of Mailing', 'Website Accounts']],
+  ['Trust Instruments',   ['📜 Trustee Resolutions', '📦 Asset Transfer Log']],
   ['Documents',           ['Document Inventory', 'Document Registry']],
   ['Household',           ['Household Obligations', 'Subscriptions & Services']],
-  ['Filing System',       ['FWM — Master Index', 'FWM — Forms Checklist', 'Filing Dashboard']],
-  ['Reference',           ['AppScripts', 'Gap Report', 'Validation']]
+  ['Filing System',       ['FWM — Master Index']],
+  ['Reference',           ['AppScripts', 'Validation']]
 ];
 
 function finalizeWorkbookReorg_(ss) {
@@ -209,4 +209,24 @@ function removeConsolidationTrigger() {
     if (t.getHandlerFunction() === 'runScheduledConsolidation') { ScriptApp.deleteTrigger(t); n++; }
   });
   return 'Removed ' + n + ' consolidation trigger(s).';
+}
+
+// ── Stage 4: prune the static guide/reference sheets (13) ─────────────────────
+
+var PRUNE_GUIDES_ = [
+  '🏦 Banking Records', '⚖️ Tax Determinations', 'Tax Strategy', 'CPA Questions',
+  '1099 Filing Chain', '🧾 IRIS 1099-B Generator', 'Forms & Authority',
+  '📑 Trust Instrument', '🔑 Trustee Authority', '📊 Corpus & M-2',
+  'FWM — Forms Checklist', 'Filing Dashboard', 'Gap Report'
+];
+
+function pruneGuides_(ss) {
+  var out = { hidden: [], missing: [] };
+  PRUNE_GUIDES_.forEach(function (name) {
+    var sh = ss.getSheetByName(name);
+    if (!sh) { out.missing.push(name); return; }
+    if (!sh.isSheetHidden()) { sh.hideSheet(); out.hidden.push(name); }
+  });
+  SpreadsheetApp.flush();
+  return out;
 }
