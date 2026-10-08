@@ -1497,6 +1497,10 @@ function doPost(e) {
         return jsonResponse_(appendToArchive_(aaNames, aaId));
       }
 
+      case 'foldScriptExecutions': {
+        return jsonResponse_(foldScriptExecutions_(ss));
+      }
+
       default:
         return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync, pushPrincipalRegister, pushContacts, pushCreditorDetail, deleteCreditorDetail, pushWebsiteAccounts, deleteWebsiteAccounts, importSubstituteW2, importForm1040, importForm2848, importScheduleA, importSchedule1, importSchedule2, importForm8275R, importAdminForms, importWorksheetData, refreshProofOfMailing, archiveTabs, pushCreditScorecard, runFunction');
     }
@@ -2617,8 +2621,9 @@ function updateMasterRegister_(ss, rows) {
 
 /**
  * Replace the entire "AppScripts" tab with a fresh function inventory.
- * Clears old rows (and the stale 2026-08-03 Health/Notes columns) and rewrites
- * the A/C/E/F layout: Function | File | What it does | Status.
+ * New 6-column layout: Function (file → name) | What it does | Status | Start Time | Duration (s) | Error.
+ * The file path is embedded into the Function name; the three runtime columns are
+ * left empty here (foldScriptExecutions_ populates them from the execution log).
  * @param {Array<Object>} rows - [{name, file, description, status}]
  */
 function pushAppScriptsInventory_(ss, rows) {
@@ -2626,18 +2631,16 @@ function pushAppScriptsInventory_(ss, rows) {
   if (!sheet) return { status: 'error', action: 'pushAppScriptsInventory', message: 'AppScripts tab not found' };
 
   var lastRow = sheet.getLastRow();
-  // Clear any merged cells / data validation in the used range before rewriting —
-  // the AppScripts tab has historically carried a structure that blanked col F
-  // (Status) on the header + first few rows.
   try { sheet.getRange(1, 1, Math.max(lastRow, 2), 8).breakApart(); } catch (e) {}
   try { sheet.getRange(1, 1, Math.max(lastRow, 2), 8).clearDataValidations(); } catch (e) {}
   if (lastRow > 1) {
     sheet.getRange(2, 1, lastRow - 1, Math.max(sheet.getLastColumn(), 8)).clearContent();
   }
-  sheet.getRange(1, 1, 1, 8).setValues([['Function', '', 'File', '', 'What it does', 'Status', '', '']]);
+  sheet.getRange(1, 1, 1, 6).setValues([['Function', 'What it does', 'Status', 'Start Time', 'Duration (s)', 'Error']]);
 
   var out = rows.map(function (r) {
-    return [r.name || '', '', r.file || '', '', r.description || '', r.status || ''];
+    var fn = (r.file ? String(r.file) + ' → ' : '') + (r.name || '');
+    return [fn, r.description || '', r.status || '', '', '', ''];
   });
   if (out.length) sheet.getRange(2, 1, out.length, 6).setValues(out);
 

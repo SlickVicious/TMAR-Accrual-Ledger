@@ -250,3 +250,55 @@ function appendToArchive_(tabNames, archiveId) {
   SpreadsheetApp.flush();
   return { status: 'ok', action: 'appendToArchive', copied: copied, missing: missing, failed: failed, archiveId: archiveId };
 }
+
+// ── Fold Script Executions into AppScripts ─────────────────────────────────────
+// AppScripts new layout: Function (file → name) | What it does | Status | Start Time | Duration (s) | Error.
+// Runtime metrics are matched from Script Executions by normalized action name.
+
+function _normExecName_(n) { return String(n || '').trim().replace(/^(GET|POST|PUT|DELETE|PATCH):/i, ''); }
+function _normFuncName_(n) { return String(n || '').trim().replace(/_+$/, ''); }
+
+function foldScriptExecutions_(ss) {
+  var app = ss.getSheetByName('AppScripts');
+  var se = ss.getSheetByName('Script Executions');
+  if (!app) return { status: 'error', action: 'foldScriptExecutions', message: 'AppScripts sheet not found' };
+  if (!se) return { status: 'error', action: 'foldScriptExecutions', message: 'Script Executions sheet not found' };
+
+  var appVals = app.getDataRange().getValues();   // A=Function, C=File, E=What it does, F=Status
+  var seVals = se.getDataRange().getValues();     // A=Function, B=Status, C=Start Time, D=Duration, E=Error
+
+  // latest-execution map (log is newest-first → keep first occurrence per action)
+  var exec = {};
+  for (var i = 1; i < seVals.length; i++) {
+    var act = _normExecName_(seVals[i][0]);
+    if (!act || (act in exec)) continue;
+    exec[act] = { start: seVals[i][2], dur: seVals[i][3], err: seVals[i][4] };
+  }
+
+  var newRows = [];
+  for (var r = 1; r < appVals.length; r++) {
+    var fn = String(appVals[r][0] || '').trim();
+    var file = String(appVals[r][2] || '').trim();
+    var desc = appVals[r][4];
+    var status = appVals[r][5];
+    if (!fn && !file) continue;
+    var combined = (file && fn) ? (file + ' → ' + fn) : (fn || file);
+    var e = exec[_normFuncName_(fn)] || { start: '', dur: '', err: '' };
+    newRows.push([combined, desc || '', status || '', e.start || '', e.dur || '', e.err || '']);
+  }
+
+  var oldLastRow = Math.max(app.getLastRow(), 2);
+  var oldLastCol = Math.max(app.getLastColumn(), 6);
+  try { app.getRange(1, 1, oldLastRow, oldLastCol).breakApart(); } catch (e) {}
+  try { app.getRange(1, 1, oldLastRow, oldLastCol).clearDataValidations(); } catch (e) {}
+  if (oldLastRow > 1) app.getRange(2, 1, oldLastRow - 1, oldLastCol).clearContent();
+  app.getRange(1, 1, 1, 6).setValues([['Function', 'What it does', 'Status', 'Start Time', 'Duration (s)', 'Error']]);
+  if (newRows.length) app.getRange(2, 1, newRows.length, 6).setValues(newRows);
+  if (oldLastCol > 6) app.getRange(1, 7, oldLastRow, oldLastCol - 6).clearContent();
+
+  var hiddenSe = false;
+  if (!se.isSheetHidden()) { se.hideSheet(); hiddenSe = true; }
+
+  SpreadsheetApp.flush();
+  return { status: 'ok', action: 'foldScriptExecutions', rows: newRows.length, matchedActions: Object.keys(exec).length, hiddenScriptExecutions: hiddenSe };
+}
