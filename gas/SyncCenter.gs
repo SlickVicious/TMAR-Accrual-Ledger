@@ -1275,6 +1275,17 @@ function doPost(e) {
         return jsonResponse_(wdResult);
       }
 
+      case 'deleteForm1040': {
+        var dfSubmittedAt = Array.isArray(payload.submittedAt) ? payload.submittedAt : [];
+        var dfKeys = Array.isArray(payload.keys) ? payload.keys : [];
+        if (dfSubmittedAt.length === 0 && dfKeys.length === 0) {
+          return errorResponse_('Provide submittedAt (array of exact ISO timestamps) and/or keys (array of {tax_year, taxpayer_last_name})');
+        }
+        var dfResult = deleteForm1040_(ss, dfSubmittedAt, dfKeys);
+        updateSyncTimestamp_(ss, '1040 Submissions', 'push');
+        return jsonResponse_(dfResult);
+      }
+
       case 'pushRegistryScan': {
         if (!payload.text || typeof payload.text !== 'string') {
           return errorResponse_('pushRegistryScan requires a "text" field with TSV/CSV content');
@@ -1811,6 +1822,105 @@ function pushForm1040_(ss, p) {
   Logger.log('importForm1040: appended TY' + p.tax_year + ' for ' + p.taxpayer_last_name + ', ' + p.taxpayer_first_name);
 
   return { status: 'ok', action: 'importForm1040', rowsWritten: 1 };
+}
+
+
+/**
+ * Delete rows from "1040 Submissions" by exact `submitted_at` timestamp and/or
+ * by a {tax_year, taxpayer_last_name} key pair.
+ * Backs up every deleted row to a new sheet ("F1040_PreDelete_<timestamp>")
+ * before removing anything — deletion is always reversible.
+ * @param {Spreadsheet} ss
+ * @param {Array<string>} submittedAt - exact ISO `submitted_at` values (col 23).
+ * @param {Array<Object>} keys - {tax_year, taxpayer_last_name} pairs to delete.
+ */
+function deleteForm1040_(ss, submittedAt, keys) {
+  var sheet = ss.getSheetByName('1040 Submissions');
+  if (!sheet) return { status: 'error', action: 'deleteForm1040', message: '1040 Submissions tab not found' };
+
+  var lastRow = sheet.getLastRow();
+  if (lastRow <= 1) {
+    return { status: 'ok', action: 'deleteForm1040', deleted: 0, notFound: submittedAt, notFoundKeys: keys };
+  }
+
+  var n = lastRow - 1; // data rows, header at row 1
+  var data = sheet.getRange(2, 1, n, 24).getValues();
+
+  var tsSet = {};
+  (submittedAt || []).forEach(function (t) { if (t) tsSet[String(t).trim()] = true; });
+  var keySet = {};
+  (keys || []).forEach(function (k) {
+    if (k && k.tax_year && k.taxpayer_last_name) {
+      keySet[(String(k.tax_year).trim() + '|' + String(k.taxpayer_last_name).trim().toLowerCase())] = true;
+    }
+  });
+
+  var matchedTs = {}, matchedKeys = {};
+  var deletedRows = [];
+  var rowsToDelete = [];
+
+  for (var i = 0; i < n; i++) {
+    var row = data[i];
+    var taxYear = String(row[0] || '').trim();
+    var lastName = String(row[3] || '').trim();
+    var submitted = String(row[22] || '').trim();
+    var isMatch = false;
+
+    if (submitted && tsSet[submitted]) { isMatch = true; matchedTs[submitted] = true; }
+    else {
+      var kkey = taxYear + '|' + lastName.toLowerCase();
+      if (keySet[kkey]) { isMatch = true; matchedKeys[kkey] = true; }
+    }
+
+    if (isMatch) {
+      deletedRows.push(row);
+      rowsToDelete.push(i + 2); // +2: header row + 1-based index
+    }
+  }
+
+  if (rowsToDelete.length === 0) {
+    return { status: 'ok', action: 'deleteForm1040', deleted: 0, notFound: submittedAt, notFoundKeys: keys };
+  }
+
+  // Backup before delete — full 24-column snapshot of exactly the rows being removed.
+  var headers = [
+    'Tax Year', 'Filing Status', 'First Name', 'Last Name', 'SSN (masked)',
+    'Address', 'City/State/Zip',
+    'Wages (L1)', 'Taxable Interest (L2b)', 'Ordinary Dividends (L3b)',
+    'Capital Gain (L7)', 'Other Income (L8)', 'Total Income (L9)',
+    'AGI (L11)', 'Deductions (L12)', 'Taxable Income (L15)',
+    'Tax (L16)', 'Total Tax (L24)', 'Fed Withholding (L25a)',
+    'Total Payments (L33)', 'Refund (L34)', 'Amount Owed (L37)',
+    'Submitted At', 'Source'
+  ];
+  var stamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone() || 'America/Chicago', 'yyyyMMdd_HHmmss');
+  var backupName = 'F1040_PreDelete_' + stamp;
+  var backupSheet = ss.insertSheet(backupName);
+  backupSheet.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight('bold');
+  backupSheet.getRange(2, 1, deletedRows.length, headers.length).setValues(deletedRows);
+  backupSheet.setTabColor('#ef4444');
+
+  // Delete bottom-up so earlier row indices stay valid.
+  rowsToDelete.sort(function (a, b) { return b - a; });
+  for (var d = 0; d < rowsToDelete.length; d++) sheet.deleteRow(rowsToDelete[d]);
+
+  // Compute which requested keys did NOT match, for accurate reporting.
+  var notFoundTs = [];
+  (submittedAt || []).forEach(function (t) { if (t && !matchedTs[String(t).trim()]) notFoundTs.push(t); });
+  var notFoundKeys = [];
+  (keys || []).forEach(function (k) {
+    if (k && k.tax_year && k.taxpayer_last_name) {
+      var kkey = String(k.tax_year).trim() + '|' + String(k.taxpayer_last_name).trim().toLowerCase();
+      if (!matchedKeys[kkey]) notFoundKeys.push(k);
+    }
+  });
+
+  SpreadsheetApp.flush();
+  return {
+    status: 'ok', action: 'deleteForm1040',
+    deleted: rowsToDelete.length, backupSheet: backupName,
+    notFound: notFoundTs, notFoundKeys: notFoundKeys
+  };
 }
 
 
