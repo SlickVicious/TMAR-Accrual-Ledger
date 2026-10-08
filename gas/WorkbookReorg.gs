@@ -230,3 +230,23 @@ function pruneGuides_(ss) {
   SpreadsheetApp.flush();
   return out;
 }
+
+// Append tabs into an EXISTING archive workbook (avoids SpreadsheetApp.create, which
+// intermittently drops the Web App POST connection).
+function appendToArchive_(tabNames, archiveId) {
+  var source = SpreadsheetApp.openById(TMAR_SPREADSHEET_ID_);
+  var target = SpreadsheetApp.openById(archiveId);
+  var copied = [], missing = [], failed = [];
+  tabNames.forEach(function (name) {
+    var sh = source.getSheetByName(name);
+    if (!sh) { missing.push(name); return; }
+    try {
+      sh.copyTo(target).setName(name);
+      copied.push(name);
+    } catch (e) {
+      failed.push(name + ' :: ' + String(e));
+    }
+  });
+  SpreadsheetApp.flush();
+  return { status: 'ok', action: 'appendToArchive', copied: copied, missing: missing, failed: failed, archiveId: archiveId };
+}

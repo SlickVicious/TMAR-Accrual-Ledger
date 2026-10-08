@@ -1490,6 +1490,13 @@ function doPost(e) {
         return jsonResponse_({ status: 'ok', action: 'pruneGuides', pruned: pg, hubIndex: pgHub });
       }
 
+      case 'appendToArchive': {
+        var aaNames = Array.isArray(payload.tabs) ? payload.tabs : [];
+        if (aaNames.length === 0) return errorResponse_('appendToArchive requires a "tabs" array');
+        var aaId = payload.archiveId || '1km7s7JBj8mj3-NxJ3HZwMRejCtyGsratKJ2oLkxQHww';
+        return jsonResponse_(appendToArchive_(aaNames, aaId));
+      }
+
       default:
         return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync, pushPrincipalRegister, pushContacts, pushCreditorDetail, deleteCreditorDetail, pushWebsiteAccounts, deleteWebsiteAccounts, importSubstituteW2, importForm1040, importForm2848, importScheduleA, importSchedule1, importSchedule2, importForm8275R, importAdminForms, importWorksheetData, refreshProofOfMailing, archiveTabs, pushCreditScorecard, runFunction');
     }
