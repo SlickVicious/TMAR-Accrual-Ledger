@@ -1110,6 +1110,11 @@
       <button onclick="toggleDarkMode()" id="themeToggle" class="absolute top-0 right-0 p-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors" title="Toggle Light/Dark Mode">
         <span id="themeIcon">☀️</span>
       </button>
+      <!-- Tool Launchers (below the dark/light toggle) -->
+      <div class="absolute top-12 right-0 flex flex-col gap-2 items-end" style="z-index:50">
+        <button onclick="launchScribewellStudio()" class="px-3 py-2 rounded-lg bg-purple-700 hover:bg-purple-600 text-white font-semibold text-xs transition-colors shadow-lg" title="Open Scribewell Studio (certified drafting template) in a new tab">🖋️ Scribewell Studio</button>
+        <button onclick="switchMainTab('gaapAgent')" class="px-3 py-2 rounded-lg bg-cyan-700 hover:bg-cyan-600 text-white font-semibold text-xs transition-colors shadow-lg" title="Activate the TMAR GUI Agent (GAAPCLAW Master)">🤖 TMAR GUI Agent</button>
+      </div>
       <h1 class="text-3xl md:text-4xl font-bold mb-2" style="font-family: Calibri, 'Segoe UI', system-ui, sans-serif;">
         <span class="text-blue-400">⚖️</span> TMAR Universal Accrual Ledger
       </h1>
@@ -6470,6 +6475,14 @@
       isDarkMode = !isDarkMode;
       localStorage.setItem('darkMode', isDarkMode);
       applyTheme();
+    }
+    
+    function launchScribewellStudio() {
+      var url = 'file:///C:/Users/rhyme/Desktop/htmlApps/Scribewell/SCRIBEWELL_CERTIFIED_TEMPLATE.html';
+      var w = window.open(url, '_blank');
+      if (!w || w.closed) {
+        alert('Browser blocked the local-file launch.\n\nOpen Scribewell Studio directly:\nC:\\Users\\rhyme\\Desktop\\htmlApps\\Scribewell\\Scribewell Studio.bat');
+      }
     }
     
     // Initial theme setup
