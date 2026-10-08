@@ -911,6 +911,9 @@ function doGet(e) {
       case 'listRunnableFunctions':
         return jsonResponse_({ status: 'ok', action: 'listRunnableFunctions', functions: Object.keys(RUNNABLE_FUNCTIONS_) });
 
+      case 'refreshScriptExecutions':
+        return refreshScriptExecutions();
+
       // ─── Workbook Sheet Integration (Wimberly Unified Master Register) ──
       case 'listWorkbookTabs': {
         var wbSS = SpreadsheetApp.openById(WORKBOOK_ID_);
@@ -1296,6 +1299,38 @@ function doPost(e) {
         return jsonResponse_(rsResult);
       }
 
+      case 'pushDocumentInventory': {
+        var diV = validatePayload_(payload.rows, ['docId']);
+        if (!diV.valid) return errorResponse_(diV.message);
+        var diResult = pushDocumentInventory_(ss, payload.rows);
+        updateSyncTimestamp_(ss, 'Document Inventory', 'push');
+        return jsonResponse_(diResult);
+      }
+
+      case 'updateMasterRegister': {
+        var umV = validatePayload_(payload.rows, ['rowId']);
+        if (!umV.valid) return errorResponse_(umV.message);
+        var umResult = updateMasterRegister_(ss, payload.rows);
+        updateSyncTimestamp_(ss, 'Master Register', 'update');
+        return jsonResponse_(umResult);
+      }
+
+      case 'pushAppScriptsInventory': {
+        var aiV = validatePayload_(payload.rows, ['name', 'file']);
+        if (!aiV.valid) return errorResponse_(aiV.message);
+        var aiResult = pushAppScriptsInventory_(ss, payload.rows);
+        updateSyncTimestamp_(ss, 'AppScripts', 'push');
+        return jsonResponse_(aiResult);
+      }
+
+      case 'pushScriptExecutions': {
+        var seV = validatePayload_(payload.rows, ['function']);
+        if (!seV.valid) return errorResponse_(seV.message);
+        var seResult = pushScriptExecutions_(ss, payload.rows);
+        updateSyncTimestamp_(ss, 'Script Executions', 'push');
+        return jsonResponse_(seResult);
+      }
+
       case 'importSubstituteW2':
         if (!payload.payload || typeof payload.payload !== 'object') {
           return errorResponse_('importSubstituteW2 requires a nested "payload" object');
@@ -1377,8 +1412,68 @@ function doPost(e) {
         return jsonResponse_({ status: 'ok', action: 'refreshProofOfMailing', message: pomMsg });
       }
 
+      case 'archiveTabs': {
+        var atNames = Array.isArray(payload.tabs) ? payload.tabs : [];
+        if (atNames.length === 0) return errorResponse_('archiveTabs requires a "tabs" array of exact tab names');
+        var atName = payload.archiveName || ('APPC_Archive_' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyyMMdd'));
+        return jsonResponse_(archiveTabs_(atNames, atName));
+      }
+
+      case 'pushCreditScorecard': {
+        if (!payload.scorecard || typeof payload.scorecard !== 'object') {
+          return errorResponse_('pushCreditScorecard requires a "scorecard" object {asOf, sourceNote, metrics, notes}');
+        }
+        var scResult = pushCreditScorecard_(ss, payload.scorecard);
+        updateSyncTimestamp_(ss, SCORECARD_TAB_, 'push');
+        return jsonResponse_(scResult);
+      }
+
+      case 'runWorkbookMerge': {
+        var mergeName = payload.merge || '';
+        var mResult;
+        switch (mergeName) {
+          case 'enrichMasterRegister': mResult = enrichMasterRegisterFromAcctLedger_(ss); break;
+          case 'mergeCreditorData':    mResult = mergeCreditorData_(ss); break;
+          case 'mergeValidation':      mResult = mergeValidation_(ss); break;
+          case 'dedupeMasterRegister': mResult = dedupeMasterRegister_(ss); break;
+          default: return errorResponse_('runWorkbookMerge requires "merge" = enrichMasterRegister | mergeCreditorData | mergeValidation | dedupeMasterRegister');
+        }
+        updateSyncTimestamp_(ss, 'Master Register', 'push');
+        return jsonResponse_(mResult);
+      }
+
+      case 'finalizeWorkbookReorg': {
+        var frReorg = finalizeWorkbookReorg_(ss);
+        var frHub = regenerateHubIndex_(ss);
+        updateSyncTimestamp_(ss, 'Master Register', 'push');
+        return jsonResponse_({ status: 'ok', action: 'finalizeWorkbookReorg', reorg: frReorg, hubIndex: frHub });
+      }
+
+      case 'consolidateGuides': {
+        var cg = consolidateGuides_(ss);
+        var cgHub = regenerateHubIndex_(ss);
+        updateSyncTimestamp_(ss, 'Master Register', 'push');
+        return jsonResponse_({ status: 'ok', action: 'consolidateGuides', guides: cg, hubIndex: cgHub });
+      }
+
+      case 'listTriggers': {
+        return jsonResponse_({ status: 'ok', action: 'listTriggers', triggers: listInstalledTriggers_(ss) });
+      }
+
+      case 'installConsolidationTrigger': {
+        return jsonResponse_({ status: 'ok', action: 'installConsolidationTrigger', message: installConsolidationTrigger(), triggers: listInstalledTriggers_(ss) });
+      }
+
+      case 'removeConsolidationTrigger': {
+        return jsonResponse_({ status: 'ok', action: 'removeConsolidationTrigger', message: removeConsolidationTrigger(), triggers: listInstalledTriggers_(ss) });
+      }
+
+      case 'runConsolidationNow': {
+        return jsonResponse_({ status: 'ok', action: 'runConsolidationNow', result: runScheduledConsolidation() });
+      }
+
       default:
-        return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync, pushPrincipalRegister, pushContacts, pushCreditorDetail, deleteCreditorDetail, pushWebsiteAccounts, deleteWebsiteAccounts, importSubstituteW2, importForm1040, importForm2848, importScheduleA, importSchedule1, importSchedule2, importForm8275R, importAdminForms, importWorksheetData, refreshProofOfMailing, runFunction');
+        return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync, pushPrincipalRegister, pushContacts, pushCreditorDetail, deleteCreditorDetail, pushWebsiteAccounts, deleteWebsiteAccounts, importSubstituteW2, importForm1040, importForm2848, importScheduleA, importSchedule1, importSchedule2, importForm8275R, importAdminForms, importWorksheetData, refreshProofOfMailing, archiveTabs, pushCreditScorecard, runFunction');
     }
 
   } catch (err) {
@@ -2402,6 +2497,253 @@ function pushCreditorDetail_(ss, rows) {
 
   SpreadsheetApp.flush();
   return { status: 'ok', action: 'pushCreditorDetail', imported: imported, updated: updated, skipped: skipped };
+}
+
+
+/**
+ * Push "Vault Location Path" (col I) updates to the "Document Inventory" tab.
+ * Upserts by Doc ID (col A). Used to clear stale Mac paths after a FileCabinet
+ * re-scan. Non-destructive: only col I is written; every other column untouched.
+ * @param {Array<Object>} rows - [{docId, vaultLocationPath}]
+ */
+function pushDocumentInventory_(ss, rows) {
+  var sheet = ss.getSheetByName('Document Inventory');
+  if (!sheet) return { status: 'error', action: 'pushDocumentInventory', message: 'Document Inventory tab not found' };
+
+  var lastRow = sheet.getLastRow();
+  var headerRow = 2; // row 1 = title banner, row 2 = column header
+
+  var idMap = {};
+  if (lastRow >= headerRow + 1) {
+    var n = lastRow - headerRow;
+    var idCol = sheet.getRange(headerRow + 1, 1, n, 1).getValues();
+    for (var i = 0; i < n; i++) {
+      var id = String(idCol[i][0] || '').trim();
+      if (id) idMap[id.toLowerCase()] = headerRow + 1 + i;
+    }
+  }
+
+  var updated = 0, notFound = 0, skipped = 0;
+  for (var r = 0; r < rows.length; r++) {
+    var row = rows[r];
+    var docId = String(row.docId || '').trim();
+    if (!docId) { skipped++; continue; }
+    if (row.vaultLocationPath === undefined || row.vaultLocationPath === null) { skipped++; continue; }
+
+    var target = idMap[docId.toLowerCase()];
+    if (!target) { notFound++; continue; }
+
+    sheet.getRange(target, 9).setValue(String(row.vaultLocationPath)); // col I = Vault Location Path
+    updated++;
+  }
+
+  SpreadsheetApp.flush();
+  return { status: 'ok', action: 'pushDocumentInventory', updated: updated, notFound: notFound, skipped: skipped };
+}
+
+
+/**
+ * Update existing Master Register rows by Row ID (col A). Unlike pushEntities_
+ * (which is append-only and skips existing providers), this UPDATES specific
+ * fields on rows that already exist.
+ * @param {Array<Object>} rows - [{rowId, primaryUser?, authorizedUsers?, status?, notes?}]
+ */
+function updateMasterRegister_(ss, rows) {
+  var sheet = ss.getSheetByName('Master Register');
+  if (!sheet) return { status: 'error', action: 'updateMasterRegister', message: 'Master Register tab not found' };
+
+  var lastRow = sheet.getLastRow();
+  // Clear stale data-validation on O/P so renamed enum values (e.g. Clint -> Clinton)
+  // can write even though the frozen _Validation list still holds the old value.
+  sheet.getRange(2, 15, Math.max(lastRow - 1, 1), 1).setDataValidation(null); // O = Primary User
+  sheet.getRange(2, 16, Math.max(lastRow - 1, 1), 1).setDataValidation(null); // P = Authorized Users
+  var idMap = {}; // Row ID -> sheet row number
+  if (lastRow > 1) {
+    var ids = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+    for (var i = 0; i < ids.length; i++) {
+      var id = String(ids[i][0] || '').trim();
+      if (id) idMap[id] = i + 2;
+    }
+  }
+
+  var updated = 0, notFound = 0, skipped = 0;
+  for (var r = 0; r < rows.length; r++) {
+    var row = rows[r];
+    var rowId = String(row.rowId || '').trim();
+    if (!rowId) { skipped++; continue; }
+    var target = idMap[rowId];
+    if (!target) { notFound++; continue; }
+
+    if (row.primaryUser !== undefined)     sheet.getRange(target, 15).setValue(String(row.primaryUser)); // O
+    if (row.authorizedUsers !== undefined) sheet.getRange(target, 16).setValue(String(row.authorizedUsers)); // P
+    if (row.status !== undefined)          sheet.getRange(target, 8).setValue(String(row.status));          // H
+    if (row.notes !== undefined)           sheet.getRange(target, 27).setValue(String(row.notes));          // AA
+    updated++;
+  }
+
+  SpreadsheetApp.flush();
+  return { status: 'ok', action: 'updateMasterRegister', updated: updated, notFound: notFound, skipped: skipped };
+}
+
+
+/**
+ * Replace the entire "AppScripts" tab with a fresh function inventory.
+ * Clears old rows (and the stale 2026-08-03 Health/Notes columns) and rewrites
+ * the A/C/E/F layout: Function | File | What it does | Status.
+ * @param {Array<Object>} rows - [{name, file, description, status}]
+ */
+function pushAppScriptsInventory_(ss, rows) {
+  var sheet = ss.getSheetByName('AppScripts');
+  if (!sheet) return { status: 'error', action: 'pushAppScriptsInventory', message: 'AppScripts tab not found' };
+
+  var lastRow = sheet.getLastRow();
+  // Clear any merged cells / data validation in the used range before rewriting —
+  // the AppScripts tab has historically carried a structure that blanked col F
+  // (Status) on the header + first few rows.
+  try { sheet.getRange(1, 1, Math.max(lastRow, 2), 8).breakApart(); } catch (e) {}
+  try { sheet.getRange(1, 1, Math.max(lastRow, 2), 8).clearDataValidations(); } catch (e) {}
+  if (lastRow > 1) {
+    sheet.getRange(2, 1, lastRow - 1, Math.max(sheet.getLastColumn(), 8)).clearContent();
+  }
+  sheet.getRange(1, 1, 1, 8).setValues([['Function', '', 'File', '', 'What it does', 'Status', '', '']]);
+
+  var out = rows.map(function (r) {
+    return [r.name || '', '', r.file || '', '', r.description || '', r.status || ''];
+  });
+  if (out.length) sheet.getRange(2, 1, out.length, 6).setValues(out);
+
+  SpreadsheetApp.flush();
+  return { status: 'ok', action: 'pushAppScriptsInventory', updated: out.length };
+}
+
+
+/**
+ * Write execution-history rows (pulled by an external client via the Apps Script
+ * API) into the "Script Executions" tab. rows = [{ function, status, startTime,
+ * duration, error }, ...].
+ */
+function pushScriptExecutions_(ss, rows) {
+  var sheet = ss.getSheetByName('Script Executions');
+  if (!sheet) sheet = ss.insertSheet('Script Executions');
+
+  var lastRow = sheet.getLastRow();
+  try { sheet.getRange(1, 1, Math.max(lastRow, 2), 5).breakApart(); } catch (e) {}
+  try { sheet.getRange(1, 1, Math.max(lastRow, 2), 5).clearDataValidations(); } catch (e) {}
+  if (lastRow > 1) {
+    sheet.getRange(2, 1, lastRow - 1, Math.max(sheet.getLastColumn(), 5)).clearContent();
+  }
+  sheet.getRange(1, 1, 1, 5).setValues([['Function', 'Status', 'Start Time', 'Duration (s)', 'Error']]);
+
+  var out = rows.map(function (r) {
+    return [r.function || '', r.status || '', r.startTime || '', r.duration || '', r.error || ''];
+  });
+  if (out.length) sheet.getRange(2, 1, out.length, 5).setValues(out);
+
+  SpreadsheetApp.flush();
+  return { status: 'ok', action: 'pushScriptExecutions', updated: out.length };
+}
+
+
+/**
+ * Pull this script's recent execution history via the Apps Script API
+ * (processes:listScriptProcesses) and write it to the "Script Executions" tab.
+ * Requires the https://www.googleapis.com/auth/script.processes scope to be
+ * authorized for the deploying user (one-time consent after adding the scope).
+ */
+function refreshScriptExecutions() {
+  var token = ScriptApp.getOAuthToken();
+  if (!token) {
+    return jsonResponse_({ status: 'error', action: 'refreshScriptExecutions',
+      message: 'No OAuth token — scopes not authorized yet (run once from the editor to consent).' });
+  }
+
+  var scriptId = '1fIfAfYbMw8udn2AggFnMDc-dwVNvrQeJT6qVOdJI1VdehZQzDoCdoyYr';
+  var url = 'https://script.googleapis.com/v1/processes:listScriptProcesses?scriptId='
+    + encodeURIComponent(scriptId) + '&pageSize=100';
+  var resp = UrlFetchApp.fetch(url, { headers: { 'Authorization': 'Bearer ' + token }, muteHttpExceptions: true });
+  var code = resp.getResponseCode();
+  if (code !== 200) {
+    return jsonResponse_({ status: 'error', action: 'refreshScriptExecutions', httpCode: code,
+      message: resp.getContentText().slice(0, 500) });
+  }
+
+  var data = JSON.parse(resp.getContentText());
+  var procs = (data.processes || []).map(function (p) {
+    return {
+      functionName: p.functionName || '',
+      status: (p.status || '').replace('PROCESS_STATUS_', ''),
+      startTime: p.startTime || '',
+      durationSec: p.duration ? String(p.duration).replace('s', '') : ''
+    };
+  });
+
+  // Best-effort: pull ERROR-severity entries from Cloud Logging and attach the
+  // message to the matching failed function. Returns {} on any failure (the
+  // status column still stands alone).
+  var errByFn = pullErrorLogs_(token);
+
+  var ss = getTMARSpreadsheet_();
+  var sheet = ss.getSheetByName('Script Executions');
+  if (!sheet) sheet = ss.insertSheet('Script Executions');
+  var hdr = ['Function', 'Status', 'Start Time', 'Duration (s)', 'Error'];
+  sheet.getRange(1, 1, 1, 5).setValues([hdr]);
+  var lr = sheet.getLastRow();
+  if (lr > 1) sheet.getRange(2, 1, lr - 1, 5).clearContent();
+  if (procs.length) {
+    var out = procs.map(function (p) {
+      var err = (p.status === 'FAILED' || p.status === 'TIMED_OUT') ? (errByFn[p.functionName] || '') : '';
+      return [p.functionName, p.status, p.startTime, p.durationSec, err];
+    });
+    sheet.getRange(2, 1, out.length, 5).setValues(out);
+  }
+  SpreadsheetApp.flush();
+  return jsonResponse_({ status: 'ok', action: 'refreshScriptExecutions', count: procs.length });
+}
+
+
+/**
+ * Pull recent ERROR-severity log entries for this script from Cloud Logging.
+ * Returns { functionName: message } keyed by the app_script function label.
+ * Non-fatal: returns {} if the project id is wrong or the call fails.
+ */
+function pullErrorLogs_(token) {
+  var out = {};
+  // Try each candidate project resource name and merge entries. The Apps Script
+  // logs live under whichever project the script is bound to — a GCP project id
+  // (operator-supplied) or, for default scripts, the script id itself.
+  var candidates = [
+    'gen-lang-client-0416764369',
+    '1fIfAfYbMw8udn2AggFnMDc-dwVNvrQeJT6qVOdJI1VdehZQzDoCdoyYr'
+  ];
+  candidates.forEach(function (projectId) {
+    try {
+      var url = 'https://logging.googleapis.com/v2/entries:list';
+      var body = JSON.stringify({
+        resourceNames: ['projects/' + projectId],
+        filter: 'resource.type="app_script" AND severity>=ERROR',
+        orderBy: 'timestamp desc',
+        pageSize: 200
+      });
+      var resp = UrlFetchApp.fetch(url, {
+        method: 'post',
+        contentType: 'application/json',
+        headers: { 'Authorization': 'Bearer ' + token },
+        payload: body,
+        muteHttpExceptions: true
+      });
+      if (resp.getResponseCode() !== 200) return;
+      var data = JSON.parse(resp.getContentText());
+      (data.entries || []).forEach(function (e) {
+        var fn = (e.resource && e.resource.labels && e.resource.labels.function_name) || '';
+        if (!fn || out[fn]) return;
+        var msg = e.textPayload || (e.jsonPayload ? JSON.stringify(e.jsonPayload) : '');
+        out[fn] = String(msg).slice(0, 300);
+      });
+    } catch (err) {
+      // ignore — status-only fallback
+    }
+  });
+  return out;
 }
 
 

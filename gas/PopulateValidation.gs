@@ -15,7 +15,7 @@ function populateValidationSheet() {
 
   // Set up headers
   var headers = [
-    'Account Types',        // Col 1 (A)
+    'Account Subtypes',     // Col 1 (A) — granular type+subtype list, applied to col G (Account Subtype)
     'Statuses',            // Col 2 (B)
     'Filing Statuses',     // Col 3 (C)
     'Users',               // Col 4 (D)
@@ -185,7 +185,7 @@ function populateValidationSheet() {
   // COLUMN 4: USERS
   // ═══════════════════════════════════════════════════════════════
   var users = [
-    'Clint',
+    'Clinton',
     'Syrina',
     'Joint',
     'Trust',

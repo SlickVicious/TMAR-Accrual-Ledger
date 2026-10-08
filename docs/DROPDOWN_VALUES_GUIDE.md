@@ -114,7 +114,7 @@
 
 ### 👥 Users (6 values)
 
-- Clint
+- Clinton
 - Syrina
 - Joint
 - Trust
@@ -203,11 +203,11 @@
 
 | Sheet | Column | Dropdown Type |
 |-------|--------|---------------|
-| **Master Register** | G (Account Type) | Account Types |
-| | K (Status) | Statuses |
-| | R (Billing Frequency) | Billing Frequency |
-| | T (Primary User) | Users |
-| | AI (Discovery Status) | Discovery Status |
+| **Master Register** | G (Account Subtype) | Account Subtypes |
+| | H (Status) | Statuses |
+| | M (Billing Frequency) | Billing Frequency |
+| | O (Primary User) | Users |
+| | AC (Discovery Status) | Discovery Status |
 | **1099 Filing Chain** | F, I, L, N (Status) | Filing Statuses |
 | **Forms & Authority** | H (FWM Binder Tab) | Binder Tabs |
 | | I (Status) | Filing Statuses |

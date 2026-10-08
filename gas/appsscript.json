@@ -1,5 +1,10 @@
 {
   "timeZone": "America/Chicago",
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/script.processes",
+    "https://www.googleapis.com/auth/script.external_request",
+    "https://www.googleapis.com/auth/logging.read"
+  ],
   "dependencies": {
     "enabledAdvancedServices": [
       {

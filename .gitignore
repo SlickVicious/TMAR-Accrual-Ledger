@@ -101,3 +101,12 @@ tmar_cleanup.ps1
 !.obsidian/hermes/
 !.obsidian/hermes/context.json
 .obsidian/hermes/runtime/*
+
+# Google OAuth client secrets — credentials, must never reach git (rotate if ever pushed)
+client_secret_*.json
+
+# Local workbook snapshot dumps (safety record lives on disk + Archive workbook, not in git)
+_snapshots/
+
+# Runtime HTML backups (transient, not source)
+*.bak

@@ -111,8 +111,10 @@ function applyDataValidation(ss) {
   if (mrSheet) {
     const lastRow = Math.max(mrSheet.getLastRow() + 50, 100); // Room to grow
 
-    // Column G (7): Account Type (col 1 in _Validation)
-    // 35-col schema: A=RowID, B=DateAdded, C=Provider, D=MailAddr, E=EIN, F=AcctNum, G=AcctType
+    // 29-col schema: A=RowID, B=DateAdded, C=Provider, D=EIN, E=AcctNum,
+    //   F=AcctType, G=AcctSubtype, H=Status, M=BillingFreq, O=PrimaryUser, AC=DiscoveryStatus
+
+    // Column G (7): Account Subtype (col 1 in _Validation — the 89-item granular list)
     const accountTypes = getValList(1);
     const atRule = SpreadsheetApp.newDataValidation()
       .requireValueInList(accountTypes, true)
@@ -120,40 +122,37 @@ function applyDataValidation(ss) {
       .build();
     mrSheet.getRange(2, 7, lastRow, 1).setDataValidation(atRule);
 
-    // Column K (11): Status (col 2 in _Validation)
-    // 35-col: H=AcctSubtype, I=AcctAgent, J=AgentAddr, K=Status
+    // Column H (8): Status (col 2 in _Validation)
     const statuses = getValList(2);
     const stRule = SpreadsheetApp.newDataValidation()
       .requireValueInList(statuses, true)
       .setAllowInvalid(false)
       .build();
-    mrSheet.getRange(2, 11, lastRow, 1).setDataValidation(stRule);
+    mrSheet.getRange(2, 8, lastRow, 1).setDataValidation(stRule);
 
-    // Column T (20): Primary User (col 4 in _Validation)
-    // 35-col: R=BillFreq, S=NextPmtDue, T=PrimaryUser
+    // Column O (15): Primary User (col 4 in _Validation)
     const users = getValList(4);
     const usRule = SpreadsheetApp.newDataValidation()
       .requireValueInList(users, true)
       .setAllowInvalid(false)
       .build();
-    mrSheet.getRange(2, 20, lastRow, 1).setDataValidation(usRule);
+    mrSheet.getRange(2, 15, lastRow, 1).setDataValidation(usRule);
 
-    // Column R (18): Billing Frequency (col 8 in _Validation)
+    // Column M (13): Billing Frequency (col 8 in _Validation)
     const freqs = getValList(8);
     const frRule = SpreadsheetApp.newDataValidation()
       .requireValueInList(freqs, true)
       .setAllowInvalid(false)
       .build();
-    mrSheet.getRange(2, 18, lastRow, 1).setDataValidation(frRule);
+    mrSheet.getRange(2, 13, lastRow, 1).setDataValidation(frRule);
 
-    // Column AI (35): Discovery Status (col 10 in _Validation)
-    // 35-col: last column = Discovery Status
+    // Column AC (29): Discovery Status (col 10 in _Validation)
     const discStatuses = getValList(10);
     const dsRule = SpreadsheetApp.newDataValidation()
       .requireValueInList(discStatuses, true)
       .setAllowInvalid(false)
       .build();
-    mrSheet.getRange(2, 35, lastRow, 1).setDataValidation(dsRule);
+    mrSheet.getRange(2, 29, lastRow, 1).setDataValidation(dsRule);
 
     Logger.log('Master Register dropdowns applied');
   }
