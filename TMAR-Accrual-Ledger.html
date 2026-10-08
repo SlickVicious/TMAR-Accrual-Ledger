@@ -1113,7 +1113,7 @@
       <!-- Tool Launchers (below the dark/light toggle) -->
       <div class="absolute top-12 right-0 flex flex-col gap-2 items-end" style="z-index:50">
         <button onclick="launchScribewellStudio()" class="px-3 py-2 rounded-lg bg-purple-700 hover:bg-purple-600 text-white font-semibold text-xs transition-colors shadow-lg" title="Open Scribewell Studio (certified drafting template) in a new tab">🖋️ Scribewell Studio</button>
-        <button onclick="switchMainTab('gaapAgent')" class="px-3 py-2 rounded-lg bg-cyan-700 hover:bg-cyan-600 text-white font-semibold text-xs transition-colors shadow-lg" title="Activate the TMAR GUI Agent (GAAPCLAW Master)">🤖 TMAR GUI Agent</button>
+        <button onclick="toggleFloatAgent()" class="px-3 py-2 rounded-lg bg-cyan-700 hover:bg-cyan-600 text-white font-semibold text-xs transition-colors shadow-lg" title="Open the TMAR GUI Agent (floating, ledger-aware)">🤖 TMAR GUI Agent</button>
       </div>
       <h1 class="text-3xl md:text-4xl font-bold mb-2" style="font-family: Calibri, 'Segoe UI', system-ui, sans-serif;">
         <span class="text-blue-400">⚖️</span> TMAR Universal Accrual Ledger
@@ -55925,6 +55925,200 @@ window.showVerificationReport = showVerificationReport;
 window.autoValidateOnSave = autoValidateOnSave;
 window.advanceR3Status = advanceR3Status;
 </script>
+<!-- ══════════════════════════════════════════════════════════════
+     E2ZERO FLOATING AGENT — TMAR GUI Agent
+     Floating shield icon (lower-right) → drawer with a ledger-aware
+     chat. Reads the live ledger (localStorage TMAR_AccrualLedger_Data)
+     and routes the message through callLLMStream (current provider,
+     incl. Hermes Agent @ 127.0.0.1:8642).
+     ══════════════════════════════════════════════════════════════ -->
+<style>
+#faBtn{position:fixed;bottom:22px;right:22px;z-index:2147483000;width:58px;height:58px;border-radius:50%;
+  background:radial-gradient(circle at 32% 28%,#ffe082,#f59f00);border:2px solid #20130a;color:#20130a;
+  font-size:28px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 20px rgba(0,0,0,.45);transition:transform .18s ease}
+#faBtn:hover{transform:scale(1.09)}
+#faDrawer{position:fixed;top:0;right:-430px;z-index:2147483001;width:408px;max-width:94vw;height:100vh;
+  background:#0c0f1c;color:#e6edf7;border-left:1px solid rgba(139,92,246,.45);display:flex;flex-direction:column;
+  transition:right .28s cubic-bezier(.4,0,.2,1);box-shadow:-6px 0 28px rgba(0,0,0,.55);font-family:'Segoe UI',system-ui,sans-serif}
+#faDrawer.open{right:0}
+#faHead{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.09);
+  background:linear-gradient(135deg,#151a2e,#0c0f1c)}
+#faHead .t{flex:1;font-weight:700;font-size:14px;letter-spacing:.3px}
+#faHead .s{font-size:10px;color:#8b93a7;font-weight:400;margin-top:2px}
+#faClose{background:rgba(255,255,255,.08);border:none;color:#cbd5e1;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:14px}
+#faTools{display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.07)}
+.faTool{background:rgba(139,92,246,.14);border:1px solid rgba(139,92,246,.35);color:#c4b5fd;padding:5px 10px;
+  border-radius:14px;font-size:11px;font-weight:600;cursor:pointer;transition:background .15s}
+.faTool:hover{background:rgba(139,92,246,.26)}
+#faMsgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.faMsg{max-width:86%;padding:9px 12px;border-radius:12px;font-size:12.5px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+.faMsg.user{align-self:flex-end;background:linear-gradient(135deg,#7c3aed,#5b21b6);color:#fff;border-bottom-right-radius:4px}
+.faMsg.agent{align-self:flex-start;background:rgba(255,255,255,.07);color:#e6edf7;border-bottom-left-radius:4px}
+.faMsg.sys{align-self:center;background:rgba(255,255,255,.04);color:#8b93a7;font-size:11px;border-radius:8px}
+#faInput{display:flex;gap:8px;padding:12px;border-top:1px solid rgba(255,255,255,.09);background:#0c0f1c}
+#faText{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:8px;color:#e6edf7;
+  padding:10px;font-size:13px;resize:none;min-height:40px;max-height:120px;font-family:inherit}
+#faSend{background:linear-gradient(135deg,#8b5cf6,#6d28d9);border:none;color:#fff;padding:0 16px;border-radius:8px;
+  font-weight:700;font-size:13px;cursor:pointer;transition:filter .15s}
+#faSend:hover{filter:brightness(1.12)}
+#faSend:disabled{opacity:.5;cursor:default}
+</style>
+
+<button id="faBtn" onclick="toggleFloatAgent()" title="TMAR GUI Agent — ledger-aware assistant">🛡️</button>
+<div id="faDrawer">
+  <div id="faHead">
+    <div class="t">TMAR GUI Agent<div class="s" id="faSub">ledger-aware · routes via current provider</div></div>
+    <button id="faClose" onclick="toggleFloatAgent()">✕</button>
+  </div>
+  <div id="faTools">
+    <button class="faTool" onclick="faReadLedger()">📊 Read Ledger</button>
+    <button class="faTool" onclick="faSummarize()">📄 Summarize View</button>
+    <button class="faTool" onclick="clearFloatChat()">🧹 Clear</button>
+  </div>
+  <div id="faMsgs"></div>
+  <div id="faInput">
+    <textarea id="faText" placeholder="Ask about your ledger, or tap a tool above…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendFloatAgent();}"></textarea>
+    <button id="faSend" onclick="sendFloatAgent()">Send</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  if (window.__floatAgentInit) return; window.__floatAgentInit = true;
+
+  var FA_STORAGE = 'TMAR_AccrualLedger_Data';
+
+  window.toggleFloatAgent = function(){
+    var d = document.getElementById('faDrawer');
+    d.classList.toggle('open');
+    if (d.classList.contains('open') && !document.getElementById('faMsgs').children.length) {
+      addFloatMsg('agent', 'Welcome. I read the live TMAR ledger. Use 📊 Read Ledger for a snapshot, or ask me about your accounts, entries, filings, or entities.');
+    }
+  };
+
+  window.clearFloatChat = function(){ document.getElementById('faMsgs').innerHTML = ''; };
+
+  window.addFloatMsg = function(role, text){
+    var m = document.getElementById('faMsgs');
+    var d = document.createElement('div');
+    d.className = 'faMsg ' + role;
+    d.textContent = text;
+    m.appendChild(d);
+    m.scrollTop = m.scrollHeight;
+    return d;
+  };
+
+  function faParse(){
+    try {
+      var raw = localStorage.getItem(FA_STORAGE);
+      if (!raw) return { ok:false, note:'No ledger data saved yet (localStorage ' + FA_STORAGE + ' is empty).' };
+      var a = JSON.parse(raw);
+      return { ok:true, data:a };
+    } catch(e) { return { ok:false, note:'Error reading ledger: ' + e.message }; }
+  }
+
+  window.faLedgerSnapshot = function(){
+    var p = faParse();
+    if (!p.ok) return p;
+    var a = p.data;
+    var arr = function(k){ return Array.isArray(a[k]) ? a[k] : []; };
+    var s = {
+      ledgerEntries: arr('ledgerEntries').length,
+      chartOfAccounts: arr('chartOfAccounts').length,
+      journalEntries: arr('journalEntries').length,
+      receivables: arr('receivables').length,
+      payables: arr('payables').length,
+      entities: arr('entities').length,
+      contacts: arr('contacts').length,
+      websiteAccounts: arr('websiteAccounts').length,
+      principalRegister: arr('principalRegister').length,
+      filings: (typeof a.filings === 'object' && a.filings) ? Object.keys(a.filings).reduce(function(n,k){ return n + (Array.isArray(a.filings[k]) ? a.filings[k].length : 0); }, 0) : 0
+    };
+    var rows = arr('ledgerEntries');
+    var recent = rows.slice(-5).map(function(r){
+      var d = r.date || r.Date || r.when || r.transactionDate || '';
+      var desc = r.desc || r.description || r.memo || r.name || r.account || r.payee || '';
+      var amt = (r.amount != null) ? r.amount : (r.debit != null ? r.debit : (r.credit != null ? r.credit : ''));
+      return [d, desc, amt].filter(function(x){ return x !== '' && x != null; }).join(' | ');
+    });
+    return { ok:true, summary:s, recent:recent, keys:Object.keys(a) };
+  };
+
+  window.faReadLedger = function(){
+    var s = faLedgerSnapshot();
+    if (!s.ok) { addFloatMsg('sys', s.note); return; }
+    var t = '📊 LEDGER SNAPSHOT\n' +
+      'Ledger entries: ' + s.summary.ledgerEntries + '\n' +
+      'Chart of accounts: ' + s.summary.chartOfAccounts + '\n' +
+      'Journal entries: ' + s.summary.journalEntries + '\n' +
+      'Entities: ' + s.summary.entities + '\n' +
+      'Receivables: ' + s.summary.receivables + ' · Payables: ' + s.summary.payables + '\n' +
+      'Filings: ' + s.summary.filings + ' · Contacts: ' + s.summary.contacts;
+    if (s.recent && s.recent.length) t += '\n\nRecent ledger rows:\n' + s.recent.join('\n');
+    addFloatMsg('agent', t);
+  };
+
+  window.faSummarize = function(){
+    var s = faLedgerSnapshot();
+    if (!s.ok) { addFloatMsg('sys', s.note); return; }
+    var txt = 'Please summarize the current TMAR ledger state in plain language.\n\n[LIVE LEDGER CONTEXT]\n' +
+      'Ledger entries: ' + s.summary.ledgerEntries + '\n' +
+      'Accounts (CoA): ' + s.summary.chartOfAccounts + '\n' +
+      'Journal entries: ' + s.summary.journalEntries + '\n' +
+      'Entities: ' + s.summary.entities + '\n' +
+      'Receivables: ' + s.summary.receivables + ' · Payables: ' + s.summary.payables + '\n' +
+      'Filings: ' + s.summary.filings + '\n' +
+      (s.recent && s.recent.length ? 'Recent rows:\n' + s.recent.join('\n') + '\n' : '') +
+      '[END CONTEXT]';
+    faDispatch(txt);
+  };
+
+  function faDispatch(text){
+    var holder = addFloatMsg('agent', '');
+    var sendBtn = document.getElementById('faSend');
+    sendBtn.disabled = true;
+    try {
+      callLLMStream(
+        'You are the TMAR GUI Agent, a ledger-aware assistant. You are given live context about the TMAR Universal Accrual Ledger. Answer precisely from the context provided; never invent figures that are not present. If asked to summarize, give a concise plain-language summary of the ledger state.',
+        text, null,
+        function(tok){ holder.textContent += tok; var m = document.getElementById('faMsgs'); m.scrollTop = m.scrollHeight; },
+        null
+      ).then(function(final){
+        if (!holder.textContent || holder.textContent.trim() === '') holder.textContent = final || '(no response)';
+        sendBtn.disabled = false;
+      }).catch(function(err){
+        holder.textContent += '\n[error: ' + err + ']';
+        sendBtn.disabled = false;
+      });
+    } catch(e) {
+      holder.textContent = '[error: ' + e.message + ']';
+      sendBtn.disabled = false;
+    }
+  }
+
+  window.sendFloatAgent = function(){
+    var ta = document.getElementById('faText');
+    var text = (ta.value || '').trim();
+    if (!text) return;
+    addFloatMsg('user', text);
+    ta.value = '';
+    var s = faLedgerSnapshot();
+    var ctx = '';
+    if (s.ok) {
+      ctx = '[LIVE TMAR LEDGER CONTEXT]\n' +
+        'Ledger entries: ' + s.summary.ledgerEntries + ' · Accounts: ' + s.summary.chartOfAccounts +
+        ' · Journal entries: ' + s.summary.journalEntries + ' · Entities: ' + s.summary.entities +
+        ' · Receivables: ' + s.summary.receivables + ' · Payables: ' + s.summary.payables +
+        ' · Filings: ' + s.summary.filings + '\n' +
+        (s.recent && s.recent.length ? 'Recent rows:\n' + s.recent.join('\n') + '\n' : '') +
+        '[END CONTEXT]\n\n';
+    }
+    faDispatch(ctx + text);
+  };
+})();
+</script>
+
 </body><!-- ===== EON AI SIDEBAR ===== --></html>
 
 
