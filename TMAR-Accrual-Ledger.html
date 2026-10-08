@@ -1110,11 +1110,7 @@
       <button onclick="toggleDarkMode()" id="themeToggle" class="absolute top-0 right-0 p-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors" title="Toggle Light/Dark Mode">
         <span id="themeIcon">☀️</span>
       </button>
-      <!-- Tool Launchers (below the dark/light toggle) -->
-      <div class="absolute top-12 right-0 flex flex-col gap-2 items-end" style="z-index:50">
-        <button onclick="launchScribewellStudio()" class="px-3 py-2 rounded-lg bg-purple-700 hover:bg-purple-600 text-white font-semibold text-xs transition-colors shadow-lg" title="Open Scribewell Studio (certified drafting template) in a new tab">🖋️ Scribewell Studio</button>
-        <button onclick="toggleFloatAgent()" class="px-3 py-2 rounded-lg bg-cyan-700 hover:bg-cyan-600 text-white font-semibold text-xs transition-colors shadow-lg" title="Open the TMAR GUI Agent (floating, ledger-aware)">🤖 TMAR GUI Agent</button>
-      </div>
+      <!-- Tool Launchers removed — TMAR GUI Agent now lives only as the floating 🛡️ shield (bottom-right); Scribewell Studio lives in the Document Creator tab. -->
       <h1 class="text-3xl md:text-4xl font-bold mb-2" style="font-family: Calibri, 'Segoe UI', system-ui, sans-serif;">
         <span class="text-blue-400">⚖️</span> TMAR Universal Accrual Ledger
       </h1>
@@ -6478,7 +6474,7 @@
     }
     
     function launchScribewellStudio() {
-      var url = 'file:///C:/Users/rhyme/Desktop/htmlApps/Scribewell/SCRIBEWELL_CERTIFIED_TEMPLATE.html';
+      var url = 'SCRIBEWELL_CERTIFIED_TEMPLATE.html';
       var w = window.open(url, '_blank');
       if (!w || w.closed) {
         alert('Browser blocked the local-file launch.\n\nOpen Scribewell Studio directly:\nC:\\Users\\rhyme\\Desktop\\htmlApps\\Scribewell\\Scribewell Studio.bat');
@@ -15874,6 +15870,9 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
         <div style="font-size:12px;color:var(--text-secondary)">Create • Edit • Preview • Export PDF/Word • Fillable Forms • Print Ready</div>
         <div style="font-size:11px;color:#a855f7;margin-top:6px;font-weight:700">⚖ fiduciary-doc-factory v2.1.0 active — GPO 2016 editorial · Weiss trustee substance · Profile B output (TNR 12pt, 1in, justified, black-on-white). Use the ⚖ Fiduciary Standard button to conform the draft; PDF/Word/Print export under Profile B.</div>
         <div id="doc-fdf-status" style="font-size:11px;margin-top:4px;color:var(--text-secondary)"></div>
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+          <button onclick="launchScribewellStudio()" class="px-3 py-2 rounded-lg bg-purple-700 hover:bg-purple-600 text-white font-semibold text-xs transition-colors shadow-lg" title="Open Scribewell Studio (certified drafting template) in a new tab">🖋️ Scribewell Studio</button>
+        </div>
       </div>
 
       <!-- Template Selector Bar -->
