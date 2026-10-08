@@ -27,6 +27,9 @@ agent_scan_pages_preview.txt
 # Claude Code — removed from the repo (2026-10-07). Keep any local Claude Code state out of source control.
 .claude/
 CLAUDE.md
+gas/Claude.md
+ClaudeSkills/
+Prompts/*Claude*
 
 # Playwright MCP session snapshots (ephemeral browser tool artifacts)
 .playwright-mcp/
