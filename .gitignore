@@ -24,16 +24,9 @@ agent_scan_pages_preview.txt
 *.csv
 *.xlsx
 
-# Claude Code project settings (local dev environment, not repo config)
-# Ignore everything under .claude/ by default...
-.claude/*
-# ...but SHARE team-usable subagents + skills + instruction docs so other machines (Mac) can pull them.
-!.claude/agents/
-!.claude/skills/
-!.claude/docs/
-# Security-sensitive / machine-local files stay ignored on purpose:
-#   .claude/settings.local.json  — permission allowlist + local machine paths
-#   .claude/hooks/               — local guardrail scripts (secret-blocker, test-runner)
+# Claude Code — removed from the repo (2026-10-07). Keep any local Claude Code state out of source control.
+.claude/
+CLAUDE.md
 
 # Playwright MCP session snapshots (ephemeral browser tool artifacts)
 .playwright-mcp/
@@ -77,19 +70,12 @@ gas/env-vault-setup/
 # IRS reference PDFs (static official forms, not generated artifacts)
 irs-forms/downloads/
 
-# fiduciary-doc-factory source-book PDFs (large/copyrighted reference manuals — kept local,
-# re-ignored under the .claude/skills/ whitelist above)
-.claude/skills/fiduciary-doc-factory/references/source-books/
-
 # Local build/dev tooling — kept on disk, out of source control.
 # Bank-statement parsers, FileCabinet build scripts, one-off injectors, cleanup.
 # NOTE: scripts/filecabinet-build/ holds 4 real GAS files worth promoting into
 # gas/ later if formalized: CapitalOneCashFlow.gs, appc_import_delta.gs,
 # appc_import_full_replace.gs, path_remap.gs.
 scripts/
-# ...but skill scripts under the tracked .claude/skills/ whitelist are part of the skill.
-!.claude/skills/**/scripts/
-!.claude/skills/**/scripts/**
 tmar_cleanup.ps1
 
 # Hermes Agent vault context — share the vault identity file, ignore runtime state
