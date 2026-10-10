@@ -1570,8 +1570,17 @@ function doPost(e) {
         return jsonResponse_(rpResult);
       }
 
+      case 'pushCashFlow': {
+        if (!payload || !payload.payload || !Array.isArray(payload.payload.rows)) {
+          return errorResponse_('pushCashFlow requires {payload:{tab, header, rows:[...]}}');
+        }
+        var cfResult = pushCashFlow_(ss, payload.payload);
+        if (cfResult.status === 'ok') updateSyncTimestamp_(ss, String(payload.payload.tab || 'Cash Flow'), 'push');
+        return jsonResponse_(cfResult);
+      }
+
       default:
-        return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync, pushPrincipalRegister, pushContacts, pushCreditorDetail, deleteCreditorDetail, pushWebsiteAccounts, deleteWebsiteAccounts, importSubstituteW2, importForm1040, importForm2848, importScheduleA, importSchedule1, importSchedule2, importForm8275R, importAdminForms, importWorksheetData, refreshProofOfMailing, archiveTabs, pushCreditScorecard, runFunction');
+        return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync, pushPrincipalRegister, pushContacts, pushCreditorDetail, deleteCreditorDetail, pushWebsiteAccounts, deleteWebsiteAccounts, importSubstituteW2, importForm1040, importForm2848, importScheduleA, importSchedule1, importSchedule2, importForm8275R, importAdminForms, importWorksheetData, refreshProofOfMailing, archiveTabs, pushCreditScorecard, pushCashFlow, runFunction');
     }
 
   } catch (err) {
@@ -1676,6 +1685,88 @@ function replaceSubscriptions_(ss, allRows) {
   });
 
   return { status: 'ok', action: 'replaceSubscriptions', backedUp: backupName, rowsWritten: written };
+}
+
+/**
+ * Rebuild a "<Bank> Cash Flow" tab from the Python-computed monthly summary.
+ * Payload: { tab, header, anchor, years:[...], annual:{...}, rows:[{year,month,
+ * month_name, beginning_balance, deposits, debits, fees, ending_balance, net_change}] }.
+ *
+ * Layout per tab:
+ *   Row 1          : [<bank header>, Beginning Balance, Total Deposits, Total Debits, Fees/Charges, Ending Balance, Net Change]
+ *   Per year (asc) : [<year>] separator, then Jan..Dec monthly rows, then [ANNUAL <year>] total row.
+ *   Footer         : blank + a "generated from combined statement CSVs · anchor $X" provenance note.
+ *
+ * Backs the current tab up to a hidden red snapshot first (reversible), then clears + rewrites.
+ */
+function pushCashFlow_(ss, p) {
+  var tab = String(p.tab || '');
+  if (!tab) return { status: 'error', action: 'pushCashFlow', message: 'missing payload.tab' };
+  var sheet = ss.getSheetByName(tab);
+  var created = false;
+  if (!sheet) { sheet = ss.insertSheet(tab); created = true; }
+
+  var HEADERS = ['', 'Beginning Balance', 'Total Deposits', 'Total Debits', 'Fees/Charges', 'Ending Balance', 'Net Change'];
+
+  // 1) Backup-before-write (full sheet → hidden red tab).
+  var backupName = tab.replace(/\s+/g, '') + '_PreCashFlow_' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyyMMdd_HHmmss');
+  var lastRow = sheet.getLastRow();
+  var lastCol = sheet.getLastColumn() || HEADERS.length;
+  var backup = ss.insertSheet(backupName, ss.getNumSheets());
+  if (lastRow > 0) {
+    backup.getRange(1, 1, lastRow, lastCol).setValues(sheet.getRange(1, 1, lastRow, lastCol).getValues());
+  }
+  backup.setTabColor('#c0392b');
+  try { backup.hideSheet(); } catch (e) {}
+
+  // 2) Clear the whole tab (content + any leftover formatting down 2000 rows).
+  sheet.clearContents();
+  sheet.getRange(1, 1, 2000, HEADERS.length).clearFormat();
+
+  // 3) Write header row.
+  sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
+  sheet.getRange(1, 1).setValue(String(p.header || tab));
+
+  // 4) Build year blocks from rows (rows are already ordered by year then month).
+  var rows = Array.isArray(p.rows) ? p.rows : [];
+  var byYear = {};
+  rows.forEach(function (r) { (byYear[r.year] = byYear[r.year] || []).push(r); });
+  var years = (p.years || []).slice().sort(function (a, b) { return a - b; });
+  if (years.length === 0) years = Object.keys(byYear).map(Number).sort(function (a, b) { return a - b; });
+
+  var out = [];
+  years.forEach(function (y) {
+    var mrows = byYear[y] || [];
+    out.push([String(y), '', '', '', '', '', '']);   // year separator
+    mrows.forEach(function (r) {
+      out.push([r.month_name || r.month, r.beginning_balance, r.deposits, r.debits, r.fees, r.ending_balance, r.net_change]);
+    });
+    var a = (p.annual && p.annual[String(y)]) || {};
+    var open = mrows.length ? mrows[0].beginning_balance : '';
+    var close = mrows.length ? mrows[mrows.length - 1].ending_balance : '';
+    out.push(['ANNUAL ' + y, open, a.deposits != null ? a.deposits : '', a.debits != null ? a.debits : '', a.fees != null ? a.fees : '', close, a.net != null ? a.net : '']);
+    out.push(['', '', '', '', '', '', '']);
+  });
+
+  var note = 'Generated from combined statement CSVs (generate_cashflow_summaries.py) · '
+           + (p.anchor != null ? ('opening balance anchor $' + p.anchor) : 'opening balance anchor NOT resolved — balances chain from $0.00')
+           + ' · ' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm')
+           + ' · ' + (p.total_tx_count != null ? p.total_tx_count + ' txs, ' : '')
+           + (p.fee_tx_count != null ? p.fee_tx_count + ' fee-classified' : '');
+  out.push(['', '', '', '', '', '', '']);
+  out.push([note, '', '', '', '', '', '']);
+
+  if (out.length) sheet.getRange(2, 1, out.length, HEADERS.length).setValues(out);
+
+  // 5) Light formatting: bold header, number format on numeric columns (C..G → $#,##0.00).
+  sheet.getRange(1, 1, 1, HEADERS.length).setFontWeight('bold');
+  if (out.length) {
+    var numRange = sheet.getRange(2, 2, out.length, 6);
+    numRange.setNumberFormat('$#,##0.00;[Red]-$#,##0.00');
+  }
+
+  return { status: 'ok', action: 'pushCashFlow', tab: tab, created: created,
+           backedUp: backupName, yearBlocks: years.length, monthRows: rows.length };
 }
 
 // ─── Push Functions (Web App-safe wrappers) ──────────────────────────────────
