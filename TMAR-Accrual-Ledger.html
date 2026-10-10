@@ -4417,9 +4417,13 @@
       <div class="glass-card p-6 rounded-xl mb-6">
         <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
           <h2 class="text-2xl font-bold text-green-400">🔗 Intercompany Eliminations</h2>
-          <button onclick="generateEliminations()" class="bg-green-500 hover:bg-green-600 text-black px-4 py-2 rounded-lg font-semibold">
-            🔄 Generate Eliminations
-          </button>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="generateEliminations()" class="bg-green-500 hover:bg-green-600 text-black px-4 py-2 rounded-lg font-semibold">
+              🔄 Generate Eliminations
+            </button>
+            <button onclick="document.getElementById('consolidationImportCSV').click()" class="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-lg font-semibold">📥 Import CSV</button>
+            <input type="file" id="consolidationImportCSV" accept=".csv" onchange="importGeneralLedgerCSV(this)" style="display:none">
+          </div>
         </div>
 
         <div class="p-4 mb-4 bg-blue-500/10 rounded-lg border border-blue-500/30">
@@ -7595,18 +7599,7 @@ function exportFilingPDF(formType, data) {
     async function generateForm3115PDF() {
       var form = document.getElementById('form3115Form');
       if (!form) return;
-      var s481a = computeSection481A();
-      var ent = appData.entities.find(function(e){ return e.type === 'soleProp'; }) || appData.entities[0];
-      var varMap = (typeof buildVariableMap === 'function') ? buildVariableMap({}) : {};
-      varMap['{{TRUSTEE}}'] = (form.elements.f3115Name && form.elements.f3115Name.value) || (ent && ent.name) || varMap['{{TRUSTEE}}'] || '';
-      varMap['{{EIN}}'] = (form.elements.f3115EIN && form.elements.f3115EIN.value) || (ent && ent.ein) || varMap['{{EIN}}'] || '';
-      varMap['{{NAICS}}'] = (form.elements.f3115NAICS && form.elements.f3115NAICS.value) || '';
-      varMap['{{DCN}}'] = '122';
-      varMap['{{YEAR_BEGIN}}'] = '2025';
-      varMap['{{YEAR_END}}'] = '2025';
-      varMap['{{SECTION_481A}}'] = s481a.toFixed(2);
-      varMap['{{AR_TOTAL}}'] = (form.elements.f3115AR && form.elements.f3115AR.value) || '0.00';
-      varMap['{{AP_TOTAL}}'] = (form.elements.f3115AP && form.elements.f3115AP.value) || '0.00';
+      var varMap = buildForm3115VarMap((typeof buildVariableMap === 'function') ? buildVariableMap({}) : {});
       try {
         var result = await autoFillIRSPDF('irs-forms/f3115.pdf', varMap, 'irs_f3115');
         var blob = new Blob([result.bytes], { type: 'application/pdf' });
@@ -7621,6 +7614,26 @@ function exportFilingPDF(formType, data) {
       } catch(e) {
         showAlert('PDF generation failed: ' + (e && e.message ? e.message : e), 'Generate PDF');
       }
+    }
+
+    function buildForm3115VarMap(baseMap) {
+      var vm = baseMap || {};
+      var ent = (appData.entities || []).find(function(e){ return e.type === 'soleProp'; })
+             || (appData.entities || [])[0] || {};
+      var form = document.getElementById('form3115Form');
+      var s481a = computeSection481A();
+      var name = (form && form.elements.f3115Name && form.elements.f3115Name.value) || ent.name || '';
+      var ein  = (form && form.elements.f3115EIN && form.elements.f3115EIN.value) || ent.ein || '';
+      vm['{{DCN}}'] = '122';
+      vm['{{YEAR_BEGIN}}'] = '2025';
+      vm['{{YEAR_END}}'] = '2025';
+      vm['{{NAICS}}'] = (form && form.elements.f3115NAICS && form.elements.f3115NAICS.value) || '';
+      vm['{{SECTION_481A}}'] = s481a.toFixed(2);
+      vm['{{AR_TOTAL}}'] = (form && form.elements.f3115AR && form.elements.f3115AR.value) || '0.00';
+      vm['{{AP_TOTAL}}'] = (form && form.elements.f3115AP && form.elements.f3115AP.value) || '0.00';
+      if (name) { vm['{{TRUSTEE}}'] = name; vm['{{ENTITY_NAME}}'] = name; vm['{{PARTY_NAME}}'] = name; }
+      if (ein)  { vm['{{EIN}}'] = ein; }
+      return vm;
     }
 
 
@@ -22138,6 +22151,7 @@ Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height
     document.getElementById('doc-pdf-frame').src = '';
     dlLink.href = '#';
     var varMap = buildVariableMap({});
+    if (key === 'irs_f3115') varMap = buildForm3115VarMap(varMap);
 
     try {
       var result = await autoFillIRSPDF(url, varMap, key);
@@ -34107,6 +34121,169 @@ function ev2InitEntityVerifier() {
         showAlert('Imported ' + imported + ' W-2/income records', 'Success');
       } catch (err) {
         addSyncLogEntry('Import W-2 & Income CSV', 'import', 0, 'error');
+        showAlert('Import failed: ' + err.message, 'Error');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // ── Tab-level CSV imports (Expense Itemization / Tax Estimator / Consolidation) ──
+
+  // Import A: Transaction Ledger CSV → Expense Itemization (debit/expense side only)
+  function importExpensesCSV(inputEl) {
+    var file = inputEl.files[0];
+    if (!file) return;
+    inputEl.value = '';
+    if (typeof expenses === 'undefined' || !expenses) {
+      expenses = JSON.parse(localStorage.getItem('TMAR_Expenses') || '[]');
+    }
+    var reader = new FileReader();
+    reader.onload = function (ev) {
+      try {
+        var rows = syncParseCSV(ev.target.result);
+        if (rows.length < 2) throw new Error('CSV must have a header row and at least one data row');
+        var headers = rows[0].map(function (h) { return (h || '').trim().toLowerCase(); });
+        function col(names, fallback) {
+          for (var i = 0; i < headers.length; i++) { if (names.indexOf(headers[i]) !== -1) return i; }
+          return fallback;
+        }
+        var cDate = col(['date'], 0);
+        var cParty = col(['party'], 1);
+        var cCat = col(['category'], 2);
+        var cSub = col(['subcategory'], 3);
+        var cVend = col(['vendor'], 4);
+        var cDesc = col(['description'], 5);
+        var cAmt = col(['amount'], 6);
+        var cPay = col(['payment', 'payment method', 'method'], 7);
+
+        var existing = {};
+        expenses.forEach(function (e) { existing[e.date + '|' + (e.vendor || '') + '|' + e.amount + '|' + (e.memo || '')] = true; });
+
+        var imported = 0, skipped = 0;
+        rows.slice(1).forEach(function (row) {
+          var date = (row[cDate] || '').trim();
+          var amount = parseFloat(row[cAmt]) || 0;
+          if (!date || amount <= 0) return; // debit (expense) side only
+          var abs = Math.abs(amount);
+          var vendor = (row[cVend] || '').trim() || (row[cParty] || '').trim();
+          var category = (row[cCat] || '').trim() || 'Other Business Expense';
+          var memo = (row[cDesc] || '').trim();
+          var method = (row[cPay] || '').trim() || 'Other';
+          var job = (row[cSub] || '').trim();
+          var key = date + '|' + vendor + '|' + abs + '|' + memo;
+          if (existing[key]) { skipped++; return; }
+          existing[key] = true;
+          expenses.push({ date: date, vendor: vendor, category: category, amount: abs, method: method, job: job, memo: memo, id: Date.now() + imported });
+          imported++;
+        });
+
+        localStorage.setItem('TMAR_Expenses', JSON.stringify(expenses));
+        if (typeof renderExpenses === 'function') renderExpenses();
+        if (typeof updateExpenseDash === 'function') updateExpenseDash();
+        showAlert('Imported ' + imported + ' expense lines from Transaction Ledger (' + skipped + ' duplicates skipped)', 'Success');
+      } catch (err) {
+        showAlert('Import failed: ' + err.message, 'Error');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // Import B: W-2 & Income Detail CSV → Tax Estimator (wages + federal withholding)
+  function importW2IncomeToEstimatorCSV(inputEl) {
+    var file = inputEl.files[0];
+    if (!file) return;
+    inputEl.value = '';
+    var reader = new FileReader();
+    reader.onload = function (ev) {
+      try {
+        var rows = syncParseCSV(ev.target.result);
+        if (rows.length < 2) throw new Error('CSV must have a header row and at least one data row');
+        var headers = rows[0].map(function (h) { return (h || '').trim().toLowerCase(); });
+        function has(names) {
+          for (var i = 0; i < headers.length; i++) { var h = headers[i]; for (var n = 0; n < names.length; n++) { if (h.indexOf(names[n]) !== -1) return i; } }
+          return -1;
+        }
+        var cWages = has(['wages', 'box 1', 'gross wage', 'wage']);
+        var cWH = has(['fed withheld', 'federal withholding', 'box 2', 'fed tax', 'withhold']);
+        if (cWages < 0) cWages = 7;   // W-2 & Income Detail: wages = col 7
+        if (cWH < 0) cWH = 8;         // fed_withheld = col 8
+
+        var totalWages = 0, totalWH = 0, count = 0;
+        rows.slice(1).forEach(function (row) {
+          var w = parseFloat(row[cWages]) || 0;
+          var h2 = parseFloat(row[cWH]) || 0;
+          if (w || h2) { totalWages += w; totalWH += h2; count++; }
+        });
+
+        if (totalWages) { var wEl = document.getElementById('taxEstW2'); if (wEl) wEl.value = totalWages.toFixed(2); }
+        if (totalWH) { var hEl = document.getElementById('taxEstWHeld'); if (hEl) hEl.value = totalWH.toFixed(2); }
+        if (typeof calcTaxEstimate === 'function') calcTaxEstimate();
+        showAlert('Imported ' + count + ' W-2 record(s): wages $' + totalWages.toFixed(2) + ', withholding $' + totalWH.toFixed(2), 'Success');
+      } catch (err) {
+        showAlert('Import failed: ' + err.message, 'Error');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // Import C: General Ledger CSV → Consolidation (journal entries)
+  function importGeneralLedgerCSV(inputEl) {
+    var file = inputEl.files[0];
+    if (!file) return;
+    inputEl.value = '';
+    var reader = new FileReader();
+    reader.onload = function (ev) {
+      try {
+        var rows = syncParseCSV(ev.target.result);
+        if (rows.length < 2) throw new Error('CSV must have a header row and at least one data row');
+        var headers = rows[0].map(function (h) { return (h || '').trim().toLowerCase(); });
+        function has(names) {
+          for (var i = 0; i < headers.length; i++) { var h = headers[i]; for (var n = 0; n < names.length; n++) { if (h.indexOf(names[n]) !== -1) return i; } }
+          return -1;
+        }
+        var cDate = has(['date']);
+        var cAcct = has(['account', 'acct', 'gl account', 'account number']);
+        var cEntity = has(['entity', 'company', 'division']);
+        var cDesc = has(['description', 'memo', 'narration', 'detail']);
+        var cDebit = has(['debit', 'dr']);
+        var cCredit = has(['credit', 'cr']);
+        var cAmount = has(['amount', 'net']);
+        if (cAcct < 0) throw new Error('Could not find an Account column in the CSV');
+        if (cDebit < 0 && cCredit < 0 && cAmount < 0) throw new Error('Could not find Debit/Credit or Amount columns in the CSV');
+
+        var entNameToId = {};
+        (appData.entities || []).forEach(function (e) { if (e.name) entNameToId[e.name.toLowerCase()] = e.id; });
+
+        var entries = [], cur = null, lineCount = 0;
+        rows.slice(1).forEach(function (row) {
+          var acct = String((cAcct >= 0 ? row[cAcct] : '') || '').trim();
+          var date = (cDate >= 0 ? (row[cDate] || '').trim() : '');
+          var entRaw = (cEntity >= 0 ? (row[cEntity] || '').trim() : '');
+          var desc = (cDesc >= 0 ? (row[cDesc] || '').trim() : '');
+          var debit = cDebit >= 0 ? (parseFloat(row[cDebit]) || 0) : 0;
+          var credit = cCredit >= 0 ? (parseFloat(row[cCredit]) || 0) : 0;
+          if (debit === 0 && credit === 0 && cAmount >= 0) {
+            var amt = parseFloat(row[cAmount]) || 0;
+            if (amt > 0) debit = amt; else if (amt < 0) credit = -amt;
+          }
+          if (!acct || (debit === 0 && credit === 0)) return;
+          var entityId = entRaw ? (entNameToId[entRaw.toLowerCase()] || entRaw) : 'none';
+          if (!cur || (date && cur.date !== date)) {
+            cur = { id: Date.now() + entries.length, number: 'GL-' + String(entries.length + 1).padStart(4, '0'), date: date || '', reference: '', type: '', description: desc || 'General Ledger import', lines: [], status: 'posted' };
+            entries.push(cur);
+          }
+          cur.lines.push({ account: acct, entityId: entityId, memo: desc, debit: debit, credit: credit });
+          lineCount++;
+        });
+
+        if (!entries.length) throw new Error('No valid journal lines found');
+        if (!appData.journalEntries) appData.journalEntries = [];
+        appData.journalEntries = appData.journalEntries.concat(entries);
+        saveToStorage();
+        if (typeof updateJournalTable === 'function') updateJournalTable();
+        if (typeof updateConsolidationWorksheet === 'function') updateConsolidationWorksheet();
+        showAlert('Imported ' + entries.length + ' journal entries (' + lineCount + ' lines) from General Ledger', 'Success');
+      } catch (err) {
         showAlert('Import failed: ' + err.message, 'Error');
       }
     };
