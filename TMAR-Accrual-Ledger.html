@@ -5520,6 +5520,8 @@
               <div><label class="block text-xs text-gray-400 mb-1">Other Income</label><input type="number" id="taxEstOther" step="0.01" oninput="calcTaxEstimate()" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white"></div>
               <div class="pt-2">
                 <button type="button" onclick="import1099ToEstimator()" class="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition-all">📥 Import from 1099 Filings</button>
+                <button type="button" onclick="document.getElementById('taxEstImportCSV').click()" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition-all mt-2">📥 Import W-2 &amp; Income CSV</button>
+                <input type="file" id="taxEstImportCSV" accept=".csv" onchange="importW2IncomeToEstimatorCSV(this)" style="display:none">
                 <div id="taxEstImportSummary" class="hidden mt-2 p-3 bg-gray-800/50 rounded-lg border border-purple-500/30 text-xs text-gray-300"></div>
               </div>
             </div>
@@ -5924,6 +5926,8 @@
           <button onclick="savePaymentOrder()" class="bg-cyan-600 hover:bg-cyan-500 text-white px-5 py-2 rounded-lg font-bold">💾 Save Payment Order</button>
           <button onclick="printPaymentOrder()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg font-bold">🖨️ Print / Preview</button>
           <button onclick="clearPOForm()" class="bg-gray-600 hover:bg-gray-500 text-white px-5 py-2 rounded-lg font-bold">🔄 Clear Form</button>
+          <button onclick="document.getElementById('poImportCSV').click()" class="bg-teal-600 hover:bg-teal-500 text-white px-5 py-2 rounded-lg font-bold">📥 Import CSV</button>
+          <input type="file" id="poImportCSV" accept=".csv" onchange="importPaymentOrdersCSV(this)" style="display:none">
         </div>
       </div>
 
@@ -6155,6 +6159,8 @@
           <option>Contract Labor / 1099</option><option>Equipment Purchase</option><option>Legal &amp; Professional Fees</option>
           <option>Mileage / Vehicle</option><option>Office Supplies</option><option>Rent / Lease</option><option>Salaries &amp; Wages</option><option>Other Business Expense</option>
         </select>
+        <button onclick="document.getElementById('expImportCSV').click()" class="bg-cyan-700 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg text-sm font-semibold">📥 Import CSV</button>
+        <input type="file" id="expImportCSV" accept=".csv" onchange="importExpensesCSV(this)" style="display:none">
         <button onclick="exportExpensesCSV()" class="bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold">📊 Export CSV</button>
         <button onclick="printExpenseReport()" class="bg-blue-700 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold">🖨️ Print Report</button>
       </div>
@@ -34283,6 +34289,82 @@ function ev2InitEntityVerifier() {
         if (typeof updateJournalTable === 'function') updateJournalTable();
         if (typeof updateConsolidationWorksheet === 'function') updateConsolidationWorksheet();
         showAlert('Imported ' + entries.length + ' journal entries (' + lineCount + ' lines) from General Ledger', 'Success');
+      } catch (err) {
+        showAlert('Import failed: ' + err.message, 'Error');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // Import D: Payment Orders CSV → Payment Orders list (header-tolerant; no backing worksheet)
+  function importPaymentOrdersCSV(inputEl) {
+    var file = inputEl.files[0];
+    if (!file) return;
+    inputEl.value = '';
+    if (typeof paymentOrders === 'undefined' || !paymentOrders) {
+      paymentOrders = JSON.parse(localStorage.getItem('TMAR_PaymentOrders') || '[]');
+    }
+    var reader = new FileReader();
+    reader.onload = function (ev) {
+      try {
+        var rows = syncParseCSV(ev.target.result);
+        if (rows.length < 2) throw new Error('CSV must have a header row and at least one data row');
+        var headers = rows[0].map(function (h) { return (h || '').trim().toLowerCase(); });
+        function has(names) {
+          for (var i = 0; i < headers.length; i++) { var h = headers[i]; for (var n = 0; n < names.length; n++) { if (h.indexOf(names[n]) !== -1) return i; } }
+          return -1;
+        }
+        function cell(row, idx) { return idx >= 0 ? (row[idx] || '').trim() : ''; }
+        var cNum = has(['po number', 'po no', 'number', 'po #', 'num']);
+        var cDate = has(['date of issue', 'issue date', 'date']);
+        var cValDate = has(['value date', 'payment date', 'value']);
+        var cDrawer = has(['drawer', 'payor', 'ordered by', 'from']);
+        var cDrawerAddr = has(['drawer address', 'payor address']);
+        var cDrawerAcct = has(['drawer account', 'drawer acct', 'payor account']);
+        var cDrawerBank = has(['drawer bank', 'payor bank', 'financial institution']);
+        var cPayee = has(['payee', 'pay to', 'recipient', 'pay to the order of']);
+        var cPayeeAddr = has(['payee address']);
+        var cPayeeAcct = has(['payee account', 'payee acct']);
+        var cAmt = has(['amount', 'amount in figures', 'figures']);
+        var cCur = has(['currency']);
+        var cMemo = has(['memo', 'purpose', 'for']);
+        var cStatus = has(['status']);
+
+        if (cAmt < 0) throw new Error('Could not find an Amount column in the CSV');
+
+        var imported = 0, skipped = 0;
+        rows.slice(1).forEach(function (row) {
+          var amount = parseFloat(cell(row, cAmt)) || 0;
+          var num = cell(row, cNum);
+          var date = cell(row, cDate);
+          var payee = cell(row, cPayee);
+          if (!amount && !num && !date && !payee) { skipped++; return; }
+          paymentOrders.push({
+            num: num || 'PO-' + String((parseInt(localStorage.getItem('TMAR_POCounter') || '3000') || 3000) + imported + 1).padStart(6, '0'),
+            date: date,
+            valDate: cell(row, cValDate),
+            drawerName: cell(row, cDrawer),
+            drawerAddr: cell(row, cDrawerAddr),
+            drawerAcct: cell(row, cDrawerAcct),
+            drawerBank: cell(row, cDrawerBank),
+            drawerRouting: '',
+            payeeName: payee,
+            payeeAddr: cell(row, cPayeeAddr),
+            payeeAcct: cell(row, cPayeeAcct),
+            amount: amount,
+            amountWords: (typeof numberToWords === 'function') ? numberToWords(amount) : '',
+            memo: cell(row, cMemo),
+            currency: cell(row, cCur) || 'USD',
+            signature: '',
+            notes: '',
+            status: cell(row, cStatus) || 'Issued'
+          });
+          imported++;
+        });
+
+        localStorage.setItem('TMAR_PaymentOrders', JSON.stringify(paymentOrders));
+        if (typeof renderPaymentOrders === 'function') renderPaymentOrders();
+        showAlert('Imported ' + imported + ' payment orders' + (skipped ? ' (' + skipped + ' empty rows skipped)' : ''), 'Success');
       } catch (err) {
         showAlert('Import failed: ' + err.message, 'Error');
       }
