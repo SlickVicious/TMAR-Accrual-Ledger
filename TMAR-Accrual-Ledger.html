@@ -6424,7 +6424,7 @@
           </div>
           <div>
             <label class="block text-xs text-gray-400 mb-1">&nbsp;</label>
-            <button id="reconLoadBOABtn" onclick="reconLoadBOAAll()" class="bg-yellow-700 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-bold text-sm" title="Load all 86 BOA statements (2019-2026) from BOA_Statements_Combined.csv">Load All BOA Statements</button>
+            <div id="reconLoadBankBtns" class="flex flex-wrap gap-2"></div>
           </div>
           <div>
             <label class="block text-xs text-gray-400 mb-1">Filter by Source/Bank</label>
@@ -12878,26 +12878,54 @@ function exportFilingPDF(formType, data) {
     reader.readAsText(fileInput.files[0]);
   }
 
-  function reconLoadBOAAll() {
-    var btn = document.getElementById('reconLoadBOABtn');
+  // Data-driven bank "Load All" sources. To add a new organization/bank:
+  // (1) append one {key,label,file} entry here, and
+  // (2) drop <key>_Statements_Combined.csv into the app root
+  //     (generate it with FileCabinet/03-Banking/generate_combined_bank_csvs.py).
+  var RECON_BANK_SOURCES = [
+    { key: 'BOA',    label: 'BOA',    file: 'BOA_Statements_Combined.csv' },
+    { key: 'CapOne', label: 'CapOne', file: 'CapOne_Statements_Combined.csv' },
+    { key: 'PNC',    label: 'PNC',    file: 'PNC_Statements_Combined.csv' },
+    { key: 'Truist', label: 'Truist', file: 'Truist_Statements_Combined.csv' }
+  ];
+
+  function renderReconBankButtons() {
+    var wrap = document.getElementById('reconLoadBankBtns');
+    if (!wrap) return;
+    wrap.innerHTML = RECON_BANK_SOURCES.map(function(b) {
+      return '<button id="reconLoad_' + b.key + '_Btn" onclick="reconLoadBank(\'' + b.key + '\')" '
+        + 'class="bg-yellow-700 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-bold text-sm" '
+        + 'title="Load all ' + b.label + ' statements from ' + b.file + '">Load All ' + b.label + ' Statements</button>';
+    }).join('');
+  }
+
+  function reconLoadBank(key) {
+    var b = null;
+    for (var i = 0; i < RECON_BANK_SOURCES.length; i++) {
+      if (RECON_BANK_SOURCES[i].key === key) { b = RECON_BANK_SOURCES[i]; break; }
+    }
+    if (!b) return;
+    var btn = document.getElementById('reconLoad_' + b.key + '_Btn');
     if (btn) { btn.disabled = true; btn.textContent = 'Loading...'; }
-    fetch('BOA_Statements_Combined.csv', { cache: 'no-store' })
+    fetch(b.file, { cache: 'no-store' })
       .then(function(resp) {
         if (!resp.ok) throw new Error('HTTP ' + resp.status);
         return resp.text();
       })
       .then(function(txt) {
-        reconLoadCSVText(txt, 'BOA (all statements)');
-        if (btn) { btn.disabled = false; btn.textContent = 'Load All BOA Statements'; }
+        reconLoadCSVText(txt, b.label + ' (all statements)');
+        if (btn) { btn.disabled = false; btn.textContent = 'Load All ' + b.label + ' Statements'; }
       })
       .catch(function(err) {
-        if (btn) { btn.disabled = false; btn.textContent = 'Load All BOA Statements'; }
-        showAlert('Could not load BOA_Statements_Combined.csv: ' + (err && err.message ? err.message : err)
+        if (btn) { btn.disabled = false; btn.textContent = 'Load All ' + b.label + ' Statements'; }
+        showAlert('Could not load ' + b.file + ': ' + (err && err.message ? err.message : err)
           + '\n\nThis works when the app is served over http (e.g. http://localhost:5501).'
-          + ' If you opened the file directly (file://), use the "Statement CSV File" picker instead and select BOA_Statements_Combined.csv.',
+          + ' If you opened the file directly (file://), use the "Statement CSV File" picker instead and select ' + b.file + '.',
           'Load Failed');
       });
   }
+
+  document.addEventListener('DOMContentLoaded', renderReconBankButtons);
 
   function reconApplySourceFilter() {
     var src  = (document.getElementById('reconSourceFilter') || {}).value || '';
