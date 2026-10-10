@@ -6131,7 +6131,12 @@
               <option>Postage &amp; Shipping</option>
               <option>Rent / Lease</option>
               <option>Repairs &amp; Maintenance</option>
+              <option>Salaries &amp; Wages</option>
+              <option>State &amp; Local Taxes</option>
+              <option>Telephone &amp; Internet</option>
+              <option>Uniforms &amp; Work Clothing</option>
               <option>Utilities</option>
+              <option>Other Business Expense</option>
             </select>
           </div>
           <div><label class="block text-xs text-gray-400 mb-1">Amount ($)</label><input type="number" id="expAmount" step="0.01" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white font-mono"></div>
@@ -6156,7 +6161,9 @@
           <option>Education &amp; Training</option><option>Equipment Purchase</option><option>Home Office</option>
           <option>Interest Expense</option><option>Legal &amp; Professional Fees</option><option>Licenses &amp; Permits</option>
           <option>Mileage / Vehicle</option><option>Office Supplies</option><option>Postage &amp; Shipping</option>
-          <option>Rent / Lease</option><option>Repairs &amp; Maintenance</option><option>Utilities</option>
+          <option>Rent / Lease</option><option>Repairs &amp; Maintenance</option><option>Salaries &amp; Wages</option>
+          <option>State &amp; Local Taxes</option><option>Telephone &amp; Internet</option><option>Uniforms &amp; Work Clothing</option>
+          <option>Utilities</option><option>Other Business Expense</option>
         </select>
         <button onclick="document.getElementById('expImportCSV').click()" class="bg-cyan-700 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg text-sm font-semibold">📥 Import CSV</button>
         <input type="file" id="expImportCSV" accept=".csv" onchange="importExpensesCSV(this)" style="display:none">
@@ -34199,7 +34206,7 @@ function ev2InitEntityVerifier() {
           if (!date || amount <= 0) return; // debit (expense) side only
           var abs = Math.abs(amount);
           var vendor = (row[cVend] || '').trim() || (row[cParty] || '').trim();
-          var category = (row[cCat] || '').trim() || 'Office Supplies';
+          var category = canonicalExpenseCategory((row[cCat] || '').trim());
           var memo = (row[cDesc] || '').trim();
           var method = (row[cPay] || '').trim() || 'Other';
           var job = (row[cSub] || '').trim();
@@ -53834,8 +53841,74 @@ function spvCurrSymbol(code) {
   // 1. EXPENSE ITEMIZATION
   // ══════════════════════════════════════════════════════════════════
   var expenses=[];
+  // ── Canonical, EXTENSIBLE expense-category taxonomy (single source of truth) ──
+  // Add a category by appending to EXPENSE_CATEGORIES — the picker, filter,
+  // reconciliation, and CSV import all derive from it. Do NOT hardcode a category
+  // list anywhere else. EXPENSE_CATEGORY_ALIASES folds legacy/alternate spellings
+  // into a canonical entry (case-insensitive).
+  var EXPENSE_CATEGORIES = [
+    'Advertising & Marketing','Bank & Finance Charges','Business Insurance',
+    'Business Meals (50% deductible)','Business Travel','Charitable Contributions',
+    'Contract Labor / 1099','Depreciation','Dues & Subscriptions','Education & Training',
+    'Equipment Purchase','Home Office','Interest Expense','Legal & Professional Fees',
+    'Licenses & Permits','Mileage / Vehicle','Office Supplies','Postage & Shipping',
+    'Rent / Lease','Repairs & Maintenance','Salaries & Wages','State & Local Taxes',
+    'Telephone & Internet','Uniforms & Work Clothing','Utilities','Other Business Expense'
+  ];
+  var EXPENSE_CATEGORY_ALIASES = {
+    'Advertising & Marketing': ['Advertising','Marketing','Promo'],
+    'Bank & Finance Charges': ['Bank Charges','Finance Charges','Bank & Finance','Bank Fees'],
+    'Business Insurance': ['Insurance','Liability Insurance'],
+    'Business Meals (50% deductible)': ['Meals','Business Meals','Meals & Entertainment','Dining'],
+    'Business Travel': ['Travel','Travel Expense','Lodging','Airfare'],
+    'Charitable Contributions': ['Charity','Donations','Contributions'],
+    'Contract Labor / 1099': ['Contract Labor','Contractor','1099','Subcontractor','Freelance'],
+    'Depreciation': ['Depreciation Expense','Depr'],
+    'Dues & Subscriptions': ['Subscriptions','Dues','Membership','Software'],
+    'Education & Training': ['Education','Training','Courses','Tuition'],
+    'Equipment Purchase': ['Equipment','Equipment Expense','Hardware'],
+    'Home Office': ['Home Office Expense','Office Rent'],
+    'Interest Expense': ['Interest','Loan Interest','Credit Card Interest'],
+    'Legal & Professional Fees': ['Legal Fees','Professional Fees','Legal','Attorney','Accountant'],
+    'Licenses & Permits': ['Licenses','Permits','License','Filing Fee'],
+    'Mileage / Vehicle': ['Mileage','Vehicle','Auto','Car & Truck','Automotive','Fuel','Gas'],
+    'Office Supplies': ['Supplies','Office Expense','Office'],
+    'Postage & Shipping': ['Postage','Shipping','Mail','Freight'],
+    'Rent / Lease': ['Rent','Lease','Rent Expense'],
+    'Repairs & Maintenance': ['Repairs','Maintenance','R&M'],
+    'Salaries & Wages': ['Salaries','Wages','Payroll','Salary'],
+    'State & Local Taxes': ['Taxes','State Taxes','Local Taxes','Tax'],
+    'Telephone & Internet': ['Telephone','Internet','Phone','Telecom','Cell'],
+    'Uniforms & Work Clothing': ['Uniforms','Work Clothing','Clothing'],
+    'Utilities': ['Electric','Gas','Water','Utility','Power'],
+    'Other Business Expense': ['Other','Miscellaneous','Misc','Other Expense']
+  };
+  function canonicalExpenseCategory(raw){
+    if(!raw) return 'Other Business Expense';
+    var s=String(raw).trim();
+    if(EXPENSE_CATEGORIES.indexOf(s)!==-1) return s;
+    var low=s.toLowerCase();
+    for(var i=0;i<EXPENSE_CATEGORIES.length;i++){ if(EXPENSE_CATEGORIES[i].toLowerCase()===low) return EXPENSE_CATEGORIES[i]; }
+    for(var canon in EXPENSE_CATEGORY_ALIASES){
+      var aliases=EXPENSE_CATEGORY_ALIASES[canon];
+      for(var j=0;j<aliases.length;j++){ if(aliases[j].toLowerCase()===low) return canon; }
+    }
+    return 'Other Business Expense';
+  }
+  function populateExpenseCategorySelects(){
+    var opts=EXPENSE_CATEGORIES.map(function(c){return '<option>'+c+'</option>';}).join('');
+    var catSel=document.getElementById('expCategory'); if(catSel) catSel.innerHTML=opts;
+    var filtSel=document.getElementById('expFilterCat'); if(filtSel) filtSel.innerHTML='<option value="">All Categories</option>'+opts;
+  }
+  function reconcileExpenseCategories(){
+    var changed=false;
+    expenses.forEach(function(e){ var c=canonicalExpenseCategory(e.category); if(c!==e.category){e.category=c;changed=true;} });
+    if(changed) localStorage.setItem('TMAR_Expenses',JSON.stringify(expenses));
+  }
   function initExpenses(){
     expenses=JSON.parse(localStorage.getItem('TMAR_Expenses')||'[]');
+    populateExpenseCategorySelects();
+    reconcileExpenseCategories();
     renderExpenses(); updateExpenseDash();
   }
   function saveExpense(){
