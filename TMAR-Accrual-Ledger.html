@@ -6131,12 +6131,7 @@
               <option>Postage &amp; Shipping</option>
               <option>Rent / Lease</option>
               <option>Repairs &amp; Maintenance</option>
-              <option>Salaries &amp; Wages</option>
-              <option>State &amp; Local Taxes</option>
-              <option>Telephone &amp; Internet</option>
-              <option>Uniforms &amp; Work Clothing</option>
               <option>Utilities</option>
-              <option>Other Business Expense</option>
             </select>
           </div>
           <div><label class="block text-xs text-gray-400 mb-1">Amount ($)</label><input type="number" id="expAmount" step="0.01" placeholder="0.00" class="w-full border border-gray-600 p-2 rounded-lg bg-gray-700 text-white font-mono"></div>
@@ -6155,9 +6150,13 @@
       <div class="flex flex-wrap gap-3 mb-4">
         <select id="expFilterCat" onchange="renderExpenses()" class="border border-gray-600 p-2 rounded-lg bg-gray-700 text-white text-sm">
           <option value="">All Categories</option>
-          <option>Advertising &amp; Marketing</option><option>Business Meals (50% deductible)</option><option>Business Travel</option>
-          <option>Contract Labor / 1099</option><option>Equipment Purchase</option><option>Legal &amp; Professional Fees</option>
-          <option>Mileage / Vehicle</option><option>Office Supplies</option><option>Rent / Lease</option><option>Salaries &amp; Wages</option><option>Other Business Expense</option>
+          <option>Advertising &amp; Marketing</option><option>Bank &amp; Finance Charges</option><option>Business Insurance</option>
+          <option>Business Meals (50% deductible)</option><option>Business Travel</option><option>Charitable Contributions</option>
+          <option>Contract Labor / 1099</option><option>Depreciation</option><option>Dues &amp; Subscriptions</option>
+          <option>Education &amp; Training</option><option>Equipment Purchase</option><option>Home Office</option>
+          <option>Interest Expense</option><option>Legal &amp; Professional Fees</option><option>Licenses &amp; Permits</option>
+          <option>Mileage / Vehicle</option><option>Office Supplies</option><option>Postage &amp; Shipping</option>
+          <option>Rent / Lease</option><option>Repairs &amp; Maintenance</option><option>Utilities</option>
         </select>
         <button onclick="document.getElementById('expImportCSV').click()" class="bg-cyan-700 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg text-sm font-semibold">📥 Import CSV</button>
         <input type="file" id="expImportCSV" accept=".csv" onchange="importExpensesCSV(this)" style="display:none">
@@ -34200,7 +34199,7 @@ function ev2InitEntityVerifier() {
           if (!date || amount <= 0) return; // debit (expense) side only
           var abs = Math.abs(amount);
           var vendor = (row[cVend] || '').trim() || (row[cParty] || '').trim();
-          var category = (row[cCat] || '').trim() || 'Other Business Expense';
+          var category = (row[cCat] || '').trim() || 'Office Supplies';
           var memo = (row[cDesc] || '').trim();
           var method = (row[cPay] || '').trim() || 'Other';
           var job = (row[cSub] || '').trim();

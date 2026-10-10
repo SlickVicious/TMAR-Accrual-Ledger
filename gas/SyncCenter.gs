@@ -1579,8 +1579,16 @@ function doPost(e) {
         return jsonResponse_(cfResult);
       }
 
+      case 'updateObligationCategories': {
+        var uoRows = Array.isArray(payload.rows) ? payload.rows : [];
+        if (uoRows.length === 0) return errorResponse_('updateObligationCategories requires a non-empty "rows" array');
+        var uoResult = updateObligationCategories_(ss, uoRows);
+        if (uoResult.status === 'ok') updateSyncTimestamp_(ss, 'Household Obligations', 'push');
+        return jsonResponse_(uoResult);
+      }
+
       default:
-        return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync, pushPrincipalRegister, pushContacts, pushCreditorDetail, deleteCreditorDetail, pushWebsiteAccounts, deleteWebsiteAccounts, importSubstituteW2, importForm1040, importForm2848, importScheduleA, importSchedule1, importSchedule2, importForm8275R, importAdminForms, importWorksheetData, refreshProofOfMailing, archiveTabs, pushCreditScorecard, pushCashFlow, runFunction');
+        return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync, pushPrincipalRegister, pushContacts, pushCreditorDetail, deleteCreditorDetail, pushWebsiteAccounts, deleteWebsiteAccounts, importSubstituteW2, importForm1040, importForm2848, importScheduleA, importSchedule1, importSchedule2, importForm8275R, importAdminForms, importWorksheetData, refreshProofOfMailing, archiveTabs, pushCreditScorecard, pushCashFlow, updateObligationCategories, runFunction');
     }
 
   } catch (err) {
@@ -1767,6 +1775,51 @@ function pushCashFlow_(ss, p) {
 
   return { status: 'ok', action: 'pushCashFlow', tab: tab, created: created,
            backedUp: backupName, yearBlocks: years.length, monthRows: rows.length };
+}
+
+/**
+ * Recategorize the Household Obligations REGISTER (rows above the monthly-pivot block):
+ * set column B (Category) on each matched vendor. Backs the tab up to a hidden red
+ * snapshot first (reversible). Rows: [{vendor, category}]. Matches by col A (vendor),
+ * stopping the scan at the "JOINT HOUSEHOLD EXPENSES" pivot header so pivot rows are
+ * never touched.
+ */
+function updateObligationCategories_(ss, rows) {
+  var sheet = ss.getSheetByName('Household Obligations');
+  if (!sheet) return { status: 'error', action: 'updateObligationCategories', message: 'Household Obligations tab not found' };
+
+  // 1) Backup before write.
+  var backupName = 'Obligations_PreRecat_' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyyMMdd_HHmmss');
+  var lastRow = sheet.getLastRow();
+  var lastCol = sheet.getLastColumn() || 11;
+  var backup = ss.insertSheet(backupName, ss.getNumSheets());
+  if (lastRow > 0) {
+    backup.getRange(1, 1, lastRow, lastCol).setValues(sheet.getRange(1, 1, lastRow, lastCol).getValues());
+  }
+  backup.setTabColor('#c0392b');
+  try { backup.hideSheet(); } catch (e) {}
+
+  // 2) Vendor -> row map over the REGISTER only (col A, rows 2..lastRow, stop at pivot).
+  var colA = sheet.getRange(1, 1, lastRow, 1).getValues();
+  var vendorMap = {};
+  for (var i = 1; i < colA.length; i++) {
+    var v = String(colA[i][0] || '').trim();
+    if (v.indexOf('JOINT HOUSEHOLD') !== -1) break;
+    if (v) vendorMap[v.toLowerCase()] = i + 1;
+  }
+
+  // 3) Apply category updates.
+  var updated = 0, notFound = [];
+  (rows || []).forEach(function (r) {
+    var vendor = String(r.vendor || '').trim();
+    if (!vendor) return;
+    var rowNum = vendorMap[vendor.toLowerCase()];
+    if (!rowNum) { notFound.push(vendor); return; }
+    sheet.getRange(rowNum, 2).setValue(String(r.category == null ? '' : r.category));
+    updated++;
+  });
+
+  return { status: 'ok', action: 'updateObligationCategories', backedUp: backupName, updated: updated, notFound: notFound };
 }
 
 // ─── Push Functions (Web App-safe wrappers) ──────────────────────────────────
