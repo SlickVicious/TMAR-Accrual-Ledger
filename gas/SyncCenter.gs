@@ -817,12 +817,9 @@ function doGet(e) {
 
       case 'pullPrincipalRegister': {
         var principals = pullSheetData_(ss, 'Principal Register', 2, [
-          'entityId', 'entityType', 'legalName', 'dbaName', 'ein',
-          'mailingAddress', 'city', 'state', 'zip',
-          'primaryTrustee', 'coTrustee', 'registeredState', 'dateEstablished',
-          'bankName', 'branch', 'accountNumber', 'routingNumber',
-          'accountType', 'accountHolderName', 'notes'
-        ], { einColumn: 4 });
+          'entity', 'name', 'tin', 'addressOnFile', 'currentAddress',
+          'bank', 'accountNumber', 'routingNumber', 'grantor', 'trustee'
+        ], { einColumn: 2 });
         updateSyncTimestamp_(ss, 'Principal Register', 'pull');
         return jsonResponse_({ status: 'ok', action: 'pullPrincipalRegister', count: principals.length, data: principals });
       }
@@ -1277,7 +1274,7 @@ function doPost(e) {
         return jsonResponse_({ status: 'ok', action: 'fullSync', results: results });
 
       case 'pushPrincipalRegister': {
-        var prV = validatePayload_(payload.principals, ['legalName']);
+        var prV = validatePayload_(payload.principals, ['name']);
         if (!prV.valid) return errorResponse_(prV.message);
         var prResult = pushPrincipalRegister_(ss, payload.principals);
         updateSyncTimestamp_(ss, 'Principal Register', 'push');
@@ -2499,54 +2496,41 @@ function pushPrincipalRegister_(ss, records) {
   var sheet = ss.getSheetByName('Principal Register');
   if (!sheet) return { status: 'error', action: 'pushPrincipalRegister', message: 'Principal Register tab not found' };
 
+  // Actual sheet layout (10 cols): Entity | Name | TIN | Address on File |
+  // Current Address | Bank | Acct # | Routing # | Grantor | Trustee.
   var lastRow = sheet.getLastRow();
   var nameMap = {}, existingRows = {};
   if (lastRow > 1) {
-    var allData = sheet.getRange(2, 1, lastRow - 1, 20).getValues();
+    var allData = sheet.getRange(2, 1, lastRow - 1, 10).getValues();
     for (var n = 0; n < allData.length; n++) {
-      var k = String(allData[n][2] || '').toLowerCase().trim(); // col C = legalName
+      var k = String(allData[n][1] || '').toLowerCase().trim(); // col B = Name
       if (k) { nameMap[k] = n + 2; existingRows[k] = allData[n]; }
-    }
-  }
-
-  var nextId = 1;
-  if (lastRow > 1) {
-    var ids = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
-    for (var ki = 0; ki < ids.length; ki++) {
-      var m = String(ids[ki][0]).match(/PE-(\d+)/);
-      if (m) nextId = Math.max(nextId, parseInt(m[1]) + 1);
     }
   }
 
   var imported = 0, updated = 0;
   for (var i = 0; i < records.length; i++) {
     var r = records[i];
-    var name = (r.legalName || '').trim();
+    var name = (r.name || '').trim();
     if (!name) continue;
     var key = name.toLowerCase();
     var existingRow = nameMap[key];
 
+    var vals = [
+      r.entity || '', name, r.tin || '', r.addressOnFile || '', r.currentAddress || '',
+      r.bank || '', r.accountNumber || '', r.routingNumber || '', r.grantor || '', r.trustee || ''
+    ];
+
     if (existingRow) {
       var ex = existingRows[key];
-      sheet.getRange(existingRow, 1, 1, 20).setValues([[
-        ex[0], r.entityType || ex[1], name, r.dbaName || ex[3], r.ein || ex[4],
-        r.mailingAddress || ex[5], r.city || ex[6], r.state || ex[7], r.zip || ex[8],
-        r.primaryTrustee || ex[9], r.coTrustee || ex[10], r.registeredState || ex[11],
-        r.dateEstablished || ex[12], r.bankName || ex[13], r.branch || ex[14],
-        r.accountNumber || ex[15], r.routingNumber || ex[16], r.accountType || ex[17],
-        r.accountHolderName || ex[18], r.notes || ex[19]
-      ]]);
+      // merge: keep existing non-empty values where the new payload is blank
+      for (var c = 0; c < 10; c++) {
+        if (vals[c] === '' && ex[c] !== '') vals[c] = ex[c];
+      }
+      sheet.getRange(existingRow, 1, 1, 10).setValues([vals]);
       updated++;
     } else {
-      sheet.appendRow([
-        'PE-' + String(nextId++).padStart(3, '0'),
-        r.entityType || '', name, r.dbaName || '', r.ein || '',
-        r.mailingAddress || '', r.city || '', r.state || '', r.zip || '',
-        r.primaryTrustee || '', r.coTrustee || '', r.registeredState || '',
-        r.dateEstablished || '', r.bankName || '', r.branch || '',
-        r.accountNumber || '', r.routingNumber || '', r.accountType || '',
-        r.accountHolderName || '', r.notes || ''
-      ]);
+      sheet.appendRow(vals);
       nameMap[key] = sheet.getLastRow();
       imported++;
     }
