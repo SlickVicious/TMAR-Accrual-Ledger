@@ -1281,6 +1281,14 @@ function doPost(e) {
         return jsonResponse_(prResult);
       }
 
+      case 'deletePrincipalRegister': {
+        var dpNames = Array.isArray(payload.names) ? payload.names : [];
+        if (dpNames.length === 0) return errorResponse_('Provide names (array of exact entity names)');
+        var dpResult = deletePrincipalRegister_(ss, dpNames);
+        updateSyncTimestamp_(ss, 'Principal Register', 'push');
+        return jsonResponse_(dpResult);
+      }
+
       case 'pushContacts': {
         var ctV = validatePayload_(payload.contacts, ['fullName']);
         if (!ctV.valid) return errorResponse_(ctV.message);
@@ -2536,6 +2544,26 @@ function pushPrincipalRegister_(ss, records) {
     }
   }
   return { status: 'ok', action: 'pushPrincipalRegister', imported: imported, updated: updated };
+}
+
+function deletePrincipalRegister_(ss, names) {
+  var sheet = ss.getSheetByName('Principal Register');
+  if (!sheet) return { status: 'error', action: 'deletePrincipalRegister', message: 'Principal Register tab not found' };
+
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return { status: 'ok', action: 'deletePrincipalRegister', deleted: 0 };
+
+  var target = names.map(function (n) { return String(n).toLowerCase().trim(); });
+  var removed = 0;
+  // iterate bottom-up so deleting a row doesn't shift the next index
+  for (var r = lastRow; r >= 2; r--) {
+    var name = String(sheet.getRange(r, 2).getValue() || '').toLowerCase().trim();
+    if (target.indexOf(name) !== -1) {
+      sheet.deleteRow(r);
+      removed++;
+    }
+  }
+  return { status: 'ok', action: 'deletePrincipalRegister', deleted: removed };
 }
 
 
