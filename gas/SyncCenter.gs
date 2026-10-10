@@ -754,11 +754,11 @@ function doGet(e) {
       case 'pullAccounts':
         var accounts = pullSheetData_(ss, 'Master Register', 3, [
           'rowId', 'dateAdded', 'provider', 'ein', 'accountNumber',
-          'accountType', 'accountSubtype', 'status', 'openDate', 'startDate',
-          'endDate', 'currentBalance', 'monthlyPayment', 'interestRate', 'primaryUser',
-          'secondaryUser', 'autopay', 'paperless', 'loginUrl', 'contactPhone',
-          'contactEmail', 'lastVerified', 'verifiedBy', 'taxRelevant', 'taxCategory',
-          'linkedEntities', 'notes', 'actionItems', 'source'
+          'accountType', 'accountSubtype', 'status', 'openDate', 'closeDate',
+          'currentBalance', 'originalBalance', 'billingFrequency', 'nextPaymentDue', 'primaryUser',
+          'authorizedUsers', 'autopayStatus', 'paymentSource', 'contractTermsFile', 'statementsComplete',
+          'taxFormsOnFile', 'popDocuments', 'documentLocation', 'lastStatementDate', 'lastVerifiedDate',
+          'retentionPeriod', 'notes', 'tags', 'discoveryStatus'
         ], { einColumn: 3 });
         updateSyncTimestamp_(ss, 'Master Register', 'pull');
         return jsonResponse_({ status: 'ok', action: 'pullAccounts', count: accounts.length, data: accounts });
@@ -908,6 +908,54 @@ function doGet(e) {
           }
         }
         return jsonResponse_({ status: 'ok', action: 'pullRawTab', tab: tabName, headers: rawHeaders, rows: rawRows });
+
+      case 'listExternalTabs': {
+        var extId = (e.parameter && e.parameter.spreadsheetId) ? String(e.parameter.spreadsheetId) : '';
+        if (!extId) return errorResponse_('Missing ?spreadsheetId= parameter');
+        var extSS = SpreadsheetApp.openById(extId);
+        var extTabs = extSS.getSheets().map(function(s) {
+          return { name: s.getName(), gid: s.getSheetId(), hidden: s.isSheetHidden() };
+        });
+        return jsonResponse_({ status: 'ok', action: 'listExternalTabs', spreadsheetId: extId, tabs: extTabs });
+      }
+
+      case 'pullExternalTab': {
+        var xId = (e.parameter && e.parameter.spreadsheetId) ? String(e.parameter.spreadsheetId) : '';
+        var xTab = (e.parameter && e.parameter.tab) ? String(e.parameter.tab) : '';
+        if (!xId) return errorResponse_('Missing ?spreadsheetId= parameter');
+        if (!xTab) return errorResponse_('Missing ?tab= parameter');
+        var xSS = SpreadsheetApp.openById(xId);
+        var xSheet = xSS.getSheetByName(xTab);
+        if (!xSheet) return errorResponse_('Sheet not found: ' + xTab);
+        var xLastRow = xSheet.getLastRow();
+        var xLastCol = xSheet.getLastColumn();
+        if (xLastRow < 1 || xLastCol < 1) {
+          return jsonResponse_({ status: 'ok', action: 'pullExternalTab', spreadsheetId: xId, tab: xTab, headers: [], rows: [] });
+        }
+        var xHeaders = xSheet.getRange(1, 1, 1, xLastCol).getValues()[0].map(function(h) {
+          return h !== null && h !== undefined ? String(h).trim() : '';
+        });
+        var xRows = [];
+        if (xLastRow > 1) {
+          var xVals = xSheet.getRange(2, 1, xLastRow - 1, xLastCol).getValues();
+          for (var xi = 0; xi < xVals.length; xi++) {
+            var xRow = xVals[xi];
+            var xHas = false;
+            for (var xc = 0; xc < xRow.length; xc++) {
+              if (xRow[xc] !== '' && xRow[xc] !== null && xRow[xc] !== undefined) { xHas = true; break; }
+            }
+            if (!xHas) continue;
+            var xArr = [];
+            for (var xj = 0; xj < xRow.length; xj++) {
+              var xv = xRow[xj];
+              if (xv instanceof Date) xv = xv.toISOString().slice(0, 10);
+              xArr.push(xv !== null && xv !== undefined ? String(xv) : '');
+            }
+            xRows.push(xArr);
+          }
+        }
+        return jsonResponse_({ status: 'ok', action: 'pullExternalTab', spreadsheetId: xId, tab: xTab, headers: xHeaders, rows: xRows });
+      }
 
       case 'listRunnableFunctions':
         return jsonResponse_({ status: 'ok', action: 'listRunnableFunctions', functions: Object.keys(RUNNABLE_FUNCTIONS_) });
@@ -1501,6 +1549,22 @@ function doPost(e) {
         return jsonResponse_(foldScriptExecutions_(ss));
       }
 
+      case 'rebuildSubscriptions': {
+        var rbRows = Array.isArray(payload.rows) ? payload.rows : [];
+        if (rbRows.length === 0) return errorResponse_('rebuildSubscriptions requires a non-empty "rows" array');
+        var rbResult = rebuildSubscriptions_(ss, rbRows);
+        updateSyncTimestamp_(ss, 'Subscriptions & Services', 'push');
+        return jsonResponse_(rbResult);
+      }
+
+      case 'replaceSubscriptions': {
+        var rpRows = Array.isArray(payload.rows) ? payload.rows : [];
+        if (rpRows.length === 0) return errorResponse_('replaceSubscriptions requires a non-empty "rows" array');
+        var rpResult = replaceSubscriptions_(ss, rpRows);
+        updateSyncTimestamp_(ss, 'Subscriptions & Services', 'push');
+        return jsonResponse_(rpResult);
+      }
+
       default:
         return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync, pushPrincipalRegister, pushContacts, pushCreditorDetail, deleteCreditorDetail, pushWebsiteAccounts, deleteWebsiteAccounts, importSubstituteW2, importForm1040, importForm2848, importScheduleA, importSchedule1, importSchedule2, importForm8275R, importAdminForms, importWorksheetData, refreshProofOfMailing, archiveTabs, pushCreditScorecard, runFunction');
     }
@@ -1514,6 +1578,100 @@ function doPost(e) {
   }
 }
 
+
+/**
+ * Rebuild the "Subscriptions & Services" register: backs up the current tab to a
+ * hidden red snapshot, removes the stale MONTHLY TOTAL row + any out-of-place
+ * audit-dump/footer content below it, then appends the given clean rows. Preserves
+ * the designed header + existing data rows (and their formatting) untouched.
+ */
+function rebuildSubscriptions_(ss, newRows) {
+  var sheet = ss.getSheetByName('Subscriptions & Services');
+  if (!sheet) return { status: 'error', action: 'rebuildSubscriptions', message: 'Subscriptions & Services tab not found' };
+  var HEADERS = ['Service', 'Category', 'Monthly Cost', 'Annual Cost', 'Payment Method', 'Responsible Party', 'Status', 'Tax Deductible', 'Business Use %', 'Notes'];
+
+  // 1) Backup-before-write (full sheet → hidden red tab).
+  var backupName = 'Subscriptions_PreRebuild_' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyyMMdd_HHmmss');
+  var lastRow = sheet.getLastRow();
+  var lastCol = sheet.getLastColumn() || HEADERS.length;
+  var backup = ss.insertSheet(backupName, ss.getNumSheets());
+  if (lastRow > 0) {
+    backup.getRange(1, 1, lastRow, lastCol).setValues(sheet.getRange(1, 1, lastRow, lastCol).getValues());
+  }
+  backup.setTabColor('#c0392b');
+  try { backup.hideSheet(); } catch (e) {}
+
+  // 2) Locate the boundary: the MONTHLY TOTAL row, else the first footer line.
+  var colA = sheet.getRange(1, 1, lastRow, 1).getValues();
+  var boundaryRow = lastRow + 1;
+  for (var i = 1; i < colA.length; i++) {
+    var v = String(colA[i][0] || '').trim();
+    if (/MONTHLY TOTAL/i.test(v) || /^(A Provident Private Creditor|TMAR Tools)/.test(v)) {
+      boundaryRow = i + 1;
+      break;
+    }
+  }
+
+  // 3) Delete from the boundary to the end (stale total + audit dump + footers).
+  var removed = 0;
+  if (boundaryRow <= lastRow) {
+    sheet.deleteRows(boundaryRow, lastRow - boundaryRow + 1);
+    removed = lastRow - boundaryRow + 1;
+  }
+
+  // 4) Append the clean new rows.
+  var added = 0;
+  (newRows || []).forEach(function (r) {
+    var padded = (r || []).slice(0, HEADERS.length);
+    while (padded.length < HEADERS.length) padded.push('');
+    sheet.appendRow(padded);
+    added++;
+  });
+
+  return { status: 'ok', action: 'rebuildSubscriptions', backedUp: backupName, rowsRemoved: removed, rowsAdded: added };
+}
+
+/**
+ * Full-replace the "Subscriptions & Services" register: backs up the current tab
+ * to a hidden red snapshot, clears the entire tab, then rewrites the header + the
+ * given rows verbatim. Used when existing rows need correcting (append-only
+ * rebuildSubscriptions_ can't update a row that's already there).
+ */
+function replaceSubscriptions_(ss, allRows) {
+  var sheet = ss.getSheetByName('Subscriptions & Services');
+  if (!sheet) return { status: 'error', action: 'replaceSubscriptions', message: 'Subscriptions & Services tab not found' };
+  var HEADERS = ['Service', 'Category', 'Monthly Cost', 'Annual Cost', 'Payment Method', 'Responsible Party', 'Status', 'Tax Deductible', 'Business Use %', 'Notes'];
+
+  // 1) Backup-before-write (full sheet → hidden red tab).
+  var backupName = 'Subscriptions_PreReplace_' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyyMMdd_HHmmss');
+  var lastRow = sheet.getLastRow();
+  var lastCol = sheet.getLastColumn() || HEADERS.length;
+  var backup = ss.insertSheet(backupName, ss.getNumSheets());
+  if (lastRow > 0) {
+    backup.getRange(1, 1, lastRow, lastCol).setValues(sheet.getRange(1, 1, lastRow, lastCol).getValues());
+  }
+  backup.setTabColor('#c0392b');
+  try { backup.hideSheet(); } catch (e) {}
+
+  // 2) Clear the whole tab.
+  if (lastRow > 0) {
+    sheet.getRange(1, 1, lastRow, sheet.getMaxColumns()).clearContent();
+  }
+
+  // 3) Rewrite the header.
+  sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
+
+  // 4) Write every row.
+  var written = 0;
+  (allRows || []).forEach(function (r) {
+    var padded = (r || []).slice(0, HEADERS.length);
+    while (padded.length < HEADERS.length) padded.push('');
+    sheet.getRange(2 + written, 1, 1, HEADERS.length).setValues([padded]);
+    written++;
+  });
+
+  return { status: 'ok', action: 'replaceSubscriptions', backedUp: backupName, rowsWritten: written };
+}
 
 // ─── Push Functions (Web App-safe wrappers) ──────────────────────────────────
 // These replicate importLedger* logic but use the passed `ss` object
@@ -2588,8 +2746,11 @@ function updateMasterRegister_(ss, rows) {
   var lastRow = sheet.getLastRow();
   // Clear stale data-validation on O/P so renamed enum values (e.g. Clint -> Clinton)
   // can write even though the frozen _Validation list still holds the old value.
+  sheet.getRange(2, 6, Math.max(lastRow - 1, 1), 2).setDataValidation(null);  // F-G = Account Type/Subtype
+  sheet.getRange(2, 13, Math.max(lastRow - 1, 1), 2).setDataValidation(null); // M-N = Billing Frequency / Next Payment Due
   sheet.getRange(2, 15, Math.max(lastRow - 1, 1), 1).setDataValidation(null); // O = Primary User
   sheet.getRange(2, 16, Math.max(lastRow - 1, 1), 1).setDataValidation(null); // P = Authorized Users
+  sheet.getRange(2, 20, Math.max(lastRow - 1, 1), 1).setDataValidation(null); // T = Statements Complete
   var idMap = {}; // Row ID -> sheet row number
   if (lastRow > 1) {
     var ids = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
@@ -2607,6 +2768,13 @@ function updateMasterRegister_(ss, rows) {
     var target = idMap[rowId];
     if (!target) { notFound++; continue; }
 
+    if (row.accountType !== undefined)     sheet.getRange(target, 6).setValue(String(row.accountType));     // F
+    if (row.accountSubtype !== undefined)  sheet.getRange(target, 7).setValue(String(row.accountSubtype));  // G
+    if (row.billingFrequency !== undefined) sheet.getRange(target, 13).setValue(String(row.billingFrequency)); // M
+    if (row.nextPaymentDue !== undefined)  sheet.getRange(target, 14).setValue(String(row.nextPaymentDue));   // N
+    if (row.statementsComplete !== undefined) sheet.getRange(target, 20).setValue(String(row.statementsComplete)); // T
+    if (row.currentBalance !== undefined)  sheet.getRange(target, 11).setValue(row.currentBalance === '' ? '' : Number(row.currentBalance)); // K
+    if (row.originalBalance !== undefined) sheet.getRange(target, 12).setValue(row.originalBalance === '' ? '' : Number(row.originalBalance)); // L
     if (row.primaryUser !== undefined)     sheet.getRange(target, 15).setValue(String(row.primaryUser)); // O
     if (row.authorizedUsers !== undefined) sheet.getRange(target, 16).setValue(String(row.authorizedUsers)); // P
     if (row.status !== undefined)          sheet.getRange(target, 8).setValue(String(row.status));          // H
