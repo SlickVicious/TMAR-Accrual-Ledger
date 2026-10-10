@@ -1519,6 +1519,16 @@
             </div>
           </div>
 
+          <!-- Form 3115 - Application for Change in Accounting Method -->
+          <div onclick="selectFilingType('3115')" class="filing-card glass-card p-6 rounded-xl border-2 border-transparent" data-filing="3115">
+            <div class="text-4xl mb-3">🔄</div>
+            <h3 class="text-lg font-bold text-yellow-400">Form 3115</h3>
+            <p class="text-sm text-gray-400 mt-2">Application for Change in Accounting Method</p>
+            <div class="mt-3">
+              <span class="status-badge bg-yellow-500/20 text-yellow-400">Sole Prop</span>
+            </div>
+          </div>
+
           <!-- 1099 Series Divider -->
           <div class="col-span-full mt-4 mb-2">
             <div class="flex items-center gap-3">
@@ -2768,6 +2778,86 @@
       </div>
 
       <!-- Schedule C - Profit or Loss From Business -->
+      <div id="form3115" class="filing-form glass-card p-6 rounded-xl hidden">
+        <div class="filing-header rounded-t-xl p-4 -m-6 mb-6">
+          <h2 class="text-2xl font-bold flex items-center gap-3">
+            <span class="text-4xl">🔄</span>
+            Form 3115 - Application for Change in Accounting Method
+          </h2>
+          <p class="text-sm text-gray-400 mt-2">Change in Accounting Method (Rev. Proc. 2025-23)</p>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(16,185,129,.12),rgba(59,130,246,.08));border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:.8rem;color:#94a3b8;line-height:1.5;">
+          <span style="color:#10b981;font-weight:700;">IRS FORM REFERENCE:</span> DCN 122 — overall cash-to-accrual method change under Rev. Proc. 2025-23 § 15.01(6)(c). Section 481(a) = A/R − A/P as of 01/01/2025, computed from the ledger (never hand-entered). NAICS, Part II lines 6a/7a, and the final § 481(a) figure are operator inputs.
+        </div>
+
+        <form id="form3115Form" class="space-y-6">
+          <div class="border border-gray-600 rounded-lg p-4">
+            <h3 class="text-lg font-semibold text-yellow-400 mb-4">Part I — Change to Accounting Method</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium mb-1 text-gray-400">1. Designated Change Number (DCN)</label>
+                <input type="text" name="f3115DCN" value="122" class="w-full border border-gray-600 p-3 rounded-lg bg-gray-700 text-white" readonly="">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1 text-gray-400">3. Year of Change</label>
+                <input type="text" name="f3115Year" value="2025" class="w-full border border-gray-600 p-3 rounded-lg bg-gray-700 text-white" readonly="">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1 text-gray-400">2a. Name of Applicant</label>
+                <input type="text" name="f3115Name" placeholder="Awaiting sync from ledger…" class="w-full border border-gray-600 p-3 rounded-lg bg-gray-700 text-white">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1 text-gray-400">2b. Identification Number (EIN)</label>
+                <input type="text" name="f3115EIN" placeholder="XX-XXXXXXX" class="w-full border border-gray-600 p-3 rounded-lg bg-gray-700 text-white">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1 text-gray-400">NAICS Code (operator input)</label>
+                <input type="text" name="f3115NAICS" placeholder="Awaiting operator input…" class="w-full border border-gray-600 p-3 rounded-lg bg-gray-700 text-white">
+              </div>
+            </div>
+            <div class="mt-4 flex gap-2">
+              <button type="button" onclick="populateForm3115Entities()" class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg font-semibold text-sm">Sync from Ledger</button>
+            </div>
+          </div>
+
+          <div class="border border-gray-600 rounded-lg p-4">
+            <h3 class="text-lg font-semibold text-green-400 mb-4">Part II — Section 481(a) Adjustment</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-sm font-medium mb-1 text-gray-400">Accounts Receivable (A/R) @ 01/01/2025</label>
+                <input type="number" step="0.01" name="f3115AR" class="w-full border border-gray-600 p-3 rounded-lg bg-gray-700 text-white" readonly="">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1 text-gray-400">Accounts Payable (A/P) @ 01/01/2025</label>
+                <input type="number" step="0.01" name="f3115AP" class="w-full border border-gray-600 p-3 rounded-lg bg-gray-700 text-white" readonly="">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1 text-gray-400">Net § 481(a) Adjustment (A/R − A/P)</label>
+                <input type="number" step="0.01" name="f3115Section481a" class="w-full border border-gray-600 p-3 rounded-lg bg-gray-700 text-white font-bold" readonly="">
+              </div>
+            </div>
+            <div class="mt-4 p-3 bg-gray-700/50 rounded-lg">
+              <div class="flex justify-between items-center">
+                <span class="font-semibold">Computed § 481(a):</span>
+                <span class="text-2xl font-bold text-green-400" id="f3115_481a_display">$0.00</span>
+              </div>
+            </div>
+            <div class="mt-4 flex gap-2">
+              <button type="button" onclick="computeSection481A()" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-semibold text-sm">Compute § 481(a) from Ledger</button>
+              <button type="button" onclick="generateForm3115PDF()" class="bg-yellow-700 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold text-sm">Generate PDF</button>
+            </div>
+          </div>
+
+          <div class="border border-gray-600 rounded-lg p-4">
+            <h3 class="text-lg font-semibold text-blue-400 mb-4">Part III — Description of Change</h3>
+            <div>
+              <label class="block text-sm font-medium mb-1 text-gray-400">Description of the change (overall cash → accrual)</label>
+              <textarea name="f3115Desc" rows="3" class="w-full border border-gray-600 p-3 rounded-lg bg-gray-700 text-white">Overall change in accounting method from the cash receipts and disbursements method to the accrual method of accounting, for the tax year beginning January 1, 2025, as authorized under Rev. Proc. 2025-23 § 15.01(6)(c) (DCN 122).</textarea>
+            </div>
+          </div>
+        </form>
+      </div>
+
       <div id="formSchC" class="filing-form glass-card p-6 rounded-xl hidden">
         <div class="filing-header rounded-t-xl p-4 -m-6 mb-6">
           <h2 class="text-2xl font-bold flex items-center gap-3">
@@ -6323,6 +6413,10 @@
             <input type="file" accept=".csv" id="reconCSVFile" onchange="reconImportCSV(this)" class="text-xs text-gray-300 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:bg-yellow-600 file:text-black file:font-bold file:text-xs cursor-pointer">
           </div>
           <div>
+            <label class="block text-xs text-gray-400 mb-1">&nbsp;</label>
+            <button id="reconLoadBOABtn" onclick="reconLoadBOAAll()" class="bg-yellow-700 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-bold text-sm" title="Load all 86 BOA statements (2019-2026) from BOA_Statements_Combined.csv">Load All BOA Statements</button>
+          </div>
+          <div>
             <label class="block text-xs text-gray-400 mb-1">Filter by Source/Bank</label>
             <select id="reconSourceFilter" class="border border-gray-600 p-2 rounded-lg bg-gray-700 text-white text-sm" onchange="reconApplySourceFilter()">
               <option value="">-- All Sources --</option>
@@ -6504,6 +6598,7 @@
         '1040': [],
         '1040-ES': [],
         'SchC': [],
+        '3115': [],
         '1099-A': [], '1099-B': [], '1099-C': [], '1099-INT': [],
         '1099-DIV': [], '1099-R': [], '1099-NEC': [], '1099-MISC': []
       },
@@ -6850,7 +6945,8 @@ function exportFilingPDF(formType, data) {
         '1041-ES': {title:'Form 1041-ES',sub:'Estimated Income Tax for Estates and Trusts'},
         '1040': {title:'Form 1040',sub:'U.S. Individual Income Tax Return'},
         '1040-ES': {title:'Form 1040-ES',sub:'Estimated Tax for Individuals'},
-        'SchC': {title:'Schedule C',sub:'Profit or Loss From Business'}
+        'SchC': {title:'Schedule C',sub:'Profit or Loss From Business'},
+        '3115': {title:'Form 3115',sub:'Application for Change in Accounting Method'}
       };
       const info = formTitles[formType] || {title:'Form '+formType,sub:'Internal Revenue Service'};
 
@@ -7454,11 +7550,79 @@ function exportFilingPDF(formType, data) {
       const formIdMap = {
         '1041-ES': 'form1041ES',
         '1040-ES': 'form1040ES',
-        'SchC': 'formSchC'
+        'SchC': 'formSchC',
+        '3115': 'form3115'
       };
       const formId = formIdMap[type] || `form${type}`;
       document.getElementById(formId).classList.remove('hidden');
+      if (type === '3115') populateForm3115Entities();
     }
+
+    // ── Form 3115 — Application for Change in Accounting Method ──
+    function populateForm3115Entities() {
+      var form = document.getElementById('form3115Form');
+      if (!form) return;
+      var ent = appData.entities.find(function(e){ return e.type === 'soleProp'; })
+             || appData.entities.find(function(e){ return String(e.type || '').toLowerCase() === 'sole proprietor'; })
+             || appData.entities[0];
+      if (ent) {
+        if (form.elements.f3115Name && !form.elements.f3115Name.value) form.elements.f3115Name.value = ent.name || '';
+        if (form.elements.f3115EIN && !form.elements.f3115EIN.value) form.elements.f3115EIN.value = ent.ein || '';
+      }
+      computeSection481A();
+    }
+
+    function computeSection481A() {
+      var form = document.getElementById('form3115Form');
+      if (!form) return 0;
+      var cutoff = '2025-01-01';
+      var arSum = 0, apSum = 0;
+      (appData.receivables || []).forEach(function(r) {
+        if (String(r.date || '').slice(0, 10) <= cutoff) arSum += (parseFloat(r.balance) || parseFloat(r.amount) || 0);
+      });
+      (appData.payables || []).forEach(function(p) {
+        if (String(p.date || '').slice(0, 10) <= cutoff) apSum += (parseFloat(p.balance) || parseFloat(p.amount) || 0);
+      });
+      var s481a = arSum - apSum;
+      if (form.elements.f3115AR) form.elements.f3115AR.value = arSum.toFixed(2);
+      if (form.elements.f3115AP) form.elements.f3115AP.value = apSum.toFixed(2);
+      if (form.elements.f3115Section481a) form.elements.f3115Section481a.value = s481a.toFixed(2);
+      var d = document.getElementById('f3115_481a_display');
+      if (d) d.textContent = '$' + s481a.toLocaleString('en-US', {minimumFractionDigits: 2});
+      return s481a;
+    }
+
+    async function generateForm3115PDF() {
+      var form = document.getElementById('form3115Form');
+      if (!form) return;
+      var s481a = computeSection481A();
+      var ent = appData.entities.find(function(e){ return e.type === 'soleProp'; }) || appData.entities[0];
+      var varMap = (typeof buildVariableMap === 'function') ? buildVariableMap({}) : {};
+      varMap['{{TRUSTEE}}'] = (form.elements.f3115Name && form.elements.f3115Name.value) || (ent && ent.name) || varMap['{{TRUSTEE}}'] || '';
+      varMap['{{EIN}}'] = (form.elements.f3115EIN && form.elements.f3115EIN.value) || (ent && ent.ein) || varMap['{{EIN}}'] || '';
+      varMap['{{NAICS}}'] = (form.elements.f3115NAICS && form.elements.f3115NAICS.value) || '';
+      varMap['{{DCN}}'] = '122';
+      varMap['{{YEAR_BEGIN}}'] = '2025';
+      varMap['{{YEAR_END}}'] = '2025';
+      varMap['{{SECTION_481A}}'] = s481a.toFixed(2);
+      varMap['{{AR_TOTAL}}'] = (form.elements.f3115AR && form.elements.f3115AR.value) || '0.00';
+      varMap['{{AP_TOTAL}}'] = (form.elements.f3115AP && form.elements.f3115AP.value) || '0.00';
+      try {
+        var result = await autoFillIRSPDF('irs-forms/f3115.pdf', varMap, 'irs_f3115');
+        var blob = new Blob([result.bytes], { type: 'application/pdf' });
+        var blobUrl = URL.createObjectURL(blob);
+        document.getElementById('doc-toolbar').style.display = 'none';
+        document.getElementById('doc-editor').style.display = 'none';
+        document.getElementById('doc-pdf-viewer').style.display = 'block';
+        document.getElementById('doc-pdf-frame').src = blobUrl;
+        document.getElementById('doc-pdf-download').href = blobUrl;
+        document.getElementById('doc-pdf-title').textContent = 'Form 3115 — ' + result.filledCount + ' field(s) auto-filled';
+        showAlert('Form 3115 PDF generated with ' + result.filledCount + ' field(s) filled.', 'Generate PDF');
+      } catch(e) {
+        showAlert('PDF generation failed: ' + (e && e.message ? e.message : e), 'Generate PDF');
+      }
+    }
+
 
     // Ledger Functions
     function loadEntries() {
@@ -8258,6 +8422,11 @@ function exportFilingPDF(formType, data) {
       otherExpSchC: 'Other Expenses', homeOfficeMethod: 'Home Office Method',
       homeOfficeSqFt: 'Home Office Sq Ft', homeOfficeAmount: 'Home Office Amount',
       homeOfficeDeductionSchC: 'Home Office Deduction', netProfitSchC: 'Net Profit/Loss',
+      // Form 3115 fields
+      f3115DCN: 'Designated Change Number (DCN)', f3115Year: 'Year of Change',
+      f3115Name: 'Name of Applicant', f3115EIN: 'Identification Number (EIN)',
+      f3115NAICS: 'NAICS Code', f3115AR: 'Accounts Receivable (A/R)', f3115AP: 'Accounts Payable (A/P)',
+      f3115Section481a: 'Section 481(a) Adjustment', f3115Desc: 'Description of Change',
       // Form 1099-A fields
       lenderName1099A: 'Lender Name', lenderEIN1099A: 'Lender EIN', lenderAddress1099A: 'Lender Address',
       borrowerName1099A: 'Borrower Name', borrowerTIN1099A: 'Borrower TIN',
@@ -8562,6 +8731,7 @@ function exportFilingPDF(formType, data) {
                 <option value="partnership" ${entity?.type === 'partnership' ? 'selected' : ''}>Partnership</option>
                 <option value="nonprofit" ${entity?.type === 'nonprofit' ? 'selected' : ''}>Nonprofit (501c)</option>
                 <option value="llc" ${entity?.type === 'llc' ? 'selected' : ''}>LLC</option>
+                <option value="soleProp" ${entity?.type === 'soleProp' ? 'selected' : ''}>Sole Proprietor</option>
               </select>
             </div>
             <div id="parentFields" class="${entity?.type === 'subsidiary' ? '' : 'hidden'}">
@@ -8648,14 +8818,14 @@ function exportFilingPDF(formType, data) {
         const parent = e.parentId ? appData.entities.find(p => p.id == e.parentId) : null;
         const typeColors = {
           parent: 'blue', subsidiary: 'purple', trust: 'amber', estate: 'amber',
-          partnership: 'cyan', nonprofit: 'green', llc: 'gray'
+          partnership: 'cyan', nonprofit: 'green', llc: 'gray', soleProp: 'orange'
         };
         return `
           <tr class="hover:bg-gray-600/50">
             <td class="border border-gray-600 px-4 py-2 font-semibold">${e.name}</td>
             <td class="border border-gray-600 px-4 py-2">${e.ein || '-'}</td>
             <td class="border border-gray-600 px-4 py-2">
-              <span class="status-badge bg-${typeColors[e.type] || 'gray'}-500/20 text-${typeColors[e.type] || 'gray'}-400">${e.type}</span>
+              <span class="status-badge bg-${typeColors[e.type] || 'gray'}-500/20 text-${typeColors[e.type] || 'gray'}-400">${entityTypeLabels[e.type] || e.type}</span>
             </td>
             <td class="border border-gray-600 px-4 py-2">${parent?.name || '-'}</td>
             <td class="border border-gray-600 px-4 py-2">${e.type === 'subsidiary' ? e.ownership + '%' : '-'}</td>
@@ -12647,44 +12817,67 @@ function exportFilingPDF(formType, data) {
     };
   }
 
+  function reconLoadCSVText(text, label) {
+    var lines = String(text || '').split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
+    if (lines.length < 2) { showAlert('CSV appears empty.', 'Import Error'); return; }
+    var hdr = lines[0].toLowerCase().split(',').map(function(h){ return h.replace(/\"/g,'').trim(); });
+    var di = hdr.indexOf('date'), ti = hdr.indexOf('type'), ai = hdr.indexOf('amount'),
+        desi = hdr.indexOf('description'), si = hdr.indexOf('source');
+    if (di < 0 || ai < 0) {
+      showAlert('CSV must contain: date, amount (optionally type, description, source).', 'Import Error');
+      return;
+    }
+    _reconAllRows = [];
+    for (var i = 1; i < lines.length; i++) {
+      var cols = window._tmarParseCSVLine(lines[i]);
+      if (!cols.length) continue;
+      _reconAllRows.push({
+        date:   cols[di]  || '',
+        type:   ti  >= 0 ? (cols[ti]  || '') : '',
+        amount: parseFloat(cols[ai]) || 0,
+        desc:   desi >= 0 ? (cols[desi] || '') : '',
+        source: si  >= 0 ? (cols[si]  || 'Imported') : 'Imported'
+      });
+    }
+    var sources = [];
+    _reconAllRows.forEach(function(r){ if (sources.indexOf(r.source) < 0) sources.push(r.source); });
+    sources.sort();
+    var sel = document.getElementById('reconSourceFilter');
+    if (sel) {
+      sel.innerHTML = '<option value="">-- All Sources --</option>' +
+        sources.map(function(s){ return '<option value="'+s+'">'+s+'</option>'; }).join('');
+    }
+    reconApplySourceFilter();
+    var sumEl = document.getElementById('reconImportSummary');
+    if (sumEl) sumEl.textContent = 'Loaded ' + _reconAllRows.length.toLocaleString() + ' transactions from: ' + (label || sources.join(', '));
+  }
+
   function reconImportCSV(fileInput) {
     if (!fileInput || !fileInput.files || !fileInput.files[0]) return;
     var reader = new FileReader();
-    reader.onload = function(e) {
-      var lines = e.target.result.split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
-      if (lines.length < 2) { showAlert('CSV appears empty.', 'Import Error'); return; }
-      var hdr = lines[0].toLowerCase().split(',').map(function(h){ return h.replace(/"/g,'').trim(); });
-      var di = hdr.indexOf('date'), ti = hdr.indexOf('type'), ai = hdr.indexOf('amount'),
-          desi = hdr.indexOf('description'), si = hdr.indexOf('source');
-      if (di < 0 || ai < 0) {
-        showAlert('CSV must contain: date, amount (optionally type, description, source).', 'Import Error');
-        return;
-      }
-      _reconAllRows = [];
-      for (var i = 1; i < lines.length; i++) {
-        var cols = window._tmarParseCSVLine(lines[i]);
-        if (!cols.length) continue;
-        _reconAllRows.push({
-          date:   cols[di]  || '',
-          type:   ti  >= 0 ? (cols[ti]  || '') : '',
-          amount: parseFloat(cols[ai]) || 0,
-          desc:   desi >= 0 ? (cols[desi] || '') : '',
-          source: si  >= 0 ? (cols[si]  || 'Imported') : 'Imported'
-        });
-      }
-      var sources = [];
-      _reconAllRows.forEach(function(r){ if (sources.indexOf(r.source) < 0) sources.push(r.source); });
-      sources.sort();
-      var sel = document.getElementById('reconSourceFilter');
-      if (sel) {
-        sel.innerHTML = '<option value="">-- All Sources --</option>' +
-          sources.map(function(s){ return '<option value="'+s+'">'+s+'</option>'; }).join('');
-      }
-      reconApplySourceFilter();
-      var sumEl = document.getElementById('reconImportSummary');
-      if (sumEl) sumEl.textContent = 'Loaded ' + _reconAllRows.length.toLocaleString() + ' transactions from: ' + sources.join(', ');
-    };
+    reader.onload = function(e) { reconLoadCSVText(e.target.result); };
     reader.readAsText(fileInput.files[0]);
+  }
+
+  function reconLoadBOAAll() {
+    var btn = document.getElementById('reconLoadBOABtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Loading...'; }
+    fetch('BOA_Statements_Combined.csv', { cache: 'no-store' })
+      .then(function(resp) {
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        return resp.text();
+      })
+      .then(function(txt) {
+        reconLoadCSVText(txt, 'BOA (all statements)');
+        if (btn) { btn.disabled = false; btn.textContent = 'Load All BOA Statements'; }
+      })
+      .catch(function(err) {
+        if (btn) { btn.disabled = false; btn.textContent = 'Load All BOA Statements'; }
+        showAlert('Could not load BOA_Statements_Combined.csv: ' + (err && err.message ? err.message : err)
+          + '\n\nThis works when the app is served over http (e.g. http://localhost:5501).'
+          + ' If you opened the file directly (file://), use the "Statement CSV File" picker instead and select BOA_Statements_Combined.csv.',
+          'Load Failed');
+      });
   }
 
   function reconApplySourceFilter() {
@@ -21390,7 +21583,8 @@ Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height
     irs_fss4:     { file: 'fss4.pdf',     title: 'Form SS-4 — Application for Employer Identification Number' },
     irs_f2848:    { file: 'f2848.pdf',    title: 'Form 2848 — Power of Attorney and Declaration of Representative' },
     irs_f8821:    { file: 'f8821.pdf',    title: 'Form 8821 — Tax Information Authorization' },
-    irs_f56:      { file: 'f56.pdf',      title: 'Form 56 — Notice Concerning Fiduciary Relationship' }
+    irs_f56:      { file: 'f56.pdf',      title: 'Form 56 — Notice Concerning Fiduciary Relationship' },
+    irs_f3115:    { file: 'f3115.pdf',   title: 'Form 3115 — Application for Change in Accounting Method' }
   };
 
   function showIRSForm(key) {
@@ -21414,6 +21608,22 @@ Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height
   // ══════════════════════════════════════════════════════════════════
 
   var IRS_DETERMINISTIC_FIELD_RULES = {
+    irs_f3115: [
+      { id: 'f3115-name',    token: '{{TRUSTEE}}',      fieldPatterns: [/topmostSubform\[0\]\.Page1\[0\]\.f1_1\[0\]$/] },
+      { id: 'f3115-ein',     token: '{{EIN}}',          fieldPatterns: [/topmostSubform\[0\]\.Page1\[0\]\.f1_4\[0\]$/] },
+      { id: 'f3115-naics',   token: '{{NAICS}}',        fieldPatterns: [/topmostSubform\[0\]\.Page1\[0\]\.f1_5\[0\]$/] },
+      { id: 'f3115-street',  token: '{{ADDRESS}}',      fieldPatterns: [/topmostSubform\[0\]\.Page1\[0\]\.f1_2\[0\]$/] },
+      { id: 'f3115-csz',     token: '{{CITY_STATE_ZIP}}', fieldPatterns: [/topmostSubform\[0\]\.Page1\[0\]\.f1_3\[0\]$/] },
+      { id: 'f3115-yrbegin', token: '{{YEAR_BEGIN}}',   fieldPatterns: [/topmostSubform\[0\]\.Page1\[0\]\.f1_6\[0\]$/] },
+      { id: 'f3115-yrend',   token: '{{YEAR_END}}',     fieldPatterns: [/topmostSubform\[0\]\.Page1\[0\]\.f1_7\[0\]$/] },
+      { id: 'f3115-contact', token: '{{TRUSTEE}}',      fieldPatterns: [/topmostSubform\[0\]\.Page1\[0\]\.f1_8\[0\]$/] },
+      { id: 'f3115-phone',   token: '{{PHONE}}',        fieldPatterns: [/topmostSubform\[0\]\.Page1\[0\]\.f1_10\[0\]$/] },
+      { id: 'f3115-dcn',     token: '{{DCN}}',          fieldPatterns: [/topmostSubform\[0\]\.Page1\[0\]\.f1_18\[0\]$/] },
+      { id: 'f3115-481a',    token: '{{SECTION_481A}}', fieldPatterns: [/topmostSubform\[0\]\.Page4\[0\]\.f4_1\[0\]$/] },
+      { id: 'f3115-ar',      token: '{{AR_TOTAL}}',     fieldPatterns: [/topmostSubform\[0\]\.Page4\[0\]\.f4_3\[0\]$/] },
+      { id: 'f3115-ap',      token: '{{AP_TOTAL}}',     fieldPatterns: [/topmostSubform\[0\]\.Page4\[0\]\.f4_5\[0\]$/] },
+      { id: 'f3115-net',     token: '{{SECTION_481A}}', fieldPatterns: [/topmostSubform\[0\]\.Page4\[0\]\.f4_11\[0\]$/] }
+    ],
     irs_f1040: [
       { id: 'primary-name', token: '{{TRUSTEE}}', fieldPatterns: [/\.f1_01\[0\]$/, /\.f1_02\[0\]$/] },
       { id: 'secondary-name', token: '{{CO_TRUSTEE}}', fieldPatterns: [/\.f1_03\[0\]$/, /\.f1_04\[0\]$/] },
@@ -34280,10 +34490,16 @@ function ev2InitEntityVerifier() {
   // ══════════════════════════════════════════════════════════════════
 
   // Reverse map: entity UI type → GAS Master Register accountType
+  var entityTypeLabels = {
+    'parent': 'Parent Corporation', 'subsidiary': 'Subsidiary', 'trust': 'Trust',
+    'estate': 'Estate', 'partnership': 'Partnership', 'nonprofit': 'Nonprofit (501c)',
+    'llc': 'LLC', 'soleProp': 'Sole Proprietor'
+  };
+
   var _entityTypeToGasType = {
     'trust': 'Trust Entity', 'llc': 'LLC', 'parent': 'Corporation',
     'subsidiary': 'Banking Checking', 'estate': 'Estate',
-    'partnership': 'Partnership', 'nonprofit': 'Nonprofit'
+    'partnership': 'Partnership', 'nonprofit': 'Nonprofit', 'soleProp': 'Sole Proprietor'
   };
 
   // Prepare entities for GAS push — translate field names + types
