@@ -15,7 +15,7 @@ var HUB_SECTIONS_ = [
   ['Mailings & Authority',['Proof of Mailing', 'Website Accounts']],
   ['Trust Instruments',   ['📜 Trustee Resolutions', '📦 Asset Transfer Log']],
   ['Documents',           ['Document Inventory', 'Document Registry']],
-  ['Household',           ['Household Obligations', 'Subscriptions & Services']],
+  ['Business',           ['Business Obligations', 'Subscriptions & Services']],
   ['Filing System',       ['FWM — Master Index']],
   ['Reference',           ['AppScripts', 'Validation']]
 ];

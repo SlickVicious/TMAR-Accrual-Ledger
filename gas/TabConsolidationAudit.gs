@@ -34,7 +34,7 @@ var DUP_PAIRS_ = [
   ['TMAR — Document Registry',     'Document Registry'],
   ['TMAR — CoA',                   'CoA'],
   ['TMAR — Principal Register',    'Principal Register'],
-  ['TMAR — Household Obligations', 'Household Obligations'],
+  ['TMAR — Business Obligations', 'Business Obligations'],
   ['DInv',                         'Document Inventory']   // headerless near-clone (826 vs 829 rows) — spot-check Inventory is a superset
 ];
 

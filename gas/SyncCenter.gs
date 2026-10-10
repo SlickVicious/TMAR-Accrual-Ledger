@@ -56,7 +56,7 @@ function showLedgerImportDialog() {
       <select id="importType">
         <option value="entities">Entities → Master Register</option>
         <option value="transactions">Ledger Entries → Transaction Ledger</option>
-        <option value="payables">Payables → Household Obligations</option>
+        <option value="payables">Payables → Business Obligations</option>
         <option value="filings1099">1099 Filings → 1099 Filing Chain</option>
         <option value="full">Full Ledger Export (JSON) — Auto-detect all</option>
       </select>
@@ -323,15 +323,15 @@ function importLedgerTransactions(entries) {
 
 
 /**
- * Import payables from Accrual Ledger → Household Obligations.
+ * Import payables from Accrual Ledger → Business Obligations.
  * Upserts by vendor name (updates existing, appends new).
  */
 function importLedgerPayables(payables) {
   if (!payables || payables.length === 0) return 'No payables to import.';
 
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName('Household Obligations');
-  if (!sheet) throw new Error('Household Obligations tab not found');
+  const sheet = ss.getSheetByName('Business Obligations');
+  if (!sheet) throw new Error('Business Obligations tab not found');
 
   // Build vendor → row map for existing data
   const lastRow = sheet.getLastRow();
@@ -378,7 +378,7 @@ function importLedgerPayables(payables) {
     }
   });
 
-  return 'Imported ' + imported + ' new, updated ' + updated + ' existing payables in Household Obligations.';
+  return 'Imported ' + imported + ' new, updated ' + updated + ' existing payables in Business Obligations.';
 }
 
 
@@ -440,7 +440,7 @@ function importLedger1099s(filings) {
 //   GET  ?action=ping                     → connection test (no key required)
 //   GET  ?action=pullAccounts             → read Master Register → JSON
 //   GET  ?action=pullTransactions         → read Transaction Ledger → JSON
-//   GET  ?action=pullObligations          → read Household Obligations → JSON
+//   GET  ?action=pullObligations          → read Business Obligations → JSON
 //   GET  ?action=pull1099                 → read 1099 Filing Chain → JSON
 //   GET  ?action=pullValidation           → read _Validation lists → JSON
 //   GET  ?action=pullChartOfAccounts      → read GAAP CoA → JSON
@@ -452,7 +452,7 @@ function importLedger1099s(filings) {
 //   GET  ?action=listSheetTabs/listWorkbookTabs/pullRawTab/pullWorkbookSheets
 //   POST {action:'pushEntities', entities:[...]}     → write to Master Register
 //   POST {action:'pushTransactions', entries:[...]}  → write to Transaction Ledger
-//   POST {action:'pushPayables', payables:[...]}     → write to Household Obligations
+//   POST {action:'pushPayables', payables:[...]}     → write to Business Obligations
 //   POST {action:'push1099', filings:[...]}          → write to 1099 Filing Chain
 //   POST {action:'pushChartOfAccounts'|'pushReceivables'|'pushJournalEntries'
 //         |'pushPrincipalRegister'|'pushContacts'|'pushWebsiteAccounts', ...}
@@ -612,7 +612,7 @@ function ensureSyncMetaSheet_(ss) {
   sheet.getRange('A1:E1').setValues([['Sheet Name', 'Last Push', 'Last Pull', 'Push Count', 'Pull Count']]);
   sheet.getRange('A1:E1').setFontWeight('bold');
 
-  var sheets = ['Master Register', 'Transaction Ledger', 'Household Obligations', '1099 Filing Chain',
+  var sheets = ['Master Register', 'Transaction Ledger', 'Business Obligations', '1099 Filing Chain',
                 'Principal Register', 'Contacts', 'Website Accounts'];
   for (var i = 0; i < sheets.length; i++) {
     sheet.getRange(i + 2, 1, 1, 5).setValues([[sheets[i], '', '', 0, 0]]);
@@ -774,12 +774,12 @@ function doGet(e) {
         return jsonResponse_({ status: 'ok', action: 'pullTransactions', count: txns.length, data: txns });
 
       case 'pullObligations':
-        var obls = pullSheetData_(ss, 'Household Obligations', 2, [
+        var obls = pullSheetData_(ss, 'Business Obligations', 2, [
           'vendor', 'category', 'accountNumber', 'monthlyAmount',
           'dueDay', 'autopay', 'status', 'lastPaid',
           'annualTotal', 'startDate', 'notes'
         ]);
-        updateSyncTimestamp_(ss, 'Household Obligations', 'pull');
+        updateSyncTimestamp_(ss, 'Business Obligations', 'pull');
         return jsonResponse_({ status: 'ok', action: 'pullObligations', count: obls.length, data: obls });
 
       case 'pullChartOfAccounts': {
@@ -1227,7 +1227,7 @@ function doPost(e) {
         var payV = validatePayload_(payload.payables, ['vendor']);
         if (!payV.valid) return errorResponse_(payV.message);
         var payResult = pushPayables_(ss, payload.payables);
-        updateSyncTimestamp_(ss, 'Household Obligations', 'push');
+        updateSyncTimestamp_(ss, 'Business Obligations', 'push');
         return jsonResponse_(payResult);
 
       case 'pushChartOfAccounts':
@@ -1265,7 +1265,7 @@ function doPost(e) {
         }
         if (payload.payables && payload.payables.length > 0) {
           results.payables = pushPayables_(ss, payload.payables);
-          updateSyncTimestamp_(ss, 'Household Obligations', 'push');
+          updateSyncTimestamp_(ss, 'Business Obligations', 'push');
         }
         if (payload.filings && payload.filings.length > 0) {
           results['1099'] = push1099_(ss, payload.filings);
@@ -1583,7 +1583,7 @@ function doPost(e) {
         var uoRows = Array.isArray(payload.rows) ? payload.rows : [];
         if (uoRows.length === 0) return errorResponse_('updateObligationCategories requires a non-empty "rows" array');
         var uoResult = updateObligationCategories_(ss, uoRows);
-        if (uoResult.status === 'ok') updateSyncTimestamp_(ss, 'Household Obligations', 'push');
+        if (uoResult.status === 'ok') updateSyncTimestamp_(ss, 'Business Obligations', 'push');
         return jsonResponse_(uoResult);
       }
 
@@ -1778,15 +1778,15 @@ function pushCashFlow_(ss, p) {
 }
 
 /**
- * Recategorize the Household Obligations REGISTER (rows above the monthly-pivot block):
+ * Recategorize the Business Obligations REGISTER (rows above the monthly-pivot block):
  * set column B (Category) on each matched vendor. Backs the tab up to a hidden red
  * snapshot first (reversible). Rows: [{vendor, category}]. Matches by col A (vendor),
  * stopping the scan at the "JOINT HOUSEHOLD EXPENSES" pivot header so pivot rows are
  * never touched.
  */
 function updateObligationCategories_(ss, rows) {
-  var sheet = ss.getSheetByName('Household Obligations');
-  if (!sheet) return { status: 'error', action: 'updateObligationCategories', message: 'Household Obligations tab not found' };
+  var sheet = ss.getSheetByName('Business Obligations');
+  if (!sheet) return { status: 'error', action: 'updateObligationCategories', message: 'Business Obligations tab not found' };
 
   // 1) Backup before write.
   var backupName = 'Obligations_PreRecat_' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyyMMdd_HHmmss');
@@ -1971,7 +1971,7 @@ function pushTransactions_(ss, entries) {
 }
 
 /**
- * Push payables to Household Obligations via Web App.
+ * Push payables to Business Obligations via Web App.
  * Replicates importLedgerPayables() logic with upsert.
  */
 function pushReceivables_(ss, receivables) {
@@ -2042,8 +2042,8 @@ function pushChartOfAccounts_(ss, accounts) {
 }
 
 function pushPayables_(ss, payables) {
-  var sheet = ss.getSheetByName('Household Obligations');
-  if (!sheet) return { status: 'error', action: 'pushPayables', message: 'Household Obligations tab not found' };
+  var sheet = ss.getSheetByName('Business Obligations');
+  if (!sheet) return { status: 'error', action: 'pushPayables', message: 'Business Obligations tab not found' };
 
   var lastRow = sheet.getLastRow();
   var vendorMap = {};
@@ -3383,7 +3383,7 @@ var APPC_HUB_ID_ = TMAR_CONFIG.appcHubId;
 var APPC_SHEET_NAMES_ = {
   MASTER_REGISTER:       'TMAR — Master Register',
   TRANSACTION_LEDGER:    'TMAR — Transaction Ledger',
-  HOUSEHOLD_OBLIGATIONS: 'TMAR — Household Obligations',
+  HOUSEHOLD_OBLIGATIONS: 'TMAR — Business Obligations',
   FILING_CHAIN:          'TMAR — 1099 Filing Chain',
   W2_INCOME:             'TMAR — W-2 & Income Detail',
   SUBMISSIONS_1040:      'TMAR — 1040 Submissions',

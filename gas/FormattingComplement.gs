@@ -80,7 +80,7 @@ function applyLegendBlocks(ss) {
     'Transaction Ledger':       20,   // R+2  = col 20
     'Forms & Authority':        17,   // O+2  = col 17
     'BOA Cash Flow':            11,   // J+1  = col 11
-    'Household Obligations':    14,   // M+1  = col 14
+    'Business Obligations':    14,   // M+1  = col 14
     '1099 Filing Chain':        19,   // Q+2  = col 19
   };
   for (var name in legendColReqs) {
@@ -96,7 +96,7 @@ function applyLegendBlocks(ss) {
     ['Transaction Ledger',    applyLegend_TransactionLedger_, 18, 3],
     ['Forms & Authority',     applyLegend_FormsAuthority_,   15, 3],
     ['BOA Cash Flow',         applyLegend_BOACashFlow_,      10, 3],
-    ['Household Obligations', applyLegend_HouseholdObligations_, 13, 3],
+    ['Business Obligations', applyLegend_BusinessObligations_, 13, 3],
     ['1099 Filing Chain',     applyLegend_1099FilingChain_,  17, 3],
   ];
   for (var i = 0; i < legendFns.length; i++) {
@@ -314,8 +314,8 @@ function applyLegend_BOACashFlow_(ss) {
 }
 
 
-function applyLegend_HouseholdObligations_(ss) {
-  const sheet = ss.getSheetByName('Household Obligations');
+function applyLegend_BusinessObligations_(ss) {
+  const sheet = ss.getSheetByName('Business Obligations');
   if (!sheet) return;
 
   const startCol = 13; // M
@@ -344,7 +344,7 @@ function applyLegend_HouseholdObligations_(ss) {
   sheet.setColumnWidth(startCol, 70);
   sheet.setColumnWidth(startCol + 1, 240);
 
-  Logger.log('Legend: Household Obligations');
+  Logger.log('Legend: Business Obligations');
 }
 
 
@@ -407,7 +407,7 @@ function applyFinePrintAttribution(ss) {
     'W-2 & Income Detail',
     'BOA Cash Flow',
     'PNC Cash Flow',
-    'Household Obligations',
+    'Business Obligations',
     'Subscriptions & Services',
     'Tax Strategy',
     'Master Register',
@@ -565,7 +565,7 @@ function runFormattingHealthAudit() {
     'W-2 & Income Detail':      '#1B2A4A',
     'BOA Cash Flow':            '#1B2A4A',
     'PNC Cash Flow':            '#4A148C',
-    'Household Obligations':    '#1B2A4A',
+    'Business Obligations':    '#1B2A4A',
     'Subscriptions & Services': '#1B2A4A',
     'Tax Strategy':             '#1B2A4A',
     'Master Register':          '#2E7D32',
@@ -619,7 +619,7 @@ function runFormattingHealthAudit() {
   }
 
   // 3. Conditional formatting rule count
-  const cfTargets = ['Master Register', 'Transaction Ledger', 'Forms & Authority', 'BOA Cash Flow', 'Household Obligations'];
+  const cfTargets = ['Master Register', 'Transaction Ledger', 'Forms & Authority', 'BOA Cash Flow', 'Business Obligations'];
   for (const name of cfTargets) {
     const sheet = ss.getSheetByName(name);
     if (!sheet) continue;
@@ -632,7 +632,7 @@ function runFormattingHealthAudit() {
   }
 
   // 4. Filter check
-  const filterTargets = ['Master Register', 'Transaction Ledger', 'Household Obligations'];
+  const filterTargets = ['Master Register', 'Transaction Ledger', 'Business Obligations'];
   for (const name of filterTargets) {
     const sheet = ss.getSheetByName(name);
     if (!sheet) continue;
@@ -676,7 +676,7 @@ function runFormattingHealthAudit() {
     { sheet: 'Transaction Ledger', col: 18, row: 3 },
     { sheet: 'Forms & Authority', col: 15, row: 3 },
     { sheet: 'BOA Cash Flow', col: 10, row: 3 },
-    { sheet: 'Household Obligations', col: 13, row: 3 },
+    { sheet: 'Business Obligations', col: 13, row: 3 },
     { sheet: '1099 Filing Chain', col: 17, row: 3 },
   ];
   for (const t of legendTargets) {
@@ -881,7 +881,7 @@ function applyDataValidationSafe_(ss) {
  * GAS can't create a filter on a range with merged cells.
  */
 function createFilterViewsSafe_(ss) {
-  var filterSheets = ['Master Register', 'Transaction Ledger', 'Household Obligations'];
+  var filterSheets = ['Master Register', 'Transaction Ledger', 'Business Obligations'];
   for (var i = 0; i < filterSheets.length; i++) {
     var sheet = ss.getSheetByName(filterSheets[i]);
     if (!sheet) continue;
@@ -970,7 +970,7 @@ function diagnoseLegendAndAttribution() {
     { name: 'Transaction Ledger',     col: 18, row: 3, cols: 3 },
     { name: 'Forms & Authority',      col: 15, row: 3, cols: 3 },
     { name: 'BOA Cash Flow',          col: 10, row: 3, cols: 2 },
-    { name: 'Household Obligations',  col: 13, row: 3, cols: 2 },
+    { name: 'Business Obligations',  col: 13, row: 3, cols: 2 },
     { name: '1099 Filing Chain',      col: 17, row: 3, cols: 3 },
   ];
 

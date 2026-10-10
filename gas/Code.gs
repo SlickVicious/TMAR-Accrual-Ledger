@@ -58,7 +58,7 @@ function applyTabColors(ss) {
     'W-2 & Income Detail':      '#1B2A4A',
     'BOA Cash Flow':            '#1B2A4A',
     'PNC Cash Flow':            '#4A148C',  // Deep purple — Syrina's PNC Spend
-    'Household Obligations':    '#1B2A4A',
+    'Business Obligations':    '#1B2A4A',
     'Subscriptions & Services': '#1B2A4A',
     'Tax Strategy':             '#1B2A4A',
     'Master Register':          '#2E7D32',  // Green
@@ -402,8 +402,8 @@ function applyConditionalFormatting(ss) {
     Logger.log('BOA Cash Flow conditional formatting applied');
   }
 
-  // Household Obligations: Status column (H)
-  const hoSheet = ss.getSheetByName('Household Obligations');
+  // Business Obligations: Status column (H)
+  const hoSheet = ss.getSheetByName('Business Obligations');
   if (hoSheet) {
     const statusRange = hoSheet.getRange('H2:H50');
     const rules = hoSheet.getConditionalFormatRules();
@@ -423,7 +423,7 @@ function applyConditionalFormatting(ss) {
       .build());
 
     hoSheet.setConditionalFormatRules(rules);
-    Logger.log('Household Obligations conditional formatting applied');
+    Logger.log('Business Obligations conditional formatting applied');
   }
 }
 
@@ -448,7 +448,7 @@ function protectHeaderRows(ss) {
     'W-2 & Income Detail',
     'BOA Cash Flow',
     'PNC Cash Flow',
-    'Household Obligations',
+    'Business Obligations',
     'Subscriptions & Services',
     'Tax Strategy',
     'Master Register',
@@ -711,7 +711,7 @@ function ensureCPASheet_() {
   sheet.getRange(2, 3, 200, 1).setDataValidation(catRule);
 
   const tabNames = ['Executive Dashboard', 'Transaction Ledger', 'W-2 & Income Detail',
-    'BOA Cash Flow', 'Household Obligations', 'Subscriptions & Services', 'Tax Strategy',
+    'BOA Cash Flow', 'Business Obligations', 'Subscriptions & Services', 'Tax Strategy',
     'Master Register', 'Trust Ledger', '1099 Filing Chain', 'Forms & Authority',
     'Proof of Mailing', 'Document Inventory'];
   const tabRule = SpreadsheetApp.newDataValidation()
@@ -827,7 +827,7 @@ function showHelpDialog() {
       <h3>Import Tools</h3>
       <p><b>CSV Transactions:</b> Upload a CSV file to append rows to the Transaction Ledger.</p>
       <p><b>Add Account:</b> Adds a new row to Master Register with auto-generated MR-xxx ID.</p>
-      <p><b>Add Obligation/Subscription:</b> Appends entries to Household Obligations or Subscriptions & Services.</p>
+      <p><b>Add Obligation/Subscription:</b> Appends entries to Business Obligations or Subscriptions & Services.</p>
     </div>
 
     <div class="section">
@@ -1223,7 +1223,7 @@ function showDataCompletenessDashboard() {
       analysis.hasPNC = yearData['pnc.jan.deposits'] !== undefined &&
                         yearData['pnc.jan.deposits'] !== '';
 
-      // Check for Household Obligations data
+      // Check for Business Obligations data
       analysis.hasHH = Object.keys(yearData).some(k => k.startsWith('hh.'));
     }
 
@@ -1258,7 +1258,7 @@ function showDataCompletenessDashboard() {
         <th>W-2 / Tax</th>
         <th>BOA Cash</th>
         <th>PNC Cash</th>
-        <th>H/H Oblig.</th>
+        <th>Bus. Oblig.</th>
         <th>Documents</th>
         <th>Brackets</th>
         <th>Total Fields</th>
@@ -1295,7 +1295,7 @@ function showDataCompletenessDashboard() {
       <div class="legend-item">• <b>W-2/Tax:</b> W-2 wages, tax calculations, income sources</div>
       <div class="legend-item">• <b>BOA Cash:</b> Monthly cash flow (BOA account 6198)</div>
       <div class="legend-item">• <b>PNC Cash:</b> Monthly cash flow (PNC account 0672)</div>
-      <div class="legend-item">• <b>H/H Oblig.:</b> Household Obligations vendor data</div>
+      <div class="legend-item">• <b>Bus. Oblig.:</b> Business Obligations vendor data</div>
       <div class="legend-item">• <b>Documents:</b> Tax documents in Document Registry</div>
       <div class="legend-item">• <b>Brackets:</b> Tax bracket lookup tables</div>
     </div>
@@ -1360,7 +1360,7 @@ function applyYearDataToSheets_(d, year) {
   applyToPNCCashFlow_(ss, d);
 
   // ── HOUSEHOLD OBLIGATIONS ──
-  applyToHouseholdObligations_(ss, d);
+  applyToBusinessObligations_(ss, d);
 
   Logger.log('Year data applied to sheets for year ' + year);
 }
@@ -1735,12 +1735,12 @@ function applyToPNCCashFlow_(ss, d) {
 
 
 /**
- * Apply year-specific Household Obligations data from _YearData.
+ * Apply year-specific Business Obligations data from _YearData.
  * Matches vendor names in column A and writes monthly amount to column D
  * and status to column H.
  */
-function applyToHouseholdObligations_(ss, d) {
-  const sheet = ss.getSheetByName('Household Obligations');
+function applyToBusinessObligations_(ss, d) {
+  const sheet = ss.getSheetByName('Business Obligations');
   if (!sheet) return;
 
   const lastRow = sheet.getLastRow();
@@ -1803,7 +1803,7 @@ function applyToHouseholdObligations_(ss, d) {
     }
   }
 
-  Logger.log('Household Obligations updated with year data');
+  Logger.log('Business Obligations updated with year data');
 }
 
 
@@ -1820,7 +1820,7 @@ function updateYearReferences_(oldYear, newYear) {
     'W-2 & Income Detail':      ['A', 'F'],
     'BOA Cash Flow':            ['A', 'H'],
     'PNC Cash Flow':            ['A'],
-    'Household Obligations':    ['A', 'I', 'J'],
+    'Business Obligations':    ['A', 'I', 'J'],
     'Subscriptions & Services': ['A', 'J'],
     'Tax Strategy':             ['A', 'B', 'D'],
 
@@ -2274,7 +2274,7 @@ function runFullGapScan() {
     'Transaction Ledger': scanTabTransactionLedger_,
     'W-2 & Income Detail': scanTabW2Income_,
     'BOA Cash Flow': scanTabBOACashFlow_,
-    'Household Obligations': scanTabHouseholdObligations_,
+    'Business Obligations': scanTabBusinessObligations_,
     'Subscriptions & Services': scanTabSubscriptions_,
     'Tax Strategy': scanTabTaxStrategy_,
     'Master Register': scanTabMasterRegister_,
@@ -2328,7 +2328,7 @@ function scanCurrentTab() {
     'Transaction Ledger': scanTabTransactionLedger_,
     'W-2 & Income Detail': scanTabW2Income_,
     'BOA Cash Flow': scanTabBOACashFlow_,
-    'Household Obligations': scanTabHouseholdObligations_,
+    'Business Obligations': scanTabBusinessObligations_,
     'Subscriptions & Services': scanTabSubscriptions_,
     'Tax Strategy': scanTabTaxStrategy_,
     'Master Register': scanTabMasterRegister_,
@@ -2602,7 +2602,7 @@ function scanTabBOACashFlow_(sheet, results, registry) {
 }
 
 
-function scanTabHouseholdObligations_(sheet, results, registry) {
+function scanTabBusinessObligations_(sheet, results, registry) {
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return;
   const data = sheet.getRange(2, 1, lastRow - 1, 11).getValues();
@@ -2612,9 +2612,9 @@ function scanTabHouseholdObligations_(sheet, results, registry) {
     const rowNum = i + 2;
     if (!row[0]) continue;
 
-    if (!row[7]) results.push(['Household Obligations', rowNum, 'Status (H)', 'Missing status', row[0], 'HIGH', 'Set status: Active or Closed', '']);
-    if (row[7] === 'Active' && !row[4]) results.push(['Household Obligations', rowNum, 'Due Day (E)', 'Active item missing due day', row[0], 'MEDIUM', 'Enter monthly due date', '']);
-    if (row[7] === 'Active' && (!row[3] || row[3] === 0)) results.push(['Household Obligations', rowNum, 'Monthly Amount (D)', 'Active item with $0/blank', row[0], 'HIGH', 'Enter current monthly payment amount', '']);
+    if (!row[7]) results.push(['Business Obligations', rowNum, 'Status (H)', 'Missing status', row[0], 'HIGH', 'Set status: Active or Closed', '']);
+    if (row[7] === 'Active' && !row[4]) results.push(['Business Obligations', rowNum, 'Due Day (E)', 'Active item missing due day', row[0], 'MEDIUM', 'Enter monthly due date', '']);
+    if (row[7] === 'Active' && (!row[3] || row[3] === 0)) results.push(['Business Obligations', rowNum, 'Monthly Amount (D)', 'Active item with $0/blank', row[0], 'HIGH', 'Enter current monthly payment amount', '']);
   }
 }
 
@@ -2819,7 +2819,7 @@ function scanTabDocInventory_(sheet, results, registry) {
 
 function showAddQuestionDialog() {
   const tabNames = ['Executive Dashboard', 'Transaction Ledger', 'W-2 & Income Detail',
-    'BOA Cash Flow', 'Household Obligations', 'Subscriptions & Services', 'Tax Strategy',
+    'BOA Cash Flow', 'Business Obligations', 'Subscriptions & Services', 'Tax Strategy',
     'Master Register', 'Trust Ledger', '1099 Filing Chain', 'Forms & Authority',
     'Proof of Mailing', 'Document Inventory'];
 
@@ -3255,8 +3255,8 @@ function showAddObligationDialog() {
 
 function addObligationEntry(data) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName('Household Obligations');
-  if (!sheet) throw new Error('Household Obligations tab not found');
+  const sheet = ss.getSheetByName('Business Obligations');
+  if (!sheet) throw new Error('Business Obligations tab not found');
 
   const row = [
     data.vendor,
@@ -3273,7 +3273,7 @@ function addObligationEntry(data) {
   ];
 
   sheet.appendRow(row);
-  return data.vendor + ' added to Household Obligations';
+  return data.vendor + ' added to Business Obligations';
 }
 
 

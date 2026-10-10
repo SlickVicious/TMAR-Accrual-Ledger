@@ -19746,10 +19746,10 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
               <span id="sync-export-1099-count" style="margin-left:auto;font-size:11px;color:var(--accent-cyan);font-weight:700"></span>
             </button>
 
-            <button onclick="exportPayablesToObligationsCSV()" class="sync-export-btn" data-guide="Exports payables/receivables as a Household Obligations CSV (creditor, amount, due cadence). Import into the Obligations sheet to track recurring commitments." style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left;width:100%;transition:all 0.2s">
+            <button onclick="exportPayablesToObligationsCSV()" class="sync-export-btn" data-guide="Exports payables/receivables as a Business Obligations CSV (creditor, amount, due cadence). Import into the Obligations sheet to track recurring commitments." style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left;width:100%;transition:all 0.2s">
               <span style="font-size:18px">💳</span>
               <div>
-                <div style="font-weight:700;font-size:13px;color:var(--text-primary)">Payables → Household Obligations</div>
+                <div style="font-weight:700;font-size:13px;color:var(--text-primary)">Payables → Business Obligations</div>
                 <div style="font-size:11px;color:var(--text-secondary)">11-column CSV • Due dates • Payment status</div>
               </div>
               <span id="sync-export-payables-count" style="margin-left:auto;font-size:11px;color:var(--accent-cyan);font-weight:700"></span>
@@ -19786,7 +19786,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
             <label class="sync-import-btn" style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left;width:100%;transition:all 0.2s;box-sizing:border-box">
               <span style="font-size:18px">💳</span>
               <div>
-                <div style="font-weight:700;font-size:13px;color:var(--text-primary)">Household Obligations → 📤 A/P</div>
+                <div style="font-weight:700;font-size:13px;color:var(--text-primary)">Business Obligations → 📤 A/P</div>
                 <div style="font-size:11px;color:var(--text-secondary)">11-column CSV • Match by vendor name</div>
               </div>
               <input type="file" accept=".csv" onchange="importObligationsCSV(this)" style="display:none">
@@ -32191,7 +32191,7 @@ var GUIDE_FN = {
   exportLedgerToTransactionCSV: 'Download ledger entries as a Transaction Ledger CSV.',
   exportPackagePDF: 'Export the assembled package as PDF.',
   exportPackageZIP: 'Export the assembled package as a ZIP.',
-  exportPayablesToObligationsCSV: 'Download payables as a Household Obligations CSV.',
+  exportPayablesToObligationsCSV: 'Download payables as a Business Obligations CSV.',
   exportStatements: 'Export the financial statements.',
   exportTemplateSettings: 'Export template variable settings.',
   exportVaultBundle: 'Export an encrypted vault bundle for backup or transfer.',
@@ -33819,7 +33819,7 @@ function ev2InitEntityVerifier() {
     showAlert('Exported ' + allFilings.length + ' 1099 filings to Filing Chain CSV', 'Success');
   }
 
-  // Export 5: Payables → Household Obligations CSV (11 columns)
+  // Export 5: Payables → Business Obligations CSV (11 columns)
   function exportPayablesToObligationsCSV() {
     var payables = appData.payables || [];
     if (payables.length === 0) {
@@ -33859,9 +33859,9 @@ function ev2InitEntityVerifier() {
       csv += row.map(syncCSVEscape).join(',') + '\n';
     });
 
-    syncDownloadCSV('TMAR_HouseholdObligations_Export_' + new Date().toISOString().slice(0, 10) + '.csv', csv);
-    addSyncLogEntry('Export Payables → Household Obligations CSV', 'export', payables.length, 'success');
-    showAlert('Exported ' + payables.length + ' payables to Household Obligations CSV', 'Success');
+    syncDownloadCSV('TMAR_BusinessObligations_Export_' + new Date().toISOString().slice(0, 10) + '.csv', csv);
+    addSyncLogEntry('Export Payables → Business Obligations CSV', 'export', payables.length, 'success');
+    showAlert('Exported ' + payables.length + ' payables to Business Obligations CSV', 'Success');
   }
 
   // ── Import Functions (Step 5) ──────────────────────────────────────
@@ -34042,7 +34042,7 @@ function ev2InitEntityVerifier() {
     reader.readAsText(file);
   }
 
-  // Import 3: Household Obligations CSV → Payables
+  // Import 3: Business Obligations CSV → Payables
   function importObligationsCSV(inputEl) {
     var file = inputEl.files[0];
     if (!file) return;
@@ -34418,7 +34418,7 @@ function ev2InitEntityVerifier() {
     entities:          { tab: 'Master Register',      tabAliases: [],      sync: 'pushEntities / pullAccounts' },
     transactions:      { tab: 'Transaction Ledger',   tabAliases: [],      sync: 'pushTransactions / pullTransactions' },
     ledgerEntries:     { tab: 'Transaction Ledger',   tabAliases: [],      sync: 'pushTransactions / pullTransactions' },
-    payables:          { tab: 'Household Obligations',tabAliases: [],      sync: 'pushPayables / pullObligations' },
+    payables:          { tab: 'Business Obligations',tabAliases: [],      sync: 'pushPayables / pullObligations' },
     filings:           { tab: '1099 Filing Chain',    tabAliases: ['1099 Filings'], sync: 'push1099 / pull1099' },
     principalRegister: { tab: 'Principal Register',   tabAliases: [],      sync: 'pushPrincipalRegister / pullPrincipalRegister' },
     chartOfAccounts:   { tab: 'GAAP CoA',             tabAliases: [],      sync: 'pushChartOfAccounts / pullChartOfAccounts' },
@@ -34858,7 +34858,7 @@ function ev2InitEntityVerifier() {
     });
   }
 
-  // Prepare payables for GAS push — translate A/P fields to Household Obligations columns
+  // Prepare payables for GAS push — translate A/P fields to Business Obligations columns
   function _prepPayablesForPush(payables) {
     return payables.map(function(p) {
       // Extract day-of-month from full date if present (GAS col 5 = dueDay)
@@ -35029,7 +35029,7 @@ function ev2InitEntityVerifier() {
       case 'payables':
         data = _prepPayablesForPush(appData.payables || []);
         method = bridge.pushPayables.bind(bridge);
-        label = '📤 A/P → Household Obligations';
+        label = '📤 A/P → Business Obligations';
         break;
       case 'chartOfAccounts':
         data = appData.chartOfAccounts || [];
@@ -35129,7 +35129,7 @@ function ev2InitEntityVerifier() {
       case 'obligations':
         method = bridge.pullObligations.bind(bridge);
         applyFn = applyPullObligations;
-        label = 'Household Obligations → 📤 A/P';
+        label = 'Business Obligations → 📤 A/P';
         break;
       case 'chartOfAccounts':
         method = bridge.pullChartOfAccounts.bind(bridge);
@@ -57100,7 +57100,7 @@ var VAULT_INDEX = {
         "icon": "📁",
         "items": [
           "DH0S8_3c55d68c-f0ab-409c-870b-eafe570866ed.zip",
-          "TMAR_HouseholdObligations_Export_2026-04-09.csv",
+          "TMAR_BusinessObligations_Export_2026-04-09.csv",
           "Title Images.pdf"
         ]
       },
