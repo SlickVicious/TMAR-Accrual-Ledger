@@ -21767,6 +21767,14 @@ Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height
     ]
   };
 
+  var IRS_CHECKBOX_RULES = {
+    irs_f3115: [
+      { field: 'topmostSubform[0].Page1[0].TypeOfApplicant[0].c1_4[0]' },  // Applicant type: Individual (on=/1)
+      { field: 'topmostSubform[0].Page4[0].c4_5[0]' },                     // Change FROM: Cash (on=/Cash)
+      { field: 'topmostSubform[0].Page4[0].c4_6[1]' }                      // Change TO: Accrual (on=/Accrual)
+    ]
+  };
+
   var IRS_DETERMINISTIC_RULE_ALIASES = {
     irs_dl_1040_current: "irs_f1040",
     irs_dl_2848_current: "irs_f2848",
@@ -21970,6 +21978,26 @@ Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height
           unmatchedTextFields.push({ fieldName: fieldName, tooltip: tooltip || '' });
         }
       });
+
+      // Per-form checkbox rules (additive — only forms listed in IRS_CHECKBOX_RULES are touched).
+      var cbKey = formKey || getIRSFormKeyFromUrl(url);
+      var checkboxRules = (typeof IRS_CHECKBOX_RULES !== 'undefined' && IRS_CHECKBOX_RULES[cbKey]) ? IRS_CHECKBOX_RULES[cbKey] : [];
+      for (var ci = 0; ci < checkboxRules.length; ci++) {
+        var cr = checkboxRules[ci];
+        try {
+          form.getCheckBox(cr.field).check();
+        } catch(e) {
+          try {
+            form.getRadioGroup(cr.field).select(cr.value || 'Yes');
+          } catch(e2) {
+            tiPushEvent({
+              type: 'execution', id: _tiFn, status: 'error',
+              errorMessage: 'Checkbox/radio check failed: ' + cr.field + ' - ' + (e && e.message ? e.message : String(e)),
+              endedAt: new Date().toISOString(), durationMs: Date.now() - _tiStart, source: url
+            });
+          }
+        }
+      }
 
       var missingVarTokens = patternTokens.filter(function(token) {
         return !varMap[token] || String(varMap[token]).trim() === '';
