@@ -368,7 +368,7 @@ updateAccount('MR-060', {
   notes: 'Consolidated Nelnet account - duplicates MR-054/055/056 removed 2026-02-28'
 });
 
-// STEP 6: Document in CPA Questions
+// STEP 6: Document in CPA Questions (sheet pruned in 2026-10-08 reorg — record elsewhere)
 // Add note about cleanup for tax purposes
 ```
 

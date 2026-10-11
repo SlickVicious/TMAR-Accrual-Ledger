@@ -21,7 +21,7 @@ Local server running via `tmar-preview` on port 8080.
 
 ### What your colleague CAN review:
 
-✅ All 38 tabs (Ledger, Entities, COA, Journal, A/R, A/P, Tax Estimator, TRCF, Document Creator, Package Builder, Voice Chat, Trust Agent, Entity Verifier, Sync Center, etc.) ✅ Document & Form Creator with all templates ✅ Package Builder with FWM presets ✅ Full UI/UX and navigation
+✅ All 60 tabs (Ledger, Entities, COA, Journal, A/R, A/P, Tax Estimator, TRCF, Document Creator, Package Builder, Voice Chat, Trust Agent, Entity Verifier, Sync Center, etc.) ✅ Document & Form Creator with all templates ✅ Package Builder with FWM presets ✅ Full UI/UX and navigation
 
 ### What requires their own setup:
 

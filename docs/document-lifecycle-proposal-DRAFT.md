@@ -1,3 +1,10 @@
+> **⚠️ Superseded snapshot.** This document records a past TMAR state and is kept for
+> history — figures may be stale. Current reality (2026-10-10): 57 workbook tabs (28
+> visible + 29 hidden), 84 GAS doGet/doPost actions, 29-function allowlist, app 4.16 MB
+> / 61,377 lines, 15 LLM providers + `hermes` (WSL agent). See `docs/_TMAR-REALITY-BASELINE.md`.
+
+---
+
 # Document Lifecycle & Naming Convention — PRELIMINARY DRAFT
 
 **Status: placeholder, not a final design.** Written 2026-08-02 from a handful of examples

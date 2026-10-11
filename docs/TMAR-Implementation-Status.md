@@ -1,3 +1,10 @@
+> **⚠️ Superseded snapshot.** This document records a past TMAR state and is kept for
+> history — figures may be stale. Current reality (2026-10-10): 57 workbook tabs (28
+> visible + 29 hidden), 84 GAS doGet/doPost actions, 29-function allowlist, app 4.16 MB
+> / 61,377 lines, 15 LLM providers + `hermes` (WSL agent). See `docs/_TMAR-REALITY-BASELINE.md`.
+
+---
+
 **Last Updated:** 2026-02-26 23:50 EST **Project:** tmar-engine (Python automation for Trust Master Account Register) **Sheet ID:** `1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ` **Prompts Version:** v2 (adapted to 22-tab actual sheet structure)
 
 ---

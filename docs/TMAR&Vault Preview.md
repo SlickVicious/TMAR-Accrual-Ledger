@@ -1,3 +1,10 @@
+> **⚠️ Superseded snapshot.** This document records a past TMAR state and is kept for
+> history — figures may be stale. Current reality (2026-10-10): 57 workbook tabs (28
+> visible + 29 hidden), 84 GAS doGet/doPost actions, 29-function allowlist, app 4.16 MB
+> / 61,377 lines, 15 LLM providers + `hermes` (WSL agent). See `docs/_TMAR-REALITY-BASELINE.md`.
+
+---
+
 The page loaded — it's a massive 31-tab financial app. Let me extract the full source code and save it locally.
 
 Evaluated page HTML size on GAAP application

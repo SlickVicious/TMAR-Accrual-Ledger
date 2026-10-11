@@ -208,8 +208,8 @@
 | | M (Billing Frequency) | Billing Frequency |
 | | O (Primary User) | Users |
 | | AC (Discovery Status) | Discovery Status |
-| **1099 Filing Chain** | F, I, L, N (Status) | Filing Statuses |
-| **Forms & Authority** | H (FWM Binder Tab) | Binder Tabs |
+| **1099 Filings** | F, I, L, N (Status) | Filing Statuses |
+| **Forms & Authority** | H (FWM Binder Tab) | Binder Tabs — ⚠️ sheet pruned in 2026-10-08 reorg |
 | | I (Status) | Filing Statuses |
 | **Document Inventory** | H (FWM Binder Tab) | Binder Tabs |
 | | M (Status) | Filing Statuses |
@@ -217,7 +217,7 @@
 | | G (Filing Status) | Filing Statuses |
 | **Proof of Mailing** | L (FWM Binder Tab) | Binder Tabs |
 | **Transaction Ledger** | C (Category) | Transaction Categories |
-| **CPA Questions** | C (Category) | CPA Categories |
+| **CPA Questions** | C (Category) | CPA Categories — ⚠️ sheet pruned in 2026-10-08 reorg |
 | | G (Priority) | Priority Levels |
 | | H (Status) | CPA Statuses |
 

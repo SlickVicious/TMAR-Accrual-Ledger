@@ -161,19 +161,20 @@ To use any AI feature you must configure at least one provider API key. Navigate
 
 | Provider           | Key Field ID           | Notes                                                            |
 | ------------------ | ---------------------- | ---------------------------------------------------------------- |
-| Anthropic / Claude | `keyClaude`          | Default. Supports streaming. Model:`claude-sonnet-4-20250514`. |
-| OpenAI             | `keyOpenai`          | Model:`gpt-4o`. Supports streaming.                            |
-| DeepSeek           | `keyDeepseek`        | Model:`deepseek-chat`.                                         |
-| xAI (Grok)         | `keyXai`             | Model:`grok-3-mini-beta`.                                      |
+| Anthropic / Claude | `keyClaude`          | Default. Supports streaming. Model:`claude-sonnet-4-6`. |
+| OpenAI             | `keyOpenai`          | Model:`gpt-4.1-mini`. Supports streaming.                            |
+| DeepSeek           | `keyDeepseek`        | Model:`deepseek-v4-pro`.                                         |
+| xAI (Grok)         | `keyXai`             | Model:`grok-3-mini`.                                      |
 | Z.AI               | `keyZai`             | Model:`z1-preview`.                                            |
 | Kimi / Moonshot    | `keyKimi`            | Model:`moonshot-v1-8k`.                                        |
-| MiniMax            | `keyMinimax`         | Model:`abab6.5s-chat`.                                         |
+| MiniMax            | `keyMinimax`         | Model:`MiniMax-Text-01`.                                         |
 | Ernie / Baidu      | `keyErnie`           | No streaming.                                                    |
 | Groq               | `stg_key_groq`       | Model:`llama-3.3-70b-versatile`. Free tier available.          |
 | Cerebras           | `stg_key_cerebras`   | Model:`llama-3.3-70b`. Free tier available.                    |
 | OpenRouter         | `stg_key_openrouter` | Default model:`openai/gpt-4o-mini`. Aggregates 200+ models.    |
 | Ollama (Local)     | URL + Model fields     | Runs locally. No API key required.                               |
 | Custom Provider    | `keyCustom`          | Any OpenAI-compatible endpoint.                                  |
+| Hermes Agent (WSL) | (no key — local)     | Routes to the Hermes API server at `http://127.0.0.1:8642/v1/chat/completions`, model `law`. Runs the full law-profile agent (SOUL.md persona + memory + skills), not a raw model. |
 
 **Steps:**
 
@@ -3590,4 +3591,4 @@ Opens a modal showing the formatted lines of the journal entry with the given ID
 
 ---
 
-This document was generated from a complete reading of `TMAR-Accrual-Ledger.html` (38,334 lines).
+This document was generated from a complete reading of `TMAR-Accrual-Ledger.html` (61,377 lines).

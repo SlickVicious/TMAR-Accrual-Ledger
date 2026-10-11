@@ -70,7 +70,11 @@ PDF Files → Parsers → Validator → Formatters → Output
 3. Outputs JSON for human review
 4. Flags warnings and errors
 
-**Auto-Update Mode** (`--apply`):
+**Auto-Update Mode** (`--apply`) — ⚠️ superseded by the CSV pipeline (2026-10-10):
+> The `--apply` → `build_year_archive.py` path is superseded. Cash-flow tabs are now built
+> from combined CSVs via `generate_statement_csvs.py` / `generate_all_bank_csvs.py` /
+> `generate_combined_bank_csvs.py` / `generate_cashflow_summaries.py` (see
+> `tmar-bank-recon-three-way-audit.md` §3).
 1. Reads validated JSON
 2. Generates Python dictionary code
 3. Surgically updates `build_year_archive.py`

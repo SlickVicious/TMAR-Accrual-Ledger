@@ -1,3 +1,10 @@
+> **⚠️ Superseded snapshot.** This document records a past TMAR state and is kept for
+> history — figures may be stale. Current reality (2026-10-10): 57 workbook tabs (28
+> visible + 29 hidden), 84 GAS doGet/doPost actions, 29-function allowlist, app 4.16 MB
+> / 61,377 lines, 15 LLM providers + `hermes` (WSL agent). See `docs/_TMAR-REALITY-BASELINE.md`.
+
+---
+
 
 1. When a preview tab opens showing a directory listing, **click the filename** (e.g., `TMAR-Accrual-Ledger.html`) to navigate to it
 2. Or I can navigate it for you using `preview_eval` like I just did

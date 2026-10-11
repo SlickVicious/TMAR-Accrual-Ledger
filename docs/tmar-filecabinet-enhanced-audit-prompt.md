@@ -54,14 +54,14 @@ Current conventions:
 - Affidavit templates → `Legal-Reference/Affidavits/`
 
 ### (2) TMAR GUI — `C:\Users\rhyme\Documents\TMAR-Accrual-Ledger\TMAR-Accrual-Ledger.html`
-A 3.9 MB single-file app. **All live JS is inlined in that HTML** — the sibling `tt_block.js` is a stale mirror; do not edit or trust it. Extract the app's *business-object vocabulary* (NOT the LLM provider plumbing):
+A 4.16 MB single-file app. **All live JS is inlined in that HTML** — the sibling `tt_block.js` is a stale mirror; do not edit or trust it. Extract the app's *business-object vocabulary* (NOT the LLM provider plumbing):
 - Menu structure and tab names
 - Dropdown `<option>` lists: entity-type selects, account-subtype selects, category/status/document-location values
 - Hardcoded category / subtype / status / document-type string arrays and enums
 - Any "Filing System" or "document location" vocabulary that maps a document to a physical folder
 
 ### (3) TMAR Google Sheet + Apps Script
-- **Google Sheet** — system of record, ~52 tabs. Locate its ID from the repo (clasp `.clasprc.json`, GAS code, or `docs/`). Known partial ID: `1k6J2s0x…WInQ`. Pull tab names and (where feasible) header rows. Key sheets: the **Master Register** (note: **Document Location = column 23 / "W"**) and **Proof of Mailing** (14 columns A–N).
+- **Google Sheet** — system of record, 57 tabs (28 visible + 29 hidden). Locate its ID from the repo (clasp `.clasprc.json`, GAS code, or `docs/`). Known partial ID: `1k6J2s0x…WInQ`. Pull tab names and (where feasible) header rows. Key sheets: the **Master Register** (note: **Document Location = column 23 / "W"**) and **Proof of Mailing** (14 columns A–N).
 - **Apps Script** — bound to the Sheet. Script ID `1fIfAfYbMw8udn2AggFnMDc-dwVNvrQeJT6qVOdJI1VdehZQzDoCdoyYr`; source is in the repo via clasp. Read the `.gs` files for schema truth:
   - `SyncCenter.gs` — `pushEntities_` writes these 10 fields: `status, subtype, openDate, currentBalance, paymentSource, statementsComplete, documentLocation, lastStatementDate, lastVerified, notes`.
   - `ImportRegistryScan.gs` — FULL REPLACE registry import.

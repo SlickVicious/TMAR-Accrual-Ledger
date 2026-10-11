@@ -116,7 +116,7 @@ clasp pull
 - **Lines:** 1,002
 - **Contains:**
   - **Phase 1 (Tier 1):** Import sidebar (`showLedgerImportDialog`, `importFromLedger` router, 4 import handlers)
-  - **Phase 2 (Tier 2):** Web App Bridge (`doGet`, `doPost`, 16 helper/push/pull functions)
+  - **Phase 2 (Tier 2):** Web App Bridge (`doGet`, `doPost`, 84 doGet/doPost actions)
   - Spreadsheet ID constant, EIN masking, _SyncMeta tracking, payload validation
   - Deploy as Web App to enable Live Sync from Accrual Ledger
 
@@ -241,7 +241,7 @@ cat .clasp.json
 
 | Date | Version | Changes |
 |------|---------|---------|
-| 2026-03-04 | 3.1 | **Web App Bridge** — Added `SyncCenter.gs` (1,002 lines) with `doGet`/`doPost` endpoints, 16 push/pull functions, `_SyncMeta` tracking. Deploy as Web App for Live Sync. |
+| 2026-03-04 | 3.1 | **Web App Bridge** — Added `SyncCenter.gs` (1,002 lines) with `doGet`/`doPost` endpoints, 84 doGet/doPost actions, `_SyncMeta` tracking. Deploy as Web App for Live Sync. |
 | 2026-03-04 | 3.0 | **Sync Center integration** — Added Accrual Ledger import sidebar (6 functions), Import menu item in Code.gs |
 | 2026-02-28 | 2.0 | **Unified menu deployed via clasp** — Added Trust Admin Tools submenu with 3 functions |
 | Previous | 1.0 | Original TMAR Tools menu |

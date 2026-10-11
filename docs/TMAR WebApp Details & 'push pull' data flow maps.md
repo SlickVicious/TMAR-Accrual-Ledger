@@ -12,7 +12,7 @@ URL: https://script.google.com/macros/s/AKfycbzpeegvE52lvqCTMyKrsdaa_4JFfjM6MQrs
 |---|---|---|---|
 |**Accounts**|`Master Register` sheet|`appData.entities` → localStorage|**🏢 Entities** tab|
 |**Transactions**|`Transaction Ledger` sheet|`appData.ledgerEntries` → localStorage|**📒 Ledger** tab|
-|**Obligations**|`Household Obligations` sheet|`appData.payables` → localStorage|**📤 A/P** tab|
+|**Obligations**|`Business Obligations` sheet|`appData.payables` → localStorage|**📤 A/P** tab|
 
 ### PUSH (Green buttons — Ledger → Sheets)
 
@@ -20,8 +20,8 @@ URL: https://script.google.com/macros/s/AKfycbzpeegvE52lvqCTMyKrsdaa_4JFfjM6MQrs
 |---|---|---|
 |**Entities**|**🏢 Entities** tab → `appData.entities`|`Master Register` sheet|
 |**Transactions**|**📒 Ledger** tab → `appData.ledgerEntries`|`Transaction Ledger` sheet|
-|**Payables**|**📤 A/P** tab → `appData.payables`|`Household Obligations` sheet|
-|**1099s**|**📑 Filings** tab → `appData.filings`|`1099 Filing Chain` sheet|
+|**Payables**|**📤 A/P** tab → `appData.payables`|`Business Obligations` sheet|
+|**1099s**|**📑 Filings** tab → `appData.filings`|`1099 Filings` sheet|
 
 ### The storage chain:
 
@@ -62,10 +62,10 @@ dfcShowSheetInPanel('accounting'|'trust') — called from toolbar buttons
 |---|---|---|
 |Push|"Entities → Master Register"|"🏢 Entities → Master Register"|
 |Push|"Transactions → Transaction Ledger"|"📒 Ledger → Transaction Ledger"|
-|Push|"Payables → Obligations"|"📤 A/P → Household Obligations"|
+|Push|"Payables → Obligations"|"📤 A/P → Business Obligations"|
 |Pull|"Master Register → Entities"|"Master Register → 🏢 Entities"|
 |Pull|"Transaction Ledger → Ledger"|"Transaction Ledger → 📒 Ledger"|
-|Pull|"Obligations → Payables"|"Household Obligations → 📤 A/P"|
+|Pull|"Obligations → Payables"|"Business Obligations → 📤 A/P"|
 
 ### CSV Import Cards (before → after)
 
@@ -73,6 +73,6 @@ dfcShowSheetInPanel('accounting'|'trust') — called from toolbar buttons
 |---|---|
 |"Master Register → Entities + COA"|"Master Register → 🏢 Entities + COA"|
 |"Transaction Ledger → Ledger Entries"|"Transaction Ledger → 📒 Ledger"|
-|"Household Obligations → Payables"|"Household Obligations → 📤 A/P"|
+|"Business Obligations → Payables"|"Business Obligations → 📤 A/P"|
 
 Now button labels match the tab icons, and log messages show `Sheet Name → 📌 Tab Name` so you always know exactly where data is going. Refresh to see it.

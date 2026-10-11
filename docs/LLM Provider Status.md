@@ -69,8 +69,18 @@ Ernie / Baidu
 
 xAI (Grok)
 
+Groq
+
+Cerebras
+
+OpenRouter
+
 🏠 Ollama (Local + OpenClaw Web Search)
 
 Ollama runs models locally — no API key needed for inference. Install: `irm https://ollama.com/install.ps1 | iex`
 
 Ollama URL
+
+Custom Provider
+
+Hermes Agent (WSL)

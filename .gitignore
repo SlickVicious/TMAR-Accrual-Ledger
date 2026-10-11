@@ -78,7 +78,11 @@ irs-forms/downloads/
 # NOTE: scripts/filecabinet-build/ holds 4 real GAS files worth promoting into
 # gas/ later if formalized: CapitalOneCashFlow.gs, appc_import_delta.gs,
 # appc_import_full_replace.gs, path_remap.gs.
-scripts/
+scripts/*
+# Formalized docs-maintenance tooling (see skill `tmar-docs-maintenance`) — track these.
+!scripts/tmar-reality-baseline.py
+!scripts/tmar-docs-scan.py
+!scripts/tmar-doc-watchdog.py
 tmar_cleanup.ps1
 
 # Hermes Agent vault context — share the vault identity file, ignore runtime state

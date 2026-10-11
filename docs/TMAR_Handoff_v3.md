@@ -61,7 +61,7 @@ Legacy vaults (PDKB, PPP) are archived to `D:\_Archive\` as of April 2026. They 
 | Directory | Role | Key contents |
 |---|---|---|
 | `C:\Users\rhyme\Documents\Legal-Document-Generator\` | **LDG v2 Obsidian vault** (active) | TMAR dev tree, Claude Skills, GAS project, templates, Dev Sessions, knowledge reference. `.obsidian/` configured. |
-| `C:\Users\rhyme\Documents\TMAR-Accrual-Ledger\` | **TMAR GitHub repo clone** (VSC project) | Live app HTML (2.9 MB), GAS deployment source, audit artifacts, Function Reference Cards (17 cards), entity verifier, CORS proxy, guides. Has `.clasp.json` in `gas/`. |
+| `C:\Users\rhyme\Documents\TMAR-Accrual-Ledger\` | **TMAR GitHub repo clone** (VSC project) | Live app HTML (4.16 MB), GAS deployment source, audit artifacts, Function Reference Cards (17 cards), entity verifier, CORS proxy, guides. Has `.clasp.json` in `gas/`. |
 | `C:\Users\rhyme\Desktop\FileCabinet\` | **Personal records vault** | Tax returns by year (2015–2025), credit reports, estate docs, status correction affidavits, FWM course materials, business entity filings |
 | `C:\Users\rhyme\Documents\_HH Classes\` | **Private law course content** | Trust templates, status correction, treasury direct, FOIA, bankruptcy, mortgage discharge, canon law |
 | `D:\_ScriptSalad\` | **Dev toolkit / scratch pad** | Python/GAS/PowerShell scripts, MCP servers, Claude artifacts, price targets. Contains older GAS iterations (e.g. `BankOfAmericaCashFlow.gs`) |
@@ -88,7 +88,7 @@ Legacy vaults (PDKB, PPP) are archived to `D:\_Archive\` as of April 2026. They 
 | `06 Toolkit/Dev/SS Master Acct Reg/TMAR/Prompts/` | Claude Code prompts (e.g. `CC_PROMPT_DocCreator_3Templates.md`) |
 | `06 Toolkit/Scripts/Tax_Processing/` | 25 Python scripts (bank parsers, 1099-B generators, GAS data builders) |
 | `06 Toolkit/Scripts/Tax_Processing/_logs/` | 24 debug/deploy log files |
-| `06 Toolkit/Scripts/GAS/` | Standalone GAS scripts + `TMAR_AestheticsAndAudit.gs` source copy |
+| `06 Toolkit/Scripts/GAS/` | Standalone GAS scripts + `TMAR_AestheticsAndAudit.gs` source copy (superseded by `FormattingComplement.gs`) |
 
 ### FileCabinet Structure (Windows)
 
@@ -121,7 +121,7 @@ export PATH='/Users/animatedastronaut/.npm-global/bin:/opt/homebrew/bin:/usr/loc
 
 ### Web App — `TMAR-Accrual-Ledger.html`
 
-- **51 tabs / 12 groups** — Core Accounting, Tax & Compliance, Trust Estate, Operations, Reports & Intelligence, Tools, RedressRight Libraries, Verification, Data Integration, PDKB Tools
+- **60 app tabs (data-tab) / 12 HUB sections** — Core Accounting, Tax & Compliance, Trust Estate, Operations, Reports & Intelligence, Tools, RedressRight Libraries, Verification, Data Integration, PDKB Tools (workbook: 57 tabs, 28 visible + 29 hidden)
 - **211/211 GUI elements verified** (100%) — tracked in System Status Dashboard
 - **246/246 functions verified** (100%) — tracked in Audit Dashboard (`audit_report.json` v2)
 - **17 custom functions** documented in `Function_Reference_Cards/` (17 individual `.md` cards)
@@ -135,7 +135,7 @@ export PATH='/Users/animatedastronaut/.npm-global/bin:/opt/homebrew/bin:/usr/loc
 - **Runtime:** OpenClawRuntime SYPHER-7.8-HARDLOCK — 3-phase boot, frozen object, rogue injection blocked
 - **Memory:** GCMemory IndexedDB engine — `add()`, `addPdf()`, `search()`, `clearAll()`; 60+ legal/financial keywords; auto-prune at 500 records; MEM0 proxy always enabled
 - **Streaming:** `callLLMStream v7.1` — multi-provider SSE/NDJSON; Anthropic, OpenAI-compat, Ollama, Ernie fallback; 15-min AbortController
-- **Model:** `claude-sonnet-4-20250514` (update string when model changes)
+- **Model:** `claude-sonnet-4-6` (update string when model changes)
 - **CORS:** All Anthropic calls route through Cloudflare Worker — required from GitHub Pages context
 
 ### Google Apps Script — `gas/`
@@ -153,7 +153,7 @@ export PATH='/Users/animatedastronaut/.npm-global/bin:/opt/homebrew/bin:/usr/loc
 | `DuplicateAnalyzer.gs` | Live | Duplicate detection |
 | `ExecuteCleanup.gs` | Live | Cleanup operations |
 | `PopulateValidation.gs` | Live | Field validation |
-| `TMAR_AestheticsAndAudit.gs` | **On disk — push unconfirmed** | 35KB; row-level color coding, 16-category legend, `_HealthAudit` hidden tab. Present in vault + repo `gas/` dirs. Not confirmed pushed via clasp. |
+| `TMAR_AestheticsAndAudit.gs` | **Superseded by `FormattingComplement.gs`** | 35KB; row-level color coding, 16-category legend, `_HealthAudit` hidden tab. Superseded 2026-08-03 — do not push. |
 
 **Mac-only files (not yet on Windows — requires `git pull`):**
 - `CapitalOneCashFlow_CSV.gs` (complete)
@@ -210,7 +210,7 @@ export PATH='/Users/animatedastronaut/.npm-global/bin:/opt/homebrew/bin:/usr/loc
 | Item | Details |
 |---|---|
 | PPP vault archive | Compression running → `D:\_Archive\ProperPersonProcesses_vault_20260405.zip`. Delete original after verification. |
-| `TMAR_AestheticsAndAudit.gs` | 35KB script in vault + repo `gas/` dirs. **Clasp push from Mac not confirmed.** |
+| `TMAR_AestheticsAndAudit.gs` | 35KB script in vault + repo `gas/` dirs. **Superseded 2026-08-03 by `FormattingComplement.gs`.** |
 | Document Creator expansion | Prompt written (`CC_PROMPT_DocCreator_3Templates.md`): 16 new templates, 2 new optgroups, 3 new Package Builder presets. Would bring totals to 48 templates / 5 optgroups / 7 presets. **Not yet executed.** |
 | PDKB flowchart extraction | 5 of 14 done; 9 remaining |
 

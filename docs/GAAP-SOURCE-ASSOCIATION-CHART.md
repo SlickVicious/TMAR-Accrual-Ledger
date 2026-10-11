@@ -1,6 +1,6 @@
 # GAAP Source — Complete Association Chart
 
-**Source**: `TMAR-Accrual-Ledger.html` (~19,030 lines, ~1.3MB)
+**Source**: `TMAR-Accrual-Ledger.html` (~61,377 lines, ~4.16 MB)
 **Date**: 2026-03-04 (v1.4.0 — Sync Center added)
 **Purpose**: Map every GUI element to its function, document navigation flow, and break down all core/sub/remote functions.
 
@@ -22,7 +22,7 @@
 
 ## 2. MAIN TAB NAVIGATION (Lines 322-417)
 
-### Tab Buttons (39 total → 38 after removing UK Accounting)
+### Tab Buttons (60 data-tab attributes in the live app — this chart documents a subset)
 
 All buttons call `switchMainTab(tabName)` which:
 1. Removes `.active` from all `.tab-btn` elements
@@ -802,7 +802,7 @@ switchMainTab(tabName)
 | `exportLedgerToTransactionCSV()` | ~18484 | `appData.ledgerEntries[]` | 16-col CSV | Transaction Ledger schema |
 | `exportJournalToTransactionCSV()` | ~18536 | `appData.journalEntries[]` | 16-col CSV (expanded lines) | Transaction Ledger schema |
 | `export1099ToFilingChainCSV()` | ~18587 | `appData.filings['1099-*']` | 15-col CSV | 1099 Filing Chain schema |
-| `exportPayablesToObligationsCSV()` | ~18638 | `appData.payables[]` | 11-col CSV | Household Obligations schema |
+| `exportPayablesToObligationsCSV()` | ~18638 | `appData.payables[]` | 11-col CSV | Business Obligations schema |
 
 #### Import Functions (4)
 

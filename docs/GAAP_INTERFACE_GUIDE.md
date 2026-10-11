@@ -408,7 +408,7 @@ All data is automatically saved to browser **localStorage**:
 - Receivables/payables
 - Last saved timestamp
 
-**Storage key:** `tmarGAAPData`
+**Storage key:** `TMAR_AccrualLedger_Data`
 
 **Maximum size:** ~5-10MB per browser domain
 
@@ -587,7 +587,7 @@ While auto-save runs every 5 seconds, you can also:
 
 **If you lose data:**
 1. Check localStorage in browser DevTools (F12)
-2. Application → Local Storage → find `tmarGAAPData` key
+2. Application → Local Storage → find `TMAR_AccrualLedger_Data` key
 3. Copy JSON value
 4. Import via JSON upload (future feature)
 
@@ -655,7 +655,7 @@ The Sync Center tab provides bidirectional data transfer between the Accrual Led
 | Ledger → Transaction Ledger | Exports ledger entries as a 16-column CSV (debit/credit → signed amount) | `sync_ledger_TransactionLedger_YYYY-MM-DD.csv` |
 | Journal → Transaction Ledger | Expands multi-line journal entries into individual Transaction Ledger rows | `sync_journal_TransactionLedger_YYYY-MM-DD.csv` |
 | 1099 → Filing Chain | Exports all 1099 filings (1099-A, 1099-B, etc.) as a 15-column CSV | `sync_1099_FilingChain_YYYY-MM-DD.csv` |
-| Payables → Obligations | Exports payables as an 11-column Household Obligations CSV | `sync_payables_Obligations_YYYY-MM-DD.csv` |
+| Payables → Obligations | Exports payables as an 11-column Business Obligations CSV | `sync_payables_Obligations_YYYY-MM-DD.csv` |
 
 **CSV Imports (4 functions):**
 
@@ -663,7 +663,7 @@ The Sync Center tab provides bidirectional data transfer between the Accrual Led
 |---|---|---|
 | Import Master Register CSV | Creates entities from Master Register export | Matches by name — shows conflict dialog for modified entities |
 | Import Transaction Ledger CSV | Adds transactions from Transaction Ledger export | Hash-based dedup — skips exact duplicates |
-| Import Obligations CSV | Syncs payables from Household Obligations export | Upserts by vendor name — updates existing, adds new |
+| Import Obligations CSV | Syncs payables from Business Obligations export | Upserts by vendor name — updates existing, adds new |
 | Import W-2 Income CSV | Imports W-2 employer/income data | Flexible header mapping — overwrites income fields |
 
 **Live Sync (Tier 2 — requires GAS Web App URL):**

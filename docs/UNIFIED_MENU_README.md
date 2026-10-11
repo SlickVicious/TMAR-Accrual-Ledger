@@ -118,8 +118,8 @@ Opens a sidebar for importing data from the TMAR Accrual Ledger HTML app.
 |------|-------------|-------------|
 | Entities | Master Register | Imports accounts/entities (dedup by provider name) |
 | Transactions | Transaction Ledger | Imports ledger entries (Source = 'Accrual Ledger') |
-| Payables | Household Obligations | Imports payables (upsert by vendor name) |
-| 1099 Filings | 1099 Filing Chain | Imports 1099 records (append after row 4) |
+| Payables | Business Obligations | Imports payables (upsert by vendor name) |
+| 1099 Filings | 1099 Filings | Imports 1099 records (append after row 4) |
 | Full Sync | All above | Auto-detects data type from JSON structure |
 
 **Data Input Methods:**
@@ -140,7 +140,7 @@ Opens a sidebar for importing data from the TMAR Accrual Ledger HTML app.
 - After major structural changes to Master Register
 
 **What it does:**
-- Re-applies all formulas in the Dashboard/Executive Dashboard tab
+- Re-applies all formulas in the Dashboard tab
 - Counts active/dormant/closed accounts
 - Calculates total balances
 - Updates verification statistics
@@ -226,7 +226,7 @@ Opens a sidebar for importing data from the TMAR Accrual Ledger HTML app.
 
 - The `refreshDashboard()` function looks for either:
   - "Dashboard" tab, or
-  - "Executive Dashboard" tab
+  - "📋 Dashboard" tab
 - Ensure one of these tabs exists
 
 ### Functions missing or broken
