@@ -1,4 +1,3 @@
-
 ```JS
 /**
  * Wimberly Unified Master Register — Google Sheets Formatting
@@ -2986,5 +2985,4 @@ function addSubscriptionEntry(data) {
   sheet.appendRow(row);
   return data.service + ' added to Subscriptions & Services (Monthly: $' + monthly.toFixed(2) + ', Annual: $' + annual.toFixed(2) + ')';
 }
-
 ```

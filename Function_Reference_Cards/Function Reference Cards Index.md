@@ -94,8 +94,8 @@ Each card documents a function in the TMAR-Accrual-Ledger HTML app: signature, p
 ```
 TMAR-Accrual-Ledger/
 ├── Function Reference Cards Index.md    ← this file
-└── Function Reference Cards/
-    ├── README.md                         ← canonical index (same content, relative links)
+└── Function_Reference_Cards/
+    ├── Function_Reference_Cards.md                         ← canonical index (same content, relative links)
     ├── COMPLETE_IMPLEMENTATION_GUIDE.md  ← full implementation guide
     ├── 01_sendQuick.md
     ├── 02_eeonSendChat.md
@@ -103,8 +103,8 @@ TMAR-Accrual-Ledger/
     └── 22_dfcRenderVault.md
 ```
 
-The implementation guide at `Function Reference Cards/COMPLETE_IMPLEMENTATION_GUIDE.md` covers integration patterns, testing methodology, and the verification dashboard used to confirm all 22 cards.
+The implementation guide at `Function_Reference_Cards/COMPLETE_IMPLEMENTATION_GUIDE.md` covers integration patterns, testing methodology, and the verification dashboard used to confirm all 22 cards.
 
 ---
 
-*Generated from `Function Reference Cards/README.md` — that file remains the canonical source.*
+*Generated from `Function_Reference_Cards/Function_Reference_Cards.md` — that file remains the canonical source.*

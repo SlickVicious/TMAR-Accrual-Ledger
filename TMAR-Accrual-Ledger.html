@@ -34750,7 +34750,7 @@ function ev2InitEntityVerifier() {
       if (!vendor) return;
 
       // Parse amount as number — A/P table calls .toFixed(2)
-      var amt = parseFloat(item.monthlyAmount) || 0;
+      var amt = parseFloat(item.amount) || 0;
 
       // Build a due date: use dueDay (1-31) to create a date in current month
       var dueDate = '';
@@ -34772,7 +34772,13 @@ function ev2InitEntityVerifier() {
           appData.payables[idx].amount = amt;
           appData.payables[idx].balance = amt;
         }
+        if (item.category) appData.payables[idx].category = item.category;
+        if (item.subcategory) appData.payables[idx].subcategory = item.subcategory;
+        if (item.paymentMethod) appData.payables[idx].paymentMethod = item.paymentMethod;
+        if (item.responsibleParty) appData.payables[idx].responsibleParty = item.responsibleParty;
         if (item.status) appData.payables[idx].status = item.status;
+        if (item.startDate) appData.payables[idx].startDate = item.startDate;
+        if (item.rateChanges) appData.payables[idx].rateChanges = item.rateChanges;
         if (dueDate) appData.payables[idx].dueDate = dueDate;
         updated++;
       } else {
@@ -34792,8 +34798,12 @@ function ev2InitEntityVerifier() {
           isIntercompany: false,
           payments: [],
           category: item.category || '',
-          autopay: item.autopay || '',
+          subcategory: item.subcategory || '',
+          paymentMethod: item.paymentMethod || '',
+          responsibleParty: item.responsibleParty || '',
           status: item.status || 'Active',
+          startDate: item.startDate || '',
+          rateChanges: item.rateChanges || '',
           notes: (item.notes || '') + ' [Pulled from Sheet]'
         });
         existingVendors[vendor] = appData.payables.length - 1;
@@ -34874,13 +34884,14 @@ function ev2InitEntityVerifier() {
       return {
         vendor: p.vendor || p.name || '',
         category: p.category || p.expenseAccount || '',
-        accountNumber: p.accountNumber || '',
-        monthlyAmount: parseFloat(p.amount) || 0,
+        subcategory: p.subcategory || '',
+        amount: parseFloat(p.amount) || 0,
         dueDay: dueDay,
-        autopay: p.autopay || '',
+        paymentMethod: p.paymentMethod || p.autopay || '',
+        responsibleParty: p.responsibleParty || p.party || '',
         status: p.status || 'Active',
-        lastPaid: '',
-        startDate: p.date || '',
+        startDate: p.date || p.startDate || '',
+        rateChanges: p.rateChanges || '',
         notes: (p.notes || '').replace(' [Pulled from Sheet]', '')
       };
     });

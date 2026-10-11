@@ -208,6 +208,8 @@ Emoji-prefixed: 📋 HUB INDEX · 📒 General Ledger · 📊 Corpus & M-2 · �
 | `ExecuteCleanup.gs` | Cleanup execution |
 | `addFillingPackage2025.gs` | 2025 filing package |
 | `DocumentRegistryTrigger.gs` | Document registry triggers |
+| `VisualStandard.gs` | Reference visual layout standard — navy #1B2A4A headers, Arial body, alternating #EDF2FA rows, category tab colors (idempotent, non-destructive) |
+| `CanvasBoard.gs` | Read the "AppScripts Canvas & Workflow Board" object + embed reference-card hyperlinks into the AppScripts grid tab |
 
 ### GAS HTML Dialogs
 `AddAccount.html` · `BillOfExchange.html` · `ControlPanel.html` · `Dashboard.html` · `DocumentGenerator.html` · `EINVerifier.html` · `GAAPInterface.html` · `ImportRegistryScanUI.html` · `ReconcileCrossFillUI.html` · `E-Longmire Estate — Tax Accounting System.html`
@@ -321,8 +323,8 @@ TMAR runtime inspection toolkit
 - **Sync Center** — bidirectional GAS sync (push/pull)
 - **Transcript Transformer v2.2.0** — raw transcript → merged-mode README.md (`ttBuildPrompt`); Upgrade Existing Output (`ttUpgradePrompt`, restructures any prior-version output, download-based — Brave blocks the File System Access API's write side); Generate Process Tracker (`ttProcessTrackerPrompt`, JSON payload embedded into a self-contained copy of `_engine.html`, deterministic Mind Map tab, self-healing JSON parser); HTML export video banner + fixed table rendering. See `.claude/docs/transcript-transformer.md`.
 
-### Function Reference Cards (22/22 implemented)
-See [[Function Reference Cards Index]] — covers Chat & Communication (3), Memory & Storage (3), Settings (3), Voice & Speech (4), Utilities (4), Key Management (1), Digital File Cabinet (4).
+### Function Reference Cards (394 total: 22 client-side + 372 Apps Script)
+See [[Function Reference Cards Index]] — 22 client-side HTML/JS functions: Chat & Communication (3), Memory & Storage (3), Settings (3), Voice & Speech (4), Utilities (4), Key Management (1), Digital File Cabinet (4). Server-side Apps Script functions (372) are indexed separately at `Function_Reference_Cards/AppScripts/README.md`.
 
 ---
 

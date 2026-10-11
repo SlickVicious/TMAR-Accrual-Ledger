@@ -784,9 +784,9 @@ function doGet(e) {
 
       case 'pullObligations':
         var obls = pullSheetData_(ss, 'Business Obligations', 2, [
-          'vendor', 'category', 'accountNumber', 'monthlyAmount',
-          'dueDay', 'autopay', 'status', 'lastPaid',
-          'annualTotal', 'startDate', 'notes'
+          'vendor', 'category', 'subcategory', 'amount',
+          'dueDay', 'paymentMethod', 'responsibleParty', 'status',
+          'startDate', 'rateChanges', 'notes'
         ], { stopMarker: 'Monthly Pivot' });
         updateSyncTimestamp_(ss, 'Business Obligations', 'pull');
         return jsonResponse_({ status: 'ok', action: 'pullObligations', count: obls.length, data: obls });
@@ -880,6 +880,9 @@ function doGet(e) {
           }
         }
         return jsonResponse_({ status: 'ok', action: 'listSheetTabs', tabs: tabList });
+
+      case 'dumpCanvasBoard':
+        return jsonResponse_(dumpCanvasBoard_());
 
       case 'pullRawTab':
         var tabName = (e.parameter && e.parameter.tab) ? e.parameter.tab : '';
@@ -1332,6 +1335,12 @@ function doPost(e) {
         return jsonResponse_(runAllowlistedFunction_(payload.functionName));
       }
 
+      case 'applyVisualStandard':
+        return jsonResponse_(applyVisualStandard());
+
+      case 'embedAppScriptsLinks':
+        return jsonResponse_(embedAppScriptsLinks_(payload.links));
+
       case 'pushWebsiteAccounts': {
         var waV = validatePayload_(payload.accounts, ['platform']);
         if (!waV.valid) return errorResponse_(waV.message);
@@ -1386,6 +1395,14 @@ function doPost(e) {
         var umResult = updateMasterRegister_(ss, payload.rows);
         updateSyncTimestamp_(ss, 'Master Register', 'update');
         return jsonResponse_(umResult);
+      }
+
+      case 'deleteMasterRegister': {
+        var dmIds = Array.isArray(payload.rowIds) ? payload.rowIds : [];
+        if (dmIds.length === 0) return errorResponse_('Provide rowIds (array of MR-NNN ids)');
+        var dmResult = deleteMasterRegister_(ss, dmIds);
+        updateSyncTimestamp_(ss, 'Master Register', 'delete');
+        return jsonResponse_(dmResult);
       }
 
       case 'pushAppScriptsInventory': {
@@ -2205,45 +2222,64 @@ function pushPayables_(ss, payables) {
 
   var lastRow = sheet.getLastRow();
   var vendorMap = {};
+  var pivotRow = -1;
   if (lastRow > 1) {
     var vendors = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
     for (var v = 0; v < vendors.length; v++) {
-      if (vendors[v][0]) vendorMap[String(vendors[v][0]).toLowerCase().trim()] = v + 2;
+      var cellVal = vendors[v][0] ? String(vendors[v][0]) : '';
+      if (pivotRow < 0 && /Monthly Pivot/i.test(cellVal)) pivotRow = v + 2; // 1-indexed sheet row of the pivot block
+      if (cellVal && !/Monthly Pivot/i.test(cellVal)) vendorMap[cellVal.toLowerCase().trim()] = v + 2;
     }
   }
 
+  // New rows are inserted just above the pivot block so they stay inside the obligations list.
+  var insertRow = pivotRow > 0 ? pivotRow : (lastRow > 1 ? lastRow + 1 : 2);
+
+  var newRows = [];
   var imported = 0, updated = 0;
 
   for (var p = 0; p < payables.length; p++) {
     var pay = payables[p];
-    var vendor = (pay.vendor || pay.name || '').trim();
+    var vendor = String(pay.vendor || pay.name || '').trim();
     if (!vendor) continue;
 
     var existingRow = vendorMap[vendor.toLowerCase()];
     if (existingRow) {
-      // Upsert: update amount and status
-      if (pay.amount || pay.monthlyAmount) sheet.getRange(existingRow, 4).setValue(pay.amount || pay.monthlyAmount);
-      if (pay.status) sheet.getRange(existingRow, 7).setValue(pay.status);
-      if (pay.dueDate || pay.dueDay) sheet.getRange(existingRow, 5).setValue(pay.dueDate || pay.dueDay);
+      // Upsert: overwrite only fields explicitly provided (preserve the rest).
+      if (pay.category !== undefined && pay.category !== '') sheet.getRange(existingRow, 2).setValue(pay.category);
+      if (pay.subcategory !== undefined && pay.subcategory !== '') sheet.getRange(existingRow, 3).setValue(pay.subcategory);
+      var amt = (pay.amount !== undefined && pay.amount !== '') ? pay.amount : ((pay.monthlyAmount !== undefined && pay.monthlyAmount !== '') ? pay.monthlyAmount : '');
+      if (amt !== '') sheet.getRange(existingRow, 4).setValue(amt);
+      if (pay.dueDay || pay.dueDate) sheet.getRange(existingRow, 5).setValue(pay.dueDay || pay.dueDate);
+      if (pay.paymentMethod || pay.autopay) sheet.getRange(existingRow, 6).setValue(pay.paymentMethod || pay.autopay);
+      if (pay.responsibleParty || pay.party) sheet.getRange(existingRow, 7).setValue(pay.responsibleParty || pay.party);
+      if (pay.status) sheet.getRange(existingRow, 8).setValue(pay.status);
+      if (pay.startDate) sheet.getRange(existingRow, 9).setValue(pay.startDate);
+      if (pay.rateChanges) sheet.getRange(existingRow, 10).setValue(pay.rateChanges);
+      if (pay.notes) sheet.getRange(existingRow, 11).setValue(pay.notes);
       updated++;
     } else {
       var row = new Array(11).fill('');
-      row[0] = vendor;
-      row[1] = pay.category || '';
-      row[2] = pay.accountNumber || '';
-      row[3] = pay.amount || pay.monthlyAmount || '';
-      row[4] = pay.dueDate || pay.dueDay || '';
-      row[5] = pay.autopay || '';
-      row[6] = pay.status || 'Active';
-      row[7] = pay.lastPaid || '';
-      row[8] = ''; // annual total
-      row[9] = pay.startDate || '';
-      row[10] = (pay.notes || '') + ' [Synced from Ledger]';
-
-      sheet.appendRow(row);
-      vendorMap[vendor.toLowerCase()] = sheet.getLastRow();
+      row[0] = vendor;                                        // A Vendor
+      row[1] = pay.category || '';                            // B Category
+      row[2] = pay.subcategory || '';                         // C Subcategory
+      row[3] = pay.amount || pay.monthlyAmount || '';         // D Current Monthly
+      row[4] = pay.dueDay || pay.dueDate || '';               // E Due Day
+      row[5] = pay.paymentMethod || pay.autopay || '';        // F Payment Method
+      row[6] = pay.responsibleParty || pay.party || '';       // G Responsible Party
+      row[7] = pay.status || 'Active';                        // H Status
+      row[8] = pay.startDate || '';                           // I Start Date
+      row[9] = pay.rateChanges || '';                         // J Rate Changes
+      row[10] = pay.notes || '';                              // K Notes
+      newRows.push(row);
       imported++;
     }
+  }
+
+  // Insert all new rows in one block above the pivot (keeps the obligations list contiguous).
+  if (newRows.length) {
+    sheet.insertRowsBefore(insertRow, newRows.length);
+    sheet.getRange(insertRow, 1, newRows.length, 11).setValues(newRows);
   }
 
   return { status: 'ok', action: 'pushPayables', imported: imported, updated: updated };
@@ -3082,6 +3118,8 @@ function updateMasterRegister_(ss, rows) {
     var target = idMap[rowId];
     if (!target) { notFound++; continue; }
 
+    if (row.provider !== undefined)        sheet.getRange(target, 3).setValue(String(row.provider));         // C
+    if (row.accountNumber !== undefined)   sheet.getRange(target, 5).setValue(String(row.accountNumber));    // E
     if (row.accountType !== undefined)     sheet.getRange(target, 6).setValue(String(row.accountType));     // F
     if (row.accountSubtype !== undefined)  sheet.getRange(target, 7).setValue(String(row.accountSubtype));  // G
     if (row.billingFrequency !== undefined) sheet.getRange(target, 13).setValue(String(row.billingFrequency)); // M
@@ -3098,6 +3136,53 @@ function updateMasterRegister_(ss, rows) {
 
   SpreadsheetApp.flush();
   return { status: 'ok', action: 'updateMasterRegister', updated: updated, notFound: notFound, skipped: skipped };
+}
+
+
+function deleteMasterRegister_(ss, rowIds) {
+  var sheet = ss.getSheetByName('Master Register');
+  if (!sheet) return { status: 'error', action: 'deleteMasterRegister', message: 'Master Register tab not found' };
+
+  var lastRow = sheet.getLastRow();
+  if (lastRow <= 1) return { status: 'ok', action: 'deleteMasterRegister', deleted: 0, notFound: rowIds };
+
+  var idSet = {};
+  for (var i = 0; i < rowIds.length; i++) idSet[String(rowIds[i]).trim().toUpperCase()] = true;
+
+  var data = sheet.getRange(2, 1, lastRow - 1, 29).getValues();
+  var matched = {};
+  var deletedRows = [];
+  var rowsToDelete = [];
+
+  for (var r = 0; r < data.length; r++) {
+    var id = String(data[r][0] || '').trim().toUpperCase();
+    if (id && idSet[id]) {
+      matched[id] = true;
+      deletedRows.push(data[r]);
+      rowsToDelete.push(r + 2); // header row + 1-based index
+    }
+  }
+
+  if (rowsToDelete.length === 0) {
+    return { status: 'ok', action: 'deleteMasterRegister', deleted: 0, notFound: rowIds };
+  }
+
+  // Backup the full 29-column rows being removed, then delete bottom-up.
+  var stamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone() || 'America/Chicago', 'yyyyMMdd_HHmmss');
+  var backupName = 'MR_PreDelete_' + stamp;
+  var backupSheet = ss.insertSheet(backupName);
+  var headers = sheet.getRange(1, 1, 1, 29).getValues()[0];
+  backupSheet.getRange(1, 1, 1, 29).setValues([headers]).setFontWeight('bold');
+  backupSheet.getRange(2, 1, deletedRows.length, 29).setValues(deletedRows);
+  backupSheet.setTabColor('#ef4444');
+
+  rowsToDelete.sort(function(a, b) { return b - a; });
+  for (var d = 0; d < rowsToDelete.length; d++) sheet.deleteRow(rowsToDelete[d]);
+
+  var notFound = [];
+  for (var k in idSet) if (!matched[k]) notFound.push(k);
+
+  return { status: 'ok', action: 'deleteMasterRegister', deleted: rowsToDelete.length, backupSheet: backupName, notFound: notFound };
 }
 
 

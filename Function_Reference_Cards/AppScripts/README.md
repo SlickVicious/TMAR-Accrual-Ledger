@@ -4,7 +4,7 @@
 **Type:** Apps Script (server-side `.gs`)  
 **Coverage:** 100% (auto-generated from `gas/*.gs` + `gas/_superseded/`)  
 
-> ℹ️ These cards document the server-side Google Apps Script functions. For the 22 client-side HTML/JS functions, see the parent [`README.md`](../README.md).
+> ℹ️ These cards document the server-side Google Apps Script functions. For the 22 client-side HTML/JS functions, see the parent [`Function Reference Cards Index.md`](../Function Reference Cards Index.md).
 
 ---
 
