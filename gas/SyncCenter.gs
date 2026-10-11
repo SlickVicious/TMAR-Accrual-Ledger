@@ -690,6 +690,15 @@ function pullSheetData_(ss, sheetName, startRow, headers, options) {
 
   var numCols = headers.length;
   var data = sheet.getRange(startRow, 1, lastRow - startRow + 1, numCols).getValues();
+  // Optional stop-marker: truncate at the first row whose col A contains it.
+  if (options && options.stopMarker) {
+    for (var si = 0; si < data.length; si++) {
+      if (String(data[si][0] || '').indexOf(options.stopMarker) !== -1) {
+        data = data.slice(0, si);
+        break;
+      }
+    }
+  }
   var results = [];
 
   for (var i = 0; i < data.length; i++) {
@@ -778,7 +787,7 @@ function doGet(e) {
           'vendor', 'category', 'accountNumber', 'monthlyAmount',
           'dueDay', 'autopay', 'status', 'lastPaid',
           'annualTotal', 'startDate', 'notes'
-        ]);
+        ], { stopMarker: 'Monthly Pivot' });
         updateSyncTimestamp_(ss, 'Business Obligations', 'pull');
         return jsonResponse_({ status: 'ok', action: 'pullObligations', count: obls.length, data: obls });
 
@@ -1587,8 +1596,20 @@ function doPost(e) {
         return jsonResponse_(uoResult);
       }
 
+      case 'rebuildObligationsPivot': {
+        var rpResult = rebuildObligationsPivot_(ss);
+        if (rpResult.status === 'ok') updateSyncTimestamp_(ss, 'Business Obligations', 'push');
+        return jsonResponse_(rpResult);
+      }
+
+      case 'recomputeObligationsPivotTotals': {
+        var rtResult = recomputeObligationsPivotTotals_(ss);
+        if (rtResult.status === 'ok') updateSyncTimestamp_(ss, 'Business Obligations', 'push');
+        return jsonResponse_(rtResult);
+      }
+
       default:
-        return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync, pushPrincipalRegister, pushContacts, pushCreditorDetail, deleteCreditorDetail, pushWebsiteAccounts, deleteWebsiteAccounts, importSubstituteW2, importForm1040, importForm2848, importScheduleA, importSchedule1, importSchedule2, importForm8275R, importAdminForms, importWorksheetData, refreshProofOfMailing, archiveTabs, pushCreditScorecard, pushCashFlow, updateObligationCategories, runFunction');
+        return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync, pushPrincipalRegister, pushContacts, pushCreditorDetail, deleteCreditorDetail, pushWebsiteAccounts, deleteWebsiteAccounts, importSubstituteW2, importForm1040, importForm2848, importScheduleA, importSchedule1, importSchedule2, importForm8275R, importAdminForms, importWorksheetData, refreshProofOfMailing, archiveTabs, pushCreditScorecard, pushCashFlow, updateObligationCategories, rebuildObligationsPivot, runFunction');
     }
 
   } catch (err) {
@@ -1820,6 +1841,143 @@ function updateObligationCategories_(ss, rows) {
   });
 
   return { status: 'ok', action: 'updateObligationCategories', backedUp: backupName, updated: updated, notFound: notFound };
+}
+
+/**
+ * Rebuild the Business Obligations monthly-pivot block: re-map household budget
+ * categories to the Schedule C business taxonomy, merge Automotive+Transportation
+ * into Mileage / Vehicle, drop non-business rows, and rename the "JOINT HOUSEHOLD
+ * EXPENSES" header to "JOINT BUSINESS EXPENSES". Backup-first (reversible).
+ */
+function rebuildObligationsPivot_(ss) {
+  var sheet = ss.getSheetByName('Business Obligations');
+  if (!sheet) return { status: 'error', action: 'rebuildObligationsPivot', message: 'Business Obligations tab not found' };
+
+  var lastRow = sheet.getLastRow();
+  var lastCol = sheet.getLastColumn() || 13;
+
+  // 1) Backup the whole tab (reversible).
+  var backupName = 'Obligations_PrePivotRebuild_' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyyMMdd_HHmmss');
+  var backup = ss.insertSheet(backupName, ss.getNumSheets());
+  backup.getRange(1, 1, lastRow, lastCol).setValues(sheet.getRange(1, 1, lastRow, lastCol).getValues());
+  backup.setTabColor('#c0392b');
+  try { backup.hideSheet(); } catch (e) {}
+
+  // 2) Locate the pivot header + footer rows.
+  var colA = sheet.getRange(1, 1, lastRow, 1).getValues();
+  var pivotHeaderRow = -1, footerRow = -1;
+  for (var i = 0; i < colA.length; i++) {
+    var v = String(colA[i][0] || '');
+    if (pivotHeaderRow < 0 && (v.indexOf('Monthly Pivot') !== -1 || v.indexOf('JOINT') !== -1)) pivotHeaderRow = i + 1;
+    if (v.indexOf('A Provident Private Creditor') !== -1) { footerRow = i + 1; break; }
+  }
+  if (pivotHeaderRow < 0) return { status: 'error', action: 'rebuildObligationsPivot', message: 'pivot header not found' };
+
+  var colHeaderRow = pivotHeaderRow + 1;
+  var dataStart = colHeaderRow + 1;
+  var dataEnd = (footerRow > 0 ? footerRow : lastRow + 1) - 1;
+  var numMonths = 12;
+
+  var block = sheet.getRange(dataStart, 1, dataEnd - dataStart + 1, numMonths + 1).getValues();
+
+  // 3) Re-map + merge + drop.
+  var MAP = {
+    'Housing': 'Rent / Lease',
+    'Utilities': 'Utilities',
+    'Debt': 'Interest Expense',
+    'Insurance': 'Business Insurance',
+    'Travel': 'Business Travel',
+    'Subscriptions': 'Dues & Subscriptions',
+    'Taxes': 'State & Local Taxes',
+    'Fitness': 'Personal — non-deductible',
+    'Automotive': 'Mileage / Vehicle',
+    'Transportation': 'Mileage / Vehicle'
+  };
+  var DROP = { 'Income': 1, 'Transfers': 1, 'Shopping': 1, 'Personal': 1, 'Groceries': 1, 'Dining': 1, 'Healthcare': 1 };
+  var ORDER = ['Rent / Lease', 'Utilities', 'Interest Expense', 'Business Insurance',
+               'Business Travel', 'Dues & Subscriptions', 'State & Local Taxes',
+               'Personal — non-deductible', 'Mileage / Vehicle'];
+
+  var agg = {};
+  for (var o = 0; o < ORDER.length; o++) {
+    var rowArr = [ORDER[o]];
+    for (var m = 0; m < numMonths; m++) rowArr.push('');
+    agg[ORDER[o]] = rowArr;
+  }
+
+  for (var r = 0; r < block.length; r++) {
+    var cat = String(block[r][0] || '').trim();
+    if (DROP[cat]) continue;
+    var target = MAP[cat];
+    if (!target) continue;
+    for (var m = 1; m <= numMonths; m++) {
+      var val = block[r][m];
+      if (val === '' || val === null || val === undefined) continue;
+      var num = Number(val);
+      if (isNaN(num)) continue;
+      var cur = agg[target][m];
+      agg[target][m] = (cur === '' || cur === null) ? num : cur + num;
+    }
+  }
+
+  var out = [];
+  for (var o2 = 0; o2 < ORDER.length; o2++) out.push(agg[ORDER[o2]]);
+
+  // 4) Rename header + write the new block + delete leftover rows.
+  sheet.getRange(pivotHeaderRow, 1).setValue('🏢 JOINT BUSINESS EXPENSES — TRUST MASTER ACCOUNT (Monthly Pivot)');
+
+  var oldBlockRows = dataEnd - dataStart + 1;
+  sheet.getRange(dataStart, 1, out.length, numMonths + 1).setValues(out);
+  var extra = oldBlockRows - out.length;
+  if (extra > 0) sheet.deleteRows(dataStart + out.length, extra);
+
+  return { status: 'ok', action: 'rebuildObligationsPivot', backedUp: backupName,
+           rowsBefore: oldBlockRows, rowsAfter: out.length,
+           categories: out.map(function (rr) { return rr[0]; }) };
+}
+
+/**
+ * Recompute the Business Obligations pivot's "Annual Total" column (col 14)
+ * as the sum of each row's 12 monthly cells. Used to repair the pivot after a
+ * category re-map, where the old totals no longer line up with the new rows.
+ * Idempotent; rounds to cents.
+ */
+function recomputeObligationsPivotTotals_(ss) {
+  var sheet = ss.getSheetByName('Business Obligations');
+  if (!sheet) return { status: 'error', action: 'recomputeObligationsPivotTotals', message: 'tab not found' };
+
+  var lastRow = sheet.getLastRow();
+  var colA = sheet.getRange(1, 1, lastRow, 1).getValues();
+
+  var headerRow = -1, toolsRow = -1;
+  for (var i = 0; i < colA.length; i++) {
+    var v = String(colA[i][0] || '');
+    if (headerRow < 0 && v.indexOf('Monthly Pivot') !== -1) headerRow = i + 1;
+    if (v.indexOf('TMAR Tools') !== -1) toolsRow = i + 1;
+  }
+  if (headerRow < 0) return { status: 'error', action: 'recomputeObligationsPivotTotals', message: 'pivot header not found' };
+
+  var dataStart = headerRow + 2;                       // first category row (after header + column header)
+  var dataEnd = (toolsRow > 0 ? toolsRow - 2 : lastRow - 1);  // two footer rows above "TMAR Tools"
+  var numRows = dataEnd - dataStart + 1;
+  if (numRows < 1) return { status: 'error', action: 'recomputeObligationsPivotTotals', message: 'no pivot data rows' };
+
+  var months = sheet.getRange(dataStart, 2, numRows, 12).getValues(); // cols B..M (Jan..Dec)
+  var totals = [];
+  for (var r = 0; r < numRows; r++) {
+    var sum = 0;
+    for (var m = 0; m < 12; m++) {
+      var v = months[r][m];
+      if (v === '' || v === null || v === undefined) continue;
+      var n = Number(v);
+      if (!isNaN(n)) sum += n;
+    }
+    totals.push([Math.round(sum * 100) / 100]);
+  }
+  sheet.getRange(dataStart, 14, numRows, 1).setValues(totals);
+
+  return { status: 'ok', action: 'recomputeObligationsPivotTotals', rows: numRows,
+           totals: totals.map(function (t) { return t[0]; }) };
 }
 
 // ─── Push Functions (Web App-safe wrappers) ──────────────────────────────────
