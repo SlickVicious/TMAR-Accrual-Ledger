@@ -844,8 +844,8 @@ function doGet(e) {
 
       case 'pullWebsiteAccounts': {
         var webAccts = pullSheetData_(ss, 'Website Accounts', 2, [
-          'accountId', 'platform', 'url', 'username',
-          'linkedEntity', 'mfaMethod', 'lastVerified', 'notes'
+          'accountId', 'platform', 'username',
+          'lastVerified', 'notes', 'acctEmail'
         ]);
         updateSyncTimestamp_(ss, 'Website Accounts', 'pull');
         return jsonResponse_({ status: 'ok', action: 'pullWebsiteAccounts', count: webAccts.length, data: webAccts });
@@ -1403,6 +1403,14 @@ function doPost(e) {
         var dmResult = deleteMasterRegister_(ss, dmIds);
         updateSyncTimestamp_(ss, 'Master Register', 'delete');
         return jsonResponse_(dmResult);
+      }
+
+      case 'hyperlinkProviderColumn': {
+        var links = Array.isArray(payload.mappings) ? payload.mappings : [];
+        if (links.length === 0) return errorResponse_('Provide mappings (array of {name, url})');
+        var hlResult = hyperlinkProviderColumn_(ss, links);
+        updateSyncTimestamp_(ss, 'Master Register', 'hyperlink');
+        return jsonResponse_(hlResult);
       }
 
       case 'pushAppScriptsInventory': {
@@ -3187,6 +3195,53 @@ function deleteMasterRegister_(ss, rowIds) {
 
 
 /**
+ * Embed a website URL into each Master Register "Provider/Creditor" name (col C)
+ * as a =HYPERLINK(url, name) formula. Only data rows (col A matches /^MR-/ with a
+ * non-empty name) are touched; the footer/banner rows and any unmapped name are
+ * left as plain text. getValues() on a =HYPERLINK cell still returns the label
+ * (the name), so programmatic reads and the provider-name upsert key are preserved.
+ * @param {Object} ss - active spreadsheet
+ * @param {Array<Object>} mappings - [{name: 'Bank of America N.A.', url: 'https://…'}]
+ */
+function hyperlinkProviderColumn_(ss, mappings) {
+  var sheet = ss.getSheetByName('Master Register');
+  if (!sheet) return { status: 'error', action: 'hyperlinkProviderColumn', message: 'Master Register tab not found' };
+
+  var urlBy = {};
+  for (var i = 0; i < mappings.length; i++) {
+    var m = mappings[i];
+    if (m && m.name && m.url) urlBy[String(m.name).trim()] = String(m.url).trim();
+  }
+
+  var lastRow = sheet.getLastRow();
+  if (lastRow <= 1) return { status: 'ok', action: 'hyperlinkProviderColumn', linked: 0, unmatched: [] };
+
+  var ids = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+  var names = sheet.getRange(2, 3, lastRow - 1, 1).getValues();
+
+  var linked = 0;
+  var unmatched = [];
+  for (var r = 0; r < ids.length; r++) {
+    var id = String(ids[r][0] || '').trim();
+    if (!/^MR-/.test(id)) continue;
+    var name = String(names[r][0] || '').trim();
+    if (!name) continue;
+    var url = urlBy[name];
+    if (url) {
+      var formula = '=HYPERLINK("' + url + '","' + name.replace(/"/g, '""') + '")';
+      sheet.getRange(r + 2, 3).setFormula(formula);
+      linked++;
+    } else {
+      unmatched.push(id + ': ' + name);
+    }
+  }
+
+  SpreadsheetApp.flush();
+  return { status: 'ok', action: 'hyperlinkProviderColumn', linked: linked, unmatchedCount: unmatched.length, unmatched: unmatched };
+}
+
+
+/**
  * Replace the entire "AppScripts" tab with a fresh function inventory.
  * New 6-column layout: Function (file → name) | What it does | Status | Start Time | Duration (s) | Error.
  * The file path is embedded into the Function name; the three runtime columns are
@@ -3434,7 +3489,7 @@ function pushWebsiteAccounts_(ss, accounts) {
   var lastRow = sheet.getLastRow();
   var platformMap = {}, existingRows = {};
   if (lastRow > 1) {
-    var allData = sheet.getRange(2, 1, lastRow - 1, 8).getValues();
+    var allData = sheet.getRange(2, 1, lastRow - 1, 6).getValues();
     for (var n = 0; n < allData.length; n++) {
       var k = String(allData[n][1] || '').toLowerCase().trim(); // col B = platform
       if (k) { platformMap[k] = n + 2; existingRows[k] = allData[n]; }
@@ -3460,18 +3515,16 @@ function pushWebsiteAccounts_(ss, accounts) {
 
     if (existingRow) {
       var ex = existingRows[key];
-      sheet.getRange(existingRow, 1, 1, 8).setValues([[
-        ex[0], platform, a.url || ex[2], a.username || ex[3],
-        a.linkedEntity || ex[4], a.mfaMethod || ex[5],
-        a.lastVerified || ex[6], a.notes || ex[7]
+      sheet.getRange(existingRow, 1, 1, 6).setValues([[
+        ex[0], platform, a.username || ex[2], a.lastVerified || ex[3],
+        a.notes || ex[4], a.acctEmail || ex[5]
       ]]);
       updated++;
     } else {
       sheet.appendRow([
         'WA-' + String(nextId++).padStart(3, '0'),
-        platform, a.url || '', a.username || '',
-        a.linkedEntity || '', a.mfaMethod || '',
-        a.lastVerified || '', a.notes || ''
+        platform, a.username || '', a.lastVerified || '',
+        a.notes || '', a.acctEmail || ''
       ]);
       platformMap[key] = sheet.getLastRow();
       imported++;
@@ -3503,7 +3556,7 @@ function deleteWebsiteAccounts_(ss, accountIds, platforms) {
   var platSet = {};
   for (var p = 0; p < platforms.length; p++) platSet[String(platforms[p]).trim().toLowerCase()] = true;
 
-  var data = sheet.getRange(2, 1, lastRow - 1, 8).getValues();
+  var data = sheet.getRange(2, 1, lastRow - 1, 6).getValues();
   var matchedIds = {}, matchedPlatforms = {};
   var deletedRows = [];
   var rowsToDelete = []; // sheet row numbers, will sort descending before deleting
@@ -3528,7 +3581,7 @@ function deleteWebsiteAccounts_(ss, accountIds, platforms) {
   }
 
   // Backup before delete — full 8-column snapshot of exactly the rows being removed.
-  var headers = ['accountId', 'platform', 'url', 'username', 'linkedEntity', 'mfaMethod', 'lastVerified', 'notes'];
+  var headers = ['accountId', 'platform', 'username', 'lastVerified', 'notes', 'acctEmail'];
   var stamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone() || 'America/Chicago', 'yyyyMMdd_HHmmss');
   var backupName = 'WA_PreDelete_' + stamp;
   var backupSheet = ss.insertSheet(backupName);

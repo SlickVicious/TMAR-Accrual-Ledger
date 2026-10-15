@@ -34965,12 +34965,11 @@ function ev2InitEntityVerifier() {
       if (!r.platform) return;
       if (r.accountId && byId[r.accountId]) {
         var a = byId[r.accountId];
-        a.platform = r.platform || a.platform; a.url = r.url || a.url; a.username = r.username || a.username;
-        a.linkedEntity = r.linkedEntity || a.linkedEntity; a.mfaMethod = r.mfaMethod || a.mfaMethod;
-        a.lastVerified = r.lastVerified || a.lastVerified; a.notes = r.notes || a.notes;
+        a.platform = r.platform || a.platform; a.username = r.username || a.username;
+        a.lastVerified = r.lastVerified || a.lastVerified; a.notes = r.notes || a.notes; a.acctEmail = r.acctEmail || a.acctEmail;
         updated++;
       } else {
-        appData.websiteAccounts.push({ id: Date.now() + Math.random(), accountId: r.accountId || '', platform: r.platform || '', url: r.url || '', username: r.username || '', linkedEntity: r.linkedEntity || '', mfaMethod: r.mfaMethod || '', lastVerified: r.lastVerified || '', notes: r.notes || '' });
+        appData.websiteAccounts.push({ id: Date.now() + Math.random(), accountId: r.accountId || '', platform: r.platform || '', username: r.username || '', lastVerified: r.lastVerified || '', notes: r.notes || '', acctEmail: r.acctEmail || '' });
         added++;
       }
     });
