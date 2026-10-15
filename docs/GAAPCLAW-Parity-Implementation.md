@@ -245,6 +245,8 @@ Created `NOI_Agent_Browser.bat` and `NOI_Agent_Browser_Harden.ps1`:
 - `--enable-startup` flag to create startup shortcut (off by default)
 - Added all sensitive files/dirs to `.gitignore`
 
+**Removed 2026-10-15** — non-functional as shipped (no `zeroclaw` binary on PATH; no `config.toml`/`bearer.token`/`gateway.json`; port 11434 is Ollama). Files deleted; section retained for history.
+
 ---
 
 ## Session 4 — CPA Firm Full Parity (2026-03-14)
