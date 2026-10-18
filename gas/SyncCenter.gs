@@ -247,14 +247,7 @@ function importLedgerEntities(entities) {
     const rowId = 'MR-' + String(nextId).padStart(3, '0');
     nextId++;
 
-    // Entity type → Account Type mapping
-    const typeMap = {
-      'Trust': 'Trust Entity', 'LLC': 'LLC', 'Corporation': 'Corporation',
-      'Individual': 'Individual', 'Employer': 'Employment W-2',
-      'Bank': 'Banking Checking', 'Brokerage': 'Investment Brokerage',
-      'Insurance': 'Insurance', 'Vendor': 'Vendor',
-      'Government': 'Government Agency', 'Creditor': 'Credit Card'
-    };
+    // Account Type is written verbatim from e.accountType (lossless round-trip) — see row[5].
 
     const row = new Array(29).fill('');
     row[0] = rowId;
@@ -262,7 +255,7 @@ function importLedgerEntities(entities) {
     row[2] = name;
     row[3] = ''; // Never import EINs — they come masked from the Ledger
     row[4] = e.accountNumber || '';
-    row[5] = typeMap[e.type] || e.type || '';
+    row[5] = e.accountType || e.type || '';
     row[6] = e.subtype || '';
     row[7] = e.status || 'Active';
     row[14] = e.primaryUser || '';
@@ -761,7 +754,7 @@ function doGet(e) {
         });
 
       case 'pullAccounts':
-        var accounts = pullSheetData_(ss, 'Master Register', 3, [
+        var accounts = pullSheetData_(ss, 'Master Register', 4, [
           'rowId', 'dateAdded', 'provider', 'ein', 'accountNumber',
           'accountType', 'accountSubtype', 'status', 'openDate', 'closeDate',
           'currentBalance', 'originalBalance', 'billingFrequency', 'nextPaymentDue', 'primaryUser',
@@ -774,10 +767,10 @@ function doGet(e) {
 
       case 'pullTransactions':
         var txns = pullSheetData_(ss, 'Transaction Ledger', 2, [
-          'date', 'description', 'category', 'account', 'debit',
-          'credit', 'balance', 'method', 'reference', 'vendor',
-          'taxDeductible', 'receipt', 'reconciled', 'notes', 'source',
-          'importDate'
+          'date', 'reference', 'category', 'account', 'vendor',
+          'description', 'amount', 'method', 'acctType', 'status',
+          'taxDeductible', 'bizUsePct', 'dueDay', 'recurring', 'notes',
+          'source'
         ]);
         updateSyncTimestamp_(ss, 'Transaction Ledger', 'pull');
         return jsonResponse_({ status: 'ok', action: 'pullTransactions', count: txns.length, data: txns });
@@ -792,10 +785,10 @@ function doGet(e) {
         return jsonResponse_({ status: 'ok', action: 'pullObligations', count: obls.length, data: obls });
 
       case 'pullChartOfAccounts': {
-        var coaRows = pullSheetData_(ss, 'GAAP CoA', 2, [
+        var coaRows = pullSheetData_(ss, 'Chart of Accounts', 2, [
           'num', 'name', 'type', 'subtype', 'normalBal', 'formLine'
         ]);
-        updateSyncTimestamp_(ss, 'GAAP CoA', 'pull');
+        updateSyncTimestamp_(ss, 'Chart of Accounts', 'pull');
         return jsonResponse_({ status: 'ok', action: 'pullChartOfAccounts', count: coaRows.length, data: coaRows });
       }
 
@@ -880,6 +873,14 @@ function doGet(e) {
           }
         }
         return jsonResponse_({ status: 'ok', action: 'listSheetTabs', tabs: tabList });
+
+      case 'listSheetTabsMeta':
+        var metaSheets = ss.getSheets();
+        var metaTabs = [];
+        for (var mi = 0; mi < metaSheets.length; mi++) {
+          metaTabs.push({ name: metaSheets[mi].getName(), gid: metaSheets[mi].getSheetId(), hidden: metaSheets[mi].isSheetHidden() });
+        }
+        return jsonResponse_({ status: 'ok', action: 'listSheetTabsMeta', tabs: metaTabs });
 
       case 'dumpCanvasBoard':
         return jsonResponse_(dumpCanvasBoard_());
@@ -1248,6 +1249,77 @@ function doPost(e) {
         var coaResult = pushChartOfAccounts_(ss, payload.accounts);
         return jsonResponse_(coaResult);
 
+      case 'buildExternalTabs': {
+        var beId = payload.spreadsheetId;
+        var beTabs = payload.tabs;
+        if (!beId) return errorResponse_('Missing spreadsheetId');
+        if (!beTabs || !beTabs.length) return errorResponse_('Missing tabs');
+        var beSS = SpreadsheetApp.openById(beId);
+        var beSummary = [];
+        beTabs.forEach(function(t) {
+          var tName = t.name;
+          var tRows = t.rows || [];
+          var tSheet = beSS.getSheetByName(tName);
+          if (!tSheet) tSheet = beSS.insertSheet(tName);
+          tSheet.clear();
+          var tMaxCols = 1;
+          tRows.forEach(function(r) { if (r.length > tMaxCols) tMaxCols = r.length; });
+          if (tRows.length && tMaxCols) {
+            tSheet.getRange(1, 1, tRows.length, tMaxCols).setValues(tRows.map(function(r) {
+              var row = [];
+              for (var ci = 0; ci < tMaxCols; ci++) row.push((r[ci] !== undefined && r[ci] !== null) ? r[ci] : '');
+              return row;
+            }));
+          }
+          beSummary.push({ name: tName, rows: tRows.length, cols: tMaxCols, gid: tSheet.getSheetId() });
+        });
+        return jsonResponse_({ status: 'ok', action: 'buildExternalTabs', spreadsheetId: beId, tabs: beSummary });
+      }
+
+      case 'applyStandardHeader': {
+        var hdrList = payload.headers || [payload];
+        var hdrSummary = [];
+        hdrList.forEach(function(h) {
+          hdrSummary.push(applyStandardHeader_(ss, h.sheetName, h.title, h.description, h.headerRow));
+        });
+        return jsonResponse_({ status: 'ok', action: 'applyStandardHeader', results: hdrSummary });
+      }
+
+      case 'renameSheet': {
+        var rnId = payload.spreadsheetId;
+        var rnOld = payload.oldName;
+        var rnNew = payload.newName;
+        var rnSS = rnId ? SpreadsheetApp.openById(rnId) : ss;
+        var rnSheet = rnSS.getSheetByName(rnOld);
+        if (!rnSheet) return errorResponse_('No sheet: ' + rnOld);
+        rnSheet.setName(rnNew);
+        return jsonResponse_({ status: 'ok', action: 'renameSheet', oldName: rnOld, newName: rnNew, gid: rnSheet.getSheetId() });
+      }
+
+      case 'restoreSheets': {
+        // For each named sheet: delete the (truncated) live sheet and rename its latest backup back to the original name.
+        var rsList = payload.sheets || [];
+        var rsSummary = [];
+        rsList.forEach(function(n) {
+          var safe = String(n).replace(/[^\w\- ]/g, '').slice(0, 22);
+          var all = ss.getSheets();
+          var backup = null;
+          all.forEach(function(s) {
+            var nm = s.getName();
+            if (nm.indexOf(safe) === 0 && nm.indexOf('_PreHeader_') > 0) {
+              if (!backup || nm > backup.getName()) backup = s;
+            }
+          });
+          if (!backup) { rsSummary.push({ sheet: n, error: 'no backup' }); return; }
+          var live = ss.getSheetByName(n);
+          if (live) ss.deleteSheet(live);
+          backup.setName(n);
+          backup.showSheet();
+          rsSummary.push({ ok: true, sheet: n, restored: true });
+        });
+        return jsonResponse_({ status: 'ok', action: 'restoreSheets', results: rsSummary });
+      }
+
       case 'pushReceivables':
         var arV = validatePayload_(payload.receivables, []);
         if (!arV.valid) return errorResponse_(arV.message);
@@ -1403,6 +1475,61 @@ function doPost(e) {
         var dmResult = deleteMasterRegister_(ss, dmIds);
         updateSyncTimestamp_(ss, 'Master Register', 'delete');
         return jsonResponse_(dmResult);
+      }
+
+      case 'dedupeAcctLedger': {
+        var dalResult = dedupeAcctLedger_(ss);
+        updateSyncTimestamp_(ss, 'Acct Ledger', 'dedupe');
+        return jsonResponse_(dalResult);
+      }
+
+      case 'finalizeAcctLedger': {
+        var falResult = finalizeAcctLedger_(ss);
+        updateSyncTimestamp_(ss, 'Acct Ledger', 'finalize');
+        return jsonResponse_(falResult);
+      }
+
+      case 'foldFinalize': {
+        var ffResult = foldFinalize_(ss);
+        updateSyncTimestamp_(ss, 'Master Register', 'fold');
+        return jsonResponse_(ffResult);
+      }
+
+      case 'remapMasterRegister': {
+        var rmResult = remapMasterRegister_(ss);
+        updateSyncTimestamp_(ss, 'Master Register', 'remap');
+        return jsonResponse_(rmResult);
+      }
+
+      case 'applyMasterRegisterSpec': {
+        var spec = payload.spec || {};
+        if (!spec.backfill && !spec.merges) return errorResponse_('Provide spec.backfill and/or spec.merges');
+        var amrsResult = applyMasterRegisterSpec_(ss, spec);
+        updateSyncTimestamp_(ss, 'Master Register', 'backfill');
+        return jsonResponse_(amrsResult);
+      }
+
+      case 'mergeMasterRegisterFast': {
+        var spec2 = payload.spec || {};
+        if (!spec2.deletes || !spec2.deletes.length) return errorResponse_('Provide spec.deletes (entryNos)');
+        var mmfResult = mergeMasterRegisterFast_(ss, spec2);
+        updateSyncTimestamp_(ss, 'Master Register', 'merge');
+        return jsonResponse_(mmfResult);
+      }
+
+      case 'clearBalanceValidation': {
+        var cbvResult = clearBalanceValidation_(ss);
+        return jsonResponse_(cbvResult);
+      }
+
+      case 'finishRegisterSplit': {
+        var frsResult = finishRegisterSplit_(ss);
+        return jsonResponse_(frsResult);
+      }
+
+      case 'backfillTINRegistry': {
+        var btrResult = backfillTINRegistry_(ss);
+        return jsonResponse_(btrResult);
       }
 
       case 'hyperlinkProviderColumn': {
@@ -1631,6 +1758,21 @@ function doPost(e) {
         var rtResult = recomputeObligationsPivotTotals_(ss);
         if (rtResult.status === 'ok') updateSyncTimestamp_(ss, 'Business Obligations', 'push');
         return jsonResponse_(rtResult);
+      }
+
+      case 'backfillAuditAccounts': {
+        var ba = Array.isArray(payload.fills) ? payload.fills : [];
+        if (ba.length === 0) return errorResponse_('Provide fills (array of {entry, audit})');
+        var baResult = backfillAuditAccounts_(ss, ba);
+        updateSyncTimestamp_(ss, 'Master Register', 'backfillAuditAccounts');
+        return jsonResponse_(baResult);
+      }
+
+      case 'deleteSheetsByName': {
+        var ds = Array.isArray(payload.sheetNames) ? payload.sheetNames : [];
+        if (ds.length === 0) return errorResponse_('Provide sheetNames (array)');
+        var dsResult = deleteSheetsByName_(ss, ds);
+        return jsonResponse_(dsResult);
       }
 
       default:
@@ -2038,13 +2180,7 @@ function pushEntities_(ss, entities) {
     }
   }
 
-  var typeMap = {
-    'Trust': 'Trust Entity', 'LLC': 'LLC', 'Corporation': 'Corporation',
-    'Individual': 'Individual', 'Employer': 'Employment W-2',
-    'Bank': 'Banking Checking', 'Brokerage': 'Investment Brokerage',
-    'Insurance': 'Insurance', 'Vendor': 'Vendor',
-    'Government': 'Government Agency', 'Creditor': 'Credit Card'
-  };
+  // Account Type is written verbatim from ent.accountType (lossless round-trip) — see row[5].
 
   var imported = 0, skipped = 0, updated = 0;
 
@@ -2063,7 +2199,7 @@ function pushEntities_(ss, entities) {
       // pending write that hadn't been flushed yet — silently dropping fields that "succeeded" earlier
       // in the list. Found 2026-08-01 fixing the credit-report-import column shift (MR-112/114/116/146).
       var fieldMap = [
-        ['acctType', 6], ['subtype', 7], ['status', 8], ['openDate', 9], ['closeDate', 10],
+        ['accountType', 6], ['subtype', 7], ['status', 8], ['openDate', 9], ['closeDate', 10],
         ['currentBalance', 11], ['originalBalance', 12], ['primaryUser', 15],
         ['paymentSource', 18], ['statementsComplete', 20], ['documentLocation', 23],
         ['lastStatementDate', 24], ['lastVerified', 25], ['notes', 27]
@@ -2092,7 +2228,7 @@ function pushEntities_(ss, entities) {
     row[2] = name;
     row[3] = ''; // Never import EINs
     row[4] = ent.accountNumber || '';
-    row[5] = typeMap[ent.type] || ent.type || '';
+    row[5] = ent.accountType || ent.type || '';
     row[6] = ent.subtype || '';
     row[7] = ent.status || 'Active';
     row[8] = ent.openDate || '';
@@ -2125,23 +2261,26 @@ function pushTransactions_(ss, entries) {
   var rows = [];
   for (var i = 0; i < entries.length; i++) {
     var t = entries[i];
+    var debit = parseFloat(t.debit) || 0;
+    var credit = parseFloat(t.credit) || 0;
+    var amount = (debit || credit) ? (debit - credit) : ((t.amount !== undefined && t.amount !== '') ? t.amount : '');
     var row = new Array(16).fill('');
-    row[0] = t.date || new Date().toISOString().slice(0, 10);
-    row[1] = t.description || '';
-    row[2] = t.category || '';
-    row[3] = t.account || '';
-    row[4] = t.debit || '';
-    row[5] = t.credit || '';
-    row[6] = ''; // balance calculated by sheet
-    row[7] = t.method || '';
-    row[8] = t.reference || '';
-    row[9] = t.vendor || '';
-    row[10] = t.taxDeductible || '';
-    row[11] = t.receipt || '';
-    row[12] = ''; // reconciled
-    row[13] = t.notes || '';
-    row[14] = 'Accrual Ledger';
-    row[15] = new Date().toISOString().slice(0, 10);
+    row[0] = t.date || new Date().toISOString().slice(0, 10);   // Date
+    row[1] = t.reference || '';                                   // Party
+    row[2] = t.category || '';                                    // Category
+    row[3] = t.account || '';                                     // Subcategory
+    row[4] = t.vendor || '';                                      // Vendor
+    row[5] = t.description || '';                                 // Description
+    row[6] = amount;                                              // Amount
+    row[7] = t.method || '';                                      // Payment
+    row[8] = t.acctType || '';                                    // Acct Type
+    row[9] = t.status || '';                                      // Status
+    row[10] = t.taxDeductible || '';                              // Tax Ded?
+    row[11] = t.bizUsePct || '';                                  // Biz Use %
+    row[12] = t.dueDay || '';                                     // Due Day
+    row[13] = t.recurring || '';                                  // Recurring
+    row[14] = t.notes || '';                                      // Notes
+    row[15] = t.source || 'Accrual Ledger';                       // Source
     rows.push(row);
   }
 
@@ -2204,24 +2343,70 @@ function pushJournalEntries_(ss, entries) {
   return { status: 'ok', action: 'pushJournalEntries', imported: rows.length, entries: (entries || []).length };
 }
 
+function applyStandardHeader_(ss, sheetName, title, description, headerRow) {
+  try {
+    var sheet = ss.getSheetByName(sheetName);
+    if (!sheet) return { error: 'no sheet: ' + sheetName };
+    var ts = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyyMMdd_HHmmss');
+    var backup = sheet.copyTo(ss);
+    var safeName = String(sheetName).replace(/[^\w\- ]/g, '').slice(0, 22);
+    backup.setName(safeName + '_PreHeader_' + ts);
+    backup.hideSheet();
+    var insert = 4 - headerRow;
+    if (insert > 0) sheet.insertRows(1, insert);
+    var lastCol = Math.max(sheet.getLastColumn(), 1);
+    sheet.getRange(1, 1, 3, lastCol).clear();
+    sheet.getRange(1, 1).setValue(title);
+    sheet.getRange(2, 1).setValue(description);
+    sheet.getRange(1, 1).setFontWeight('bold');
+    sheet.setFrozenRows(4);
+    SpreadsheetApp.flush();
+    return { ok: true, sheet: sheetName, backup: backup.getName(), inserted: insert };
+  } catch (err) {
+    return { error: String(err), sheet: sheetName };
+  }
+}
+
 function pushChartOfAccounts_(ss, accounts) {
-  // GUI's GAAP chart is authoritative → full-replace the data rows. Creates the
-  // 'GAAP CoA' tab (header: Num | Name | Type | Subtype | Normal Balance | Form Line).
-  var sheet = ss.getSheetByName('GAAP CoA');
+  // GUI's GAAP chart is authoritative → upsert by Account # into the canonical
+  // 'Chart of Accounts' tab (header: Account # | Account Name | Type | Subtype |
+  // Normal Balance | Form Line | Country). Existing rows keep their col-7 edit markers.
+  var sheet = ss.getSheetByName('Chart of Accounts');
   if (!sheet) {
-    sheet = ss.insertSheet('GAAP CoA');
-    sheet.getRange(1, 1, 1, 6).setValues([['Num', 'Name', 'Type', 'Subtype', 'Normal Balance', 'Form Line']]);
-    sheet.getRange(1, 1, 1, 6).setFontWeight('bold');
+    sheet = ss.insertSheet('Chart of Accounts');
+    sheet.getRange(1, 1, 1, 7).setValues([['Account #', 'Account Name', 'Type', 'Subtype', 'Normal Balance', 'Form Line', 'Country']]);
+    sheet.getRange(1, 1, 1, 7).setFontWeight('bold');
     sheet.setFrozenRows(1);
   }
-  var last = sheet.getLastRow();
-  if (last > 1) sheet.getRange(2, 1, last - 1, 6).clearContent();
-  var rows = (accounts || []).map(function(a) {
-    return [a.num || '', a.name || '', a.type || '', a.subtype || '', a.normalBal || a.normalBalance || '', a.formLine || ''];
+  var lastRow = sheet.getLastRow();
+  var byNum = {};
+  if (lastRow > 1) {
+    var nums = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+    for (var i = 0; i < nums.length; i++) {
+      var n = nums[i][0] != null ? String(nums[i][0]).trim() : '';
+      if (n) byNum[n] = i + 2;
+    }
+  }
+  var newRows = [];
+  var imported = 0, updated = 0;
+  (accounts || []).forEach(function(a) {
+    var num = String(a.num || '').trim();
+    if (!num) return;
+    var vals = [num, a.name || '', a.type || '', a.subtype || '', a.normalBal || a.normalBalance || '', a.formLine || ''];
+    var existingRow = byNum[num];
+    if (existingRow) {
+      sheet.getRange(existingRow, 1, 1, 6).setValues([vals]);
+      updated++;
+    } else {
+      var row = new Array(7).fill('');
+      row[0] = num; row[1] = vals[1]; row[2] = vals[2]; row[3] = vals[3]; row[4] = vals[4]; row[5] = vals[5];
+      newRows.push(row);
+      imported++;
+    }
   });
-  if (rows.length) sheet.getRange(2, 1, rows.length, 6).setValues(rows);
-  updateSyncTimestamp_(ss, 'GAAP CoA', 'push');
-  return { status: 'ok', action: 'pushChartOfAccounts', imported: rows.length };
+  if (newRows.length) sheet.getRange(lastRow + 1, 1, newRows.length, 7).setValues(newRows);
+  updateSyncTimestamp_(ss, 'Chart of Accounts', 'push');
+  return { status: 'ok', action: 'pushChartOfAccounts', imported: imported, updated: updated };
 }
 
 function pushPayables_(ss, payables) {
@@ -3195,6 +3380,551 @@ function deleteMasterRegister_(ss, rowIds) {
 
 
 /**
+ * One-time data-quality cleanup for the "Acct Ledger" tab (2026-10-16).
+ * (1) Collapses a 35-row duplicate block (rows copied verbatim twice) by full-16-column
+ *     fingerprint; (2) deletes the "Credit One Bank N.A." shell row (name present but
+ *     opened/closed dates empty) in favour of the complete copy; (3) re-points the 7 Nelnet
+ *     rows' "Acct #" from Launch Servicing's E985506201 to their real per-loan account numbers
+ *     (90000075961-L1..L7) keyed by opened year — L1=2011 (unique); 2015→L2/L3; 2018→L4/L5;
+ *     2012→L6/L7 (assigned in row order within each same-year pair).
+ * Backs up the entire tab to `AcctLedger_PreDedupe_<stamp>` before any mutation.
+ * @param {Object} ss - active spreadsheet
+ */
+function dedupeAcctLedger_(ss) {
+  var sheet = ss.getSheetByName('Acct Ledger');
+  if (!sheet) return { status: 'error', action: 'dedupeAcctLedger', message: 'Acct Ledger tab not found' };
+
+  var lastRow = sheet.getLastRow();
+  var lastCol = sheet.getLastColumn() || 16;
+  if (lastRow <= 1) return { status: 'ok', action: 'dedupeAcctLedger', deleted: 0, fixedNelnet: 0, backupSheet: null };
+
+  // 1. Backup the whole tab (red, reversible).
+  var stamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone() || 'America/Chicago', 'yyyyMMdd_HHmmss');
+  var backup = ss.insertSheet('AcctLedger_PreDedupe_' + stamp);
+  backup.getRange(1, 1, lastRow, lastCol).setValues(sheet.getRange(1, 1, lastRow, lastCol).getValues());
+  backup.setTabColor('#ef4444');
+
+  var data = sheet.getRange(2, 1, lastRow - 1, lastCol).getValues(); // data[r] = sheet row r+2
+
+  function yearOf(v) {
+    if (v instanceof Date) return v.getFullYear();
+    var m = String(v || '').match(/(19|20)\d{2}/);
+    return m ? parseInt(m[0], 10) : null;
+  }
+  function isEmpty(v) { return String(v || '').trim() === ''; }
+
+  // 2. Re-point Nelnet "Acct #" (col C) by opened year (before dedup so the 7 loans stay distinct).
+  var nelnetFixed = 0;
+  var yearCount = {};
+  for (var r = 0; r < data.length; r++) {
+    var nm = String(data[r][0] || '').toLowerCase();
+    if (nm.indexOf('nelnet') === -1) continue;
+    var yr = yearOf(data[r][6]); // col G = Opened Date
+    if (!yr) continue;
+    yearCount[yr] = (yearCount[yr] || 0) + 1;
+    var n = yearCount[yr];
+    var newAcct = '';
+    if (yr === 2011) newAcct = '90000075961-L1';
+    else if (yr === 2015) newAcct = '90000075961-L' + (n === 1 ? '2' : '3');
+    else if (yr === 2018) newAcct = '90000075961-L' + (n === 1 ? '4' : '5');
+    else if (yr === 2012) newAcct = '90000075961-L' + (n === 1 ? '6' : '7');
+    if (newAcct) { sheet.getRange(r + 2, 3).setValue(newAcct); nelnetFixed++; }
+  }
+
+  // 3. Identify rows to delete: full-fingerprint duplicates + the Credit One shell.
+  var fpSeen = {};
+  var rowsToDelete = [];
+  for (var r2 = 0; r2 < data.length; r2++) {
+    var hasContent = data[r2].some(function (c) { return String(c).trim() !== ''; });
+    if (!hasContent) continue;
+    var fp = data[r2].map(function (c) { return String(c).trim(); }).join('||');
+    var rowNum = r2 + 2;
+    if (fpSeen[fp] !== undefined) {
+      rowsToDelete.push(rowNum); // true duplicate of an earlier row
+    } else {
+      fpSeen[fp] = rowNum;
+      var nm2 = String(data[r2][0] || '').toLowerCase();
+      if (nm2.indexOf('credit one') !== -1 && isEmpty(data[r2][6]) && isEmpty(data[r2][7])) {
+        rowsToDelete.push(rowNum); // Credit One shell (opened+closed empty)
+      }
+    }
+  }
+
+  // 4. Delete bottom-up.
+  rowsToDelete.sort(function (a, b) { return b - a; });
+  for (var d = 0; d < rowsToDelete.length; d++) sheet.deleteRow(rowsToDelete[d]);
+
+  SpreadsheetApp.flush();
+  return { status: 'ok', action: 'dedupeAcctLedger', deleted: rowsToDelete.length, fixedNelnet: nelnetFixed, backupSheet: backup.getName() };
+}
+
+
+/**
+ * Second-pass Acct Ledger cleanup (2026-10-16), after dedupeAcctLedger_.
+ * (a) Blanks the literal "N/A" account numbers on non-debt entities (employers/nonprofits
+ *     that have no account number — the placeholder broke the entity dedup key).
+ * (b) LVNV Funding LLC carries TWO accounts per FWM — Master Index (S-011 "Credit One Acct"
+ *     444796276090, S-012 "Verve Acct" 516648722480). The ledger only had the Verve account.
+ *     Relabel the existing row to "(Verve Acct)" and insert a cloned "(Credit One Acct)" row
+ *     right below it (same EIN/address, new account #, opened date, and "Collected" status).
+ * Backs up the whole tab to `AcctLedger_PreFinalize_<stamp>` first.
+ * @param {Object} ss - active spreadsheet
+ */
+function finalizeAcctLedger_(ss) {
+  var sheet = ss.getSheetByName('Acct Ledger');
+  if (!sheet) return { status: 'error', action: 'finalizeAcctLedger', message: 'Acct Ledger tab not found' };
+
+  var lastRow = sheet.getLastRow();
+  var lastCol = sheet.getLastColumn() || 16;
+  if (lastRow <= 1) return { status: 'ok', action: 'finalizeAcctLedger', blankedNA: 0, relabeled: 0, addedCreditOne: false, backupSheet: null };
+
+  var stamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone() || 'America/Chicago', 'yyyyMMdd_HHmmss');
+  var backup = ss.insertSheet('AcctLedger_PreFinalize_' + stamp);
+  backup.getRange(1, 1, lastRow, lastCol).setValues(sheet.getRange(1, 1, lastRow, lastCol).getValues());
+  backup.setTabColor('#ef4444');
+
+  var data = sheet.getRange(2, 1, lastRow - 1, lastCol).getValues();
+
+  // (a) Blank "N/A" account numbers (col C, index 2).
+  var blankedNA = 0;
+  for (var r = 0; r < data.length; r++) {
+    var acct = String(data[r][2] || '').trim().toLowerCase();
+    if (acct === 'n/a' || acct === 'na') { sheet.getRange(r + 2, 3).setValue(''); blankedNA++; }
+  }
+
+  // (b) LVNV: relabel Verve row, clone it into a Credit One row directly beneath.
+  var relabeled = 0;
+  var addedCreditOne = false;
+  for (var r2 = 0; r2 < data.length; r2++) {
+    var nm = String(data[r2][0] || '').trim().toLowerCase();
+    var ac = String(data[r2][2] || '').trim();
+    if (nm.indexOf('lvnv') !== -1 && ac === '516648722480') {
+      sheet.getRange(r2 + 2, 1).setValue('LVNV Funding LLC (Verve Acct)');
+      relabeled++;
+      var clone = data[r2].slice();
+      clone[0] = 'LVNV Funding LLC (Credit One Acct)';
+      clone[2] = '444796276090';
+      clone[5] = 'Collected';   // Status
+      clone[6] = '08/21/2025';  // Opened Date (Date Acquired per FWM)
+      clone[7] = '—';           // Closed Date
+      sheet.insertRowAfter(r2 + 2);
+      sheet.getRange(r2 + 3, 1, 1, lastCol).setValues([clone]);
+      addedCreditOne = true;
+      break;
+    }
+  }
+
+  SpreadsheetApp.flush();
+  return { status: 'ok', action: 'finalizeAcctLedger', blankedNA: blankedNA, relabeled: relabeled, addedCreditOne: addedCreditOne, backupSheet: backup.getName() };
+}
+
+
+/**
+ * Fold-completion mutations (2026-10-16), post data-migration into Master Register.
+ * (1) Duke Energy Progress LLC wrongly carried Kinston Utilities' account number 63328-1972;
+ *     its correct account identifier is its EIN, 202777218. Re-point the "Acct #" (col C) on
+ *     the Acct Ledger Duke row (and, if present, Master Register "Audit Account #").
+ * (2) Delete the now-redundant "FWM — Master Index" sheet (data already migrated to Master
+ *     Register; full backup preserved as FWM_MasterIndex_PreHeader_20261016_000008).
+ * @param {Object} ss - active spreadsheet
+ */
+function foldFinalize_(ss) {
+  var result = { dukeFixedAcctLedger: 0, dukeFixedMasterRegister: 0, fwmDeleted: false, fwmBackup: 'FWM_MasterIndex_PreHeader_20261016_000008' };
+
+  // (1) Duke fix — Acct Ledger (col C = Acct #).
+  var al = ss.getSheetByName('Acct Ledger');
+  if (al) {
+    var lastRow = al.getLastRow();
+    var lastCol = al.getLastColumn() || 16;
+    var data = al.getRange(2, 1, lastRow - 1, lastCol).getValues();
+    for (var r = 0; r < data.length; r++) {
+      var nm = String(data[r][0] || '').toLowerCase();
+      if (nm.indexOf('duke') !== -1 && nm.indexOf('energy') !== -1) {
+        al.getRange(r + 2, 3).setValue('202777218');
+        result.dukeFixedAcctLedger++;
+      }
+    }
+  }
+
+  // (1b) Duke fix — Master Register (locate header, then "Audit Account #" on the Duke row).
+  var mr = ss.getSheetByName('Master Register');
+  if (mr) {
+    var mrLast = mr.getLastRow();
+    var mrLastCol = mr.getLastColumn() || 13;
+    var mrAll = mr.getRange(1, 1, mrLast, mrLastCol).getValues();
+    // locate real header row (most non-empty cells)
+    var hi = 0, hn = 0;
+    for (var i = 0; i < mrAll.length; i++) {
+      var n = 0;
+      for (var c = 0; c < mrAll[i].length; c++) if (String(mrAll[i][c]).trim() !== '') n++;
+      if (n > hn) { hn = n; hi = i; }
+    }
+    var hdr = mrAll[hi];
+    var credIdx = -1, acctIdx = -1;
+    for (var j = 0; j < hdr.length; j++) {
+      var hj = String(hdr[j]).toLowerCase();
+      if (credIdx === -1 && (hj.indexOf('creditor') !== -1 || hj.indexOf('entity') !== -1)) credIdx = j;
+      if (acctIdx === -1 && hj.indexOf('audit account') !== -1) acctIdx = j;
+    }
+    if (credIdx !== -1 && acctIdx !== -1) {
+      for (var r2 = hi + 1; r2 < mrAll.length; r2++) {
+        var cn = String(mrAll[r2][credIdx] || '').toLowerCase();
+        if (cn.indexOf('duke') !== -1 && cn.indexOf('energy') !== -1) {
+          mr.getRange(r2 + 1, acctIdx + 1).setValue('202777218');
+          result.dukeFixedMasterRegister++;
+        }
+      }
+    }
+  }
+
+  // (2) Delete FWM — Master Index.
+  var fwm = ss.getSheetByName('FWM — Master Index');
+  if (fwm) { ss.deleteSheet(fwm); result.fwmDeleted = true; }
+
+  SpreadsheetApp.flush();
+  return { status: 'ok', action: 'foldFinalize', dukeFixedAcctLedger: result.dukeFixedAcctLedger, dukeFixedMasterRegister: result.dukeFixedMasterRegister, fwmDeleted: result.fwmDeleted, fwmBackup: result.fwmBackup };
+}
+
+
+/**
+ * Step 1 of the Master Register remap (2026-10-16).
+ * (a) Fix the three mislabeled header columns: "Discription"→"Description",
+ *     "Ledger Ref"→"Current Balance" (it holds balances), "Supporting Doc ID"→"High Balance".
+ * (b) Delete the Merrick Bank shell row (empty EIN + empty account) in favour of the full row.
+ * Backs up the whole tab to `MasterRegister_PreRemap_<stamp>` first. Read-only beyond these two.
+ * @param {Object} ss - active spreadsheet
+ */
+function remapMasterRegister_(ss) {
+  var sheet = ss.getSheetByName('Master Register');
+  if (!sheet) return { status: 'error', action: 'remapMasterRegister', message: 'Master Register tab not found' };
+
+  var lastRow = sheet.getLastRow();
+  var lastCol = sheet.getLastColumn() || 13;
+  if (lastRow <= 1) return { status: 'ok', action: 'remapMasterRegister', renamed: 0, deleted: 0, backupSheet: null };
+
+  var stamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone() || 'America/Chicago', 'yyyyMMdd_HHmmss');
+  var backup = ss.insertSheet('MasterRegister_PreRemap_' + stamp);
+  backup.getRange(1, 1, lastRow, lastCol).setValues(sheet.getRange(1, 1, lastRow, lastCol).getValues());
+  backup.setTabColor('#ef4444');
+
+  var all = sheet.getRange(1, 1, lastRow, lastCol).getValues();
+  var hi = 0, hn = 0;
+  for (var i = 0; i < all.length; i++) {
+    var n = 0;
+    for (var c = 0; c < all[i].length; c++) if (String(all[i][c]).trim() !== '') n++;
+    if (n > hn) { hn = n; hi = i; }
+  }
+  var hdrRow = hi + 1;
+
+  var renames = { 'Discription': 'Description', 'Ledger Ref': 'Current Balance', 'Supporting Doc ID': 'High Balance' };
+  var renamed = 0;
+  var colIdx = { cred: -1, ein: -1, acct: -1 };
+  for (var c = 0; c < all[hi].length; c++) {
+    var h = String(all[hi][c]).trim();
+    var hl = h.toLowerCase();
+    if (colIdx.cred === -1 && (hl.indexOf('creditor') !== -1 || hl.indexOf('entity') !== -1)) colIdx.cred = c;
+    if (colIdx.ein === -1 && hl === 'ein') colIdx.ein = c;
+    if (colIdx.acct === -1 && hl.indexOf('audit account') !== -1) colIdx.acct = c;
+    if (renames[h]) { sheet.getRange(hdrRow, c + 1).setValue(renames[h]); renamed++; }
+  }
+
+  var rowsToDelete = [];
+  if (colIdx.cred !== -1 && colIdx.ein !== -1 && colIdx.acct !== -1) {
+    for (var r = hi + 1; r < all.length; r++) {
+      var nm = String(all[r][colIdx.cred] || '').toLowerCase();
+      var ein = String(all[r][colIdx.ein] || '').trim();
+      var acct = String(all[r][colIdx.acct] || '').trim();
+      if (nm.indexOf('merrick') !== -1 && ein === '' && acct === '') rowsToDelete.push(r + 1);
+    }
+  }
+  rowsToDelete.sort(function (a, b) { return b - a; });
+  for (var d = 0; d < rowsToDelete.length; d++) sheet.deleteRow(rowsToDelete[d]);
+
+  SpreadsheetApp.flush();
+  return { status: 'ok', action: 'remapMasterRegister', renamed: renamed, deleted: rowsToDelete.length, backupSheet: backup.getName() };
+}
+
+
+/**
+ * Data-driven Master Register backfill + duplicate merge (2026-10-16).
+ * Consumes a spec object (POST payload.spec): { backfill:[{no, ein}], merges:[{keep, remove:[...]}] }.
+ * (a) Backfill EIN by Entry No. (col A "MR-nnn" stable key).
+ * (b) Merge duplicates: gap-fill the keep row from each remove row (only empty cells), then
+ *     delete the remove rows bottom-up.
+ * Backs up the whole tab to `MasterRegister_PreBackfill_<stamp>` first.
+ * @param {Object} ss - active spreadsheet
+ * @param {Object} spec - { backfill:[{no,ein}], merges:[{keep,remove:[...]}] }
+ */
+function applyMasterRegisterSpec_(ss, spec) {
+  var sheet = ss.getSheetByName('Master Register');
+  if (!sheet) return { status: 'error', action: 'applyMasterRegisterSpec', message: 'Master Register tab not found' };
+
+  var lastRow = sheet.getLastRow();
+  var lastCol = sheet.getLastColumn() || 13;
+  if (lastRow <= 1) return { status: 'ok', action: 'applyMasterRegisterSpec', filled: 0, merged: 0, deleted: 0, backupSheet: null };
+
+  var stamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone() || 'America/Chicago', 'yyyyMMdd_HHmmss');
+  var backup = ss.insertSheet('MasterRegister_PreBackfill_' + stamp);
+  backup.getRange(1, 1, lastRow, lastCol).setValues(sheet.getRange(1, 1, lastRow, lastCol).getValues());
+  backup.setTabColor('#ef4444');
+
+  var all = sheet.getRange(1, 1, lastRow, lastCol).getValues();
+  var hi = 0, hn = 0;
+  for (var i = 0; i < all.length; i++) {
+    var n = 0;
+    for (var c = 0; c < all[i].length; c++) if (String(all[i][c]).trim() !== '') n++;
+    if (n > hn) { hn = n; hi = i; }
+  }
+  var hdrRow = hi + 1;
+  var hdr = all[hi];
+  var cNo = -1, cEin = -1;
+  for (var c = 0; c < hdr.length; c++) {
+    var hl = String(hdr[c]).trim().toLowerCase();
+    if (cNo === -1 && hl === 'entry no.') cNo = c;
+    if (cEin === -1 && hl === 'ein') cEin = c;
+  }
+  if (cNo === -1 || cEin === -1) return { status: 'error', action: 'applyMasterRegisterSpec', message: 'Entry No./EIN column not found' };
+
+  var noToRow = {};
+  for (var r = hdrRow + 1; r <= lastRow; r++) {
+    var no = String(sheet.getRange(r, cNo + 1).getValue()).trim();
+    if (no) noToRow[no] = r;
+  }
+
+  var filled = 0;
+  (spec.backfill || []).forEach(function (b) {
+    var row = noToRow[b.no];
+    if (row) { sheet.getRange(row, cEin + 1).setValue(b.ein); filled++; }
+  });
+
+  var merged = 0, toDelete = [];
+  (spec.merges || []).forEach(function (m) {
+    var keepRow = noToRow[m.keep];
+    if (!keepRow) return;
+    (m.remove || []).forEach(function (remNo) {
+      var remRow = noToRow[remNo];
+      if (!remRow) return;
+      for (var c = 1; c <= lastCol; c++) {
+        var kv = sheet.getRange(keepRow, c).getValue();
+        var rv = sheet.getRange(remRow, c).getValue();
+        if ((kv === '' || kv === null) && (rv !== '' && rv !== null)) { sheet.getRange(keepRow, c).setValue(rv); }
+      }
+      toDelete.push(remRow); merged++;
+    });
+  });
+  toDelete.sort(function (a, b) { return b - a; });
+  var deleted = 0;
+  toDelete.forEach(function (r) { sheet.deleteRow(r); deleted++; });
+
+  SpreadsheetApp.flush();
+  return { status: 'ok', action: 'applyMasterRegisterSpec', filled: filled, merged: merged, deleted: deleted, backupSheet: backup.getName() };
+}
+
+
+/**
+ * Fast targeted duplicate merge (2026-10-16) — replaces the slow cell-by-cell gap-fill loop.
+ * Spec: { gapfills:[{no, col, value}], deletes:[entryNos] } where `col` is 1-indexed.
+ * Applies only the specific gap-fill cells, then deletes the remove rows bottom-up.
+ * (No backup — the PreBackfill backup already captured the pre-merge state.)
+ * @param {Object} ss - active spreadsheet
+ * @param {Object} spec - { gapfills:[{no,col,value}], deletes:[entryNos] }
+ */
+function mergeMasterRegisterFast_(ss, spec) {
+  var sheet = ss.getSheetByName('Master Register');
+  if (!sheet) return { status: 'error', action: 'mergeMasterRegisterFast', message: 'Master Register tab not found' };
+
+  var lastRow = sheet.getLastRow();
+  var lastCol = sheet.getLastColumn() || 13;
+  var all = sheet.getRange(1, 1, lastRow, lastCol).getValues();
+  var hi = 0, hn = 0;
+  for (var i = 0; i < all.length; i++) {
+    var n = 0;
+    for (var c = 0; c < all[i].length; c++) if (String(all[i][c]).trim() !== '') n++;
+    if (n > hn) { hn = n; hi = i; }
+  }
+  var hdr = all[hi];
+  var cNo = -1;
+  for (var c = 0; c < hdr.length; c++) {
+    if (cNo === -1 && String(hdr[c]).trim().toLowerCase() === 'entry no.') cNo = c;
+  }
+  if (cNo === -1) return { status: 'error', action: 'mergeMasterRegisterFast', message: 'Entry No. column not found' };
+
+  var noToRow = {};
+  for (var r = hi + 2; r <= lastRow; r++) {
+    var no = String(all[r - 1][cNo]).trim();
+    if (no) noToRow[no] = r;
+  }
+
+  var gapfilled = 0;
+  (spec.gapfills || []).forEach(function (g) {
+    var row = noToRow[g.no];
+    if (row) { sheet.getRange(row, g.col).setValue(g.value); gapfilled++; }
+  });
+
+  var rows = (spec.deletes || []).map(function (n) { return noToRow[n]; }).filter(function (x) { return x; });
+  rows.sort(function (a, b) { return b - a; });
+  var deleted = 0;
+  rows.forEach(function (r) { sheet.deleteRow(r); deleted++; });
+
+  SpreadsheetApp.flush();
+  return { status: 'ok', action: 'mergeMasterRegisterFast', gapfilled: gapfilled, deleted: deleted };
+}
+
+
+/**
+ * Clear the MISAPPLIED Status dropdown validation on the "Current Balance" (col K)
+ * and "High Balance" (col L) columns so numeric balances can be written.
+ * (The Status dropdown legitimately belongs only on col H "Status".)
+ * @param {Object} ss - active spreadsheet
+ */
+function clearBalanceValidation_(ss) {
+  var sheet = ss.getSheetByName('Master Register');
+  if (!sheet) return { status: 'error', action: 'clearBalanceValidation', message: 'Master Register tab not found' };
+
+  var lastRow = sheet.getLastRow();
+  var lastCol = sheet.getLastColumn() || 13;
+  var all = sheet.getRange(1, 1, lastRow, lastCol).getValues();
+  var hi = 0, hn = 0;
+  for (var i = 0; i < all.length; i++) {
+    var n = 0;
+    for (var c = 0; c < all[i].length; c++) if (String(all[i][c]).trim() !== '') n++;
+    if (n > hn) { hn = n; hi = i; }
+  }
+  var hdr = all[hi];
+  var colBal = -1, colHigh = -1;
+  for (var c = 0; c < hdr.length; c++) {
+    var hl = String(hdr[c]).trim().toLowerCase();
+    if (colBal === -1 && hl === 'current balance') colBal = c + 1;
+    if (colHigh === -1 && hl === 'high balance') colHigh = c + 1;
+  }
+  var cleared = [];
+  if (colBal !== -1) {
+    sheet.getRange(hi + 2, colBal, Math.max(1, lastRow - hi - 1), 1).setDataValidation(null);
+    cleared.push('Current Balance (col ' + colBal + ')');
+  }
+  if (colHigh !== -1) {
+    sheet.getRange(hi + 2, colHigh, Math.max(1, lastRow - hi - 1), 1).setDataValidation(null);
+    cleared.push('High Balance (col ' + colHigh + ')');
+  }
+  SpreadsheetApp.flush();
+  return { status: 'ok', action: 'clearBalanceValidation', cleared: cleared };
+}
+
+
+/**
+ * Final reconcile: (1) fill First Bank of Delaware EIN on MR-187,
+ * (2) rename MR-179 'Cline / Anysphere Inc.' -> 'Cline Bot Inc.',
+ * (3) insert new row MR-192 'Anysphere Inc.' (maker of Cursor).
+ * @param {Object} ss - active spreadsheet
+ */
+function finishRegisterSplit_(ss) {
+  var sheet = ss.getSheetByName('Master Register');
+  if (!sheet) return { status: 'error', action: 'finishRegisterSplit', message: 'Master Register tab not found' };
+
+  var lastRow = sheet.getLastRow();
+  var lastCol = sheet.getLastColumn() || 13;
+  var all = sheet.getRange(1, 1, lastRow, lastCol).getValues();
+  var hi = 0, hn = 0;
+  for (var i = 0; i < all.length; i++) {
+    var n = 0;
+    for (var c = 0; c < all[i].length; c++) if (String(all[i][c]).trim() !== '') n++;
+    if (n > hn) { hn = n; hi = i; }
+  }
+  var hdr = all[hi];
+  function colIdx(label, fallback) {
+    for (var c = 0; c < hdr.length; c++) {
+      if (String(hdr[c]).trim().toLowerCase() === label) return c;
+    }
+    for (var d = 0; d < hdr.length; d++) {
+      if (String(hdr[d]).toLowerCase().indexOf(fallback) >= 0) return d;
+    }
+    return -1;
+  }
+  var cNo = colIdx('entry no.', 'entry');
+  var cDate = colIdx('date', 'date');
+  var cCred = colIdx('creditor / entity', 'creditor');
+  var cEin = colIdx('ein', 'ein');
+  var cCat = colIdx('category', 'category');
+  var cNotes = colIdx('notes', 'notes');
+
+  var result = { status: 'ok', action: 'finishRegisterSplit', renamed: false, inserted: false, einFilled: false };
+
+  for (var i = hi + 1; i < lastRow; i++) {
+    var no = String(all[i][cNo]).trim();
+    if (no === 'MR-187') {
+      sheet.getRange(i + 1, cEin + 1).setValue('51-0389698');
+      result.einFilled = true;
+    }
+    if (no === 'MR-179') {
+      if (cCred >= 0) sheet.getRange(i + 1, cCred + 1).setValue('Cline Bot Inc.');
+      if (cCat >= 0) sheet.getRange(i + 1, cCat + 1).setValue('Cline Bot Inc.');
+      result.renamed = true;
+    }
+  }
+
+  var newRow = [];
+  for (var c = 0; c < lastCol; c++) newRow.push('');
+  if (cNo >= 0) newRow[cNo] = 'MR-192';
+  if (cDate >= 0) newRow[cDate] = '2026-10-08';
+  if (cCred >= 0) newRow[cCred] = 'Anysphere Inc.';
+  if (cCat >= 0) newRow[cCat] = 'Anysphere Inc.';
+  if (cNotes >= 0) newRow[cNotes] = "Split from 'Cline / Anysphere Inc.' — Anysphere makes Cursor";
+  sheet.appendRow(newRow);
+  result.inserted = true;
+
+  SpreadsheetApp.flush();
+  return result;
+}
+
+
+/**
+ * Backfill the TIN Registry (authoritative EIN master) with newly-confirmed EINs
+ * that are now in the Master Register but not yet in the registry. Dedupes on col A (EIN).
+ * @param {Object} ss - active spreadsheet
+ */
+function backfillTINRegistry_(ss) {
+  var sheet = ss.getSheetByName('TIN Registry');
+  if (!sheet) return { status: 'error', action: 'backfillTINRegistry', message: 'TIN Registry tab not found' };
+
+  // [EIN, Account#, Name]  (address/phone left blank)
+  var newEins = [
+    ['25-1435979', '', 'PNC Financial Services Group'],
+    ['51-0483352', '', 'Synchrony Financial'],
+    ['38-0572512', '', 'Ally Financial'],
+    ['80-0429876', '', 'Block Inc (Cash App)'],
+    ['01-0137770', '', 'TD Bank N.A.'],
+    ['43-1261525', '', 'MOHELA (MO Higher Ed Loan Auth)'],
+    ['20-5276211', '', 'Early Warning Services LLC (Zelle)'],
+    ['25-1222771', '', 'ECSI (Educational Computer Systems)'],
+    ['51-0389698', '', 'First Bank of Delaware'],
+    ['52-1198289', '', 'US Department of Education']
+  ];
+
+  var lastRow = sheet.getLastRow();
+  var existing = {};
+  if (lastRow > 0) {
+    var colA = sheet.getRange(1, 1, lastRow, 1).getValues();
+    for (var i = 0; i < colA.length; i++) {
+      existing[String(colA[i][0]).trim()] = true;
+    }
+  }
+
+  var added = 0, skipped = 0;
+  for (var j = 0; j < newEins.length; j++) {
+    var ein = newEins[j][0];
+    if (existing[ein]) { skipped++; continue; }
+    var row = [newEins[j][0], newEins[j][1], newEins[j][2], '', '', '', '', '', '', '', ''];
+    sheet.appendRow(row);
+    existing[ein] = true;
+    added++;
+  }
+
+  SpreadsheetApp.flush();
+  return { status: 'ok', action: 'backfillTINRegistry', added: added, skipped: skipped };
+}
+
+
+/**
  * Embed a website URL into each Master Register "Provider/Creditor" name (col C)
  * as a =HYPERLINK(url, name) formula. Only data rows (col A matches /^MR-/ with a
  * non-empty name) are touched; the footer/banner rows and any unmapped name are
@@ -3691,7 +4421,6 @@ var APPC_SHEET_NAMES_ = {
   COA:                   'TMAR — CoA',
   PRINCIPAL_REGISTER:    'TMAR — Principal Register',
   // Freeway tabs (absorbed into the hub)
-  FWM_MASTER_INDEX:      'FWM — Master Index',
   FWM_CHECKLIST:         'FWM — Forms Checklist',
   FWM_CREDITOR_DETAIL:   'FWM — Creditor Detail',
   FWM_DASHBOARD:         'FWM — Dashboard',
@@ -3797,3 +4526,89 @@ function appcSyncAll() {
   Logger.log('appcSyncAll: complete → hub ' + APPC_HUB_ID_);
   return { status: 'ok', action: 'appcSyncAll', results: results };
 }
+
+
+/**
+ * Backfill the Master Register "Audit Account #" column (col E) from the FWM
+ * filing chain. Takes [{entry: 'MR-087', audit: '90000075961-L2'}, ...].
+ * Backs up the tab to MasterRegister_PreBackfillAudit_<stamp> first (read-only
+ * safety), then writes each value onto its Entry No. row. Locates the real
+ * header row + "Audit Account #" column dynamically (header is NOT row 1).
+ * @param {Object} ss - active spreadsheet
+ * @param {Array<Object>} fills - [{entry, audit}]
+ */
+function backfillAuditAccounts_(ss, fills) {
+  var sheet = ss.getSheetByName('Master Register');
+  if (!sheet) return { status: 'error', action: 'backfillAuditAccounts', message: 'Master Register tab not found' };
+
+  var lastRow = sheet.getLastRow();
+  var lastCol = sheet.getLastColumn() || 13;
+
+  // Backup (read-only safety, mirroring PreBackfill pattern)
+  var stamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone() || 'America/Chicago', 'yyyyMMdd_HHmmss');
+  var backup = ss.insertSheet('MasterRegister_PreBackfillAudit_' + stamp);
+  backup.getRange(1, 1, lastRow, lastCol).setValues(sheet.getRange(1, 1, lastRow, lastCol).getValues());
+  backup.setTabColor('#ef4444');
+
+  var all = sheet.getRange(1, 1, lastRow, lastCol).getValues();
+  var hi = 0, hn = 0;
+  for (var i = 0; i < all.length; i++) {
+    var n = 0;
+    for (var c = 0; c < all[i].length; c++) if (String(all[i][c]).trim() !== '') n++;
+    if (n > hn) { hn = n; hi = i; }
+  }
+  var hdr = all[hi];
+  var entryIdx = -1, acctIdx = -1;
+  for (var j = 0; j < hdr.length; j++) {
+    var hj = String(hdr[j]).toLowerCase();
+    if (entryIdx === -1 && (hj.indexOf('entry') !== -1)) entryIdx = j;
+    if (acctIdx === -1 && hj.indexOf('audit account') !== -1) acctIdx = j;
+  }
+  if (entryIdx === -1 || acctIdx === -1) {
+    return { status: 'error', action: 'backfillAuditAccounts', message: 'Entry No. or Audit Account # column not found', entryIdx: entryIdx, acctIdx: acctIdx };
+  }
+
+  var byEntry = {};
+  fills.forEach(function(f) { if (f && f.entry) byEntry[String(f.entry).trim()] = f.audit; });
+
+  var filled = 0, unmatched = [];
+  for (var r = hi + 1; r < all.length; r++) {
+    var entry = String(all[r][entryIdx] || '').trim();
+    if (!entry) continue;
+    if (Object.prototype.hasOwnProperty.call(byEntry, entry)) {
+      sheet.getRange(r + 1, acctIdx + 1).setValue(byEntry[entry]);
+      filled++;
+    }
+  }
+  // report requested entries not found
+  Object.keys(byEntry).forEach(function(e) {
+    var found = false;
+    for (var r = hi + 1; r < all.length; r++) if (String(all[r][entryIdx] || '').trim() === e) { found = true; break; }
+    if (!found) unmatched.push(e);
+  });
+
+  SpreadsheetApp.flush();
+  return { status: 'ok', action: 'backfillAuditAccounts', filled: filled, requested: fills.length, unmatched: unmatched, backupSheet: backup.getName(), headerRow: hi + 1, entryCol: entryIdx + 1, acctCol: acctIdx + 1 };
+}
+
+
+/**
+ * Delete Master Register backup sheets by exact name. Used to clean up the
+ * redundant PreBackfillAudit snapshots a flaky POST can leave behind (each
+ * retry creates one). Deletes only sheets whose name is in the given list;
+ * returns deleted + notFound. Never touches the live 'Master Register'.
+ * @param {Object} ss - active spreadsheet
+ * @param {Array<string>} sheetNames
+ */
+function deleteSheetsByName_(ss, sheetNames) {
+  var deleted = [], notFound = [];
+  sheetNames.forEach(function(name) {
+    if (!name || String(name) === 'Master Register') { notFound.push(name); return; }
+    var s = ss.getSheetByName(String(name));
+    if (s) { ss.deleteSheet(s); deleted.push(name); }
+    else { notFound.push(name); }
+  });
+  SpreadsheetApp.flush();
+  return { status: 'ok', action: 'deleteSheetsByName', deleted: deleted, notFound: notFound };
+}
+

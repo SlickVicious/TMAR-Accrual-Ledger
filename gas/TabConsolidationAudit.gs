@@ -43,7 +43,7 @@ var DUP_PAIRS_ = [
 // planned binder structure to fill. Deleted ONLY when getLastRow() === 0, so
 // anything you populate later is automatically spared.
 var EMPTY_SCAFFOLD_ = [
-  'FWM — Master Index', 'FWM — Forms Checklist', 'FWM — Creditor Detail', 'FWM — Dashboard', 'FWM — Binder Tab Guide',
+  'FWM — Forms Checklist', 'FWM — Creditor Detail', 'FWM — Dashboard', 'FWM — Binder Tab Guide',
   'CPA Questions'
 ];
 

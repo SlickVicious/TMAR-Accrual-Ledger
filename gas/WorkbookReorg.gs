@@ -16,7 +16,6 @@ var HUB_SECTIONS_ = [
   ['Trust Instruments',   ['📜 Trustee Resolutions', '📦 Asset Transfer Log']],
   ['Documents',           ['Document Inventory', 'Document Registry']],
   ['Business',           ['Business Obligations', 'Subscriptions & Services']],
-  ['Filing System',       ['FWM — Master Index']],
   ['Reference',           ['AppScripts', 'Validation']]
 ];
 
@@ -117,16 +116,6 @@ function consolidateGuides_(ss) {
   // (2) Register Summary metrics → 📋 Dashboard.
   if (appendBlock_(ss, 'Register Summary', '📋 Dashboard', 'REGISTER SUMMARY — ACCOUNT METRICS (folded from "Register Summary")')) {
     out.appended.push('Register Summary → 📋 Dashboard');
-  }
-
-  // (3) 📁 Binder Index registry → FWM — Master Index.
-  if (appendBlock_(ss, '📁 Binder Index', 'FWM — Master Index', 'BINDER DOCUMENT REGISTRY (folded from "📁 Binder Index")')) {
-    out.appended.push('📁 Binder Index → FWM — Master Index');
-  }
-
-  // (4) Process Flow guide → FWM — Master Index.
-  if (appendBlock_(ss, 'Process Flow', 'FWM — Master Index', 'BINDER DOC ORDER + FREEWAY PROCESS FLOW + KEY DOC INVENTORY + EIN DEDUP RULE (folded from "Process Flow")')) {
-    out.appended.push('Process Flow → FWM — Master Index');
   }
 
   // (5) Hide the three folded sources.
