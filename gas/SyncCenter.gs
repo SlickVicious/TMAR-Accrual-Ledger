@@ -1400,6 +1400,12 @@ function doPost(e) {
         return jsonResponse_(delResult);
       }
 
+      case 'foldCreditorRegistry':
+        return jsonResponse_(foldCreditorRegistry_(ss));
+
+      case 'fixCreditorDetailHeader':
+        return jsonResponse_(fixCreditorDetailHeader_(ss));
+
       case 'runFunction': {
         if (!payload.functionName || typeof payload.functionName !== 'string') {
           return errorResponse_('runFunction requires a "functionName" field');
