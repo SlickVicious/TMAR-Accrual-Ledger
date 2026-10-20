@@ -1,0 +1,663 @@
+{
+  "generated": "2026-10-16T01:02:15",
+  "generator": "Hermes Agent (law profile)",
+  "scope": {
+    "workbook_id": "1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ",
+    "filecabinet_root": "C:\\Users\\rhyme\\Desktop\\FileCabinet",
+    "repo_root": "C:\\Users\\rhyme\\Documents\\TMAR-Accrual-Ledger",
+    "gas_web_app": "https://script.google.com/macros/s/AKfycbzpeegvE52lvqCTMyKrsdaa_4JFfjM6MQrsJkU8zb17fkUJzPRasUU0fjONdaHkM5dh/exec"
+  },
+  "sheets": {
+    "Journal": {
+      "rows": 458,
+      "role": "double-entry journal (229 JEs, $40,754.44 balanced)",
+      "columns": [
+        "JE #",
+        "Date",
+        "Reference",
+        "Type",
+        "Description",
+        "Account",
+        "Debit",
+        "Credit",
+        "Status"
+      ]
+    },
+    "Transaction Ledger": {
+      "rows": 239,
+      "role": "expense source transactions",
+      "columns": [
+        "Date",
+        "Party",
+        "Category",
+        "Subcategory",
+        "Vendor",
+        "Description",
+        "Amount",
+        "Payment",
+        "Acct Type",
+        "Status",
+        "Tax Ded?",
+        "Biz Use %",
+        "Due Day",
+        "Recurring",
+        "Notes",
+        "Source"
+      ]
+    },
+    "Chart of Accounts": {
+      "rows": 80,
+      "role": "GL account taxonomy",
+      "columns": [
+        "Account #",
+        "Account Name",
+        "Type",
+        "Subtype",
+        "Normal Balance",
+        "Form Line",
+        "Country"
+      ]
+    },
+    "Ledgers": {
+      "rows": 17,
+      "role": "monthly bank sub-ledgers (TLE book)",
+      "columns": [
+        "Ledger ID",
+        "Ledger Name",
+        "Ledger Type",
+        "Period Start",
+        "Period End",
+        "Opening Balance",
+        "Total Debits",
+        "Total Credits",
+        "Closing Balance",
+        "Linked Register Entries",
+        "Reconciled",
+        "Reconciled By"
+      ]
+    },
+    "Acct Ledger": {
+      "rows": 92,
+      "role": "creditor account detail",
+      "columns": [
+        "Entity Name",
+        "EIN",
+        "Acct #",
+        "Account Type",
+        "Address 1",
+        "Status",
+        "Opened Date",
+        "Closed Date",
+        "Credit Limit / High Balance",
+        "Current Balance",
+        "City",
+        "State",
+        "Postal Code",
+        "Country",
+        "Phone #",
+        "Email Address"
+      ]
+    },
+    "Valuations": {
+      "rows": 52,
+      "role": "asset FMV / cost basis / gain-loss",
+      "columns": [
+        "Valuation ID",
+        "Asset Description",
+        "Asset Type",
+        "Valuation Date",
+        "Appraiser / Source",
+        "Valuation Method",
+        "Fair Market Value",
+        "Cost Basis",
+        "Gain / (Loss)",
+        "Supporting Doc Ref",
+        "Next Review Date",
+        "Digital Copy Path"
+      ]
+    },
+    "Master Register": {
+      "rows": 112,
+      "role": "account spine",
+      "columns": [
+        "rowId",
+        "dateAdded",
+        "provider",
+        "ein",
+        "accountNumber",
+        "accountType",
+        "accountSubtype",
+        "status",
+        "openDate",
+        "closeDate",
+        "currentBalance",
+        "originalBalance",
+        "billingFrequency",
+        "nextPaymentDue",
+        "primaryUser",
+        "authorizedUsers",
+        "autopayStatus",
+        "paymentSource",
+        "contractTermsFile",
+        "statementsComplete",
+        "taxFormsOnFile",
+        "popDocuments",
+        "documentLocation",
+        "lastStatementDate",
+        "lastVerifiedDate",
+        "retentionPeriod",
+        "notes",
+        "tags",
+        "discoveryStatus"
+      ]
+    },
+    "Business Obligations": {
+      "rows": 17,
+      "role": "monthly payables",
+      "columns": [
+        "Vendor",
+        "Category",
+        "Subcategory",
+        "Current Monthly",
+        "Due Day",
+        "Payment Method",
+        "Responsible Party",
+        "Status",
+        "Start Date",
+        "Rate Changes",
+        "Notes"
+      ]
+    },
+    "Asset Transfer Log": {
+      "rows": 28,
+      "role": "trust corpus transfers",
+      "columns": [
+        "Entry #",
+        "Date",
+        "Asset Description",
+        "Amount / FMV",
+        "From (Transferor)",
+        "To (Transferee)",
+        "Nature of Transfer",
+        "Taxable Event",
+        "Authority",
+        "Form Filed",
+        "Journal Entry #"
+      ]
+    },
+    "BOA Cash Flow": {
+      "rows": 104,
+      "role": "BOA monthly summary",
+      "columns": [
+        "Bank of America Checking",
+        "Beginning Balance",
+        "Total Deposits",
+        "Total Debits",
+        "Fees/Charges",
+        "Ending Balance",
+        "Net Change"
+      ]
+    },
+    "PNC Cash Flow": {
+      "rows": 33,
+      "role": "PNC monthly summary",
+      "columns": [
+        "PNC Spend Checking",
+        "Beginning Balance",
+        "Total Deposits",
+        "Total Debits",
+        "Fees/Charges",
+        "Ending Balance",
+        "Net Change"
+      ]
+    },
+    "CapOne Cash Flow": {
+      "rows": 50,
+      "role": "CapOne monthly summary",
+      "columns": []
+    },
+    "Truist Cash Flow": {
+      "rows": 6,
+      "role": "Truist trust monthly summary",
+      "columns": [
+        "Truist One Checking",
+        "Beginning Balance",
+        "Total Deposits",
+        "Total Debits",
+        "Fees/Charges",
+        "Ending Balance",
+        "Net Change"
+      ]
+    },
+    "1099 Filing Chain": {
+      "rows": 9,
+      "role": "3-layer uplift",
+      "columns": []
+    },
+    "1099 Filings": {
+      "rows": 22,
+      "role": "filed 1099s",
+      "columns": []
+    },
+    "Schedule A": {
+      "rows": 2,
+      "role": "itemized deductions",
+      "columns": [
+        "Tax Year",
+        "Taxpayer Name",
+        "SSN (masked)",
+        "Medical Expenses",
+        "Taxes Paid",
+        "Interest Paid",
+        "Charitable Gifts",
+        "Casualty/Theft",
+        "Other Deductions",
+        "Total Deductions",
+        "Submitted At",
+        "Source"
+      ]
+    },
+    "Corpus & M-2": {
+      "rows": 18,
+      "role": "trust corpus + schedule M-2",
+      "columns": []
+    },
+    "TIN Registry": {
+      "rows": 57,
+      "role": "entity → TIN map",
+      "columns": []
+    },
+    "Creditor Registry": {
+      "rows": 50,
+      "role": "creditor mailing addresses",
+      "columns": []
+    },
+    "FWM — Creditor Detail": {
+      "rows": 61,
+      "role": "creditor detail",
+      "columns": []
+    },
+    "FWM — Master Index": {
+      "rows": 130,
+      "role": "filing binder index",
+      "columns": []
+    },
+    "Tax Forms": {
+      "rows": 18,
+      "role": "tax forms & EIN",
+      "columns": []
+    }
+  },
+  "value_pools": [
+    {
+      "id": "bank_boa",
+      "label": "BOA bank transactions",
+      "smart_import_kind": "ledgerEntry",
+      "source": {
+        "type": "csv",
+        "path": "C:\\Users\\rhyme\\Documents\\TMAR-Accrual-Ledger\\BOA_Statements_Combined.csv",
+        "count": 6894,
+        "date_range": [
+          "2019-08-01",
+          "2026-09-10"
+        ],
+        "columns": [
+          "date",
+          "type",
+          "amount",
+          "description",
+          "source"
+        ]
+      },
+      "destination": {
+        "primary_sheet": "BOA Cash Flow",
+        "journal_sheet": "Journal",
+        "field_map": {
+          "date": "Date",
+          "amount": "Amount",
+          "description": "Description",
+          "source": "Reference"
+        }
+      }
+    },
+    {
+      "id": "bank_capone",
+      "label": "Capital One bank transactions",
+      "smart_import_kind": "ledgerEntry",
+      "source": {
+        "type": "csv",
+        "path": "C:\\Users\\rhyme\\Documents\\TMAR-Accrual-Ledger\\CapOne_Statements_Combined.csv",
+        "count": 4347,
+        "date_range": [
+          "2021-08-09",
+          "2024-12-31"
+        ],
+        "columns": [
+          "date",
+          "type",
+          "amount",
+          "description",
+          "source"
+        ]
+      },
+      "destination": {
+        "primary_sheet": "CapOne Cash Flow",
+        "journal_sheet": "Journal",
+        "field_map": {
+          "date": "Date",
+          "amount": "Amount",
+          "description": "Description",
+          "source": "Reference"
+        }
+      }
+    },
+    {
+      "id": "bank_pnc",
+      "label": "PNC bank transactions",
+      "smart_import_kind": "ledgerEntry",
+      "source": {
+        "type": "csv",
+        "path": "C:\\Users\\rhyme\\Documents\\TMAR-Accrual-Ledger\\PNC_Statements_Combined.csv",
+        "count": 2558,
+        "date_range": [
+          "2024-02-29",
+          "2026-02-27"
+        ],
+        "columns": [
+          "date",
+          "type",
+          "amount",
+          "description",
+          "source"
+        ]
+      },
+      "destination": {
+        "primary_sheet": "PNC Cash Flow",
+        "journal_sheet": "Journal",
+        "field_map": {
+          "date": "Date",
+          "amount": "Amount",
+          "description": "Description",
+          "source": "Reference"
+        }
+      }
+    },
+    {
+      "id": "bank_truist",
+      "label": "Truist trust bank transactions",
+      "smart_import_kind": "ledgerEntry",
+      "source": {
+        "type": "csv",
+        "path": "C:\\Users\\rhyme\\Documents\\TMAR-Accrual-Ledger\\Truist_Statements_Combined.csv",
+        "count": 10,
+        "date_range": [
+          "2026-04-30",
+          "2026-07-01"
+        ],
+        "columns": [
+          "date",
+          "type",
+          "amount",
+          "description",
+          "source"
+        ]
+      },
+      "destination": {
+        "primary_sheet": "Truist Cash Flow",
+        "journal_sheet": "Journal",
+        "field_map": {
+          "date": "Date",
+          "amount": "Amount",
+          "description": "Description",
+          "source": "Reference"
+        }
+      }
+    },
+    {
+      "id": "journal_entries",
+      "label": "Journal entries (already posted, balanced)",
+      "smart_import_kind": "journalEntry",
+      "source": {
+        "type": "sheet",
+        "tab": "Journal",
+        "count": 458,
+        "note": "229 JEs, $40,754.44 balanced, posts to 15 GL accounts"
+      },
+      "destination": {
+        "primary_sheet": "Journal",
+        "field_map": {
+          "JE #": "number",
+          "Date": "date",
+          "Reference": "reference",
+          "Type": "type",
+          "Description": "description",
+          "Account": "account",
+          "Debit": "debit",
+          "Credit": "credit",
+          "Status": "status"
+        }
+      }
+    },
+    {
+      "id": "transaction_ledger",
+      "label": "Transaction Ledger expenses",
+      "smart_import_kind": "ledgerEntry",
+      "source": {
+        "type": "sheet",
+        "tab": "Transaction Ledger",
+        "count": 239
+      },
+      "destination": {
+        "primary_sheet": "Transaction Ledger",
+        "journal_sheet": "Journal",
+        "field_map": {
+          "Date": "date",
+          "Party": "reference",
+          "Category": "category",
+          "Subcategory": "account",
+          "Vendor": "vendor",
+          "Description": "description",
+          "Amount": "amount",
+          "Payment": "method",
+          "Tax Ded?": "taxDeductible",
+          "Notes": "notes",
+          "Source": "source"
+        }
+      }
+    },
+    {
+      "id": "chart_of_accounts",
+      "label": "GAAP Chart of Accounts",
+      "smart_import_kind": "chartOfAccount",
+      "source": {
+        "type": "sheet",
+        "tab": "Chart of Accounts",
+        "count": 80,
+        "filecabinet": "Digital-Binders\\coa_full.tsv"
+      },
+      "destination": {
+        "primary_sheet": "Chart of Accounts",
+        "field_map": {
+          "Account #": "num",
+          "Account Name": "name",
+          "Type": "type",
+          "Subtype": "subtype",
+          "Normal Balance": "normalBal",
+          "Form Line": "formLine"
+        }
+      }
+    },
+    {
+      "id": "acct_ledger_creditors",
+      "label": "Creditor account detail",
+      "smart_import_kind": "entity",
+      "source": {
+        "type": "sheet",
+        "tab": "Acct Ledger",
+        "count": 92,
+        "filecabinet": "06-Account-Register\\<39 creditors>\\ + Digital-Binders\\ffs_creditor_detail.tsv"
+      },
+      "destination": {
+        "primary_sheet": "Acct Ledger",
+        "secondary_sheet": "Master Register",
+        "field_map": {
+          "Entity Name": "name",
+          "EIN": "ein",
+          "Acct #": "accountNumber",
+          "Account Type": "accountType",
+          "Status": "status",
+          "Current Balance": "currentBalance"
+        }
+      }
+    },
+    {
+      "id": "valuations",
+      "label": "Asset valuations (1099 uplift)",
+      "smart_import_kind": "asset",
+      "source": {
+        "type": "sheet",
+        "tab": "Valuations",
+        "count": 50,
+        "filecabinet": "09-Valuations\\ + Credit-Reports\\"
+      },
+      "destination": {
+        "primary_sheet": "Valuations",
+        "secondary_sheet": "1099 Filing Chain",
+        "field_map": {
+          "Valuation ID": "id",
+          "Asset Description": "description",
+          "Fair Market Value": "fmv",
+          "Cost Basis": "origBalance",
+          "Gain / (Loss)": "upliftedValue"
+        }
+      }
+    },
+    {
+      "id": "asset_transfers",
+      "label": "Trust corpus transfers",
+      "smart_import_kind": "journalEntry",
+      "source": {
+        "type": "sheet",
+        "tab": "Asset Transfer Log",
+        "count": 25,
+        "filecabinet": "05-Estate & Trust\\"
+      },
+      "destination": {
+        "primary_sheet": "Asset Transfer Log",
+        "journal_sheet": "Journal",
+        "field_map": {
+          "Entry #": "reference",
+          "Date": "date",
+          "Asset Description": "description",
+          "Amount / FMV": "amount",
+          "Journal Entry #": "number"
+        }
+      }
+    },
+    {
+      "id": "payables",
+      "label": "Business obligations (monthly payables)",
+      "smart_import_kind": "payable",
+      "source": {
+        "type": "sheet",
+        "tab": "Business Obligations",
+        "count": 17,
+        "filecabinet": "08-Ledgers\\Vendor-Datasets\\"
+      },
+      "destination": {
+        "primary_sheet": "Business Obligations",
+        "journal_sheet": "Journal",
+        "field_map": {
+          "Vendor": "vendor",
+          "Category": "category",
+          "Subcategory": "subcategory",
+          "Current Monthly": "amount",
+          "Due Day": "dueDay",
+          "Payment Method": "paymentMethod",
+          "Responsible Party": "responsibleParty",
+          "Status": "status",
+          "Notes": "notes"
+        }
+      }
+    },
+    {
+      "id": "expenses_filecabinet",
+      "label": "Expense databases (FileCabinet)",
+      "smart_import_kind": "ledgerEntry",
+      "source": {
+        "type": "files",
+        "path": "C:\\Users\\rhyme\\Desktop\\FileCabinet\\08-Ledgers\\Expenses\\",
+        "files": [
+          "Clint_2025_Expenses_Database.numbers",
+          "Wimberly_Master_Transaction_Database.numbers",
+          "clint_2025_sheet0_table0.csv",
+          "master_tx_sheet0_table0.csv",
+          "syek_2024.csv"
+        ],
+        "count": 15
+      },
+      "destination": {
+        "primary_sheet": "Transaction Ledger",
+        "journal_sheet": "Journal"
+      }
+    },
+    {
+      "id": "receipts",
+      "label": "Service/subscription receipts",
+      "smart_import_kind": "ledgerEntry",
+      "source": {
+        "type": "files",
+        "path": "C:\\Users\\rhyme\\Desktop\\FileCabinet\\00-Receipts-Invoices\\",
+        "subdirs": [
+          "Anthropic",
+          "OpenAI",
+          "deepseek",
+          "E-Comm",
+          "Living Expenses"
+        ],
+        "count": 88
+      },
+      "destination": {
+        "primary_sheet": "Transaction Ledger",
+        "journal_sheet": "Journal"
+      }
+    },
+    {
+      "id": "tax_forms",
+      "label": "Tax forms & EIN",
+      "smart_import_kind": "filing",
+      "source": {
+        "type": "sheet",
+        "tab": "Tax Forms",
+        "count": 18,
+        "filecabinet": "04-Taxes\\"
+      },
+      "destination": {
+        "primary_sheet": "Tax Forms",
+        "secondary_sheet": "Schedule A"
+      }
+    }
+  ],
+  "gaps": [
+    {
+      "id": "gap_full_bank_journal",
+      "note": "13,809 bank transactions exist as CSVs but only 229 JEs are posted; full bank → Journal posting is the remaining lift",
+      "severity": "high"
+    },
+    {
+      "id": "gap_truist_thin",
+      "note": "Truist trust account has only 10 CSV rows despite being the primary operating account; statements likely under-extracted",
+      "severity": "medium"
+    },
+    {
+      "id": "gap_truist_subledger",
+      "note": "Ledgers (TLE) has BOA/PNC/CapOne periods but no Truist trust sub-ledger",
+      "severity": "medium"
+    },
+    {
+      "id": "gap_valuation_backing",
+      "note": "Valuations cite credit-report charges but 09-Valuations/ holds only 3 images; backing docs live in Credit-Reports/ + 06-Account-Register/",
+      "severity": "low"
+    }
+  ]
+}

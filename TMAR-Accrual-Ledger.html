@@ -34623,7 +34623,17 @@ function ev2InitEntityVerifier() {
   function _normalizeEntityType(gasType) {
     if (!gasType && gasType !== 0) return '';
     var s = String(gasType).toLowerCase().trim();
-    return _gasTypeToEntityType[s] || s;
+    if (_gasTypeToEntityType[s]) return _gasTypeToEntityType[s];
+    // Keyword fallback for uncatalogued types — guarantees every sheet accountType
+    // resolves to a valid entity type (no raw-string leakage into the Entities tree).
+    if (/trust/.test(s)) return 'trust';
+    if (/nonprofit|college|university|foundation|school|club/.test(s)) return 'nonprofit';
+    if (/estate/.test(s)) return 'estate';
+    if (/partnership/.test(s)) return 'partnership';
+    if (/government|social security|internal revenue|department of/.test(s)) return 'parent';
+    if (/employment|employer|w-2|w2/.test(s)) return 'parent';
+    if (/sole prop|sole proprietor/.test(s)) return 'soleProp';
+    return 'subsidiary'; // accounts, creditors, vendors, utilities, loans, cards
   }
 
   function applyPullAccounts(remoteData) {
@@ -34651,6 +34661,7 @@ function ev2InitEntityVerifier() {
           name: item.name || '',
           ein: '', // EINs come masked from server — don't store masked values
           type: _normalizeEntityType(item.accountType),
+          accountType: item.accountType || '',   // preserve original sheet type for lossless round-trip
           parentId: null,
           ownership: 100,
           fye: 12,
@@ -34707,8 +34718,9 @@ function ev2InitEntityVerifier() {
 
     var added = 0;
     remoteData.forEach(function(item) {
-      var debitNum = parseFloat(item.debit) || 0;
-      var creditNum = parseFloat(item.credit) || 0;
+      var amt = parseFloat(item.amount) || 0;
+      var debitNum = amt > 0 ? amt : 0;
+      var creditNum = amt < 0 ? -amt : 0;
       var key = (item.date || '') + '|' + (item.description || '') + '|' + debitNum + '|' + creditNum;
       var hash = syncHash(key);
       if (!existingHashes[hash]) {
@@ -34723,6 +34735,7 @@ function ev2InitEntityVerifier() {
           method: item.method || '',
           reference: item.reference || '',
           vendor: item.vendor || '',
+          taxDeductible: item.taxDeductible || '',
           notes: (item.notes || '') + ' [Pulled from Sheet]',
           source: 'Google Sheets'
         });
@@ -34838,7 +34851,7 @@ function ev2InitEntityVerifier() {
     return entities.map(function(e) {
       return {
         name: e.name || '',
-        type: _entityTypeToGasType[e.type] || e.type || '',
+        accountType: e.accountType || _entityTypeToGasType[e.type] || e.type || '',
         subtype: e.subtype || '',
         accountNumber: e.accountNumber || '',
         status: e.status || 'Active',
@@ -34851,19 +34864,25 @@ function ev2InitEntityVerifier() {
   // Prepare transactions for GAS push — ensure debit/credit are numbers
   function _prepTransactionsForPush(entries) {
     return entries.map(function(t) {
+      var debit = parseFloat(t.debit) || 0;
+      var credit = parseFloat(t.credit) || 0;
       return {
         date: t.date || '',
-        description: t.description || '',
+        reference: t.reference || '',
         category: t.category || '',
         account: t.account || '',
-        debit: parseFloat(t.debit) || 0,
-        credit: parseFloat(t.credit) || 0,
-        method: t.method || '',
-        reference: t.reference || '',
         vendor: t.vendor || '',
+        description: t.description || '',
+        amount: (debit || credit) ? (debit - credit) : '',
+        method: t.method || '',
+        acctType: t.acctType || '',
+        status: t.status || '',
         taxDeductible: t.taxDeductible || '',
-        receipt: t.receipt || '',
-        notes: t.notes || ''
+        bizUsePct: t.bizUsePct || '',
+        dueDay: t.dueDay || '',
+        recurring: t.recurring || '',
+        notes: (t.notes || '').replace(' [Pulled from Sheet]', ''),
+        source: t.source || ''
       };
     });
   }
@@ -50639,6 +50658,7 @@ window.downloadFactoryDocx = downloadFactoryDocx;
   function _id(){ return Date.now() + Math.floor(Math.random()*1e6); }
   function _entityNorm(d){ return Object.assign({ id:_id(), type:'business', status:'Active', ownership:100, fye:12, country:'US', importSource:'smart-import', importDate:new Date().toISOString() }, d); }
   function _genericNorm(d){ d=d||{}; return Object.assign({ id: d.id || _id() }, d); }
+  function _filingsNorm(d){ d=d||{}; d.formType = d.formType || d.type || d.kind || '1099-MISC'; if(!d.id) d.id = d.formType + '-' + (d.taxYear||d.date||d.assetId||d.name||'') + '-' + Math.random().toString(36).slice(2,8); return d; }
   var REG = {
     entity:        { target:'appData', arr:'entities',        keys:['accountNumber','name'],     norm:_entityNorm,  label:'Entity / Account' },
     chartOfAccount:{ target:'appData', arr:'chartOfAccounts', keys:['name','num'],               norm:_genericNorm, label:'Chart-of-Accounts line' },
@@ -50646,7 +50666,7 @@ window.downloadFactoryDocx = downloadFactoryDocx;
     receivable:    { target:'appData', arr:'receivables',     keys:['id','invoiceNo'],           norm:_genericNorm, label:'Receivable' },
     journalEntry:  { target:'appData', arr:'journalEntries',  keys:['id'],                       norm:_genericNorm, label:'Journal entry' },
     ledgerEntry:   { target:'appData', arr:'ledgerEntries',   keys:['id'],                       norm:_genericNorm, label:'Ledger entry' },
-    filing:        { target:'appData', arr:'filings',         keys:['id'],                       norm:_genericNorm, label:'Filing' },
+    filing:        { target:'filingsMap',                      keys:['id'],                       norm:_filingsNorm,  label:'Filing' },
     asset:         { target:'assets',                          keys:['vin','last4'],             norm:_genericNorm, label:'Asset / Vehicle' },
     spv:           { target:'spv',                             keys:['spvName','date','amount'], norm:_genericNorm, label:'SPV entry' }
   };
@@ -50678,15 +50698,22 @@ window.downloadFactoryDocx = downloadFactoryDocx;
       if(!kind){ summary.errors.push('Unknown kind: '+JSON.stringify(r.kind)); return; }
       var cfg=REG[kind]; summary.byKind[kind]=summary.byKind[kind]||{added:0,skipped:0,label:cfg.label};
       try{
+        var rec=cfg.norm(r.data||{});
         var list;
         if(cfg.target==='appData'){ if(typeof appData!=='object'||!appData) throw new Error('appData unavailable'); list=(appData[cfg.arr]=appData[cfg.arr]||[]); }
         else if(cfg.target==='assets'){ list=_assets(); }
+        else if(cfg.target==='spv'){ list=_spv().entries; }
+        else if(cfg.target==='filingsMap'){
+          if(typeof appData!=='object'||!appData) throw new Error('appData unavailable');
+          if(!appData.filings || typeof appData.filings!=='object' || Array.isArray(appData.filings)) appData.filings={};
+          var ft=rec.formType||'1099-MISC';
+          list=(appData.filings[ft]=appData.filings[ft]||[]);
+        }
         else { list=_spv().entries; }
-        var rec=cfg.norm(r.data||{});
         var key=_dk(rec, cfg.keys);
         if(key && !opts.allowDuplicates && list.some(function(x){ return _dk(x,cfg.keys)===key; })){ summary.skipped++; summary.byKind[kind].skipped++; return; }
         list.push(rec); summary.added++; summary.byKind[kind].added++;
-        if(cfg.target==='appData') touchApp=true;
+        if(cfg.target==='appData' || cfg.target==='filingsMap') touchApp=true;
       }catch(e){ summary.errors.push(kind+': '+((e&&e.message)||e)); }
     });
     if(touchApp && typeof saveToStorage==='function') saveToStorage();

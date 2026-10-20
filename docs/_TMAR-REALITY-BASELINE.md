@@ -4,15 +4,15 @@
 > This file is the machine-readable snapshot of the *current* TMAR reality that other
 > docs are reconciled against. When code changes, re-run the extractor and re-scan docs.
 
-**Generated:** 2026-10-15
-**App:** `TMAR-Accrual-Ledger.html` — 4,168,548 bytes (~4.17 MB), 61,388 lines
+**Generated:** 2026-10-19
+**App:** `TMAR-Accrual-Ledger.html` — 4,170,457 bytes (~4.17 MB), 61,415 lines
 **Title:** TMAR Universal Accrual Ledger
 
 ---
 
 ## 1. Workbook (Google Sheets)
 
-28 visible tabs across 12 HUB sections (source of truth: `gas/WorkbookReorg.gs` → `HUB_SECTIONS_`):
+27 visible tabs across 11 HUB sections (source of truth: `gas/WorkbookReorg.gs` → `HUB_SECTIONS_`):
 
 | Section | Visible tabs |
 |---|---|
@@ -26,7 +26,6 @@
 | Trust Instruments | 📜 Trustee Resolutions · 📦 Asset Transfer Log |
 | Documents | Document Inventory · Document Registry |
 | Business | Business Obligations · Subscriptions & Services |
-| Filing System | FWM — Master Index |
 | Reference | AppScripts · Validation |
 
 NOTE: total tab count (incl. hidden) is workbook runtime state, not derivable from the
@@ -34,10 +33,10 @@ repo. `listWorkbookTabs` returns the live count; the standing figure is 57 (28 v
 
 ---
 
-## 2. GAS Web App — 89 doGet/doPost actions
+## 2. GAS Web App — 105 doGet/doPost actions
 
 
-`analyzeDuplicates · appendToArchive · applyVisualStandard · archiveTabs · consolidateGuides · dedupeMasterRegister · deleteCreditorDetail · deleteForm1040 · deleteMasterRegister · deletePrincipalRegister · deleteWebsiteAccounts · dumpCanvasBoard · embedAppScriptsLinks · enrichMasterRegister · finalizeWorkbookReorg · foldScriptExecutions · fullSync · hyperlinkProviderColumn · importAdminForms · importForm1040 · importForm2848 · importForm8275R · importSchedule1 · importSchedule2 · importScheduleA · importSubstituteW2 · importWorksheetData · installConsolidationTrigger · listExternalTabs · listRunnableFunctions · listSheetTabs · listTriggers · listWorkbookTabs · mergeCreditorData · mergeValidation · ping · pruneGuides · pull1099 · pullAccounts · pullAdminForms · pullChartOfAccounts · pullContacts · pullExternalTab · pullForm1040 · pullForm2848 · pullForm8275R · pullJournalEntries · pullObligations · pullPrincipalRegister · pullRawTab · pullReceivables · pullSchedule1 · pullSchedule2 · pullScheduleA · pullSubstituteW2 · pullTransactions · pullValidation · pullWebsiteAccounts · pullWorkbookSheets · pullWorksheetData · push1099 · pushAppScriptsInventory · pushCashFlow · pushChartOfAccounts · pushContacts · pushCreditScorecard · pushCreditorDetail · pushDocumentInventory · pushEntities · pushJournalEntries · pushPayables · pushPrincipalRegister · pushReceivables · pushRegistryScan · pushScriptExecutions · pushTransactions · pushWebsiteAccounts · rebuildObligationsPivot · rebuildSubscriptions · recomputeObligationsPivotTotals · refreshProofOfMailing · refreshScriptExecutions · removeConsolidationTrigger · replaceSubscriptions · runConsolidationNow · runFunction · runWorkbookMerge · updateMasterRegister · updateObligationCategories`
+`analyzeDuplicates · appendToArchive · applyMasterRegisterSpec · applyStandardHeader · applyVisualStandard · archiveTabs · backfillAuditAccounts · backfillTINRegistry · buildExternalTabs · clearBalanceValidation · consolidateGuides · dedupeAcctLedger · dedupeMasterRegister · deleteCreditorDetail · deleteForm1040 · deleteMasterRegister · deletePrincipalRegister · deleteSheetsByName · deleteWebsiteAccounts · dumpCanvasBoard · embedAppScriptsLinks · enrichMasterRegister · finalizeAcctLedger · finalizeWorkbookReorg · finishRegisterSplit · foldFinalize · foldScriptExecutions · fullSync · hyperlinkProviderColumn · importAdminForms · importForm1040 · importForm2848 · importForm8275R · importSchedule1 · importSchedule2 · importScheduleA · importSubstituteW2 · importWorksheetData · installConsolidationTrigger · listExternalTabs · listRunnableFunctions · listSheetTabs · listSheetTabsMeta · listTriggers · listWorkbookTabs · mergeCreditorData · mergeMasterRegisterFast · mergeValidation · ping · pruneGuides · pull1099 · pullAccounts · pullAdminForms · pullChartOfAccounts · pullContacts · pullExternalTab · pullForm1040 · pullForm2848 · pullForm8275R · pullJournalEntries · pullObligations · pullPrincipalRegister · pullRawTab · pullReceivables · pullSchedule1 · pullSchedule2 · pullScheduleA · pullSubstituteW2 · pullTransactions · pullValidation · pullWebsiteAccounts · pullWorkbookSheets · pullWorksheetData · push1099 · pushAppScriptsInventory · pushCashFlow · pushChartOfAccounts · pushContacts · pushCreditScorecard · pushCreditorDetail · pushDocumentInventory · pushEntities · pushJournalEntries · pushPayables · pushPrincipalRegister · pushReceivables · pushRegistryScan · pushScriptExecutions · pushTransactions · pushWebsiteAccounts · rebuildObligationsPivot · rebuildSubscriptions · recomputeObligationsPivotTotals · refreshProofOfMailing · refreshScriptExecutions · remapMasterRegister · removeConsolidationTrigger · renameSheet · replaceSubscriptions · restoreSheets · runConsolidationNow · runFunction · runWorkbookMerge · updateMasterRegister · updateObligationCategories`
 
 ---
 
