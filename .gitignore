@@ -60,6 +60,9 @@ scripts/.tmar-gas-key
 # OpenAI Codex workspace config (local dev environment)
 .codex/
 
+# Serena MCP per-project state (auto-generated tool config + agent memories)
+.serena/
+
 # Merge artifacts and pre-dedup backups
 TMAR-Accrual-Ledger-merged.html
 *.bak-predeup
