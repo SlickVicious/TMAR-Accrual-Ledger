@@ -1406,6 +1406,9 @@ function doPost(e) {
       case 'fixCreditorDetailHeader':
         return jsonResponse_(fixCreditorDetailHeader_(ss));
 
+      case 'foldCreditorDetailIntoMaster':
+        return jsonResponse_(foldCreditorDetailIntoMaster_(ss, payload));
+
       case 'runFunction': {
         if (!payload.functionName || typeof payload.functionName !== 'string') {
           return errorResponse_('runFunction requires a "functionName" field');
