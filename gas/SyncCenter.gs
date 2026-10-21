@@ -1554,6 +1554,23 @@ function doPost(e) {
         return jsonResponse_(fwaResult);
       }
 
+      case 'buildMasterIndex': {
+        var bmiResult = buildMasterIndex_(ss);
+        return jsonResponse_(bmiResult);
+      }
+
+      case 'restoreMasterRegister': {
+        var rrName = payload.backupName || '';
+        if (!rrName) return errorResponse_('Provide backupName');
+        var rrResult = restoreMasterRegister_(ss, rrName);
+        return jsonResponse_(rrResult);
+      }
+
+      case 'peekMR': {
+        var peekResult = peekMR_(ss);
+        return jsonResponse_(peekResult);
+      }
+
       case 'restructureMasterRegister': {
         var rmResult = restructureMasterRegister_(ss);
         updateSyncTimestamp_(ss, 'Master Register', 'restructure');
