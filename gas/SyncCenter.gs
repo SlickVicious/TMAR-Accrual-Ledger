@@ -1565,6 +1565,11 @@ function doPost(e) {
         return jsonResponse_(cwResult);
       }
 
+      case 'mergeVendorNames': {
+        var mvResult = mergeVendorNames_(ss);
+        return jsonResponse_(mvResult);
+      }
+
       case 'hyperlinkProviderColumn': {
         var links = Array.isArray(payload.mappings) ? payload.mappings : [];
         if (links.length === 0) return errorResponse_('Provide mappings (array of {name, url})');

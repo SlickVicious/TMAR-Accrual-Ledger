@@ -51,3 +51,29 @@ function cleanupWorkbook_(ss) {
     hiddenCount: hidden.length
   };
 }
+
+/**
+ * Merge the specific vendor names (from the Master Register entities) onto the
+ * canonical Business Obligations bill rows that still carry generic names.
+ */
+function mergeVendorNames_(ss) {
+  var bo = ss.getSheetByName('Business Obligations');
+  if (!bo) return { status: 'error', message: 'Business Obligations not found' };
+  var RENAMES = {
+    'Landlord': 'SDHC Property Rentals',
+    'Internet Provider': 'Internet Provider (Spectrum)',
+    'Gas Company': 'Gas Company (Piedmont)',
+    'Life Ins Co': 'Life Insurance Co'
+  };
+  var lastRow = bo.getLastRow();
+  var vals = bo.getRange(1, 1, lastRow, 1).getValues();
+  var renamed = [];
+  for (var i = 0; i < vals.length; i++) {
+    var v = String(vals[i][0] || '').trim();
+    if (RENAMES[v]) {
+      bo.getRange(i + 1, 1).setValue(RENAMES[v]);
+      renamed.push(v + ' -> ' + RENAMES[v]);
+    }
+  }
+  return { status: 'ok', action: 'mergeVendorNames', renamed: renamed, count: renamed.length };
+}
