@@ -1541,6 +1541,14 @@ function doPost(e) {
         return jsonResponse_(btrResult);
       }
 
+      case 'updateTINRegistry': {
+        var utV = validatePayload_(payload.rows, ['name']);
+        if (!utV.valid) return errorResponse_(utV.message);
+        var utResult = updateTINRegistry_(ss, payload.rows);
+        updateSyncTimestamp_(ss, 'TIN Registry', 'update');
+        return jsonResponse_(utResult);
+      }
+
       case 'hyperlinkProviderColumn': {
         var links = Array.isArray(payload.mappings) ? payload.mappings : [];
         if (links.length === 0) return errorResponse_('Provide mappings (array of {name, url})');
@@ -3321,6 +3329,7 @@ function updateMasterRegister_(ss, rows) {
     if (!target) { notFound++; continue; }
 
     if (row.provider !== undefined)        sheet.getRange(target, 3).setValue(String(row.provider));         // C
+    if (row.ein !== undefined)             sheet.getRange(target, 4).setValue(String(row.ein));              // D
     if (row.accountNumber !== undefined)   sheet.getRange(target, 5).setValue(String(row.accountNumber));    // E
     if (row.accountType !== undefined)     sheet.getRange(target, 6).setValue(String(row.accountType));     // F
     if (row.accountSubtype !== undefined)  sheet.getRange(target, 7).setValue(String(row.accountSubtype));  // G
@@ -3930,6 +3939,48 @@ function backfillTINRegistry_(ss) {
 
   SpreadsheetApp.flush();
   return { status: 'ok', action: 'backfillTINRegistry', added: added, skipped: skipped };
+}
+
+
+/**
+ * Update existing TIN Registry rows by Acct Name (col C) or EIN (col A).
+ * Surgical EIN/name correction (e.g. Destiny re-point from First Bank of
+ * Delaware to First Electronic Bank). Writes EIN (col A) + name (col C) only;
+ * address/phone untouched.
+ * @param {Array<Object>} rows - [{name?, ein?, newEin?, newName?}]
+ */
+function updateTINRegistry_(ss, rows) {
+  var sheet = ss.getSheetByName('TIN Registry');
+  if (!sheet) return { status: 'error', action: 'updateTINRegistry', message: 'TIN Registry tab not found' };
+
+  var lastRow = sheet.getLastRow();
+  var nameMap = {}, einMap = {};
+  if (lastRow > 0) {
+    var colA = sheet.getRange(1, 1, lastRow, 1).getValues();
+    var colC = sheet.getRange(1, 3, lastRow, 1).getValues();
+    for (var i = 0; i < lastRow; i++) {
+      var ein = String(colA[i][0] || '').trim();
+      var nm = String(colC[i][0] || '').trim();
+      if (nm) nameMap[nm.toLowerCase()] = i + 1;
+      if (ein) einMap[ein] = i + 1;
+    }
+  }
+
+  var updated = 0, notFound = 0, skipped = 0;
+  for (var r = 0; r < rows.length; r++) {
+    var row = rows[r];
+    var target = null;
+    if (row.name) target = nameMap[String(row.name).trim().toLowerCase()];
+    else if (row.ein) target = einMap[String(row.ein).trim()];
+    if (!target) { notFound++; continue; }
+
+    if (row.newEin !== undefined)   sheet.getRange(target, 1).setValue(String(row.newEin));   // A = TIN/EIN
+    if (row.newName !== undefined)  sheet.getRange(target, 3).setValue(String(row.newName));  // C = Acct Name / Type
+    updated++;
+  }
+
+  SpreadsheetApp.flush();
+  return { status: 'ok', action: 'updateTINRegistry', updated: updated, notFound: notFound, skipped: skipped };
 }
 
 
