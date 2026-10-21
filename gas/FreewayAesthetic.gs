@@ -27,6 +27,14 @@ var FWV_COLORS_ = {
 var FWV_MAX_ROW_ = 500;
 var FWV_MAX_COL_ = 40;
 
+// sheets to leave untouched by applyFreewayAesthetic_ (bespoke layout or non-tabular)
+var FWV_SKIP_ = [
+  'Master Register',                      // already sectioned with green banners
+  'AppScripts Canvas & Workflow Board',   // object canvas, not a data table
+  '📋 HUB INDEX',                          // navigation hub
+  '📋 Dashboard'                           // dashboard
+];
+
 function fwvTabColor_(name) {
   var n = name.toLowerCase();
   if (/hub|dashboard|summary|index|tin registry|chart of accounts|cover/.test(n)) return FWV_COLORS_.NAVY;
@@ -41,11 +49,14 @@ function fwvHeaderRow_(sheet) {
   var n = Math.min(sheet.getLastRow(), 8);
   var lastCol = Math.max(sheet.getLastColumn(), 1);
   var vals = sheet.getRange(1, 1, n, lastCol).getValues();
+  // The header is the first row with >= 3 non-empty cells.
+  // Title (row 1) and description (row 2) carry only 1 cell (col A).
   for (var r = 0; r < vals.length; r++) {
-    var a = String(vals[r][0] || '').trim().toUpperCase();
-    if (/^(TAB #|ENTRY|TIN|EIN|DATE|CREDITOR|BINDER|CATEGORY|PAYER|METRIC|FUNCTION|ACCOUNT|OBLIGOR|VENDOR|STATUS|DESCRIPTION|EMPLOYER|ENTITY)/.test(a)) {
-      return r + 1;
+    var count = 0;
+    for (var c = 0; c < vals[r].length; c++) {
+      if (vals[r][c] !== null && vals[r][c] !== undefined && String(vals[r][c]).trim() !== '') count++;
     }
+    if (count >= 3) return r + 1;
   }
   return 1;
 }
@@ -59,6 +70,8 @@ function applyFreewayAesthetic_(ss) {
     var name;
     try { name = sheet.getName(); } catch (e) { continue; }
     if (sheet.isSheetHidden() || name.indexOf('_') === 0) { skipped.push(name); continue; }
+    // skip sheets already carrying a bespoke sectioned layout (Master Register) or non-tabular canvases
+    if (FWV_SKIP_.indexOf(name) !== -1) { skipped.push(name + ' (skip)'); continue; }
 
     var maxRow = 0, maxCol = 0;
     try {
@@ -70,25 +83,50 @@ function applyFreewayAesthetic_(ss) {
     try { sheet.setTabColor(fwvTabColor_(name)); } catch (e) { errors.push(name + ':tab'); }
     try { sheet.setHiddenGridlines(true); } catch (e) { errors.push(name + ':grid'); }
 
-    // base: Arial 10pt
-    try { sheet.getRange(1, 1, maxRow, maxCol).setFontFamily('Arial').setFontSize(10); } catch (e) { errors.push(name + ':base'); }
+    // base: reset formatting to clean white/black Arial 10pt
+    try {
+      sheet.getRange(1, 1, maxRow, maxCol)
+        .setFontFamily('Arial').setFontSize(10)
+        .setFontWeight('normal').setFontStyle('normal')
+        .setFontColor('#000000').setBackground('#FFFFFF');
+    } catch (e) { errors.push(name + ':reset'); }
 
     var hr = fwvHeaderRow_(sheet);
-    // header: 11pt bold white on navy
-    try {
-      sheet.getRange(hr, 1, 1, maxCol).setBackground(FWV_COLORS_.NAVY).setFontColor(FWV_COLORS_.WHITE).setFontWeight('bold').setFontSize(11);
-      if (sheet.getFrozenRows() === 0) sheet.setFrozenRows(hr);
-    } catch (e) { errors.push(name + ':header'); }
+    if (hr === 1) {
+      // "title in col A + headers in cols B+" layout (cash-flow sheets)
+      var a1txt = String(sheet.getRange(1, 1).getValue() || '').trim();
+      if (a1txt.length > 20 && maxCol > 1) {
+        try {
+          sheet.getRange(1, 1).setFontSize(16).setFontWeight('bold').setFontColor(FWV_COLORS_.NAVY).setBackground('#FFFFFF');
+          sheet.getRange(1, 2, 1, maxCol - 1).setBackground(FWV_COLORS_.NAVY).setFontColor(FWV_COLORS_.WHITE).setFontWeight('bold').setFontSize(11);
+        } catch (e) { errors.push(name + ':header1'); }
+      } else {
+        try {
+          sheet.getRange(1, 1, 1, maxCol).setBackground(FWV_COLORS_.NAVY).setFontColor(FWV_COLORS_.WHITE).setFontWeight('bold').setFontSize(11);
+        } catch (e) { errors.push(name + ':header1b'); }
+      }
+    } else {
+      // header: 11pt bold white on navy
+      try {
+        sheet.getRange(hr, 1, 1, maxCol).setBackground(FWV_COLORS_.NAVY).setFontColor(FWV_COLORS_.WHITE).setFontWeight('bold').setFontSize(11);
+        if (sheet.getFrozenRows() === 0) sheet.setFrozenRows(hr);
+      } catch (e) { errors.push(name + ':header'); }
 
-    // title: 16pt bold navy (row 1, only if it is not itself the header)
-    try {
-      if (hr > 1) sheet.getRange(1, 1, 1, 1).setFontSize(16).setFontWeight('bold').setFontColor(FWV_COLORS_.NAVY);
-    } catch (e) { errors.push(name + ':title'); }
+      // title: 16pt bold navy (row 1)
+      try {
+        sheet.getRange(1, 1, 1, 1).setFontSize(16).setFontWeight('bold').setFontColor(FWV_COLORS_.NAVY);
+      } catch (e) { errors.push(name + ':title'); }
+
+      // description rows between title and header: gray (FMV subtitle)
+      try {
+        if (hr > 2) sheet.getRange(2, 1, hr - 2, 1).setFontColor(FWV_COLORS_.DARKGRAY);
+      } catch (e) { errors.push(name + ':desc'); }
+    }
 
     // generous first-column width
     try { sheet.setColumnWidth(1, 45); } catch (e) {}
 
-    applied.push(name);
+    applied.push(name + ' (hr=' + hr + ')');
   }
   return {
     status: 'ok', action: 'applyFreewayAesthetic',
@@ -240,4 +278,38 @@ function peekMR_(ss) {
     out.push('r' + r + ' | A="' + a.slice(0, 40) + '" | C="' + c.slice(0, 24) + '"');
   }
   return { status: 'ok', lastRow: mr.getLastRow(), peek: out };
+}
+
+// ---- read-only peek at ANY sheet's physical rows 1-8 (shows blank rows + non-empty count) ----
+function peekSheet_(ss, name) {
+  var sh = ss.getSheetByName(name);
+  if (!sh) return { status: 'error', message: 'Sheet not found: ' + name };
+  var lastCol = Math.max(sh.getLastColumn(), 1);
+  var vals = sh.getRange(1, 1, 8, lastCol).getValues();
+  var out = [];
+  for (var r = 0; r < vals.length; r++) {
+    var count = 0;
+    for (var c = 0; c < vals[r].length; c++) {
+      if (vals[r][c] !== null && vals[r][c] !== undefined && String(vals[r][c]).trim() !== '') count++;
+    }
+    out.push('r' + (r + 1) + ' (' + count + ') A="' + String(vals[r][0] || '').slice(0, 32) + '" B="' + String(vals[r][1] || '').slice(0, 20) + '"');
+  }
+  return { status: 'ok', sheet: name, peek: out };
+}
+
+// ---- fix the Journal's corrupted header (a stray ";" was left where the header belongs) ----
+function fixJournalHeader_(ss) {
+  var j = ss.getSheetByName('Journal');
+  if (!j) return { status: 'error', message: 'Journal not found' };
+  var a1 = String(j.getRange(1, 1).getValue() || '').trim();
+  var looksJunk = (a1 === '' || a1 === ';' || a1.charAt(0) === ';');
+  if (!looksJunk) return { status: 'ok', action: 'fixJournalHeader', fixed: false, a1: a1.slice(0, 20) };
+
+  // insert 2 rows at top (title + description), then a header row; data shifts down
+  j.insertRows(1, 2);
+  j.getRange(1, 1).setValue('JOURNAL — GENERAL LEDGER');
+  j.getRange(2, 1).setValue('Chronological double-entry journal (debit/credit pairs)');
+  var hdr = ['JE#', 'Date', 'Party', 'Category', 'Description', 'Account', 'Debit', 'Credit'];
+  j.getRange(3, 1, 1, hdr.length).setValues([hdr]);
+  return { status: 'ok', action: 'fixJournalHeader', fixed: true };
 }

@@ -1571,6 +1571,17 @@ function doPost(e) {
         return jsonResponse_(peekResult);
       }
 
+      case 'peekSheet': {
+        var psName = payload.sheet || '';
+        if (!psName) return errorResponse_('Provide sheet');
+        return jsonResponse_(peekSheet_(ss, psName));
+      }
+
+      case 'fixJournalHeader': {
+        var fjhResult = fixJournalHeader_(ss);
+        return jsonResponse_(fjhResult);
+      }
+
       case 'restructureMasterRegister': {
         var rmResult = restructureMasterRegister_(ss);
         updateSyncTimestamp_(ss, 'Master Register', 'restructure');
