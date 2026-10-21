@@ -1549,6 +1549,11 @@ function doPost(e) {
         return jsonResponse_(utResult);
       }
 
+      case 'applyFreewayAesthetic': {
+        var fwaResult = applyFreewayAesthetic_(ss);
+        return jsonResponse_(fwaResult);
+      }
+
       case 'hyperlinkProviderColumn': {
         var links = Array.isArray(payload.mappings) ? payload.mappings : [];
         if (links.length === 0) return errorResponse_('Provide mappings (array of {name, url})');
