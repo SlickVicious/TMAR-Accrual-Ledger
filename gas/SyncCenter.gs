@@ -1560,6 +1560,11 @@ function doPost(e) {
         return jsonResponse_(rmResult);
       }
 
+      case 'cleanupWorkbook': {
+        var cwResult = cleanupWorkbook_(ss);
+        return jsonResponse_(cwResult);
+      }
+
       case 'hyperlinkProviderColumn': {
         var links = Array.isArray(payload.mappings) ? payload.mappings : [];
         if (links.length === 0) return errorResponse_('Provide mappings (array of {name, url})');
