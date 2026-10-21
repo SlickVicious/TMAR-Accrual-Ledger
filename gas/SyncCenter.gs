@@ -1554,6 +1554,12 @@ function doPost(e) {
         return jsonResponse_(fwaResult);
       }
 
+      case 'restructureMasterRegister': {
+        var rmResult = restructureMasterRegister_(ss);
+        updateSyncTimestamp_(ss, 'Master Register', 'restructure');
+        return jsonResponse_(rmResult);
+      }
+
       case 'hyperlinkProviderColumn': {
         var links = Array.isArray(payload.mappings) ? payload.mappings : [];
         if (links.length === 0) return errorResponse_('Provide mappings (array of {name, url})');
