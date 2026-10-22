@@ -472,9 +472,9 @@ function importLedger1099s(filings) {
 // merged-book ID — every reference below (and across this file) follows automatically.
 // ═══════════════════════════════════════════════════════════════════════════
 var TMAR_CONFIG = {
-  liveBookId:    '1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ', // TMAR — Web App context (Master Register, ledgers; menu + sync target). Form imports write here.
-  sourceBookId:  '1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ', // = liveBookId. Old Wimberly source (1CYg4fwQ…) was DELETED 2026-06-27 → folded into Live; pulls now read the same book imports write to.
-  appcHubId:     '1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ', // = liveBookId. APPC hub (1Ac5A…) folded into Live 2026-06-27 (MigrateAppcToLive.gs); its TMAR—/FWM— tabs now read from Live.
+  liveBookId:    '1aj86dabbSV5lcK-RvGvjBi98RsmgTM8To9AD2X9ks1k', // TMAR — Web App context (Master Register, ledgers; menu + sync target). Form imports write here.
+  sourceBookId:  '1aj86dabbSV5lcK-RvGvjBi98RsmgTM8To9AD2X9ks1k', // = liveBookId. Old Wimberly source (1CYg4fwQ…) was DELETED 2026-06-27 → folded into Live; pulls now read the same book imports write to.
+  appcHubId:     '1aj86dabbSV5lcK-RvGvjBi98RsmgTM8To9AD2X9ks1k', // = liveBookId. APPC hub (1Ac5A…) folded into Live 2026-06-27 (MigrateAppcToLive.gs); its TMAR—/FWM— tabs now read from Live.
   archiveBookId: '1kbulI33th8uOmrumj7RkiJ8aqZs48gqzujrXUmNRjk8', // Freeway 2025 — LEGACY, read-only Archive (never write)
   execUrl:       'https://script.google.com/macros/s/AKfycbzpeegvE52lvqCTMyKrsdaa_4JFfjM6MQrsJkU8zb17fkUJzPRasUU0fjONdaHkM5dh/exec'
 };
@@ -1812,6 +1812,13 @@ function doPost(e) {
         return jsonResponse_(showSheets_(sId, sShow));
       }
 
+      case 'archiveWorkbook': {
+        var awId = payload.spreadsheetId ? String(payload.spreadsheetId) : '';
+        var awName = payload.newName ? String(payload.newName) : ('TMAR_Archive_' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyyMMdd'));
+        if (!awId) return errorResponse_('archiveWorkbook requires spreadsheetId');
+        return jsonResponse_(archiveWorkbook_(awId, awName));
+      }
+
       case 'pushCreditScorecard': {
         if (!payload.scorecard || typeof payload.scorecard !== 'object') {
           return errorResponse_('pushCreditScorecard requires a "scorecard" object {asOf, sourceNote, metrics, notes}');
@@ -1840,6 +1847,10 @@ function doPost(e) {
         var frHub = regenerateHubIndex_(ss);
         updateSyncTimestamp_(ss, 'Master Register', 'push');
         return jsonResponse_({ status: 'ok', action: 'finalizeWorkbookReorg', reorg: frReorg, hubIndex: frHub });
+      }
+
+      case 'rebuildHubIndex': {
+        return jsonResponse_({ status: 'ok', action: 'rebuildHubIndex', hubIndex: regenerateHubIndex_(ss) });
       }
 
       case 'consolidateGuides': {
@@ -4925,5 +4936,15 @@ function showSheets_(sheetId, showNames) {
   });
   SpreadsheetApp.flush();
   return { status: 'ok', action: 'showSheets', spreadsheetId: sheetId, shown: shown, notFound: notFound };
+}
+
+function archiveWorkbook_(spreadsheetId, newName) {
+  try {
+    var book = SpreadsheetApp.openById(spreadsheetId);
+    book.rename(newName);
+    return { status: 'ok', action: 'archiveWorkbook', spreadsheetId: spreadsheetId, newName: newName, url: book.getUrl() };
+  } catch (e) {
+    return { status: 'error', action: 'archiveWorkbook', spreadsheetId: spreadsheetId, message: String(e).slice(0, 200) };
+  }
 }
 
