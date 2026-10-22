@@ -55,7 +55,7 @@ function showLedgerImportDialog() {
       <div class="section-title">Import Type</div>
       <select id="importType">
         <option value="entities">Entities → Master Register</option>
-        <option value="transactions">Ledger Entries → Transaction Ledger</option>
+        <option value="transactions">Ledger Entries → Transactions</option>
         <option value="payables">Payables → Business Obligations</option>
         <option value="filings1099">1099 Filings → 1099 Filing Chain</option>
         <option value="full">Full Ledger Export (JSON) — Auto-detect all</option>
@@ -272,46 +272,57 @@ function importLedgerEntities(entities) {
 
 
 /**
- * Import ledger entries from Accrual Ledger → Transaction Ledger.
- * Uses importCSVTransactions() pattern (append rows).
+ * Import ledger entries from Accrual Ledger → Transactions (core table).
+ * Uses importCSVTransactions() pattern (append rows, header row 4, 15 input cols).
  */
 function importLedgerTransactions(entries) {
   if (!entries || entries.length === 0) return 'No transactions to import.';
 
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName('Transaction Ledger');
-  if (!sheet) throw new Error('Transaction Ledger tab not found');
+  const sheet = ss.getSheetByName('Transactions');
+  if (!sheet) throw new Error('Transactions tab not found');
+
+  const headerRow = 4;
+  const lastRow = sheet.getLastRow();
+  let nextNum = 1;
+  if (lastRow > headerRow) {
+    const ids = sheet.getRange(headerRow + 1, 1, lastRow - headerRow, 1).getValues();
+    ids.forEach(function (v) {
+      const m = String(v[0] || '').match(/^TX-(\d+)$/);
+      if (m) nextNum = Math.max(nextNum, parseInt(m[1], 10) + 1);
+    });
+  }
 
   const rows = [];
   entries.forEach(function(e) {
     const amount = (parseFloat(e.debit) || 0) - (parseFloat(e.credit) || 0);
+    const direction = amount >= 0 ? 'In' : 'Out';
     const row = [
-      e.date || '',
-      e.entity || e.entityId || '',
-      e.category || '',
-      e.subcategory || '',
-      e.vendor || '',
-      e.description || '',
-      amount,
-      e.paymentMethod || '',
-      e.accountType || '',
-      e.status || 'Posted',
-      e.taxDeductible || '',
-      e.businessUse || '',
-      e.dueDay || '',
-      e.recurring || '',
-      e.notes || '',
-      'Accrual Ledger'
+      'TX-' + String(nextNum++).padStart(5, '0'),  // A = Txn ID
+      e.date || '',                                  // B = Date
+      '',                                            // C = Account ID (not supplied)
+      e.entity || e.entityId || '',                  // D = Party
+      e.category || '',                              // E = Category
+      e.subcategory || '',                           // F = Subcategory
+      e.vendor || '',                                // G = Payee
+      e.description || '',                           // H = Description
+      direction,                                     // I = Direction
+      Math.abs(amount),                              // J = Amount
+      e.status || 'Posted',                          // K = Status
+      e.businessUse || '',                           // L = Biz Use %
+      e.paymentMethod || '',                         // M = Payment method
+      e.notes || '',                                 // N = Reference
+      'Accrual Ledger'                               // O = Source
     ];
     rows.push(row);
   });
 
   if (rows.length > 0) {
-    const lastRow = sheet.getLastRow();
-    sheet.getRange(lastRow + 1, 1, rows.length, 16).setValues(rows);
+    const dest = lastRow > headerRow ? lastRow + 1 : headerRow + 1;
+    sheet.getRange(dest, 1, rows.length, 15).setValues(rows);
   }
 
-  return 'Imported ' + rows.length + ' transactions to Transaction Ledger.';
+  return 'Imported ' + rows.length + ' transactions to Transactions.';
 }
 
 
@@ -432,19 +443,19 @@ function importLedger1099s(filings) {
 // Usage from Accrual Ledger:
 //   GET  ?action=ping                     → connection test (no key required)
 //   GET  ?action=pullAccounts             → read Master Register → JSON
-//   GET  ?action=pullTransactions         → read Transaction Ledger → JSON
+//   GET  ?action=pullTransactions         → read Transactions → JSON
 //   GET  ?action=pullObligations          → read Business Obligations → JSON
 //   GET  ?action=pull1099                 → read 1099 Filing Chain → JSON
 //   GET  ?action=pullValidation           → read _Validation lists → JSON
 //   GET  ?action=pullChartOfAccounts      → read GAAP CoA → JSON
 //   GET  ?action=pullReceivables          → read Receivables → JSON
 //   GET  ?action=pullJournalEntries       → read Journal → JSON
-//   GET  ?action=pullPrincipalRegister    → read Principal Register → JSON
+//   GET  ?action=pullPrincipalRegister    → read Entities → JSON
 //   GET  ?action=pullContacts             → read Contacts → JSON
 //   GET  ?action=pullWebsiteAccounts      → read Website Accounts (no password col) → JSON
 //   GET  ?action=listSheetTabs/listWorkbookTabs/pullRawTab/pullWorkbookSheets
 //   POST {action:'pushEntities', entities:[...]}     → write to Master Register
-//   POST {action:'pushTransactions', entries:[...]}  → write to Transaction Ledger
+//   POST {action:'pushTransactions', entries:[...]}  → write to Transactions
 //   POST {action:'pushPayables', payables:[...]}     → write to Business Obligations
 //   POST {action:'push1099', filings:[...]}          → write to 1099 Filing Chain
 //   POST {action:'pushChartOfAccounts'|'pushReceivables'|'pushJournalEntries'
@@ -605,8 +616,8 @@ function ensureSyncMetaSheet_(ss) {
   sheet.getRange('A1:E1').setValues([['Sheet Name', 'Last Push', 'Last Pull', 'Push Count', 'Pull Count']]);
   sheet.getRange('A1:E1').setFontWeight('bold');
 
-  var sheets = ['Master Register', 'Transaction Ledger', 'Business Obligations', '1099 Filing Chain',
-                'Principal Register', 'Contacts', 'Website Accounts'];
+  var sheets = ['Master Register', 'Transactions', 'Business Obligations', '1099 Filing Chain',
+                'Entities', 'Contacts', 'Website Accounts'];
   for (var i = 0; i < sheets.length; i++) {
     sheet.getRange(i + 2, 1, 1, 5).setValues([[sheets[i], '', '', 0, 0]]);
   }
@@ -766,13 +777,12 @@ function doGet(e) {
         return jsonResponse_({ status: 'ok', action: 'pullAccounts', count: accounts.length, data: accounts });
 
       case 'pullTransactions':
-        var txns = pullSheetData_(ss, 'Transaction Ledger', 2, [
-          'date', 'reference', 'category', 'account', 'vendor',
-          'description', 'amount', 'method', 'acctType', 'status',
-          'taxDeductible', 'bizUsePct', 'dueDay', 'recurring', 'notes',
-          'source'
+        var txns = pullSheetData_(ss, 'Transactions', 4, [
+          'txnId', 'date', 'account', 'reference', 'category',
+          'subcategory', 'vendor', 'description', 'direction', 'amount',
+          'status', 'bizUsePct', 'method', 'notes', 'source'
         ]);
-        updateSyncTimestamp_(ss, 'Transaction Ledger', 'pull');
+        updateSyncTimestamp_(ss, 'Transactions', 'pull');
         return jsonResponse_({ status: 'ok', action: 'pullTransactions', count: txns.length, data: txns });
 
       case 'pullObligations':
@@ -818,11 +828,11 @@ function doGet(e) {
         return jsonResponse_({ status: 'ok', action: 'pull1099', count: filings.length, data: filings });
 
       case 'pullPrincipalRegister': {
-        var principals = pullSheetData_(ss, 'Principal Register', 2, [
-          'entity', 'name', 'tin', 'addressOnFile', 'currentAddress',
-          'bank', 'accountNumber', 'routingNumber', 'grantor', 'trustee'
-        ], { einColumn: 2 });
-        updateSyncTimestamp_(ss, 'Principal Register', 'pull');
+        var principals = pullSheetData_(ss, 'Entities', 4, [
+          'entityId', 'name', 'entityType', 'role', 'ein',
+          'address', 'city', 'state', 'zip', 'notes', 'linkedAccounts'
+        ], { einColumn: 4 });
+        updateSyncTimestamp_(ss, 'Entities', 'pull');
         return jsonResponse_({ status: 'ok', action: 'pullPrincipalRegister', count: principals.length, data: principals });
       }
 
@@ -965,6 +975,52 @@ function doGet(e) {
           }
         }
         return jsonResponse_({ status: 'ok', action: 'pullExternalTab', spreadsheetId: xId, tab: xTab, headers: xHeaders, rows: xRows });
+      }
+
+      case 'pullExternalFormulas': {
+        var xfId = (e.parameter && e.parameter.spreadsheetId) ? String(e.parameter.spreadsheetId) : '';
+        var xfTab = (e.parameter && e.parameter.tab) ? String(e.parameter.tab) : '';
+        if (!xfId) return errorResponse_('Missing ?spreadsheetId=');
+        if (!xfTab) return errorResponse_('Missing ?tab=');
+        var xfSS = SpreadsheetApp.openById(xfId);
+        var xfSheet = xfSS.getSheetByName(xfTab);
+        if (!xfSheet) return errorResponse_('Sheet not found: ' + xfTab);
+        var lr = xfSheet.getLastRow(), lc = xfSheet.getLastColumn();
+        if (lr < 1 || lc < 1) return jsonResponse_({ status: 'ok', action: 'pullExternalFormulas', tab: xfTab, formulaCount: 0, formulas: [] });
+        var f = xfSheet.getRange(1, 1, lr, lc).getFormulas();
+        var hits = [];
+        for (var r = 0; r < f.length; r++) {
+          for (var c = 0; c < f[r].length; c++) {
+            var v = f[r][c];
+            if (v && String(v).trim() !== '') hits.push([r + 1, c + 1, String(v)]);
+          }
+        }
+        return jsonResponse_({ status: 'ok', action: 'pullExternalFormulas', tab: xfTab, formulaCount: hits.length, formulas: hits });
+      }
+
+      case 'pullExternalNamedRanges': {
+        var nrId = (e.parameter && e.parameter.spreadsheetId) ? String(e.parameter.spreadsheetId) : '';
+        if (!nrId) return errorResponse_('Missing ?spreadsheetId=');
+        var nrSS = SpreadsheetApp.openById(nrId);
+        var nrs = nrSS.getNamedRanges().map(function(nr) {
+          var r = nr.getRange();
+          return { name: nr.getName(), sheet: r.getSheet().getName(), a1: r.getA1Notation() };
+        });
+        return jsonResponse_({ status: 'ok', action: 'pullExternalNamedRanges', namedRanges: nrs });
+      }
+
+      case 'pullExternalRange': {
+        var prId = (e.parameter && e.parameter.spreadsheetId) ? String(e.parameter.spreadsheetId) : '';
+        var prTab = (e.parameter && e.parameter.tab) ? String(e.parameter.tab) : '';
+        var prA1 = (e.parameter && e.parameter.range) ? String(e.parameter.range) : '';
+        if (!prId) return errorResponse_('Missing ?spreadsheetId=');
+        if (!prTab) return errorResponse_('Missing ?tab=');
+        if (!prA1) return errorResponse_('Missing ?range=');
+        var prSS = SpreadsheetApp.openById(prId);
+        var prSheet = prSS.getSheetByName(prTab);
+        if (!prSheet) return errorResponse_('Sheet not found: ' + prTab);
+        var prRange = prSheet.getRange(prA1);
+        return jsonResponse_({ status: 'ok', action: 'pullExternalRange', tab: prTab, range: prA1, values: prRange.getValues() });
       }
 
       case 'listRunnableFunctions':
@@ -1233,7 +1289,7 @@ function doPost(e) {
         var txnV = validatePayload_(payload.entries, ['date', 'description']);
         if (!txnV.valid) return errorResponse_(txnV.message);
         var txnResult = pushTransactions_(ss, payload.entries);
-        updateSyncTimestamp_(ss, 'Transaction Ledger', 'push');
+        updateSyncTimestamp_(ss, 'Transactions', 'push');
         return jsonResponse_(txnResult);
 
       case 'pushPayables':
@@ -1274,6 +1330,35 @@ function doPost(e) {
           beSummary.push({ name: tName, rows: tRows.length, cols: tMaxCols, gid: tSheet.getSheetId() });
         });
         return jsonResponse_({ status: 'ok', action: 'buildExternalTabs', spreadsheetId: beId, tabs: beSummary });
+      }
+
+      case 'writeExternalRange': {
+        var wrId = payload.spreadsheetId;
+        var wrTab = payload.tab;
+        if (!wrId) return errorResponse_('Missing spreadsheetId');
+        if (!wrTab) return errorResponse_('Missing tab');
+        var wrSS = SpreadsheetApp.openById(wrId);
+        var wrSheet = wrSS.getSheetByName(wrTab);
+        if (!wrSheet) return errorResponse_('No sheet: ' + wrTab);
+        var wrRows = payload.values;
+        if (!wrRows || !wrRows.length || !wrRows[0].length) return errorResponse_('Missing values');
+        var wrCols = wrRows[0].length;
+        var wrWritten = 0;
+        if (payload.append) {
+          var wrStart = wrSheet.getLastRow() + 1;
+          wrSheet.getRange(wrStart, 1, wrRows.length, wrCols).setValues(wrRows);
+          wrWritten = wrRows.length;
+        } else if (payload.range) {
+          var wrRange = wrSheet.getRange(payload.range);
+          if (wrRange.getNumRows() < wrRows.length || wrRange.getNumColumns() < wrCols) {
+            return errorResponse_('Range too small: ' + payload.range + ' vs ' + wrRows.length + 'x' + wrCols);
+          }
+          wrRange.setValues(wrRows);
+          wrWritten = wrRows.length;
+        } else {
+          return errorResponse_('Need append:true or range');
+        }
+        return jsonResponse_({ status: 'ok', action: 'writeExternalRange', tab: wrTab, written: wrWritten });
       }
 
       case 'applyStandardHeader': {
@@ -1345,7 +1430,7 @@ function doPost(e) {
         }
         if (payload.entries && payload.entries.length > 0) {
           results.transactions = pushTransactions_(ss, payload.entries);
-          updateSyncTimestamp_(ss, 'Transaction Ledger', 'push');
+          updateSyncTimestamp_(ss, 'Transactions', 'push');
         }
         if (payload.payables && payload.payables.length > 0) {
           results.payables = pushPayables_(ss, payload.payables);
@@ -1361,7 +1446,7 @@ function doPost(e) {
         var prV = validatePayload_(payload.principals, ['name']);
         if (!prV.valid) return errorResponse_(prV.message);
         var prResult = pushPrincipalRegister_(ss, payload.principals);
-        updateSyncTimestamp_(ss, 'Principal Register', 'push');
+        updateSyncTimestamp_(ss, 'Entities', 'push');
         return jsonResponse_(prResult);
       }
 
@@ -1369,7 +1454,7 @@ function doPost(e) {
         var dpNames = Array.isArray(payload.names) ? payload.names : [];
         if (dpNames.length === 0) return errorResponse_('Provide names (array of exact entity names)');
         var dpResult = deletePrincipalRegister_(ss, dpNames);
-        updateSyncTimestamp_(ss, 'Principal Register', 'push');
+        updateSyncTimestamp_(ss, 'Entities', 'push');
         return jsonResponse_(dpResult);
       }
 
@@ -1385,7 +1470,7 @@ function doPost(e) {
         var cdV = validatePayload_(payload.rows, ['obligor', 'creditor']);
         if (!cdV.valid) return errorResponse_(cdV.message);
         var cdResult = pushCreditorDetail_(ss, payload.rows);
-        updateSyncTimestamp_(ss, 'FWM — Creditor Detail', 'push');
+        updateSyncTimestamp_(ss, 'Master Register', 'push');
         return jsonResponse_(cdResult);
       }
 
@@ -1396,7 +1481,7 @@ function doPost(e) {
           return errorResponse_('Provide tabIds (array of Tab #) and/or keys (array of {obligor, creditor})');
         }
         var delResult = deleteCreditorDetail_(ss, tabIds, keys);
-        updateSyncTimestamp_(ss, 'FWM — Creditor Detail', 'push');
+        updateSyncTimestamp_(ss, 'Master Register', 'push');
         return jsonResponse_(delResult);
       }
 
@@ -1708,6 +1793,23 @@ function doPost(e) {
         if (atNames.length === 0) return errorResponse_('archiveTabs requires a "tabs" array of exact tab names');
         var atName = payload.archiveName || ('APPC_Archive_' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyyMMdd'));
         return jsonResponse_(archiveTabs_(atNames, atName));
+      }
+
+      case 'retireSheets': {
+        var rId = payload.spreadsheetId ? String(payload.spreadsheetId) : '';
+        var rHide = Array.isArray(payload.hide) ? payload.hide : [];
+        var rArchive = Array.isArray(payload.archive) ? payload.archive : [];
+        var rName = payload.archiveName ? String(payload.archiveName) : ('TMAR_Archive_' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyyMMdd'));
+        var rArchiveId = payload.archiveId ? String(payload.archiveId) : '';
+        if (!rId) return errorResponse_('retireSheets requires spreadsheetId');
+        return jsonResponse_(retireSheets_(rId, rHide, rArchive, rName, rArchiveId));
+      }
+
+      case 'showSheets': {
+        var sId = payload.spreadsheetId ? String(payload.spreadsheetId) : '';
+        var sShow = Array.isArray(payload.show) ? payload.show : [];
+        if (!sId) return errorResponse_('showSheets requires spreadsheetId');
+        return jsonResponse_(showSheets_(sId, sShow));
       }
 
       case 'pushCreditScorecard': {
@@ -2317,44 +2419,64 @@ function pushEntities_(ss, entities) {
 }
 
 /**
- * Push transactions to Transaction Ledger via Web App.
- * Replicates importLedgerTransactions() logic.
+ * Push transactions to the core Transactions table via Web App.
+ * Transaction Ledger was migrated into Transactions (26 cols, header row 4).
+ * Input cols A-O: Txn ID, Date, Account ID, Party, Category, Subcategory,
+ * Payee, Description, Direction, Amount, Status, Biz Use %, Payment method,
+ * Reference, Source.  P-X are open-ended formulas (auto-fill); Y=Tax entity
+ * and Z=Return are left blank for manual/formula assignment.
  */
 function pushTransactions_(ss, entries) {
-  var sheet = ss.getSheetByName('Transaction Ledger');
-  if (!sheet) return { status: 'error', action: 'pushTransactions', message: 'Transaction Ledger tab not found' };
+  var sheet = ss.getSheetByName('Transactions');
+  if (!sheet) return { status: 'error', action: 'pushTransactions', message: 'Transactions tab not found' };
+
+  var headerRow = 4; // header row 4; data starts row 5
+  var lastRow = sheet.getLastRow();
+
+  // Next Txn ID from existing data (col A, format TX-NNNNN).
+  var nextNum = 1;
+  if (lastRow > headerRow) {
+    var ids = sheet.getRange(headerRow + 1, 1, lastRow - headerRow, 1).getValues();
+    for (var x = 0; x < ids.length; x++) {
+      var m = String(ids[x][0] || '').match(/^TX-(\d+)$/);
+      if (m) nextNum = Math.max(nextNum, parseInt(m[1], 10) + 1);
+    }
+  }
 
   var rows = [];
   for (var i = 0; i < entries.length; i++) {
     var t = entries[i];
     var debit = parseFloat(t.debit) || 0;
     var credit = parseFloat(t.credit) || 0;
-    var amount = (debit || credit) ? (debit - credit) : ((t.amount !== undefined && t.amount !== '') ? t.amount : '');
-    var row = new Array(16).fill('');
-    row[0] = t.date || new Date().toISOString().slice(0, 10);   // Date
-    row[1] = t.reference || '';                                   // Party
-    row[2] = t.category || '';                                    // Category
-    row[3] = t.account || '';                                     // Subcategory
-    row[4] = t.vendor || '';                                      // Vendor
-    row[5] = t.description || '';                                 // Description
-    row[6] = amount;                                              // Amount
-    row[7] = t.method || '';                                      // Payment
-    row[8] = t.acctType || '';                                    // Acct Type
-    row[9] = t.status || '';                                      // Status
-    row[10] = t.taxDeductible || '';                              // Tax Ded?
-    row[11] = t.bizUsePct || '';                                  // Biz Use %
-    row[12] = t.dueDay || '';                                     // Due Day
-    row[13] = t.recurring || '';                                  // Recurring
-    row[14] = t.notes || '';                                      // Notes
-    row[15] = t.source || 'Accrual Ledger';                       // Source
+    var raw = (debit || credit) ? (debit - credit) : (parseFloat(t.amount) || 0);
+    var direction = raw >= 0 ? 'In' : 'Out';
+    var amount = Math.abs(raw);
+
+    var row = new Array(15).fill('');
+    row[0] = 'TX-' + String(nextNum++).padStart(5, '0');          // A = Txn ID
+    row[1] = t.date || new Date().toISOString().slice(0, 10);      // B = Date
+    row[2] = t.account || '';                                      // C = Account ID
+    row[3] = t.reference || '';                                    // D = Party
+    row[4] = t.category || '';                                     // E = Category
+    row[5] = t.subcategory || '';                                  // F = Subcategory
+    row[6] = t.vendor || '';                                       // G = Payee
+    row[7] = t.description || '';                                  // H = Description
+    row[8] = direction;                                            // I = Direction
+    row[9] = amount;                                               // J = Amount
+    row[10] = t.status || '';                                      // K = Status
+    row[11] = t.bizUsePct || '';                                   // L = Biz Use %
+    row[12] = t.method || '';                                      // M = Payment method
+    row[13] = t.notes || '';                                       // N = Reference
+    row[14] = t.source || 'Accrual Ledger';                        // O = Source
     rows.push(row);
   }
 
   if (rows.length > 0) {
-    var lastRow = sheet.getLastRow();
-    sheet.getRange(lastRow + 1, 1, rows.length, 16).setValues(rows);
+    var dest = lastRow > headerRow ? lastRow + 1 : headerRow + 1;
+    sheet.getRange(dest, 1, rows.length, 15).setValues(rows);
   }
 
+  SpreadsheetApp.flush();
   return { status: 'ok', action: 'pushTransactions', imported: rows.length };
 }
 
@@ -3094,22 +3216,27 @@ function pullFormTab_(ss, config, taxYear, limit, worksheetType) {
 
 
 /**
- * Push principal entity records to "Principal Register" tab.
+ * Push principal entity records to "Entities" tab.
  * Upserts by legalName (case-insensitive). ID prefix: PE-NNN.
  */
 function pushPrincipalRegister_(ss, records) {
-  var sheet = ss.getSheetByName('Principal Register');
-  if (!sheet) return { status: 'error', action: 'pushPrincipalRegister', message: 'Principal Register tab not found' };
+  var sheet = ss.getSheetByName('Entities');
+  if (!sheet) return { status: 'error', action: 'pushPrincipalRegister', message: 'Entities tab not found' };
 
-  // Actual sheet layout (10 cols): Entity | Name | TIN | Address on File |
-  // Current Address | Bank | Acct # | Routing # | Grantor | Trustee.
+  // Entities (11 cols): Entity ID | Name | Entity type | Role | EIN | Address |
+  // City | State | ZIP | Notes | Linked accounts.  Header row 4; data row 5+.
+  // Remap: Name→B, TIN→E, Address on File→F, Grantor/Trustee→D (combined),
+  // Entity + current address + bank + acct# + routing# → Notes (J).
+  var headerRow = 4;
   var lastRow = sheet.getLastRow();
-  var nameMap = {}, existingRows = {};
-  if (lastRow > 1) {
-    var allData = sheet.getRange(2, 1, lastRow - 1, 10).getValues();
+  var nameMap = {}, existingRows = {}, nextNum = 1;
+  if (lastRow > headerRow) {
+    var allData = sheet.getRange(headerRow + 1, 1, lastRow - headerRow, 11).getValues();
     for (var n = 0; n < allData.length; n++) {
-      var k = String(allData[n][1] || '').toLowerCase().trim(); // col B = Name
-      if (k) { nameMap[k] = n + 2; existingRows[k] = allData[n]; }
+      var k = String(allData[n][1] || '').toLowerCase().trim(); // B = Name
+      if (k) { nameMap[k] = headerRow + 1 + n; existingRows[k] = allData[n]; }
+      var em = String(allData[n][0] || '').match(/^E-(\d+)$/);
+      if (em) nextNum = Math.max(nextNum, parseInt(em[1], 10) + 1);
     }
   }
 
@@ -3119,22 +3246,37 @@ function pushPrincipalRegister_(ss, records) {
     var name = (r.name || '').trim();
     if (!name) continue;
     var key = name.toLowerCase();
-    var existingRow = nameMap[key];
 
-    var vals = [
-      r.entity || '', name, r.tin || '', r.addressOnFile || '', r.currentAddress || '',
-      r.bank || '', r.accountNumber || '', r.routingNumber || '', r.grantor || '', r.trustee || ''
-    ];
+    var role = [];
+    if (r.grantor) role.push('Grantor: ' + r.grantor);
+    if (r.trustee) role.push('Trustee: ' + r.trustee);
 
-    if (existingRow) {
+    var noteParts = [];
+    if (r.entity) noteParts.push('Entity: ' + r.entity);
+    if (r.currentAddress) noteParts.push('Current Address: ' + r.currentAddress);
+    if (r.bank) noteParts.push('Bank: ' + r.bank);
+    if (r.accountNumber) noteParts.push('Acct #: ' + r.accountNumber);
+    if (r.routingNumber) noteParts.push('Routing #: ' + r.routingNumber);
+
+    var vals = new Array(11).fill('');
+    vals[1] = name;                  // B = Name
+    vals[3] = role.join('; ');       // D = Role
+    vals[4] = r.tin || '';           // E = EIN
+    vals[5] = r.addressOnFile || ''; // F = Address
+    vals[9] = noteParts.join('; ');  // J = Notes
+    // C (Entity type), G/H/I (City/State/ZIP), K (Linked accounts) left blank.
+
+    if (nameMap[key]) {
       var ex = existingRows[key];
+      vals[0] = ex[0]; // preserve existing Entity ID
       // merge: keep existing non-empty values where the new payload is blank
-      for (var c = 0; c < 10; c++) {
+      for (var c = 0; c < 11; c++) {
         if (vals[c] === '' && ex[c] !== '') vals[c] = ex[c];
       }
-      sheet.getRange(existingRow, 1, 1, 10).setValues([vals]);
+      sheet.getRange(nameMap[key], 1, 1, 11).setValues([vals]);
       updated++;
     } else {
+      vals[0] = 'E-' + String(nextNum++).padStart(3, '0'); // A = Entity ID
       sheet.appendRow(vals);
       nameMap[key] = sheet.getLastRow();
       imported++;
@@ -3144,16 +3286,17 @@ function pushPrincipalRegister_(ss, records) {
 }
 
 function deletePrincipalRegister_(ss, names) {
-  var sheet = ss.getSheetByName('Principal Register');
-  if (!sheet) return { status: 'error', action: 'deletePrincipalRegister', message: 'Principal Register tab not found' };
+  var sheet = ss.getSheetByName('Entities');
+  if (!sheet) return { status: 'error', action: 'deletePrincipalRegister', message: 'Entities tab not found' };
 
+  var headerRow = 4;
   var lastRow = sheet.getLastRow();
-  if (lastRow < 2) return { status: 'ok', action: 'deletePrincipalRegister', deleted: 0 };
+  if (lastRow <= headerRow) return { status: 'ok', action: 'deletePrincipalRegister', deleted: 0 };
 
   var target = names.map(function (n) { return String(n).toLowerCase().trim(); });
   var removed = 0;
   // iterate bottom-up so deleting a row doesn't shift the next index
-  for (var r = lastRow; r >= 2; r--) {
+  for (var r = lastRow; r > headerRow; r--) {
     var name = String(sheet.getRange(r, 2).getValue() || '').toLowerCase().trim();
     if (target.indexOf(name) !== -1) {
       sheet.deleteRow(r);
@@ -3231,18 +3374,23 @@ function pushContacts_(ss, contacts) {
  * New rows append with the next Tab # in the obligor's prefix series (C-### / S-###).
  */
 function pushCreditorDetail_(ss, rows) {
-  var sheet = ss.getSheetByName('FWM — Creditor Detail');
-  if (!sheet) return { status: 'error', action: 'pushCreditorDetail', message: 'FWM — Creditor Detail tab not found' };
+  // FWM — Creditor Detail was folded into Master Register (2026-10-20).
+  // Master Register cols: A=Entry No, B=Date, C=Creditor/Entity, D=EIN, E=Audit Acct#,
+  // F=Category, G=Description, H=Status, I=Date Acquired, J=Primary User, K=Addr L1,
+  // L=City, M=State, N=ZIP, O=Country, P=Tab #, Q=Obligor, R=SOURCE REF, S=NOTES.
+  // Header row 5; data starts row 6. Upsert key = obligor + '|' + creditor.
+  var sheet = ss.getSheetByName('Master Register');
+  if (!sheet) return { status: 'error', action: 'pushCreditorDetail', message: 'Master Register tab not found' };
 
   var lastRow = sheet.getLastRow();
-  var headerRow = 2; // row 1 is the title banner; row 2 is the column header
+  var headerRow = 5; // row 5 is the column header; data starts row 6
 
   var keyMap = {}, nextNum = { 'C': 0, 'S': 0 };
   if (lastRow >= headerRow + 1) {
     var n = lastRow - headerRow;
-    var tabCol = sheet.getRange(headerRow + 1, 1, n, 1).getValues(); // A
-    var obCol  = sheet.getRange(headerRow + 1, 2, n, 1).getValues(); // B
-    var crCol  = sheet.getRange(headerRow + 1, 3, n, 1).getValues(); // C
+    var tabCol = sheet.getRange(headerRow + 1, 16, n, 1).getValues(); // P = Tab #
+    var obCol  = sheet.getRange(headerRow + 1, 17, n, 1).getValues(); // Q = Obligor
+    var crCol  = sheet.getRange(headerRow + 1, 3, n, 1).getValues();  // C = Creditor/Entity
     for (var i = 0; i < n; i++) {
       var tabVal = String(tabCol[i][0] || '').trim();
       var obligor = String(obCol[i][0] || '').trim();
@@ -3268,27 +3416,24 @@ function pushCreditorDetail_(ss, rows) {
     var prefix = obligor.toLowerCase().indexOf('syrina') >= 0 ? 'S' : 'C';
     var key = (obligor + '|' + creditor).toLowerCase();
 
-    var values = [
-      '', // Tab # (filled below)
-      obligor,
-      creditor,
-      row.ein || '',
-      row.tinType || 'EIN',
-      row.nameType || 'B',
-      row.addr || '',
-      row.city || '',
-      row.state || '',
-      row.zip || '',
-      row.country || 'US'
-    ];
+    var values = new Array(19).fill('');
+    values[2] = creditor;                       // C = Creditor/Entity
+    values[3] = row.ein || '';                  // D = EIN
+    values[10] = row.addr || '';                // K = Address Line 1
+    values[11] = row.city || '';                // L = City
+    values[12] = row.state || '';               // M = State
+    values[13] = row.zip || '';                 // N = ZIP
+    values[14] = row.country || 'US';           // O = Country
+    values[16] = obligor;                       // Q = Obligor
+    values[18] = 'TIN ' + (row.tinType || 'EIN') + '; Name ' + (row.nameType || 'B'); // S = NOTES
 
     if (keyMap[key]) {
-      values[0] = String(sheet.getRange(keyMap[key], 1).getValue() || '').trim();
-      sheet.getRange(keyMap[key], 1, 1, 11).setValues([values]);
+      values[15] = String(sheet.getRange(keyMap[key], 16).getValue() || '').trim(); // P = Tab #
+      sheet.getRange(keyMap[key], 1, 1, 19).setValues([values]);
       updated++;
     } else {
       nextNum[prefix] = (nextNum[prefix] || 0) + 1;
-      values[0] = prefix + '-' + String(nextNum[prefix]).padStart(3, '0');
+      values[15] = prefix + '-' + String(nextNum[prefix]).padStart(3, '0'); // P = Tab #
       sheet.appendRow(values);
       keyMap[key] = sheet.getLastRow();
       imported++;
@@ -4275,17 +4420,17 @@ function pullErrorLogs_(token) {
  * @param {Array<Object>} keys - {obligor, creditor} pairs to delete.
  */
 function deleteCreditorDetail_(ss, tabIds, keys) {
-  var sheet = ss.getSheetByName('FWM — Creditor Detail');
-  if (!sheet) return { status: 'error', action: 'deleteCreditorDetail', message: 'FWM — Creditor Detail tab not found' };
+  var sheet = ss.getSheetByName('Master Register');
+  if (!sheet) return { status: 'error', action: 'deleteCreditorDetail', message: 'Master Register tab not found' };
 
   var lastRow = sheet.getLastRow();
-  var headerRow = 2;
+  var headerRow = 5;
   var toDelete = {}; // sheet row number -> true
 
   if (lastRow >= headerRow + 1) {
     var n = lastRow - headerRow;
-    var tabCol = sheet.getRange(headerRow + 1, 1, n, 1).getValues();
-    var obCol  = sheet.getRange(headerRow + 1, 2, n, 1).getValues();
+    var tabCol = sheet.getRange(headerRow + 1, 16, n, 1).getValues();
+    var obCol  = sheet.getRange(headerRow + 1, 17, n, 1).getValues();
     var crCol  = sheet.getRange(headerRow + 1, 3, n, 1).getValues();
 
     var tabSet = {};
@@ -4719,5 +4864,66 @@ function deleteSheetsByName_(ss, sheetNames) {
   });
   SpreadsheetApp.flush();
   return { status: 'ok', action: 'deleteSheetsByName', deleted: deleted, notFound: notFound };
+}
+
+// Retire (hide) and/or archive (copy to an archive book, then delete) sheets on an EXTERNAL
+// spreadsheet (the working copy), keyed by spreadsheetId. Delete happens ONLY after a successful
+// copy, so a failed copy never loses the sheet. A protected list guards the new core tables.
+var RETIRE_PROTECTED_ = ['Lists', 'Entities', 'Accounts', 'Transactions', 'Statements',
+  'Live Dashboard', 'Checks', 'Cash Flow', 'Tax Lines',
+  '_SyncMeta', 'AppScripts', 'Script Executions', 'Documents', '_Settings', '_Validation', '_YearData'];
+function retireSheets_(sheetId, hideNames, archiveNames, archiveName, archiveId) {
+  var src = SpreadsheetApp.openById(sheetId);
+  var hidden = [], archived = [], notFound = [], skipped = [], failed = [];
+
+  hideNames.forEach(function (name) {
+    var s = src.getSheetByName(String(name));
+    if (!s) { notFound.push(name); return; }
+    if (RETIRE_PROTECTED_.indexOf(String(name)) !== -1) { skipped.push(name); return; }
+    s.hideSheet();
+    hidden.push(name);
+  });
+
+  var target = null;
+  if (archiveNames.length) {
+    target = archiveId ? SpreadsheetApp.openById(archiveId) : SpreadsheetApp.create(archiveName);
+    var def = target.getSheetByName('Sheet1');
+    archiveNames.forEach(function (name) {
+      var sh = src.getSheetByName(String(name));
+      if (!sh) { notFound.push(name); return; }
+      if (RETIRE_PROTECTED_.indexOf(String(name)) !== -1) { skipped.push(name); return; }
+      try {
+        var cp = sh.copyTo(target);
+        cp.setName(String(name));
+        src.deleteSheet(sh);   // only after a successful copy
+        archived.push(name);
+      } catch (e) {
+        failed.push({ name: name, error: String(e).slice(0, 120) });
+      }
+    });
+    if (def && target.getSheets().length > 1) { try { target.deleteSheet(def); } catch (e) {} }
+  }
+
+  SpreadsheetApp.flush();
+  return {
+    status: 'ok', action: 'retireSheets', spreadsheetId: sheetId,
+    archiveName: archiveName,
+    archiveId: target ? target.getId() : null,
+    archiveUrl: target ? target.getUrl() : null,
+    hidden: hidden, archived: archived, notFound: notFound, skipped: skipped, failed: failed
+  };
+}
+
+function showSheets_(sheetId, showNames) {
+  var src = SpreadsheetApp.openById(sheetId);
+  var shown = [], notFound = [];
+  showNames.forEach(function (name) {
+    var s = src.getSheetByName(String(name));
+    if (!s) { notFound.push(name); return; }
+    s.showSheet();
+    shown.push(name);
+  });
+  SpreadsheetApp.flush();
+  return { status: 'ok', action: 'showSheets', spreadsheetId: sheetId, shown: shown, notFound: notFound };
 }
 

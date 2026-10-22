@@ -19719,19 +19719,19 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
               <span id="sync-export-entities-count" style="margin-left:auto;font-size:11px;color:var(--accent-cyan);font-weight:700"></span>
             </button>
 
-            <button onclick="exportLedgerToTransactionCSV()" class="sync-export-btn" data-guide="Exports ledger entries as a Transaction Ledger CSV matching the workbook's transaction schema (date, category-derived type, amount, account link). Use for the Transaction Ledger sheet." style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left;width:100%;transition:all 0.2s">
+            <button onclick="exportLedgerToTransactionCSV()" class="sync-export-btn" data-guide="Exports ledger entries as a Transactions CSV matching the workbook's transaction schema (date, category-derived type, amount, account link). Use for the Transactions sheet." style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left;width:100%;transition:all 0.2s">
               <span style="font-size:18px">📒</span>
               <div>
-                <div style="font-weight:700;font-size:13px;color:var(--text-primary)">Ledger → Transaction Ledger</div>
+                <div style="font-weight:700;font-size:13px;color:var(--text-primary)">Ledger → Transactions</div>
                 <div style="font-size:11px;color:var(--text-secondary)">16-column CSV • Signed amounts • Source tagged</div>
               </div>
               <span id="sync-export-ledger-count" style="margin-left:auto;font-size:11px;color:var(--accent-cyan);font-weight:700"></span>
             </button>
 
-            <button onclick="exportJournalToTransactionCSV()" class="sync-export-btn" data-guide="Exports journal entries as a Transaction Ledger CSV (debit/credit lines mapped to the transaction schema). Use to push double-entry journal activity into the workbook." style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left;width:100%;transition:all 0.2s">
+            <button onclick="exportJournalToTransactionCSV()" class="sync-export-btn" data-guide="Exports journal entries as a Transactions CSV (debit/credit lines mapped to the transaction schema). Use to push double-entry journal activity into the workbook." style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left;width:100%;transition:all 0.2s">
               <span style="font-size:18px">📋</span>
               <div>
-                <div style="font-weight:700;font-size:13px;color:var(--text-primary)">Journal Entries → Transaction Ledger</div>
+                <div style="font-weight:700;font-size:13px;color:var(--text-primary)">Journal Entries → Transactions</div>
                 <div style="font-size:11px;color:var(--text-secondary)">Expanded line items • Double-entry format</div>
               </div>
               <span id="sync-export-journal-count" style="margin-left:auto;font-size:11px;color:var(--accent-cyan);font-weight:700"></span>
@@ -19777,7 +19777,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
             <label class="sync-import-btn" style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left;width:100%;transition:all 0.2s;box-sizing:border-box">
               <span style="font-size:18px">📒</span>
               <div>
-                <div style="font-weight:700;font-size:13px;color:var(--text-primary)">Transaction Ledger → 📒 Ledger</div>
+                <div style="font-weight:700;font-size:13px;color:var(--text-primary)">Transactions → 📒 Ledger</div>
                 <div style="font-size:11px;color:var(--text-secondary)">16-column CSV • Hash dedup • Skip duplicates</div>
               </div>
               <input type="file" accept=".csv" onchange="importTransactionLedgerCSV(this)" style="display:none">
@@ -32187,8 +32187,8 @@ var GUIDE_FN = {
   exportExpensesCSV: 'Download expenses as CSV.',
   exportFiling: 'Export this filing with all fields.',
   exportJournalEntries: 'Export journal entries.',
-  exportJournalToTransactionCSV: 'Download journal entries as a Transaction Ledger CSV (one row per line).',
-  exportLedgerToTransactionCSV: 'Download ledger entries as a Transaction Ledger CSV.',
+  exportJournalToTransactionCSV: 'Download journal entries as a Transactions CSV (one row per line).',
+  exportLedgerToTransactionCSV: 'Download ledger entries as a Transactions CSV.',
   exportPackagePDF: 'Export the assembled package as PDF.',
   exportPackageZIP: 'Export the assembled package as a ZIP.',
   exportPayablesToObligationsCSV: 'Download payables as a Business Obligations CSV.',
@@ -33665,7 +33665,7 @@ function ev2InitEntityVerifier() {
     return found ? balance.toFixed(2) : '';
   }
 
-  // Export 2: Ledger Entries → Transaction Ledger CSV (16 columns)
+  // Export 2: Ledger Entries → Transactions CSV (16 columns)
   function exportLedgerToTransactionCSV() {
     var entries = appData.ledgerEntries || [];
     if (entries.length === 0) {
@@ -33713,11 +33713,11 @@ function ev2InitEntityVerifier() {
     });
 
     syncDownloadCSV('TMAR_TransactionLedger_Export_' + new Date().toISOString().slice(0, 10) + '.csv', csv);
-    addSyncLogEntry('Export Ledger → Transaction Ledger CSV', 'export', entries.length, 'success');
-    showAlert('Exported ' + entries.length + ' ledger entries to Transaction Ledger CSV', 'Success');
+    addSyncLogEntry('Export Ledger → Transactions CSV', 'export', entries.length, 'success');
+    showAlert('Exported ' + entries.length + ' ledger entries to Transactions CSV', 'Success');
   }
 
-  // Export 3: Journal Entries → Transaction Ledger CSV (expanded lines)
+  // Export 3: Journal Entries → Transactions CSV (expanded lines)
   function exportJournalToTransactionCSV() {
     var journalEntries = appData.journalEntries || [];
     if (journalEntries.length === 0) {
@@ -33764,8 +33764,8 @@ function ev2InitEntityVerifier() {
     });
 
     syncDownloadCSV('TMAR_JournalToTransactions_Export_' + new Date().toISOString().slice(0, 10) + '.csv', csv);
-    addSyncLogEntry('Export Journal → Transaction Ledger CSV', 'export', rowCount, 'success');
-    showAlert('Exported ' + rowCount + ' journal line items to Transaction Ledger CSV (from ' + journalEntries.length + ' journal entries)', 'Success');
+    addSyncLogEntry('Export Journal → Transactions CSV', 'export', rowCount, 'success');
+    showAlert('Exported ' + rowCount + ' journal line items to Transactions CSV (from ' + journalEntries.length + ' journal entries)', 'Success');
   }
 
   // Export 4: 1099 Filings → Filing Chain CSV (15 columns)
@@ -33969,7 +33969,7 @@ function ev2InitEntityVerifier() {
     reader.readAsText(file);
   }
 
-  // Import 2: Transaction Ledger CSV → Ledger Entries
+  // Import 2: Transactions CSV → Ledger Entries
   function importTransactionLedgerCSV(inputEl) {
     var file = inputEl.files[0];
     if (!file) return;
@@ -34032,10 +34032,10 @@ function ev2InitEntityVerifier() {
         });
 
         saveToStorage();
-        addSyncLogEntry('Import Transaction Ledger CSV → Ledger', 'import', imported, 'success');
+        addSyncLogEntry('Import Transactions CSV → Ledger', 'import', imported, 'success');
         showAlert('Imported ' + imported + ' transactions (' + skipped + ' duplicates skipped)', 'Success');
       } catch (err) {
-        addSyncLogEntry('Import Transaction Ledger CSV', 'import', 0, 'error');
+        addSyncLogEntry('Import Transactions CSV', 'import', 0, 'error');
         showAlert('Import failed: ' + err.message, 'Error');
       }
     };
@@ -34169,7 +34169,7 @@ function ev2InitEntityVerifier() {
 
   // ── Tab-level CSV imports (Expense Itemization / Tax Estimator / Consolidation) ──
 
-  // Import A: Transaction Ledger CSV → Expense Itemization (debit/expense side only)
+  // Import A: Transactions CSV → Expense Itemization (debit/expense side only)
   function importExpensesCSV(inputEl) {
     var file = inputEl.files[0];
     if (!file) return;
@@ -34220,7 +34220,7 @@ function ev2InitEntityVerifier() {
         localStorage.setItem('TMAR_Expenses', JSON.stringify(expenses));
         if (typeof renderExpenses === 'function') renderExpenses();
         if (typeof updateExpenseDash === 'function') updateExpenseDash();
-        showAlert('Imported ' + imported + ' expense lines from Transaction Ledger (' + skipped + ' duplicates skipped)', 'Success');
+        showAlert('Imported ' + imported + ' expense lines from Transactions (' + skipped + ' duplicates skipped)', 'Success');
       } catch (err) {
         showAlert('Import failed: ' + err.message, 'Error');
       }
@@ -34416,8 +34416,8 @@ function ev2InitEntityVerifier() {
   // `sync` names the existing Sync Center push/pull pair (null = gap, no sync yet).
   var SHEET_MAP = {
     entities:          { tab: 'Master Register',      tabAliases: [],      sync: 'pushEntities / pullAccounts' },
-    transactions:      { tab: 'Transaction Ledger',   tabAliases: [],      sync: 'pushTransactions / pullTransactions' },
-    ledgerEntries:     { tab: 'Transaction Ledger',   tabAliases: [],      sync: 'pushTransactions / pullTransactions' },
+    transactions:      { tab: 'Transactions',   tabAliases: [],      sync: 'pushTransactions / pullTransactions' },
+    ledgerEntries:     { tab: 'Transactions',   tabAliases: [],      sync: 'pushTransactions / pullTransactions' },
     payables:          { tab: 'Business Obligations',tabAliases: [],      sync: 'pushPayables / pullObligations' },
     filings:           { tab: '1099 Filing Chain',    tabAliases: ['1099 Filings'], sync: 'push1099 / pull1099' },
     principalRegister: { tab: 'Principal Register',   tabAliases: [],      sync: 'pushPrincipalRegister / pullPrincipalRegister' },
@@ -34719,8 +34719,9 @@ function ev2InitEntityVerifier() {
     var added = 0;
     remoteData.forEach(function(item) {
       var amt = parseFloat(item.amount) || 0;
-      var debitNum = amt > 0 ? amt : 0;
-      var creditNum = amt < 0 ? -amt : 0;
+      var isOut = String(item.direction || '').toLowerCase() === 'out';
+      var debitNum = isOut ? 0 : amt;
+      var creditNum = isOut ? amt : 0;
       var key = (item.date || '') + '|' + (item.description || '') + '|' + debitNum + '|' + creditNum;
       var hash = syncHash(key);
       if (!existingHashes[hash]) {
@@ -34729,13 +34730,13 @@ function ev2InitEntityVerifier() {
           date: item.date || '',
           description: item.description || '',
           category: item.category || '',
+          subcategory: item.subcategory || '',
           account: item.account || '',
           debit: debitNum,
           credit: creditNum,
           method: item.method || '',
           reference: item.reference || '',
           vendor: item.vendor || '',
-          taxDeductible: item.taxDeductible || '',
           notes: (item.notes || '') + ' [Pulled from Sheet]',
           source: 'Google Sheets'
         });
@@ -34868,19 +34869,16 @@ function ev2InitEntityVerifier() {
       var credit = parseFloat(t.credit) || 0;
       return {
         date: t.date || '',
+        account: t.account || '',
         reference: t.reference || '',
         category: t.category || '',
-        account: t.account || '',
+        subcategory: t.subcategory || '',
         vendor: t.vendor || '',
         description: t.description || '',
         amount: (debit || credit) ? (debit - credit) : '',
-        method: t.method || '',
-        acctType: t.acctType || '',
         status: t.status || '',
-        taxDeductible: t.taxDeductible || '',
         bizUsePct: t.bizUsePct || '',
-        dueDay: t.dueDay || '',
-        recurring: t.recurring || '',
+        method: t.method || '',
         notes: (t.notes || '').replace(' [Pulled from Sheet]', ''),
         source: t.source || ''
       };
@@ -35053,7 +35051,7 @@ function ev2InitEntityVerifier() {
       case 'transactions':
         data = _prepTransactionsForPush(appData.ledgerEntries || []);
         method = bridge.pushTransactions.bind(bridge);
-        label = '📒 Ledger → Transaction Ledger';
+        label = '📒 Ledger → Transactions';
         break;
       case 'payables':
         data = _prepPayablesForPush(appData.payables || []);
@@ -35153,7 +35151,7 @@ function ev2InitEntityVerifier() {
       case 'transactions':
         method = bridge.pullTransactions.bind(bridge);
         applyFn = applyPullTransactions;
-        label = 'Transaction Ledger → 📒 Ledger';
+        label = 'Transactions → 📒 Ledger';
         break;
       case 'obligations':
         method = bridge.pullObligations.bind(bridge);

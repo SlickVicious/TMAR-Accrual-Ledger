@@ -12,7 +12,7 @@
  * cannot cross-contaminate.
  */
 
-var TXN_LEDGER_TAB_ = 'Transaction Ledger';
+var TXN_LEDGER_TAB_ = 'Transactions';
 
 function tlNorm_(s) { return String(s || '').replace(/[^0-9]/g, ''); }
 

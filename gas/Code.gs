@@ -250,17 +250,17 @@ function applyDataValidation(ss) {
     Logger.log('Proof of Mailing dropdowns applied');
   }
 
-  // Transaction Ledger: Category dropdown
-  const tlgSheet = ss.getSheetByName('Transaction Ledger');
+  // Transactions: Category dropdown
+  const tlgSheet = ss.getSheetByName('Transactions');
   if (tlgSheet) {
     const cats = getValList(9);
     const catRule = SpreadsheetApp.newDataValidation()
       .requireValueInList(cats, true)
       .setAllowInvalid(true)  // Allow existing CSV values
       .build();
-    tlgSheet.getRange(2, 3, 500, 1).setDataValidation(catRule);
+    tlgSheet.getRange(5, 5, 500, 1).setDataValidation(catRule);  // E = Category, data row 5+
 
-    Logger.log('Transaction Ledger dropdowns applied');
+    Logger.log('Transactions dropdowns applied');
   }
 }
 

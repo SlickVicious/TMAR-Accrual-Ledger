@@ -16,7 +16,7 @@
  *    plain copy so it can be carried over before Validation is archived.
  */
 
-var FWM_CREDITOR_TAB_ = 'FWM — Creditor Detail';
+var FWM_CREDITOR_TAB_ = 'Master Register';
 
 // ── 1. Enrich Master Register from Acct Ledger ──────────────────────────────
 function enrichMasterRegisterFromAcctLedger_(ss) {
