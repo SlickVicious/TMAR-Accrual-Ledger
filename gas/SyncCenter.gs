@@ -931,6 +931,14 @@ function doGet(e) {
         }
         return jsonResponse_({ status: 'ok', action: 'pullRawTab', tab: tabName, headers: rawHeaders, rows: rawRows });
 
+      case 'pullDataValidation': {
+        var dvTab = (e.parameter && e.parameter.tab) ? e.parameter.tab : '';
+        var dvRange = (e.parameter && e.parameter.range) ? e.parameter.range : '';
+        if (!dvTab) return errorResponse_('Missing ?tab= parameter');
+        if (!dvRange) return errorResponse_('Missing ?range= parameter (A1 notation, e.g. B3 or B3:B5)');
+        return jsonResponse_(pullDataValidation_(ss, dvTab, dvRange));
+      }
+
       case 'listExternalTabs': {
         var extId = (e.parameter && e.parameter.spreadsheetId) ? String(e.parameter.spreadsheetId) : '';
         if (!extId) return errorResponse_('Missing ?spreadsheetId= parameter');
@@ -1286,6 +1294,56 @@ function doGet(e) {
  * Web App POST endpoint. Payload in e.postData.contents (JSON string).
  * Content-Type must be 'text/plain' to avoid CORS preflight.
  */
+/**
+ * Read the data-validation rules on a range (A1 notation) and return them as JSON.
+ * Used to reconcile dropdowns (e.g. Cash Flow B3/B4 account + year selectors).
+ * Returns { status, action, tab, range, validations: [{ cell, type, values, strict }] }.
+ */
+function pullDataValidation_(ss, tabName, rangeA1) {
+  var sheet = ss.getSheetByName(tabName);
+  if (!sheet) return { status: 'error', action: 'pullDataValidation', message: 'Sheet not found: ' + tabName };
+  var range = sheet.getRange(rangeA1);
+  var dvs = range.getDataValidations();
+  var out = [];
+  var typeNames = { VALUE_IN_LIST: 'VALUE_IN_LIST', VALUE_IN_RANGE: 'VALUE_IN_RANGE', CHECKBOX: 'CHECKBOX' };
+  for (var r = 0; r < dvs.length; r++) {
+    for (var c = 0; c < dvs[r].length; c++) {
+      var dv = dvs[r][c];
+      if (!dv) continue;
+      var cell = range.getCell(r + 1, c + 1).getA1Notation();
+      var type = 'UNKNOWN';
+      try { type = String(dv.getCriteriaType()); } catch (e) {}
+      var typeName = typeNames[type] || type;
+      var vals = [];
+      try {
+        var cv = dv.getCriteriaValues();
+        if (cv && cv.length && Array.isArray(cv[0])) vals = cv[0].map(function(v){ return String(v); });
+      } catch (e2) {}
+      out.push({ cell: cell, type: typeName, values: vals, strict: dv.getAllowInvalid() === false });
+    }
+  }
+  return { status: 'ok', action: 'pullDataValidation', tab: tabName, range: rangeA1, validations: out };
+}
+
+/**
+ * Set a value-in-list dropdown on a range (A1 notation).
+ * values: array of allowed strings. strict: reject input outside the list (default true).
+ * Returns { status, action, tab, range, values, strict }.
+ */
+function pushDataValidation_(ss, tabName, rangeA1, values, strict) {
+  var sheet = ss.getSheetByName(tabName);
+  if (!sheet) return { status: 'error', action: 'pushDataValidation', message: 'Sheet not found: ' + tabName };
+  if (!values || values.length === 0) {
+    return { status: 'error', action: 'pushDataValidation', message: 'values must be a non-empty array' };
+  }
+  var rule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(values, true)
+    .setAllowInvalid(!(strict !== false))
+    .build();
+  sheet.getRange(rangeA1).setDataValidation(rule);
+  return { status: 'ok', action: 'pushDataValidation', tab: tabName, range: rangeA1, values: values, strict: strict !== false };
+}
+
 function doPost(e) {
   var __t0 = Date.now(), __status = 'OK', __err = '', __action = '';
   try {
@@ -2003,6 +2061,16 @@ function doPost(e) {
         if (ds.length === 0) return errorResponse_('Provide sheetNames (array)');
         var dsResult = deleteSheetsByName_(ss, ds);
         return jsonResponse_(dsResult);
+      }
+
+      case 'pushDataValidation': {
+        var dv = payload || {};
+        var dvTab = String(dv.tab || '');
+        var dvRange = String(dv.range || '');
+        if (!dvTab || !dvRange) return errorResponse_('pushDataValidation requires {tab, range, values:[...]}');
+        var dvVals = Array.isArray(dv.values) ? dv.values.map(function(v){ return String(v); }) : [];
+        var dvStrict = dv.strict !== false;
+        return jsonResponse_(pushDataValidation_(ss, dvTab, dvRange, dvVals, dvStrict));
       }
 
       default:
