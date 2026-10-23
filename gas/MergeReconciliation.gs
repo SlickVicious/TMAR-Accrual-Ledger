@@ -2,7 +2,7 @@
  * MergeReconciliation.gs — the three data merges from the layout-optimization
  * reconciliation (2026-10-08), each idempotent and verifiable.
  *
- * 1. enrichMasterRegisterFromAcctLedger_ — Acct Ledger holds 27 EINs that the
+ * 1. enrichMasterRegisterFromAcctLedger_ — Ledgers holds 27 EINs that the
  *    Master Register lacks. Add each missing entity as a new MR-NNN row
  *    (EIN → col D), preserving the rest of the detail in Notes.
  *
@@ -18,11 +18,11 @@
 
 var FWM_CREDITOR_TAB_ = 'Master Register';
 
-// ── 1. Enrich Master Register from Acct Ledger ──────────────────────────────
+// ── 1. Enrich Master Register from Ledgers ──────────────────────────────
 function enrichMasterRegisterFromAcctLedger_(ss) {
-  var al = ss.getSheetByName('Acct Ledger');
+  var al = ss.getSheetByName('Ledgers');
   var mr = ss.getSheetByName('Master Register');
-  if (!al || !mr) return { status: 'error', message: 'Acct Ledger or Master Register tab not found' };
+  if (!al || !mr) return { status: 'error', message: 'Ledgers or Master Register tab not found' };
 
   var today = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
 
@@ -68,7 +68,7 @@ function enrichMasterRegisterFromAcctLedger_(ss) {
     var addr = [row[4], row[10], row[11], row[12]].filter(function (x) { return x; }).join(', ');
     if (addr) parts.push('Addr: ' + addr);
     if (row[14]) parts.push('Phone: ' + row[14]);
-    var notes = 'Merged from Acct Ledger — ' + parts.join(' | ');
+    var notes = 'Merged from Ledgers — ' + parts.join(' | ');
 
     var nr = new Array(29).fill('');
     nr[0] = 'MR-' + String(nextId).padStart(3, '0');
@@ -197,7 +197,7 @@ function mergeValidation_(ss) {
 }
 
 // ── 4. Dedupe the rows this enrichment added (same name+EIN+acct#) ───────────
-// Only touches rows whose Notes carry 'Merged from Acct Ledger', so pre-existing
+// Only touches rows whose Notes carry 'Merged from Ledgers', so pre-existing
 // same-name/different-holder pairs (e.g. the two Capital One rows) are untouched.
 function dedupeMasterRegister_(ss) {
   var mr = ss.getSheetByName('Master Register');
@@ -209,7 +209,7 @@ function dedupeMasterRegister_(ss) {
   for (var r = 2; r <= lastRow; r++) {
     var vals = mr.getRange(r, 1, 1, 29).getValues()[0];
     var notes = String(vals[26] || '');
-    if (notes.indexOf('Merged from Acct Ledger') === -1) continue;
+    if (notes.indexOf('Merged from Ledgers') === -1) continue;
     var name = String(vals[2] || '').toLowerCase().trim();
     var ein = String(vals[3] || '').replace(/[^0-9]/g, '');
     var acct = String(vals[4] || '').toLowerCase().trim();

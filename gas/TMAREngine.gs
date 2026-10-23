@@ -14,10 +14,10 @@ function calculateDNI() {
 
   const taxYear = parseInt(result.getResponseText()) || new Date().getFullYear();
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const txSheet = ss.getSheetByName('Transaction Ledger');
+  const txSheet = ss.getSheetByName('Transactions');
 
   if (!txSheet || txSheet.getLastRow() < 2) {
-    ui.alert('Transaction Ledger not found or empty.');
+    ui.alert('Transactions not found or empty.');
     return;
   }
 
@@ -78,10 +78,10 @@ function calculateDNI() {
 function viewTrialBalance() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const ui = SpreadsheetApp.getUi();
-  const txSheet = ss.getSheetByName('Transaction Ledger');
+  const txSheet = ss.getSheetByName('Transactions');
 
   if (!txSheet || txSheet.getLastRow() < 2) {
-    ui.alert('Transaction Ledger not found or empty.');
+    ui.alert('Transactions not found or empty.');
     return;
   }
 

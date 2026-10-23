@@ -468,17 +468,17 @@ function getAccountById(accountId) {
 }
 
 /**
- * Adds a transaction to Transaction Ledger
+ * Adds a transaction to Transactions
  * @param {Object} txnData - Transaction data
  * @returns {Object} Result with success status
  */
 function addTransaction(txnData) {
   try {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName('Transaction Ledger');
+    var sheet = ss.getSheetByName('Transactions');
 
     if (!sheet) {
-      throw new Error('Transaction Ledger sheet not found');
+      throw new Error('Transactions sheet not found');
     }
 
     var row = [

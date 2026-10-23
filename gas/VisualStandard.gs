@@ -19,7 +19,7 @@ const VS_COLORS_ = {
 
 const VS_MAX_ROW_ = 200;
 const VS_MAX_COL_ = 40;
-const VS_SKIP_ALT_FILL_ = ['Master Register', 'Transaction Ledger'];
+const VS_SKIP_ALT_FILL_ = ['Master Register', 'Transactions'];
 const VS_SKIP_ALT_FILL_DASHBOARD_ = ['Executive Dashboard', 'HUB INDEX', 'Cover'];
 
 function vsTabColor_(name) {

@@ -2,20 +2,20 @@
  * TMAR — Syrina Credit Report Account Import
  * ============================================
  * Adds all accounts from Syrina's TransUnion Credit Report (01/15/2026)
- * to both the Master Register and Acct Ledger sheets.
+ * to both the Master Register and Ledgers sheets.
  *
  * USAGE:
  *   1. Open your TMAR Google Sheet
  *   2. Extensions → Apps Script
  *   3. Paste this entire file into a new script file (or append to existing)
  *   4. Save, then run: importSyrinaCreditReportAccounts()
- *   5. Check Master Register and Acct Ledger tabs for new rows
+ *   5. Check Master Register and Ledgers tabs for new rows
  *
  * This script will:
  *   - Find the next available MR-XXX ID
  *   - Skip accounts that already exist (matches on Provider + Account Type)
  *   - Add new rows to Master Register (35-col schema)
- *   - Add corresponding rows to Acct Ledger (EIN cross-reference)
+ *   - Add corresponding rows to Ledgers (EIN cross-reference)
  *   - Color-code rows by status
  */
 
@@ -519,12 +519,12 @@ function importSyrinaCreditReportAccounts() {
   // Import to Master Register
   const mrResult = importToMasterRegister_(ss, accounts);
 
-  // Import to Acct Ledger
+  // Import to Ledgers
   const alResult = importToAcctLedger_(ss, accounts);
 
   const msg = 'Credit Report Import Complete!\n\n' +
     'Master Register: ' + mrResult.added + ' added, ' + mrResult.skipped + ' skipped (already exist)\n' +
-    'Acct Ledger: ' + alResult.added + ' added, ' + alResult.skipped + ' skipped (already exist)';
+    'Ledgers: ' + alResult.added + ' added, ' + alResult.skipped + ' skipped (already exist)';
 
   ui.alert(msg);
   Logger.log(msg);
@@ -652,12 +652,12 @@ function importToMasterRegister_(ss, accounts) {
 // ─── ACCT LEDGER IMPORT ─────────────────────────────────────────────────────
 
 function importToAcctLedger_(ss, accounts) {
-  let sheet = ss.getSheetByName('Acct Ledger');
+  let sheet = ss.getSheetByName('Ledgers');
   if (!sheet) {
     // Try alternate names
-    sheet = ss.getSheetByName('EIN Acct Ledger');
+    sheet = ss.getSheetByName('Ledgers');
     if (!sheet) {
-      Logger.log('WARNING: Acct Ledger sheet not found — creating it');
+      Logger.log('WARNING: Ledgers sheet not found — creating it');
       sheet = createAcctLedgerSheet_(ss);
     }
   }
@@ -697,7 +697,7 @@ function importToAcctLedger_(ss, accounts) {
       continue;
     }
 
-    // Acct Ledger columns:
+    // Ledgers columns:
     // A: Provider/Creditor
     // B: Provider EIN
     // C: Account Number
@@ -733,7 +733,7 @@ function importToAcctLedger_(ss, accounts) {
 
 
 function createAcctLedgerSheet_(ss) {
-  const sheet = ss.insertSheet('Acct Ledger');
+  const sheet = ss.insertSheet('Ledgers');
 
   const headers = [
     'Provider/Creditor', 'Provider EIN', 'Account Number',
@@ -1053,7 +1053,7 @@ function importSyrinaAutoLoan() {
   const alResult = importToAcctLedger_(ss, accounts);
   SpreadsheetApp.getUi().alert(
     'Syrina Auto Loan Import:\nMaster Register: ' + mrResult.added + ' added, ' + mrResult.skipped + ' skipped\n' +
-    'Acct Ledger: ' + alResult.added + ' added, ' + alResult.skipped + ' skipped'
+    'Ledgers: ' + alResult.added + ' added, ' + alResult.skipped + ' skipped'
   );
 }
 
@@ -1068,7 +1068,7 @@ function importClintCreditReportAccounts() {
   const msg =
     'Clinton Credit Report Import Complete!\n\n' +
     'Master Register: ' + mrResult.added + ' added, ' + mrResult.skipped + ' skipped\n' +
-    'Acct Ledger: '     + alResult.added + ' added, ' + alResult.skipped + ' skipped';
+    'Ledgers: '     + alResult.added + ' added, ' + alResult.skipped + ' skipped';
   SpreadsheetApp.getUi().alert(msg);
   Logger.log(msg);
 }
@@ -1108,35 +1108,35 @@ function importAllCreditReportAccounts() {
   const msg =
     'Full Credit Report Import Complete!\n\n' +
     'Master Register: ' + mrResult.added + ' added, ' + mrResult.skipped + ' skipped (already exist)\n' +
-    'Acct Ledger: '     + alResult.added + ' added, ' + alResult.skipped + ' skipped (already exist)';
+    'Ledgers: '     + alResult.added + ' added, ' + alResult.skipped + ' skipped (already exist)';
   SpreadsheetApp.getUi().alert(msg);
   Logger.log(msg);
 }
 
 
 // ─── STANDALONE ACCT LEDGER POPULATION ──────────────────────────────────────
-// Run this if you only want to populate the Acct Ledger without Master Register
+// Run this if you only want to populate the Ledgers without Master Register
 
 function populateAcctLedgerOnly() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const accounts = getSyrinaCreditReportAccounts_();
   const result = importToAcctLedger_(ss, accounts);
   SpreadsheetApp.getUi().alert(
-    'Acct Ledger: ' + result.added + ' added, ' + result.skipped + ' skipped'
+    'Ledgers: ' + result.added + ' added, ' + result.skipped + ' skipped'
   );
 }
 
 
 // ─── LINK MR IDs TO ACCT LEDGER ────────────────────────────────────────────
-// Run after both sheets are populated to cross-reference MR IDs into Acct Ledger
+// Run after both sheets are populated to cross-reference MR IDs into Ledgers
 
 function linkMRIdsToAcctLedger() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const mrSheet = ss.getSheetByName('Master Register');
-  let alSheet = ss.getSheetByName('Acct Ledger') || ss.getSheetByName('EIN Acct Ledger');
+  let alSheet = ss.getSheetByName('Ledgers') || ss.getSheetByName('Ledgers');
 
   if (!mrSheet || !alSheet) {
-    SpreadsheetApp.getUi().alert('Both Master Register and Acct Ledger must exist.');
+    SpreadsheetApp.getUi().alert('Both Master Register and Ledgers must exist.');
     return;
   }
 
@@ -1149,7 +1149,7 @@ function linkMRIdsToAcctLedger() {
     if (mrId && provider) lookup[provider] = mrId;
   }
 
-  // Update Acct Ledger col J (10) with MR IDs
+  // Update Ledgers col J (10) with MR IDs
   const alLastRow = alSheet.getLastRow();
   if (alLastRow < 2) return;
 
@@ -1167,5 +1167,5 @@ function linkMRIdsToAcctLedger() {
   }
 
   mrIdCol.setValues(mrIds);
-  SpreadsheetApp.getUi().alert('Linked ' + linked + ' MR IDs to Acct Ledger');
+  SpreadsheetApp.getUi().alert('Linked ' + linked + ' MR IDs to Ledgers');
 }

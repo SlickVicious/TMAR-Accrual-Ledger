@@ -488,7 +488,7 @@ var WORKBOOK_ID_ = TMAR_CONFIG.sourceBookId;
 // Empty → defaults to the form-data tabs in FORM_PULL_CONFIG_, which is a tax-form config, not a
 // curated view (that fallback is why the panel used to show an arbitrary Schedule A / 1040 / W-2
 // slice). Override per-request with ?tabs=Name1,Name2.
-var WORKBOOK_TARGET_TABS_ = ['Acct Ledger', 'Proof of Mailing', '1099 Filing Chain'];
+var WORKBOOK_TARGET_TABS_ = ['Ledgers', 'Proof of Mailing', '1099 Filing Chain'];
 
 /**
  * Table-driven config for Artifactory pull endpoints (GSheet → Artifactory).
@@ -504,7 +504,7 @@ var FORM_PULL_CONFIG_ = {
              'determination_1','determination_2','efforts_1','efforts_2','submitted_at','source']
   },
   pullForm1040: {
-    sheet: '1040 Submissions', taxYearCol: 0,
+    sheet: '📄 Tax Forms', taxYearCol: 0,
     fields: ['tax_year','filing_status','taxpayer_first_name','taxpayer_last_name','taxpayer_ssn',
              'taxpayer_address','taxpayer_city_state_zip',
              'wages_line1','taxable_interest_line2b','ordinary_dividends_line3b',
@@ -765,22 +765,23 @@ function doGet(e) {
         });
 
       case 'pullAccounts':
-        var accounts = pullSheetData_(ss, 'Master Register', 4, [
-          'rowId', 'dateAdded', 'provider', 'ein', 'accountNumber',
-          'accountType', 'accountSubtype', 'status', 'openDate', 'closeDate',
-          'currentBalance', 'originalBalance', 'billingFrequency', 'nextPaymentDue', 'primaryUser',
-          'authorizedUsers', 'autopayStatus', 'paymentSource', 'contractTermsFile', 'statementsComplete',
-          'taxFormsOnFile', 'popDocuments', 'documentLocation', 'lastStatementDate', 'lastVerifiedDate',
-          'retentionPeriod', 'notes', 'tags', 'discoveryStatus'
+        // Master Register 19-col creditor index (2026-10-20 restructure). Header row 4,
+        // data row 5+ with category banners (— CREDIT CARDS —) interspersed (filtered below).
+        var accounts = pullSheetData_(ss, 'Master Register', 5, [
+          'rowId', 'date', 'creditor', 'ein', 'auditAcct',
+          'category', 'description', 'status', 'dateAcquired', 'primaryUser',
+          'addr1', 'city', 'state', 'zip', 'country',
+          'tabNo', 'obligor', 'sourceRef', 'notes'
         ], { einColumn: 3 });
+        accounts = accounts.filter(function(a) { return String(a.rowId || '').trim() !== ''; });
         updateSyncTimestamp_(ss, 'Master Register', 'pull');
         return jsonResponse_({ status: 'ok', action: 'pullAccounts', count: accounts.length, data: accounts });
 
       case 'pullTransactions':
         var txns = pullSheetData_(ss, 'Transactions', 4, [
-          'txnId', 'date', 'account', 'reference', 'category',
-          'subcategory', 'vendor', 'description', 'direction', 'amount',
-          'status', 'bizUsePct', 'method', 'notes', 'source'
+          'txnId', 'date', 'account', 'party', 'category',
+          'subcategory', 'payee', 'description', 'direction', 'amount',
+          'status', 'bizUsePct', 'method', 'reference', 'source'
         ]);
         updateSyncTimestamp_(ss, 'Transactions', 'pull');
         return jsonResponse_({ status: 'ok', action: 'pullTransactions', count: txns.length, data: txns });
@@ -838,8 +839,9 @@ function doGet(e) {
 
       case 'pullContacts': {
         var contacts = pullSheetData_(ss, 'Contacts', 2, [
-          'contactId', 'role', 'fullName', 'organization',
-          'phone', 'email', 'mailingAddress', 'relatedEntity', 'notes'
+          'contactId', 'fullName', 'organization', 'role',
+          'cause', 'phone', 'email', 'mailingAddress', 'url',
+          'relatedEntity', 'notes'
         ]);
         updateSyncTimestamp_(ss, 'Contacts', 'pull');
         return jsonResponse_({ status: 'ok', action: 'pullContacts', count: contacts.length, data: contacts });
@@ -1021,6 +1023,38 @@ function doGet(e) {
         if (!prSheet) return errorResponse_('Sheet not found: ' + prTab);
         var prRange = prSheet.getRange(prA1);
         return jsonResponse_({ status: 'ok', action: 'pullExternalRange', tab: prTab, range: prA1, values: prRange.getValues() });
+      }
+
+      case 'pullExternalValidations': {
+        var pvId = (e.parameter && e.parameter.spreadsheetId) ? String(e.parameter.spreadsheetId) : '';
+        var pvTab = (e.parameter && e.parameter.tab) ? String(e.parameter.tab) : '';
+        var pvA1 = (e.parameter && e.parameter.range) ? String(e.parameter.range) : '';
+        if (!pvId) return errorResponse_('Missing ?spreadsheetId=');
+        if (!pvTab) return errorResponse_('Missing ?tab=');
+        if (!pvA1) return errorResponse_('Missing ?range=');
+        var pvSS = SpreadsheetApp.openById(pvId);
+        var pvSheet = pvSS.getSheetByName(pvTab);
+        if (!pvSheet) return errorResponse_('Sheet not found: ' + pvTab);
+        var pvRange = pvSheet.getRange(pvA1);
+        var pvRules = pvRange.getDataValidations();
+        var pvOut = pvRules.map(function(pvRow) {
+          return pvRow.map(function(dv) {
+            if (!dv) return null;
+            var t = dv.getCriteriaType();
+            var o = { type: String(t) };
+            try {
+              if (t === SpreadsheetApp.DataValidationCriteria.VALUE_IN_LIST) {
+                o.values = dv.getCriteriaValues()[0];
+              } else if (t === SpreadsheetApp.DataValidationCriteria.VALUE_IN_RANGE) {
+                var rng = dv.getCriteriaValues()[0];
+                o.range = rng.getA1Notation();
+                o.rangeSheet = rng.getSheet().getName();
+              }
+            } catch (e2) { o.err = String(e2); }
+            return o;
+          });
+        });
+        return jsonResponse_({ status: 'ok', action: 'pullExternalValidations', tab: pvTab, range: pvA1, validations: pvOut });
       }
 
       case 'listRunnableFunctions':
@@ -1361,6 +1395,23 @@ function doPost(e) {
         return jsonResponse_({ status: 'ok', action: 'writeExternalRange', tab: wrTab, written: wrWritten });
       }
 
+      case 'writeExternalValidations': {
+        var wvId = payload.spreadsheetId;
+        var wvTab = payload.tab;
+        var wvRange = payload.range;
+        var wvValues = payload.values;
+        if (!wvId) return errorResponse_('Missing spreadsheetId');
+        if (!wvTab) return errorResponse_('Missing tab');
+        if (!wvRange) return errorResponse_('Missing range');
+        if (!wvValues || !wvValues.length) return errorResponse_('Missing values');
+        var wvSS = SpreadsheetApp.openById(wvId);
+        var wvSheet = wvSS.getSheetByName(wvTab);
+        if (!wvSheet) return errorResponse_('No sheet: ' + wvTab);
+        var wvRule = SpreadsheetApp.newDataValidation().requireValueInList(wvValues, true).build();
+        wvSheet.getRange(wvRange).setDataValidation(wvRule);
+        return jsonResponse_({ status: 'ok', action: 'writeExternalValidations', tab: wvTab, range: wvRange, count: wvValues.length });
+      }
+
       case 'applyStandardHeader': {
         var hdrList = payload.headers || [payload];
         var hdrSummary = [];
@@ -1533,7 +1584,7 @@ function doPost(e) {
           return errorResponse_('Provide submittedAt (array of exact ISO timestamps) and/or keys (array of {tax_year, taxpayer_last_name})');
         }
         var dfResult = deleteForm1040_(ss, dfSubmittedAt, dfKeys);
-        updateSyncTimestamp_(ss, '1040 Submissions', 'push');
+        updateSyncTimestamp_(ss, '📄 Tax Forms', 'push');
         return jsonResponse_(dfResult);
       }
 
@@ -1573,13 +1624,13 @@ function doPost(e) {
 
       case 'dedupeAcctLedger': {
         var dalResult = dedupeAcctLedger_(ss);
-        updateSyncTimestamp_(ss, 'Acct Ledger', 'dedupe');
+        updateSyncTimestamp_(ss, 'Ledgers', 'dedupe');
         return jsonResponse_(dalResult);
       }
 
       case 'finalizeAcctLedger': {
         var falResult = finalizeAcctLedger_(ss);
-        updateSyncTimestamp_(ss, 'Acct Ledger', 'finalize');
+        updateSyncTimestamp_(ss, 'Ledgers', 'finalize');
         return jsonResponse_(falResult);
       }
 
@@ -1720,7 +1771,7 @@ function doPost(e) {
           return errorResponse_('importForm1040 requires a nested "payload" object');
         }
         var f1040Result = pushForm1040_(ss, payload.payload);
-        updateSyncTimestamp_(ss, '1040 Submissions', 'push');
+        updateSyncTimestamp_(ss, '📄 Tax Forms', 'push');
         return jsonResponse_(f1040Result);
 
       case 'importForm2848':
@@ -2467,7 +2518,7 @@ function pushTransactions_(ss, entries) {
     row[0] = 'TX-' + String(nextNum++).padStart(5, '0');          // A = Txn ID
     row[1] = t.date || new Date().toISOString().slice(0, 10);      // B = Date
     row[2] = t.account || '';                                      // C = Account ID
-    row[3] = t.reference || '';                                    // D = Party
+    row[3] = t.party || t.entity || '';                            // D = Party
     row[4] = t.category || '';                                     // E = Category
     row[5] = t.subcategory || '';                                  // F = Subcategory
     row[6] = t.vendor || '';                                       // G = Payee
@@ -2477,7 +2528,7 @@ function pushTransactions_(ss, entries) {
     row[10] = t.status || '';                                      // K = Status
     row[11] = t.bizUsePct || '';                                   // L = Biz Use %
     row[12] = t.method || '';                                      // M = Payment method
-    row[13] = t.notes || '';                                       // N = Reference
+    row[13] = t.reference || '';                                   // N = Reference
     row[14] = t.source || 'Accrual Ledger';                        // O = Source
     rows.push(row);
   }
@@ -2768,15 +2819,15 @@ function pushScheduleA_(ss, p) {
 
 
 /**
- * Ensure "1040 Submissions" sheet exists; create with headers if not.
+ * Ensure "📄 Tax Forms" sheet exists; create with headers if not.
  * @param {Spreadsheet} ss
  * @return {Sheet}
  */
 function ensureForm1040Sheet_(ss) {
-  var sheet = ss.getSheetByName('1040 Submissions');
+  var sheet = ss.getSheetByName('📄 Tax Forms');
   if (sheet) return sheet;
 
-  sheet = ss.insertSheet('1040 Submissions');
+  sheet = ss.insertSheet('📄 Tax Forms');
   var headers = [
     'Tax Year', 'Filing Status', 'First Name', 'Last Name', 'SSN (masked)',
     'Address', 'City/State/Zip',
@@ -2790,12 +2841,12 @@ function ensureForm1040Sheet_(ss) {
   sheet.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight('bold');
   sheet.setFrozenRows(1);
   sheet.setTabColor('#3F51B5');
-  Logger.log('1040 Submissions sheet created');
+  Logger.log('📄 Tax Forms sheet created');
   return sheet;
 }
 
 /**
- * Push a Form 1040 return record to "1040 Submissions" sheet.
+ * Push a Form 1040 return record to "📄 Tax Forms" sheet.
  * Sheet is auto-created with headers if absent.
  * SSN must already be masked (last 4 only) before this function receives it.
  * @param {Spreadsheet} ss
@@ -2847,7 +2898,7 @@ function pushForm1040_(ss, p) {
 
 
 /**
- * Delete rows from "1040 Submissions" by exact `submitted_at` timestamp and/or
+ * Delete rows from "📄 Tax Forms" by exact `submitted_at` timestamp and/or
  * by a {tax_year, taxpayer_last_name} key pair.
  * Backs up every deleted row to a new sheet ("F1040_PreDelete_<timestamp>")
  * before removing anything — deletion is always reversible.
@@ -2856,8 +2907,8 @@ function pushForm1040_(ss, p) {
  * @param {Array<Object>} keys - {tax_year, taxpayer_last_name} pairs to delete.
  */
 function deleteForm1040_(ss, submittedAt, keys) {
-  var sheet = ss.getSheetByName('1040 Submissions');
-  if (!sheet) return { status: 'error', action: 'deleteForm1040', message: '1040 Submissions tab not found' };
+  var sheet = ss.getSheetByName('📄 Tax Forms');
+  if (!sheet) return { status: 'error', action: 'deleteForm1040', message: '📄 Tax Forms tab not found' };
 
   var lastRow = sheet.getLastRow();
   if (lastRow <= 1) {
@@ -3324,14 +3375,19 @@ function deletePrincipalRegister_(ss, names) {
  */
 function pushContacts_(ss, contacts) {
   var sheet = ss.getSheetByName('Contacts');
-  if (!sheet) return { status: 'error', action: 'pushContacts', message: 'Contacts tab not found' };
+  if (!sheet) {
+    sheet = ss.insertSheet('Contacts');
+    sheet.getRange(1, 1, 1, 11).setValues([['Contact ID', 'Full Name', 'Organization', 'Role', 'Cause', 'Phone', 'Email', 'Mailing Address', 'URL', 'Related Entity', 'Notes']]);
+    sheet.getRange(1, 1, 1, 11).setFontWeight('bold');
+    sheet.setFrozenRows(1);
+  }
 
   var lastRow = sheet.getLastRow();
   var nameMap = {}, existingRows = {};
   if (lastRow > 1) {
-    var allData = sheet.getRange(2, 1, lastRow - 1, 9).getValues();
+    var allData = sheet.getRange(2, 1, lastRow - 1, 11).getValues();
     for (var n = 0; n < allData.length; n++) {
-      var k = String(allData[n][2] || '').toLowerCase().trim(); // col C = fullName
+      var k = String(allData[n][1] || '').toLowerCase().trim(); // col B = fullName
       if (k) { nameMap[k] = n + 2; existingRows[k] = allData[n]; }
     }
   }
@@ -3355,18 +3411,18 @@ function pushContacts_(ss, contacts) {
 
     if (existingRow) {
       var ex = existingRows[key];
-      sheet.getRange(existingRow, 1, 1, 9).setValues([[
-        ex[0], c.role || ex[1], name, c.organization || ex[3],
-        c.phone || ex[4], c.email || ex[5], c.mailingAddress || ex[6],
-        c.relatedEntity || ex[7], c.notes || ex[8]
+      sheet.getRange(existingRow, 1, 1, 11).setValues([[
+        ex[0], name, c.organization || ex[2], c.role || ex[3],
+        c.cause || ex[4], c.phone || ex[5], c.email || ex[6], c.mailingAddress || ex[7],
+        c.url || ex[8], c.relatedEntity || ex[9], c.notes || ex[10]
       ]]);
       updated++;
     } else {
       sheet.appendRow([
         'PC-' + String(nextId++).padStart(3, '0'),
-        c.role || '', name, c.organization || '',
-        c.phone || '', c.email || '', c.mailingAddress || '',
-        c.relatedEntity || '', c.notes || ''
+        name, c.organization || '', c.role || '',
+        c.cause || '', c.phone || '', c.email || '', c.mailingAddress || '',
+        c.url || '', c.relatedEntity || '', c.notes || ''
       ]);
       nameMap[key] = sheet.getLastRow();
       imported++;
@@ -3508,20 +3564,18 @@ function updateMasterRegister_(ss, rows) {
   var sheet = ss.getSheetByName('Master Register');
   if (!sheet) return { status: 'error', action: 'updateMasterRegister', message: 'Master Register tab not found' };
 
+  // Master Register 19-col creditor index (2026-10-20 restructure). Header row 4, data row 5+.
+  // A=Entry No, B=Date, C=Creditor/Entity, D=EIN, E=Audit Acct#, F=Category, G=Description,
+  // H=Status, I=Date Acquired, J=Primary User, K=Addr L1, L=City, M=State, N=ZIP, O=Country,
+  // P=Tab #, Q=Obligor, R=SOURCE REF, S=NOTES.
+  var headerRow = 4;
   var lastRow = sheet.getLastRow();
-  // Clear stale data-validation on O/P so renamed enum values (e.g. Clint -> Clinton)
-  // can write even though the frozen _Validation list still holds the old value.
-  sheet.getRange(2, 6, Math.max(lastRow - 1, 1), 2).setDataValidation(null);  // F-G = Account Type/Subtype
-  sheet.getRange(2, 13, Math.max(lastRow - 1, 1), 2).setDataValidation(null); // M-N = Billing Frequency / Next Payment Due
-  sheet.getRange(2, 15, Math.max(lastRow - 1, 1), 1).setDataValidation(null); // O = Primary User
-  sheet.getRange(2, 16, Math.max(lastRow - 1, 1), 1).setDataValidation(null); // P = Authorized Users
-  sheet.getRange(2, 20, Math.max(lastRow - 1, 1), 1).setDataValidation(null); // T = Statements Complete
-  var idMap = {}; // Row ID -> sheet row number
-  if (lastRow > 1) {
-    var ids = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+  var idMap = {}; // Entry No. -> sheet row number
+  if (lastRow > headerRow) {
+    var ids = sheet.getRange(headerRow + 1, 1, lastRow - headerRow, 1).getValues();
     for (var i = 0; i < ids.length; i++) {
       var id = String(ids[i][0] || '').trim();
-      if (id) idMap[id] = i + 2;
+      if (id) idMap[id] = headerRow + 1 + i;
     }
   }
 
@@ -3533,20 +3587,24 @@ function updateMasterRegister_(ss, rows) {
     var target = idMap[rowId];
     if (!target) { notFound++; continue; }
 
-    if (row.provider !== undefined)        sheet.getRange(target, 3).setValue(String(row.provider));         // C
-    if (row.ein !== undefined)             sheet.getRange(target, 4).setValue(String(row.ein));              // D
-    if (row.accountNumber !== undefined)   sheet.getRange(target, 5).setValue(String(row.accountNumber));    // E
-    if (row.accountType !== undefined)     sheet.getRange(target, 6).setValue(String(row.accountType));     // F
-    if (row.accountSubtype !== undefined)  sheet.getRange(target, 7).setValue(String(row.accountSubtype));  // G
-    if (row.billingFrequency !== undefined) sheet.getRange(target, 13).setValue(String(row.billingFrequency)); // M
-    if (row.nextPaymentDue !== undefined)  sheet.getRange(target, 14).setValue(String(row.nextPaymentDue));   // N
-    if (row.statementsComplete !== undefined) sheet.getRange(target, 20).setValue(String(row.statementsComplete)); // T
-    if (row.currentBalance !== undefined)  sheet.getRange(target, 11).setValue(row.currentBalance === '' ? '' : Number(row.currentBalance)); // K
-    if (row.originalBalance !== undefined) sheet.getRange(target, 12).setValue(row.originalBalance === '' ? '' : Number(row.originalBalance)); // L
-    if (row.primaryUser !== undefined)     sheet.getRange(target, 15).setValue(String(row.primaryUser)); // O
-    if (row.authorizedUsers !== undefined) sheet.getRange(target, 16).setValue(String(row.authorizedUsers)); // P
-    if (row.status !== undefined)          sheet.getRange(target, 8).setValue(String(row.status));          // H
-    if (row.notes !== undefined)           sheet.getRange(target, 27).setValue(String(row.notes));          // AA
+    if (row.date !== undefined)         sheet.getRange(target, 2).setValue(String(row.date));           // B
+    if (row.creditor !== undefined)     sheet.getRange(target, 3).setValue(String(row.creditor));       // C
+    if (row.ein !== undefined)          sheet.getRange(target, 4).setValue(String(row.ein));            // D
+    if (row.auditAcct !== undefined)    sheet.getRange(target, 5).setValue(String(row.auditAcct));      // E
+    if (row.category !== undefined)     sheet.getRange(target, 6).setValue(String(row.category));       // F
+    if (row.description !== undefined)  sheet.getRange(target, 7).setValue(String(row.description));    // G
+    if (row.status !== undefined)       sheet.getRange(target, 8).setValue(String(row.status));         // H
+    if (row.dateAcquired !== undefined) sheet.getRange(target, 9).setValue(String(row.dateAcquired));   // I
+    if (row.primaryUser !== undefined)  sheet.getRange(target, 10).setValue(String(row.primaryUser));   // J
+    if (row.addr1 !== undefined)        sheet.getRange(target, 11).setValue(String(row.addr1));         // K
+    if (row.city !== undefined)         sheet.getRange(target, 12).setValue(String(row.city));          // L
+    if (row.state !== undefined)        sheet.getRange(target, 13).setValue(String(row.state));         // M
+    if (row.zip !== undefined)          sheet.getRange(target, 14).setValue(String(row.zip));           // N
+    if (row.country !== undefined)      sheet.getRange(target, 15).setValue(String(row.country));       // O
+    if (row.tabNo !== undefined)        sheet.getRange(target, 16).setValue(String(row.tabNo));         // P
+    if (row.obligor !== undefined)      sheet.getRange(target, 17).setValue(String(row.obligor));       // Q
+    if (row.sourceRef !== undefined)    sheet.getRange(target, 18).setValue(String(row.sourceRef));     // R
+    if (row.notes !== undefined)        sheet.getRange(target, 19).setValue(String(row.notes));         // S
     updated++;
   }
 
@@ -3565,7 +3623,7 @@ function deleteMasterRegister_(ss, rowIds) {
   var idSet = {};
   for (var i = 0; i < rowIds.length; i++) idSet[String(rowIds[i]).trim().toUpperCase()] = true;
 
-  var data = sheet.getRange(2, 1, lastRow - 1, 29).getValues();
+  var data = sheet.getRange(5, 1, lastRow - 4, 19).getValues();
   var matched = {};
   var deletedRows = [];
   var rowsToDelete = [];
@@ -3575,7 +3633,7 @@ function deleteMasterRegister_(ss, rowIds) {
     if (id && idSet[id]) {
       matched[id] = true;
       deletedRows.push(data[r]);
-      rowsToDelete.push(r + 2); // header row + 1-based index
+      rowsToDelete.push(r + 5); // data starts sheet row 5 (header row 4)
     }
   }
 
@@ -3583,13 +3641,13 @@ function deleteMasterRegister_(ss, rowIds) {
     return { status: 'ok', action: 'deleteMasterRegister', deleted: 0, notFound: rowIds };
   }
 
-  // Backup the full 29-column rows being removed, then delete bottom-up.
+  // Backup the full 19-column rows being removed, then delete bottom-up.
   var stamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone() || 'America/Chicago', 'yyyyMMdd_HHmmss');
   var backupName = 'MR_PreDelete_' + stamp;
   var backupSheet = ss.insertSheet(backupName);
-  var headers = sheet.getRange(1, 1, 1, 29).getValues()[0];
-  backupSheet.getRange(1, 1, 1, 29).setValues([headers]).setFontWeight('bold');
-  backupSheet.getRange(2, 1, deletedRows.length, 29).setValues(deletedRows);
+  var headers = sheet.getRange(4, 1, 1, 19).getValues()[0];
+  backupSheet.getRange(1, 1, 1, 19).setValues([headers]).setFontWeight('bold');
+  backupSheet.getRange(2, 1, deletedRows.length, 19).setValues(deletedRows);
   backupSheet.setTabColor('#ef4444');
 
   rowsToDelete.sort(function(a, b) { return b - a; });
@@ -3603,7 +3661,7 @@ function deleteMasterRegister_(ss, rowIds) {
 
 
 /**
- * One-time data-quality cleanup for the "Acct Ledger" tab (2026-10-16).
+ * One-time data-quality cleanup for the "Ledgers" tab (2026-10-16).
  * (1) Collapses a 35-row duplicate block (rows copied verbatim twice) by full-16-column
  *     fingerprint; (2) deletes the "Credit One Bank N.A." shell row (name present but
  *     opened/closed dates empty) in favour of the complete copy; (3) re-points the 7 Nelnet
@@ -3614,8 +3672,8 @@ function deleteMasterRegister_(ss, rowIds) {
  * @param {Object} ss - active spreadsheet
  */
 function dedupeAcctLedger_(ss) {
-  var sheet = ss.getSheetByName('Acct Ledger');
-  if (!sheet) return { status: 'error', action: 'dedupeAcctLedger', message: 'Acct Ledger tab not found' };
+  var sheet = ss.getSheetByName('Ledgers');
+  if (!sheet) return { status: 'error', action: 'dedupeAcctLedger', message: 'Ledgers tab not found' };
 
   var lastRow = sheet.getLastRow();
   var lastCol = sheet.getLastColumn() || 16;
@@ -3683,7 +3741,7 @@ function dedupeAcctLedger_(ss) {
 
 
 /**
- * Second-pass Acct Ledger cleanup (2026-10-16), after dedupeAcctLedger_.
+ * Second-pass Ledgers cleanup (2026-10-16), after dedupeAcctLedger_.
  * (a) Blanks the literal "N/A" account numbers on non-debt entities (employers/nonprofits
  *     that have no account number — the placeholder broke the entity dedup key).
  * (b) LVNV Funding LLC carries TWO accounts per FWM — Master Index (S-011 "Credit One Acct"
@@ -3694,8 +3752,8 @@ function dedupeAcctLedger_(ss) {
  * @param {Object} ss - active spreadsheet
  */
 function finalizeAcctLedger_(ss) {
-  var sheet = ss.getSheetByName('Acct Ledger');
-  if (!sheet) return { status: 'error', action: 'finalizeAcctLedger', message: 'Acct Ledger tab not found' };
+  var sheet = ss.getSheetByName('Ledgers');
+  if (!sheet) return { status: 'error', action: 'finalizeAcctLedger', message: 'Ledgers tab not found' };
 
   var lastRow = sheet.getLastRow();
   var lastCol = sheet.getLastColumn() || 16;
@@ -3746,7 +3804,7 @@ function finalizeAcctLedger_(ss) {
  * Fold-completion mutations (2026-10-16), post data-migration into Master Register.
  * (1) Duke Energy Progress LLC wrongly carried Kinston Utilities' account number 63328-1972;
  *     its correct account identifier is its EIN, 202777218. Re-point the "Acct #" (col C) on
- *     the Acct Ledger Duke row (and, if present, Master Register "Audit Account #").
+ *     the Ledgers Duke row (and, if present, Master Register "Audit Account #").
  * (2) Delete the now-redundant "FWM — Master Index" sheet (data already migrated to Master
  *     Register; full backup preserved as FWM_MasterIndex_PreHeader_20261016_000008).
  * @param {Object} ss - active spreadsheet
@@ -3754,8 +3812,8 @@ function finalizeAcctLedger_(ss) {
 function foldFinalize_(ss) {
   var result = { dukeFixedAcctLedger: 0, dukeFixedMasterRegister: 0, fwmDeleted: false, fwmBackup: 'FWM_MasterIndex_PreHeader_20261016_000008' };
 
-  // (1) Duke fix — Acct Ledger (col C = Acct #).
-  var al = ss.getSheetByName('Acct Ledger');
+  // (1) Duke fix — Ledgers (col C = Acct #).
+  var al = ss.getSheetByName('Ledgers');
   if (al) {
     var lastRow = al.getLastRow();
     var lastCol = al.getLastColumn() || 16;
@@ -4677,7 +4735,7 @@ var APPC_SHEET_NAMES_ = {
   HOUSEHOLD_OBLIGATIONS: 'TMAR — Business Obligations',
   FILING_CHAIN:          'TMAR — 1099 Filing Chain',
   W2_INCOME:             'TMAR — W-2 & Income Detail',
-  SUBMISSIONS_1040:      'TMAR — 1040 Submissions',
+  SUBMISSIONS_1040:      'TMAR — 📄 Tax Forms',
   FORMS_AUTHORITY:       'TMAR — Forms & Authority',
   PROOF_OF_MAILING:      'TMAR — Proof of Mailing',
   FILINGS_1099:          'TMAR — 1099 Filings',

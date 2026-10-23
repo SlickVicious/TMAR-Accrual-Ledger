@@ -243,12 +243,12 @@ function readMasterRegisterAccounts_() {
 }
 
 /**
- * Reads transactions from Transaction Ledger (helper)
+ * Reads transactions from Transactions (helper)
  * @returns {Array<Object>} Array of transaction objects
  */
 function readTransactionLedgerData_() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName('Transaction Ledger');
+  var sheet = ss.getSheetByName('Transactions');
 
   if (!sheet) {
     return [];

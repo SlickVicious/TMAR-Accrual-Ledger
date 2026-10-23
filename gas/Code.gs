@@ -53,21 +53,29 @@ function applyAllFormatting() {
 
 function applyTabColors(ss) {
   const tabColors = {
-    'Executive Dashboard':      '#FFD700',  // Gold
-    'Transaction Ledger':       '#1B2A4A',  // Dark blue
+    'Live Dashboard':           '#FFD700',  // Gold
+    'Transactions':             '#1B2A4A',  // Dark blue
+    'Accounts':                 '#1B2A4A',
+    'Statements':               '#1B2A4A',
+    'Entities':                 '#1B2A4A',
+    'Lists':                    '#1B2A4A',
+    'Cash Flow':                '#1B2A4A',
+    'Ledgers':                  '#1B2A4A',
+    'Journal':                  '#1B2A4A',
     'W-2 & Income Detail':      '#1B2A4A',
-    'BOA Cash Flow':            '#1B2A4A',
-    'PNC Cash Flow':            '#4A148C',  // Deep purple — Syrina's PNC Spend
-    'Business Obligations':    '#1B2A4A',
+    'Business Obligations':     '#1B2A4A',
     'Subscriptions & Services': '#1B2A4A',
-    'Tax Strategy':             '#1B2A4A',
     'Master Register':          '#2E7D32',  // Green
-    'Trust Ledger':             '#2E7D32',
-    '1099 Filing Chain':        '#2E7D32',
-    'Forms & Authority':        '#2E7D32',
+    'TIN Registry':             '#2E7D32',
+    'Chart of Accounts':        '#2E7D32',
+    'Valuations':               '#2E7D32',
     'Proof of Mailing':         '#2E7D32',
     'Document Inventory':       '#2E7D32',
     'Document Registry':        '#4CAF50',  // Bright green — filesystem cross-reference
+    'Website Accounts':         '#2E7D32',
+    '1099 Filings':             '#2E7D32',
+    '📄 Tax Forms':             '#2E7D32',
+    'Schedule A':               '#2E7D32',
     '_Validation':              '#9E9E9E',  // Gray
   };
 
@@ -217,26 +225,6 @@ function applyDataValidation(ss) {
     Logger.log('Document Inventory dropdowns applied');
   }
 
-  // Trust Ledger dropdowns
-  const tlSheet = ss.getSheetByName('Trust Ledger');
-  if (tlSheet) {
-    const binderTabs = getValList(5);
-    const btRule = SpreadsheetApp.newDataValidation()
-      .requireValueInList(binderTabs, true)
-      .setAllowInvalid(false)
-      .build();
-    tlSheet.getRange(3, 6, 200, 1).setDataValidation(btRule);
-
-    const filingStatuses = getValList(3);
-    const fsRule = SpreadsheetApp.newDataValidation()
-      .requireValueInList(filingStatuses, true)
-      .setAllowInvalid(false)
-      .build();
-    tlSheet.getRange(3, 7, 200, 1).setDataValidation(fsRule);
-
-    Logger.log('Trust Ledger dropdowns applied');
-  }
-
   // Proof of Mailing dropdowns
   const pmSheet = ss.getSheetByName('Proof of Mailing');
   if (pmSheet) {
@@ -344,8 +332,8 @@ function applyConditionalFormatting(ss) {
     Logger.log('Forms & Authority conditional formatting applied');
   }
 
-  // Transaction Ledger: Status column (J)
-  const tlSheet = ss.getSheetByName('Transaction Ledger');
+  // Transactions: Status column (J)
+  const tlSheet = ss.getSheetByName('Transactions');
   if (tlSheet) {
     const statusRange = tlSheet.getRange('J2:J500');
     const rules = tlSheet.getConditionalFormatRules();
@@ -375,7 +363,7 @@ function applyConditionalFormatting(ss) {
       .build());
 
     tlSheet.setConditionalFormatRules(rules);
-    Logger.log('Transaction Ledger conditional formatting applied');
+    Logger.log('Transactions conditional formatting applied');
   }
 
   // BOA Cash Flow: Net Change column (G) — green positive, red negative
@@ -443,18 +431,19 @@ function createFilterViews(ss) {
 
 function protectHeaderRows(ss) {
   const sheetsToProtect = [
-    'Executive Dashboard',
-    'Transaction Ledger',
+    'Live Dashboard',
+    'Transactions',
+    'Accounts',
+    'Statements',
+    'Entities',
+    'Cash Flow',
+    'Ledgers',
     'W-2 & Income Detail',
-    'BOA Cash Flow',
-    'PNC Cash Flow',
     'Business Obligations',
     'Subscriptions & Services',
-    'Tax Strategy',
     'Master Register',
-    'Trust Ledger',
-    '1099 Filing Chain',
-    'Forms & Authority',
+    'TIN Registry',
+    'Chart of Accounts',
     'Proof of Mailing',
     'Document Inventory',
     'Document Registry',
@@ -549,8 +538,7 @@ function onOpen() {
       .addItem('Install Auto-ID & Date Trigger', 'installDocRegistryTrigger')
       .addItem('Remove Auto-ID & Date Trigger', 'removeDocRegistryTrigger')
       .addSeparator()
-      .addItem('Migrate Paths to Relative (run once)', 'migrateDocRegistryPaths')
-      .addItem('Email Gap Report...', 'emailGapReport'))
+      .addItem('Migrate Paths to Relative (run once)', 'migrateDocRegistryPaths'))
 
     .addSubMenu(ui.createMenu('CPA Questions')
       .addItem('Add New Question...', 'showAddQuestionDialog')
@@ -579,9 +567,7 @@ function onOpen() {
     .addSubMenu(ui.createMenu('Setup & Administration')
       .addItem('Populate Dropdown Values', 'populateValidationSheet')
       .addSeparator()
-      .addItem('Create Register Summary Tab (run once)', 'createRegisterSummaryTab')
       .addItem('Create Executive Dashboard Tab (run once)', 'createExecutiveDashboardTab')
-      .addItem('Refresh Dashboard Formulas', 'refreshDashboard')
       .addItem('Add Sample Data', 'addSampleData')
       .addSeparator()
       .addItem('Export Current Tab to PDF', 'exportToPdf'))
@@ -710,10 +696,10 @@ function ensureCPASheet_() {
     .setAllowInvalid(false).build();
   sheet.getRange(2, 3, 200, 1).setDataValidation(catRule);
 
-  const tabNames = ['Executive Dashboard', 'Transaction Ledger', 'W-2 & Income Detail',
-    'BOA Cash Flow', 'Business Obligations', 'Subscriptions & Services', 'Tax Strategy',
-    'Master Register', 'Trust Ledger', '1099 Filing Chain', 'Forms & Authority',
-    'Proof of Mailing', 'Document Inventory'];
+  const tabNames = ['Live Dashboard', 'Transactions', 'Accounts', 'Statements', 'Entities',
+    'Cash Flow', 'Ledgers', 'Journal', 'W-2 & Income Detail', 'Business Obligations',
+    'Subscriptions & Services', 'Master Register', 'TIN Registry', 'Chart of Accounts',
+    'Valuations', 'Proof of Mailing', 'Document Inventory', 'Document Registry'];
   const tabRule = SpreadsheetApp.newDataValidation()
     .requireValueInList(tabNames, true).setAllowInvalid(false).build();
   sheet.getRange(2, 4, 200, 1).setDataValidation(tabRule);
@@ -825,7 +811,7 @@ function showHelpDialog() {
 
     <div class="section">
       <h3>Import Tools</h3>
-      <p><b>CSV Transactions:</b> Upload a CSV file to append rows to the Transaction Ledger.</p>
+      <p><b>CSV Transactions:</b> Upload a CSV file to append rows to the Transactions.</p>
       <p><b>Add Account:</b> Adds a new row to Master Register with auto-generated MR-xxx ID.</p>
       <p><b>Add Obligation/Subscription:</b> Appends entries to Business Obligations or Subscriptions & Services.</p>
     </div>
@@ -1816,7 +1802,7 @@ function updateYearReferences_(oldYear, newYear) {
   const scanTargets = {
     // ── Group A: Living Dashboard ──
     'Executive Dashboard':      ['A'],
-    'Transaction Ledger':       ['A'],
+    'Transactions':       ['A'],
     'W-2 & Income Detail':      ['A', 'F'],
     'BOA Cash Flow':            ['A', 'H'],
     'PNC Cash Flow':            ['A'],
@@ -2271,7 +2257,7 @@ function runFullGapScan() {
   // Scan each tab
   const scanners = {
     'Executive Dashboard': scanTabExecutiveDashboard_,
-    'Transaction Ledger': scanTabTransactionLedger_,
+    'Transactions': scanTabTransactionLedger_,
     'W-2 & Income Detail': scanTabW2Income_,
     'BOA Cash Flow': scanTabBOACashFlow_,
     'Business Obligations': scanTabBusinessObligations_,
@@ -2325,7 +2311,7 @@ function scanCurrentTab() {
 
   const scanners = {
     'Executive Dashboard': scanTabExecutiveDashboard_,
-    'Transaction Ledger': scanTabTransactionLedger_,
+    'Transactions': scanTabTransactionLedger_,
     'W-2 & Income Detail': scanTabW2Income_,
     'BOA Cash Flow': scanTabBOACashFlow_,
     'Business Obligations': scanTabBusinessObligations_,
@@ -2508,10 +2494,10 @@ function scanTabTransactionLedger_(sheet, results, registry) {
     const rowNum = i + 2;
     if (!row[0] && !row[1] && !row[6]) continue;
 
-    if (!row[0]) results.push(['Transaction Ledger', rowNum, 'Date (A)', 'Missing date', '', 'CRITICAL', 'Add transaction date', '']);
-    if (!row[2]) results.push(['Transaction Ledger', rowNum, 'Category (C)', 'Missing category', '', 'HIGH', 'Set category from dropdown', '']);
-    if (row[6] === '' || row[6] === null) results.push(['Transaction Ledger', rowNum, 'Amount (G)', 'Missing amount', '', 'CRITICAL', 'Enter transaction amount', '']);
-    if (!row[9]) results.push(['Transaction Ledger', rowNum, 'Status (J)', 'Missing status', '', 'MEDIUM', 'Set status: Paid, Received, Pending, Owed', '']);
+    if (!row[0]) results.push(['Transactions', rowNum, 'Date (A)', 'Missing date', '', 'CRITICAL', 'Add transaction date', '']);
+    if (!row[2]) results.push(['Transactions', rowNum, 'Category (C)', 'Missing category', '', 'HIGH', 'Set category from dropdown', '']);
+    if (row[6] === '' || row[6] === null) results.push(['Transactions', rowNum, 'Amount (G)', 'Missing amount', '', 'CRITICAL', 'Enter transaction amount', '']);
+    if (!row[9]) results.push(['Transactions', rowNum, 'Status (J)', 'Missing status', '', 'MEDIUM', 'Set status: Paid, Received, Pending, Owed', '']);
   }
 }
 
@@ -2818,10 +2804,10 @@ function scanTabDocInventory_(sheet, results, registry) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function showAddQuestionDialog() {
-  const tabNames = ['Executive Dashboard', 'Transaction Ledger', 'W-2 & Income Detail',
-    'BOA Cash Flow', 'Business Obligations', 'Subscriptions & Services', 'Tax Strategy',
-    'Master Register', 'Trust Ledger', '1099 Filing Chain', 'Forms & Authority',
-    'Proof of Mailing', 'Document Inventory'];
+  const tabNames = ['Live Dashboard', 'Transactions', 'Accounts', 'Statements', 'Entities',
+    'Cash Flow', 'Ledgers', 'Journal', 'W-2 & Income Detail', 'Business Obligations',
+    'Subscriptions & Services', 'Master Register', 'TIN Registry', 'Chart of Accounts',
+    'Valuations', 'Proof of Mailing', 'Document Inventory', 'Document Registry'];
 
   const tabOptions = tabNames.map(t => '<option value="' + t + '">' + t + '</option>').join('');
 
@@ -3142,8 +3128,8 @@ function showCSVImportDialog() {
 
 function importCSVTransactions(csvText) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName('Transaction Ledger');
-  if (!sheet) throw new Error('Transaction Ledger tab not found');
+  const sheet = ss.getSheetByName('Transactions');
+  if (!sheet) throw new Error('Transactions tab not found');
 
   // Parse CSV
   const lines = csvText.split('\n').filter(l => l.trim());
@@ -3166,7 +3152,7 @@ function importCSVTransactions(csvText) {
   const lastRow = sheet.getLastRow();
   sheet.getRange(lastRow + 1, 1, rows.length, 16).setValues(rows);
 
-  return 'Imported ' + rows.length + ' transaction' + (rows.length !== 1 ? 's' : '') + ' to Transaction Ledger';
+  return 'Imported ' + rows.length + ' transaction' + (rows.length !== 1 ? 's' : '') + ' to Transactions';
 }
 
 

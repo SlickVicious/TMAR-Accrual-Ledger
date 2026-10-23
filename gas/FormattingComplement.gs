@@ -77,11 +77,8 @@ function applyLegendBlocks(ss) {
   // Ensure each sheet has enough columns for its legend placement
   var legendColReqs = {
     'Master Register':          39,   // AK+2 = col 39
-    'Transaction Ledger':       20,   // R+2  = col 20
-    'Forms & Authority':        17,   // O+2  = col 17
-    'BOA Cash Flow':            11,   // J+1  = col 11
+    'Transactions':       20,   // R+2  = col 20
     'Business Obligations':    14,   // M+1  = col 14
-    '1099 Filing Chain':        19,   // Q+2  = col 19
   };
   for (var name in legendColReqs) {
     var sheet = ss.getSheetByName(name);
@@ -93,11 +90,8 @@ function applyLegendBlocks(ss) {
 
   var legendFns = [
     ['Master Register',       applyLegend_MasterRegister_,   37, 1],
-    ['Transaction Ledger',    applyLegend_TransactionLedger_, 18, 3],
-    ['Forms & Authority',     applyLegend_FormsAuthority_,   15, 3],
-    ['BOA Cash Flow',         applyLegend_BOACashFlow_,      10, 3],
+    ['Transactions',    applyLegend_TransactionLedger_, 18, 3],
     ['Business Obligations', applyLegend_BusinessObligations_, 13, 3],
-    ['1099 Filing Chain',     applyLegend_1099FilingChain_,  17, 3],
   ];
   for (var i = 0; i < legendFns.length; i++) {
     try {
@@ -185,7 +179,7 @@ function applyLegend_MasterRegister_(ss) {
 
 
 function applyLegend_TransactionLedger_(ss) {
-  const sheet = ss.getSheetByName('Transaction Ledger');
+  const sheet = ss.getSheetByName('Transactions');
   if (!sheet) return;
 
   const startCol = 18; // R — past the 16-col data range
@@ -235,7 +229,7 @@ function applyLegend_TransactionLedger_(ss) {
   sheet.setColumnWidth(startCol + 1, 120);
   sheet.setColumnWidth(startCol + 2, 200);
 
-  Logger.log('Legend: Transaction Ledger');
+  Logger.log('Legend: Transactions');
 }
 
 
@@ -402,18 +396,19 @@ function applyFinePrintAttribution(ss) {
   const versionLine = FC_VERSION_ + '  ·  Active Year: ' + year;
 
   const sheetNames = [
-    'Executive Dashboard',
-    'Transaction Ledger',
+    'Live Dashboard',
+    'Transactions',
+    'Accounts',
+    'Statements',
+    'Entities',
+    'Cash Flow',
+    'Ledgers',
     'W-2 & Income Detail',
-    'BOA Cash Flow',
-    'PNC Cash Flow',
     'Business Obligations',
     'Subscriptions & Services',
-    'Tax Strategy',
     'Master Register',
-    'Trust Ledger',
-    '1099 Filing Chain',
-    'Forms & Authority',
+    'TIN Registry',
+    'Chart of Accounts',
     'Proof of Mailing',
     'Document Inventory',
     'Document Registry',
@@ -476,7 +471,7 @@ function applyFinePrintAttribution(ss) {
 function applyPartyRowColoring(ss) {
   ss = ss || SpreadsheetApp.getActiveSpreadsheet();
 
-  const sheet = ss.getSheetByName('Transaction Ledger');
+  const sheet = ss.getSheetByName('Transactions');
   if (!sheet) return;
 
   const lastRow = sheet.getLastRow();
@@ -560,21 +555,29 @@ function runFormattingHealthAudit() {
 
   // 1. Tab color check
   const expectedTabColors = {
-    'Executive Dashboard':      '#FFD700',
-    'Transaction Ledger':       '#1B2A4A',
+    'Live Dashboard':           '#FFD700',
+    'Transactions':             '#1B2A4A',
+    'Accounts':                 '#1B2A4A',
+    'Statements':               '#1B2A4A',
+    'Entities':                 '#1B2A4A',
+    'Lists':                    '#1B2A4A',
+    'Cash Flow':                '#1B2A4A',
+    'Ledgers':                  '#1B2A4A',
+    'Journal':                  '#1B2A4A',
     'W-2 & Income Detail':      '#1B2A4A',
-    'BOA Cash Flow':            '#1B2A4A',
-    'PNC Cash Flow':            '#4A148C',
-    'Business Obligations':    '#1B2A4A',
+    'Business Obligations':     '#1B2A4A',
     'Subscriptions & Services': '#1B2A4A',
-    'Tax Strategy':             '#1B2A4A',
     'Master Register':          '#2E7D32',
-    'Trust Ledger':             '#2E7D32',
-    '1099 Filing Chain':        '#2E7D32',
-    'Forms & Authority':        '#2E7D32',
+    'TIN Registry':             '#2E7D32',
+    'Chart of Accounts':        '#2E7D32',
+    'Valuations':               '#2E7D32',
     'Proof of Mailing':         '#2E7D32',
     'Document Inventory':       '#2E7D32',
     'Document Registry':        '#4CAF50',
+    'Website Accounts':         '#2E7D32',
+    '1099 Filings':             '#2E7D32',
+    '📄 Tax Forms':             '#2E7D32',
+    'Schedule A':               '#2E7D32',
     '_Validation':              '#9E9E9E',
   };
 
@@ -603,7 +606,7 @@ function runFormattingHealthAudit() {
     { sheet: 'Master Register', col: 8, label: 'Status (H)' },
     { sheet: 'Master Register', col: 15, label: 'Primary User (O)' },
     { sheet: 'Master Register', col: 29, label: 'Discovery Status (AC)' },
-    { sheet: 'Transaction Ledger', col: 3, label: 'Category (C)' },
+    { sheet: 'Transactions', col: 3, label: 'Category (C)' },
     { sheet: '1099 Filing Chain', col: 6, label: 'Filing Status (F)' },
   ];
 
@@ -619,7 +622,7 @@ function runFormattingHealthAudit() {
   }
 
   // 3. Conditional formatting rule count
-  const cfTargets = ['Master Register', 'Transaction Ledger', 'Forms & Authority', 'BOA Cash Flow', 'Business Obligations'];
+  const cfTargets = ['Master Register', 'Transactions', 'Cash Flow', 'Ledgers', 'Business Obligations'];
   for (const name of cfTargets) {
     const sheet = ss.getSheetByName(name);
     if (!sheet) continue;
@@ -632,7 +635,7 @@ function runFormattingHealthAudit() {
   }
 
   // 4. Filter check
-  const filterTargets = ['Master Register', 'Transaction Ledger', 'Business Obligations'];
+  const filterTargets = ['Master Register', 'Transactions', 'Business Obligations'];
   for (const name of filterTargets) {
     const sheet = ss.getSheetByName(name);
     if (!sheet) continue;
@@ -654,7 +657,7 @@ function runFormattingHealthAudit() {
   }
 
   // 5. Header protection check
-  const protTargets = ['Master Register', 'Transaction Ledger', 'Executive Dashboard'];
+  const protTargets = ['Master Register', 'Transactions', 'Executive Dashboard'];
   for (const name of protTargets) {
     const sheet = ss.getSheetByName(name);
     if (!sheet) continue;
@@ -673,7 +676,7 @@ function runFormattingHealthAudit() {
   // 6. Legend presence check (look for "STATUS LEGEND" text)
   const legendTargets = [
     { sheet: 'Master Register', col: 37, row: 1 },
-    { sheet: 'Transaction Ledger', col: 18, row: 3 },
+    { sheet: 'Transactions', col: 18, row: 3 },
     { sheet: 'Forms & Authority', col: 15, row: 3 },
     { sheet: 'BOA Cash Flow', col: 10, row: 3 },
     { sheet: 'Business Obligations', col: 13, row: 3 },
@@ -698,7 +701,7 @@ function runFormattingHealthAudit() {
   }
 
   // 7. Attribution stamp check — scan bottom 20 rows to handle varying data lengths
-  const stampSheets = ['Master Register', 'Transaction Ledger', 'Executive Dashboard'];
+  const stampSheets = ['Master Register', 'Transactions', 'Executive Dashboard'];
   for (const name of stampSheets) {
     const sheet = ss.getSheetByName(name);
     if (!sheet) continue;
@@ -863,7 +866,7 @@ function applyDataValidationSafe_(ss) {
     'Document Inventory': 203,
     'Trust Ledger': 203,
     'Proof of Mailing': 103,
-    'Transaction Ledger': 502,
+    'Transactions': 502,
   };
   for (var name in sheetMinRows) {
     var sheet = ss.getSheetByName(name);
@@ -881,7 +884,7 @@ function applyDataValidationSafe_(ss) {
  * GAS can't create a filter on a range with merged cells.
  */
 function createFilterViewsSafe_(ss) {
-  var filterSheets = ['Master Register', 'Transaction Ledger', 'Business Obligations'];
+  var filterSheets = ['Master Register', 'Transactions', 'Business Obligations'];
   for (var i = 0; i < filterSheets.length; i++) {
     var sheet = ss.getSheetByName(filterSheets[i]);
     if (!sheet) continue;
@@ -967,7 +970,7 @@ function diagnoseLegendAndAttribution() {
 
   var targets = [
     { name: 'Master Register',       col: 37, row: 1, cols: 3 },
-    { name: 'Transaction Ledger',     col: 18, row: 3, cols: 3 },
+    { name: 'Transactions',     col: 18, row: 3, cols: 3 },
     { name: 'Forms & Authority',      col: 15, row: 3, cols: 3 },
     { name: 'BOA Cash Flow',          col: 10, row: 3, cols: 2 },
     { name: 'Business Obligations',  col: 13, row: 3, cols: 2 },
@@ -1013,7 +1016,7 @@ function diagnoseLegendAndAttribution() {
 
   report.push('');
   report.push('=== ATTRIBUTION ===');
-  var attrSheets = ['Master Register', 'Transaction Ledger', 'Executive Dashboard'];
+  var attrSheets = ['Master Register', 'Transactions', 'Executive Dashboard'];
   for (var a = 0; a < attrSheets.length; a++) {
     var sh = ss.getSheetByName(attrSheets[a]);
     if (!sh) { report.push(attrSheets[a] + ': NOT FOUND'); continue; }
