@@ -36,7 +36,7 @@ var POM_TAB_NAME_ = 'Proof of Mailing';
 // it were renamed to the DDMmmYY_TYPE_Subject_last6[-Side].ext standard (see
 // 00-Receipts-Invoices\Postal\_RENAME_MANIFEST_02AUG26.md). Every documentlocation below now
 // includes its real subfolder (PS Form-3800\, PS Form-3811\, USPS-Receipts\, MoneyOrderReceipts\).
-var POM_BASE_ = '00-Receipts-Invoices\\Postal\\';
+var POM_BASE_ = '01-Mailings\\Tracking\\';
 
 function pomNorm_(h) { return String(h || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
 
@@ -271,7 +271,52 @@ function pomRecords_() {
       documentlocation: '02-Recorded-Documents\\Filing Packages\\FAX_8821_with_Cover_and_Trust.pdf',
       note: 'Filed by FAX 2026-04-01 to IRS CAF Unit Memphis (855-214-7519). CAF No. 0317-17351 ' +
             '(designee Clinton Wimberly IV). 5 pages incl. cover. NOT USPS mail — no tracking #. ' +
-            'Cover sheet verified; fax transmission-confirmation page not located.' }
+            'Cover sheet verified; fax transmission-confirmation page not located.' },
+
+    // --- 2026-10-23 reconciliation sweep: mailings with physical receipts on file that were
+    //     never logged in pomRecords_(). Tracking + MO serials verified against the actual scans. ---
+    { mailid: 'MAIL-017', datesent: '2026-08-18',
+      recipient: 'NYS Dept. of Health, Bureau of Vital Records Certification Unit',
+      recipientaddress: 'PO Box 2602, Albany NY 12220-2602',
+      documentsent: 'DOH-4380 Certificate of Live Birth requests x3 (CW IV) — corrected form, third request',
+      relatedform: 'DOH-4380 (Certificate of Live Birth)',
+      uspstracking: '9589 0710 5270 4022 2901 56',
+      psform3811: '9590 9402 0013 6058 7793',
+      deliveryconfirmed: 'Yes', deliverydate: '2026-08-25', returnreceipt: 'Yes - hardcopy',
+      service: 'Certified + Return Receipt', status: 'DELIVERED',
+      documentlocation: '02-Recorded-Documents\\Filing Packages\\NYS_DOH_Birth_Record\\mailed\\req3_2026-08-18\\receipts\\18AUG26_CM_NYDOH-COLB_290156.jpg',
+      note: 'Third COLB request (corrected DOH-4380, birth #131-1976-00060045). $90 money order #95309746559 (3x$30). ' +
+            'Delivered 8/25/26. Returned 3 SHORT-FORM "Certificate of Birth" copies ~9/9/26 under VitalChek order #226459241 ' +
+            '(still not the long form). Escalation demand drafted 10/7/26. ' +
+            'MO stub + PS3800 + green card scans also filed in the 10-16-26 NYS DOH Escalation packet enclosures.' },
+
+    { mailid: 'MAIL-018', datesent: '2026-09-22',
+      recipient: 'Internal Revenue Service — Holtsville NY',
+      recipientaddress: 'PO Box 9013 STOP 650, Holtsville NY 11742-943',
+      documentsent: 'Unconfirmed — insured mail (>$500), sender Clinton + Syrina Wimberly (1903 Saint George Pl, Kinston NC 28504)',
+      relatedform: '',
+      uspstracking: '9589 0710 5270 4022 8603 96',
+      psform3811: '9590 9402 0027 6058 7065 24',
+      deliveryconfirmed: 'Yes', deliverydate: '', returnreceipt: 'Yes - hardcopy',
+      service: 'Insured Mail + Return Receipt', status: 'DELIVERED',
+      documentlocation: POM_BASE_ + 'PS Form-3811\\22SEP26_GC-F_IRS-Holtsville-NY_860396.jpg',
+      note: 'Green card front/back on file (22SEP26_GC-*). Service type marked "Insured Mail Restricted Delivery (over $500)". ' +
+            'Likely the 2022 return re-filing (local xlsx MAIL-045 "2022 Tax Return Filing (via mail)", dated 9/19) — ' +
+            'CONFIRM the enclosed document before relying on this row; the green card does not state the contents.' },
+
+    { mailid: 'MAIL-019', datesent: '2026-10-15',
+      recipient: 'North Carolina Department of Revenue — Customer Service Division',
+      recipientaddress: 'PO Box 471, Raleigh NC 27602-0471',
+      documentsent: 'Request for Departmental Review — letter to Chuck Gregory + Form NC-242 (2022) + NC-242 (2025) + notices #3175028260912 / #3175029260912 + filed D-400 x2',
+      relatedform: 'NC-242 (Departmental Review)',
+      uspstracking: '9589 0710 5270 4022 2901 63',
+      psform3811: '9590 9402 0013 6058 7791 29',
+      deliveryconfirmed: '', deliverydate: '', returnreceipt: 'Yes - electronic (pending)',
+      service: 'Certified + Electronic Return Receipt', status: 'MAILED — awaiting delivery',
+      documentlocation: '01-Mailings\\Packets Drafts\\10-15-26 NCDOR Dept Review packet AS-MAILED.pdf',
+      note: '7 documents. G.S. 105-241.11 request filed within 45-day window (closes 10/31/26). ' +
+            'Contested amounts: $559.05 (2022) + $2,771.66 (2025). Green card returned 10/23/26. ' +
+            'Certified receipt scan: "10-15-26 NCDOR Audit response packet.pdf".' }
   ];
 }
 
