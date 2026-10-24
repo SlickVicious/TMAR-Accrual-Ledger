@@ -343,9 +343,10 @@ function refreshProofOfMailing() {
  * so populateProofOfMailing() can re-insert a clean set. Run this, then populateProofOfMailing().
  */
 function clearProofOfMailingRows() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = (ss && ss.getSheetByName(POM_TAB_NAME_)) ||
-              SpreadsheetApp.openById(TMAR_CONFIG.liveBookId).getSheetByName(POM_TAB_NAME_);
+  // Always resolve the LIVE book (same as getTMARSpreadsheet_() used by every read/write endpoint).
+  // getActiveSpreadsheet() returns null in the Web App context but can return a DIFFERENT
+  // container-bound sheet when invoked from the editor — never trust it here.
+  var sheet = getTMARSpreadsheet_().getSheetByName(POM_TAB_NAME_);
   if (!sheet) throw new Error('Tab not found: ' + POM_TAB_NAME_);
   var values = sheet.getDataRange().getValues();
   var deleted = 0;
@@ -362,9 +363,10 @@ function clearProofOfMailingRows() {
 }
 
 function pomPopulate_(dryRun) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = (ss && ss.getSheetByName(POM_TAB_NAME_)) ||
-              SpreadsheetApp.openById(TMAR_CONFIG.liveBookId).getSheetByName(POM_TAB_NAME_);
+  // Always resolve the LIVE book (same as getTMARSpreadsheet_() used by every read/write endpoint).
+  // getActiveSpreadsheet() returns null in the Web App context but can return a DIFFERENT
+  // container-bound sheet when invoked from the editor — never trust it here.
+  var sheet = getTMARSpreadsheet_().getSheetByName(POM_TAB_NAME_);
   if (!sheet) throw new Error('Tab not found: ' + POM_TAB_NAME_);
 
   var values = sheet.getDataRange().getValues();
