@@ -311,11 +311,12 @@ function pomRecords_() {
       relatedform: 'NC-242 (Departmental Review)',
       uspstracking: '9589 0710 5270 4022 2901 63',
       psform3811: '9590 9402 0013 6058 7791 29',
-      deliveryconfirmed: '', deliverydate: '', returnreceipt: 'Yes - electronic (pending)',
-      service: 'Certified + Electronic Return Receipt', status: 'MAILED — awaiting delivery',
+      deliveryconfirmed: 'Yes', deliverydate: '2026-10-23', returnreceipt: 'Yes - hardcopy',
+      service: 'Certified + Return Receipt', status: 'DELIVERED',
       documentlocation: '01-Mailings\\Packets Drafts\\10-15-26 NCDOR Dept Review packet AS-MAILED.pdf',
       note: '7 documents. G.S. 105-241.11 request filed within 45-day window (closes 10/31/26). ' +
-            'Contested amounts: $559.05 (2022) + $2,771.66 (2025). Green card returned 10/23/26. ' +
+            'Contested amounts: $559.05 (2022) + $2,771.66 (2025). Green card (PS 3811 hardcopy, article 9590 9402 0013 6058 7791 29) ' +
+            'returned 10/23/26 confirming delivery; scan: PS Form-3811/10-23-2026 PS 3188 NC DOR assessment response letter & NC 242 submission.pdf. ' +
             'Certified receipt scan: "10-15-26 NCDOR Audit response packet.pdf".' }
   ];
 }
