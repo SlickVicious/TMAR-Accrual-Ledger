@@ -1278,7 +1278,7 @@ function doGet(e) {
         return jsonResponse_({ status: 'ok', action: 'analyzeDuplicates', report: analyzeDuplicateAccounts() });
 
       default:
-        return errorResponse_('Unknown action: ' + action + '. Valid: ping, pullAccounts, pullTransactions, pullObligations, pull1099, pullValidation, pullPrincipalRegister, pullContacts, pullWebsiteAccounts, listSheetTabs, pullRawTab, listWorkbookTabs, pullWorkbookSheets, pullSubstituteW2, pullForm1040, pullScheduleA, pullSchedule1, pullSchedule2, pullWorksheetData, pullForm2848, pullForm8275R, pullAdminForms, analyzeDuplicates, listRunnableFunctions');
+        return errorResponse_('Unknown action: ' + action + '. Valid: ping, pullAccounts, pullTransactions, pullObligations, pull1099, pullValidation, pullDataValidation, pullPrincipalRegister, pullContacts, pullWebsiteAccounts, listSheetTabs, pullRawTab, listWorkbookTabs, pullWorkbookSheets, pullSubstituteW2, pullForm1040, pullScheduleA, pullSchedule1, pullSchedule2, pullWorksheetData, pullForm2848, pullForm8275R, pullAdminForms, analyzeDuplicates, listRunnableFunctions');
     }
 
   } catch (err) {
@@ -2077,7 +2077,7 @@ function doPost(e) {
       }
 
       default:
-        return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync, pushPrincipalRegister, pushContacts, pushCreditorDetail, deleteCreditorDetail, pushWebsiteAccounts, deleteWebsiteAccounts, importSubstituteW2, importForm1040, importForm2848, importScheduleA, importSchedule1, importSchedule2, importForm8275R, importAdminForms, importWorksheetData, refreshProofOfMailing, archiveTabs, pushCreditScorecard, pushCashFlow, updateObligationCategories, rebuildObligationsPivot, runFunction');
+        return errorResponse_('Unknown action: ' + action + '. Valid: pushEntities, pushTransactions, pushPayables, push1099, fullSync, pushPrincipalRegister, pushContacts, pushCreditorDetail, deleteCreditorDetail, pushWebsiteAccounts, deleteWebsiteAccounts, importSubstituteW2, importForm1040, importForm2848, importScheduleA, importSchedule1, importSchedule2, importForm8275R, importAdminForms, importWorksheetData, refreshProofOfMailing, archiveTabs, pushCreditScorecard, pushCashFlow, pushDataValidation, updateObligationCategories, rebuildObligationsPivot, runFunction');
     }
 
   } catch (err) {
