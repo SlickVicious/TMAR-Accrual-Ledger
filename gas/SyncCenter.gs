@@ -765,15 +765,18 @@ function doGet(e) {
         });
 
       case 'pullAccounts':
-        // Master Register 19-col creditor index (2026-10-20 restructure). Header row 4,
-        // data row 5+ with category banners (— CREDIT CARDS —) interspersed (filtered below).
-        var accounts = pullSheetData_(ss, 'Master Register', 5, [
+        // Master Register 19-col creditor index (2026-10-20 restructure). FMV layout:
+        // title r1, trustee r2, address r3, BLANK r4, header r5, category banners r6+ (filtered).
+        var accounts = pullSheetData_(ss, 'Master Register', 6, [
           'rowId', 'date', 'creditor', 'ein', 'auditAcct',
           'category', 'description', 'status', 'dateAcquired', 'primaryUser',
           'addr1', 'city', 'state', 'zip', 'country',
           'tabNo', 'obligor', 'sourceRef', 'notes'
         ], { einColumn: 3 });
-        accounts = accounts.filter(function(a) { return String(a.rowId || '').trim() !== ''; });
+        accounts = accounts.filter(function(a) {
+          var id = String(a.rowId || '').trim();
+          return id !== '' && id.toLowerCase() !== 'entry no.';
+        });
         updateSyncTimestamp_(ss, 'Master Register', 'pull');
         return jsonResponse_({ status: 'ok', action: 'pullAccounts', count: accounts.length, data: accounts });
 
