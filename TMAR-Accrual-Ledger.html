@@ -14,6 +14,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>if (typeof pdfjsLib !== 'undefined') { pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; }</script>
   <style>
     :root {
       --bg-primary: #0D1B2A;
@@ -7748,9 +7750,20 @@ function exportFilingPDF(formType, data) {
     }
 
     function exportCSV() {
-      let csv = 'Date,Description,Category,Debit,Credit\n';
+      let csv = 'Txn ID,Date,Account ID,Party,Category,Subcategory,Payee,Description,Direction,Amount,Status,Biz Use %,Payment method,Reference,Source\n';
       appData.ledgerEntries.forEach(entry => {
-        csv += `"${entry.date}","${entry.description}","${entry.category}",${entry.debit || 0},${entry.credit || 0}\n`;
+        var debit = parseFloat(entry.debit) || 0;
+        var credit = parseFloat(entry.credit) || 0;
+        var raw = (debit || credit) ? (debit - credit) : 0;
+        var direction = raw >= 0 ? 'In' : 'Out';
+        var amount = Math.abs(raw);
+        var cells = [
+          entry.id || '', entry.date || '', entry.account || '', (entry.entity || entry.party || ''),
+          entry.category || '', entry.subcategory || '', entry.vendor || '', entry.description || '',
+          direction, amount, entry.status || '', entry.bizUsePct || '', entry.method || '',
+          entry.reference || '', entry.source || ''
+        ];
+        csv += cells.map(function(f){ return '"' + String(f == null ? '' : f).replace(/"/g, '""') + '"'; }).join(',') + '\n';
       });
       const blob = new Blob([csv], { type: 'text/csv' });
       saveAs(blob, 'TMAR_Ledger.csv');
@@ -19778,7 +19791,7 @@ ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.`;
               <span style="font-size:18px">📒</span>
               <div>
                 <div style="font-weight:700;font-size:13px;color:var(--text-primary)">Transactions → 📒 Ledger</div>
-                <div style="font-size:11px;color:var(--text-secondary)">16-column CSV • Hash dedup • Skip duplicates</div>
+                <div style="font-size:11px;color:var(--text-secondary)">26-column Transactions CSV • Header-tolerant • Hash dedup</div>
               </div>
               <input type="file" accept=".csv" onchange="importTransactionLedgerCSV(this)" style="display:none">
             </label>
@@ -33878,7 +33891,18 @@ function ev2InitEntityVerifier() {
         var rows = syncParseCSV(ev.target.result);
         if (rows.length < 2) throw new Error('CSV must have a header row and at least one data row');
 
-        var headers = rows[0];
+        var headers = rows[0].map(function(h) { return (h || '').trim().toLowerCase(); });
+        function col(names, fallback) {
+          for (var i = 0; i < headers.length; i++) { if (names.indexOf(headers[i]) !== -1) return i; }
+          return fallback;
+        }
+        var cName = col(['creditor / entity', 'creditor', 'entity', 'name'], 2);
+        var cAcct = col(['audit account #', 'audit account', 'account #', 'account'], 4);
+        var cType = col(['category'], 5);
+        var cStatus = col(['status'], 7);
+        var cUser = col(['primary user'], 9);
+        var cAddr = col(['address line 1', 'address'], 10);
+        var cNotes = col(['notes'], 18);
         var dataRows = rows.slice(1);
         var imported = 0;
         var conflicts = [];
@@ -33887,48 +33911,48 @@ function ev2InitEntityVerifier() {
         var lastGoodState = JSON.parse(JSON.stringify(appData.entities));
 
         dataRows.forEach(function(row) {
-          if (row.length < 3 || !row[2]) return; // Need at least Provider/Creditor
+          var name = (cName >= 0 ? (row[cName] || '') : '').trim();
+          if (!name) return;
+          var acctType = (cType >= 0 ? (row[cType] || '') : '').trim();
+          var status = (cStatus >= 0 ? (row[cStatus] || '') : 'Active').trim();
+          var primaryUser = (cUser >= 0 ? (row[cUser] || '') : '').trim();
+          var importData = {
+            name: name,
+            ein: '',
+            type: acctType || 'Unknown',
+            status: status,
+            primaryUser: primaryUser,
+            accountNumber: (cAcct >= 0 ? (row[cAcct] || '') : '').trim(),
+            address: (cAddr >= 0 ? (row[cAddr] || '') : '').trim(),
+            notes: (cNotes >= 0 ? (row[cNotes] || '') : '').trim()
+          };
 
-          var name = (row[2] || '').trim();
-          var ein = (row[3] || '').trim();
-          var acctType = (row[5] || '').trim();
-          var status = (row[7] || 'Active').trim();
-          var primaryUser = (row[14] || '').trim();
-
-          // Check for existing entity by name
           var existing = appData.entities.find(function(e) {
             return e.name && e.name.toLowerCase() === name.toLowerCase();
           });
 
           if (existing) {
-            // Conflict — record for modal
             conflicts.push({
               name: name,
               key: existing.id,
               localValue: existing.name + ' (' + (existing.type || 'Unknown') + ', ' + (existing.status || '') + ')',
               remoteValue: name + ' (' + acctType + ', ' + status + ')',
-              importData: {
-                name: name, ein: ein, type: acctType, status: status, primaryUser: primaryUser,
-                accountNumber: (row[4] || '').trim(),
-                subtype: (row[6] || '').trim(),
-                notes: (row[26] || '').trim()
-              },
+              importData: importData,
               existingId: existing.id
             });
           } else {
-            // New entity
             var newEntity = {
               id: 'ent_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
               name: name,
               type: acctType || 'Unknown',
-              ein: '', // Don't import masked EINs — they're useless
+              ein: '',
               status: status,
               primaryUser: primaryUser,
-              accountNumber: (row[4] || '').trim(),
-              subtype: (row[6] || '').trim(),
-              notes: (row[26] || '').trim(),
+              accountNumber: importData.accountNumber,
+              subtype: '',
+              notes: importData.notes,
               contact: '',
-              address: ''
+              address: importData.address
             };
             appData.entities.push(newEntity);
             imported++;
@@ -33946,7 +33970,7 @@ function ev2InitEntityVerifier() {
                   existing.status = r.conflict.importData.status;
                   existing.primaryUser = r.conflict.importData.primaryUser;
                   existing.accountNumber = r.conflict.importData.accountNumber;
-                  existing.subtype = r.conflict.importData.subtype;
+                  existing.address = r.conflict.importData.address;
                   existing.notes = r.conflict.importData.notes;
                   imported++;
                 }
@@ -33981,48 +34005,67 @@ function ev2InitEntityVerifier() {
         var rows = syncParseCSV(ev.target.result);
         if (rows.length < 2) throw new Error('CSV must have header + data rows');
 
+        var headers = rows[0].map(function(h) { return (h || '').trim().toLowerCase(); });
+        function col(names, fallback) {
+          for (var i = 0; i < headers.length; i++) { if (names.indexOf(headers[i]) !== -1) return i; }
+          return fallback;
+        }
+        var cId = col(['txn id', 'txnid', 'id'], -1);
+        var cDate = col(['date'], 0);
+        var cAcct = col(['account id', 'account', 'acct'], -1);
+        var cParty = col(['party', 'entity'], -1);
+        var cCat = col(['category'], -1);
+        var cSub = col(['subcategory'], -1);
+        var cPay = col(['payee', 'vendor'], -1);
+        var cDesc = col(['description'], -1);
+        var cDir = col(['direction'], -1);
+        var cAmt = col(['amount'], -1);
+        var cStat = col(['status'], -1);
+        var cBiz = col(['biz use %', 'biz use', 'bizuse'], -1);
+        var cMethod = col(['payment method', 'method'], -1);
+        var cRef = col(['reference'], -1);
+        var cSrc = col(['source'], -1);
+
         var dataRows = rows.slice(1);
         var imported = 0;
         var skipped = 0;
 
-        // Build hash set of existing entries for dedup
         var existingHashes = {};
         (appData.ledgerEntries || []).forEach(function(e) {
-          var h = syncHash((e.date || '') + (e.description || '') + String(e.debit || e.credit || ''));
-          existingHashes[h] = true;
+          var d = parseFloat(e.debit) || 0, c = parseFloat(e.credit) || 0;
+          existingHashes[syncHash((e.date || '') + (e.description || '') + String(d || c))] = true;
         });
 
         dataRows.forEach(function(row) {
-          if (row.length < 3) return;
+          var date = (cDate >= 0 ? (row[cDate] || '') : '').trim();
+          var description = (cDesc >= 0 ? (row[cDesc] || '') : '').trim();
+          var amt = Math.abs(parseFloat(cAmt >= 0 ? row[cAmt] : 0) || 0);
+          var dir = (cDir >= 0 ? (row[cDir] || '') : '').trim().toLowerCase();
+          if (!dir && amt !== 0) { dir = (parseFloat(row[cAmt]) < 0) ? 'out' : 'in'; }
+          var isOut = dir === 'out';
 
-          var date = (row[0] || '').trim();
-          var description = (row[5] || '').trim();
-          var amount = parseFloat(row[6]) || 0;
+          if (!date && !description && amt === 0) return;
 
-          // Dedup check
-          var h = syncHash(date + description + String(Math.abs(amount)));
-          if (existingHashes[h]) {
-            skipped++;
-            return;
-          }
+          var h = syncHash(date + description + String(amt));
+          if (existingHashes[h]) { skipped++; return; }
 
           var entry = {
+            id: (cId >= 0 ? (row[cId] || '') : '') || ('ent_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6)),
             date: date,
             description: description,
-            category: (row[2] || '').trim(),
-            debit: amount >= 0 ? Math.abs(amount) : 0,
-            credit: amount < 0 ? Math.abs(amount) : 0,
-            entity: (row[1] || '').trim(),
-            vendor: (row[4] || '').trim(),
-            subcategory: (row[3] || '').trim(),
-            paymentMethod: (row[7] || '').trim(),
-            accountType: (row[8] || '').trim(),
-            status: (row[9] || 'Posted').trim(),
-            taxDeductible: (row[10] || '').trim(),
-            businessUse: (row[11] || '').trim(),
-            dueDay: (row[12] || '').trim(),
-            recurring: (row[13] || '').trim(),
-            notes: (row[14] || '').trim()
+            category: (cCat >= 0 ? (row[cCat] || '') : '').trim(),
+            subcategory: (cSub >= 0 ? (row[cSub] || '') : '').trim(),
+            account: (cAcct >= 0 ? (row[cAcct] || '') : '').trim(),
+            entity: (cParty >= 0 ? (row[cParty] || '') : '').trim(),
+            debit: isOut ? 0 : amt,
+            credit: isOut ? amt : 0,
+            method: (cMethod >= 0 ? (row[cMethod] || '') : '').trim(),
+            reference: (cRef >= 0 ? (row[cRef] || '') : '').trim(),
+            vendor: (cPay >= 0 ? (row[cPay] || '') : '').trim(),
+            status: (cStat >= 0 ? (row[cStat] || '') : 'Posted').trim(),
+            bizUsePct: (cBiz >= 0 ? (row[cBiz] || '') : '').trim(),
+            notes: '',
+            source: (cSrc >= 0 ? (row[cSrc] || '') : '').trim() || 'CSV Import'
           };
 
           if (!appData.ledgerEntries) appData.ledgerEntries = [];
@@ -34732,12 +34775,13 @@ function ev2InitEntityVerifier() {
           category: item.category || '',
           subcategory: item.subcategory || '',
           account: item.account || '',
+          entity: item.party || '',
           debit: debitNum,
           credit: creditNum,
           method: item.method || '',
           reference: item.reference || '',
-          vendor: item.vendor || '',
-          notes: (item.notes || '') + ' [Pulled from Sheet]',
+          vendor: item.payee || item.vendor || '',
+          notes: '[Pulled from Sheet]',
           source: 'Google Sheets'
         });
         existingHashes[hash] = true;
@@ -34870,6 +34914,7 @@ function ev2InitEntityVerifier() {
       return {
         date: t.date || '',
         account: t.account || '',
+        party: t.entity || t.party || '',
         reference: t.reference || '',
         category: t.category || '',
         subcategory: t.subcategory || '',
@@ -35002,38 +35047,53 @@ function ev2InitEntityVerifier() {
       if (r.contactId && byId[r.contactId]) {
         var c = byId[r.contactId];
         c.role = r.role || c.role; c.fullName = r.fullName || c.fullName; c.organization = r.organization || c.organization;
-        c.phone = r.phone || c.phone; c.email = r.email || c.email; c.mailingAddress = r.mailingAddress || c.mailingAddress;
-        c.relatedEntity = r.relatedEntity || c.relatedEntity; c.notes = r.notes || c.notes;
+        c.cause = r.cause || c.cause; c.phone = r.phone || c.phone; c.email = r.email || c.email; c.mailingAddress = r.mailingAddress || c.mailingAddress;
+        c.url = r.url || c.url; c.relatedEntity = r.relatedEntity || c.relatedEntity; c.notes = r.notes || c.notes;
         updated++;
       } else {
-        appData.contacts.push({ id: Date.now() + Math.random(), contactId: r.contactId || '', role: r.role || '', fullName: r.fullName || '', organization: r.organization || '', phone: r.phone || '', email: r.email || '', mailingAddress: r.mailingAddress || '', relatedEntity: r.relatedEntity || '', notes: r.notes || '' });
+        appData.contacts.push({ id: Date.now() + Math.random(), contactId: r.contactId || '', role: r.role || '', fullName: r.fullName || '', organization: r.organization || '', cause: r.cause || '', phone: r.phone || '', email: r.email || '', mailingAddress: r.mailingAddress || '', url: r.url || '', relatedEntity: r.relatedEntity || '', notes: r.notes || '' });
         added++;
       }
     });
     return { added: added, updated: updated };
   }
 
-  var PRINCIPAL_REGISTER_FIELDS_ = ['entityType', 'legalName', 'dbaName', 'ein', 'mailingAddress', 'city', 'state', 'zip',
-    'primaryTrustee', 'coTrustee', 'registeredState', 'dateEstablished', 'bankName', 'branch',
-    'accountNumber', 'routingNumber', 'accountType', 'accountHolderName', 'notes'];
-
   function applyPullPrincipalRegister(rows) {
-    var added = 0, updated = 0, byId = {};
-    if (!appData.principalRegister) appData.principalRegister = [];
-    appData.principalRegister.forEach(function(p) { if (p.entityId) byId[p.entityId] = p; });
+    // Entities sheet (post-2026-10-21) — map into the local entity master.
+    var added = 0, updated = 0;
+    if (!appData.entities) appData.entities = [];
     (rows || []).forEach(function(r) {
-      if (!r.legalName && !r.entityId) return;
-      if (r.entityId && byId[r.entityId]) {
-        var p = byId[r.entityId];
-        PRINCIPAL_REGISTER_FIELDS_.forEach(function(k) { p[k] = r[k] || p[k]; });
+      var name = r.name || '';
+      if (!name) return;
+      var existing = appData.entities.find(function(e) { return e.name && e.name.toLowerCase() === name.toLowerCase(); });
+      if (existing) {
+        existing.type = r.entityType || existing.type;
+        existing.role = r.role || existing.role;
+        existing.notes = r.notes || existing.notes;
+        existing.address = r.address || existing.address;
+        existing.city = r.city || existing.city;
+        existing.state = r.state || existing.state;
+        existing.zip = r.zip || existing.zip;
         updated++;
       } else {
-        var entry = { id: Date.now() + Math.random(), entityId: r.entityId || '' };
-        PRINCIPAL_REGISTER_FIELDS_.forEach(function(k) { entry[k] = r[k] || ''; });
-        appData.principalRegister.push(entry);
+        appData.entities.push({
+          id: Date.now() + Math.random(),
+          name: name,
+          type: r.entityType || '',
+          role: r.role || '',
+          ein: '',
+          status: 'Active',
+          notes: r.notes || '',
+          address: r.address || '',
+          city: r.city || '',
+          state: r.state || '',
+          zip: r.zip || ''
+        });
         added++;
       }
     });
+    saveToStorage();
+    if (typeof updateEntitiesTable === 'function') updateEntitiesTable();
     return { added: added, updated: updated };
   }
 
@@ -35086,7 +35146,7 @@ function ev2InitEntityVerifier() {
       case 'principalRegister':
         data = appData.principalRegister || [];
         method = bridge.pushPrincipalRegister.bind(bridge);
-        label = '🏛️ Principal → Principal Register';
+        label = '🏛️ Entities → Entities';
         break;
       case '1099':
         // Gather all 1099 filings from appData.filings
@@ -35186,7 +35246,7 @@ function ev2InitEntityVerifier() {
       case 'principalRegister':
         method = bridge.pullPrincipalRegister.bind(bridge);
         applyFn = applyPullPrincipalRegister;
-        label = 'Principal Register → 🏛️ Principal';
+        label = 'Entities → 🏛️ Entities';
         break;
       default:
         showAlert('Unknown pull type: ' + type, 'Error');
@@ -42896,7 +42956,12 @@ async function eonChatSend() {
       var injected = '\n\n═══ UPLOADED DOCUMENTS ═══\n';
       attachments.forEach(function(att) {
         if (att.type === 'pdf') {
-          injected += '\n[PDF: ' + att.name + ' — switch to Claude provider for full PDF reading]\n';
+          var _pdfText = (att.text && String(att.text).trim()) || '';
+          if (_pdfText) {
+            injected += '\n[File: ' + att.name + ']\n' + _pdfText + '\n';
+          } else {
+            injected += '\n[PDF: ' + att.name + ' — no extractable text layer (scanned/image PDF); switch to Claude provider for native PDF reading]\n';
+          }
         } else if (att.type === 'image') {
           injected += '\n[Image: ' + att.name + ' — switch to Claude (Anthropic) provider for image analysis]\n';
         } else {
@@ -43082,7 +43147,12 @@ async function dtSend() {
       var injected = '\n\n═══ UPLOADED DOCUMENTS ═══\n';
       attachments.forEach(function(att) {
         if (att.type === 'pdf') {
-          injected += '\n[PDF: ' + att.name + ' — switch to Claude provider for full PDF reading]\n';
+          var _pdfText = (att.text && String(att.text).trim()) || '';
+          if (_pdfText) {
+            injected += '\n[File: ' + att.name + ']\n' + _pdfText + '\n';
+          } else {
+            injected += '\n[PDF: ' + att.name + ' — no extractable text layer (scanned/image PDF); switch to Claude provider for native PDF reading]\n';
+          }
         } else if (att.type === 'image') {
           injected += '\n[Image: ' + att.name + ' — switch to Claude (Anthropic) provider for image analysis]\n';
         } else {
@@ -43258,11 +43328,19 @@ function handleFileUpload(input) {
         var comma = raw.indexOf(',');
         var base64 = (comma >= 0 ? raw.slice(comma + 1) : raw).replace(/\s+/g, '');
         if (!base64) { window._chatPendingLoads = Math.max(0, window._chatPendingLoads - 1); return; }
-        var idx = window._chatAttachments.length;
-        window._chatAttachments.push({ name: file.name, type: 'pdf', base64: base64 });
-        _addAttachPill(file.name, idx);
-        if (preview) preview.style.display = 'flex';
-        window._chatPendingLoads = Math.max(0, window._chatPendingLoads - 1);
+        extractPdfTextFromBase64(base64).then(function(text) {
+          var idx = window._chatAttachments.length;
+          window._chatAttachments.push({ name: file.name, type: 'pdf', base64: base64, text: text });
+          _addAttachPill(file.name, idx);
+          if (preview) preview.style.display = 'flex';
+          window._chatPendingLoads = Math.max(0, window._chatPendingLoads - 1);
+        }).catch(function(err) {
+          var idx = window._chatAttachments.length;
+          window._chatAttachments.push({ name: file.name, type: 'pdf', base64: base64, text: '[PDF text extraction failed: ' + ((err && err.message) || err) + '. Switch to Claude provider for native PDF reading.]' });
+          _addAttachPill(file.name, idx);
+          if (preview) preview.style.display = 'flex';
+          window._chatPendingLoads = Math.max(0, window._chatPendingLoads - 1);
+        });
       };
       reader.onerror = function() { window._chatPendingLoads = Math.max(0, window._chatPendingLoads - 1); };
       reader.readAsDataURL(file);
@@ -50540,6 +50618,31 @@ async function extractDocxText(arrayBuffer){
 }
 window.extractDocxText = extractDocxText;
 
+// ─── PDF text-layer extraction (PDF.js) ───
+// Converts a base64 PDF to a Uint8Array and extracts the text layer so text-only
+// providers (DeepSeek) can read attached PDFs. Claude still receives the native
+// PDF via the base64 `document` block in AP.send(); this `text` field is additive.
+function _base64ToUint8Array(base64){
+  var binary = atob(base64);
+  var bytes = new Uint8Array(binary.length);
+  for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
+async function extractPdfTextFromBase64(base64){
+  if (typeof pdfjsLib === 'undefined') throw new Error('PDF.js library not loaded (offline or blocked CDN)');
+  var doc = await pdfjsLib.getDocument({ data: _base64ToUint8Array(base64) }).promise;
+  var pages = [];
+  for (var i = 1; i <= doc.numPages; i++){
+    var page = await doc.getPage(i);
+    var tc = await page.getTextContent();
+    var pageText = tc.items.map(function(it){ return it.str; }).join(' ').replace(/\s+/g, ' ').trim();
+    pages.push(pageText);
+  }
+  var text = pages.filter(Boolean).join('\n\n').trim();
+  return text || '[PDF contained no extractable text layer — likely a scanned/image PDF]';
+}
+window.extractPdfTextFromBase64 = extractPdfTextFromBase64;
+
 // ─── Phase 2: plain text → Profile-B formatted .docx, generated in-browser ───
 // Ports the Document Format Firm DOC-0004 emit rules to JS (no python-docx / no server):
 // Times New Roman 12pt, 1in margins, justified body, left-aligned + 3in-indented signature
@@ -50918,7 +51021,12 @@ const AP = {
         var injected = '\n\n═══ UPLOADED DOCUMENTS ═══\n';
         attachments.forEach(function(att) {
           if (att.type === 'pdf') {
-            injected += '\n[PDF: ' + att.name + ' — switch to Claude provider for full PDF reading]\n';
+            var _pdfText = (att.text && String(att.text).trim()) || '';
+            if (_pdfText) {
+              injected += '\n[File: ' + att.name + ']\n' + _pdfText + '\n';
+            } else {
+              injected += '\n[PDF: ' + att.name + ' — no extractable text layer (scanned/image PDF); switch to Claude provider for native PDF reading]\n';
+            }
           } else {
             injected += '\n[File: ' + att.name + ']\n' + att.content + '\n';
           }
@@ -51272,9 +51380,16 @@ const AP = {
       };
       if (isPdf) {
         reader.onload = function(e) {
-          self._attachments[page].push({ name: file.name, type: 'pdf', base64: e.target.result.split(',')[1] });
-          self._addAttachPill(page, file.name, self._attachments[page].length - 1);
-          if (preview) preview.style.display = 'flex';
+          var base64 = e.target.result.split(',')[1];
+          extractPdfTextFromBase64(base64).then(function(text) {
+            self._attachments[page].push({ name: file.name, type: 'pdf', base64: base64, text: text });
+            self._addAttachPill(page, file.name, self._attachments[page].length - 1);
+            if (preview) preview.style.display = 'flex';
+          }).catch(function(err) {
+            self._attachments[page].push({ name: file.name, type: 'pdf', base64: base64, text: '[PDF text extraction failed: ' + ((err && err.message) || err) + '. Switch to Claude provider for native PDF reading.]' });
+            self._addAttachPill(page, file.name, self._attachments[page].length - 1);
+            if (preview) preview.style.display = 'flex';
+          });
         };
         reader.readAsDataURL(file);
       } else if (isDocx) {
@@ -60475,12 +60590,20 @@ function dtHandleFiles(input) {
         var raw = e.target.result || '';
         var comma = raw.indexOf(',');
         var base64 = (comma >= 0 ? raw.slice(comma + 1) : raw).replace(/\s+/g, '');
-        window._dtPendingLoads = Math.max(0, window._dtPendingLoads - 1);
-        if (!base64) return;
-        var idx = window._dtAttachments.length;
-        window._dtAttachments.push({ name: file.name, type: 'pdf', base64: base64 });
-        _dtAddAttachPill(file.name, idx);
-        if (preview) preview.style.display = 'flex';
+        if (!base64) { window._dtPendingLoads = Math.max(0, window._dtPendingLoads - 1); return; }
+        extractPdfTextFromBase64(base64).then(function(text) {
+          var idx = window._dtAttachments.length;
+          window._dtAttachments.push({ name: file.name, type: 'pdf', base64: base64, text: text });
+          _dtAddAttachPill(file.name, idx);
+          if (preview) preview.style.display = 'flex';
+          window._dtPendingLoads = Math.max(0, window._dtPendingLoads - 1);
+        }).catch(function(err) {
+          var idx = window._dtAttachments.length;
+          window._dtAttachments.push({ name: file.name, type: 'pdf', base64: base64, text: '[PDF text extraction failed: ' + ((err && err.message) || err) + '. Switch to Claude provider for native PDF reading.]' });
+          _dtAddAttachPill(file.name, idx);
+          if (preview) preview.style.display = 'flex';
+          window._dtPendingLoads = Math.max(0, window._dtPendingLoads - 1);
+        });
       };
       reader.onerror = function() { window._dtPendingLoads = Math.max(0, window._dtPendingLoads - 1); };
       reader.readAsDataURL(file);

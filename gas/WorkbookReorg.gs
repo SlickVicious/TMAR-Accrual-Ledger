@@ -6,17 +6,16 @@
  */
 
 var HUB_SECTIONS_ = [
-  ['Index & Dashboard',   ['📋 HUB INDEX', '📋 Dashboard', '📊 Credit Scorecard']],
-  ['Core Registers',      ['Master Register', 'TIN Registry', 'FWM — Creditor Detail']],
-  ['Ledgers & Accounting',['Transaction Ledger', 'General Ledger', 'Chart of Accounts']],
-  ['Banking',             ['BOA Cash Flow', 'PNC Cash Flow', 'Principal Register']],
-  ['Tax Filings',         ['1040 Submissions', 'W-2 & Income Detail', 'Schedule A', '📄 Tax Filings']],
-  ['1099 Pipeline',       ['1099 Filings']],
-  ['Mailings & Authority',['Proof of Mailing', 'Website Accounts']],
-  ['Trust Instruments',   ['📜 Trustee Resolutions', '📦 Asset Transfer Log']],
-  ['Documents',           ['Document Inventory', 'Document Registry']],
-  ['Business',           ['Business Obligations', 'Subscriptions & Services']],
-  ['Reference',           ['AppScripts', 'Validation']]
+  ['Index & Dashboard',   ['📋 HUB INDEX', '📋 Dashboard', 'Live Dashboard', 'Checks']],
+  ['Core Registers',      ['Lists', 'Accounts', 'Statements', 'Entities', 'Master Register', 'TIN Registry', 'Chart of Accounts']],
+  ['Ledgers & Accounting',['Transactions', 'Ledgers', 'Journal', 'Cash Flow', 'Tax Lines']],
+  ['Income & Assets',     ['W-2 & Income Detail', 'Asset & Investment Accounts']],
+  ['Tax & 1099',          ['Schedule A', '📄 Tax Forms', '1099 Filings']],
+  ['Contacts & Accounts', ['Contacts', 'Website Accounts', 'Business Obligations', 'Subscriptions & Services']],
+  ['Mailings & Authority',['Proof of Mailing', 'Tab 5 — Minutes & Resolutions O']],
+  ['Trust Instruments',   ['📜 Trustee Resolutions', '📦 Asset Transfer Log', 'Valuations']],
+  ['Documents',           ['Document Inventory', 'Document Registry', 'AppScripts Canvas & Workflow Board']],
+  ['Reference',           ['AppScripts', 'Script Executions']]
 ];
 
 function finalizeWorkbookReorg_(ss) {
@@ -45,7 +44,7 @@ function finalizeWorkbookReorg_(ss) {
 
   // (2) Hide redundant source tabs (data already merged into survivors or archived).
   var hideNames = [
-    'Acct Ledger', 'Creditor Registry', 'Entities', 'Documents',
+    'Acct Ledger', 'Creditor Registry', 'Documents',
     'A Provident Private Creditor Dashboard',
     'F1040_PreDelete_20261007_220304', 'WA_PreDelete_20260803_135115'
   ];

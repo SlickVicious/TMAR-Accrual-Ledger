@@ -1,0 +1,245 @@
+═══ SYPHER PROTOCOL — TMAR ACCRUAL LEDGER — E2ZERO FRAMEWORK ═══
+FACTS AND CONCLUSIONS OF LAW ONLY
+═══════════════════════════════════════════════════════════════
+
+TRUST TAX FILINGS — ACCRUAL METHOD — CREDIT ACQUISITION FRAMEWORK
+
+═══════════════════════════════════════════════════════════════════
+I. THRESHOLD DETERMINATION — TRUST TYPE GOVERNS FILING FORM
+═══════════════════════════════════════════════════════════════════
+
+GRANTOR TRUST (Revocable Living Trust):
+All income, deductions, and credits are reported on the Grantor's personal return under IRC §671-679 (Revenue Act of 1918 framework). The trust itself is a disregarded entity for federal income tax purposes. The Grantor IS the taxpayer.
+
+NON-GRANTOR TRUST / IRREVOCABLE TRUST:
+The trust is a separate taxable entity. Files Form 1041 as the primary return.
+
+BUSINESS TRUST / STATUTORY TRUST with EIN ••-•••9588:
+Depending on election and structure — files as corporation (Form 1120) or trust (Form 1041). EIN presence confirms separate entity status.
+
+CONTROLLING AUTHORITY: Treas. Reg. §301.7701-4; Revenue Act of 1918, §218, 40 Stat. 1069.
+
+═══════════════════════════════════════════════════════════════════
+II. PRIMARY FILING — FORM 1041
+═══════════════════════════════════════════════════════════════════
+
+Form 1041 — U.S. Income Tax Return for Estates and Trusts
+
+| Line | Item | Purpose |
+|------|------|---------|
+| Line 1 | Interest income | Accrued interest recognized at T2 |
+| Line 2a | Ordinary dividends | Accrued dividend rights |
+| Line 3 | Business income | Schedule C attached |
+| Line 4 | Capital gains/losses | Schedule D attached |
+| Line 8 | Other income | Financial asset proceeds / barter exchange |
+| Line 9 | Total income | Sum of all accrued income |
+| Line 10 | Interest deduction | Ordinary and necessary |
+| Line 15a | Other deductions | Documented expenses (Rev Act §212(b)) |
+| Line 20 | Taxable income | Before NOL and credits |
+| Line 21 | NOL deduction | Mandatory — Revenue Act §204(b) |
+| Line 22 | Taxable income net | After NOL |
+| Line 23 | Tax | Per tax rate schedule |
+| Line 24c | Credits | From Form 3800 — General Business Credit |
+| Line 26 | Total tax | Net after all credits |
+| Line 27 | Payments | Estimated tax payments |
+| Line 28 | Overpayment | §6401(a) — Secretary SHALL refund |
+
+ACCRUAL METHOD NOTATION: All items on Form 1041 are recognized at the point the right to receive became fixed — not at cash receipt. Spring City Foundry Co. v. Commissioner, 292 U.S. 182 (1934).
+
+═══════════════════════════════════════════════════════════════════
+III. CREDIT ACQUISITION FILINGS — COMPLETE LIST
+═══════════════════════════════════════════════════════════════════
+
+A. FORM 3800 — General Business Credit
+The primary vehicle for credit accumulation on the trust ledger.
+
+| Component | Source Form | Credit Type |
+|-----------|-------------|-------------|
+| Investment credit | Form 3468 | Capital expenditures |
+| Work opportunity credit | Form 5884 | Employment-based |
+| Research credit | Form 6765 | R&D activities |
+| Low-income housing credit | Form 8586 | Real property |
+| Disabled access credit | Form 8826 | ADA compliance |
+| Employer retention credit | Form 5884-A | Employment |
+| Energy efficiency credit | Form 3468/8835 | Property improvement |
+
+Form 3800 flows to:
+Form 1041, Line 24c (trust filing)
+Form 1120, Schedule J, Line 5c (corporate election)
+Form 1040, Schedule 3, Line 6a (grantor/individual)
+
+Authority: 26 U.S.C. §38(a); §39(a)(1) (carryback 1 year / carryforward 20 years).
+
+
+B. FORM 3468 — Investment Credit
+Generates credit equal to percentage of qualified investment property placed in service.
+Flows to: Form 3800, Part III, Line 1a.
+Accrual trigger: Date property placed in service (T2 — acquisition event).
+
+
+C. FORM 6765 — Credit for Increasing Research Activities
+Dollar-for-dollar credit against tax for qualified research expenditures.
+Flows to: Form 3800, Part III, Line 1c.
+Accrual trigger: Date expense incurred — RIGHT to deduct fixed at T1 (contract), RIGHT to credit fixed at T2 (expense paid/accrued).
+
+
+D. FORM 8586 — Low-Income Housing Credit
+For trusts holding real property interests in qualified housing projects.
+Flows to: Form 3800, Part III, Line 1b.
+
+
+E. FORM 5884 — Work Opportunity Credit
+For trusts operating a trade or business employing targeted group members.
+Flows to: Form 3800, Part III, Line 1f.
+
+
+F. FORM 8826 — Disabled Access Credit
+For eligible small businesses making accessibility improvements.
+Flows to: Form 3800, Part III, Line 1o.
+
+═══════════════════════════════════════════════════════════════════
+IV. NOL ASSET FILING — CREDIT TO THE LEDGER
+═══════════════════════════════════════════════════════════════════
+
+Form 1045 — Application for Tentative Refund (Individual/Trust)
+Equivalent of Form 1139 for trusts and individuals
+Carries NOL back to prior tax years
+IRS must process within 90 days — 26 U.S.C. §6411
+NOL = Financial asset with Congressional sovereign guarantee
+Revenue Act of 1939, §122, 53 Stat. 862: "There SHALL be allowed as a deduction" — mandatory
+
+Schedule A of Form 1045: NOL computation — documents the asset value on the ledger.
+
+Form 1041, Line 21: NOL deduction taken in current year.
+
+
+NOL CARRYFORWARD JOURNAL ENTRY:
+DEBIT: NOL Asset — Carryforward [dollar amount]
+CREDIT: Net Operating Loss Recognized [dollar amount]
+
+Authority: Helvering v. Morgan's, Inc., 293 U.S. 121 (1934) — applied in full dollar amounts.
+
+═══════════════════════════════════════════════════════════════════
+V. OVERPAYMENT AND QUICK REFUND FILINGS
+═══════════════════════════════════════════════════════════════════
+
+Form 1041-ES — Estimated Tax Payments for Estates and Trusts
+Records quarterly estimated payments to the ledger
+Creates the payment asset on Schedule J equivalent (Form 1041, Line 27)
+Accrual entry at each payment date:
+DEBIT: Estimated Tax Payments — U.S. Treasury [quarterly amount]
+CREDIT: Cash / Financial Asset Applied [quarterly amount]
+
+
+Form 4466 — Quick Refund of Overpayment of Estimated Tax
+Available when overpayment ≥ 10% of expected liability AND ≥ $500
+File before 16th day of 4th month after close of tax year
+26 U.S.C. §6425 — Secretary has no discretion to deny qualifying overpayment
+Creates Overpayment Receivable on trust ledger
+
+
+Form 8302 — Electronic Deposit of Refund ≥ $1,000,000
+MANDATORY when refund exceeds $1,000,000
+Routes refund directly to trust bank account (Truist account on record)
+Filed with the return
+
+═══════════════════════════════════════════════════════════════════
+VI. SUPPLEMENTAL FILINGS — ASSET REPORTING
+═══════════════════════════════════════════════════════════════════
+
+| Form | Purpose | Ledger Impact |
+|------|---------|---------------|
+| Form 1099-B | Barter exchange / financial asset proceeds | Gross income — Form 1041 Line 8 |
+| Form 1099-A | Acquisition of abandoned/secured property | Chose in action realized — T2 event |
+| Form 8949 | Sales and dispositions of capital assets | Capital gain/loss — Schedule D |
+| Schedule D (1041) | Capital gains and losses | Flows to Form 1041, Line 4 |
+| Schedule C (1040) | Business income if grantor trust | Flows to Form 1040 |
+| Form 4797 | Sales of business property | Ordinary gain on §1231 property |
+| Form 8824 | Like-kind exchanges | Deferred gain — chose in action created |
+
+═══════════════════════════════════════════════════════════════════
+VII. MANDATORY JOURNAL ENTRY SEQUENCE — YEAR-END CLOSE
+═══════════════════════════════════════════════════════════════════
+
+STEP 1 — INCOME ACCRUAL (Form 1041, Line 9):
+DEBIT: Accounts Receivable / Financial Asset [gross income]
+CREDIT: Accrued Income — Trust Ledger [gross income]
+
+
+STEP 2 — EXPENSE ACCRUAL (Form 1041, Lines 10-15a):
+DEBIT: Accumulated Expense Asset [expense total]
+CREDIT: Accrued Expense Liability [expense total]
+
+Authority: Revenue Act of 1918, §212(b) — "SHALL be allowed" — mandatory deduction.
+
+STEP 3 — CREDIT ACCRUAL (Form 3800 → Form 1041, Line 24c):
+DEBIT: Tax Credit Asset — General Business [credit amount]
+CREDIT: Federal Tax Liability Reduction [credit amount]
+
+
+STEP 4 — NOL ASSET ACCRUAL (Form 1041, Line 21):
+DEBIT: NOL Deduction Applied [NOL amount]
+CREDIT: NOL Asset — Carryforward Balance [NOL amount]
+
+
+STEP 5 — OVERPAYMENT RECEIVABLE (Form 1041, Line 28):
+DEBIT: Overpayment Receivable — U.S. Treasury [overpayment]
+CREDIT: Federal Tax Liability [overpayment]
+
+Authority: 26 U.S.C. §6401(a) — overpayment IS created by operation of law. §6402(a) — Secretary SHALL refund.
+
+═══════════════════════════════════════════════════════════════════
+VIII. COMPLETE FILING CHECKLIST — ACCRUAL TRUST — CREDIT ACQUISITION
+═══════════════════════════════════════════════════════════════════
+
+PRIMARY RETURN:
+☐ Form 1041 — Primary trust tax return
+☐ Schedule D (1041) — Capital gains
+☐ Schedule C (if grantor/business trust)
+
+CREDIT ACQUISITION:
+☐ Form 3800 — General Business Credit (aggregator)
+☐ Form 3468 — Investment Credit
+☐ Form 6765 — Research Credit
+☐ Form 5884 — Work Opportunity Credit
+☐ Form 8586 — Low-Income Housing Credit
+☐ Form 8826 — Disabled Access Credit
+
+NOL ASSET:
+☐ Form 1045 — NOL carryback / tentative refund
+☐ Schedule A (1045) — NOL computation
+
+OVERPAYMENT / REFUND:
+☐ Form 4466 — Quick refund (if applicable)
+☐ Form 8302 — Electronic deposit (if ≥ $1M)
+☐ Form 1041-ES — Estimated tax payment record
+
+ASSET DOCUMENTATION:
+☐ Form 1099-B — Financial asset / barter proceeds
+☐ Form 1099-A — Property acquisition
+☐ Form 8949 — Capital asset dispositions
+☐ Form 4797 — Business property sales
+☐ Form 8824 — Like-kind exchanges
+
+
+═══════════════════════════════════════════════════════════════════
+IX. CONTROLLING AUTHORITY SUMMARY
+═══════════════════════════════════════════════════════════════════
+
+| Authority | Application |
+|-----------|-------------|
+| Revenue Act of 1918, §212(b), 40 Stat. 1064 | Accrual method governs — expenses mandatory |
+| Revenue Act of 1918, §218, 40 Stat. 1069 | Trust taxation framework |
+| Revenue Act of 1939, §122, 53 Stat. 862 | NOL — SHALL be allowed |
+| Spring City Foundry, 292 U.S. 182 (1934) | Right to receive fixed at accrual |
+| Commissioner v. Hansen, 360 U.S. 446 (1959) | Taxpayer controls recognition timing |
+| Lynch v. United States, 292 U.S. 571 (1934) | Congressional rights to money are property |
+| 26 U.S.C. §6401(a) | Overpayment by operation of law |
+| 26 U.S.C. §6402(a) | Secretary SHALL refund — no discretion |
+| 26 U.S.C. §38(a); §39(a)(1) | General Business Credit — carryback/forward |
+| 26 U.S.C. §6411 | IRS must act on tentative refund within 90 days |
+
+═══════════════════════════════════════════════════════════════════
+ALL ENTRIES ARE MANDATORY UNDER THE CONTROLLING AUTHORITIES STATED.
+FACTS AND CONCLUSIONS OF LAW ONLY.
+═══════════════════════════════════════════════════════════════════

@@ -1,0 +1,211 @@
+═══ SYPHER PROTOCOL — TMAR ACCRUAL LEDGER — E2ZERO FRAMEWORK ═══
+FACTS AND CONCLUSIONS OF LAW ONLY
+═══════════════════════════════════════════════════════════════
+
+PART I: LEGAL AUTHORITY — ACCOUNT HOLDER AS ORIGINAL CREDITOR
+
+CONTROLLING STATUTORY AND CASE AUTHORITY
+
+Uniform Commercial Code §3-104: A negotiable instrument is an unconditional promise or order to pay a fixed amount of money. A signed deposit agreement or promissory note IS a negotiable instrument.
+
+UCC §3-301: The person entitled to enforce a negotiable instrument is the holder, the nonholder in possession with rights of a holder, or a person entitled to enforce under §3-309.
+
+UCC §3-303(a): An instrument is issued or transferred for value if the instrument is issued or transferred for a promise of performance, to the extent the promise has been performed.
+
+UCC §9-102(a)(2): "Account debtor" means a person obligated on an account, chattel paper, or general intangible. The bank becomes the account debtor when it accepts the depositor's negotiable instrument.
+
+UCC §9-203(b): A security interest attaches when value has been given, the debtor has rights in the collateral, and the debtor has authenticated a security agreement.
+
+CONCLUSION OF LAW: When a depositor signs a deposit agreement, that signature creates a negotiable instrument under UCC §3-104. The bank gives credit (value) in exchange. Under UCC §9-203(b), the bank's security interest attaches TO THE INSTRUMENT — meaning the depositor's signature IS the collateral. The depositor originated the value. The bank is the account debtor. The depositor is the original creditor.
+
+
+Federal Reserve Act, 38 Stat. 251 (1913), §16: Federal Reserve notes are obligations of the United States backed by collateral deposited with Federal Reserve Banks. Member banks deposit collateral — including promissory notes and deposit instruments — to receive Federal Reserve notes.
+
+CONCLUSION OF LAW: The Federal Reserve Act confirms that bank-held instruments (including deposit agreements bearing the depositor's signature) serve as collateral backing currency issuance. The depositor's instrument IS the collateral at the Federal Reserve level.
+
+
+Carpenter v. Longan, 83 U.S. 271 (1872): The mortgage follows the note. Whoever holds the note holds all rights attendant to it. The note is the principal. The security is the incident.
+
+CONCLUSION OF LAW: The depositor's signed instrument (the note) carries all attendant rights. Whoever the note is transferred to takes subject to those rights. The originating party — the depositor — retains equitable interest in the instrument they created.
+
+
+In re Mortgage Electronic Registration Systems (MERS) Litigation, 659 F.3d 359 (4th Cir. 2011): Securitization transfers do not extinguish the original obligor's rights or the original creditor's equitable claims when proper disclosure and consent were absent.
+
+Glaski v. Bank of America, 218 Cal.App.4th 1079 (2013): A borrower has standing to challenge the securitization chain when the transfer violates the governing pooling and servicing agreement.
+
+CONCLUSION OF LAW: The equitable principle that the originator of value retains rights when undisclosed securitization occurs is judicially recognized. The depositor retains enforceable rights in the securitized instrument.
+
+
+PART II: CUSIP IMPACT ON FILING FOR TRUSTEE'S BENEFICIAL INTEREST
+
+WHAT A CUSIP CONFIRMS
+
+Committee on Uniform Security Identification Procedures (CUSIP) — administered under ANSI X9.6 standard; issued by Standard & Poor's CUSIP Service Bureau under contract with the American Bankers Association.
+
+A CUSIP number assigned to an account confirms THREE LEGAL FACTS:
+
+FACT 1: The instrument has been classified as a security under the Securities Act of 1933, 48 Stat. 74, §2(a)(1): "The term 'security' means any note, stock, treasury stock, security future, bond, debenture..."
+
+FACT 2: The instrument has been registered with a clearing system — either DTC (Depository Trust Company), DTCC, or a Federal Reserve custodial account — confirming transfer and pooling occurred.
+
+FACT 3: The instrument is generating revenue (interest, yield, or return) for the holder of record — NOT for the originating depositor/trustee.
+
+
+SECURITIES ACT OF 1933 — DISCLOSURE REQUIREMENT
+
+Securities Act of 1933, 48 Stat. 74, §17(a): It is unlawful for any person in the offer or sale of any security to employ any device, scheme, or artifice to defraud; obtain money or property by means of any untrue statement of a material fact or omission of a material fact; or engage in any transaction that operates as a fraud or deceit upon the purchaser.
+
+CONCLUSION OF LAW: Securitizing a deposit instrument without disclosure to the depositor and without payment of beneficial interest to the originating party is an omission of a material fact in the offer and sale of a security. This is a violation of §17(a).
+
+
+SECURITIES EXCHANGE ACT OF 1934 — REPORTING OBLIGATION
+
+Securities Exchange Act of 1934, 48 Stat. 881, §10(b); Rule 10b-5: Unlawful to make any untrue statement of a material fact or omit to state a material fact necessary to make the statements made not misleading in connection with the purchase or sale of any security.
+
+CONCLUSION OF LAW: Failure to disclose that the depositor's account has been assigned a CUSIP and is generating yield for third parties violates Rule 10b-5.
+
+
+CUSIP AS EVIDENCE IN THE FILING PROCESS
+
+The CUSIP number performs the following legal functions in filing for the trustee's beneficial interest:
+
+FUNCTION 1 — IDENTIFIES THE SECURITY:
+The CUSIP confirms the instrument is a registered security. This triggers the Securities Act of 1933 disclosure and consent requirements that were not fulfilled.
+
+FUNCTION 2 — ESTABLISHES THE SECURITIZATION CHAIN:
+CUSIP data from Bloomberg Terminal, EDGAR (SEC), or DTCC lookup identifies:
+The issuing entity (the Special Purpose Vehicle / Trust that holds the pooled instruments)
+The Pooling and Servicing Agreement (PSA) governing that pool
+The trustee of the securitization trust (typically a major custodial bank)
+The CUSIP holders of record (institutional investors)
+
+FUNCTION 3 — QUANTIFIES THE BENEFICIAL INTEREST:
+The yield generated by the CUSIP-identified security is ascertainable from public filings (SEC EDGAR Form ABS-15G, Form 10-D, Form 8-K). The difference between yield generated and amounts paid to the depositor/trustee = the unremitted beneficial interest.
+
+FUNCTION 4 — ESTABLISHES STANDING:
+UCC §9-102(a)(73): "Secured party" means a person in whose favor a security interest is created or provided for. The depositor/trustee as the originating party has standing as the equitable secured party.
+
+FUNCTION 5 — SUPPORTS FORM 1099-B ISSUANCE:
+26 U.S.C. §6045: Brokers and barter exchange participants must report proceeds. A CUSIP-identified security generating yield creates a mandatory reporting obligation. The proceeds attributable to the originating depositor's instrument are reportable on Form 1099-B, Box 1d.
+
+
+PART III: STANDARD PRACTICE DETERMINATION AND REMEDY PROCEDURE
+
+LEGAL CONFIRMATION THAT SECURITIZATION OF DEPOSITS IS STANDARD PRACTICE
+
+Federal Reserve Regulation D, 12 C.F.R. §204: Member banks are required to maintain reserves against deposits. The reserve requirement confirms banks treat deposits as liabilities against which they issue credit — confirming the depositor's instrument creates value.
+
+Basel III Framework (adopted by Federal Reserve via 12 C.F.R. §3): Banks are required to hold capital against risk-weighted assets. Securitized deposit instruments reduce capital requirements — confirming securitization of deposit instruments is a standard banking practice.
+
+Truth in Lending Act (TILA), 15 U.S.C. §1601 et seq.; Regulation Z, 12 C.F.R. §226: Requires disclosure of material terms when credit is extended. Non-disclosure of securitization of the depositor's instrument violates TILA's material disclosure requirements.
+
+Real Estate Settlement Procedures Act (RESPA), 12 U.S.C. §2601: Requires disclosure when servicing rights are transferred. The same disclosure principle applies to deposit instruments when transfer occurs.
+
+
+STEP-BY-STEP REMEDY PROCEDURE
+
+STEP 1 — GATHER AND DOCUMENT EVIDENCE
+
+Documents required:
+Complete account statements for all years in question
+CUSIP number (obtained from Bloomberg, DTCC, or SEC EDGAR search)
+The Pooling and Servicing Agreement (PSA) for the securitization trust holding the instrument (SEC EDGAR Form S-1 or Form 8-K filing by the issuing entity)
+SEC Form 10-D filings showing distributions to certificate holders
+The original deposit agreement bearing the trustee's signature
+Any account opening disclosures (or the absence thereof)
+
+LEGAL STANDARD: The absence of disclosure of securitization in the original account agreement is documented by the original agreement itself. No additional proof of non-disclosure is required — the document either contains the disclosure or it does not.
+
+
+STEP 2 — ESTABLISH THE LEGAL CLAIM STRUCTURE
+
+CLAIM 1 — UCC CLAIM (State Court or Administrative):
+UCC §9-625: If a secured party fails to comply with its obligations regarding collateral, the debtor (here: the trustee/depositor as the equitable debtor of the securitization) may recover damages.
+
+REVERSED POSITIONS UNDER UCC:
+Bank = account debtor (obligated to the depositor's instrument)
+Depositor/Trustee = secured party (originator of the collateral instrument)
+Remedy: UCC §9-625(b): Damages = loss caused by failure plus finance charges
+
+CLAIM 2 — SECURITIES FRAUD CLAIM:
+Securities Act §17(a); Exchange Act §10(b)/Rule 10b-5.
+Remedy: Rescission of the securitization transfer OR disgorgement of profits generated from the instrument.
+
+CLAIM 3 — UNJUST ENRICHMENT:
+Restatement (Third) of Restitution and Unjust Enrichment §1: A person who is unjustly enriched at the expense of another is subject to liability in restitution.
+The yield generated by the securitized instrument at the expense of the depositor who received no beneficial interest = unjust enrichment. Remedy = disgorgement of all yield generated.
+
+CLAIM 4 — CONSTRUCTIVE TRUST:
+Beatty v. Guggenheim Exploration Co., 225 N.Y. 380 (1919) (Cardozo, J.): A constructive trust arises when a person holding title to property is subject to an equitable duty to convey it to another on the ground that he would be unjustly enriched if he were permitted to retain it.
+The securitization trust holding the CUSIP-identified instrument holds legal title. The depositor/trustee holds equitable title. A constructive trust is imposed by operation of law requiring conveyance of the beneficial interest.
+
+CLAIM 5 — TRUST LAW CLAIM (Trustee's Beneficial Interest):
+Restatement (Third) of Trusts §2: A trust is a fiduciary relationship with respect to property arising from a manifestation of intention to create that relationship.
+The securitization trust was created using the depositor's instrument as corpus. The depositor is the equitable beneficiary of any trust created using property they originated. The trustee of the securitization trust holds property for the benefit of the originating party.
+
+
+STEP 3 — ADMINISTRATIVE FILING SEQUENCE
+
+FILING 1 — IRS FORM 1099-B (SELF-ISSUED):
+Under 26 U.S.C. §6045 and Rev. Proc. 2012-17, a party to a barter exchange or proceeds-generating transaction may document the transaction.
+Box 1a: Description — "[Bank Name] Account [#] — CUSIP [#] — Securitized Deposit Instrument"
+Box 1d: Proceeds — total yield generated by the CUSIP during the tax year (from SEC 10-D filings)
+Box 1e: Basis — original deposit amount
+Box 13: Check "Bartering"
+Form placement: Form 1120 Line 1a (corporation) or Schedule C Line 1 (sole proprietor)
+
+FILING 2 — IRS FORM 56 (NOTICE OF FIDUCIARY RELATIONSHIP):
+26 U.S.C. §6903; Treas. Reg. §301.6903-1: A fiduciary must notify the IRS of their relationship to the entity.
+Establishes the trustee's legal standing as fiduciary for the trust account
+Identifies the trust as the entity whose instruments were securitized
+Creates IRS record of the fiduciary relationship prior to any refund or credit claim
+
+FILING 3 — NOTICE AND DEMAND TO THE BANK (ADMINISTRATIVE PREREQUISITE):
+UCC §9-210: A debtor may request from a secured party a statement of account or a list of collateral.
+Send written demand via certified mail, return receipt requested
+Demand: (a) confirmation of CUSIP assignment; (b) identification of the securitization trust; (c) accounting of all yield generated; (d) identification of all parties receiving distributions
+The bank's response — or failure to respond within 14 days — becomes evidence
+
+FILING 4 — SEC COMPLAINT (IF SECURITIES FRAUD IS CONFIRMED):
+Securities Exchange Act §21(a): The SEC may investigate any violation.
+File complaint at SEC.gov/tcr (Tips, Complaints, and Referrals)
+Attach: CUSIP documentation, PSA excerpts, account statements, original deposit agreement
+Identify: §17(a) violation (non-disclosure) and §10(b)/Rule 10b-5 violation (material omission)
+
+FILING 5 — CFPB COMPLAINT:
+Consumer Financial Protection Act of 2010, 12 U.S.C. §5531: CFPB may take action against unfair, deceptive, or abusive acts or practices.
+Securitizing a consumer deposit instrument without disclosure is an abusive act under 12 U.S.C. §5531(d).
+
+FILING 6 — OCC COMPLAINT (IF NATIONAL BANK):
+12 U.S.C. §1 et seq.; 12 C.F.R. §7.4000: Office of the Comptroller of the Currency supervises national banks.
+File complaint regarding non-disclosure of securitization and failure to remit beneficial interest.
+
+
+STEP 4 — JUDICIAL REMEDY IF ADMINISTRATIVE PROCESS FAILS
+
+FEDERAL COURT — 28 U.S.C. §1331 (Federal Question Jurisdiction):
+Securities Act claims, Exchange Act claims, and Federal Reserve Act claims confer federal question jurisdiction.
+
+STATE COURT — UCC AND TRUST LAW CLAIMS:
+UCC §9-625 damages claim; constructive trust claim; unjust enrichment claim.
+
+ARBITRATION — IF ACCOUNT AGREEMENT CONTAINS ARBITRATION CLAUSE:
+Federal Arbitration Act, 43 Stat. 883 §§1-16: Arbitration clause in a deposit agreement is enforceable. File demand for arbitration asserting all claims above. An arbitration award becomes a final judgment enforceable in any federal district court under FAA §9.
+
+
+STEP 5 — ACCOUNTING TREATMENT OF RECOVERED BENEFICIAL INTEREST
+
+Upon recovery of beneficial interest, the following GAAP accrual entries are mandatory:
+
+ENTRY 1 — RECOGNITION OF ACCRUED RECEIVABLE (from date of securitization forward):
+DEBIT: Beneficial Interest Receivable — Securitized Account [total yield amount]
+CREDIT: Revenue — Securitized Instrument Beneficial Interest [total yield amount]
+
+Authority: ASC 310-10 (financial asset — contractual right to receive cash); Spring City Foundry, 292 U.S. 182 (right to receive is fixed at accrual).
+
+ENTRY 2 — UPON ACTUAL RECEIPT:
+DEBIT: Cash / Bank Account [amount received]
+CREDIT: Beneficial Interest Receivable [amount received]
+
+
+ENTRY 3 — OVERPAYMENT RECEIVABLE IF TAXES PREVIOUSLY PAID ON PHANTOM INCOME:

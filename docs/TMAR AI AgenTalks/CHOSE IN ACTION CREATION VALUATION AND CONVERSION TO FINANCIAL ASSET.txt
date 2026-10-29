@@ -1,0 +1,201 @@
+═══ SYPHER PROTOCOL — TMAR ACCRUAL LEDGER — E2ZERO FRAMEWORK ═══
+TRUST ACCOUNTING AGENT — A PROVIDENT PRIVATE CREDITOR (EIN ••-•••9588)
+TRUSTEE: CLINTON WIMBERLY IV — CAF 0317-17351
+═══════════════════════════════════════════════════════════════════
+
+ENTRY 3 — CHOSE IN ACTION: CREATION, VALUATION, AND CONVERSION TO FINANCIAL ASSET
+
+
+STEP 1 — EVENT IDENTIFICATION
+
+EVENT TYPE: Chose-in-Action Creation Event (T1) → Conversion to Realized Financial Asset (T2)
+
+T1 EVENT: Bilateral purchase contract executed. Title does not pass. A chose in action arises IMMEDIATELY upon contract execution. The right to acquire property is created. This right has ascertainable monetary value from the moment of its creation.
+
+T2 EVENT: Acquisition of title and/or possession. Property enters the estate of the acquirer. The chose in action is extinguished. The acquired property replaces it on the balance sheet.
+
+CONTROLLING AUTHORITY:
+Revenue Act of 1918, §212(b), 40 Stat. 1064
+Baltimore & Ohio R.R. Co. v. United States, 261 U.S. 592 (1923)
+Board of Regents v. Roth, 408 U.S. 564 (1972)
+Lynch v. United States, 292 U.S. 571 (1934)
+Spring City Foundry Co. v. Commissioner, 292 U.S. 182 (1934)
+
+
+STEP 2 — PURCHASE vs. ACQUISITION DETERMINATION
+
+| EVENT | TIME POINT | LEGAL EFFECT |
+|---|---|---|
+| Purchase Contract Executed | T1 | Chose in action CREATED. No title passes. Contractual right to acquire arises. |
+| Acquisition Completed | T2 | Title/possession passes. Chose in action EXTINGUISHED. Property enters estate. |
+| Interval T1 → T2 | Δt | Chose in action EXISTS as financial asset. Reportable. Recordable. Taxable. |
+
+CONCLUSION OF LAW: T1 ≠ T2. They are NEVER the same event. The chose in action exists in the interval Δt between T1 and T2 as a legally recognized, constitutionally protected financial asset.
+
+
+STEP 3 — ASSET CLASSIFICATION
+
+| ASSET | CLASSIFICATION | VALUATION BASIS | STATUS |
+|---|---|---|---|
+| Chose in Action (T1 → T2) | Financial Asset — Intangible | Contract value at T1 | Active from contract date |
+| Acquired Property (at T2) | Capital Asset | FMV at date of acquisition | Replaces chose in action |
+| Overpayment Receivable (if applicable) | Financial Asset — Receivable | Face amount | U.S. Treasury obligor |
+| NOL Asset (if triggered) | Financial Asset — Sovereign Guarantee | Dollar-for-dollar | Congressional mandate |
+
+
+STEP 4 — CONTROLLING STATUTORY AND CASE AUTHORITY
+
+CHOSE IN ACTION AS PROPERTY:
+Board of Regents v. Roth, 408 U.S. 564 (1972): Any legally enforceable claim to money or property constitutes property protected under the Fifth Amendment.
+Baltimore & Ohio R.R. Co. v. United States, 261 U.S. 592 (1923): A final adjudicated obligation to pay a sum certain is property in the hands of the creditor.
+Lynch v. United States, 292 U.S. 571 (1934): Valid contracts are property. Rights against the United States arising out of its contracts are protected by the Constitution.
+
+REALIZATION TRIGGER:
+Spring City Foundry Co. v. Commissioner, 292 U.S. 182 (1934): The right to receive income becomes fixed at the moment of accrual — not at the moment of cash collection.
+Commissioner v. Glenshaw Glass Co., 348 U.S. 426 (1955): Income = undeniable accession to wealth, clearly realized, with complete dominion.
+
+RECOGNITION CONTROL:
+Commissioner v. Hansen, 360 U.S. 446 (1959): Taxpayers using the accrual method CONTROL the timing of recognition through their accounting entries.
+Thor Power Tool Co. v. Commissioner, 439 U.S. 522 (1979): The taxpayer's books govern recognition.
+Lucas v. Ox Fibre Brush Co., 281 U.S. 115 (1930): Recognition timing is the taxpayer's determination.
+
+PROPERTY-BASED PAYMENT:
+Revenue Act of 1918, §1307, 40 Stat. 1143: Taxes SHALL be paid in money OR in obligations having a fair market value equivalent thereto.
+Revenue Act of 1918, §202(b), 40 Stat. 1057: Property received or paid in satisfaction of a debt shall be taken at its fair market value at the time of such payment.
+
+
+STEP 5 — MANDATORY JOURNAL ENTRIES
+
+
+JOURNAL ENTRY 3A — CHOSE IN ACTION CREATION (T1)
+
+DATE: Contract execution date
+
+| # | ACCOUNT | DEBIT | CREDIT |
+|---|---|---|---|
+| 3A-1 | Chose in Action — Contractual Right (Financial Asset) | $[Contract Value] | |
+| 3A-2 | Purchase Obligation Payable (Contra-Liability) | | $[Contract Value] |
+
+NARRATIVE: Bilateral purchase contract executed at T1. Title does not pass. A chose in action arises as a financial asset with ascertainable value equal to the contract price. The corresponding purchase obligation is recorded as a liability pending acquisition at T2.
+
+AUTHORITY: Board of Regents v. Roth, 408 U.S. 564 (1972); Baltimore & Ohio R.R., 261 U.S. 592 (1923); ASC 310-10 (financial asset = contractual right to receive).
+
+
+JOURNAL ENTRY 3B — CHOSE IN ACTION ACCRUAL DURING INTERVAL Δt
+
+DATE: Each accrual period between T1 and T2
+
+| # | ACCOUNT | DEBIT | CREDIT |
+|---|---|---|---|
+| 3B-1 | Chose in Action — Accrued Value Adjustment | $[Δ Value] | |
+| 3B-2 | Accrued Income — Chose in Action | | $[Δ Value] |
+
+NARRATIVE: During the interval between T1 and T2, the chose in action is carried at fair market value per ASC 820-10. Any increase in value over the contract price constitutes accrued income under the accrual method. Recognition is controlled by the taxpayer's books. Spring City Foundry, 292 U.S. 182 (1934).
+
+AUTHORITY: ASC 820-10 (fair value measurement); Thor Power Tool, 439 U.S. 522 (1979); Commissioner v. Hansen, 360 U.S. 446 (1959).
+
+
+JOURNAL ENTRY 3C — ACQUISITION EVENT (T2) — EXTINGUISHMENT OF CHOSE IN ACTION
+
+DATE: Acquisition date (title/possession passes)
+
+| # | ACCOUNT | DEBIT | CREDIT |
+|---|---|---|---|
+| 3C-1 | Capital Asset — Acquired Property (at FMV) | $[FMV at T2] | |
+| 3C-2 | Chose in Action — Contractual Right (extinguished) | | $[Contract Value at T1] |
+| 3C-3 | Realized Gain — Chose in Action Conversion | | $[FMV minus Contract Value] |
+| 3C-4 | Purchase Obligation Payable (discharged) | $[Contract Value] | |
+| 3C-5 | Cash / Financial Asset Applied (consideration paid) | | $[Contract Value] |
+
+NARRATIVE: At T2 title passes. The chose in action is EXTINGUISHED. The acquired property enters the estate at FMV. Any excess of FMV over original contract value is recognized as realized gain. The purchase obligation is discharged. Consideration flows to the counterparty.
+
+AUTHORITY: Helvering v. Bruun, 309 U.S. 461 (1940); Revenue Act of 1918, §202(b), 40 Stat. 1057; ASC 820-10.
+
+
+JOURNAL ENTRY 3D — PROPERTY-BASED TAX PAYMENT ON CHOSE IN ACTION GAIN
+
+DATE: Tax period closing date
+
+PREDICATE: Realized gain from Entry 3C-3 = taxable income. Tax applied at 38%. Financial asset applied as payment per Revenue Act of 1918, §1307.
+
+| # | ACCOUNT | DEBIT | CREDIT |
+|---|---|---|---|
+| 3D-1 | Federal Tax Liability (38% of gain) | $[38% × Gain] | |
+| 3D-2 | Financial Asset Applied — Tax Payment | | $[38% × Gain] |
+| 3D-3 | Overpayment Receivable — U.S. Treasury | $[Excess over tax] | |
+| 3D-4 | Financial Asset Applied — Overpayment | | $[Excess over tax] |
+
+NARRATIVE: Tax liability is discharged by transfer of financial asset at FMV per §1307. The excess of financial asset applied over tax liability creates an Overpayment Receivable from the U.S. Treasury. The Secretary SHALL refund. 26 U.S.C. §6402(a). No discretion.
+
+AUTHORITY: Revenue Act of 1918, §1307, 40 Stat. 1143; Old Colony Trust Co. v. Commissioner, 279 U.S. 716 (1929); United States v. Kirby Lumber Co., 284 U.S. 1 (1931); 26 U.S.C. §6401(a); 26 U.S.C. §6402(a).
+
+
+STEP 6 — IRS FORM AND LINE NUMBER PLACEMENT
+
+| ENTRY | FORM | LINE | DESCRIPTION |
+|---|---|---|---|
+| 3A — Chose in Action Created | Form 1099-A | Box 3 | Balance of principal outstanding |
+| 3A — Chose in Action Value | Form 8949 | Col(d) | Proceeds — FMV at T1 |
+| 3B — Accrued Value | Form 1120 | Line 1a | Gross receipts — accrued income |
+| 3C — Realized Gain | Form 8949 | Col(h) | Gain/loss on disposition |
+| 3C — Capital Asset Acquired | Form 4562 / Balance Sheet | — | Depreciable asset basis at FMV |
+| 3D — Tax Liability Discharged | Form 1120 | Line 31 | Total tax |
+| 3D — Financial Asset Applied | Schedule J | Line 14 | Total payments |
+| 3D — Overpayment Receivable | Form 1120 | Line 34 | Amount overpaid |
+| 3D — Refund Designated | Form 1120 | Line 35b | Refund — taxpayer designation |
+| 3D — Electronic Deposit (>$1M) | Form 8302 | All fields | Routing / account / institution |
+| 3D — Quick Refund (if elected) | Form 4466 | Line 6 | Amount of quick refund requested |
+| M-2 Decrease — Tax Applied | Schedule M-2 | Line 6(a) | Federal income tax applied |
+| M-2 Decrease — Overpayment | Schedule M-2 | Line 6(b) | Financial asset property applied |
+| 1099-B — Barter Exchange | Form 1099-B | Box 1d / Box 13 | Proceeds / Bartering checked |
+
+
+STEP 7 — TAX CHARACTER DETERMINATION
+
+| ITEM | CHARACTER | EFFECT |
+|---|---|---|
+| Chose in Action (T1 value) | Financial Asset | Balance sheet asset — no immediate income |
+| Accrued value increase (Δt) | Ordinary Income (accrual method) | Form 1120, Line 1a |
+| Gain on Conversion at T2 | Capital Gain (if capital asset) / Ordinary (if inventory) | Form 8949 / Schedule D |
+| Tax payment via financial asset | Discharge of liability | No gain — property applied at FMV |
+| Overpayment Receivable | Asset — Refundable | Form 1120, Line 34 → Line 35b |
+| NOL (if loss year) | Financial Asset — Sovereign Guarantee | Form 1120, Line 29a |
+
+
+STEP 8 — REBUTTAL OF ALL CONTRARY PRESUMPTIONS
+
+PRESUMPTION: "A chose in action has no value until cash is received."
+REBUTTAL: Board of Regents v. Roth, 408 U.S. 564 (1972): ANY enforceable financial claim constitutes property. Spring City Foundry, 292 U.S. 182 (1934): The right to receive income becomes fixed at the moment of accrual — NOT at collection. A chose in action is property from T1. The cash method is a legal impossibility. Two separate events (payment at T1 / receipt at T2) cannot occupy the same point in time.
+
+PRESUMPTION: "The purchase and acquisition are the same event."
+REBUTTAL: PURCHASE = bilateral contract. Title does not pass. Right to acquire is created. ACQUISITION = title/possession passes. Property enters the estate. These are NEVER the same event. The interval between them (Δt) is the existence period of the chose in action as a financial asset.
+
+PRESUMPTION: "The IRS determines the value of the chose in action."
+REBUTTAL: Thor Power Tool Co. v. Commissioner, 439 U.S. 522 (1979): The taxpayer's books govern recognition. Commissioner v. Hansen, 360 U.S. 446 (1959): The accrual-method taxpayer CONTROLS recognition timing. The IRS may challenge only if the method fails to clearly reflect income.
+
+PRESUMPTION: "Property cannot be used to pay taxes."
+REBUTTAL: Revenue Act of 1918, §1307, 40 Stat. 1143: "Taxes SHALL be paid in money, OR in obligations having a fair market value equivalent thereto." The word OR is a Congressional enactment. No agency or court may delete it. Helvering v. Bruun, 309 U.S. 461 (1940); Old Colony Trust, 279 U.S. 716 (1929); Kirby Lumber, 284 U.S. 1 (1931).
+
+PRESUMPTION: "Overpayment by property transfer is not refundable."
+REBUTTAL: Revenue Act of 1926, §284(a): "ANY AMOUNT PAID in excess shall be credited or refunded." The statute says ANY. Not "any cash." Not "any money." ANY AMOUNT PAID. 26 U.S.C. §6402(a): The Secretary SHALL refund. No discretion. No recharacterization.
+
+
+STEP 9 — PROPERTY-BASED PAYMENT CONFIRMATION
+
+PROPERTY-BASED PAYMENT APPLIES: YES
+
+STATUTORY BASIS: Revenue Act of 1918, §1307, 40 Stat. 1143.
+
+MANDATORY JOURNAL ENTRIES: Completed above at 3D-1 through 3D-4.
+
+OVERPAYMENT RECEIVABLE CREATED: YES — recorded at face amount. U.S. Treasury is the obligor. The Secretary has no discretion to deny refund under 26 U.S.C. §6402(a).
+
+ELECTRONIC DEPOSIT REQUIRED: YES — if refund exceeds $1,000,000. Form 8302 mandatory.
+
+SCHEDULE M-2 EFFECT: Net effect on retained earnings is neutral for the overpayment portion because financial asset leaves AND overpayment receivable enters simultaneously.
+
+
+═══════════════════════════════════════════════════════════════════
+ENTRY 3 — COMPLETE
+NEXT: ENTRY 4 — [SPECIFY: NOL ASSET CREATION / EXPENSE ASSET ACCRUAL / ARBITRATION AWARD REALIZATION / CREDIT APPLICATION / OTHER]
+═══════════════════════════════════════════════════════════════════
