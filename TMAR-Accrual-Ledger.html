@@ -7,7 +7,7 @@
   <title>TMAR Universal Accrual Ledger</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><text y=%2228%22 font-size=%2228%22>⚖️</text></svg>">
   <meta name="description" content="TMAR-Aligned Universal Accrual Ledger - Trust accounting, double-entry journal, tax forms, financial statements">
-  <meta name="author" content="Clinton Wimberly IV">
+  <meta name="author" content="Shawn Sylvester Wimberly">
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" crossorigin="anonymous">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -6621,9 +6621,21 @@
         '1099-DIV': [], '1099-R': [], '1099-NEC': [], '1099-MISC': []
       },
       entities: [{
-        id: 'trust_primary',
-        name: '',
-        type: 'Trust',
+        id: 'vv',
+        name: 'Virtuous Veteran Revocable Living Trust',
+        type: 'trust',
+        ein: '41-6827079',
+        trustee: 'Shawn Sylvester Wimberly',
+        cafNumber: '',
+        fiscalYearEnd: '12/31',
+        status: 'Active',
+        primaryUser: 'Trust',
+        contact: 'Shawn Sylvester Wimberly',
+        address: '140 Preserve Way, Suffolk, VA 23434'
+      }, {
+        id: 'cc',
+        name: 'Culinary Creations Family Trust',
+        type: 'trust',
         ein: '',
         trustee: '',
         cafNumber: '',
@@ -6631,7 +6643,43 @@
         status: 'Active',
         primaryUser: 'Trust',
         contact: '',
-        address: ''
+        address: '140 Preserve Way, Suffolk, VA 23434'
+      }, {
+        id: 'fleet_one',
+        name: 'Wimberly Fleet Unit One LLC',
+        type: 'llc',
+        ein: '',
+        trustee: '',
+        cafNumber: '',
+        fiscalYearEnd: '12/31',
+        status: 'Active',
+        primaryUser: 'LLC',
+        contact: 'Shawn Sylvester Wimberly',
+        address: '140 Preserve Way, Suffolk, VA 23434'
+      }, {
+        id: 'fleet_two',
+        name: 'Wimberly Fleet Unit Two LLC',
+        type: 'llc',
+        ein: '',
+        trustee: '',
+        cafNumber: '',
+        fiscalYearEnd: '12/31',
+        status: 'Active',
+        primaryUser: 'LLC',
+        contact: 'Shawn Sylvester Wimberly',
+        address: '140 Preserve Way, Suffolk, VA 23434'
+      }, {
+        id: 'fleet_tesla',
+        name: 'Wimberly Fleet Tesla LLC',
+        type: 'llc',
+        ein: '',
+        trustee: '',
+        cafNumber: '',
+        fiscalYearEnd: '12/31',
+        status: 'Active',
+        primaryUser: 'LLC',
+        contact: 'Shawn Sylvester Wimberly',
+        address: '140 Preserve Way, Suffolk, VA 23434'
       }],
       chartOfAccounts: [],
       journalEntries: [],
@@ -6643,15 +6691,15 @@
       eliminations: [],
       syncLog: [],
       settings: {
-        trustName: '',
-        trustEIN: '',
-        trusteeName: '',
+        trustName: 'Virtuous Veteran Revocable Living Trust',
+        trustEIN: '41-6827079',
+        trusteeName: 'Shawn Sylvester Wimberly',
         cafNumber: '',
         activeYear: '2025',
-        jurisdiction: '',
+        jurisdiction: 'Virginia',
         court: '',
-        address: '',
-        grantor: '',
+        address: '140 Preserve Way, Suffolk, VA 23434',
+        grantor: 'Shawn Sylvester Wimberly',
         gasWebAppUrl: 'https://script.google.com/macros/s/AKfycbzpeegvE52lvqCTMyKrsdaa_4JFfjM6MQrsJkU8zb17fkUJzPRasUU0fjONdaHkM5dh/exec',
         gasApiKey: '',
         lastSyncTimestamp: null,
@@ -6680,6 +6728,43 @@
       return settings;
     }
 
+    // Canonical trust identity migration. Fills EMPTY identity fields on every
+    // load, repoints a retired Dynasty Estate install (APPCRLT, EIN 41-6809588)
+    // to the current canonical trust (Virtuous Veteran), and reconciles the
+    // entity list to the canonical structure. Never overwrites user-entered data.
+    function migrateTrustIdentity(data) {
+      var s = data.settings || (data.settings = {});
+      var d = (defaultAppData && defaultAppData.settings) || {};
+      var seedEnts = defaultAppData.entities || [];
+
+      // Repoint retired Dynasty Estate -> Virtuous Veteran (keyed off the unique
+      // Dynasty EIN so unrelated user data is never touched).
+      var isDynasty = (s.trustEIN === '41-6809588' || s.trustName === 'A Provident Private Creditor Revocable Living Trust');
+      if (isDynasty) {
+        ['trustName', 'trustEIN', 'trusteeName', 'cafNumber', 'grantor', 'jurisdiction', 'address'].forEach(function (k) {
+          s[k] = d[k];
+        });
+        data.entities = (data.entities || []).filter(function (e) {
+          return !(e && (e.ein === '41-6809588' || e.name === 'A Provident Private Creditor Revocable Living Trust' || e.name === 'Infinivinity Family Trust'));
+        });
+      }
+
+      // Fill any still-empty trust identity fields.
+      ['trustName', 'trustEIN', 'trusteeName', 'cafNumber', 'grantor', 'jurisdiction', 'address'].forEach(function (k) {
+        if (!s[k]) s[k] = d[k];
+      });
+
+      // Reconcile entities to the canonical structure (VV + CC + SPV Fleet).
+      var ents = data.entities || (data.entities = []);
+      seedEnts.forEach(function (seed) {
+        if (!ents.some(function (e) { return e && e.id === seed.id; })) {
+          ents.push(Object.assign({}, seed));
+        }
+      });
+
+      return data;
+    }
+
     function loadFromStorage() {
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
@@ -6689,12 +6774,12 @@
           showAutoSaveStatus('Data loaded from browser storage');
           const merged = { ...defaultAppData, ...parsed };
           merged.settings = migrateGasWebAppUrl({ ...defaultAppData.settings, ...(parsed.settings || {}) });
-          return merged;
+          return migrateTrustIdentity(merged);
         }
       } catch (e) {
         console.error('Error loading from localStorage:', e);
       }
-      return { ...defaultAppData };
+      return migrateTrustIdentity({ ...defaultAppData });
     }
 
     // Mask EIN to show only last 4 digits (XX-XXXXXXX → ••-•••XXXX)
@@ -42718,11 +42803,11 @@ var DOCUMENT_KNOWLEDGE = (typeof DOCUMENT_KNOWLEDGE !== 'undefined' && DOCUMENT_
     fiduciaryDocFactory:
       'FIDUCIARY DOCUMENT FACTORY STANDARD (v2.1.0 — GPO Style Manual 2016 plus Weiss trustee substance). ' +
       'Apply this whenever you produce, curate, or revise a trust or private-administrative document; it is inert for non-document tasks. ' +
-      'IDENTITY STACK (state capacity on every signature): Trust entity — "A Provident Private Creditor Revocable Living Trust, by [Name], Trustee"; Living Man — per the Affidavit of Identity and Status; Co-Trustee — "[Name], as Co-Trustee and not individually". A trustee signs in capacity, never personally; on any debt or contract instrument a bare title is insufficient — add a non-personal qualifier ("as Trustee and not personally", "without recourse to Trustee"). ' +
-      'EIN is masked everywhere as **-***9588 except a form field that legally compels the full number. Governing law is the North Carolina Uniform Trust Code, N.C.G.S. Ch. 36C. Pull the mailing address from the live workbook at render time; never hardcode it. ' +
+      'IDENTITY STACK (state capacity on every signature): Trust entity — "Virtuous Veteran Revocable Living Trust, by [Name], Trustee"; Living Man — per the Affidavit of Identity and Status; Co-Trustee — "[Name], as Co-Trustee and not individually". A trustee signs in capacity, never personally; on any debt or contract instrument a bare title is insufficient — add a non-personal qualifier ("as Trustee and not personally", "without recourse to Trustee"). ' +
+      'EIN is masked everywhere as **-***7079 except a form field that legally compels the full number. Governing law is the Virginia Uniform Trust Code, Va. Code § 64.2-700 et seq. Pull the mailing address from the live workbook at render time; never hardcode it. ' +
       'FORMAT INVARIANTS (Profile B, forced): Times New Roman, 1-inch margins all sides, justified. Two-tier type per operator directive: structural identifiers stay at 12 pt and the paragraph text that follows an identifier is set at 10 pt. An identifier is the leading token of a block — a type label such as Article, Section, Schedule, Exhibit, Appendix, Part, Clause, or Type together with its numeral or letter, or an enumerator such as (a), 1., IV., or A. — while headings and any paragraph not led by an identifier remain 12 pt. Black text on white only — no shading, no highlight, no colored rules, no fills; tables use a single black hairline grid, header row bold not shaded. Signatures and datelines indent in multiples of 2 ems (signature block reached by a 3.0-inch left indent, capacity line directly beneath the name); addresses and the Jurat sit flush left. Executive spacing; control widows and orphans and let the signature or Jurat share the final content page rather than stranding a lone line. ' +
       'GPO EDITORIAL PASS: serial (Oxford) comma is mandatory; initialisms carry no internal periods (IRS, USPS, SSA, EIN); "U.S." as an adjective keeps periods, "United States" as a noun is spelled out; spell out one through nine and use figures for 10 and up, but always figures for money, dates, percentages, and section, account, EIN, and case numbers; no sentence begins with a figure; dateline uses a spelled-out month; italicize case names and supra, infra, id., but keep e.g., i.e., et al., pro se, affidavit, jurat upright; capitalize defined parties (the Trust, Trustee, Settlor, Beneficiary) consistently. ' +
-      'WEISS FIDUCIARY SUBSTANCE: open most instruments with an authority recital ("Pursuant to the powers vested in the Trustee under that certain A Provident Private Creditor Revocable Living Trust and the North Carolina Uniform Trust Code, N.C.G.S. Ch. 36C, the undersigned Trustee acts as follows"); close demands and notices with a reservation of rights and non-waiver clause; notices identify the Trust, the Trustee, the recipient, the act, the effective date, and the response window, in that order; accountings keep principal separate from income and never net them silently; transfers state the from-titling and to-titling exactly with complete account numbers; no self-dealing, preference, or concealment language; no personal pronouns where the trustee acts for the trust. ' +
+      'WEISS FIDUCIARY SUBSTANCE: open most instruments with an authority recital ("Pursuant to the powers vested in the Trustee under that certain Virtuous Veteran Revocable Living Trust and the Virginia Uniform Trust Code, Va. Code § 64.2-700 et seq., the undersigned Trustee acts as follows"); close demands and notices with a reservation of rights and non-waiver clause; notices identify the Trust, the Trustee, the recipient, the act, the effective date, and the response window, in that order; accountings keep principal separate from income and never net them silently; transfers state the from-titling and to-titling exactly with complete account numbers; no self-dealing, preference, or concealment language; no personal pronouns where the trustee acts for the trust. ' +
       'DOC-ID: every emitted document carries a DOC-NNNN stamp (upper-left) matched to the live TMAR Document Registry — mint the next ID and write the row back; never reuse or placeholder an ID. ' +
       'MEDIA: default Letter 8.5x11 on 24 lb bond; Legal 8.5x14 only for court forms and recording filings; 32 lb cover stock for certificates, seals, and cover pages; surface size and weight in the output preamble. ' +
       'GATES: if a document is account-specific (transfer, retitle, closure) and any referenced account number is missing, stop and list exactly which numbers are missing rather than inventing them. Conflict order: compelled legal form field, then format invariant, then Weiss substance, then GPO editorial — higher yields to lower, and any yield is flagged in one line. ' +
@@ -48826,7 +48911,7 @@ var POA_TABS = [
 ];
 
 var poaState = {
-  mode: 'poa', currentState: 'NC', activeTab: 'poa', activeDBA: 'dba1', menuOpen: false,
+  mode: 'poa', currentState: 'VA', activeTab: 'poa', activeDBA: 'dba1', menuOpen: false,
   form: { principal_name:'', principal_address:'', principal_county:'', agent_name:'', agent_address:'', agent_phone:'', successor_name:'', successor_address:'', execution_date:'', notary_county:'', witness1_name:'', witness1_address:'', witness2_name:'', witness2_address:'', transaction_desc:'', third_party:'', poa_id:'', recording_info:'' },
   dba: { trust_name:'', trustee_title:'', foreign_trustee:'', co_trustee:'', first_name:'', middle_name:'', last_name:'', birthdate:'', business_name:'', business_date:'', foreign_addr:'', domestic_addr:'', filing_county:'', trust_date:'', trust_ein:'' }
 };
@@ -50651,7 +50736,7 @@ window.extractPdfTextFromBase64 = extractPdfTextFromBase64;
 // Ports the Document Format Firm DOC-0004 emit rules to JS (no python-docx / no server):
 // Times New Roman 12pt, 1in margins, justified body, left-aligned + 3in-indented signature
 // blocks, EIN masking, optional DOC-ID header, widow/orphan + keep-with-next, metadata scrub.
-const FACTORY_TRUST_AUTHOR = 'A Provident Private Creditor Revocable Living Trust';
+const FACTORY_TRUST_AUTHOR = 'Virtuous Veteran Revocable Living Trust';
 function _fdXmlEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function _fdRPr(bold){ return '<w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/><w:sz w:val="24"/><w:szCs w:val="24"/>'+(bold?'<w:b/>':'')+'</w:rPr>'; }
 function _fdRuns(text, bold){
@@ -59215,7 +59300,7 @@ var VAULT_INDEX = {
         "icon": "📁",
         "items": [
           "CERTIFICATE OF TRUST.md",
-          "Clinton Wimberly IV Revocable Living Trust.pdf.md",
+          "Virtuous Veteran Revocable Living Trust.pdf.md",
           "EIN Application Guide.md",
           "GENERAL ASSIGNMENT OF PERSONAL PROPERTY.md",
           "Revised Section 35.md",
