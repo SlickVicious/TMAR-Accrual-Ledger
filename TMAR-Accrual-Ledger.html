@@ -7289,6 +7289,15 @@ function exportFilingPDF(formType, data) {
       { num: '9900', name: 'Gain/Loss on Disposal', type: 'revenue', subtype: 'gains', normalBal: 'credit', formLine: '1120-9' }
     ];
 
+    // Auto-seed the standard trust chart of accounts on first load so the CoA
+    // section shows the trust's accounts (Cash, Trust Corpus, Fiduciary Fees,
+    // Distributions, etc.) without a manual "Load Default COA" click.
+    if (appData && (!appData.chartOfAccounts || appData.chartOfAccounts.length === 0)) {
+      appData.chartOfAccounts = defaultCOA.map(function (a, i) {
+        return Object.assign({}, a, { id: 'coa_' + a.num + '_' + i });
+      });
+    }
+
     // Custom Modal Functions
     function showModal(content) {
       const container = document.getElementById('modalContainer');
@@ -13759,10 +13768,6 @@ function exportFilingPDF(formType, data) {
           <p style="color:#f59e0b;font-weight:700;font-size:0.85rem;margin:0;">1096</p>
           <p style="color:var(--text-secondary);font-size:0.7rem;margin:0;">Transmittal</p>
         </div>
-      </div>
-
-      <div id="tmwChainMismatch" style="display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.4);border-radius:6px;padding:10px 14px;margin-bottom:14px;color:#f87171;font-size:0.82rem;font-weight:600;">
-        WARNING: 1099-B #1 and 1099-B #2 values do not match. Review before filing.
       </div>
 
       <div id="tmwChainOutput" style="display:none;">
@@ -35644,14 +35649,14 @@ function ev2InitEntityVerifier() {
       return;
     }
     tbody.innerHTML = cusips.map(function(c, i) {
-      var totalNav = (c.nav || 0) * (c.shares || 0);
+      var totalNav = (c.nav !== '' && c.nav != null) || (c.shares !== '' && c.shares != null) ? (c.nav || 0) * (c.shares || 0) : (c.totalValue || 0);
       var estYield = totalNav * ((c.beneficialPct || 0) / 100);
       var linkedLabel = (c.linkedAsset !== '' && assets[c.linkedAsset]) ? assets[c.linkedAsset].description : '—';
       return '<tr style="border-bottom:1px solid rgba(245,158,11,0.08);">' +
         '<td style="padding:8px 10px;color:#fbbf24;font-family:monospace;">' + c.num + '</td>' +
         '<td style="padding:8px 10px;color:var(--text-primary);">' + c.fund + '</td>' +
-        '<td style="padding:8px 10px;color:var(--text-primary);text-align:right;">' + tmwFmtMoney(c.nav) + '</td>' +
-        '<td style="padding:8px 10px;color:var(--text-primary);text-align:right;">' + Number(c.shares).toLocaleString() + '</td>' +
+        '<td style="padding:8px 10px;color:var(--text-primary);text-align:right;">' + (c.nav !== '' && c.nav != null ? tmwFmtMoney(c.nav) : '—') + '</td>' +
+        '<td style="padding:8px 10px;color:var(--text-primary);text-align:right;">' + (c.shares !== '' && c.shares != null ? Number(c.shares).toLocaleString() : '—') + '</td>' +
         '<td style="padding:8px 10px;color:var(--text-primary);text-align:right;">' + tmwFmtMoney(totalNav) + '</td>' +
         '<td style="padding:8px 10px;text-align:center;">' +
           '<input type="number" value="' + (c.beneficialPct||0) + '" min="0" max="100" step="0.01" ' +
@@ -35818,14 +35823,13 @@ function ev2InitEntityVerifier() {
       subtitle: 'Annual Summary and Transmittal of U.S. Information Returns',
       fields: [
         { label: 'Filer Name', value: trust },
-        { label: 'Total Number of Forms', value: '3' },
-        { label: 'Total Amount Reported', value: tmwFmtMoney(procVal) },
+        { label: 'Total Number of Forms', value: '2' },
+        { label: 'Total Amount Reported', value: tmwFmtMoney(procVal * 2) },
         { label: 'Return Type', value: '1099-B' },
         { label: 'Date', value: tmwFmtDate(today) }
       ]
     };
 
-    var mismatch = false;
     var container = document.getElementById('tmwChainForms');
     if (container) {
       container.innerHTML = [form1099A, form1099B1, form1099B2, form1096].map(function(f) {
@@ -35842,8 +35846,6 @@ function ev2InitEntityVerifier() {
       }).join('');
     }
 
-    var mismatchEl = document.getElementById('tmwChainMismatch');
-    if (mismatchEl) mismatchEl.style.display = mismatch ? 'block' : 'none';
     var outputEl = document.getElementById('tmwChainOutput');
     if (outputEl) outputEl.style.display = 'block';
   };
@@ -36031,7 +36033,7 @@ function ev2InitEntityVerifier() {
         var desc = ('CREDIT ACCT ' + tab).toUpperCase().substring(0, 30);
         assets.push({
           id: 'cred_' + Date.now() + '_' + i,
-          type: 'Credit Card',
+          acctType: 'Credit Card',
           last4: tab.replace(/[^0-9]/g,'').slice(-4) || '',
           institution: creditor,
           origBalance: 0,
@@ -36040,7 +36042,8 @@ function ev2InitEntityVerifier() {
           chargeOffDate: '',
           vin: '',
           notes: 'Payer: ' + payer + ' | EIN: ' + ein + (addr ? ' | ' + addr : '') + (city ? ' ' + city : '') + (state ? ', ' + state : ''),
-          desc: desc
+          description: desc,
+          upliftedValue: null
         });
         added++;
       }
@@ -36109,7 +36112,7 @@ function ev2InitEntityVerifier() {
         var last4 = acct.replace(/[^0-9]/g,'').slice(-4) || '';
         assets.push({
           id: 'b_' + Date.now() + '_' + i,
-          type: cusip ? 'CUSIP/Bond' : 'Credit Card',
+          acctType: cusip ? 'CUSIP/Bond' : 'Credit Card',
           last4: last4,
           institution: payerName,
           origBalance: cost || proceeds,
@@ -36118,15 +36121,16 @@ function ev2InitEntityVerifier() {
           chargeOffDate: irs2iso(dateSold),
           vin: '',
           notes: 'TaxYr:' + taxYear + ' | Proceeds:' + proceeds + ' | Cost:' + cost + (cusip?' | CUSIP:'+cusip:''),
-          desc: desc30
+          description: desc30,
+          upliftedValue: null
         });
         addedA++;
         if (cusip && cusip.length >= 9) {
-          var exists = cusips.some(function(c){ return c.cusip === cusip; });
+          var exists = cusips.some(function(c){ return c.num === cusip; });
           if (!exists) {
             cusips.push({
               id: 'cusip_' + Date.now() + '_' + i,
-              cusip: cusip,
+              num: cusip,
               fund: desc1a || payerName,
               navDate: irs2iso(dateSold) || irs2iso(dateAcq),
               nav: '',
