@@ -14881,7 +14881,7 @@ function exportFilingPDF(formType, data) {
           <label style="font-size:11px;font-weight:700;color:var(--text-secondary);display:block;margin-bottom:8px">Active Provider</label>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:7px" id="llm-provider-grid">
             <button onclick="settingsSetProvider('ollama')" class="llm-prov-btn" data-prov="ollama" style="padding:11px;border:2px solid rgba(16,185,129,.4);border-radius:8px;background:rgba(16,185,129,.1);color:#10b981;font-size:12px;font-weight:700;cursor:pointer;text-align:left">🏠 Ollama (Local)</button>
-            <button onclick="settingsSetProvider('hermes')" class="llm-prov-btn" data-prov="hermes" style="padding:11px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:700;cursor:pointer;text-align:left">🤖 Hermes Agent (WSL)</button>
+            <button onclick="settingsSetProvider('hermes')" class="llm-prov-btn" data-prov="hermes" style="padding:11px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:700;cursor:pointer;text-align:left">🤖 Hermes Agent (Local)</button>
             <button onclick="settingsSetProvider('openai')" class="llm-prov-btn" data-prov="openai" style="padding:11px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:700;cursor:pointer;text-align:left">🟢 OpenAI</button>
             <button onclick="settingsSetProvider('deepseek')" class="llm-prov-btn" data-prov="deepseek" style="padding:11px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:700;cursor:pointer;text-align:left">🔵 DeepSeek</button>
             <button onclick="settingsSetProvider('zai')" class="llm-prov-btn" data-prov="zai" style="padding:11px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;color:var(--text-secondary);font-size:12px;font-weight:700;cursor:pointer;text-align:left">⚡ Z.ai (GLM)</button>
@@ -14954,10 +14954,10 @@ function exportFilingPDF(formType, data) {
             <div><label style="font-size:10px;color:var(--text-secondary);display:block;margin-bottom:4px">API Key</label><input type="password" id="keyCustom" placeholder="..." style="width:100%;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(255,255,255,.15);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
           </div>
         </div>
-        <!-- Hermes Agent (WSL) -->
+        <!-- Hermes Agent (Local) -->
         <div id="llm-hermes-cfg" style="background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.2);border-radius:8px;padding:14px;margin-top:10px">
-          <div style="font-size:12px;font-weight:700;color:#a78bfa;margin-bottom:8px">🤖 Hermes Agent (WSL) — Your Real Agent, Not a Model</div>
-          <div style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;line-height:1.6">Routes chat to your <b>actual Hermes CLI agent</b> running in WSL (law profile): its own SOUL.md persona, persistent memory, and all skills (fiduciary-doc-factory, legal drafting, etc.). Requires the Hermes gateway's API server to be running — <code style="background:rgba(255,255,255,.08);padding:2px 6px;border-radius:4px">hermes gateway run</code>.</div>
+          <div style="font-size:12px;font-weight:700;color:#a78bfa;margin-bottom:8px">🤖 Hermes Agent (Local) — Your Real Agent, Not a Model</div>
+          <div style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;line-height:1.6">Routes chat to your <b>actual Hermes CLI agent</b> running locally (law profile): its own SOUL.md persona, persistent memory, and all skills (fiduciary-doc-factory, legal drafting, etc.). Requires the Hermes gateway's API server to be running — <code style="background:rgba(255,255,255,.08);padding:2px 6px;border-radius:4px">hermes gateway run</code>.</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
             <div><label style="font-size:10px;color:var(--text-secondary);display:block;margin-bottom:4px">Endpoint URL</label><input id="keyHermesUrl" placeholder="http://127.0.0.1:8642/v1/chat/completions" style="width:100%;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(139,92,246,.25);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
             <div><label style="font-size:10px;color:var(--text-secondary);display:block;margin-bottom:4px">API Server Key (API_SERVER_KEY)</label><input type="password" id="keyHermes" placeholder="auto-filled from law profile" style="width:100%;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(139,92,246,.25);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
@@ -15035,7 +15035,7 @@ function exportFilingPDF(formType, data) {
             <input type="password" id="stg-api-openrouter" placeholder="sk-or-..." oninput="settingsSaveKey('openrouter',this.value)" style="width:100%;padding:8px 12px;background:#0d1020;border:1px solid #3a4560;border-radius:6px;color:#e4ddd0;font-size:12px;box-sizing:border-box;outline:none">
           </div>
           <div>
-            <label style="font-size:11px;color:#8a96b0;display:block;margin-bottom:5px;font-weight:600">Hermes Agent (WSL) <span id="kdHermes" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px;vertical-align:middle"></span></label>
+            <label style="font-size:11px;color:#8a96b0;display:block;margin-bottom:5px;font-weight:600">Hermes Agent (Local) <span id="kdHermes" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-left:4px;vertical-align:middle"></span></label>
             <input type="password" id="stg-api-hermes" placeholder="API_SERVER_KEY (auto-defaults)" oninput="settingsSaveKey('hermes',this.value)" style="width:100%;padding:8px 12px;background:#0d1020;border:1px solid #3a4560;border-radius:6px;color:#e4ddd0;font-size:12px;box-sizing:border-box;outline:none">
           </div>
         </div>
@@ -15051,7 +15051,7 @@ function exportFilingPDF(formType, data) {
             </div>
             <div>
               <label style="font-size:10px;color:#8a96b0;display:block;margin-bottom:4px;font-weight:600">OpenClaw Base URL</label>
-              <input id="keyOpenClawUrl" value="https://api.openclaw.io/v1" style="width:100%;padding:8px;background:#0d1020;border:1px solid rgba(196,131,10,.4);border-radius:6px;color:#e4ddd0;font-size:12px;box-sizing:border-box;outline:none">
+              <input id="keyOpenClawUrl" value="https://openclaw.ai/" style="width:100%;padding:8px;background:#0d1020;border:1px solid rgba(196,131,10,.4);border-radius:6px;color:#e4ddd0;font-size:12px;box-sizing:border-box;outline:none">
             </div>
           </div>
           <div style="margin-bottom:10px">
@@ -38186,9 +38186,9 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <select id="chatProvider" onchange="eonChatProviderChange(this.value)" style="padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:12px" title="Select provider">
   <option value="claude">Claude (Anthropic)</option>
   <option value="openai">OpenAI</option>
-  <option value="deepseek">DeepSeek</option>
+  <option value="deepseek" selected>DeepSeek</option>
   <option value="ollama">Ollama (Local)</option>
-  <option value="hermes">Hermes Agent (WSL)</option>
+  <option value="hermes">Hermes Agent (Local)</option>
   <option value="zai">Z.AI (GLM)</option>
   <option value="kimi">Kimi / Moonshot</option>
   <option value="minimax">MiniMax</option>
@@ -38607,7 +38607,7 @@ trusteeName + ', known to me (or satisfactorily proven) to be the\n' +
 <div class="card-body">
 <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Keys are stored in YOUR browser only (localStorage). They never leave your computer. Green dot = key configured.</div>
 <div style="margin-bottom:10px;font-weight:600;font-size:13px;color:var(--accent)">Active Provider</div>
-<div class="setting-row"><span>Active LLM</span><select id="setActiveProvider" style="max-width:340px;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:13px"><option value="claude">Claude / Anthropic</option><option value="openai">OpenAI (GPT-4)</option><option value="deepseek">DeepSeek</option><option value="xai">xAI (Grok)</option><option value="zai">Z.AI (GLM)</option><option value="kimi">Kimi / Moonshot</option><option value="minimax">MiniMax</option><option value="ernie">Ernie / Baidu</option><option value="ollama">Ollama (Local)</option><option value="custom">Custom Provider</option></select></div>
+<div class="setting-row"><span>Active LLM</span><select id="setActiveProvider" style="max-width:340px;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:13px"><option value="claude">Claude / Anthropic</option><option value="openai">OpenAI (GPT-4)</option><option value="deepseek" selected>DeepSeek</option><option value="xai">xAI (Grok)</option><option value="zai">Z.AI (GLM)</option><option value="kimi">Kimi / Moonshot</option><option value="minimax">MiniMax</option><option value="ernie">Ernie / Baidu</option><option value="ollama">Ollama (Local)</option><option value="custom">Custom Provider</option></select></div>
 <div style="margin:18px 0 10px;font-weight:600;font-size:13px;color:var(--accent)">🔌 Provider API Keys</div>
 <!-- MEM0 PERSISTENT MEMORY -- openclaw-2026.3.2 -->
 <div style="border:1px solid rgba(99,179,237,.4);border-radius:8px;padding:12px;margin-bottom:12px;background:rgba(99,179,237,.06)">
@@ -43020,7 +43020,7 @@ async function eonChatSend() {
   if (attachments.length === 0) {
     userContent = msg;
   } else {
-    var activePid = localStorage.getItem('eeon_active_provider') || 'claude';
+    var activePid = localStorage.getItem('eeon_active_provider') || 'deepseek';
     var isAnthropic = (activePid === 'claude' || activePid === 'anthropic');
     if (isAnthropic) {
       // Anthropic enforces a 5 PDF document limit per request
@@ -43211,7 +43211,7 @@ async function dtSend() {
   if (attachments.length === 0) {
     userContent = msg;
   } else {
-    var activePid = localStorage.getItem('eeon_active_provider') || 'claude';
+    var activePid = localStorage.getItem('eeon_active_provider') || 'deepseek';
     var isAnthropic = (activePid === 'claude' || activePid === 'anthropic');
     if (isAnthropic) {
       // Anthropic enforces a 5 PDF document limit per request
@@ -45060,7 +45060,11 @@ var ENV_TO_LS_MAP = {
   'DATA_GOV_API_KEY':'eeon_key_datagov',
   'TAVILY_API_KEY':'stg_key_tavily',
   'FIRECRAWL_API_KEY':'stg_key_firecrawl',
-  'MEM0_API_KEY':'stg_key_mem0'
+  'MEM0_API_KEY':'stg_key_mem0',
+  'API_SERVER_KEY':'eeon_key_hermes',
+  'GOOGLE_API_KEY':'eeon_key_gemini',
+  'GROQ_API_KEY':'eeon_key_groq',
+  'APIFY_API_TOKEN':'apikey_apify'
 };
 
 var VAULT_DB_NAME = 'TMAR_KeyVault_v1', VAULT_STORE = 'keys';
@@ -45136,6 +45140,10 @@ function importEnvFile() {
           if (lsKey === 'eeon_key_claude') {
             localStorage.setItem('_trustApiKey', envVal);
             window._trustApiKey = envVal;
+          }
+          if (envKey === 'APIFY_API_TOKEN') {
+            localStorage.setItem('stg_key_apify', envVal);
+            localStorage.setItem('eeon_key_apify', envVal);
           }
         }
       });
@@ -45264,12 +45272,12 @@ var TMAR_PROVIDERS = {
     openrouter:{ name:'OpenRouter',auth:'bearer',    url:'https://openrouter.ai/api/v1/chat/completions',     model:'openai/gpt-4o-mini' },
     ollama:    { name:'Ollama',    auth:'ollama',    url:'',                                                  model:'' },
     custom:    { name:'Custom',    auth:'bearer',    url:'',                                                  model:'' },
-    // Hermes Agent (WSL) — NOT a model provider. Routes to the local Hermes API server
+    // Hermes Agent (Local) — NOT a model provider. Routes to the local Hermes API server
     // (gateway/platforms/api_server.py) which runs the FULL agent: law-profile SOUL.md
     // persona + persistent memory + all skills (fiduciary-doc-factory, etc.). Endpoint is
     // OpenAI-compatible, but auth:'hermes' triggers a dedicated branch in callLLMStream()
     // that skips TMAR's own system prompt so the agent's real persona governs.
-    hermes:    { name:'Hermes Agent (WSL)', auth:'hermes', url:'http://127.0.0.1:8642/v1/chat/completions', model:'law' }
+    hermes:    { name:'Hermes Agent (Local)', auth:'hermes', url:'http://127.0.0.1:8642/v1/chat/completions', model:'law' }
 };
 var TMAR_PROVIDER_KEYMAP = {
     openai:'eeon_key_openai', anthropic:'eeon_key_claude', claude:'eeon_key_claude',
@@ -45292,7 +45300,7 @@ function providerActiveModel(pid) {
   return providerDefaultModel(pid);
 }
 function resolveProvider() {
-  var pid = localStorage.getItem('eeon_active_provider') || 'claude';
+  var pid = localStorage.getItem('eeon_active_provider') || 'deepseek';
   var PROVIDERS = TMAR_PROVIDERS;
   var keyMap = TMAR_PROVIDER_KEYMAP;
   var p = PROVIDERS[pid] || PROVIDERS['claude'];
@@ -45311,7 +45319,7 @@ function resolveProvider() {
     url = localStorage.getItem('eeon_custom_url') || '';
     model = localStorage.getItem('eeon_custom_model') || 'custom';
   }
-  // Hermes Agent (WSL): local endpoint. API_SERVER_KEY must be entered in Settings —
+  // Hermes Agent (Local): local endpoint. API_SERVER_KEY must be entered in Settings —
   // no default, same as every other provider (never hardcode secrets in source).
   if (pid === 'hermes') {
     url = localStorage.getItem('eeon_hermes_url') || 'http://127.0.0.1:8642/v1/chat/completions';
@@ -45605,7 +45613,7 @@ async function callLLMStream(agentSystemPrompt, userMessage, mem0Memories, onTok
   if (p.auth === 'ernie') canStream = false;
 
   try {
-    // ── HERMES AGENT (WSL): full agent, no TMAR system prompt ─────────────
+    // ── HERMES AGENT (LOCAL): full agent, no TMAR system prompt ─────────────
     // The local Hermes API server already loads the law-profile persona (SOUL.md),
     // persistent memory, and skills. Sending TMAR's SYPHER system prompt would layer
     // a second persona on top, so this branch forwards ONLY the user message.
@@ -45620,7 +45628,7 @@ async function callLLMStream(agentSystemPrompt, userMessage, mem0Memories, onTok
         hresp = await fetch(url, { method: 'POST', headers: headers, body: hermesBody, signal: hctrl.signal });
       } catch(fetchErr) {
         clearTimeout(htid);
-        var hconn = '[ERROR — Hermes Agent] Cannot connect to ' + url + '\n\nCHECKLIST:\n1. Is the Hermes gateway running? (WSL) Run: hermes gateway run\n2. Is the API server enabled? config: gateway.platforms.api_server.enabled = true\n3. Port reachable from the browser? Current: ' + url + '\n4. CORS: API_SERVER_CORS_ORIGINS must include this page origin';
+        var hconn = '[ERROR — Hermes Agent] Cannot connect to ' + url + '\n\nCHECKLIST:\n1. Is the Hermes gateway running? Run: hermes gateway run\n2. Is the API server enabled? config: gateway.platforms.api_server.enabled = true\n3. Port reachable from the browser? Current: ' + url + '\n4. CORS: API_SERVER_CORS_ORIGINS must include this page origin';
         if (onToken) onToken(hconn); return hconn;
       }
       clearTimeout(htid);
@@ -46303,7 +46311,7 @@ function loadSavedKeys() {
       { value: 'minimax', label: 'MiniMax' },
       { value: 'ernie', label: 'Ernie / Baidu' },
       { value: 'ollama', label: 'Ollama (Local)' },
-      { value: 'hermes', label: 'Hermes Agent (WSL)' },
+      { value: 'hermes', label: 'Hermes Agent (Local)' },
       { value: 'custom', label: 'Custom Provider' }
     ];
 
@@ -49661,7 +49669,7 @@ function eonChatProviderChange(provider) {
 // silently stomping the provider chosen in Settings.
 function tmarSyncProviderUI() {
   var pid = 'claude';
-  try { pid = localStorage.getItem('eeon_active_provider') || 'claude'; } catch (e) {}
+  try { pid = localStorage.getItem('eeon_active_provider') || 'deepseek'; } catch (e) {}
   var chatProv = document.getElementById('chatProvider');
   if (chatProv) chatProv.value = pid;
   var active = document.getElementById('setActiveProvider');
@@ -49768,7 +49776,7 @@ function settingsSetProvider(provider) {
 // Model picker. resolveProvider() honours eeon_model_<pid> for standard providers; Ollama and
 // Custom keep their own dedicated model inputs. Blank override => provider default.
 function setActiveProviderModel(val) {
-  var pid = localStorage.getItem('eeon_active_provider') || 'claude';
+  var pid = localStorage.getItem('eeon_active_provider') || 'deepseek';
   if (pid === 'ollama' || pid === 'custom') return;  // handled by their own config blocks
   val = (val || '').trim();
   try {
@@ -49794,7 +49802,7 @@ function setClaudeModelPreset(val) {
 // Reflect the active provider's effective model in the picker UI.
 function tmarSyncModelUI() {
   var pid = 'claude';
-  try { pid = localStorage.getItem('eeon_active_provider') || 'claude'; } catch (e) {}
+  try { pid = localStorage.getItem('eeon_active_provider') || 'deepseek'; } catch (e) {}
   var name = (typeof TMAR_PROVIDERS !== 'undefined' && TMAR_PROVIDERS[pid]) ? TMAR_PROVIDERS[pid].name : pid;
   var def = (typeof providerDefaultModel === 'function') ? providerDefaultModel(pid) : '';
   var active = (typeof providerActiveModel === 'function') ? providerActiveModel(pid) : def;
@@ -51094,7 +51102,7 @@ const AP = {
     if (attachments.length === 0) {
       userContent = text;
     } else {
-      var activePid = localStorage.getItem('eeon_active_provider') || 'claude';
+      var activePid = localStorage.getItem('eeon_active_provider') || 'deepseek';
       var isAnthropic = (activePid === 'claude' || activePid === 'anthropic');
       if (isAnthropic) {
         userContent = [];
