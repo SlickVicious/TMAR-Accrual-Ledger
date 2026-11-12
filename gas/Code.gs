@@ -570,7 +570,9 @@ function onOpen() {
       .addItem('Create Executive Dashboard Tab (run once)', 'createExecutiveDashboardTab')
       .addItem('Add Sample Data', 'addSampleData')
       .addSeparator()
-      .addItem('Export Current Tab to PDF', 'exportToPdf'))
+      .addItem('Export Current Tab to PDF', 'exportToPdf')
+      .addSeparator()
+      .addItem('🧹 Retire Stale Bills (IRS/Therapist)', 'retireStaleBills'))
 
     .addSubMenu(ui.createMenu('Formatting')
       .addItem('Apply All Formatting', 'menuApplyAllFormatting')
@@ -696,13 +698,7 @@ function ensureCPASheet_() {
     .setAllowInvalid(false).build();
   sheet.getRange(2, 3, 200, 1).setDataValidation(catRule);
 
-  const tabNames = ['Live Dashboard', 'Transactions', 'Accounts', 'Statements', 'Entities',
-    'Cash Flow', 'Ledgers', 'Journal', 'W-2 & Income Detail', 'Business Obligations',
-    'Subscriptions & Services', 'Master Register', 'TIN Registry', 'Chart of Accounts',
-    'Valuations', 'Proof of Mailing', 'Document Inventory', 'Document Registry'];
-  const tabRule = SpreadsheetApp.newDataValidation()
-    .requireValueInList(tabNames, true).setAllowInvalid(false).build();
-  sheet.getRange(2, 4, 200, 1).setDataValidation(tabRule);
+  refreshCPARelatedTabValidation_();
 
   const prioRule = SpreadsheetApp.newDataValidation()
     .requireValueInList(['Critical', 'High', 'Medium', 'Low'], true)
@@ -1733,18 +1729,18 @@ function applyToBusinessObligations_(ss, d) {
   const colA = sheet.getRange('A1:A' + lastRow).getValues().flat();
 
   const vendorMap = {
-    'Rent':                'rent',
-    'Duke Energy':         'electric',
-    'T-Mobile':            'cell',
-    'Spectrum':            'internet',
+    'SDHC Property Rentals':'rent',
+    'Duke Energy Progress':'electric',
+    'Verizon':             'cell',
+    'Optimum':             'internet',
     'Piedmont Natural Gas':'gas',
-    'Lawn Care':           'lawn',
+    'Lawn Service':        'lawn',
     'Nelnet':              'nelnet',
     'OneMain Financial':   'onemain',
-    'GEICO':               'geico',
-    'National Life':       'life_ins',
+    'Capital One Auto':    'kia',
+    'Progressive':         'geico',
+    'Colonial Life':       'life_ins',
     'Planet Fitness':      'planet_fitness',
-    'IRS':                 'irs',
     'Milestone':           'milestone',
     'Merrick Bank':        'merrick',
     'Verde Card':          'verde',
@@ -2803,13 +2799,41 @@ function scanTabDocInventory_(sheet, results, registry) {
 // CPA QUESTIONS TRACKER
 // ═══════════════════════════════════════════════════════════════════════════
 
-function showAddQuestionDialog() {
-  const tabNames = ['Live Dashboard', 'Transactions', 'Accounts', 'Statements', 'Entities',
-    'Cash Flow', 'Ledgers', 'Journal', 'W-2 & Income Detail', 'Business Obligations',
-    'Subscriptions & Services', 'Master Register', 'TIN Registry', 'Chart of Accounts',
-    'Valuations', 'Proof of Mailing', 'Document Inventory', 'Document Registry'];
+/**
+ * Live list of workbook tabs eligible as a CPA-question "Related Tab".
+ * Reads the actual sheets in tab order, skipping internal/system tabs
+ * (underscore-prefixed) and the CPA Questions tracker itself.
+ */
+function getCPARelatedTabs_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  return ss.getSheets()
+    .map(s => s.getName())
+    .filter(name => !name.startsWith('_') && name !== 'CPA Questions');
+}
 
-  const tabOptions = tabNames.map(t => '<option value="' + t + '">' + t + '</option>').join('');
+
+/**
+ * (Re)apply the "Related Tab" dropdown validation on the CPA Questions sheet
+ * using the live workbook tab list, so the in-sheet dropdown never drifts.
+ */
+function refreshCPARelatedTabValidation_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('CPA Questions');
+  if (!sheet) return;
+  const tabs = getCPARelatedTabs_();
+  if (!tabs.length) return;
+  const tabRule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(tabs, true).setAllowInvalid(false).build();
+  sheet.getRange(2, 4, Math.max(200, sheet.getLastRow()), 1).setDataValidation(tabRule);
+}
+
+
+function showAddQuestionDialog() {
+  // Keep the in-sheet dropdown live before showing the form.
+  refreshCPARelatedTabValidation_();
+
+  const tabOptions = getCPARelatedTabs_()
+    .map(t => '<option value="' + t + '">' + t + '</option>').join('');
 
   const html = `
     <style>

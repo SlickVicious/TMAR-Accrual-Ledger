@@ -1795,6 +1795,11 @@ function doPost(e) {
         return jsonResponse_(mvResult);
       }
 
+      case 'retireStaleBills': {
+        var rsResult = retireStaleBills_(ss);
+        return jsonResponse_(rsResult);
+      }
+
       case 'hyperlinkProviderColumn': {
         var links = Array.isArray(payload.mappings) ? payload.mappings : [];
         if (links.length === 0) return errorResponse_('Provide mappings (array of {name, url})');

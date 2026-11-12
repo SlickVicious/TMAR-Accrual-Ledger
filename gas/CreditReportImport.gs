@@ -539,6 +539,17 @@ function normalizeMonthYear_(val) {
   return m[2] + '-' + m[1] + '-01';
 }
 
+/**
+ * Normalize a provider/creditor name for dedup: trim, lowercase, and
+ * drop any "\u2014 suffix" (em/en dash + trailing description) so that
+ * "Capital One Auto Finance \u2014 Syrina (2643)" dedups against
+ * "Capital One Auto Finance".
+ */
+function normalizeProvider_(p) {
+  return String(p || '').trim().toLowerCase().split(/\u2014|\u2013/)[0].trim();
+}
+
+
 function importToMasterRegister_(ss, accounts) {
   const sheet = ss.getSheetByName('Master Register');
   if (!sheet) {
@@ -568,7 +579,7 @@ function importToMasterRegister_(ss, accounts) {
     // against the incoming record's real Account Type (e.g. "Credit Card"),
     // so this almost never matched and reruns would duplicate rows. row[5]
     // is the real Account Type column, matching what acct.acctType holds.
-    const provider = String(row[2] || '').trim().toLowerCase();
+    const provider = normalizeProvider_(row[2]);
     const acctType = String(row[5] || '').trim().toLowerCase();
     if (provider) existingProviders.add(provider + '|' + acctType);
   }
@@ -580,7 +591,7 @@ function importToMasterRegister_(ss, accounts) {
 
   for (const acct of accounts) {
     // Dedup check
-    const key = acct.provider.trim().toLowerCase() + '|' + acct.acctType.trim().toLowerCase();
+    const key = normalizeProvider_(acct.provider) + '|' + acct.acctType.trim().toLowerCase();
     if (existingProviders.has(key)) {
       Logger.log('SKIP (exists): ' + acct.provider + ' / ' + acct.acctType);
       skipped++;
@@ -1026,8 +1037,22 @@ function getClintCreditReportAccounts_() {
 // ─── SYRINA MISSING ACCOUNT — Capital One Auto (added 2026) ─────────────────
 // Run importSyrinaAutoLoan() to add the Kia Sorento loan (missing from original import)
 
+/**
+ * Headless-safe alert: falls back to Logger when no UI is available
+ * (e.g. invoked via web-app doPost / runFunction rather than the sheet menu).
+ */
+function safeAlert_(msg) {
+  try {
+    SpreadsheetApp.getUi().alert(msg);
+  } catch (e) {
+    Logger.log('[safeAlert] ' + msg);
+  }
+}
+
+
 function importSyrinaAutoLoan() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  // Web-App-safe: getActiveSpreadsheet() is null under doPost; open the Live book by id.
+  const ss = getTMARSpreadsheet_();
   const accounts = [
     {
       provider:     'Capital One Auto Finance',
@@ -1040,7 +1065,7 @@ function importSyrinaAutoLoan() {
       closed:       '',
       balance:      31440,
       highBal:      31440,
-      monthlyPmt:   624,
+      monthlyPmt:   624.27,
       primaryUser:  'Syrina',
       creditStatus: 'Current',
       removalDate:  '',
@@ -1050,10 +1075,17 @@ function importSyrinaAutoLoan() {
     },
   ];
   const mrResult = importToMasterRegister_(ss, accounts);
-  const alResult = importToAcctLedger_(ss, accounts);
-  SpreadsheetApp.getUi().alert(
+  // NOTE: importToAcctLedger_ removed — the 'Ledgers' tab is a sub-ledger BOOK
+  // (Ledger ID | Name | Period ...), not an account ledger, so it would create a
+  // mis-schema row. Kia's correct targets are Master Register + Business Obligations + _YearData.
+  const alResult = { added: 0, skipped: 0 };
+  const boResult = importToBusinessObligations_(ss, accounts);
+  const ydResult = writeHouseholdYearData_(ss, { kia: { amount: 624.27, status: 'Active' } });
+  safeAlert_(
     'Syrina Auto Loan Import:\nMaster Register: ' + mrResult.added + ' added, ' + mrResult.skipped + ' skipped\n' +
-    'Ledgers: ' + alResult.added + ' added, ' + alResult.skipped + ' skipped'
+    'Ledgers: ' + alResult.added + ' added, ' + alResult.skipped + ' skipped\n' +
+    'Business Obligations: ' + boResult.added + ' added, ' + boResult.skipped + ' skipped\n' +
+    'Year Data: ' + ydResult.written + ' keys written'
   );
 }
 
@@ -1074,6 +1106,95 @@ function importClintCreditReportAccounts() {
 }
 
 
+
+/**
+ * Upsert Business Obligations rows for recurring debt accounts (e.g. auto loan).
+ * Mirrors importToMasterRegister_ / importToAcctLedger_ but targets the
+ * 11-column "Business Obligations" tab (Vendor | Category | Subcategory |
+ * Amount | Due Day | Pay Method | Party | Status | Start Date | Rate Changes | Notes).
+ * Inserts new rows ABOVE the "Monthly Pivot" block so they remain in the active list.
+ */
+function importToBusinessObligations_(ss, accounts) {
+  const sheet = ss.getSheetByName('Business Obligations');
+  if (!sheet) {
+    Logger.log('WARNING: Business Obligations sheet not found');
+    return { added: 0, skipped: 0 };
+  }
+  const lastRow = sheet.getLastRow();
+  const colA = sheet.getRange(1, 1, Math.max(lastRow, 1), 1).getValues();
+
+  let pivotRow = lastRow + 1;
+  const existing = new Set();
+  for (let r = 0; r < colA.length; r++) {
+    const v = String(colA[r][0] || '');
+    if (/Monthly Pivot/i.test(v)) { pivotRow = r + 1; }
+    else if (v.trim()) { existing.add(v.trim().toLowerCase()); }
+  }
+
+  let added = 0, skipped = 0;
+  for (const acct of accounts) {
+    const vendor = String(acct.provider || '').trim();
+    if (!vendor) continue;
+    if (existing.has(vendor.toLowerCase())) { skipped++; continue; }
+
+    const row = [
+      vendor,
+      'Debt',                                   // category
+      'Auto Loan',                              // subcategory
+      acct.monthlyPmt ? Number(acct.monthlyPmt) : '',
+      '',                                       // due day
+      'AutoPay',                                // pay method
+      acct.primaryUser || 'Joint',
+      acct.status || 'Active',
+      normalizeMonthYear_(acct.opened) || '',
+      '',
+      acct.notes || ''
+    ];
+    sheet.insertRowBefore(pivotRow);
+    sheet.getRange(pivotRow, 1, 1, 11).setValues([row]);
+    existing.add(vendor.toLowerCase());
+    added++;
+    pivotRow++;
+  }
+  return { added: added, skipped: skipped };
+}
+
+/**
+ * Upsert household bill year-data keys (hh.<key>.amount / hh.<key>.status) into
+ * _YearData for the active year, so applyToBusinessObligations_ keeps the bill
+ * amount/status current instead of clearing it.
+ */
+function writeHouseholdYearData_(ss, hhMap) {
+  const sheet = ss.getSheetByName('_YearData');
+  if (!sheet) return { written: 0 };
+
+  const year = Number(getActiveYear_());
+  const data = sheet.getDataRange().getValues();  // [Year, Key, Value]
+  const rowIndex = new Map();
+  for (let i = 1; i < data.length; i++) {
+    const y = Number(data[i][0]);
+    const k = data[i][1];
+    if (y && k) rowIndex.set(y + '|' + k, i + 1);
+  }
+
+  let written = 0;
+  for (const key of Object.keys(hhMap)) {
+    for (const field of ['amount', 'status']) {
+      const val = hhMap[key][field];
+      if (val === undefined || val === '') continue;
+      const fullKey = 'hh.' + key + '.' + field;
+      const idxKey = year + '|' + fullKey;
+      if (rowIndex.has(idxKey)) {
+        sheet.getRange(rowIndex.get(idxKey), 3).setValue(val);
+      } else {
+        sheet.appendRow([year, fullKey, val]);
+      }
+      written++;
+    }
+  }
+  return { written: written };
+}
+
 // ─── COMBINED IMPORT (Syrina + Clinton + Auto) ───────────────────────────────
 
 function importAllCreditReportAccounts() {
@@ -1093,7 +1214,7 @@ function importAllCreditReportAccounts() {
       closed:       '',
       balance:      31440,
       highBal:      31440,
-      monthlyPmt:   624,
+      monthlyPmt:   624.27,
       primaryUser:  'Syrina',
       creditStatus: 'Current',
       removalDate:  '',

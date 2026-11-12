@@ -22,11 +22,17 @@
  *   - addSampleData            — writes fake demo rows into the LIVE sheet
  *   - emailGapReport           — sends a real email as a side effect
  *   - confirmAndExecuteCleanup — name implies a destructive, confirmation-gated op
- *   - importClintCreditReportAccounts / importSyrinaAutoLoan /
- *     importAllCreditReportAccounts — write to Master Register; this
- *     project spent 2026-08-01/02 hand-correcting that exact data, and
- *     their dedup-by-provider-name logic hasn't been re-verified against
- *     the current row set. Test these manually via the menu first.
+ *   - importClintCreditReportAccounts / importAllCreditReportAccounts —
+ *     write to Master Register; this project spent 2026-08-01/02
+ *     hand-correcting that exact data, and their dedup-by-provider-name
+ *     logic hasn't been re-verified against the current row set. Test these
+ *     manually via the menu first.
+ *
+ *   NOTE (2026-11-11): importSyrinaAutoLoan was REMOVED from this exclusion
+ *     list at the operator's direction. It is a single-account import (Kia
+ *     auto loan); its Master Register dedup (provider + Account Type) is
+ *     verified against the live sheet (Kia already exists -> skipped), and
+ *     its getUi().alert() is wrapped in safeAlert_() so it runs headless.
  *   - installDocRegistryTrigger / removeDocRegistryTrigger — modifies
  *     time-driven trigger configuration, a persistent side effect beyond
  *     just sheet data.
@@ -80,7 +86,15 @@ var RUNNABLE_FUNCTIONS_ = {
 
   // Register Summary tab — additive, idempotent (no-ops if tab already exists)
   'createRegisterSummaryTab': createRegisterSummaryTab,
-  'createExecutiveDashboardTab': createExecutiveDashboardTab
+  'createExecutiveDashboardTab': createExecutiveDashboardTab,
+
+  // Credit Report Import — single-account, headless-safe (2026-11-11).
+  // importToMasterRegister_ dedup now normalizes the '\u2014' suffix; importToAcctLedger_
+  // call removed (Ledgers tab is a sub-ledger book, not an account ledger).
+  'importSyrinaAutoLoan': importSyrinaAutoLoan,
+
+  // One-off cleanup: delete the Kia row misplaced into the sub-ledger 'Ledgers' tab (2026-11-11)
+  'removeMisplacedKiaLedgerRow_': removeMisplacedKiaLedgerRow_
 };
 
 /**
