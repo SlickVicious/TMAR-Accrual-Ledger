@@ -117,6 +117,8 @@ _snapshots/
 
 # Runtime HTML backups (transient, not source)
 *.bak
+*.bak.*
+*.bak2
 
 # Local Windows launcher artifacts (desktop shortcuts, icons, scratch bookmarklets) —
 # machine-specific (absolute paths), not source; live on the desktop, not in the repo.
