@@ -15127,8 +15127,8 @@ function exportFilingPDF(formType, data) {
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding-top:4px;border-top:1px solid #252d40">
           <button onclick="saveKeys()" style="padding:8px 18px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.45);border-radius:6px;color:#10b981;font-size:12px;font-weight:700;cursor:pointer" data-guide="Save all API keys to localStorage — required for LLM streaming to work">💾 Save All Keys</button>
           <button onclick="testConnection()" style="padding:8px 18px;background:#191d26;border:1px solid #3a4560;border-radius:6px;color:#8a96b0;font-size:12px;font-weight:700;cursor:pointer" data-guide="Test the connection to the currently configured LLM provider">🔍 Test Connection</button>
-          <button onclick="(function(){var k=localStorage.getItem('apikey_openclaw');if(!k){alert('Enter OpenClaw key first.');return;}alert('OpenClaw: Testing connection...\n\nEndpoint: '+document.getElementById('keyOpenClawUrl').value+'\n\nStatus: Configured — validate by sending a query.');})()" style="padding:8px 18px;background:rgba(196,131,10,.12);border:1px solid rgba(196,131,10,.4);border-radius:6px;color:#e8a020;font-size:12px;font-weight:700;cursor:pointer">⚖️ Test OpenClaw</button>
-          <button onclick="(function(){var k=localStorage.getItem('apikey_apify');if(!k){alert('Enter Apify key first.');return;}alert('Apify: Testing connection...\n\nApify actors available:\n- Web Scraper\n- Google Search\n- News Aggregator\n- SEC EDGAR\n- Financial Data\n\nStatus: Configured');})()" style="padding:8px 18px;background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.35);border-radius:6px;color:#22d3ee;font-size:12px;font-weight:700;cursor:pointer">🕷️ Test Apify</button>
+          <button onclick="testOpenClaw()" style="padding:8px 18px;background:rgba(196,131,10,.12);border:1px solid rgba(196,131,10,.4);border-radius:6px;color:#e8a020;font-size:12px;font-weight:700;cursor:pointer">⚖️ Test OpenClaw</button>
+          <button onclick="testApify()" style="padding:8px 18px;background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.35);border-radius:6px;color:#22d3ee;font-size:12px;font-weight:700;cursor:pointer">🕷️ Test Apify</button>
           <button onclick="importEnvFile()" style="padding:8px 18px;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.4);border-radius:6px;color:#a78bfa;font-size:12px;font-weight:700;cursor:pointer">🔐 Load .env</button>
           <button onclick="exportVaultBundle()" style="padding:8px 18px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.4);border-radius:6px;color:#fbbf24;font-size:12px;font-weight:700;cursor:pointer">📦 Export Bundle</button>
           <button onclick="importVaultBundle()" style="padding:8px 18px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.4);border-radius:6px;color:#34d399;font-size:12px;font-weight:700;cursor:pointer">📥 Import Bundle</button>
@@ -45302,6 +45302,7 @@ function importEnvFile() {
       });
       backupKeysToIDB();
       if (typeof settingsLoadKeys === 'function') settingsLoadKeys();
+      if (typeof updateKeyDots === 'function') updateKeyDots();
       _setKeyStatus('<span style="color:#22c55e">🔐 Imported ' + imported + ' keys from ' + file.name + '</span>');
       setTimeout(function() { _setKeyStatus(''); }, 5000);
     };
@@ -46278,11 +46279,37 @@ function updateKeyDots() {
       if (value && value.trim() !== '') {
         dot.classList.remove('off');
         dot.classList.add('on');
+        dot.style.background = '#22c55e';
       } else {
         dot.classList.remove('on');
         dot.classList.add('off');
+        dot.style.background = '#ef4444';
       }
     }
+  }
+
+  // API-keys panel dots are inline-styled (background:#ef4444) and were never
+  // updated by the class-based loop above, so they stayed red forever. Set their
+  // background directly from the canonical localStorage key for each service.
+  var inlineDots = {
+    'kdTavily':         ['stg_key_tavily'],
+    'kdFirecrawl':      ['stg_key_firecrawl'],
+    'kdMem0':           ['stg_key_mem0'],
+    'kdApify':          ['stg_key_apify', 'apikey_apify'],
+    'kdOpenClaw':       ['stg_key_openclaw'],
+    'kdCourtListener':  ['stg_key_courtlistener'],
+    'kdOpenrouter':     ['eeon_key_openrouter']
+  };
+  for (var inlineId in inlineDots) {
+    var d = document.getElementById(inlineId);
+    if (!d) continue;
+    var keys = inlineDots[inlineId];
+    var found = false;
+    for (var ki = 0; ki < keys.length; ki++) {
+      var v = localStorage.getItem(keys[ki]);
+      if (v && v.trim() !== '') { found = true; break; }
+    }
+    d.style.background = found ? '#22c55e' : '#ef4444';
   }
 }
 
@@ -46318,7 +46345,7 @@ async function testConnection() {
         'anthropic-dangerous-direct-browser-access': 'true'
       };
       testBody = {
-        model: 'claude-sonnet-4-6',
+        model: 'claude-sonnet-4-20250514',
         max_tokens: 10,
         messages: [{ role: 'user', content: 'test' }]
       };
@@ -46358,8 +46385,23 @@ async function testConnection() {
         max_tokens: 10,
         messages: [{ role: 'user', content: 'test' }]
       };
+    } else if (provider === 'hermes') {
+      apiKey = localStorage.getItem('eeon_key_hermes') || '';
+      testEndpoint = localStorage.getItem('eeon_hermes_url') || 'http://127.0.0.1:8642/v1/chat/completions';
+      testHeaders = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey };
+      testBody = { model: 'law', max_tokens: 10, messages: [{ role: 'user', content: 'Reply with the single word: online' }] };
+    } else if (provider === 'ollama') {
+      apiKey = 'local';
+      testEndpoint = (localStorage.getItem('eeon_ollama_url') || 'http://127.0.0.1:11434').replace(/\/$/, '') + '/v1/chat/completions';
+      testHeaders = { 'Content-Type': 'application/json' };
+      testBody = { model: (localStorage.getItem('eeon_ollama_model') || 'llama3.3'), max_tokens: 10, messages: [{ role: 'user', content: 'test' }] };
+    } else if (provider === 'groq') {
+      apiKey = localStorage.getItem('eeon_key_groq') || '';
+      testEndpoint = 'https://api.groq.com/openai/v1/chat/completions';
+      testHeaders = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey };
+      testBody = { model: 'llama-3.3-70b-versatile', max_tokens: 10, messages: [{ role: 'user', content: 'test' }] };
     } else {
-      throw new Error('Provider ' + provider + ' not yet supported for testing');
+      throw new Error('Provider "' + provider + '" is not supported for testing. Supported: claude, openai, deepseek, xai, hermes, ollama, groq');
     }
 
     if (!apiKey) {
@@ -46388,6 +46430,38 @@ async function testConnection() {
     console.error('❌ Connection test failed:', err);
     _setKeyStatus('<span style="color:#ef4444">⚠ ' + (err.message || String(err)) + '</span>');
   }
+}
+
+// Real Apify connection test — hits api.apify.com/v2/users/me with the token.
+async function testApify() {
+  var k = localStorage.getItem('stg_key_apify') || localStorage.getItem('apikey_apify') || '';
+  if (!k) { alert('Enter Apify token first (or click Load .env).'); return; }
+  _setKeyStatus('<span style="color:#ffc107">⏳ Testing Apify…</span>');
+  try {
+    var r = await fetch('https://api.apify.com/v2/users/me?token=' + encodeURIComponent(k), { method: 'GET' });
+    if (!r.ok) {
+      var m = '';
+      try { var j = await r.json(); m = (j.error && j.error.message) || ('HTTP ' + r.status); } catch (e) { m = 'HTTP ' + r.status; }
+      _setKeyStatus('<span style="color:#ef4444">✗ Apify: ' + m + '</span>');
+      return;
+    }
+    var d = await r.json();
+    var u = (d && d.data && d.data.username) || 'token valid';
+    _setKeyStatus('<span style="color:#22c55e">✓ Apify connected (user: ' + u + ')</span>');
+    setTimeout(function() { _setKeyStatus(''); }, 5000);
+  } catch (e) {
+    _setKeyStatus('<span style="color:#ef4444">✗ Apify: ' + (e.message || String(e)) + '</span>');
+  }
+}
+
+// OpenClaw has no standard health endpoint — report saved key + endpoint honestly.
+function testOpenClaw() {
+  var k = localStorage.getItem('stg_key_openclaw') || localStorage.getItem('apikey_openclaw') || '';
+  if (!k) { alert('Enter OpenClaw API key first.'); return; }
+  var urlEl = document.getElementById('keyOpenClawUrl');
+  var url = (urlEl && urlEl.value) || 'https://openclaw.ai/';
+  _setKeyStatus('<span style="color:#22c55e">✓ OpenClaw key saved (endpoint: ' + url.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '). Validate by sending a query.</span>');
+  setTimeout(function() { _setKeyStatus(''); }, 5000);
 }
 
 // Load saved keys on page load
