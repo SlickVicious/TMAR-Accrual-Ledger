@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Legal Etymology Analyzer</title>
+<style>
+:root {
+  --bg: #0b0f1a;
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --accent: #a855f7;
+  --accent-2: #8b5cf6;
+  --amber: #d97706;
+  --amber-soft: #f59e0b;
+  --border: rgba(255,255,255,0.1);
+  --panel: rgba(255,255,255,0.03);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: radial-gradient(1200px 800px at 15% -10%, #1e1b4b 0%, #0b0f1a 55%) fixed, #0b0f1a;
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  min-height: 100vh;
+}
+/* ── header ── */
+.etym-topbar {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 20px;
+  background: rgba(11,15,26,0.85);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+.etym-title {
+  font-size: 17px; font-weight: 800;
+  background: linear-gradient(135deg, #a855f7, #8b5cf6);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.etym-title .sub { display:block; font-size:10px; color:var(--text-secondary); -webkit-text-fill-color:var(--text-secondary); font-weight:600; letter-spacing:.5px; }
+.etym-top-right { display:flex; align-items:center; gap:10px; }
+.etym-provider-pill {
+  font-size: 11px; font-weight: 600; color: #c4b5fd;
+  background: rgba(168,85,247,0.12); border: 1px solid rgba(168,85,247,0.35);
+  padding: 5px 11px; border-radius: 999px;
+}
+.etym-gear {
+  font-size: 18px; cursor: pointer; border: 1px solid var(--border);
+  background: var(--panel); color: var(--text-secondary);
+  width: 36px; height: 36px; border-radius: 10px; line-height: 1;
+  transition: all .15s;
+}
+.etym-gear:hover { color: var(--accent); border-color: rgba(168,85,247,.5); }
+/* ── mode switcher ── */
+.etym-mode-bar { display:flex; gap:8px; padding:14px 20px 0; max-width:1400px; margin:0 auto; width:100%; }
+.etym-mode-btn {
+  padding:9px 18px; border-radius:10px 10px 0 0; border:1px solid var(--border); border-bottom:none;
+  background:transparent; color:var(--text-secondary); font-weight:700; font-size:13px; cursor:pointer;
+  transition: all .15s;
+}
+.etym-mode-btn:hover { color: var(--text-primary); }
+.etym-mode-btn.active { background:rgba(168,85,247,0.12); color:#c4b5fd; border-color:rgba(168,85,247,0.4); }
+.etym-mode-btn.stat.active { background:rgba(217,119,6,0.12); color:#f59e0b; border-color:rgba(217,119,6,0.4); }
+/* ── settings drawer ── */
+.etym-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 90;
+  display: none; align-items: flex-start; justify-content: center; padding-top: 8vh;
+}
+.etym-overlay.open { display: flex; }
+.etym-drawer {
+  width: min(440px, 92vw); background: #12172a; border: 1px solid rgba(168,85,247,.35);
+  border-radius: 14px; padding: 22px; box-shadow: 0 24px 60px rgba(0,0,0,.6);
+}
+.etym-drawer h3 { margin: 0 0 4px; font-size: 16px; }
+.etym-drawer .hint { font-size: 11px; color: var(--text-secondary); margin: 0 0 16px; }
+.etym-field { margin-bottom: 14px; }
+.etym-field label { display:block; font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #c4b5fd; }
+.etym-field select, .etym-field input {
+  width: 100%; padding: 10px 12px; border-radius: 8px;
+  border: 1px solid var(--border); background: rgba(255,255,255,.05);
+  color: var(--text-primary); font-size: 13px;
+}
+.etym-field select:focus, .etym-field input:focus { outline: none; border-color: var(--accent); }
+.etym-drawer-actions { display: flex; gap: 8px; margin-top: 18px; }
+.etym-btn-primary {
+  flex: 1; padding: 11px; border-radius: 8px; border: none; cursor: pointer;
+  background: linear-gradient(135deg, #a855f7, #8b5cf6); color: white; font-weight: 700; font-size: 13px;
+}
+.etym-btn-ghost {
+  padding: 11px 16px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer;
+  background: transparent; color: var(--text-secondary); font-size: 13px;
+}
+.etym-note { font-size: 11px; color: var(--text-secondary); line-height: 1.5; margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px; }
+.etym-note b { color: #fbbf24; }
+</style>
+</head>
+<body>
+
+<header class="etym-topbar">
+  <div class="etym-title">📖 Legal Etymology Analyzer<span class="sub">Etymology · Statute Verification · v1.3.0</span></div>
+  <div class="etym-top-right">
+    <span class="etym-provider-pill" id="etym-provider-pill">Loading…</span>
+    <button class="etym-gear" onclick="etymSettingsOpen()" title="Provider &amp; API key settings">⚙️</button>
+  </div>
+</header>
+
+<div class="etym-mode-bar">
+  <button class="etym-mode-btn active" id="mode-btn-etym" onclick="switchToolMode('etym')">📖 Etymology</button>
+  <button class="etym-mode-btn stat" id="mode-btn-stat" onclick="switchToolMode('stat')">⚖️ Statute Verify</button>
+</div>
+
+<div class="etym-overlay" id="etym-overlay" onclick="if(event.target===this)etymSettingsClose()">
+  <div class="etym-drawer">
+    <h3>⚙️ Provider Settings</h3>
+    <p class="hint">Pick a model provider and enter its API key. Saved to this browser only.</p>
+    <div class="etym-field">
+      <label for="etym-provider">Provider</label>
+      <select id="etym-provider" onchange="etymSettingsOnProvider()"></select>
+    </div>
+    <div class="etym-field">
+      <label for="etym-key">API Key</label>
+      <input id="etym-key" type="password" autocomplete="off" placeholder="sk-…">
+    </div>
+    <div class="etym-field">
+      <label for="etym-model">Model (optional override)</label>
+      <input id="etym-model" type="text" autocomplete="off" placeholder="default">
+    </div>
+    <div class="etym-drawer-actions">
+      <button class="etym-btn-primary" onclick="etymSettingsSave()">Save</button>
+      <button class="etym-btn-ghost" onclick="etymSettingsClose()">Cancel</button>
+    </div>
+    <div class="etym-note">
+      <b>No key needed:</b> Ollama (local, http://127.0.0.1:11434) runs offline.<br>
+      <b>Hermes Agent (Local)</b> routes through your law-profile agent at 127.0.0.1:8642 — enter its API_SERVER_KEY.
+    </div>
+  </div>
+</div>
+
+<section id="etymologyAnalyzerSection">
+    <div style="padding:20px;max-width:1400px;margin:0 auto">
+      <div style="background:linear-gradient(135deg,rgba(168,85,247,0.12),rgba(139,92,246,0.12));border:2px solid rgba(168,85,247,0.4);border-radius:12px;padding:20px;margin-bottom:20px;text-align:center">
+        <div style="font-size:24px;font-weight:900;background:linear-gradient(135deg,#a855f7,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px">📖 ETYMOLOGY ANALYZER v1.3.0</div>
+        <div style="font-size:13px;color:var(--text-secondary)">Multi-Dictionary Bracket Chain Analysis</div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;opacity:0.7">Black's Law 4th • Random House • Oxford English • Modern Legal</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <!-- Input Panel -->
+        <div>
+          <div style="font-weight:700;font-size:14px;color:var(--text-primary);margin-bottom:10px">Etymology Input</div>
+
+          <textarea id="etym-input" placeholder="Enter legal terms separated by commas...
+e.g., jurat, affiant, notary" style="width:100%;min-height:80px;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text-primary);font-size:13px;resize:vertical;box-sizing:border-box"></textarea>
+
+          <!-- Quick Load -->
+          <div style="margin-top:10px">
+            <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px">Quick Load:</div>
+            <div style="display:flex;flex-wrap:wrap;gap:4px" id="etym-quick-load"></div>
+          </div>
+
+          <!-- Dictionary Selection -->
+          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;margin-top:10px">
+            <div style="font-size:12px;font-weight:700;color:#a855f7;margin-bottom:8px">Dictionary Sources</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+              <label id="etym-dict-blacks4th" style="display:flex;align-items:flex-start;gap:6px;cursor:pointer;padding:8px;border-radius:8px;border:1px solid rgba(168,85,247,0.3);background:rgba(168,85,247,0.1)">
+                <input type="checkbox" checked="" onchange="etymToggleDict('blacks4th')" style="accent-color:#a855f7;margin-top:2px">
+                <div><div style="font-size:12px;font-weight:600">Black's Law 4th</div><div style="font-size:10px;color:var(--text-secondary)">Legal definitions</div></div>
+              </label>
+              <label id="etym-dict-randomHouse" style="display:flex;align-items:flex-start;gap:6px;cursor:pointer;padding:8px;border-radius:8px;border:1px solid rgba(168,85,247,0.3);background:rgba(168,85,247,0.1)">
+                <input type="checkbox" checked="" onchange="etymToggleDict('randomHouse')" style="accent-color:#a855f7;margin-top:2px">
+                <div><div style="font-size:12px;font-weight:600">Random House</div><div style="font-size:10px;color:var(--text-secondary)">Bracket etymology</div></div>
+              </label>
+              <label id="etym-dict-oxford" style="display:flex;align-items:flex-start;gap:6px;cursor:pointer;padding:8px;border-radius:8px;border:1px solid rgba(168,85,247,0.3);background:rgba(168,85,247,0.1)">
+                <input type="checkbox" checked="" onchange="etymToggleDict('oxford')" style="accent-color:#a855f7;margin-top:2px">
+                <div><div style="font-size:12px;font-weight:600">Oxford English</div><div style="font-size:10px;color:var(--text-secondary)">Historical usage</div></div>
+              </label>
+              <label id="etym-dict-modern" style="display:flex;align-items:flex-start;gap:6px;cursor:pointer;padding:8px;border-radius:8px;border:1px solid rgba(168,85,247,0.3);background:rgba(168,85,247,0.1)">
+                <input type="checkbox" checked="" onchange="etymToggleDict('modern')" style="accent-color:#a855f7;margin-top:2px">
+                <div><div style="font-size:12px;font-weight:600">Modern Legal</div><div style="font-size:10px;color:var(--text-secondary)">2024 definitions</div></div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Chain Depth -->
+          <div style="margin-top:10px">
+            <div style="font-size:12px;font-weight:600;margin-bottom:6px">Bracket Chain Depth: <span id="etym-depth-val" style="font-weight:800;color:#a855f7">3</span></div>
+            <input type="range" id="etym-depth" min="1" max="5" value="3" oninput="document.getElementById('etym-depth-val').textContent=this.value" style="width:100%;accent-color:#a855f7">
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-secondary);margin-top:2px">
+              <span>1 Surface</span><span>3 Standard</span><span>5 Deep Root</span>
+            </div>
+          </div>
+
+          <!-- Symbol Guide (Collapsible) -->
+          <details style="margin-top:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;overflow:hidden">
+            <summary style="padding:10px;cursor:pointer;font-size:12px;font-weight:600;color:#fbbf24">ℹ️ Etymology Symbols Reference</summary>
+            <div id="etym-symbols" style="padding:8px 12px;display:grid;grid-template-columns:1fr 1fr;gap:2px 16px;font-size:11px;max-height:180px;overflow-y:auto"></div>
+          </details>
+
+          <!-- Action Buttons -->
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button onclick="etymAnalyze()" id="etym-analyze-btn" style="flex:1;padding:10px;border-radius:8px;border:none;background:#a855f7;color:white;font-weight:700;cursor:pointer;font-size:13px">⚡ Analyze Etymology</button>
+            <button onclick="etymClearAll()" style="padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#9ca3af;cursor:pointer" title="Clear all">🗑️</button>
+          </div>
+        </div>
+
+        <!-- Output Panel -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="font-weight:700;font-size:14px;color:var(--text-primary)">Analysis Output</div>
+            <div id="etym-output-actions" style="display:none;gap:6px">
+              <button onclick="etymCopyOutput()" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(16,185,129,0.4);background:rgba(16,185,129,0.1);color:#10b981;cursor:pointer;font-size:11px;font-weight:600">📋 Copy</button>
+              <button onclick="etymDownloadOutput()" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(59,130,246,0.4);background:rgba(59,130,246,0.1);color:#3b82f6;cursor:pointer;font-size:11px;font-weight:600">⬇ .md</button>
+            </div>
+          </div>
+          <div id="etym-output-panel" style="min-height:500px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:rgba(0,0,0,0.2);padding:16px;overflow:auto;max-height:600px">
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:rgba(255,255,255,0.3)">
+              <div style="font-size:32px;margin-bottom:8px;opacity:0.3">📖</div>
+              <p>Enter legal terms and click Analyze</p>
+              <p style="font-size:11px;margin-top:6px">Reveals hidden meanings through bracket chain analysis</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<section id="statuteVerifySection" style="display:none;max-width:1400px;margin:0 auto;padding:20px">
+  <div style="padding:20px;max-width:1400px;margin:0 auto">
+    <div style="font-size:24px;font-weight:900;background:linear-gradient(135deg,#f59e0b,#d97706);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px">⚖️ Statute Verification</div>
+    <div style="font-size:13px;color:var(--text-secondary);margin-bottom:20px">Verify a statute citation → enrolled text, status, and authority chain (Statutes at Large → SCOTUS)</div>
+
+    <div style="font-size:12px;font-weight:700;color:#f59e0b;margin-bottom:8px">Statute Citation</div>
+    <textarea id="stat-input" placeholder="e.g., 26 U.S.C. § 6402   ·   40 Stat. 1143   ·   Public Law 114-105, 129 Stat. 2219   ·   IRC § 3401(a)" style="width:100%;min-height:80px;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:#e2e8f0;font-family:inherit;font-size:13px;resize:vertical"></textarea>
+
+    <div style="font-size:11px;color:var(--text-secondary);margin:8px 0 6px">Quick Load:</div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px" id="stat-quick-load"></div>
+
+    <div style="display:flex;gap:8px;margin:14px 0">
+      <button onclick="statVerify()" id="stat-verify-btn" style="flex:1;padding:10px;border-radius:8px;border:none;background:#d97706;color:white;font-weight:700;cursor:pointer">⚖️ Verify Statute</button>
+      <button onclick="statClearAll()" style="padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:var(--text-secondary);cursor:pointer">Clear</button>
+    </div>
+
+    <div id="stat-output-actions" style="display:none;justify-content:flex-end;gap:8px;margin-bottom:8px">
+      <button onclick="statCopyOutput()" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(16,185,129,0.4);background:rgba(16,185,129,0.1);color:#34d399;cursor:pointer;font-size:12px">📋 Copy</button>
+      <button onclick="statDownloadOutput()" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(59,130,246,0.4);background:rgba(59,130,246,0.1);color:#60a5fa;cursor:pointer;font-size:12px">⬇ Download .md</button>
+    </div>
+
+    <div id="stat-output-panel" style="padding:16px;border-radius:10px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.03);min-height:120px;font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word"></div>
+
+    <div style="font-size:11px;color:var(--text-secondary);margin-top:14px;border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;line-height:1.6">
+      ⚠️ <b>Authority rule:</b> The Statutes at Large is primary; the U.S. Code is editorial commentary (parenthetical only). This is an AI analysis — confirm the enrolled text against the official <b>Statutes at Large PDF on govinfo.gov</b> before filing.
+    </div>
+  </div>
+</section>
+
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   Legal Etymology Analyzer — standalone engine (Etymology + Statute Verify)
+   Extracted verbatim from TMAR-Accrual-Ledger.html (PDKB tools)
+   ═══════════════════════════════════════════════════════════════ */
+
+// Per-provider OUTPUT token ceiling (max_tokens). Exceeding it is a hard error on most
+// OpenAI-compatible endpoints, so never send an Anthropic-sized value to them.
+var PROVIDER_MAX_OUTPUT = {
+  claude: 100000, anthropic: 100000,
+  // DeepSeek v4 allows up to 384000 output tokens. 64K is a deliberate safety rail, not a
+  // provider limit — max_tokens only caps a response, it doesn't reserve or bill anything,
+  // so raise this freely if an agent needs to emit a longer document.
+  deepseek: 65536,
+  openai: 16384, xai: 8192, groq: 8192, cerebras: 8192,
+  zai: 8192, kimi: 8192, minimax: 8192, ernie: 4096, openrouter: 8192
+};
+function maxOutputTokens(pid) { return PROVIDER_MAX_OUTPUT[pid] || 4096; }
+
+var TMAR_PROVIDERS = {
+    openai:    { name:'OpenAI',    auth:'bearer',    url:'https://api.openai.com/v1/chat/completions',        model:'gpt-4.1-mini' },
+    anthropic: { name:'Anthropic', auth:'anthropic', url:'https://api.anthropic.com/v1/messages',             model:'claude-sonnet-4-6' },
+    claude:    { name:'Anthropic', auth:'anthropic', url:'https://api.anthropic.com/v1/messages',             model:'claude-sonnet-4-6' },
+    // 'deepseek-chat'/'deepseek-reasoner' are aliases DeepSeek deprecates 2026-07-24.
+    // deepseek-v4-pro = top-tier v4 model; 1M context, 384K max output.
+    deepseek:  { name:'DeepSeek',  auth:'bearer',    url:'https://api.deepseek.com/chat/completions',         model:'deepseek-v4-pro' },
+    zai:       { name:'Z.AI',      auth:'bearer',    url:'https://api.z.ai/v1/chat/completions',              model:'z1-preview' },
+    kimi:      { name:'Kimi',      auth:'bearer',    url:'https://api.moonshot.cn/v1/chat/completions',       model:'moonshot-v1-8k' },
+    minimax:   { name:'MiniMax',   auth:'bearer',    url:'https://api.minimax.chat/v1/text/chatcompletion_v2', model:'MiniMax-Text-01' },
+    ernie:     { name:'Ernie',     auth:'ernie',     url:'https://qianfan.baidubce.com/v2/chat/completions',  model:'ernie-4.0-turbo-8k' },
+    xai:       { name:'xAI',       auth:'bearer',    url:'https://api.x.ai/v1/chat/completions',              model:'grok-3-mini' },
+    groq:      { name:'Groq',      auth:'bearer',    url:'https://api.groq.com/openai/v1/chat/completions',   model:'llama-3.3-70b-versatile' },
+    cerebras:  { name:'Cerebras',  auth:'bearer',    url:'https://api.cerebras.ai/v1/chat/completions',       model:'llama-3.3-70b' },
+    openrouter:{ name:'OpenRouter',auth:'bearer',    url:'https://openrouter.ai/api/v1/chat/completions',     model:'openai/gpt-4o-mini' },
+    ollama:    { name:'Ollama',    auth:'ollama',    url:'',                                                  model:'' },
+    custom:    { name:'Custom',    auth:'bearer',    url:'',                                                  model:'' },
+    // Hermes Agent (Local) — NOT a model provider. Routes to the local Hermes API server
+    // (gateway/platforms/api_server.py) which runs the FULL agent: law-profile SOUL.md
+    // persona + persistent memory + all skills (fiduciary-doc-factory, etc.). Endpoint is
+    // OpenAI-compatible, but auth:'hermes' triggers a dedicated branch in callLLMStream()
+    // that skips TMAR's own system prompt so the agent's real persona governs.
+    hermes:    { name:'Hermes Agent (Local)', auth:'hermes', url:'http://127.0.0.1:8642/v1/chat/completions', model:'law' }
+};
+var TMAR_PROVIDER_KEYMAP = {
+    openai:'eeon_key_openai', anthropic:'eeon_key_claude', claude:'eeon_key_claude',
+    deepseek:'eeon_key_deepseek', zai:'eeon_key_zai', kimi:'eeon_key_kimi',
+    minimax:'eeon_key_minimax', ernie:'eeon_key_ernie', xai:'eeon_key_xai',
+    groq:'eeon_key_groq', cerebras:'eeon_key_cerebras', openrouter:'eeon_key_openrouter',
+    hermes:'eeon_key_hermes'
+};
+// The model resolveProvider() uses for a provider absent any user override.
+function providerDefaultModel(pid) {
+  if (pid === 'ollama') return localStorage.getItem('eeon_ollama_model_custom') || localStorage.getItem('eeon_ollama_model') || 'deepseek-r1:14b';
+  if (pid === 'custom') return localStorage.getItem('eeon_custom_model') || 'custom';
+  if (pid === 'hermes') return localStorage.getItem('eeon_hermes_model') || 'law';
+  return (TMAR_PROVIDERS[pid] || TMAR_PROVIDERS.claude).model;
+}
+// The model actually in effect: a user override (Settings) wins for standard providers.
+function providerActiveModel(pid) {
+  var o = (localStorage.getItem('eeon_model_' + pid) || '').trim();
+  if (o && pid !== 'ollama' && pid !== 'custom') return o;
+  return providerDefaultModel(pid);
+}
+function resolveProvider() {
+  var pid = localStorage.getItem('eeon_active_provider') || 'deepseek';
+  var PROVIDERS = TMAR_PROVIDERS;
+  var keyMap = TMAR_PROVIDER_KEYMAP;
+  var p = PROVIDERS[pid] || PROVIDERS['claude'];
+  var key = keyMap[pid] ? (localStorage.getItem(keyMap[pid]) || '') : '';
+  if ((pid === 'claude' || pid === 'anthropic') && !key)
+    key = localStorage.getItem('_trustApiKey') || window._trustApiKey || '';
+  var url = p.url, model = p.model;
+  // User model override from Settings (per provider). Ollama/Custom keep their own model inputs.
+  var _modelOverride = (localStorage.getItem('eeon_model_' + pid) || '').trim();
+  if (_modelOverride && pid !== 'ollama' && pid !== 'custom') model = _modelOverride;
+  if (pid === 'ollama') {
+    url = (localStorage.getItem('eeon_ollama_url') || 'http://127.0.0.1:11434') + '/api/chat';
+    model = localStorage.getItem('eeon_ollama_model_custom') || localStorage.getItem('eeon_ollama_model') || 'deepseek-r1:14b';
+  }
+  if (pid === 'custom') {
+    url = localStorage.getItem('eeon_custom_url') || '';
+    model = localStorage.getItem('eeon_custom_model') || 'custom';
+  }
+  // Hermes Agent (Local): local endpoint. API_SERVER_KEY must be entered in Settings —
+  // no default, same as every other provider (never hardcode secrets in source).
+  if (pid === 'hermes') {
+    url = localStorage.getItem('eeon_hermes_url') || 'http://127.0.0.1:8642/v1/chat/completions';
+    model = localStorage.getItem('eeon_hermes_model') || 'law';
+  }
+  // A provider you explicitly selected with no key is an error — NOT a reason to
+  // silently reroute to Anthropic. The old code did that, so a keyless DeepSeek
+  // selection quietly billed (and failed against) the Anthropic account instead.
+  if (!key && pid !== 'ollama' && pid !== 'custom') {
+    return { error: 'No API key saved for ' + p.name + '. Go to Settings → API Keys and enter your ' +
+                    p.name + ' key, or pick a different provider.' };
+  }
+  // Guard: an Anthropic key cannot authenticate a non-Anthropic endpoint. Say so rather
+  // than silently switching the provider out from under the user.
+  if (key && key.indexOf('sk-ant-') === 0 && p.auth !== 'anthropic') {
+    return { error: 'The key saved for ' + p.name + ' is an Anthropic key (sk-ant-…). ' +
+                    'Enter a real ' + p.name + ' key in Settings → API Keys, or switch the provider back to Claude.' };
+  }
+  return { pid: pid, provider: p, key: key, url: url, model: model };
+}
+
+function pdkbCopyToClipboard(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    return navigator.clipboard.writeText(text).then(function(){ return true; }).catch(function(){ return pdkbCopyFallback(text); });
+  }
+  return Promise.resolve(pdkbCopyFallback(text));
+}
+function pdkbCopyFallback(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try { var ok = document.execCommand('copy'); document.body.removeChild(ta); return ok; }
+  catch(e) { document.body.removeChild(ta); return false; }
+}
+function pdkbDownloadFile(content, filename, mimeType) {
+  mimeType = mimeType || 'text/markdown';
+  var blob = new Blob([content], { type: mimeType });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+function pdkbCallLLM(prompt, options, onProgress) {
+  options = options || {};
+  var r = resolveProvider();
+  if (!r || r.error) {
+    return Promise.resolve({ success: false, error: { type: 'no_api_key', message: (r && r.error) || 'No provider configured. Go to Settings → API Keys.' } });
+  }
+  var p = r.provider, pid = r.pid, key = r.key;
+  var model = options.model || r.model;
+  // max_tokens is the OUTPUT cap and every provider has its own ceiling — never send an
+  // Anthropic-sized 100000 to an OpenAI-compatible endpoint like DeepSeek.
+  var cap = maxOutputTokens(pid);
+  var maxTokens = Math.min(options.maxTokens || cap, cap);
+  // Two separate guards, matching callLLMStream(): a connect timer for "the server never
+  // answered" (cleared once headers arrive), and a sliding stall timer that resets on every
+  // streamed chunk. This used to be one flat 300s timer that was never reset once streaming
+  // started, so a transcript large enough to legitimately stream past 5 minutes got hard-aborted
+  // mid-stream — reported as "stalled" even though tokens were still actively arriving.
+  var CONNECT_MS = options.connectTimeout || 90000;
+  var STALL_MS = options.stallTimeout || 120000;
+  var controller = new AbortController();
+  var timedOutOn = '';
+  var connectTimer = setTimeout(function(){ timedOutOn = 'connect'; controller.abort(); }, CONNECT_MS);
+  var stallTimer = null;
+  function armStall() {
+    if (stallTimer) clearTimeout(stallTimer);
+    stallTimer = setTimeout(function(){ timedOutOn = 'stall'; controller.abort(); }, STALL_MS);
+  }
+  function disarmStall() { if (stallTimer) { clearTimeout(stallTimer); stallTimer = null; } }
+
+  var url = r.url;
+  var headers = { 'Content-Type': 'application/json' };
+  var body;
+  if (p.auth === 'anthropic') {
+    var corsProxy = (localStorage.getItem('eeon_cors_proxy') || '').replace(/\/$/, '');
+    url = corsProxy ? corsProxy + '/v1/messages' : 'https://api.anthropic.com/v1/messages';
+    headers['x-api-key'] = key;
+    headers['anthropic-version'] = '2023-06-01';
+    headers['anthropic-dangerous-direct-browser-access'] = 'true';
+    body = JSON.stringify({ model: model, max_tokens: maxTokens, stream: true, messages: [{ role: 'user', content: prompt }] });
+  } else if (p.auth === 'ernie') {
+    url = url + '?access_token=' + key;
+    body = JSON.stringify({ messages: [{ role: 'user', content: prompt }] });
+  } else if (p.auth === 'ollama') {
+    body = JSON.stringify({ model: model, stream: true, messages: [{ role: 'user', content: prompt }] });
+  } else { // bearer: DeepSeek, OpenAI, xAI, Groq, Z.AI, Kimi, MiniMax, Cerebras, OpenRouter, custom
+    headers['Authorization'] = 'Bearer ' + key;
+    body = JSON.stringify({ model: model, max_tokens: maxTokens, stream: true, messages: [{ role: 'user', content: prompt }] });
+  }
+  var streams = (p.auth !== 'ernie');
+
+  return fetch(url, { method: 'POST', headers: headers, body: body, signal: controller.signal })
+  .then(function(resp) {
+    clearTimeout(connectTimer);
+    if (!resp.ok) {
+      return resp.text().then(function(bodyText) {
+        return { success: false, error: { type: 'api_error', provider: p.name, status: resp.status, statusText: resp.statusText, message: '[' + p.name + '] ' + bodyText } };
+      });
+    }
+    if (!streams) {   // Ernie has no SSE stream
+      return resp.json().then(function(d) {
+        var text = (d && d.result) || '';
+        if (text && typeof onProgress === 'function') onProgress(text);
+        return { success: true, result: text };
+      });
+    }
+    // Streaming reader — the stall timer resets on every chunk (armStall below), so total
+    // duration is unbounded as long as data keeps arriving; only genuine silence aborts it.
+    var reader = resp.body.getReader();
+    var decoder = new TextDecoder();
+    var accumulated = '';
+    var sseBuffer = '';
+
+    function emit(tok) {
+      if (!tok) return;
+      accumulated += tok;
+      if (typeof onProgress === 'function') onProgress(accumulated);
+    }
+
+    armStall();
+    function pump() {
+      return reader.read().then(function(chunk) {
+        if (chunk.done) {
+          disarmStall();
+          return { success: true, result: accumulated };
+        }
+        armStall();                       // each chunk resets the stall clock
+        sseBuffer += decoder.decode(chunk.value, { stream: true });
+        var lines = sseBuffer.split('\n');
+        sseBuffer = lines.pop(); // hold incomplete last line
+        for (var i = 0; i < lines.length; i++) {
+          var line = lines[i].trim();
+          if (!line) continue;
+          if (p.auth === 'ollama') {          // NDJSON — one JSON object per line, no "data: " prefix
+            try { var o = JSON.parse(line); emit(o.message && o.message.content); } catch(e) {}
+            continue;
+          }
+          if (!line.startsWith('data: ')) continue;
+          var raw = line.slice(6);
+          if (raw === '[DONE]') continue;
+          try {
+            var evt = JSON.parse(raw);
+            // Anthropic SSE: delta.text | OpenAI-compatible SSE: choices[0].delta.content
+            if (evt.delta && evt.delta.text) emit(evt.delta.text);
+            else if (evt.choices && evt.choices[0] && evt.choices[0].delta && evt.choices[0].delta.content) emit(evt.choices[0].delta.content);
+          } catch(e) { /* skip malformed SSE line */ }
+        }
+        return pump();
+      });
+    }
+    return pump();
+  })
+  .catch(function(err) {
+    clearTimeout(connectTimer);
+    disarmStall();
+    if (err.name === 'AbortError') {
+      var msg = (timedOutOn === 'stall')
+        ? 'The provider opened the stream then stopped sending tokens (no data for ' + Math.round(STALL_MS/1000) + 's). Aborted.'
+        : 'No response from ' + p.name + ' after ' + Math.round(CONNECT_MS/1000) + 's — the request never connected. Check network or configure a CORS proxy in Settings.';
+      return { success: false, error: { type: 'timeout', message: '[' + p.name + '] ' + msg } };
+    }
+    return { success: false, error: { type: 'network_error', message: '[' + p.name + '] ' + err.message } };
+  });
+}
+// Back-compat alias — the old name lied about what it did; keep existing callers working.
+var pdkbCallAnthropic = pdkbCallLLM;
+
+// ═══════════════════════════════════════════════════════════════
+// ETYMOLOGY ANALYZER
+// ═══════════════════════════════════════════════════════════════
+
+var etymState = { output: '', dicts: { blacks4th: true, randomHouse: true, oxford: true, modern: true } };
+
+var ETYMOLOGY_SYMBOLS = {
+  '<': 'derived from', 'e.g.': 'for example', 'i.e.': 'that is to say',
+  'c.f.': 'compared to', 'c.': 'circa (around/about)',
+  'ptp.': 'past participle', 'pp.': 'past participle',
+  'n.': 'noun', 'v.': 'verb', 'adj.': 'adjective',
+  'OHG': 'Old High German', 'MHG': 'Middle High German',
+  'MF': 'Middle French', 'AF': 'Anglo-French',
+  'L.': 'Latin', 'LL': 'Lower Latin', 'ML': 'Medieval Latin', 'VL': 'Vulgar Latin',
+  'G.': 'German', 'OE': 'Old English', 'ME': 'Middle English',
+  'OF': 'Old French', 'ONF': 'Old North French',
+  'GK.': 'Greek', 'LGk': 'Late Greek', 'SNS': 'Sanskrit',
+  'AR.': 'Arabic', 'HEB': 'Hebrew',
+  'AE': 'American English', 'BE': 'British English', 'SCT': 'Scottish',
+  'PIE': 'Proto-Indo-European', 'IE': 'Indo-European'
+};
+
+var ETYM_SAMPLES = [
+  'jurat, affiant, notary',
+  'cestui que trust, corpus, res',
+  'tort, contract, malfeasance',
+  'person, individual, citizen',
+  'attorney, advocate, counsel'
+];
+
+function initEtymologyAnalyzer() {
+  // Populate symbol guide
+  var symbolsEl = document.getElementById('etym-symbols');
+  if (symbolsEl && !symbolsEl.children.length) {
+    var html = '';
+    for (var sym in ETYMOLOGY_SYMBOLS) {
+      html += '<div style="display:flex;gap:4px"><span style="font-family:monospace;font-weight:700;min-width:36px;color:#fbbf24">' + sym + '</span><span style="color:var(--text-secondary)">= ' + ETYMOLOGY_SYMBOLS[sym] + '</span></div>';
+    }
+    symbolsEl.innerHTML = html;
+  }
+  // Populate quick load
+  var qlEl = document.getElementById('etym-quick-load');
+  if (qlEl && !qlEl.children.length) {
+    ETYM_SAMPLES.forEach(function(sample) {
+      var btn = document.createElement('button');
+      btn.textContent = sample.split(',')[0] + '...';
+      btn.style.cssText = 'font-size:10px;padding:4px 8px;background:rgba(168,85,247,0.2);color:#a855f7;border:none;border-radius:4px;cursor:pointer';
+      btn.onmouseover = function(){ this.style.background='rgba(168,85,247,0.3)'; };
+      btn.onmouseout = function(){ this.style.background='rgba(168,85,247,0.2)'; };
+      btn.onclick = function(){ document.getElementById('etym-input').value = sample; };
+      qlEl.appendChild(btn);
+    });
+  }
+}
+
+function etymToggleDict(key) {
+  etymState.dicts[key] = !etymState.dicts[key];
+  var label = document.getElementById('etym-dict-' + key);
+  if (etymState.dicts[key]) {
+    label.style.border = '1px solid rgba(168,85,247,0.3)'; label.style.background = 'rgba(168,85,247,0.1)';
+  } else {
+    label.style.border = '1px solid rgba(255,255,255,0.1)'; label.style.background = 'rgba(255,255,255,0.03)';
+  }
+}
+
+function etymBuildPrompt(content, dictionaries, chainDepth) {
+  var terms = content.split(',').map(function(t){ return t.trim(); }).filter(function(t){ return t; });
+  var sources = [];
+  for (var k in dictionaries) { if (dictionaries[k]) sources.push(k); }
+  var dateCreated = new Date().toISOString().split('T')[0];
+  return 'You are an expert etymologist specializing in legal and biblical terminology with deep knowledge of Black\'s Law Dictionary (4th Edition), Random House College Dictionary (1973-1978) bracket etymology system, Oxford English Dictionary, and Strong\'s Exhaustive Concordance.\n\nCRITICAL MISSION: Start with YAML FRONTMATTER, then follow the bracket etymology chain method to reveal hidden meanings and contradictions between root definitions and modern usage.\n\n## YAML FRONTMATTER (MUST BE FIRST):\n---\ndate_created: ' + dateCreated + '\nanalysis_type: etymology\nterms_analyzed: [' + terms.join(', ') + ']\ndictionaries_used: [' + sources.join(', ') + ']\nbracket_chain_depth: ' + chainDepth + '\nartifact_version: v1.3.0\ngenerator: Legal Etymology Analyzer\npurpose: Comprehensive etymological analysis with multi-dictionary bracket chain following\ntags: [etymology, legal-terms, dictionary-research, Black\'s-Law, linguistics]\n---\n\nTerms to analyze: ' + terms.join(', ') + '\nDictionary sources: ' + sources.join(', ') + '\nBracket chain depth: ' + chainDepth + ' levels\n\nFor EACH term, provide:\n\n## [TERM IN UPPERCASE]\n\n**Modern Pronunciation**: /IPA notation/\n**Word Class**: [noun/verb/adjective/etc.]\n\n### MULTI-DICTIONARY ANALYSIS\n\n#### Black\'s Law Dictionary (4th Edition)\n**Legal Definition**: [Complete definition]\n**Usage Context**: [How used in legal proceedings]\n**Related Legal Terms**: [Other terms referenced]\n\n#### Random House Dictionary - BRACKET ETYMOLOGY\n**Main Definition**: [Primary definition]\n**BRACKETED ETYMOLOGY**: [Copy exact bracket contents]\n**Parsed Symbols**: [Explain each abbreviation]\n\n**BRACKET CHAIN** (Follow ' + chainDepth + ' levels deep):\n```\n[TERM]\n├─ [First bracket reference] → meaning → [its brackets if any]\n│   └─ [Second level] → meaning → [its brackets]\n│       └─ [Third level] → meaning → [root origin]\n├─ [Alternative etymology path if exists]\n└─ [Proto-Indo-European or oldest root]\n```\n\n#### Oxford English Dictionary\n**First Recorded Use**: [Year and context]\n**Historical Definitions Timeline**: [Earliest → Modern]\n**Semantic Shift**: [How meaning changed]\n\n#### Modern Legal Definition (2024)\n**Current Meaning**: [Contemporary usage]\n**Statutory References**: [If commonly referenced]\n\n### CRITICAL FINDINGS\n**Root Etymology**: [Oldest fundamental meaning]\n**Hidden Meaning**: [What bracket chain reveals]\n**CONTRADICTION ALERT**: [Root meaning vs modern usage differences]\n\n### COMPARATIVE TABLE\n| Source | Era/Year | Definition | Semantic Focus |\n|--------|----------|------------|----------------|\n| PIE/Root | Ancient | [root meaning] | [emphasis] |\n| Latin/Greek | Classical | [classical meaning] | [evolution] |\n| Black\'s 4th | 1951 | [legal definition] | [legal focus] |\n| Modern | 2024 | [current usage] | [current focus] |\n\n### WORD FAMILY\n**Same Root Family**: Related words from same root\n**Compound Terms**: Terms using this word\n\n### ETYMOLOGY REVELATION\n[2-3 sentences on the most significant discovery about the term\'s true meaning]\n\n---\n\nTERMS TO ANALYZE:\n' + content + '\n\nBegin with YAML frontmatter. For each term, extract every bracketed reference, follow chains ' + chainDepth + ' levels deep, and flag all contradictions.';
+}
+
+async function etymAnalyze() {
+  var input = document.getElementById('etym-input').value;
+  if (!input.trim()) return alert('Enter legal terms to analyze');
+  var prov = resolveProvider();
+  if (!prov || prov.error) return alert(prov && prov.error ? prov.error : 'No provider configured. Go to Settings → API Keys.');
+
+  var btn = document.getElementById('etym-analyze-btn');
+  btn.disabled = true; btn.textContent = '⏳ Analyzing...';
+  var depth = parseInt(document.getElementById('etym-depth').value);
+
+  // Show streaming output as tokens arrive (mirrors Transcript Transformer behaviour)
+  var panel = document.getElementById('etym-output-panel');
+  panel.innerHTML = '<pre id="etym-output-pre" style="white-space:pre-wrap;font-size:12px;color:#e2e8f0;user-select:text"></pre>';
+  function etymStreamPreview(partial) {
+    var pre = document.getElementById('etym-output-pre');
+    if (pre) { pre.textContent = partial; panel.scrollTop = panel.scrollHeight; }
+  }
+
+  try {
+    var prompt = etymBuildPrompt(input, etymState.dicts, depth);
+    var result = await pdkbCallAnthropic(prompt, {}, etymStreamPreview);
+    if (!result.success) {
+      panel.innerHTML = '<div style="color:#f87171;padding:16px"><strong>Analysis failed:</strong><br><pre style="white-space:pre-wrap;font-size:11px;margin-top:8px">' + (result.error.message || 'Unknown error') + '</pre></div>';
+      btn.disabled = false; btn.textContent = '⚡ Analyze Etymology'; return;
+    }
+    etymState.output = result.result;
+    etymRenderOutput();
+  } catch(err) {
+    panel.innerHTML = '<div style="color:#f87171;padding:16px"><strong>Error:</strong> ' + err.message + '</div>';
+  }
+  btn.disabled = false; btn.textContent = '⚡ Analyze Etymology';
+}
+
+function etymRenderOutput() {
+  var panel = document.getElementById('etym-output-panel');
+  if (etymState.output) {
+    panel.innerHTML = '<pre id="etym-output-pre" style="white-space:pre-wrap;font-size:12px;color:#e2e8f0;user-select:text">' + etymState.output.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</pre>';
+    document.getElementById('etym-output-actions').style.display = 'flex';
+  }
+}
+
+function etymCopyOutput() { pdkbCopyToClipboard(etymState.output).then(function(ok) { alert(ok ? 'Copied!' : 'Copy failed'); }); }
+function etymDownloadOutput() {
+  var terms = document.getElementById('etym-input').value.split(',')[0].trim().replace(/\s+/g, '_');
+  pdkbDownloadFile(etymState.output, 'etymology_' + terms + '_' + new Date().toISOString().split('T')[0] + '.md');
+}
+function etymClearAll() {
+  document.getElementById('etym-input').value = '';
+  etymState.output = '';
+  document.getElementById('etym-output-actions').style.display = 'none';
+  document.getElementById('etym-output-panel').innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:rgba(255,255,255,0.3)"><div style="font-size:32px;margin-bottom:8px;opacity:0.3">📖</div><p>Enter legal terms and click Analyze</p><p style="font-size:11px;margin-top:6px">Reveals hidden meanings through bracket chain analysis</p></div>';
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   STATUTE VERIFICATION
+   ═══════════════════════════════════════════════════════════════ */
+
+var statState = { output: '' };
+
+var STAT_SAMPLES = [
+  '26 U.S.C. § 6402',
+  '40 Stat. 1143 (Revenue Act 1918, §1307)',
+  'Public Law 114-105, 129 Stat. 2219',
+  'IRC § 3401(a)',
+  '48 Stat. 1 (Emergency Banking Act, §401)',
+  '17 Stat. 13 (codified as 42 U.S.C. § 1983)'
+];
+
+function initStatuteVerify() {
+  var ql = document.getElementById('stat-quick-load');
+  if (ql && !ql.children.length) {
+    STAT_SAMPLES.forEach(function(s) {
+      var btn = document.createElement('button');
+      btn.textContent = s.length > 42 ? s.slice(0, 42) + '…' : s;
+      btn.style.cssText = 'font-size:10px;padding:4px 8px;background:rgba(217,119,6,0.2);color:#f59e0b;border:none;border-radius:4px;cursor:pointer';
+      btn.onmouseover = function(){ this.style.background='rgba(217,119,6,0.32)'; };
+      btn.onmouseout = function(){ this.style.background='rgba(217,119,6,0.2)'; };
+      btn.onclick = function(){ document.getElementById('stat-input').value = s; };
+      ql.appendChild(btn);
+    });
+  }
+}
+
+function switchToolMode(mode) {
+  var e = document.getElementById('etymologyAnalyzerSection');
+  var s = document.getElementById('statuteVerifySection');
+  var be = document.getElementById('mode-btn-etym');
+  var bs = document.getElementById('mode-btn-stat');
+  if (mode === 'stat') {
+    e.style.display = 'none'; s.style.display = 'block';
+    bs.classList.add('active'); be.classList.remove('active');
+    if (!window.__statInit) { window.__statInit = true; initStatuteVerify(); }
+  } else {
+    e.style.display = 'block'; s.style.display = 'none';
+    be.classList.add('active'); bs.classList.remove('active');
+  }
+}
+
+function statBuildPrompt(text) {
+  var dateCreated = new Date().toISOString().split('T')[0];
+  return 'You are a statute verification specialist with rigorous expertise in federal statutory law and the Statutes at Large.\n\n' +
+    'Verify the following statute citation with precision. Your authority hierarchy is:\n' +
+    '1. The Congressional Record\n' +
+    '2. The Act (by name and date)\n' +
+    '3. The Statutes at Large (volume and page) — PRIMARY AUTHORITY\n' +
+    '4. The Supreme Court of the United States (cases interpreting it)\n' +
+    'The U.S. Code is EDITORIAL COMMENTARY ONLY — cite it parenthetically, never as primary authority.\n\n' +
+    'Produce a structured verification with these exact sections:\n\n' +
+    '## 1. Citation Normalization\n' +
+    '- Act: [name and date]\n' +
+    '- Statutes at Large: [volume] Stat. [page] (primary)\n' +
+    '- Codification: (editorially codified as [USC cite] — parenthetical only)\n' +
+    '- Interpreting cases: [SCOTUS / appellate citations]\n\n' +
+    '## 2. Enrolled Text\n' +
+    '- The verbatim enrolled text from the Statutes at Large.\n' +
+    '- If the U.S. Code codification DIVERGES from the enrolled text, flag it explicitly and state that the enrolled text controls (United States v. Welden, 377 U.S. 95 (1964)).\n\n' +
+    '## 3. Status\n' +
+    '- Enacted / Amended / Repealed / Superseded (with the amending or repealing authority).\n\n' +
+    '## 4. Verification Flags\n' +
+    '- Fabricated or unconfirmed (say "not found in official sources" — never "does not exist")\n' +
+    '- U.S. Code wording divergence from the enrolled text\n' +
+    '- Overruled / superseded case law\n' +
+    '- Paraphrase vs verbatim\n\n' +
+    '## 5. Official Source\n' +
+    '- Direct link to the Statutes at Large PDF on govinfo.gov (format: govinfo.gov/content/pkg/STATUTE-<volume>/pdf/STATUTE-<volume>.pdf)\n' +
+    '- NEVER link to a U.S. Code compilation site.\n\n' +
+    'CRITICAL RULES:\n' +
+    '- Never cite the U.S. Code as primary authority.\n' +
+    '- Never declare a statute "does not exist" — say "not yet found."\n' +
+    '- Verify the ENROLLED text, not a paraphrase.\n' +
+    '- Distinguish the enrolled statute from the editorial U.S. Code codification.\n' +
+    '- If you cannot confirm a citation, say so explicitly rather than guessing.\n\n' +
+    'CITATION TO VERIFY:\n' + text;
+}
+
+async function statVerify() {
+  var input = document.getElementById('stat-input').value;
+  if (!input.trim()) return alert('Enter a statute citation to verify');
+  var prov = resolveProvider();
+  if (!prov || prov.error) return alert(prov && prov.error ? prov.error : 'No provider configured. Use the ⚙️ Settings gear.');
+
+  var btn = document.getElementById('stat-verify-btn');
+  btn.disabled = true; btn.textContent = '⏳ Verifying…';
+
+  var panel = document.getElementById('stat-output-panel');
+  panel.innerHTML = '<pre id="stat-output-pre" style="white-space:pre-wrap;font-size:12px;color:#e2e8f0;user-select:text"></pre>';
+  function statStreamPreview(partial) {
+    var pre = document.getElementById('stat-output-pre');
+    if (pre) { pre.textContent = partial; panel.scrollTop = panel.scrollHeight; }
+  }
+
+  try {
+    var prompt = statBuildPrompt(input);
+    var result = await pdkbCallAnthropic(prompt, {}, statStreamPreview);
+    if (!result.success) {
+      panel.innerHTML = '<div style="color:#f87171;padding:16px"><strong>Verification failed:</strong><br><pre style="white-space:pre-wrap;font-size:11px;margin-top:8px">' + (result.error.message || 'Unknown error') + '</pre></div>';
+      btn.disabled = false; btn.textContent = '⚖️ Verify Statute'; return;
+    }
+    statState.output = result.result;
+    statRenderOutput();
+  } catch(err) {
+    panel.innerHTML = '<div style="color:#f87171;padding:16px"><strong>Error:</strong> ' + err.message + '</div>';
+  }
+  btn.disabled = false; btn.textContent = '⚖️ Verify Statute';
+}
+
+function statRenderOutput() {
+  var panel = document.getElementById('stat-output-panel');
+  if (statState.output) {
+    panel.innerHTML = '<pre id="stat-output-pre" style="white-space:pre-wrap;font-size:12px;color:#e2e8f0;user-select:text">' + statState.output.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</pre>';
+    document.getElementById('stat-output-actions').style.display = 'flex';
+  }
+}
+
+function statCopyOutput() { pdkbCopyToClipboard(statState.output).then(function(ok) { alert(ok ? 'Copied!' : 'Copy failed'); }); }
+function statDownloadOutput() {
+  var cite = document.getElementById('stat-input').value.split(',')[0].trim().replace(/[^A-Za-z0-9._ -]/g, '').replace(/\s+/g, '_');
+  pdkbDownloadFile(statState.output, 'statute_verify_' + cite + '_' + new Date().toISOString().split('T')[0] + '.md');
+}
+function statClearAll() {
+  document.getElementById('stat-input').value = '';
+  statState.output = '';
+  document.getElementById('stat-output-actions').style.display = 'none';
+  document.getElementById('stat-output-panel').innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:rgba(255,255,255,0.3)"><div style="font-size:32px;margin-bottom:8px;opacity:0.3">⚖️</div><p>Enter a statute citation and click Verify Statute</p><p style="font-size:11px;margin-top:6px">Traces the citation to its enrolled text and authority chain</p></div>';
+}
+
+
+
+/* ── settings drawer glue ── */
+function etymKeyStorage(pid) {
+  return (typeof TMAR_PROVIDER_KEYMAP !== 'undefined' && TMAR_PROVIDER_KEYMAP[pid]) || ('eeon_key_' + pid);
+}
+function etymSettingsOpen() {
+  etymSettingsPopulate();
+  document.getElementById('etym-overlay').classList.add('open');
+}
+function etymSettingsClose() {
+  document.getElementById('etym-overlay').classList.remove('open');
+}
+function etymSettingsPopulate() {
+  var sel = document.getElementById('etym-provider');
+  sel.innerHTML = '';
+  Object.keys(TMAR_PROVIDERS).forEach(function(pid) {
+    var o = document.createElement('option');
+    o.value = pid;
+    o.textContent = TMAR_PROVIDERS[pid].name + (pid === 'hermes' ? ' (Local)' : '') + (pid === 'ollama' ? ' (Local)' : '');
+    sel.appendChild(o);
+  });
+  sel.value = localStorage.getItem('eeon_active_provider') || 'deepseek';
+  etymSettingsOnProvider();
+}
+function etymSettingsOnProvider() {
+  var pid = document.getElementById('etym-provider').value;
+  document.getElementById('etym-key').value = localStorage.getItem(etymKeyStorage(pid)) || '';
+  document.getElementById('etym-model').value = localStorage.getItem('eeon_model_' + pid) || '';
+  var needsKey = TMAR_PROVIDERS[pid].auth !== 'ollama' && TMAR_PROVIDERS[pid].auth !== 'custom';
+  document.getElementById('etym-key').placeholder = needsKey ? ('API key for ' + TMAR_PROVIDERS[pid].name) : '(no key needed)';
+}
+function etymSettingsSave() {
+  var pid = document.getElementById('etym-provider').value;
+  localStorage.setItem('eeon_active_provider', pid);
+  var key = document.getElementById('etym-key').value.trim();
+  if (key) localStorage.setItem(etymKeyStorage(pid), key); else localStorage.removeItem(etymKeyStorage(pid));
+  var model = document.getElementById('etym-model').value.trim();
+  if (model) localStorage.setItem('eeon_model_' + pid, model); else localStorage.removeItem('eeon_model_' + pid);
+  etymSettingsClose();
+  etymUpdatePill();
+}
+function etymUpdatePill() {
+  var pid = localStorage.getItem('eeon_active_provider') || 'deepseek';
+  var name = (TMAR_PROVIDERS[pid] ? TMAR_PROVIDERS[pid].name : pid);
+  var hasKey = !!(localStorage.getItem(etymKeyStorage(pid)));
+  var noKeyNeeded = TMAR_PROVIDERS[pid] && (TMAR_PROVIDERS[pid].auth === 'ollama' || TMAR_PROVIDERS[pid].auth === 'custom');
+  var el = document.getElementById('etym-provider-pill');
+  el.textContent = name + (noKeyNeeded ? '' : (hasKey ? ' · key set' : ' · ⚠ no key'));
+  el.style.borderColor = (noKeyNeeded || hasKey) ? 'rgba(168,85,247,0.35)' : 'rgba(251,191,36,0.6)';
+  el.style.color = (noKeyNeeded || hasKey) ? '#c4b5fd' : '#fbbf24';
+}
+document.addEventListener('DOMContentLoaded', function() {
+  initEtymologyAnalyzer();
+  initStatuteVerify();
+  etymUpdatePill();
+});
+</script>
+</body>
+</html>
