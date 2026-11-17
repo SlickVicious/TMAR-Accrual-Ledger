@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Legal Authority Analyzer</title>
+<style>
+:root{
+  --bg:#080810; --bg2:#101018; --panel:#14141c; --panel2:#1a1a24;
+  --text:#f8f8f8; --muted:#a0a0a8; --faint:#6a6a74; --border:#303038;
+  --accent:#b08a2e; --accent2:#9c5a12; --amber:#d4a843; --blue:#406880; --green:#22c55e; --red:#ef4444;
+  --mono:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+  --sans:Inter,-apple-system,'Segoe UI',system-ui,sans-serif;
+}
+[data-theme="light"]{
+  --bg:#f2f2ec; --bg2:#e6e6de; --panel:#ffffff; --panel2:#f7f7f2;
+  --text:#1a1a20; --muted:#5a5a62; --faint:#8a8a90; --border:#dcdcd2;
+  --accent:#96700a; --accent2:#285870; --amber:#8a6508;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{background:linear-gradient(160deg,var(--bg),var(--bg2));color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.5}
+a{color:var(--amber)}
+.wrap{max-width:1300px;margin:0 auto;padding:14px 16px 40px}
+body.embed .wrap{padding:8px 10px 20px;max-width:none}
+body.embed header.topbar{display:none}
+header.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 18px;background:linear-gradient(120deg,#b08a2e,#9c5a12);color:#1a1a20;box-shadow:0 8px 30px rgba(0,0,0,.35)}
+header.topbar h1{font-size:1.15rem;font-weight:700}
+header.topbar .sub{font-size:.72rem;opacity:.92;margin-top:2px}
+.version{background:rgba(0,0,0,.15);padding:3px 10px;font-family:var(--mono);font-size:.72rem;white-space:nowrap}
+.iconbtn{background:rgba(0,0,0,.16);border:none;color:#1a1a20;width:34px;height:34px;cursor:pointer;font-size:1rem}
+.tabs{display:flex;gap:6px;margin:14px 0 12px;flex-wrap:wrap;align-items:center}
+body.embed .tabs{margin-top:4px}
+.tabbtn{background:var(--panel);border:1px solid var(--border);color:var(--muted);padding:8px 15px;cursor:pointer;font-weight:600;font-size:.85rem}
+.tabbtn:hover{color:var(--text);border-color:var(--accent)}
+.tabbtn.active{background:var(--accent);border-color:var(--accent);color:#1a1a20}
+.engine-pill{margin-left:auto;font-size:.72rem;color:var(--muted);font-family:var(--mono)}
+.panel{background:var(--panel);border:1px solid var(--border);padding:16px;box-shadow:0 4px 20px rgba(0,0,0,.25)}
+.grid2{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:16px}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}}
+label.lbl{display:block;font-size:.76rem;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+textarea,input[type=text],input[type=password],select{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:9px 11px;font-family:var(--mono);font-size:.88rem;outline:none}
+textarea:focus,input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(176,138,46,.25)}
+textarea{resize:vertical}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;padding:9px 15px;font-weight:600;font-size:.86rem;cursor:pointer;text-decoration:none}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-primary{background:var(--accent);color:#1a1a20}
+.btn-primary:hover:not(:disabled){filter:brightness(1.12)}
+.btn-green{background:var(--green);color:#04130a}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-ghost{background:var(--panel2);color:var(--muted);border:1px solid var(--border)}
+.btn-ghost:hover{color:var(--text)}
+.btn-ghost.on{color:#1a1a20;background:var(--amber);border-color:var(--amber)}
+.btn-danger{background:transparent;color:var(--red);border:1px solid var(--red)}
+.btn-sm{padding:5px 10px;font-size:.76rem}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.spacer{flex:1}
+.hint{font-size:.75rem;color:var(--faint);margin-top:6px;line-height:1.55}
+.mono{font-family:var(--mono)}
+.block{margin:12px 0}
+.seg{display:flex;flex-wrap:wrap;border:1px solid var(--border)}
+.seg button{flex:1;background:var(--panel2);color:var(--muted);border:none;border-right:1px solid var(--border);padding:8px 6px;font-size:.78rem;font-weight:600;cursor:pointer;min-width:90px}
+.seg button:last-child{border-right:none}
+.seg button.active{background:var(--accent);color:#1a1a20}
+.detect{font-size:.74rem;color:var(--muted);margin-top:6px}
+.detect b{color:var(--amber)}
+.status{display:none;margin:10px 0;padding:9px 12px;font-size:.84rem}
+.status.show{display:block}
+.status.success{background:rgba(34,197,94,.14);color:var(--green);border:1px solid rgba(34,197,94,.4)}
+.status.error{background:rgba(239,68,68,.14);color:var(--red);border:1px solid rgba(239,68,68,.4)}
+.status.info{background:rgba(64,104,128,.16);color:#7fb0cc;border:1px solid rgba(64,104,128,.4)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:.73rem;padding:4px 9px;background:var(--panel2);border:1px solid var(--border);color:var(--muted);cursor:pointer;font-family:var(--mono)}
+.chip:hover{color:var(--text);border-color:var(--accent)}
+.citelist{display:flex;flex-direction:column;gap:6px}
+.cite{border:1px solid var(--border);background:var(--panel2);padding:8px 10px;font-size:.78rem}
+.cite .c{font-family:var(--mono);font-weight:700;color:var(--amber)}
+.cite .t{font-size:.66rem;text-transform:uppercase;letter-spacing:.5px;color:var(--faint);margin-left:6px}
+.cite .pl{font-size:.68rem;font-weight:700;padding:1px 6px;margin-left:6px;border:1px solid var(--border)}
+.cite .pl.yes{color:var(--green);border-color:rgba(34,197,94,.5)}
+.cite .pl.no{color:var(--amber);border-color:rgba(212,168,67,.5)}
+.cite .links{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+.cite .note{color:var(--faint);font-size:.7rem;margin-top:3px}
+.dictgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.dict{display:flex;align-items:flex-start;gap:8px;cursor:pointer;padding:7px 8px;border:1px solid var(--border);background:var(--panel2)}
+.dict.on{background:rgba(176,138,46,.14);border-color:var(--accent)}
+.dict input{accent-color:var(--accent);margin-top:3px}
+.dict .dname{font-size:.82rem;font-weight:600}
+.dict .ddesc{font-size:.7rem;color:var(--muted)}
+details.collapse{border:1px solid var(--border);background:var(--panel2);margin:12px 0}
+details.collapse summary{cursor:pointer;padding:9px 12px;font-weight:600;font-size:.82rem}
+details.collapse .inner{padding:8px 12px 12px;border-top:1px solid var(--border)}
+.symgrid{display:grid;grid-template-columns:1fr 1fr;gap:3px 14px;font-size:.75rem;max-height:200px;overflow:auto}
+.symgrid .s{font-family:var(--mono);font-weight:700;color:var(--amber);min-width:46px;display:inline-block}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.rangemarks{display:flex;justify-content:space-between;font-size:.7rem;color:var(--faint);margin-top:2px}
+.output{background:#0b0b12;border:1px solid var(--border);padding:16px 18px;min-height:420px;max-height:70vh;overflow:auto;color:#e6e9f7;font-size:.9rem;line-height:1.6;word-break:break-word}
+.output.raw,.output.streaming{font-family:var(--mono);font-size:.8rem;white-space:pre-wrap}
+.output .placeholder{color:#6b7194;white-space:pre-wrap;font-family:var(--mono);font-size:.82rem}
+.md h1,.md h2{color:var(--amber);margin:18px 0 8px;font-size:1.15rem;border-bottom:1px solid var(--border);padding-bottom:4px}
+.md h3{color:#e8c870;margin:14px 0 6px;font-size:1rem}
+.md h4,.md h5,.md h6{color:#cfd3ea;margin:12px 0 4px;font-size:.92rem}
+.md p{margin:6px 0}
+.md ul,.md ol{margin:6px 0 6px 22px}
+.md li{margin:2px 0}
+.md code{font-family:var(--mono);background:rgba(255,255,255,.07);padding:1px 4px;font-size:.84em}
+.md pre{background:rgba(0,0,0,.35);border:1px solid var(--border);padding:10px;overflow:auto;margin:8px 0;font-family:var(--mono);font-size:.8rem;line-height:1.45}
+.md pre.fm{border-left:3px solid var(--accent);color:#9aa0c0}
+.md blockquote{border-left:3px solid var(--blue);padding-left:10px;color:#b8bdd8;margin:8px 0}
+.md table{border-collapse:collapse;margin:10px 0;font-size:.82rem;width:100%}
+.md th,.md td{border:1px solid var(--border);padding:5px 8px;text-align:left;vertical-align:top}
+.md th{background:rgba(176,138,46,.15)}
+.md hr{border:none;border-top:1px solid var(--border);margin:14px 0}
+.md a{color:#e8c870}
+.side{margin-top:12px;border:1px solid var(--border);background:var(--panel2);padding:12px}
+.side h4{font-size:.8rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:.82rem;padding:4px 0;border-bottom:1px dashed var(--border)}
+.check:last-child{border-bottom:none}
+.check input{accent-color:var(--green);margin-top:4px}
+.check.done span{color:var(--faint);text-decoration:line-through}
+.badge{font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:2px 8px;border:1px solid var(--border);color:var(--muted)}
+.badge.ok{color:var(--green);border-color:rgba(34,197,94,.5)}
+.badge.warn{color:var(--amber);border-color:rgba(212,168,67,.5)}
+.srcgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+.srccard{display:flex;flex-direction:column;gap:6px;border:1px solid var(--border);padding:12px;background:var(--panel2)}
+.srccard .sname{font-weight:700;font-size:.9rem}
+.srccard .domain{font-family:var(--mono);font-size:.7rem;color:var(--accent2)}
+.srccard .sdesc{font-size:.76rem;color:var(--muted)}
+.linklist{display:flex;flex-direction:column;gap:4px;font-size:.82rem;margin:10px 0}
+.histitem{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--border);padding:10px 13px;background:var(--panel2);margin-bottom:8px}
+.histitem .hterm{font-family:var(--mono);font-weight:600;font-size:.84rem;word-break:break-word}
+.histitem .hmeta{font-size:.72rem;color:var(--faint);margin-top:2px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+.modal-bg.show{display:flex}
+.modal{background:var(--panel);border:1px solid var(--border);padding:20px;max-width:720px;width:100%;max-height:85vh;overflow:auto}
+.field{margin-bottom:12px}
+.footer{margin-top:16px;font-size:.72rem;color:var(--faint);text-align:center;line-height:1.7}
+.hidden{display:none !important}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="topbar">
+    <div class="row">
+      <span style="font-size:1.5rem">⚖️</span>
+      <div>
+        <h1 id="hdrTitle">Legal Authority Analyzer</h1>
+        <div class="sub" id="hdrSub"></div>
+      </div>
+    </div>
+    <div class="row">
+      <span class="version" id="versionBadge"></span>
+      <button class="iconbtn" id="themeToggle" title="Toggle light/dark">🌓</button>
+    </div>
+  </header>
+
+  <div class="tabs" id="tabs">
+    <button class="tabbtn active" data-tab="analyzer">🔤 Analyze</button>
+    <button class="tabbtn" data-tab="bridge">🏛️ Authority Bridge</button>
+    <button class="tabbtn" data-tab="history">🗂️ History</button>
+    <button class="tabbtn" data-tab="settings">⚙️ Settings</button>
+    <span class="engine-pill" id="enginePill"></span>
+  </div>
+
+  <!-- ================= ANALYZE ================= -->
+  <section class="panel" id="tab-analyzer">
+    <div class="grid2">
+      <div>
+        <label class="lbl">Mode</label>
+        <div class="seg" id="modeSeg">
+          <button data-mode="auto" class="active">Auto</button>
+          <button data-mode="etymology">📖 Etymology</button>
+          <button data-mode="statute">⚖️ Statute Verify</button>
+          <button data-mode="termInStatute">🔗 Term-in-Statute</button>
+        </div>
+        <div class="detect" id="detectLine"></div>
+
+        <div class="block">
+          <label class="lbl">Terms and/or citations <span style="text-transform:none;color:var(--faint)">(comma-separated)</span></label>
+          <textarea id="inputTerms" rows="4" placeholder="jurat, affiant, notary&#10;129 Stat. 2219  ·  P.L. 114-105  ·  26 U.S.C. § 6402&#10;person, individual, 26 U.S.C. § 7701"></textarea>
+        </div>
+
+        <div class="block" id="citeBlock">
+          <label class="lbl">Citations recognized <span style="text-transform:none;color:var(--faint)">(links generated by the parser, not by the AI)</span></label>
+          <div class="citelist" id="citeList"></div>
+        </div>
+
+        <div class="block">
+          <label class="lbl">Quick load</label>
+          <div class="chips" id="sampleChips"></div>
+        </div>
+
+        <div class="block" id="dictBlock">
+          <label class="lbl">📚 Dictionary sources</label>
+          <div class="dictgrid" id="dictGrid"></div>
+        </div>
+
+        <div class="block" id="depthBlock">
+          <label class="lbl">🔗 Bracket chain depth: <span id="depthVal" style="color:var(--amber)">3</span></label>
+          <input type="range" id="chainDepth" min="1" max="5" value="3">
+          <div class="rangemarks"><span>1 · surface</span><span>3 · standard</span><span>5 · deep root</span></div>
+        </div>
+
+        <details class="collapse" id="symBlock">
+          <summary>ℹ️ Etymology symbols reference</summary>
+          <div class="inner"><div class="symgrid" id="symGrid"></div></div>
+        </details>
+
+        <div class="status" id="status"></div>
+
+        <div class="row">
+          <button class="btn btn-primary" id="btnAnalyze" style="flex:1">⚡ Analyze</button>
+          <button class="btn btn-ghost" id="btnStopRun" title="Stop generation" disabled>⏹</button>
+          <button class="btn btn-ghost" id="btnClear" title="Clear">🗑️</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="row" style="margin-bottom:8px">
+          <span style="font-weight:700">📜 Output</span>
+          <span class="badge" id="verifyBadge" style="display:none"></span>
+          <span class="spacer"></span>
+          <button class="btn btn-ghost btn-sm" id="btnRaw" title="Toggle rendered / raw markdown">Raw</button>
+          <button class="btn btn-green btn-sm" id="btnCopy">⧉ Copy</button>
+          <button class="btn btn-blue btn-sm" id="btnDownload">⬇ .md</button>
+          <button class="btn btn-blue btn-sm" id="btnSpeak">🔊</button>
+          <button class="btn btn-ghost btn-sm" id="btnStopSpeak">⏹</button>
+        </div>
+        <div class="output" id="output"><div class="placeholder">Enter terms or citations and click Analyze.
+
+• Etymology — leads with the bracket-chain etymology of each word, then
+  Facts (definitions across Black's 4th/5th/6th, OED) and Conclusions of Law.
+• Statute Verify — normalizes the citation, compares the enrolled text to the
+  U.S. Code, reports status and positive-law standing.
+• Term-in-Statute — a term traced from its root to how the cited statute
+  defines it, with contradictions flagged.
+
+Primary-source links come from the citation parser, never from the AI.
+Every run ends in a verification checklist you tick off against those sources.</div></div>
+
+        <div class="side" id="checkPanel" style="display:none">
+          <h4>✅ Verification checklist <span class="spacer"></span><span id="checkCount" class="mono" style="text-transform:none"></span></h4>
+          <div id="checkList"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= AUTHORITY BRIDGE ================= -->
+  <section class="panel hidden" id="tab-bridge">
+    <div class="row" style="margin-bottom:10px">
+      <div style="flex:1;min-width:220px">
+        <label class="lbl">Query (term, citation, or phrase)</label>
+        <input type="text" id="bridgeQuery" placeholder="jurisdiction  /  26 U.S.C. 61  /  129 Stat. 2219">
+      </div>
+      <button class="btn btn-ghost" id="btnUseInput" style="align-self:flex-end">↙ Use analyzer input</button>
+    </div>
+    <div id="bridgeCites" class="citelist" style="margin-bottom:12px"></div>
+    <div class="row" style="margin-bottom:12px">
+      <button class="btn btn-primary" id="btnListLinks">🔗 List links for selected</button>
+      <button class="btn btn-ghost" id="btnOpenSelected">↗ Open selected</button>
+      <button class="btn btn-ghost" id="btnSelectAll">Select all</button>
+      <button class="btn btn-ghost" id="btnSelectNone">None</button>
+      <button class="btn btn-ghost" id="btnEditSources">✏️ Edit sources</button>
+    </div>
+    <p class="hint" style="margin:-4px 0 10px">Browsers allow one pop-up per click, so "Open selected" may be partly blocked — the link list always works.</p>
+    <div class="linklist" id="bridgeLinks"></div>
+    <div class="srcgrid" id="srcGrid"></div>
+  </section>
+
+  <!-- ================= HISTORY ================= -->
+  <section class="panel hidden" id="tab-history">
+    <div class="row" style="margin-bottom:12px">
+      <input type="text" id="histSearch" placeholder="Search saved analyses…" style="flex:1;min-width:180px">
+      <select id="histMode" style="width:170px">
+        <option value="">All modes</option>
+        <option value="etymology">Etymology</option>
+        <option value="statute">Statute Verify</option>
+        <option value="termInStatute">Term-in-Statute</option>
+      </select>
+      <button class="btn btn-danger btn-sm" id="btnClearHist">🗑️ Clear all</button>
+    </div>
+    <p class="hint" style="margin:-4px 0 10px">Every completed run is saved automatically (newest 200), including checklist progress.</p>
+    <div id="histList"></div>
+  </section>
+
+  <!-- ================= SETTINGS ================= -->
+  <section class="panel hidden" id="tab-settings">
+    <div class="grid2">
+      <div>
+        <div class="field">
+          <label class="lbl">Engine / provider</label>
+          <select id="setProvider"></select>
+          <p class="hint" id="providerNote"></p>
+        </div>
+        <div id="directFields">
+          <div class="field">
+            <label class="lbl">Base URL</label>
+            <input type="text" id="setBaseUrl">
+          </div>
+          <div class="field">
+            <label class="lbl">Model</label>
+            <input type="text" id="setModel">
+          </div>
+          <div class="field">
+            <label class="lbl">API key</label>
+            <div class="row">
+              <input type="password" id="setKey" placeholder="sk-..." autocomplete="off" style="flex:1">
+              <button class="btn btn-ghost btn-sm" id="btnToggleKey">👁</button>
+            </div>
+            <div class="row hint">
+              <label><input type="radio" name="keyMode" value="local" checked> Remember in this browser</label>
+              <label><input type="radio" name="keyMode" value="session"> This session only</label>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <button class="btn btn-primary" id="btnSaveSettings">💾 Save</button>
+          <button class="btn btn-ghost" id="btnTestConn">🔌 Test connection</button>
+        </div>
+        <div class="status" id="setStatus"></div>
+      </div>
+      <div>
+        <div class="field" id="voiceFields">
+          <label class="lbl">Voice (browser speech)</label>
+          <select id="setVoice"></select>
+          <label class="lbl" style="margin-top:10px">Speech rate: <span id="rateVal">1.0</span></label>
+          <input type="range" id="setRate" min="0.5" max="2" step="0.1" value="1">
+          <p class="hint" id="ttsNote"></p>
+        </div>
+        <div class="side">
+          <h4>Citation discipline (in every prompt)</h4>
+          <ul class="hint" style="padding-left:16px;line-height:1.8">
+            <li>Statutes cited by Public Law + Statutes at Large; the U.S. Code only in parentheses.</li>
+            <li>Positive-law titles flagged: their Code text is legal evidence (1 U.S.C. § 204(a)); other titles yield to the enrolled text.</li>
+            <li>Primary-source links come from the parser. The AI may not make up URLs or citations.</li>
+            <li>"Not yet found in official sources" — never "does not exist".</li>
+          </ul>
+        </div>
+        <div class="side">
+          <h4>Config</h4>
+          <p class="hint">Dictionaries, sources, providers and prompts live in the embedded JSON block (<span class="mono">#laa-config</span>). Override with <span class="mono">?data=file.json</span> — keys you omit fall back to the embedded defaults. Other URL options: <span class="mono">?mode=etymology|statute|termInStatute</span>, <span class="mono">?embed=1</span>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer" id="footer"></div>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3 style="margin-bottom:8px">✏️ Edit Authority Bridge sources</h3>
+    <p class="hint" style="margin-bottom:10px">JSON array. Fields: <span class="mono">id, name, domain, badge, desc, url</span> (<span class="mono">{q}</span> = query), <span class="mono">home</span>.</p>
+    <textarea id="srcEditor" rows="20"></textarea>
+    <div class="row" style="margin-top:12px">
+      <button class="btn btn-primary" id="btnSaveSources">💾 Save</button>
+      <button class="btn btn-ghost" id="btnResetSources">↺ Defaults</button>
+      <button class="btn btn-ghost" id="btnCancelSources">Cancel</button>
+    </div>
+    <div class="status" id="srcStatus"></div>
+  </div>
+</div>
+
+<script id="laa-config" type="application/json">{
+  "title": "Legal Authority Analyzer",
+  "subtitle": "Etymology-First • Statute Verification • Facts & Conclusions of Law",
+  "artifact_version": "v4.0.0",
+  "dictionaries": [
+    { "key": "blacks4th", "label": "Black's Law 4th", "desc": "1951 — legal definitions" },
+    { "key": "blacks5th", "label": "Black's Law 5th", "desc": "1979 — legal definitions" },
+    { "key": "blacks6th", "label": "Black's Law 6th", "desc": "1990 — legal definitions" },
+    { "key": "randomHouse", "label": "Random House", "desc": "Bracket etymology (1973-78)" },
+    { "key": "oxford", "label": "Oxford English", "desc": "Historical usage" },
+    { "key": "modern", "label": "Modern Legal", "desc": "Current usage" }
+  ],
+  "defaultDicts": ["blacks4th", "blacks5th", "blacks6th", "randomHouse", "oxford", "modern"],
+  "etymologySymbols": {
+    "<": "derived from", "e.g.": "for example", "i.e.": "that is to say", "c.f.": "compared to",
+    "c.": "circa (around/about)", "ptp.": "past participle", "pp.": "past participle",
+    "n.": "noun", "v.": "verb", "adj.": "adjective",
+    "OHG": "Old High German", "MHG": "Middle High German", "MF": "Middle French", "AF": "Anglo-French",
+    "L.": "Latin", "LL": "Late Latin", "ML": "Medieval Latin", "VL": "Vulgar Latin", "G.": "German",
+    "OE": "Old English", "ME": "Middle English", "OF": "Old French", "ONF": "Old North French",
+    "GK.": "Greek", "LGk": "Late Greek", "SNS": "Sanskrit", "AR.": "Arabic", "HEB": "Hebrew",
+    "AE": "American English", "BE": "British English", "SCT": "Scottish",
+    "PIE": "Proto-Indo-European", "IE": "Indo-European"
+  },
+  "samples": {
+    "etymology": [
+      "jurat, affiant, notary",
+      "cestui que trust, corpus, res",
+      "tort, contract, malfeasance",
+      "person, individual, citizen",
+      "attorney, advocate, counsel"
+    ],
+    "statute": [
+      "26 U.S.C. § 6402",
+      "40 Stat. 1143 (Revenue Act 1918, §1307)",
+      "Public Law 114-105, 129 Stat. 2219",
+      "IRC § 3401(a)",
+      "48 Stat. 1 (Emergency Banking Act, §401)",
+      "17 Stat. 13 (codified as 42 U.S.C. § 1983)"
+    ],
+    "termInStatute": [
+      "person, individual, 26 U.S.C. § 7701",
+      "employee, wages, 26 U.S.C. § 3401",
+      "trade or business, 26 U.S.C. § 7701(a)(26)",
+      "resident, 26 U.S.C. § 7701(b)"
+    ]
+  },
+  "positiveLawTitles": [1, 3, 4, 5, 9, 10, 11, 13, 14, 17, 18, 23, 28, 31, 32, 35, 36, 37, 38, 39, 40, 41, 44, 46, 49, 51, 54],
+  "defaultProvider": "deepseek",
+  "providers": {
+    "deepseek": { "label": "DeepSeek (direct)", "baseUrl": "https://api.deepseek.com/v1", "model": "deepseek-chat", "key": true, "note": "Allows browser CORS, including file:// pages." },
+    "anthropic": { "label": "Anthropic (direct)", "baseUrl": "https://api.anthropic.com/v1", "model": "claude-sonnet-5-5", "key": true, "note": "Messages API with direct-browser access enabled. To route through your CORS proxy, set Base URL to the proxy's root + /v1." },
+    "openrouter": { "label": "OpenRouter", "baseUrl": "https://openrouter.ai/api/v1", "model": "deepseek/deepseek-chat", "key": true, "note": "Allows browser CORS. Any OpenRouter model slug." },
+    "hermes": { "label": "Local Hermes Gateway", "baseUrl": "http://127.0.0.1:8642/v1", "model": "deepseek-v4-pro", "key": true, "note": "Your law-profile agent over loopback. Key = API_SERVER_KEY. Start with `hermes gateway run`." },
+    "ollama": { "label": "Ollama (local)", "baseUrl": "http://127.0.0.1:11434/v1", "model": "hermes3:8b", "key": false, "note": "Local, OpenAI-compatible, no key. Set a model you have pulled." }
+  },
+  "sources": [
+    { "id": "congress", "name": "Congress.gov", "domain": "congress.gov", "badge": "Legislation", "desc": "Bills, Public Laws, Statutes at Large, Congressional Record.", "url": "https://www.congress.gov/search?q={q}", "home": "https://www.congress.gov" },
+    { "id": "govinfo", "name": "GovInfo (GPO)", "domain": "govinfo.gov", "badge": "Official Record", "desc": "Public Laws, Statutes at Large (1951+), Cong. Record, Federal Register, CFR.", "url": "https://www.govinfo.gov/app/search/%7B%22query%22%3A%22{q}%22%7D", "home": "https://www.govinfo.gov" },
+    { "id": "loc-stat", "name": "Library of Congress — Statutes at Large", "domain": "loc.gov", "badge": "Statutes", "desc": "Digitized Statutes at Large, including pre-1951 volumes.", "url": "https://www.loc.gov/collections/united-states-statutes-at-large/?q={q}", "home": "https://www.loc.gov/collections/united-states-statutes-at-large/" },
+    { "id": "olrc", "name": "U.S. House OLRC", "domain": "uscode.house.gov", "badge": "Official Code", "desc": "Official U.S. Code; positive-law status per title.", "url": "https://uscode.house.gov/search/criteria.shtml", "home": "https://uscode.house.gov/browse.xhtml" },
+    { "id": "scotus", "name": "Supreme Court of the U.S.", "domain": "supremecourt.gov", "badge": "Judicial", "desc": "Slip opinions, orders, docket, Rules of the Court.", "url": "https://www.supremecourt.gov/search.aspx?search={q}", "home": "https://www.supremecourt.gov" },
+    { "id": "lii", "name": "Cornell LII", "domain": "law.cornell.edu", "badge": "Code & Wex", "desc": "U.S. Code, CFR, Wex legal dictionary, SCOTUS opinions.", "url": "https://www.law.cornell.edu/search?q={q}", "home": "https://www.law.cornell.edu" },
+    { "id": "wex", "name": "Wex Legal Dictionary", "domain": "law.cornell.edu/wex", "badge": "Dictionary", "desc": "Plain-language legal definitions (term → slug).", "url": "https://www.law.cornell.edu/wex/{slug}", "home": "https://www.law.cornell.edu/wex" },
+    { "id": "courtlistener", "name": "CourtListener", "domain": "courtlistener.com", "badge": "Opinions", "desc": "Federal & state opinions, dockets, RECAP.", "url": "https://www.courtlistener.com/?q={q}&type=o", "home": "https://www.courtlistener.com" },
+    { "id": "pacer", "name": "PACER", "domain": "pacer.uscourts.gov", "badge": "Federal Dockets", "desc": "Official federal court dockets (subscription).", "url": "https://pacer.uscourts.gov/", "home": "https://pacer.uscourts.gov/" },
+    { "id": "recap", "name": "CourtListener RECAP", "domain": "courtlistener.com/recap", "badge": "Free PACER", "desc": "Free mirror of PACER documents.", "url": "https://www.courtlistener.com/?q={q}&type=r", "home": "https://www.courtlistener.com/recap/" },
+    { "id": "justia", "name": "Justia", "domain": "justia.com", "badge": "Case Law", "desc": "Free case law, statutes, regulations.", "url": "https://law.justia.com/search?query={q}", "home": "https://www.justia.com/" },
+    { "id": "regulations", "name": "Regulations.gov", "domain": "regulations.gov", "badge": "Rulemaking", "desc": "Rulemaking dockets, proposed & final rules, comments.", "url": "https://www.regulations.gov/search?filter={q}", "home": "https://www.regulations.gov" },
+    { "id": "ecfr", "name": "eCFR", "domain": "ecfr.gov", "badge": "Regulations", "desc": "Current Code of Federal Regulations (incl. 26 CFR Treasury Regs).", "url": "https://www.ecfr.gov/search/results?query={q}", "home": "https://www.ecfr.gov" },
+    { "id": "irs", "name": "IRS.gov", "domain": "irs.gov", "badge": "Tax", "desc": "Forms, publications, rulings, IRM.", "url": "https://www.irs.gov/site-index-search?search={q}", "home": "https://www.irs.gov" },
+    { "id": "irm", "name": "Internal Revenue Manual", "domain": "irs.gov/irm", "badge": "IRS Procedure", "desc": "How the IRS applies each code section and form.", "url": "https://www.irs.gov/irm", "home": "https://www.irs.gov/irm" },
+    { "id": "irb", "name": "Internal Revenue Bulletin", "domain": "irs.gov/irb", "badge": "Rulings", "desc": "Revenue Rulings, Revenue Procedures, Notices, T.D.s.", "url": "https://www.irs.gov/irb", "home": "https://www.irs.gov/irb" },
+    { "id": "irs-wd", "name": "IRS Written Determinations", "domain": "irs.gov", "badge": "PLR / TAM", "desc": "PLRs, TAMs, Chief Counsel Advice.", "url": "https://www.irs.gov/written-determinations", "home": "https://www.irs.gov/written-determinations" },
+    { "id": "irs-forms", "name": "IRS Forms & Instructions", "domain": "irs.gov/forms-instructions", "badge": "Forms", "desc": "Every IRS form and its instructions.", "url": "https://www.irs.gov/forms-instructions", "home": "https://www.irs.gov/forms-instructions" },
+    { "id": "edgar", "name": "SEC EDGAR", "domain": "sec.gov", "badge": "Corporate", "desc": "10-K, 8-K, 424B5, S-1, ABS filings.", "url": "https://efts.sec.gov/LATEST/search-index?q={q}", "home": "https://www.sec.gov/edgar/search/" },
+    { "id": "fiscal", "name": "Treasury Fiscal Data", "domain": "fiscaldata.treasury.gov", "badge": "Fiscal", "desc": "Debt, revenue, spending, interest-rate datasets.", "url": "https://fiscaldata.treasury.gov/datasets/", "home": "https://fiscaldata.treasury.gov/datasets/" },
+    { "id": "ncdor", "name": "N.C. Dept of Revenue", "domain": "ncdor.gov", "badge": "State Tax", "desc": "North Carolina tax forms and guidance.", "url": "https://www.ncdor.gov/", "home": "https://www.ncdor.gov/" },
+    { "id": "phila-rev", "name": "Philadelphia Dept of Revenue", "domain": "phila.gov", "badge": "Local Tax", "desc": "Wage, earnings, business taxes.", "url": "https://www.phila.gov/departments/department-of-revenue/", "home": "https://www.phila.gov/departments/department-of-revenue/" },
+    { "id": "wandw", "name": "Williams & Williams Litigation", "domain": "williamsandwilliamslawfirm.com", "badge": "Litigation", "desc": "Current and previous litigation index.", "url": "https://www.williamsandwilliamslawfirm.com/current-and-previous-litigation", "home": "https://www.williamsandwilliamslawfirm.com/current-and-previous-litigation" }
+  ],
+  "systemPrompt": "You are an expert legal etymologist, legal lexicographer, and statute verification specialist. You define laws, statutes, codes, and terms with precision. For terms you ALWAYS lead with etymology before definition. You separate FACTS (verifiable: definitions, enrolled statutory text, recorded history) from CONCLUSIONS OF LAW (what follows by operation of law).\n\nDICTIONARIES: Black's Law Dictionary (4th ed. 1951, 5th ed. 1979, 6th ed. 1990); Random House College Dictionary (1973-1978) bracket-etymology system; Oxford English Dictionary; modern legal usage.\n\nAUTHORITY HIERARCHY for statutes: (1) the Congressional Record; (2) the Act, by name and date; (3) the Statutes at Large, volume and page — PRIMARY; (4) the Supreme Court of the United States interpreting it.\n\nCITATION DISCIPLINE (binding):\n- Cite statutes by Public Law number and Statutes at Large (e.g. \"P.L. 114-105, 129 Stat. 2219\"). Cite the U.S. Code only parenthetically: \"(codified at 26 U.S.C. § 6402)\".\n- Positive law: where a Code title is enacted as positive law, its text is legal evidence of the law (1 U.S.C. § 204(a)). Where it is not, the Code is prima facie evidence only, and the Statutes at Large control where they differ (United States v. Welden, 377 U.S. 95 (1964)). Each PARSED CITATION states which applies — use that.\n- NEVER fabricate a citation, quotation, or URL. If an authority is not confirmed, write \"not yet found in official sources — verify at [source]\". Never write that a statute \"does not exist\".\n- Distinguish verbatim enrolled text from paraphrase; label paraphrase as such.\n- LINKS: use only the URLs given under PARSED CITATIONS, or the source domains listed below. Do not construct other URLs.\n\nWRITING DISCIPLINE (binding):\n- No hedging: no \"arguably\", \"may\", \"potentially\", \"it appears\", \"some courts\".\n- No filler: no \"it is important to note\", \"furthermore\", \"moreover\", \"in conclusion\".\n- Declarative. State the fact. State the conclusion of law.\n\nIRS FORM & CODE INTERPRETATION: when a term is an IRS form, Publication, Tax Topic, or Internal Revenue Code section, interpret it at three separate levels and cite each — (1) the enacted statute (Title 26 and its source Act in the Statutes at Large); (2) Treasury's interpretation (26 CFR regulations; Internal Revenue Bulletin rulings and procedures); (3) the IRS's own application (Internal Revenue Manual, form instructions, Publications). These carry different authority; keep them apart.\n\nAUTHORITY BRIDGE (primary-source domains):\n{{SRC_LINES}}\n\nOutput strict markdown in the requested structure only. ALWAYS end with a section titled exactly \"## Verification Checklist\" made of \"- [ ] \" items: one per authority, quotation, or factual claim the operator must confirm against the primary source, each naming the citation and where to check it.",
+  "prompts": {
+    "etymology": "MODE: Etymology\nTerms: {{TERMS}}\nDictionary sources: {{DICT_KEYS}}\nBracket chain depth: {{CHAIN_DEPTH}} levels\n\nPARSED CITATIONS:\n{{CITES}}\n\nBegin with this YAML frontmatter:\n---\ndate_created: {{DATE}}\nanalysis_type: etymology\nterms_analyzed: [{{TERMS}}]\ndictionaries_used: [{{DICT_KEYS}}]\nbracket_chain_depth: {{CHAIN_DEPTH}}\nverified_by_operator: false\nartifact_version: {{VERSION}}\ngenerator: Legal Authority Analyzer\n---\n\nThen for EACH term, in this order:\n\n## [TERM IN UPPERCASE]\n\n### Etymology (lead with this)\n- **Pronunciation**: /IPA/\n- **Word class**\n- **Bracketed etymology** (Random House): the exact bracket contents, e.g. \"< L. jurare to swear < jus law\"\n- **Parsed symbols**: explain each abbreviation\n- **Bracket chain** ({{CHAIN_DEPTH}} levels) as an ASCII tree in a code block, tracing each bracket reference to its root\n- **Root meaning**: the oldest traceable meaning\n\n### Facts\n- **Black's Law**: the definition in each selected edition, and how it shifted between editions\n- **Oxford English Dictionary**: first recorded use, historical timeline, semantic shift\n- **Modern legal definition**: current usage; statutory definition with Stat. cite where confirmed\n- **Comparative table**: | Source | Era | Definition | Semantic focus | — root → Latin/Greek → Black's 4th → Black's 6th → modern\n\n### Conclusions of Law\n- What the root meaning establishes\n- **Contradiction**: root meaning vs. modern usage, stated specifically\n- Practical consequence in legal and administrative context\n\n### Word Family\nSame-root family; compound terms.\n\n### Revelation\n2-3 sentences on the most significant discovery about the term's true meaning.\n\nEnd with ## Verification Checklist.\n\nINPUT:\n{{CONTENT}}",
+    "statute": "MODE: Statute Verification\nCitation(s): {{CITE_LIST}}\n\nPARSED CITATIONS (deterministic — normalization, positive-law status, and links are authoritative):\n{{CITES}}\n\nBegin with this YAML frontmatter:\n---\ndate_created: {{DATE}}\nanalysis_type: statute_verification\ncitations: [{{CITE_LIST}}]\nverified_by_operator: false\nartifact_version: {{VERSION}}\ngenerator: Legal Authority Analyzer\n---\n\nThen, for each distinct enactment:\n\n## 1. Citation Normalization\n- Act: name and date of enactment\n- Public Law: number\n- Statutes at Large: volume Stat. page — PRIMARY\n- Codification: (codified at ... — parenthetical only)\n- Congressional Record: where the bill passed, if known\n\n## 2. Enrolled Text\nThe operative enrolled text from the Statutes at Large, verbatim if known — otherwise state that verbatim text was not retrieved and summarize, labelled as paraphrase.\n\n## 3. Codification & Positive-Law Standing\n- Whether the Code title is positive law (use the PARSED CITATIONS determination) and what follows from it.\n- Any divergence between the U.S. Code wording and the enrolled text — quote both sides. Where the title is not positive law, the enrolled text controls.\n\n## 4. Status\nEnacted / Amended / Repealed / Superseded — with the amending or repealing authority (P.L. + Stat.).\n\n## 5. Interpreting Authority\nSupreme Court and controlling appellate decisions, by official reporter; flag any overruled or superseded holding.\n\n## 6. Verification Flags\n- Unconfirmed authority (\"not yet found in official sources\")\n- Code-vs-enrolled divergence\n- Overruled / superseded case law\n- Paraphrase vs. verbatim\n\n## 7. Official Sources\nThe PARSED CITATIONS links, each with what to check there.\n\nEnd with ## Verification Checklist.\n\nINPUT:\n{{CONTENT}}",
+    "termInStatute": "MODE: Term-in-Statute\nTerms: {{TERMS}}\nStatute(s): {{CITE_LIST}}\nDictionary sources: {{DICT_KEYS}}\nBracket chain depth: {{CHAIN_DEPTH}} levels\n\nPARSED CITATIONS (deterministic — normalization, positive-law status, and links are authoritative):\n{{CITES}}\n\nBegin with this YAML frontmatter:\n---\ndate_created: {{DATE}}\nanalysis_type: term_in_statute\nterms_analyzed: [{{TERMS}}]\ncitations: [{{CITE_LIST}}]\ndictionaries_used: [{{DICT_KEYS}}]\nbracket_chain_depth: {{CHAIN_DEPTH}}\nverified_by_operator: false\nartifact_version: {{VERSION}}\ngenerator: Legal Authority Analyzer\n---\n\n## Statute Under Review\nAct, P.L., Stat. cite, codification (parenthetical), positive-law standing, current status.\n\nThen for EACH term:\n\n## [TERM IN UPPERCASE]\n\n### Etymology (lead with this)\nBracketed etymology, parsed symbols, bracket chain ({{CHAIN_DEPTH}} levels, ASCII tree in a code block), root meaning.\n\n### Statutory Definition\n- How the cited statute itself defines or uses the term — the enrolled definition section quoted verbatim if known, with its Stat. cite and (codified at ...) parenthetical; otherwise \"no statutory definition found in the cited provision\".\n- Whether the definition is exclusive (\"means\") or expansive (\"includes\"), and its scope (\"for purposes of this title/chapter/section\").\n\n### Dictionary Definitions\nBlack's (selected editions) and modern legal usage.\n\n### Comparison\n| Layer | Source | Meaning |\n— root → Black's → statutory definition → ordinary modern usage.\n\n### Conclusions of Law\n- **Contradiction**: where the statutory meaning departs from the root or ordinary meaning, stated specifically.\n- What follows for a person, entity, or transaction the statute reaches.\n\nEnd with ## Verification Checklist.\n\nINPUT:\n{{CONTENT}}"
+  }
+}</script>
+
+<script id="laa-core">
+/* ---- core: pure, DOM-free — exercised by scripts/laa-selftest.mjs ---- */
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function tpl(t, vars){ return String(t).replace(/\{\{(\w+)\}\}/g, function(m, k){ return Object.prototype.hasOwnProperty.call(vars, k) ? vars[k] : m; }); }
+function slugify(s){ return String(s).trim().toLowerCase().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'_'); }
+function ordinal(n){ var s = ['th','st','nd','rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); }
+function govinfoSearch(q){ return 'https://www.govinfo.gov/app/search/' + encodeURIComponent(JSON.stringify({ query: q })); }
+
+/* Recognizes Statutes at Large, Public Laws, U.S.C./IRC, CFR and U.S. Reports cites and builds
+   their primary-source links in code, so the AI never has to invent a URL. */
+function parseCitations(text, positiveLawTitles){
+  var out = [], seen = {}, m, re;
+  var PL = {}; (positiveLawTitles || []).forEach(function(t){ PL[t] = true; });
+  function add(c){ if(!seen[c.key]){ seen[c.key] = true; out.push(c); } }
+  text = String(text || '');
+
+  re = /\b(\d{1,3})\s+Stat\.?\s*(\d{1,5})\b/gi;
+  while((m = re.exec(text))){
+    var v = +m[1], p = +m[2], cite = v + ' Stat. ' + p;
+    add({ type:'stat', key:'stat:'+v+':'+p, cite:cite,
+      links: v >= 65
+        ? [ { label:'govinfo page PDF', url:'https://www.govinfo.gov/content/pkg/STATUTE-'+v+'/pdf/STATUTE-'+v+'-Pg'+p+'.pdf' },
+            { label:'govinfo search', url:govinfoSearch(cite) } ]
+        : [ { label:'Library of Congress', url:'https://www.loc.gov/collections/united-states-statutes-at-large/?q='+encodeURIComponent(cite) } ],
+      note: v >= 65 ? 'Page PDF resolves when the Act begins on this page; otherwise use search.' : 'govinfo coverage begins at vol. 65 (1951) — use the Library of Congress.' });
+  }
+
+  re = /\b(?:Public\s+Law|Pub\.?\s*L\.?|P\.?\s?L\.?)\s*(?:No\.?\s*)?(\d{1,3})\s*[-–]\s*(\d{1,4})\b/gi;
+  while((m = re.exec(text))){
+    var c = +m[1], n = +m[2], links = [];
+    if(c >= 104) links.push({ label:'govinfo', url:'https://www.govinfo.gov/app/details/PLAW-'+c+'publ'+n });
+    links.push({ label:'congress.gov', url:'https://www.congress.gov/public-laws/'+ordinal(c)+'-congress' });
+    links.push({ label:'govinfo search', url:govinfoSearch('Public Law '+c+'-'+n) });
+    add({ type:'pl', key:'pl:'+c+':'+n, cite:'Pub. L. No. '+c+'-'+n, links:links,
+      note: c >= 104 ? '' : 'govinfo Public Law texts begin with the 104th Congress — check the Stat. cite.' });
+  }
+
+  function addUsc(t, s, sub){
+    var pos = !!PL[t];
+    add({ type:'usc', key:'usc:'+t+':'+s.toLowerCase(), cite:t+' U.S.C. § '+s+(sub||''), title:t, positiveLaw:pos,
+      links: [ { label:'OLRC', url:'https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title'+t+'-section'+s+'&num=0&edition=prelim' },
+               { label:'Cornell LII', url:'https://www.law.cornell.edu/uscode/text/'+t+'/'+s } ],
+      note: pos ? 'Title '+t+' is positive law — the Code text is legal evidence (1 U.S.C. § 204(a)).'
+                : 'Title '+t+' is not positive law — the Code is prima facie evidence; the Statutes at Large control.' });
+  }
+  re = /\b(\d{1,2})\s*U\.?\s?S\.?\s?C\.?\s*(?:A\.?\s*)?(?:§§?\s*|sec(?:tion)?\.?\s*)?(\d+[a-zA-Z]?(?:-\d+)?)((?:\([a-zA-Z0-9]+\))*)/g;
+  while((m = re.exec(text))) addUsc(+m[1], m[2], m[3]);
+  re = /\b(?:IRC|I\.R\.C\.|Internal\s+Revenue\s+Code(?:\s+of\s+(?:1954|1986))?)\s*(?:§§?\s*|sec(?:tion)?\.?\s*)?(\d+[A-Z]?)((?:\([a-zA-Z0-9]+\))*)/g;
+  while((m = re.exec(text))) addUsc(26, m[1], m[2]);
+
+  re = /\b(\d{1,2})\s*C\.?\s?F\.?\s?R\.?\s*(?:§§?\s*|part\s+|pt\.\s*)?(\d+(?:\.[\d-]+)?)/gi;
+  while((m = re.exec(text))){
+    var isSec = m[2].indexOf('.') > -1;
+    add({ type:'cfr', key:'cfr:'+m[1]+':'+m[2], cite:m[1]+' C.F.R. '+(isSec ? '§ ' : 'Part ')+m[2],
+      links: [ { label:'eCFR', url:'https://www.ecfr.gov/current/title-'+m[1]+'/'+(isSec ? 'section-' : 'part-')+m[2] } ],
+      note: 'eCFR shows current text; historical text is on govinfo (annual CFR).' });
+  }
+
+  re = /\b(\d{1,3})\s+U\.\s?S\.\s+(\d{1,4})\b/g;
+  while((m = re.exec(text))){
+    add({ type:'usrep', key:'us:'+m[1]+':'+m[2], cite:m[1]+' U.S. '+m[2],
+      links: [ { label:'CourtListener', url:'https://www.courtlistener.com/c/U.S./'+m[1]+'/'+m[2]+'/' } ],
+      note: 'Confirm the holding has not been overruled.' });
+  }
+  return out;
+}
+
+function splitItems(text){ return String(text || '').split(/[,;\n]/).map(function(s){ return s.trim(); }).filter(Boolean); }
+/* A "term" is any comma item with no digits — citations always carry a number. */
+function termItems(text){ return splitItems(text).filter(function(s){ return !/\d/.test(s) && !/[()]/.test(s); }); }
+function detectMode(text, cites){
+  if(!cites.length) return 'etymology';
+  return termItems(text).length ? 'termInStatute' : 'statute';
+}
+
+function checklistFromCites(cites){
+  return cites.map(function(c){
+    var what = { stat:'Confirm enrolled text of ' + c.cite + ' against the Statutes at Large',
+                 pl:'Confirm ' + c.cite + ' — title, date, and Stat. cite',
+                 usc:'Confirm ' + c.cite + ' against its source Act (' + (c.positiveLaw ? 'positive-law title' : 'non-positive-law title') + ')',
+                 cfr:'Confirm current text of ' + c.cite,
+                 usrep:'Confirm ' + c.cite + ' is cited correctly and not overruled' }[c.type];
+    return { text: what, url: c.links[0].url, auto: true };
+  });
+}
+function extractChecklist(md){
+  var items = [], re = /^\s*[-*]\s+\[[ xX]\]\s+(.+)$/gm, m;
+  while((m = re.exec(String(md || '')))) items.push({ text: m[1].trim() });
+  return items;
+}
+function setFrontmatterField(md, key, value){
+  md = String(md || '');
+  var fm = /^(\s*---\r?\n)([\s\S]*?)(\r?\n---)/.exec(md);
+  if(!fm) return md;
+  var body = fm[2], line = key + ': ' + value, re = new RegExp('^' + key + ':.*$', 'm');
+  body = re.test(body) ? body.replace(re, line) : body + '\n' + line;
+  return fm[1] + body + fm[3] + md.slice(fm[0].length);
+}
+
+/* Minimal markdown renderer. Escapes FIRST, then adds markup — so model output can never inject HTML. */
+function renderInline(s){
+  var keep = [];
+  function stash(html){ keep.push(html); return '\u0000' + (keep.length - 1) + '\u0000'; }
+  s = escapeHtml(s);
+  s = s.replace(/`([^`]+)`/g, function(_, c){ return stash('<code>' + c + '</code>'); });
+  s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, function(_, t, u){ return stash('<a href="' + u + '" target="_blank" rel="noopener">' + t + '</a>'); });
+  s = s.replace(/(https?:\/\/[^\s<)\]]+)/g, function(u){ return stash('<a href="' + u + '" target="_blank" rel="noopener">' + u + '</a>'); });
+  s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/(^|[^*])\*([^*\s][^*]*)\*/g, '$1<em>$2</em>');
+  return s.replace(/\u0000(\d+)\u0000/g, function(_, i){ return keep[+i]; });
+}
+function renderMarkdown(md){
+  var lines = String(md || '').replace(/\r/g, '').split('\n'), html = [], i = 0, para = [];
+  function flush(){ if(para.length){ html.push('<p>' + renderInline(para.join(' ')) + '</p>'); para = []; } }
+  if(lines[0] === '---'){
+    var end = lines.indexOf('---', 1);
+    if(end > 0){ html.push('<pre class="fm">' + escapeHtml(lines.slice(0, end + 1).join('\n')) + '</pre>'); i = end + 1; }
+  }
+  for(; i < lines.length; i++){
+    var ln = lines[i], m;
+    if(/^\s*```/.test(ln)){
+      flush(); var code = [];
+      for(i++; i < lines.length && !/^\s*```/.test(lines[i]); i++) code.push(lines[i]);
+      html.push('<pre><code>' + escapeHtml(code.join('\n')) + '</code></pre>'); continue;
+    }
+    if((m = /^(#{1,6})\s+(.*)$/.exec(ln))){ flush(); html.push('<h' + m[1].length + '>' + renderInline(m[2]) + '</h' + m[1].length + '>'); continue; }
+    if(/^\s*(-{3,}|\*{3,}|_{3,})\s*$/.test(ln)){ flush(); html.push('<hr>'); continue; }
+    if(/^\s*\|/.test(ln) && i + 1 < lines.length && /^\s*\|?\s*:?-{2,}/.test(lines[i + 1])){
+      flush();
+      var cells = function(r){ return r.trim().replace(/^\||\|$/g, '').split('|').map(function(c){ return renderInline(c.trim()); }); };
+      var t = '<table><thead><tr>' + cells(ln).map(function(c){ return '<th>' + c + '</th>'; }).join('') + '</tr></thead><tbody>';
+      for(i += 2; i < lines.length && /^\s*\|/.test(lines[i]); i++) t += '<tr>' + cells(lines[i]).map(function(c){ return '<td>' + c + '</td>'; }).join('') + '</tr>';
+      i--; html.push(t + '</tbody></table>'); continue;
+    }
+    if(/^\s*([-*+]|\d+\.)\s+/.test(ln)){
+      flush(); var ordered = /^\s*\d+\./.test(ln), items = [];
+      for(; i < lines.length && /^\s*([-*+]|\d+\.)\s+/.test(lines[i]); i++){
+        items.push(lines[i].replace(/^\s*([-*+]|\d+\.)\s+/, '').replace(/^\[ \]\s+/, '☐ ').replace(/^\[[xX]\]\s+/, '☑ '));
+      }
+      i--; html.push((ordered ? '<ol>' : '<ul>') + items.map(function(x){ return '<li>' + renderInline(x) + '</li>'; }).join('') + (ordered ? '</ol>' : '</ul>')); continue;
+    }
+    if((m = /^\s*>\s?(.*)$/.exec(ln))){ flush(); html.push('<blockquote>' + renderInline(m[1]) + '</blockquote>'); continue; }
+    if(!ln.trim()){ flush(); continue; }
+    para.push(ln.trim());
+  }
+  flush();
+  return html.join('\n');
+}
+
+function stripMarkdown(t){
+  return String(t)
+    .replace(/^\s*---\n[\s\S]*?\n---\s*/, ' ')
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/`([^`]*)`/g, '$1')
+    .replace(/^\s*#{1,6}\s*/gm, '')
+    .replace(/\*\*([^*]+)\*\*/g, '$1').replace(/\*([^*]+)\*/g, '$1')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/^\s*[-*+]\s+(\[[ xX]\]\s+)?/gm, '')
+    .replace(/\|/g, '. ').replace(/^\s*>\s*/gm, '')
+    .replace(/\n{2,}/g, '. ').replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+}
+</script>
+
+<script>
+'use strict';
+/* ============================================================
+   Legal Authority Analyzer v4 — UI + engine.
+   Standalone: own provider settings (localStorage / sessionStorage).
+   Inside TMAR (same-origin iframe or a window opened from it): uses TMAR's
+   pdkbCallLLM (provider, vault keys, CORS proxy, streaming), aigentSave
+   (export folder) and GEMINI_TTS (neural voice).
+   ============================================================ */
+
+const LSK = { settings:'laa_settings_v4', sources:'laa_sources_v4', history:'laa_history_v4', theme:'laa_theme', voice:'laa_voice', rate:'laa_rate' };
+function loadJSON(k, fb){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : fb; }catch(e){ return fb; } }
+function saveJSON(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function lsSet(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
+const $ = id => document.getElementById(id);
+
+let DATA = null;
+let selectedDicts = {};
+let mode = 'auto';
+let current = null;          // { id, ts, mode, input, cites, output, checks:{} }
+let runSeq = 0, abortCtl = null, viewRaw = false;
+let sourceSelection = new Set();
+
+/* ---------- TMAR bridge ---------- */
+function tmar(){
+  for(const w of [window.parent, window.opener]){
+    try{ if(w && w !== window && typeof w.pdkbCallLLM === 'function') return w; }catch(e){ /* cross-origin (file://) */ }
+  }
+  return null;
+}
+function tmarProviderLabel(){
+  try{ const r = tmar().resolveProvider(); return r && !r.error ? (r.provider && r.provider.name || r.pid) + ' · ' + r.model : 'not configured'; }catch(e){ return 'unknown'; }
+}
+
+/* ---------- config ---------- */
+async function loadData(){
+  try{ DATA = JSON.parse($('laa-config').textContent); }
+  catch(e){ document.body.innerHTML = '<p style="padding:30px;font-family:monospace">⚠ Embedded config is invalid JSON: ' + escapeHtml(e.message) + '</p>'; return; }
+  const qp = new URLSearchParams(location.search);
+  const ext = qp.get('data') || (location.hash.startsWith('#data=') ? location.hash.slice(6) : '');
+  if(ext){
+    try{ const r = await fetch(ext); if(r.ok) DATA = Object.assign({}, DATA, await r.json()); }catch(e){ console.warn('external config not loaded', e); }
+  }
+  boot(qp);
+}
+
+/* ---------- settings ---------- */
+function loadSettings(){
+  const s = loadJSON(LSK.settings, {});
+  if(!s.provider || (s.provider === 'tmar' && !tmar())) s.provider = tmar() ? 'tmar' : DATA.defaultProvider;
+  s.per = s.per || {};
+  return s;
+}
+function providerConf(id){
+  const def = DATA.providers[id] || {}, o = (loadSettings().per || {})[id] || {};
+  return { baseUrl: o.baseUrl || def.baseUrl || '', model: o.model || def.model || '' };
+}
+function getKey(id){ try{ return sessionStorage.getItem('laa_key_' + id) || localStorage.getItem('laa_key_' + id) || ''; }catch(e){ return ''; } }
+function setKey(id, key, keyMode){
+  try{
+    sessionStorage.removeItem('laa_key_' + id); localStorage.removeItem('laa_key_' + id);
+    if(key) (keyMode === 'session' ? sessionStorage : localStorage).setItem('laa_key_' + id, key);
+  }catch(e){}
+}
+
+/* ---------- engine ---------- */
+async function runLLM(system, user, onProgress, signal){
+  const s = loadSettings();
+  if(s.provider === 'tmar'){
+    const t = tmar();
+    if(!t) throw new Error('TMAR engine unavailable — choose a provider in Settings.');
+    const r = await t.pdkbCallLLM(system + '\n\n---\n\n' + user, {}, onProgress);
+    if(!r.success) throw new Error((r.error && r.error.message) || 'TMAR provider error');
+    return r.result;
+  }
+  return streamDirect(s.provider, system, user, onProgress, signal);
+}
+
+/* Streams from an OpenAI-compatible or Anthropic endpoint. Two guards (same as TMAR's pdkbCallLLM):
+   a connect timer cleared when headers arrive, and a stall timer reset on every chunk. */
+async function streamDirect(id, system, user, onProgress, signal){
+  const conf = providerConf(id), key = getKey(id), isAnth = id === 'anthropic';
+  if(!conf.baseUrl) throw new Error('No Base URL set for ' + id + ' — open Settings.');
+  if(DATA.providers[id] && DATA.providers[id].key && !key) throw new Error('No API key for ' + (DATA.providers[id].label || id) + ' — open Settings.');
+  const base = conf.baseUrl.replace(/\/$/, '');
+  const headers = { 'Content-Type':'application/json' };
+  let url, body;
+  if(isAnth){
+    url = base + '/messages';
+    Object.assign(headers, { 'x-api-key':key, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' });
+    body = { model:conf.model, max_tokens:8000, stream:true, system:system, messages:[{ role:'user', content:user }] };
+  } else {
+    url = base + '/chat/completions';
+    if(key) headers.Authorization = 'Bearer ' + key;
+    body = { model:conf.model, max_tokens:8000, temperature:0.2, stream:true, messages:[{ role:'system', content:system }, { role:'user', content:user }] };
+  }
+  const ctl = new AbortController();
+  if(signal) signal.addEventListener('abort', () => ctl.abort());
+  let why = '', stall = null;
+  const connect = setTimeout(() => { why = 'connect'; ctl.abort(); }, 90000);
+  const arm = () => { clearTimeout(stall); stall = setTimeout(() => { why = 'stall'; ctl.abort(); }, 120000); };
+  try{
+    const res = await fetch(url, { method:'POST', headers, body:JSON.stringify(body), signal:ctl.signal });
+    clearTimeout(connect);
+    if(!res.ok){ const t = await res.text(); throw new Error('HTTP ' + res.status + (t ? ' — ' + t.slice(0, 300) : '')); }
+    if(!(res.headers.get('content-type') || '').includes('event-stream')){   // server ignored stream:true
+      const d = await res.json();
+      const txt = isAnth ? (d.content || []).filter(c => c.type === 'text').map(c => c.text).join('')
+                         : (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) || '';
+      onProgress(txt); return txt;
+    }
+    const reader = res.body.getReader(), dec = new TextDecoder();
+    let buf = '', acc = '';
+    arm();
+    for(;;){
+      const { done, value } = await reader.read();
+      if(done) break;
+      arm();
+      buf += dec.decode(value, { stream:true });
+      const lines = buf.split('\n'); buf = lines.pop();
+      for(const raw of lines){
+        const line = raw.trim();
+        if(!line.startsWith('data:')) continue;
+        const data = line.slice(5).trim();
+        if(!data || data === '[DONE]') continue;
+        let e; try{ e = JSON.parse(data); }catch(err){ continue; }
+        if(e.type === 'error' || e.error) throw new Error((e.error && e.error.message) || 'Provider stream error');
+        const tok = (e.delta && e.delta.text) || (e.choices && e.choices[0] && e.choices[0].delta && e.choices[0].delta.content) || '';
+        if(tok){ acc += tok; onProgress(acc); }
+      }
+    }
+    return acc;
+  }catch(err){
+    if(err.name === 'AbortError'){
+      if(why === 'connect') throw new Error('No response after 90s — provider unreachable.');
+      if(why === 'stall') throw new Error('Stream stalled — no data for 120s.');
+      throw new Error('Stopped.');
+    }
+    if(err instanceof TypeError) throw new Error('Request blocked (' + err.message + ') — usually CORS or the local gateway is not running. DeepSeek and OpenRouter allow file:// pages; Hermes needs `hermes gateway run`; Ollama needs OLLAMA_ORIGINS set.');
+    throw err;
+  }finally{ clearTimeout(connect); clearTimeout(stall); }
+}
+
+/* ---------- ui helpers ---------- */
+function showStatus(el, msg, type){
+  el.className = 'status show ' + (type || 'info');
+  el.textContent = msg;
+  if(type === 'success') setTimeout(() => { el.className = 'status'; }, 3000);
+}
+const statusEl = () => $('status');
+function effectiveMode(){
+  if(mode !== 'auto') return mode;
+  const txt = $('inputTerms').value;
+  return detectMode(txt, parseCitations(txt, DATA.positiveLawTitles));
+}
+const MODE_LABEL = { etymology:'Etymology', statute:'Statute Verify', termInStatute:'Term-in-Statute' };
+
+function citeCardsHtml(cites){
+  return cites.map(c =>
+    '<div class="cite"><span class="c">' + escapeHtml(c.cite) + '</span><span class="t">' + escapeHtml(c.type) + '</span>' +
+    (c.type === 'usc' ? '<span class="pl ' + (c.positiveLaw ? 'yes">POSITIVE LAW' : 'no">NOT POSITIVE LAW') + '</span>' : '') +
+    '<div class="links">' + c.links.map(l => '<a href="' + escapeHtml(l.url) + '" target="_blank" rel="noopener">' + escapeHtml(l.label) + ' ↗</a>').join('') + '</div>' +
+    (c.note ? '<div class="note">' + escapeHtml(c.note) + '</div>' : '') + '</div>'
+  ).join('');
+}
+
+/* ---------- boot ---------- */
+function boot(qp){
+  if(qp.get('embed') === '1') document.body.classList.add('embed');
+  const qm = qp.get('mode');
+  if(['etymology','statute','termInStatute'].includes(qm)) mode = qm;
+  (DATA.defaultDicts || []).forEach(k => { selectedDicts[k] = true; });
+
+  document.title = DATA.title || 'Legal Authority Analyzer';
+  $('hdrTitle').textContent = DATA.title || '';
+  $('hdrSub').textContent = DATA.subtitle || '';
+  $('versionBadge').textContent = DATA.artifact_version || '';
+  $('footer').textContent = (DATA.title || '') + ' ' + (DATA.artifact_version || '') + ' — ' +
+    (DATA.dictionaries || []).map(d => d.label).join(' • ') + ' — ' + (DATA.sources || []).length + ' bridge sources';
+
+  renderDicts(); renderSymbols(); wireEvents(); setMode(mode); renderEngine();
+}
+
+function renderEngine(){
+  const s = loadSettings();
+  $('enginePill').textContent = '⚙ ' + (s.provider === 'tmar' ? 'TMAR · ' + tmarProviderLabel() : (DATA.providers[s.provider] || {}).label + ' · ' + providerConf(s.provider).model);
+}
+
+function showTab(id){
+  document.querySelectorAll('.tabbtn').forEach(b => b.classList.toggle('active', b.dataset.tab === id));
+  ['analyzer','bridge','history','settings'].forEach(t => $('tab-' + t).classList.toggle('hidden', t !== id));
+  if(id === 'bridge') renderBridge();
+  if(id === 'history') renderHistory();
+  if(id === 'settings') renderSettings();
+}
+
+function setMode(m){
+  mode = m;
+  document.querySelectorAll('#modeSeg button').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
+  renderSamples(); onInput();
+}
+
+function onInput(){
+  const txt = $('inputTerms').value;
+  const cites = parseCitations(txt, DATA.positiveLawTitles);
+  const eff = effectiveMode();
+  $('citeList').innerHTML = cites.length ? citeCardsHtml(cites) : '<span class="hint" style="margin:0">None yet — e.g. 129 Stat. 2219, P.L. 114-105, 26 U.S.C. § 6402, 26 CFR 1.61-1, 377 U.S. 95</span>';
+  const terms = termItems(txt);
+  $('detectLine').innerHTML = mode === 'auto'
+    ? 'Detected: <b>' + MODE_LABEL[eff] + '</b>' + (terms.length ? ' · ' + terms.length + ' term(s)' : '') + (cites.length ? ' · ' + cites.length + ' citation(s)' : '')
+    : (eff !== 'etymology' && !cites.length ? '⚠ ' + MODE_LABEL[eff] + ' needs at least one recognized citation.' : '');
+  const statuteOnly = eff === 'statute';
+  ['dictBlock','depthBlock','symBlock'].forEach(id => $(id).classList.toggle('hidden', statuteOnly));
+  $('btnAnalyze').textContent = '⚡ ' + (eff === 'statute' ? 'Verify Statute' : eff === 'termInStatute' ? 'Analyze Term-in-Statute' : 'Analyze Etymology');
+}
+
+function renderDicts(){
+  const g = $('dictGrid'); g.innerHTML = '';
+  (DATA.dictionaries || []).forEach(d => {
+    const el = document.createElement('label');
+    el.className = 'dict' + (selectedDicts[d.key] ? ' on' : '');
+    el.innerHTML = '<input type="checkbox"' + (selectedDicts[d.key] ? ' checked' : '') + '><div><div class="dname">' + escapeHtml(d.label) + '</div><div class="ddesc">' + escapeHtml(d.desc) + '</div></div>';
+    el.querySelector('input').addEventListener('change', e => { selectedDicts[d.key] = e.target.checked; el.classList.toggle('on', e.target.checked); });
+    g.appendChild(el);
+  });
+}
+function renderSymbols(){
+  const syms = DATA.etymologySymbols || {};
+  $('symGrid').innerHTML = Object.keys(syms).map(s => '<div><span class="s">' + escapeHtml(s) + '</span> = ' + escapeHtml(syms[s]) + '</div>').join('');
+}
+function renderSamples(){
+  const c = $('sampleChips'); c.innerHTML = '';
+  const S = DATA.samples || {};
+  const list = mode === 'auto' ? [].concat(S.etymology || [], S.statute || [], S.termInStatute || []) : (S[mode] || []);
+  list.forEach(s => {
+    const b = document.createElement('button');
+    b.className = 'chip'; b.textContent = s.length > 34 ? s.slice(0, 34) + '…' : s; b.title = s;
+    b.addEventListener('click', () => { $('inputTerms').value = s; onInput(); });
+    c.appendChild(b);
+  });
+}
+
+/* ---------- analyze ---------- */
+function buildPrompts(content, m, cites){
+  const dictKeys = Object.keys(selectedDicts).filter(k => selectedDicts[k]);
+  const terms = m === 'etymology' ? splitItems(content) : termItems(content);
+  const citeBlock = cites.length
+    ? cites.map(c => '- ' + c.cite + (c.type === 'usc' ? (c.positiveLaw ? ' [positive-law title]' : ' [NOT positive law]') : '') +
+        (c.note ? ' — ' + c.note : '') + '\n' + c.links.map(l => '  - ' + l.label + ': ' + l.url).join('\n')).join('\n')
+    : '(none)';
+  const srcLines = loadSources().map(s => '- ' + s.name + ' (' + s.domain + ') — ' + s.desc).join('\n');
+  return {
+    system: tpl(DATA.systemPrompt, { SRC_LINES: srcLines }),
+    user: tpl(DATA.prompts[m], {
+      TERMS: terms.join(', '), DICT_KEYS: dictKeys.join(', '), CHAIN_DEPTH: $('chainDepth').value,
+      CITES: citeBlock, CITE_LIST: cites.map(c => c.cite).join('; '),
+      DATE: new Date().toISOString().slice(0, 10), VERSION: DATA.artifact_version || '', CONTENT: content
+    })
+  };
+}
+
+async function analyze(){
+  const content = $('inputTerms').value.trim();
+  const st = statusEl();
+  if(!content){ showStatus(st, 'Enter terms or a citation.', 'error'); return; }
+  const cites = parseCitations(content, DATA.positiveLawTitles);
+  const m = effectiveMode();
+  if(m !== 'statute' && !Object.keys(selectedDicts).some(k => selectedDicts[k])){ showStatus(st, 'Select at least one dictionary.', 'error'); return; }
+  if(m !== 'etymology' && !cites.length){ showStatus(st, 'No citation recognized. Use a form like 129 Stat. 2219, P.L. 114-105, or 26 U.S.C. § 6402.', 'error'); return; }
+  if(m === 'termInStatute' && !termItems(content).length){ showStatus(st, 'Term-in-Statute needs at least one term alongside the citation (e.g. "person, 26 U.S.C. § 7701").', 'error'); return; }
+
+  const p = buildPrompts(content, m, cites);
+  const seq = ++runSeq;
+  abortCtl = new AbortController();
+  current = { id: Date.now(), ts: new Date().toISOString(), mode: m, input: content, cites: cites, output: '', checks: {} };
+  setBusy(true, m);
+  const out = $('output');
+  out.className = 'output streaming'; out.textContent = '';
+  $('checkPanel').style.display = 'none'; $('verifyBadge').style.display = 'none';
+  showStatus(st, MODE_LABEL[m] + ' — streaming…', 'info');
+  try{
+    const result = await runLLM(p.system, p.user, partial => {
+      if(seq !== runSeq) return;
+      out.textContent = partial; out.scrollTop = out.scrollHeight;
+    }, abortCtl.signal);
+    if(seq !== runSeq) return;
+    if(!result || !result.trim()) throw new Error('Empty response.');
+    current.output = result;
+    renderOutput(); renderChecklist(); saveCurrentToHistory();
+    showStatus(st, 'Complete — saved to History. Work through the checklist before relying on it.', 'success');
+  }catch(err){
+    if(seq !== runSeq) return;
+    console.error(err);
+    if(out.textContent) current.output = out.textContent;   // keep the partial text
+    out.className = 'output raw';
+    showStatus(st, 'Failed: ' + err.message, 'error');
+  }finally{
+    if(seq === runSeq) setBusy(false);
+  }
+}
+function setBusy(busy, m){
+  $('btnAnalyze').disabled = busy;
+  $('btnStopRun').disabled = !busy;
+  if(busy) $('btnAnalyze').textContent = '⏳ ' + (m === 'statute' ? 'Verifying…' : 'Tracing bracket chains…');
+  else onInput();
+}
+function stopRun(){
+  if(abortCtl) abortCtl.abort();
+  runSeq++;   // TMAR engine can't be aborted mid-stream; ignore whatever it returns
+  setBusy(false);
+  showStatus(statusEl(), 'Stopped.', 'info');
+}
+
+function renderOutput(){
+  const out = $('output');
+  if(!current || !current.output){ return; }
+  if(viewRaw){ out.className = 'output raw'; out.textContent = current.output; }
+  else { out.className = 'output md'; out.innerHTML = renderMarkdown(current.output); }
+  $('btnRaw').classList.toggle('on', viewRaw);
+}
+
+function checklistItems(){
+  if(!current) return [];
+  return checklistFromCites(current.cites || []).concat(extractChecklist(current.output));
+}
+function renderChecklist(){
+  const items = checklistItems();
+  const panel = $('checkPanel'), list = $('checkList');
+  if(!items.length){ panel.style.display = 'none'; updateBadge(); return; }
+  panel.style.display = 'block'; list.innerHTML = '';
+  items.forEach(it => {
+    const row = document.createElement('label');
+    const done = !!current.checks[it.text];
+    row.className = 'check' + (done ? ' done' : '');
+    row.innerHTML = '<input type="checkbox"' + (done ? ' checked' : '') + '><span>' + renderInline(it.text) +
+      (it.url ? ' <a href="' + escapeHtml(it.url) + '" target="_blank" rel="noopener">source ↗</a>' : '') + '</span>';
+    row.querySelector('input').addEventListener('change', e => {
+      current.checks[it.text] = e.target.checked;
+      row.classList.toggle('done', e.target.checked);
+      updateBadge(); saveCurrentToHistory();
+    });
+    list.appendChild(row);
+  });
+  updateBadge();
+}
+function isVerified(){ const items = checklistItems(); return items.length > 0 && items.every(it => current.checks[it.text]); }
+function updateBadge(){
+  const b = $('verifyBadge');
+  if(!current || !current.output){ b.style.display = 'none'; return; }
+  const items = checklistItems(), n = items.filter(it => current.checks[it.text]).length;
+  $('checkCount').textContent = n + ' / ' + items.length;
+  b.style.display = '';
+  b.className = 'badge ' + (isVerified() ? 'ok' : 'warn');
+  b.textContent = isVerified() ? 'Operator-verified' : 'Unverified';
+}
+
+/* ---------- export ---------- */
+function exportText(){
+  let md = setFrontmatterField(current.output, 'verified_by_operator', isVerified() ? 'true' : 'false');
+  if(current.cites && current.cites.length){
+    md += '\n\n## Primary-Source Links (parser-generated)\n' + current.cites.map(c =>
+      '- **' + c.cite + '**' + (c.type === 'usc' ? (c.positiveLaw ? ' — positive-law title' : ' — not positive law') : '') + ': ' +
+      c.links.map(l => '[' + l.label + '](' + l.url + ')').join(' · ')).join('\n') + '\n';
+  }
+  return md;
+}
+function hasOutput(){ return !!(current && current.output); }
+async function copyOut(){
+  if(!hasOutput()){ showStatus(statusEl(), 'Nothing to copy.', 'error'); return; }
+  try{ await navigator.clipboard.writeText(exportText()); showStatus(statusEl(), 'Copied.', 'success'); }
+  catch(e){
+    const ta = document.createElement('textarea'); ta.value = exportText(); ta.style.position = 'fixed'; ta.style.left = '-9999px';
+    document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove();
+    showStatus(statusEl(), ok ? 'Copied.' : 'Copy failed — use Raw view and select manually.', ok ? 'success' : 'error');
+  }
+}
+async function downloadOut(){
+  if(!hasOutput()){ showStatus(statusEl(), 'Nothing to download.', 'error'); return; }
+  const topic = MODE_LABEL[current.mode] + ' - ' + (splitItems(current.input)[0] || 'analysis').slice(0, 60);
+  const t = tmar();
+  if(t && typeof t.aigentSave === 'function'){
+    const r = await t.aigentSave(exportText(), t.aigentFilename(topic, 'md'), 'text/markdown');
+    showStatus(statusEl(), r && r.method === 'aigent-folder' ? 'Saved to the AIgent folder.' : 'Downloaded.', 'success');
+    return;
+  }
+  const name = topic.replace(/[<>:"/\\|?*\x00-\x1f]/g, '') + '-' + new Date().toISOString().slice(0, 10) + '.md';
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([exportText()], { type:'text/markdown' }));
+  a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  showStatus(statusEl(), 'Downloaded ' + name, 'success');
+}
+
+/* ---------- speech ---------- */
+function speak(){
+  if(!hasOutput()){ showStatus(statusEl(), 'Nothing to speak.', 'error'); return; }
+  const text = stripMarkdown(current.output), rate = parseFloat(lsGet(LSK.rate) || '1');
+  const t = tmar();
+  if(t && t.GEMINI_TTS){ t.GEMINI_TTS.speak(text, { rate: rate }); showStatus(statusEl(), 'Speaking (TMAR voice)…', 'info'); return; }
+  if(!window.speechSynthesis){ showStatus(statusEl(), 'Speech not supported in this browser.', 'error'); return; }
+  speechSynthesis.cancel();
+  const voices = speechSynthesis.getVoices(), vname = lsGet(LSK.voice);
+  const voice = voices.find(v => v.name === vname) || null;
+  for(let i = 0; i < text.length; i += 1800){
+    const u = new SpeechSynthesisUtterance(text.slice(i, i + 1800));
+    u.rate = rate; if(voice) u.voice = voice;
+    speechSynthesis.speak(u);
+  }
+  showStatus(statusEl(), 'Speaking…', 'info');
+}
+function stopSpeak(){
+  const t = tmar();
+  if(t && t.GEMINI_TTS) t.GEMINI_TTS.stop();
+  if(window.speechSynthesis) speechSynthesis.cancel();
+}
+function populateVoices(){
+  const sel = $('setVoice');
+  if(!window.speechSynthesis) return;
+  const vs = speechSynthesis.getVoices(); if(!vs.length) return;
+  sel.innerHTML = vs.map(v => '<option value="' + escapeHtml(v.name) + '">' + escapeHtml(v.name + (v.lang ? ' (' + v.lang + ')' : '')) + '</option>').join('');
+  const saved = lsGet(LSK.voice); if(saved) sel.value = saved;
+}
+
+/* ---------- authority bridge ---------- */
+function loadSources(){ const s = loadJSON(LSK.sources, null); return Array.isArray(s) && s.length ? s : (DATA.sources || []).slice(); }
+function sourceUrl(s, q){ return s.url.replace('{q}', encodeURIComponent(q)).replace('{slug}', slugify(q)); }
+function renderBridge(){
+  const srcs = loadSources(), q = $('bridgeQuery').value.trim();
+  if(!sourceSelection.size) sourceSelection = new Set(srcs.map(s => s.id));
+  const cites = parseCitations(q, DATA.positiveLawTitles);
+  $('bridgeCites').innerHTML = cites.length ? citeCardsHtml(cites) : '';
+  const g = $('srcGrid'); g.innerHTML = '';
+  srcs.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'srccard';
+    card.innerHTML =
+      '<div class="row"><div style="flex:1"><div class="sname">' + escapeHtml(s.name) + '</div><div class="domain">' + escapeHtml(s.domain || '') + '</div></div>' +
+      '<input type="checkbox"' + (sourceSelection.has(s.id) ? ' checked' : '') + ' style="accent-color:var(--accent)"></div>' +
+      '<div><span class="badge">' + escapeHtml(s.badge || '') + '</span></div>' +
+      '<div class="sdesc">' + escapeHtml(s.desc || '') + '</div>' +
+      '<div class="row">' +
+        (q && s.url.match(/\{(q|slug)\}/) ? '<a class="btn btn-primary btn-sm" href="' + escapeHtml(sourceUrl(s, q)) + '" target="_blank" rel="noopener">🔍 Search</a>' : '') +
+        '<a class="btn btn-ghost btn-sm" href="' + escapeHtml(s.home || s.url) + '" target="_blank" rel="noopener">🏠 Home</a></div>';
+    card.querySelector('input').addEventListener('change', e => { e.target.checked ? sourceSelection.add(s.id) : sourceSelection.delete(s.id); });
+    g.appendChild(card);
+  });
+}
+function selectedSources(){ return loadSources().filter(s => sourceSelection.has(s.id)); }
+function listLinks(){
+  const q = $('bridgeQuery').value.trim();
+  if(!q){ $('bridgeLinks').innerHTML = '<span class="hint">Enter a query first.</span>'; return; }
+  $('bridgeLinks').innerHTML = selectedSources().map(s =>
+    '<a href="' + escapeHtml(sourceUrl(s, q)) + '" target="_blank" rel="noopener">' + escapeHtml(s.name) + ' — ' + escapeHtml(s.url.match(/\{(q|slug)\}/) ? q : 'home page') + ' ↗</a>').join('');
+}
+function openSelected(){
+  const q = $('bridgeQuery').value.trim();
+  if(!q){ $('bridgeLinks').innerHTML = '<span class="hint">Enter a query first.</span>'; return; }
+  const srcs = selectedSources();
+  let blocked = 0;
+  srcs.forEach(s => { if(!window.open(sourceUrl(s, q), '_blank')) blocked++; });   // synchronous: keeps the click's user activation
+  listLinks();
+  if(blocked) $('bridgeLinks').insertAdjacentHTML('afterbegin', '<span class="hint">' + blocked + ' of ' + srcs.length + ' blocked by the pop-up blocker — use the links below, or allow pop-ups for this page.</span>');
+}
+
+/* ---------- history ---------- */
+function loadHistory(){ return loadJSON(LSK.history, []); }
+function saveCurrentToHistory(){
+  if(!current || !current.output) return;
+  const h = loadHistory().filter(x => x.id !== current.id);
+  h.unshift(current);
+  saveJSON(LSK.history, h.slice(0, 200));
+}
+function renderHistory(){
+  const q = $('histSearch').value.trim().toLowerCase(), fm = $('histMode').value;
+  const list = $('histList');
+  const h = loadHistory().filter(x => (!fm || x.mode === fm) && (!q || (x.input + ' ' + x.output).toLowerCase().includes(q)));
+  if(!h.length){ list.innerHTML = '<p class="hint">No saved analyses' + (q || fm ? ' match.' : ' yet.') + '</p>'; return; }
+  list.innerHTML = '';
+  h.forEach(item => {
+    const prev = current; current = item; const ver = isVerified(); current = prev;
+    const row = document.createElement('div');
+    row.className = 'histitem';
+    row.innerHTML = '<div style="min-width:0"><div class="hterm">' + escapeHtml(item.input) + '</div><div class="hmeta">' +
+      '<span class="badge">' + escapeHtml(MODE_LABEL[item.mode] || item.mode) + '</span>' +
+      '<span class="badge ' + (ver ? 'ok">verified' : 'warn">unverified') + '</span>' + escapeHtml(new Date(item.ts).toLocaleString()) + '</div></div>' +
+      '<div class="row" style="flex-shrink:0"><button class="btn btn-ghost btn-sm" data-act="load">Load</button><button class="btn btn-danger btn-sm" data-act="del">✕</button></div>';
+    row.querySelector('[data-act="load"]').addEventListener('click', () => {
+      current = item; current.checks = current.checks || {};
+      $('inputTerms').value = item.input; setMode(item.mode);
+      renderOutput(); renderChecklist(); showTab('analyzer');
+    });
+    row.querySelector('[data-act="del"]').addEventListener('click', () => {
+      saveJSON(LSK.history, loadHistory().filter(x => x.id !== item.id)); renderHistory();
+    });
+    list.appendChild(row);
+  });
+}
+
+/* ---------- settings ---------- */
+function renderSettings(){
+  const sel = $('setProvider'), s = loadSettings();
+  sel.innerHTML = (tmar() ? '<option value="tmar">TMAR engine (inherit · ' + escapeHtml(tmarProviderLabel()) + ')</option>' : '') +
+    Object.keys(DATA.providers).map(k => '<option value="' + k + '">' + escapeHtml(DATA.providers[k].label) + '</option>').join('');
+  sel.value = s.provider;
+  fillProvider();
+  const t = tmar();
+  $('ttsNote').textContent = t && t.GEMINI_TTS ? 'Inside TMAR, 🔊 uses TMAR\'s voice engine (Settings → Voice & TTS there).' : '';
+}
+function fillProvider(){
+  const id = $('setProvider').value;
+  const isTmar = id === 'tmar';
+  $('directFields').classList.toggle('hidden', isTmar);
+  if(isTmar){ $('providerNote').textContent = 'Uses TMAR\'s active provider, vault keys and CORS proxy. Change it in TMAR → Settings → API Keys.'; return; }
+  const def = DATA.providers[id], conf = providerConf(id), key = getKey(id);
+  $('setBaseUrl').value = conf.baseUrl; $('setModel').value = conf.model; $('setKey').value = key;
+  $('setKey').disabled = !def.key;
+  let inSession = false; try{ inSession = !!sessionStorage.getItem('laa_key_' + id); }catch(e){}
+  document.querySelector('input[name=keyMode][value=' + (inSession ? 'session' : 'local') + ']').checked = true;
+  $('providerNote').textContent = def.note || '';
+}
+function saveSettings(){
+  const id = $('setProvider').value, s = loadSettings();
+  s.provider = id;
+  if(id !== 'tmar'){
+    const baseUrl = $('setBaseUrl').value.trim();
+    if(!baseUrl){ showStatus($('setStatus'), 'Base URL is required.', 'error'); return; }
+    s.per[id] = { baseUrl: baseUrl, model: $('setModel').value.trim() };
+    setKey(id, $('setKey').value.trim(), document.querySelector('input[name=keyMode]:checked').value);
+  }
+  saveJSON(LSK.settings, s);
+  renderEngine();
+  showStatus($('setStatus'), 'Saved.', 'success');
+}
+async function testConn(){
+  const st = $('setStatus'), id = $('setProvider').value;
+  if(id === 'tmar'){
+    try{ const r = tmar().resolveProvider(); showStatus(st, r && !r.error ? 'TMAR provider: ' + tmarProviderLabel() : 'TMAR: ' + ((r && r.error) || 'no provider'), r && !r.error ? 'success' : 'error'); }
+    catch(e){ showStatus(st, 'TMAR not reachable: ' + e.message, 'error'); }
+    return;
+  }
+  const base = $('setBaseUrl').value.trim().replace(/\/$/, ''), key = $('setKey').value.trim();
+  const headers = id === 'anthropic'
+    ? { 'x-api-key':key, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' }
+    : (key ? { Authorization:'Bearer ' + key } : {});
+  showStatus(st, 'Testing ' + base + ' …', 'info');
+  try{
+    const r = await fetch(base + '/models', { headers });
+    showStatus(st, r.ok ? 'Connection OK.' : 'Provider answered HTTP ' + r.status + (r.status === 401 ? ' — check the key.' : ''), r.ok ? 'success' : 'error');
+  }catch(e){ showStatus(st, 'Unreachable — CORS or the server is down (' + e.message + ').', 'error'); }
+}
+
+/* ---------- wiring ---------- */
+function wireEvents(){
+  $('tabs').addEventListener('click', e => { const b = e.target.closest('.tabbtn'); if(b) showTab(b.dataset.tab); });
+  $('modeSeg').addEventListener('click', e => { const b = e.target.closest('button'); if(b) setMode(b.dataset.mode); });
+  $('inputTerms').addEventListener('input', onInput);
+  $('inputTerms').addEventListener('keydown', e => { if(e.key === 'Enter' && (e.ctrlKey || e.metaKey)) analyze(); });
+  $('chainDepth').addEventListener('input', e => { $('depthVal').textContent = e.target.value; });
+  $('btnAnalyze').addEventListener('click', analyze);
+  $('btnStopRun').addEventListener('click', stopRun);
+  $('btnClear').addEventListener('click', () => {
+    $('inputTerms').value = ''; current = null;
+    $('output').className = 'output'; $('output').innerHTML = '<div class="placeholder">Cleared.</div>';
+    $('checkPanel').style.display = 'none'; $('verifyBadge').style.display = 'none'; onInput();
+  });
+  $('btnRaw').addEventListener('click', () => { viewRaw = !viewRaw; renderOutput(); });
+  $('btnCopy').addEventListener('click', copyOut);
+  $('btnDownload').addEventListener('click', downloadOut);
+  $('btnSpeak').addEventListener('click', speak);
+  $('btnStopSpeak').addEventListener('click', stopSpeak);
+
+  $('bridgeQuery').addEventListener('input', renderBridge);
+  $('btnUseInput').addEventListener('click', () => { $('bridgeQuery').value = $('inputTerms').value.trim(); renderBridge(); });
+  $('btnListLinks').addEventListener('click', listLinks);
+  $('btnOpenSelected').addEventListener('click', openSelected);
+  $('btnSelectAll').addEventListener('click', () => { sourceSelection = new Set(loadSources().map(s => s.id)); renderBridge(); });
+  $('btnSelectNone').addEventListener('click', () => { sourceSelection = new Set(['__none__']); renderBridge(); });
+  $('btnEditSources').addEventListener('click', () => { $('srcEditor').value = JSON.stringify(loadSources(), null, 2); $('modalBg').classList.add('show'); });
+  $('btnCancelSources').addEventListener('click', () => $('modalBg').classList.remove('show'));
+  $('modalBg').addEventListener('click', e => { if(e.target === $('modalBg')) $('modalBg').classList.remove('show'); });
+  $('btnResetSources').addEventListener('click', () => { $('srcEditor').value = JSON.stringify(DATA.sources, null, 2); showStatus($('srcStatus'), 'Defaults pasted — Save to apply.', 'info'); });
+  $('btnSaveSources').addEventListener('click', () => {
+    try{
+      const arr = JSON.parse($('srcEditor').value);
+      if(!Array.isArray(arr) || !arr.length) throw new Error('must be a non-empty array');
+      arr.forEach(s => { if(!s.id || !s.name || !s.url) throw new Error('each source needs id, name, url'); if(!/^https?:\/\//.test(s.url)) throw new Error(s.id + ': url must be http(s)'); });
+      saveJSON(LSK.sources, arr); sourceSelection = new Set(arr.map(s => s.id));
+      $('modalBg').classList.remove('show'); renderBridge();
+    }catch(e){ showStatus($('srcStatus'), 'Invalid: ' + e.message, 'error'); }
+  });
+
+  $('histSearch').addEventListener('input', renderHistory);
+  $('histMode').addEventListener('change', renderHistory);
+  $('btnClearHist').addEventListener('click', () => { if(confirm('Delete all saved analyses?')){ saveJSON(LSK.history, []); renderHistory(); } });
+
+  $('setProvider').addEventListener('change', fillProvider);
+  $('btnToggleKey').addEventListener('click', () => { const k = $('setKey'); k.type = k.type === 'password' ? 'text' : 'password'; });
+  $('btnSaveSettings').addEventListener('click', saveSettings);
+  $('btnTestConn').addEventListener('click', testConn);
+  $('setVoice').addEventListener('change', e => lsSet(LSK.voice, e.target.value));
+  $('setRate').addEventListener('input', e => { $('rateVal').textContent = parseFloat(e.target.value).toFixed(1); lsSet(LSK.rate, e.target.value); });
+  const r = lsGet(LSK.rate); if(r){ $('setRate').value = r; $('rateVal').textContent = parseFloat(r).toFixed(1); }
+  if(window.speechSynthesis){ speechSynthesis.onvoiceschanged = populateVoices; populateVoices(); }
+}
+
+/* ---------- theme ---------- */
+(function(){
+  const saved = lsGet(LSK.theme);
+  if(saved) document.documentElement.setAttribute('data-theme', saved);
+  $('themeToggle').addEventListener('click', () => {
+    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next); lsSet(LSK.theme, next);
+  });
+})();
+
+loadData();
+</script>
+</body>
+</html>
