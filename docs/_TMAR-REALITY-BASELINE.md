@@ -4,8 +4,8 @@
 > This file is the machine-readable snapshot of the *current* TMAR reality that other
 > docs are reconciled against. When code changes, re-run the extractor and re-scan docs.
 
-**Generated:** 2026-10-29
-**App:** `TMAR-Accrual-Ledger.html` — 4,177,510 bytes (~4.18 MB), 61,536 lines
+**Generated:** 2026-11-16
+**App:** `TMAR-Accrual-Ledger.html` — 4,210,043 bytes (~4.21 MB), 62,068 lines
 **Title:** TMAR Universal Accrual Ledger
 
 ---
@@ -32,24 +32,24 @@ repo. `listWorkbookTabs` returns the live count; the standing figure is 57 (28 v
 
 ---
 
-## 2. GAS Web App — 130 doGet/doPost actions
+## 2. GAS Web App — 131 doGet/doPost actions
 
 
-`analyzeDuplicates · appendToArchive · applyFreewayAesthetic · applyMasterRegisterSpec · applyStandardHeader · applyVisualStandard · archiveTabs · archiveWorkbook · backfillAuditAccounts · backfillTINRegistry · buildExternalTabs · buildMasterIndex · cleanupWorkbook · clearBalanceValidation · consolidateGuides · dedupeAcctLedger · dedupeMasterRegister · deleteCreditorDetail · deleteForm1040 · deleteMasterRegister · deletePrincipalRegister · deleteSheetsByName · deleteWebsiteAccounts · dumpCanvasBoard · embedAppScriptsLinks · enrichMasterRegister · finalizeAcctLedger · finalizeWorkbookReorg · finishRegisterSplit · fixCreditorDetailHeader · fixJournalHeader · foldCreditorDetailIntoMaster · foldCreditorRegistry · foldFinalize · foldScriptExecutions · fullSync · hyperlinkProviderColumn · importAdminForms · importForm1040 · importForm2848 · importForm8275R · importSchedule1 · importSchedule2 · importScheduleA · importSubstituteW2 · importWorksheetData · installConsolidationTrigger · listExternalTabs · listRunnableFunctions · listSheetTabs · listSheetTabsMeta · listTriggers · listWorkbookTabs · mergeCreditorData · mergeMasterRegisterFast · mergeValidation · mergeVendorNames · peekMR · peekSheet · ping · pruneGuides · pull1099 · pullAccounts · pullAdminForms · pullChartOfAccounts · pullContacts · pullDataValidation · pullExternalFormulas · pullExternalNamedRanges · pullExternalRange · pullExternalTab · pullExternalValidations · pullForm1040 · pullForm2848 · pullForm8275R · pullJournalEntries · pullObligations · pullPrincipalRegister · pullRawTab · pullReceivables · pullSchedule1 · pullSchedule2 · pullScheduleA · pullSubstituteW2 · pullTransactions · pullValidation · pullWebsiteAccounts · pullWorkbookSheets · pullWorksheetData · push1099 · pushAppScriptsInventory · pushCashFlow · pushChartOfAccounts · pushContacts · pushCreditScorecard · pushCreditorDetail · pushDataValidation · pushDocumentInventory · pushEntities · pushJournalEntries · pushPayables · pushPrincipalRegister · pushReceivables · pushRegistryScan · pushScriptExecutions · pushTransactions · pushWebsiteAccounts · rebuildHubIndex · rebuildObligationsPivot · rebuildSubscriptions · recomputeObligationsPivotTotals · refreshProofOfMailing · refreshScriptExecutions · remapMasterRegister · removeConsolidationTrigger · renameSheet · replaceSubscriptions · restoreMasterRegister · restoreSheets · restructureMasterRegister · retireSheets · runConsolidationNow · runFunction · runWorkbookMerge · showSheets · updateMasterRegister · updateObligationCategories · updateTINRegistry · writeExternalRange · writeExternalValidations`
-
----
-
-## 3. Runnable function allowlist — 29 functions
-
-
-`menuApplyAllFormatting, menuRefreshTabColors, menuRefreshDataValidation, menuRefreshConditionalFmt, menuRefreshFilters, menuRefreshHeaderProtection, applyAllEnhancements, menuApplyLegendBlocks, menuApplyFinePrint, menuApplyPartyColors, runFormattingHealthAudit, fixAllFormattingIssues, diagnoseLegendAndAttribution, calculateDNI, viewTrialBalance, viewOverdueTasks, viewUpcomingTasks, refreshComplianceSheet, refreshDocumentList, populateValidationSheet, refreshDashboard, exportToPdf, runFullGapScan, scanCurrentTab, generateCPAMeetingPrep, populateAppScriptsInventory, refreshAppScriptsHealth, createRegisterSummaryTab, createExecutiveDashboardTab`
+`analyzeDuplicates · appendToArchive · applyFreewayAesthetic · applyMasterRegisterSpec · applyStandardHeader · applyVisualStandard · archiveTabs · archiveWorkbook · backfillAuditAccounts · backfillTINRegistry · buildExternalTabs · buildMasterIndex · cleanupWorkbook · clearBalanceValidation · consolidateGuides · dedupeAcctLedger · dedupeMasterRegister · deleteCreditorDetail · deleteForm1040 · deleteMasterRegister · deletePrincipalRegister · deleteSheetsByName · deleteWebsiteAccounts · dumpCanvasBoard · embedAppScriptsLinks · enrichMasterRegister · finalizeAcctLedger · finalizeWorkbookReorg · finishRegisterSplit · fixCreditorDetailHeader · fixJournalHeader · foldCreditorDetailIntoMaster · foldCreditorRegistry · foldFinalize · foldScriptExecutions · fullSync · hyperlinkProviderColumn · importAdminForms · importForm1040 · importForm2848 · importForm8275R · importSchedule1 · importSchedule2 · importScheduleA · importSubstituteW2 · importWorksheetData · installConsolidationTrigger · listExternalTabs · listRunnableFunctions · listSheetTabs · listSheetTabsMeta · listTriggers · listWorkbookTabs · mergeCreditorData · mergeMasterRegisterFast · mergeValidation · mergeVendorNames · peekMR · peekSheet · ping · pruneGuides · pull1099 · pullAccounts · pullAdminForms · pullChartOfAccounts · pullContacts · pullDataValidation · pullExternalFormulas · pullExternalNamedRanges · pullExternalRange · pullExternalTab · pullExternalValidations · pullForm1040 · pullForm2848 · pullForm8275R · pullJournalEntries · pullObligations · pullPrincipalRegister · pullRawTab · pullReceivables · pullSchedule1 · pullSchedule2 · pullScheduleA · pullSubstituteW2 · pullTransactions · pullValidation · pullWebsiteAccounts · pullWorkbookSheets · pullWorksheetData · push1099 · pushAppScriptsInventory · pushCashFlow · pushChartOfAccounts · pushContacts · pushCreditScorecard · pushCreditorDetail · pushDataValidation · pushDocumentInventory · pushEntities · pushJournalEntries · pushPayables · pushPrincipalRegister · pushReceivables · pushRegistryScan · pushScriptExecutions · pushTransactions · pushWebsiteAccounts · rebuildHubIndex · rebuildObligationsPivot · rebuildSubscriptions · recomputeObligationsPivotTotals · refreshProofOfMailing · refreshScriptExecutions · remapMasterRegister · removeConsolidationTrigger · renameSheet · replaceSubscriptions · restoreMasterRegister · restoreSheets · restructureMasterRegister · retireSheets · retireStaleBills · runConsolidationNow · runFunction · runWorkbookMerge · showSheets · updateMasterRegister · updateObligationCategories · updateTINRegistry · writeExternalRange · writeExternalValidations`
 
 ---
 
-## 4. App HTML — 57 tabs (data-tab)
+## 3. Runnable function allowlist — 31 functions
 
 
-`apiScout · bankRecon · billsOfExchange · budgetForecast · ccsn · coa · consolidation · cpaConsolidated · cpaCorporation · cpaNonprofit · cpaPartnership · cpaTrust · cpaTrustCorp · cpsa · customers · depreciation · docCreator · eeej · entities · entityVerifier · expenses · fdrf · filings · financialAssets · gaapAgent · inventory · invoicing · irsFormGen · journal · ledger · masterReport · multiStatePoa · payables · paymentOrders · payroll · receivables · reports · scheduleA · settingsApi · sourceFolders · spvDashboard · spvLedger · spvReports · statements · syncCenter · taxEstimator · tmarInspector · transcriptTransformer · trcf · trustAgent · trustDashboard · trustLedger · trustMonetize · trustOS · trustReports · ukAccounting · voiceChat`
+`menuApplyAllFormatting, menuRefreshTabColors, menuRefreshDataValidation, menuRefreshConditionalFmt, menuRefreshFilters, menuRefreshHeaderProtection, applyAllEnhancements, menuApplyLegendBlocks, menuApplyFinePrint, menuApplyPartyColors, runFormattingHealthAudit, fixAllFormattingIssues, diagnoseLegendAndAttribution, calculateDNI, viewTrialBalance, viewOverdueTasks, viewUpcomingTasks, refreshComplianceSheet, refreshDocumentList, populateValidationSheet, refreshDashboard, exportToPdf, runFullGapScan, scanCurrentTab, generateCPAMeetingPrep, populateAppScriptsInventory, refreshAppScriptsHealth, createRegisterSummaryTab, createExecutiveDashboardTab, importSyrinaAutoLoan, removeMisplacedKiaLedgerRow_`
+
+---
+
+## 4. App HTML — 59 tabs (data-tab)
+
+
+`apiScout · bankRecon · billsOfExchange · budgetForecast · ccsn · coa · consolidation · cpaConsolidated · cpaCorporation · cpaNonprofit · cpaPartnership · cpaTrust · cpaTrustCorp · cpsa · customers · depreciation · docCreator · eeej · entities · entityVerifier · etymologyAnalyzer · expenses · fdrf · filings · financialAssets · gaapAgent · inventory · invoicing · irsFormGen · journal · ledger · masterReport · multiStatePoa · payables · paymentOrders · payroll · receivables · reports · scheduleA · settingsApi · sourceFolders · spvDashboard · spvLedger · spvReports · statements · statuteVerify · syncCenter · taxEstimator · tmarInspector · transcriptTransformer · trcf · trustAgent · trustDashboard · trustLedger · trustMonetize · trustOS · trustReports · ukAccounting · voiceChat`
 
 ---
 
