@@ -20028,8 +20028,10 @@ Timestamps like [00:00] or 0:00 will be preserved." style="width:100%;min-height
           <!-- Action Buttons -->
           <div style="display:flex;gap:8px;margin-top:10px">
             <button onclick="ttTransform()" id="tt-transform-btn" style="flex:1;padding:10px;border-radius:8px;border:none;background:#10b981;color:white;font-weight:700;cursor:pointer;font-size:13px">⚡ Transform</button>
+            <button onclick="ttRunIt()" id="tt-runit-btn" title="Full transform, then write .md + .html + process tracker into the vault (auto-routed to topic folder, named after the video)" style="flex:1;padding:10px;border-radius:8px;border:1px solid rgba(168,85,247,0.6);background:rgba(168,85,247,0.15);color:#c084fc;font-weight:700;cursor:pointer;font-size:13px">▶ Run It</button>
             <button onclick="ttClearAll()" style="padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#9ca3af;cursor:pointer" title="Clear all">🗑️</button>
           </div>
+          <div id="tt-runit-status" style="display:none;margin-top:10px;font-size:12px;white-space:pre-wrap;border:1px solid rgba(16,185,129,0.3);background:rgba(16,185,129,0.05);border-radius:8px;padding:10px"></div>
         </div>
 
         <!-- Output Panel -->
@@ -48047,7 +48049,7 @@ function ttStreamPreview(partialText) {
   }
 }
 
-async function ttTransform() {
+async function ttTransform(onDone) {
   var input = document.getElementById('tt-input').value;
   var sourceUrl = document.getElementById('tt-source-url').value;
   if (!input.trim()) return alert('Paste a transcript first');
@@ -48093,8 +48095,86 @@ async function ttTransform() {
       ttState.output = result.result;
     }
     ttRenderOutput();
+    if (typeof onDone === 'function') onDone();
   } catch(err) { ttShowError({ type: 'unexpected_error', message: err.message }); }
-  btn.disabled = false; btn.textContent = '\u26a1 Transform';
+  btn.disabled = false; btn.textContent = '⚡ Transform';
+}
+
+// ── Run It — one-click full pipeline ───────────────────────────────────────
+// Transform (Full mode) → build the exported .html → generate the process
+// tracker → POST {title, md, html, tracker} to the local tt_vault_writer
+// service (127.0.0.1:8643), which routes the title through TOPIC_ROUTES,
+// creates the topic folder under the vault's VO's tree, and writes
+// <Title>.md + <Title>.html + _<slug>.html named after the video.
+function ttRunIt() {
+  var input = document.getElementById('tt-input').value;
+  if (!input.trim()) return alert('Paste a transcript first');
+  ttSetMode('full');
+  ttRunItStatus('⏳ Full transform streaming…');
+  ttTransform(function() {
+    var md = ttState.output || '';
+    var title = ttExtractTitle(md);
+    var built = ttMarkdownToExportedHtml(md);
+    var payload = { title: title, md: md, html: built.html };
+
+    // Tracker is optional-but-included: needs the engine template selected.
+    if (!ttTrackerEngineFile) {
+      ttRunItStatus('⚠️ No engine template selected — skipping process tracker. Writing .md + .html only…');
+      ttVaultRoute(payload, ttRunItDone);
+      return;
+    }
+    ttRunItStatus('🗺 Generating process tracker…');
+    ttBuildTracker(function(text) { ttRunItStatus('🗺 ' + text); }).then(function(tracker) {
+      payload.tracker = { name: tracker.htmlName, content: tracker.outputHtml };
+      ttRunItStatus('📁 Writing .md + .html + tracker as "' + title + '"…');
+      ttVaultRoute(payload, ttRunItDone);
+    }).catch(function(e) {
+      ttRunItStatus('⚠️ Tracker failed (' + e.message + ') — writing .md + .html only…');
+      ttVaultRoute(payload, ttRunItDone);
+    });
+  });
+}
+
+// Shared completion handler for the vault-write POST — renders the final
+// folder + file paths (or the error) into the Run It status line.
+function ttRunItDone(err, res) {
+  if (err) return ttRunItStatus('❌ ' + err, true);
+  var lines = '✅ Saved to vault (' + (res.routed_to || 'VO\'s root') + ')\n' + res.folder + '\n';
+  if (res.files && res.files.md) lines += '• ' + res.files.md + '\n';
+  if (res.files && res.files.html) lines += '• ' + res.files.html + '\n';
+  if (res.files && res.files.tracker) lines += '• ' + res.files.tracker;
+  ttRunItStatus(lines, false);
+}
+
+// Extracts the video title from the H1 of the transformed .md output.
+function ttExtractTitle(md) {
+  var m = (md || '').match(/^#\s+(.+)$/m);
+  return m ? m[1].trim() : ('Transcript ' + new Date().toISOString().split('T')[0]);
+}
+
+function ttRunItStatus(text, isError) {
+  var el = document.getElementById('tt-runit-status');
+  if (!el) return;
+  el.style.display = 'block';
+  el.textContent = text;
+  el.style.color = isError ? '#f87171' : '#10b981';
+  el.style.borderColor = isError ? 'rgba(239,68,68,0.4)' : 'rgba(16,185,129,0.3)';
+  el.style.background = isError ? 'rgba(239,68,68,0.06)' : 'rgba(16,185,129,0.05)';
+}
+
+function ttVaultRoute(payload, cb) {
+  fetch('http://127.0.0.1:8643/route', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(function(r) { return r.json().then(function(j) { return { ok: r.ok, j: j }; }); })
+    .then(function(x) {
+      if (x.ok && x.j && x.j.ok) return cb(null, x.j);
+      cb((x.j && x.j.error) || ('HTTP ' + x.j), null);
+    })
+    .catch(function(e) {
+      cb('Vault writer unreachable — is the tt-vault-writer service running? (' + e.message + ')', null);
+    });
 }
 
 function ttShowError(error, context) {
@@ -48780,53 +48860,63 @@ function ttTrackerParseJson(raw) {
   throw new Error('Could not parse JSON response (' + (lastError ? lastError.message : 'unknown error') + ')');
 }
 
-async function ttGenerateProcessTracker() {
-  if (!ttState.output) return alert('Transform a transcript first');
-  if (!ttTrackerEngineFile) return alert('Select an engine template first (📄 Select Engine Template... button below)');
+// Core tracker build — runs the LLM, validates the schema, de-dupes ids,
+// counts steps, builds the mind map + principle, and embeds the JSON into a
+// copy of the engine template. Returns { outputHtml, htmlName, stepCount }.
+// Throws on any failure. onProgress(text) is an optional streaming hook.
+// Shared by ttGenerateProcessTracker() (downloads) and ttRunIt() (vault write).
+async function ttBuildTracker(onProgress) {
+  if (!ttState.output) throw new Error('Transform a transcript first');
+  if (!ttTrackerEngineFile) throw new Error('Select an engine template first (📄 Select Engine Template... button below)');
   var prov = resolveProvider();
-  if (!prov || prov.error) return alert(prov && prov.error ? prov.error : 'No provider configured. Go to Settings → API Keys.');
+  if (!prov || prov.error) throw new Error(prov && prov.error ? prov.error : 'No provider configured. Go to Settings → API Keys.');
 
+  if (onProgress) onProgress('Streaming from ' + prov.model + ' (' + prov.provider.name + ')...');
+  var prompt = ttProcessTrackerPrompt(ttState.output);
+  var result = await pdkbCallAnthropic(prompt, { maxTokens: 100000 }, function(partial) {
+    if (onProgress) onProgress('Streaming... (' + partial.length.toLocaleString() + ' chars so far)');
+  });
+  if (!result.success) throw new Error((result.error && result.error.message) || 'Generation failed');
+
+  var data = ttTrackerParseJson(result.result);
+  if (!data.title || !data.tracker || !Array.isArray(data.tracker.sections) || !data.tracker.sections.length) {
+    throw new Error('Response did not match the expected schema (missing title or tracker.sections)');
+  }
+  data = ttTrackerDedupeIds(data);
+  var stepCount = ttTrackerCountSteps(data);
+  if (data.overview && Array.isArray(data.overview.kpis)) {
+    var totalKpi = data.overview.kpis.filter(function(k) { return /total steps/i.test(k.label || ''); })[0];
+    if (totalKpi) totalKpi.value = String(stepCount);
+  }
+
+  if (!Array.isArray(data.tabs)) data.tabs = [];
+  if (!data.tabs.some(function(t) { return t.id === 'mindmap'; })) data.tabs.push({ id: 'mindmap', label: '🧠 Mind Map' });
+  data.mindmap = { mindmap: ttTrackerBuildMindmap(data) };
+  if (data.overview && typeof data.overview.principle === 'string') {
+    data.overview.principle = ttTrackerBuildPrinciple(data);
+  }
+
+  if (onProgress) onProgress('Reading engine template...');
+  var templateHtml = await ttTrackerEngineFile.text();
+  var outputHtml = ttTrackerInjectEmbeddedData(templateHtml, data);
+
+  var slug = ttTrackerSlug(data.title);
+  var htmlName = '_' + slug + '.html';
+
+  return { outputHtml: outputHtml, htmlName: htmlName, stepCount: stepCount };
+}
+
+async function ttGenerateProcessTracker() {
   var btn = document.getElementById('tt-tracker-btn');
   var statusEl = document.getElementById('tt-tracker-status');
   btn.disabled = true; btn.textContent = '⏳ Generating...';
   statusEl.style.display = 'block';
   statusEl.style.color = 'var(--text-secondary)';
-  statusEl.textContent = 'Streaming from ' + prov.model + ' (' + prov.provider.name + ')...';
 
   try {
-    var prompt = ttProcessTrackerPrompt(ttState.output);
-    var result = await pdkbCallAnthropic(prompt, { maxTokens: 100000 }, function(partial) {
-      statusEl.textContent = 'Streaming... (' + partial.length.toLocaleString() + ' chars so far)';
-    });
-    if (!result.success) throw new Error((result.error && result.error.message) || 'Generation failed');
-
-    var data = ttTrackerParseJson(result.result);
-    if (!data.title || !data.tracker || !Array.isArray(data.tracker.sections) || !data.tracker.sections.length) {
-      throw new Error('Response did not match the expected schema (missing title or tracker.sections)');
-    }
-    data = ttTrackerDedupeIds(data);
-    var stepCount = ttTrackerCountSteps(data);
-    if (data.overview && Array.isArray(data.overview.kpis)) {
-      var totalKpi = data.overview.kpis.filter(function(k) { return /total steps/i.test(k.label || ''); })[0];
-      if (totalKpi) totalKpi.value = String(stepCount);
-    }
-
-    if (!Array.isArray(data.tabs)) data.tabs = [];
-    if (!data.tabs.some(function(t) { return t.id === 'mindmap'; })) data.tabs.push({ id: 'mindmap', label: '🧠 Mind Map' });
-    data.mindmap = { mindmap: ttTrackerBuildMindmap(data) };
-    if (data.overview && typeof data.overview.principle === 'string') {
-      data.overview.principle = ttTrackerBuildPrinciple(data);
-    }
-
-    statusEl.textContent = 'Reading engine template...';
-    var templateHtml = await ttTrackerEngineFile.text();
-    var outputHtml = ttTrackerInjectEmbeddedData(templateHtml, data);
-
-    var slug = ttTrackerSlug(data.title);
-    var htmlName = '_' + slug + '.html';
-
-    pdkbDownloadFile(outputHtml, htmlName, 'text/html');
-    statusEl.textContent = '✅ Downloaded ' + htmlName + ' — ' + stepCount + ' steps. Double-click it directly, no launcher needed.';
+    var built = await ttBuildTracker(function(text) { statusEl.textContent = text; });
+    pdkbDownloadFile(built.outputHtml, built.htmlName, 'text/html');
+    statusEl.textContent = '✅ Downloaded ' + built.htmlName + ' — ' + built.stepCount + ' steps. Double-click it directly, no launcher needed.';
     statusEl.style.color = '#10b981';
   } catch (e) {
     statusEl.textContent = '❌ ' + e.message;
