@@ -4,7 +4,7 @@
 > This file is the machine-readable snapshot of the *current* TMAR reality that other
 > docs are reconciled against. When code changes, re-run the extractor and re-scan docs.
 
-**Generated:** 2026-11-16
+**Generated:** 2026-11-17
 **App:** `TMAR-Accrual-Ledger.html` — 4,210,043 bytes (~4.21 MB), 62,068 lines
 **Title:** TMAR Universal Accrual Ledger
 
