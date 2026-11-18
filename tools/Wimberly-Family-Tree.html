@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wimberly Family Tree</title>
+<style>
+:root {
+  --bg: #0b0e14;
+  --card: #11151c;
+  --border: #252a33;
+  --gold: #d4a843;
+  --gold-dim: #7a662e;
+  --text: #e6edf3;
+  --text-dim: #8b949e;
+  --link: #58a6ff;
+  --green: #3fb950;
+  --orange: #f0883e;
+  --red: #f85149;
+  --purple: #a371f7;
+  --teal: #39d2c0;
+  --pink: #f778ba;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: Rubik, 'Segoe UI', system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+.header {
+  background: linear-gradient(180deg, #131820 0%, var(--bg) 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 2rem 2rem 1.5rem;
+  text-align: center;
+}
+.header .badge {
+  display: inline-block;
+  background: rgba(212,168,67,0.10);
+  border: 1px solid var(--gold-dim);
+  color: var(--gold);
+  padding: 0.3rem 0.85rem;
+  border-radius: 100px;
+  font-size: 0.72rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+.header h1 {
+  font-size: 1.65rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--gold);
+  margin-bottom: 0.3rem;
+}
+.header .subtitle {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+.header .meta {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  font-family: 'SF Mono','Fira Code','Consolas',monospace;
+}
+
+.container {
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* ── Timeline strip ── */
+.timeline {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 2rem;
+  overflow-x: auto;
+}
+.timeline h4 {
+  font-size: 0.78rem; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  text-align: center; margin-bottom: 1.2rem;
+}
+.tl-row {
+  display: flex;
+  min-width: 1100px;
+}
+.tl-item {
+  flex: 1;
+  text-align: center;
+  position: relative;
+  padding-top: 1.6rem;
+}
+.tl-item::before {
+  content: '';
+  position: absolute;
+  top: 0.45rem; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--border), var(--gold-dim), var(--border));
+}
+.tl-item::after {
+  content: '';
+  position: absolute;
+  top: 0.12rem; left: 50%;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--gold);
+  transform: translateX(-50%);
+  border: 2px solid var(--bg);
+}
+.tl-year { display: block; font-size: 0.72rem; color: var(--gold); font-weight: 600; }
+.tl-label { display: block; font-size: 0.64rem; color: var(--text-dim); margin-top: 0.1rem; }
+
+/* ── Flowchart wrappers ── */
+.flow-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  overflow-x: auto;
+  scroll-margin-top: 1rem;
+}
+.flow-section h3 {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+.flow-section .mermaid { display: flex; justify-content: center; min-height: 180px; }
+
+.year-badge {
+  display: inline-block;
+  background: rgba(212,168,67,0.10);
+  border: 1px solid var(--gold-dim);
+  color: var(--gold);
+  padding: 0.08rem 0.55rem;
+  border-radius: 100px;
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+  font-weight: 600;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+@media(max-width:1100px){ .two-col { grid-template-columns: 1fr; } }
+
+/* ── Legend ── */
+.legend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+.leg-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.85rem 1.1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+}
+.leg-dot { width: 13px; height: 13px; border-radius: 3px; flex-shrink: 0; margin-top: 0.15rem; }
+.leg-text strong { display:block; font-size:0.82rem; margin-bottom:0.1rem; }
+.leg-text span  { font-size:0.75rem; color:var(--text-dim); }
+
+.d-line { background:#d4a843; } .d-orange { background:#f0883e; }
+.d-pink  { background:#f778ba; } .d-teal   { background:#39d2c0; }
+.d-purple{ background:#a371f7; } .d-blue   { background:#58a6ff; }
+.d-green { background:#3fb950; } .d-gray   { background:#8b949e; }
+.d-ivory { background:#dfe6ee; } .d-dash   { background:transparent; border:2px dashed #8b949e; }
+.d-ver   { background:#56d364; } .d-bad    { background:transparent; border:2px dashed #f0883e; }
+.tag.ok { border-color:#56d364; color:#56d364; }
+.tag.sup { border-color:#8fbf9a; color:#8fbf9a; border-style:dashed; }
+.vnote { display:block; color:var(--text-dim); font-size:0.72rem; margin-top:0.2rem; line-height:1.45; }
+.bridge ul { margin:0.6rem 0 0 1.1rem; font-size:0.82rem; color:var(--text-dim); line-height:1.6; }
+.bridge a { color:var(--link); text-decoration:none; } .bridge a:hover { text-decoration:underline; }
+.tag { display:inline-block; font-size:0.62rem; letter-spacing:0.03em; padding:0.05rem 0.45rem; border-radius:100px; border:1px solid var(--border); color:var(--text-dim); white-space:nowrap; }
+.tag.pot { border-style:dashed; border-color:#8b949e; }
+.tag.warn { border-color:var(--orange); color:var(--orange); }
+.line-row td { background:#0f131a; color:var(--gold); font-size:0.68rem; text-transform:uppercase; letter-spacing:0.05em; font-weight:600; }
+
+/* ── Bridge / note ── */
+.bridge {
+  background: linear-gradient(135deg, rgba(240,136,62,0.06), rgba(212,168,67,0.06));
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+}
+.bridge h4 { font-size:1rem; color:var(--gold); margin-bottom:0.75rem; }
+.bridge p { font-size:0.82rem; color:var(--text-dim); line-height:1.55; }
+
+/* ── Data table ── */
+.data-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+.data-table th {
+  text-align: left; color: var(--gold); font-weight: 600;
+  padding: 0.6rem 0.7rem; border-bottom: 1px solid var(--border);
+  font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap;
+}
+.data-table td { padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
+.data-table tr:hover td { background: #131820; }
+.data-table .dim { color: var(--text-dim); }
+.data-table .gold { color: var(--gold); font-weight: 600; }
+
+.footer {
+  text-align: center; padding: 2rem;
+  font-size: 0.72rem; color: var(--text-dim);
+  border-top: 1px solid var(--border); margin-top: 2rem;
+}
+.footer span { color:var(--gold); }
+
+/* ── Click-through ── */
+.mermaid g.node{cursor:pointer;transition:filter .15s}
+.mermaid g.node:hover{filter:brightness(1.35)}
+.mermaid .edgeLabel,.mermaid .edgeLabel p,.mermaid .edgeLabel span{color:#aab3bd !important;background:#11151c !important}
+.flash{animation:cardFlash 2s ease-out}
+@keyframes cardFlash{0%{outline:3px solid #d4a843;outline-offset:2px;box-shadow:0 0 24px rgba(212,168,67,.55)}100%{outline:3px solid transparent;outline-offset:2px;box-shadow:0 0 0 transparent}}
+.flow-hint{text-align:center;font-size:.72rem;color:var(--text-dim);margin:-0.75rem 0 1.25rem}
+
+
+/* ── Pedigree chart ── */
+.pg-root{--pg-bg:#0e1217;--pg-surface:#171c23;--pg-line:#434c58;--pg-text:#e6eaef;--pg-dim:#98a2ae;--pg-m:#22324a;--pg-m2:#9db8e6;--pg-f:#3a2536;--pg-f2:#dba6cc;--pg-ok:#3fb968;--pg-no:#8b95a1;--pg-bad:#f0883e;--pg-gold:#d4a843;--pg-on:#0e1217;}
+.pg-root{position:relative;color:var(--pg-text);font-family:Rubik,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:13px;line-height:1.35}
+.pg-bar{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;margin-bottom:10px}
+.pg-legend{display:flex;flex-wrap:wrap;gap:6px 14px;color:var(--pg-dim);font-size:12px}
+.pg-legend span{display:inline-flex;align-items:center;gap:6px}
+.pg-dot{width:16px;height:16px;border-radius:50%;display:inline-grid;place-items:center;font-size:10px;font-weight:700;color:var(--pg-on)}
+.pg-dot.ok{background:var(--pg-ok)}.pg-dot.no{background:var(--pg-no)}.pg-dot.bad{background:var(--pg-bad)}
+.pg-zoom{display:flex;gap:6px}
+.pg-zoom button{font:inherit;font-size:12px;color:var(--pg-text);background:var(--pg-surface);border:1px solid var(--pg-line);border-radius:6px;padding:5px 10px;cursor:pointer}
+.pg-zoom button:hover{border-color:var(--pg-text)}
+.pg-zoom button:focus-visible,.pg-card:focus-visible{outline:2px solid var(--pg-gold);outline-offset:2px}
+.pg-view{overflow:auto;height:clamp(420px,78vh,1100px);background:var(--pg-bg);border:1px solid var(--pg-line);border-radius:10px;cursor:grab}
+.pg-view.pg-drag{cursor:grabbing;user-select:none}
+.pg-stage{position:relative}
+.pg-canvas{position:absolute;left:0;top:0;transform-origin:0 0}
+.pg-canvas svg{position:absolute;left:0;top:0;pointer-events:none}
+.pg-canvas path{fill:none;stroke:var(--pg-line);stroke-width:1.5}
+.pg-canvas path.ok{stroke:var(--pg-ok)}
+.pg-canvas path.bad{stroke:var(--pg-bad);stroke-dasharray:5 4}
+.pg-canvas path.hint{stroke-dasharray:3 4}
+.pg-card{position:absolute;box-sizing:border-box;width:136px;height:150px;padding:10px 6px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;font:inherit;color:var(--pg-text);background:var(--pg-surface);border:1px solid var(--pg-line);border-radius:8px;cursor:pointer}
+.pg-card:hover{border-color:var(--pg-text)}
+.pg-card.pg-sel{border-color:var(--pg-gold);box-shadow:0 0 0 2px var(--pg-gold)}
+.pg-card.pg-root-p{border-color:var(--pg-gold);border-width:2px}
+.pg-card.s-hint{border-style:dashed}
+.pg-card.s-bad{border-color:var(--pg-bad);border-style:dashed}
+.pg-av{width:38px;height:38px;border-radius:50%;flex:none;overflow:hidden}
+.pg-av svg{position:static;display:block;width:38px;height:38px}
+.pg-M .pg-av{background:var(--pg-m)}.pg-M .pg-av svg{fill:var(--pg-m2)}
+.pg-F .pg-av{background:var(--pg-f)}.pg-F .pg-av svg{fill:var(--pg-f2)}
+.pg-name{font-weight:500;font-size:12px;line-height:1.2;max-height:2.4em;overflow:hidden}
+.pg-dates{font-size:11px;color:var(--pg-dim);font-variant-numeric:tabular-nums}
+.pg-rel{font-size:10.5px;color:var(--pg-dim);line-height:1.15}
+.pg-st{margin-top:auto;font-size:10px;letter-spacing:.02em}
+.s-ok .pg-st{color:var(--pg-ok)}.s-no .pg-st,.s-doc .pg-st,.s-hint .pg-st{color:var(--pg-no)}.s-bad .pg-st{color:var(--pg-bad)}
+.pg-badge{position:absolute;top:-9px;right:-9px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;color:var(--pg-on);background:var(--pg-no);border:2px solid var(--pg-bg)}
+.s-ok .pg-badge{background:var(--pg-ok)}.s-bad .pg-badge{background:var(--pg-bad)}
+.pg-detail{margin-top:10px;padding:12px 14px;background:var(--pg-surface);border:1px solid var(--pg-line);border-radius:10px;max-width:760px}
+.pg-detail h4{margin:0 0 2px;font-size:15px;font-weight:500;color:var(--pg-text)}
+.pg-detail p{margin:2px 0;font-size:12.5px;color:var(--pg-dim)}
+.pg-detail .pg-dstat{font-weight:500}
+.pg-detail .ok{color:var(--pg-ok)}.pg-detail .no{color:var(--pg-no)}.pg-detail .bad{color:var(--pg-bad)}
+
+
+.pg-filters{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin-bottom:10px;font-size:12px;color:var(--pg-dim)}
+.pg-filters select{font:inherit;color:var(--pg-text);background:var(--pg-surface);border:1px solid var(--pg-line);border-radius:6px;padding:4px 8px;margin-left:6px}
+.pg-filters select:focus-visible{outline:2px solid var(--pg-gold);outline-offset:2px}
+
+/* ── Family groups (generated from the data) ── */
+.ft{list-style:none;margin:0;padding-left:1.1rem;border-left:1px solid var(--border);text-align:left}
+.ft.ft-root{padding-left:0;border-left:0}
+.ft li{margin:.1rem 0}
+.ft summary{cursor:pointer;list-style:none;display:flex;gap:.25rem;align-items:flex-start;border-radius:6px}
+.ft summary::-webkit-details-marker{display:none}
+.ft summary::before{content:"▸";color:var(--text-dim);flex:none;width:.9rem;margin-top:.28rem;font-size:.8rem}
+.ft details[open]>summary::before{content:"▾"}
+.ft summary:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+.ft li>.ft-line{margin-left:1.15rem}
+.ft-line{display:flex;flex-wrap:wrap;gap:.1rem .55rem;align-items:baseline;padding:.2rem .45rem;border-radius:6px;font-size:.82rem;min-width:0;flex:1}
+.ft-line.ft-hit{background:rgba(212,168,67,.18)}
+.ft-mark{font-size:.62rem;font-weight:700;width:1rem;height:1rem;border-radius:50%;display:inline-grid;place-items:center;color:var(--bg);flex:none;align-self:center}
+.ft-mark.ok{background:var(--green)}.ft-mark.no{background:var(--text-dim)}.ft-mark.bad{background:var(--orange)}
+.ft-name{font-weight:500;color:var(--text)}
+.ft-direct .ft-name{color:var(--gold)}
+.ft-dates,.ft-sp,.ft-n{color:var(--text-dim);font-size:.74rem}
+.ft-rel{color:var(--teal);font-size:.74rem}
+.ft-note{flex-basis:100%;color:var(--text-dim);font-size:.72rem;padding-left:1.55rem;max-width:85ch;line-height:1.45}
+.ft-glabel{font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);margin:.55rem 0 .15rem 1.15rem}
+.ft-group>.ft{margin-left:1.15rem}
+.ft-tools{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin-bottom:1rem}
+.ft-tools input,.ft-tools button,.ft-tools select{font:inherit;font-size:.78rem;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:.4rem .7rem}
+.ft-tools input{flex:1 1 220px;min-width:0;max-width:340px}
+.ft-tools button{cursor:pointer}.ft-tools button:hover{border-color:var(--text-dim)}
+.ft-tools input:focus-visible,.ft-tools button:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+.ft-tools span{font-size:.74rem;color:var(--text-dim)}
+.ft-h{font-size:.9rem;font-weight:500;color:var(--gold);margin:1.4rem 0 .5rem;text-align:left}
+.ft-check{font-size:.78rem;color:var(--text-dim);display:inline-flex;gap:.35rem;align-items:center}
+.ft-nonotes .ft-note{display:none}
+.table-wrap{overflow-x:auto}
+.sec-views{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:center;margin-bottom:1.75rem}
+.sec-views button{font:inherit;font-size:.78rem;padding:.42rem .95rem;border:1px solid var(--border);border-radius:100px;background:transparent;color:var(--text-dim);cursor:pointer}
+.sec-views button:hover{color:var(--text)}
+.sec-views button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold)}
+.sec-views button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="badge">Wimberly Family Genealogy · Camilla, Mitchell County, Georgia</div>
+  <h1>Wimberly Family Tree — Crawford &amp; Francis</h1>
+  <div class="subtitle">Complete pedigree · Descendants of Jane Wimberly from the 2005 reunion book · Moore family · Maternal ancestry with verification</div>
+  <div class="meta">Sources: "The Wimberly Family" 2005 Reunion Book (Alice Jean Kelly, Historian), read from the five scanned parts · Ancestry tree screenshots (Nov 2026) · published genealogies<br>Every chart, family group and table on this page is generated from family-data.json</div>
+</div>
+
+<div class="container">
+
+<div class="legend-grid">
+  <div class="leg-card"><div class="leg-dot d-line"></div><div class="leg-text"><strong>Direct Line</strong><span>Gold names are your ancestors, from Jane Wimberly down to you.</span></div></div>
+  <div class="leg-card"><div class="leg-dot d-green"></div><div class="leg-text"><strong>✓ Relationship Confirmed</strong><span>Named in the 2005 reunion book, or known first-hand by the family.</span></div></div>
+  <div class="leg-card"><div class="leg-dot d-gray"></div><div class="leg-text"><strong>✗ Not Confirmed</strong><span>On the Ancestry tree only, an Ancestry hint, or a documented person whose link to your line is unproven.</span></div></div>
+  <div class="leg-card"><div class="leg-dot d-orange"></div><div class="leg-text"><strong>✗ Conflict</strong><span>Sources contradict the entry or the link it claims.</span></div></div>
+</div>
+<div class="sec-views" role="group" aria-label="Sections to show">
+  <button type="button" data-sec="all" aria-pressed="true">Everything</button>
+  <button type="button" data-sec="chart" aria-pressed="false">Pedigree chart</button>
+  <button type="button" data-sec="groups" aria-pressed="false">Family groups</button>
+  <button type="button" data-sec="tables" aria-pressed="false">Tables</button>
+  <button type="button" data-sec="notes" aria-pressed="false">Research notes</button>
+</div>
+
+<div class="flow-section" id="sec-pedigree">
+  <h3>Complete Pedigree — Every Line on One Chart</h3>
+  <div class="flow-hint">Dates as shown on the Ancestry tree. Select a card for the reason behind its mark. Drag to move around.</div>
+<div class="pg-root" id="pg-root">
+  <div class="pg-bar">
+    <div class="pg-legend">
+      <span><i class="pg-dot ok">✓</i>Relationship confirmed</span>
+      <span><i class="pg-dot no">✗</i>Not confirmed</span>
+      <span><i class="pg-dot bad">✗</i>Conflict with sources</span>
+    </div>
+    <div class="pg-zoom">
+      <button type="button" id="pg-out" aria-label="Zoom out">−</button>
+      <button type="button" id="pg-in" aria-label="Zoom in">+</button>
+      <button type="button" id="pg-fit">Fit all</button>
+      <button type="button" id="pg-home">Go to Clinton IV</button>
+    </div>
+  </div>
+  <div class="pg-filters">
+    <label>Lines<select id="pg-side"><option value="all">Both sides</option><option value="pat">Father's side</option><option value="mat">Mother's side</option></select></label>
+    <label>Show<select id="pg-st"><option value="all">Everyone</option><option value="ok">Confirmed only</option></select></label>
+    <label>Generations<select id="pg-depth"><option value="99">All</option><option value="3">3</option><option value="5">5</option><option value="7">7</option><option value="10">10</option></select></label>
+    <span id="pg-count"></span>
+  </div>
+  <div class="pg-view" id="pg-view"><div class="pg-stage" id="pg-stage"><div class="pg-canvas" id="pg-canvas"></div></div></div>
+  <div class="pg-detail" id="pg-detail" aria-live="polite"></div>
+</div>
+</div>
+
+<div class="flow-section" id="sec-groups">
+  <h3>Family Groups — Descendants and Relatives</h3>
+  <div class="flow-hint" id="data-count"></div>
+  <div class="ft-tools">
+    <select id="ft-branch" aria-label="Branch to show"></select>
+    <input type="search" id="ft-search" placeholder="Find a name" aria-label="Find a name in the family groups">
+    <label class="ft-check"><input type="checkbox" id="ft-notes"> Notes</label>
+    <button type="button" id="ft-open">Expand all</button>
+    <button type="button" id="ft-close">Collapse all</button>
+    <span id="ft-found" aria-live="polite"></span>
+  </div>
+  <div id="ft-body"></div>
+</div>
+
+<div class="flow-section" id="sec-eleven">
+  <h3>The Eleven Children of Crawford &amp; Francis</h3>
+  <div class="table-wrap"><table class="data-table">
+    <thead><tr><th>#</th><th>Name</th><th>Dates</th><th>Spouse</th><th>Children entered</th><th>Notes</th></tr></thead>
+    <tbody id="tbl-eleven"></tbody>
+  </table></div>
+</div>
+
+<div class="bridge" id="sec-verify">
+  <h4>Verification Pass — 10 November 2026</h4>
+  <p>Each maternal and Washington–Dandy branch was checked against published genealogies and record abstracts available online. Result: the New England portion of the tree is real and well documented, but its attachment to your family is not confirmed.</p>
+  <ul>
+    <li><strong style="color:#56d364;">Confirmed (applied):</strong> the Tuttle–Todd line from Simon Tuttle of Ringstead (c. 1560) down to Sybil Todd (1740), and the Talmadge line from Thomas Talmage the immigrant (c. 1580) down to Samuel Talmadge (b. 2 Feb 1760).</li>
+    <li><strong style="color:#56d364;">Corrections applied:</strong> a missing generation — Josiah Talmadge Sr. (bp. 1713) and Phebe Dibble — now sits between John Talmage and Josiah (b. 1736), which resolves the 1723/1736 date conflict. Stephen Todd's father is Samuel Todd; Sybil Todd's mother is Lydia Ives; Joseph Tuttle's mother is Elizabeth; Hannah Munson's parents are Capt. Thomas and Joanna Munson.</li>
+    <li><strong style="color:var(--orange);">Break in the chain:</strong> the documented Samuel Talmadge (b. 1760, son of Josiah and Sybil) married Lucretia Todd, had children Enos Todd, Davis and Lucretia, and died in 1844. The tree's "Dr. Samuel Talmage 1760–1853" with wife Ann Fry Frey and daughter Caroline (b. 1805) does not match him — two different men appear to have been merged. Until Caroline's father is proven, nothing above her belongs to your line.</li>
+    <li><strong style="color:var(--orange);">Contradicted:</strong> the "Elizabeth Bancroft (1590–1660)" hint — the immigrant Thomas Talmage's wife is unnamed in every record. Thomas Osborn and Mary Goatly were a real couple, but their daughter Rebecca is recorded as c. 1642–1704, not the Rebecca born 1658.</li>
+    <li><strong>No source found:</strong> Southcott, Totehyll, Mason, Barnhouse, De Elmham, Bryan and Bohython entries; Lieutenant Miller and Elizabeth Dimon as Experience Miller's parents.</li>
+    <li><strong>Not verifiable online:</strong> Washington, Dandy, Moore, Huntley, Robinson, Lomax, Henry and most Quivers entries (1804–1960). These need census, vital and probate records. One lead: a Coy Quivers in Charles City County, Virginia records.</li>
+  </ul>
+  <p style="margin-top:0.8rem;">Sources consulted:
+    Todd Genealogy abstracts for <a href="https://accessgenealogy.com/?p=3265">Stephen Todd</a>, <a href="https://accessgenealogy.com/?p=3425">Sybil Todd Tallmadge</a> and <a href="https://accessgenealogy.com/?p=3457">Lucretia Todd Tallmadge</a> ·
+    WeRelate pages citing Jacobus, <em>Families of Ancient New Haven</em>: <a href="https://www.werelate.org/wiki/Person:Josiah_Talmadge_%284%29">Josiah Talmadge (1736)</a>, <a href="https://www.werelate.org/wiki/Person:Josiah_Talmadge_%281%29">Josiah Talmadge (1713)</a>, <a href="https://www.werelate.org/wiki/Person:Sybil_Todd_%282%29">Sybil Todd</a>, <a href="https://www.werelate.org/wiki/Family:Samuel_Todd_and_Susanna_Tuttle_%282%29">Samuel Todd &amp; Susanna Tuttle</a>, <a href="https://www.werelate.org/wiki/Person:Richard_Tuttle_(6)">Richard Tuttle</a> ·
+    Pane-Joyce Genealogy: <a href="https://mathcs.clarku.edu/~djoyce/gen/report/rr18/rr18_167.html">Talmadge</a>, <a href="https://mathcs.clarku.edu/~djoyce/gen/report/rr03/rr03_141.html">Osborn</a> ·
+    <a href="https://www.wikitree.com/wiki/Talmage-24">WikiTree: Thomas Talmage</a> ·
+    <a href="https://freepages.rootsweb.com/~brookefamily/genealogy/talmadgethomas.html">Talmadge</a> and <a href="https://freepages.rootsweb.com/~brookefamily/genealogy/tuttlewilliam.html">Tuttle</a> compilations ·
+    <a href="https://sites.rootsweb.com/~villandra/momi/i5536.htm">Simon Tuttle notes</a> ·
+    <a href="https://nutfieldgenealogy.blogspot.com/2013/04/surname-saturday-tuttletootilltuthill.html">Nutfield Genealogy: Tuttle</a> ·
+    <a href="https://charlescity.org/slave/quivers-coy/">Charles City County: Coy Quivers</a>.
+    These are published compilations and abstracts, not the original records — confirm key links against the originals before entering them in Ancestry.</p>
+</div>
+
+<div class="flow-section" id="sec-roster">
+  <h3>Ancestor Roster — Everyone on the Pedigree Chart</h3>
+  <div class="table-wrap"><table class="data-table">
+    <thead><tr><th>Name</th><th>Dates</th><th>Relationship</th><th>Parents</th><th>Status</th><th>Notes</th></tr></thead>
+    <tbody id="tbl-anc"></tbody>
+  </table></div>
+</div>
+
+<div class="bridge" id="sec-flags">
+  <h4>Flags &amp; Corrections Before Finalizing in Ancestry</h4>
+  <p>
+  1. <strong style="color:var(--gold);">Crawford's parents:</strong> the book records Crawford as "eldest son of Jane Wimberly" (father unrecorded). The Ancestry tree's "Wilson Smith + Jane M. Smith" is <em>not supported</em>.<br>
+  2. <strong style="color:var(--gold);">Impossible date:</strong> "Jane M. Smith 1835–1949" (114 years) is a typo on the tree.<br>
+  3. <strong style="color:var(--gold);">"7 children" vs 8 names:</strong> Clinton Sr. &amp; Minnie listed 8 (A–H) but the book says 7. The 8th, "Ethel B. Williams," has an anomalous surname.<br>
+  4. <strong style="color:var(--gold);">OCR-uncertain given names</strong>: "Hurbert" (may be Herbert/Hubert), "Flore" (may be Florence/Flora), "Maple" (may be Mabel).<br>
+  5. <strong style="color:var(--gold);">Two-source date conflict:</strong> Lizzie Wimberly-Neal — March 12, 1891 (family) vs. December 1892 (census).<br>
+  6. <strong style="color:var(--gold);">Maternal surname note:</strong> Ancestry lists "Roberta Huntley-M…" (1940–2012) as the daughter of Marguerite Quivers, with no father on the tree. Her mother being a Quivers, "Huntley" most likely comes from that unrecorded father (or a step-parent) — identify him to close the gap. Ancestry spells her husband "Philip Moore"; the family spelling "Phillip" is kept here.<br>
+  7. <strong style="color:var(--gold);">Source tier:</strong> a ✓ means the relationship to you is confirmed by the reunion book or family knowledge. A ✗ means it is not confirmed: the entry is on the Ancestry tree only, is an Ancestry hint, conflicts with sources, or is a documented person whose link to your line is unproven. None of the 1804–1960 entries on the maternal side (Washington, Dandy, Quivers, Henry, Robinson, Lomax) could be checked online.<br>
+  8. <strong style="color:var(--gold);">Two unproven links carry the whole colonial pedigree:</strong> (a) James Robinson (b. 1846) as son of William Robinson &amp; Caroline Talmadge, and (b) Caroline (b. 1805) as daughter of Samuel Talmadge. Link (b) now has evidence against it: the Samuel born 2 Feb 1760 to Josiah &amp; Sybil married Lucretia Todd, had Enos Todd (1784), Davis (1787) and Lucretia (1789), and died in 1844 — not 1853, no wife Ann Fry Frey, no daughter Caroline recorded. Find Caroline's death record or a probate naming her father before keeping this branch.<br>
+  9. <strong style="color:var(--gold);">Date conflict resolved:</strong> Experience Miller (d. 1723) was the grandmother, not the mother, of Josiah Talmadge (b. 1736). His parents were Josiah Talmadge Sr. (bp. 1713) and Phebe Dibble (m. 1735). Still unlikely: Grace S Barnhouse (14 at her listed daughter's birth), Jane Bohython (53), Catherine Dandy and Lillie P Lomax (about 15 each).<br>
+  10. <strong style="color:var(--gold);">Bancroft and Osborn hints:</strong> reject the "Elizabeth Bancroft (1590–1660)" hint — the immigrant Thomas Talmage's wife is unnamed in every record. His son's wife was an Elizabeth (named in the 1691 will); "Bancroft" is unproven. Thomas Osborn &amp; Mary Goatly married in 1622 at Ashford, Kent, but their Rebecca (c. 1642–1704) is not the Rebecca born 1658.<br>
+  11. <strong style="color:var(--gold);">Stephen Todd's parents — confirmed:</strong> father Samuel Todd, who married Susanna Tuttle on 16 Sep 1698 at New Haven. Jacobus treats Susanna as probably the daughter of Joseph &amp; Hannah (Munson) Tuttle; the marriage record spells her surname "Tolle". Stephen married Lydia Ives in 1726, and she is Sybil's mother.<br>
+  12. <strong style="color:var(--gold);">Titled 16th-century ancestors — not supported:</strong> no source was found for Southcott, Totehyll, Mason, Barnhouse, De Elmham or Bryan. The documented Tuttle line stops at Simon Tuttle of Ringstead (c. 1560–1630), his wife Isabel Wells (daughter of a John Wells) and his father Richard.<br>
+  13. <strong style="color:var(--gold);">Names cut off in the app:</strong> Coy Quivers m…, Lydia L L A Henry Qui…, Roberta Huntley-M…, Experience Miller (Tal…), Thomas Talmage.…, Jane Bohython i…, Simon S Tuttle / To…, Richard F H Tuttle / To…, Lady E L L Southcutt…, Thomas F Totehyll /T…, Sir T K B F Southcott,…, Viscount T De Elmha…, Elisabeth Bryan Ha…. Spelling also varies: Talmadge / Talmage / Tallmadge, Quivers / Quivus, Southcott / Southcutt, Wells / Welles, Seymour (book) / Seymore (Ancestry).<br>
+  14. <strong style="color:var(--gold);">Branches not captured:</strong> Ancestry shows more ancestors (collapsed) above Francis Seymore, Rueben Dandy, Margaret Dandy, Coy Quivers, Eleanor E Preston, William Robinson, Thomas Talmadge (b. 1580), Jane Bohython, Viscount T De Elmha… and Elisabeth Bryan Ha…, and descendants below Clinton Wimberly IV.<br>
+  15. <strong style="color:var(--gold);">New dates from Ancestry:</strong> Jim Wimberly d. 1953; Francis d. 1925 (inside the book's 1918–1929 range); Gladys and Nora shown as deceased; Lonnie Washington 1885–1947; Roberta Huntley 1940–2012.<br>
+  16. <strong style="color:var(--gold);">Quivers lead:</strong> Charles City County, Virginia records describe a Coy Quivers — son of Jonathan &amp; Sarah Quivers and brother of Emanuel — who was enslaved until he bought his freedom in 1848 from Abby Nelson of Clarke County for $560, then moved to Pennsylvania and outlived three wives. The name is rare, but no dates or children are given, so the match to Coy Quivers (1804–1899) is unproven. The same records list Jonathan as a blacksmith and a member of Charles City Baptist Church (roll begun c. 1820), with five children: Sarah "Polly" Kemp, Lucy, Eleanor, Coy and Emanuel. Emanuel (1814–1879) was born at Berkeley Plantation and later settled in California. The Quivers Family Notes typescript at the county's Bowman Center is the next source to check.<br>
+  18. <strong style="color:var(--gold);">Second search, 10 Nov 2026 — 1804–1960 families:</strong> a further search of open census, cemetery, obituary and family-tree indexes found no record naming any Washington, Dandy, Moore, Huntley, Robinson, Lomax, Henry or later Quivers entry on this page. Those records sit behind FamilySearch and Ancestry sign-ins. Status for all of them remains "not verified" — that means not yet checked against records, not disproven.<br>
+  19. <strong style="color:var(--gold);">Siblings and cousins (family-provided, 10 Nov 2026):</strong> Devon Love and Shawn Sylvester are entered as children of Clinton III &amp; Diana — correct this if either has a different parent. Aunt Net is taken to be Lynette Moore. Her children Deryl, Tasha, Jelah and Devin carry the Wimberly surname, but their father has not been named — if he is one of the Wimberlys already on this page, they are related to you on both sides. Still needed: that father's name, Herald's surname, Quan's surname and full name, and birth years for all nine.<br>
+  17. <strong style="color:var(--gold);">To do in Ancestry:</strong> add Josiah Talmadge Sr. &amp; Phebe Dibble as parents of Josiah (b. 1736) and move John Talmage &amp; Experience Miller up one generation; add Samuel Todd as Stephen Todd's father and Lydia Ives as Sybil's mother; add Elizabeth as Joseph Tuttle's mother and the Munsons as Hannah's parents; ignore the Elizabeth Bancroft, Osborne/Goatley, Southcott, Totehyll, Mason and Barnhouse hints; and resolve the Samuel Talmadge / Caroline question before relying on any of it.<br>
+  20. <strong style="color:var(--gold);">Reunion book re-read (14 Nov 2026):</strong> all five scanned parts were read by OCR and the paternal relatives entered from them. Corrections against the earlier reading: Mary is printed as Jim's third wife ("Jim married a third time … the former Mary (Mistress) Williams"), so "Mistress" reads as a nickname, not a status. Clinton Jr. also married Estella Campbell (no children). Peter had a daughter Beulah apart from his six children with Suzie. Turner had an older daughter, Addie J. Lillie B. had two children, R.J. and Essie Mae.<br>
+  21. <strong style="color:var(--gold);">Date and name conflicts inside the book:</strong> Sally's birth is March 1876 in her chapter and June 1876 on the contents page. Turner's birth year is misprinted as 1837 on the contents page (1887 in his chapter). James Sr.'s wife is printed as both Hattie J. Kittle and Mattie J. Kittle. Willie "Big Boy" Wimberly is listed third among General Lee's children in one place and called the 2nd child in another. The surname in "Minnie Lee Wilson-Butler-Huntley" is hard to read and is worth checking against the Huntley name on your maternal side.<br>
+  22. <strong style="color:var(--gold);">How far the book entries go:</strong> each of the eleven children and General Lee is entered down to their grandchildren, and Clinton Sr.'s branch is entered in full. The book lists further generations for most branches; those are not entered yet. Spellings of descendants come from OCR and were not checked one by one against the page images.<br>
+  23. <strong style="color:var(--gold);">Gaps in the scans:</strong> the last 11 pages of Part 2 are unreadable because the file is damaged at its end; they repeat pages that are readable in Part 3. In Peter's chapter, the children of Sylvester and the first twelve children of Joseph (lettered A to L) are not on any scanned page. Elder Ralph Wimberly's family page was not found.
+  </p>
+</div>
+
+</div>
+
+<div class="footer">
+  <p><span>Wimberly Family Tree</span> — Crawford &amp; Francis Seymour Wimberly · Camilla, Mitchell County, Georgia</p>
+  <p>Paternal relatives from "The Wimberly Family" 2005 Reunion Book (Alice Jean Kelly, Historian) · Maternal ancestry from the Ancestry tree, checked against published genealogies</p>
+  <p style="margin-top:0.4rem;">Generated from family-data.json by build.py · no external libraries</p>
+</div>
+
+<script>
+(function(){
+var DATA=/*PG-DATA-START*/{"root": "c4", "people": [{"id": "c4", "name": "Clinton Wimberly IV", "dates": "1976–Living", "sex": "M", "father": "c3", "mother": "diana", "status": "ok", "note": "Subject of this tree. Born 19 June 1976 in Albany, New York.", "spouse": "Syrina Marie Sturdivant (b. 1980)"}, {"id": "c3", "name": "Clinton Wimberly III", "dates": "1960–Living", "sex": "M", "father": "cjr", "mother": "gladys", "status": "ok", "note": "Parent."}, {"id": "diana", "name": "Diana Moore", "dates": "1960–Living", "sex": "F", "father": "philip", "mother": "roberta", "status": "ok", "note": "Parent."}, {"id": "cjr", "name": "Clinton Wimberly Jr.", "dates": "1936–2013", "sex": "M", "father": "csr", "mother": "minnie", "status": "ok", "note": "Named in the 2005 reunion book as child G of Clinton Sr. and Minnie. Four children with Gladys; none with Estella Campbell or Annie Le Williams.", "spouse": "Gladys Merriweather; Estella Campbell; Annie Le Williams"}, {"id": "gladys", "name": "Gladys M Wimberly", "dates": "1939–Deceased", "sex": "F", "father": null, "mother": null, "status": "ok", "note": "Reunion book: Gladys Merriweather."}, {"id": "csr", "name": "Clinton Wimberly Sr.", "dates": "1901–1972", "sex": "M", "father": "jim", "mother": "nora", "status": "ok", "note": "Named in the 2005 reunion book. First child of Jim and Nora. The book says seven children but lists eight (A to H)."}, {"id": "minnie", "name": "Minnie Washington", "dates": "1906–1978", "sex": "F", "father": "lonnie", "mother": "catherine", "status": "ok", "note": "Named in the 2005 reunion book."}, {"id": "jim", "name": "Jim Wimberly", "dates": "1878–1953", "sex": "M", "father": "crawford", "mother": "francis", "status": "ok", "note": "Named in the 2005 reunion book as James \"Jim\" Wimberly, born June 1878 in Mitchell County, Georgia. Married four times. Death year from the Ancestry tree.", "order": 2}, {"id": "nora", "name": "Nora Bowens", "dates": "Deceased", "sex": "F", "father": null, "mother": null, "status": "ok", "note": "Named in the 2005 reunion book. First wife of Jim."}, {"id": "crawford", "name": "Crawford C Wimberly", "dates": "1852–Deceased", "sex": "M", "father": "wilson", "mother": "jane", "status": "ok", "note": "Named in the 2005 reunion book. Born April 1852, Mitchell County, Georgia. Eldest son of Jane Wimberly. Farmed in eastern Mitchell County (Greenough community). Buried at Bethel Baptist Church Cemetery."}, {"id": "francis", "name": "Francis Seymore", "dates": "1855–1925", "sex": "F", "father": null, "mother": null, "status": "ok", "note": "Reunion book: Francis Seymour, born May 1855, married Crawford in 1875, eleven children. Her ancestors are collapsed on Ancestry and were not captured."}, {"id": "wilson", "name": "Wilson Smith", "dates": "1821–Deceased", "sex": "M", "father": null, "mother": null, "status": "bad", "note": "The reunion book records Crawford's father as unrecorded. Nothing supports this entry."}, {"id": "jane", "name": "Jane M. Smith", "dates": "1835–1949", "sex": "F", "father": null, "mother": null, "status": "ok", "note": "The reunion book names Crawford's mother as Jane Wimberly. The surname Smith and the dates 1835–1949 on the tree are doubtful."}, {"id": "lonnie", "name": "Lonnie Washington", "dates": "1885–1947", "sex": "M", "father": null, "mother": null, "status": "no", "note": "On the Ancestry tree only. No record checked yet."}, {"id": "catherine", "name": "Catherine Dandy", "dates": "1891–Deceased", "sex": "F", "father": "rueben", "mother": "margaret", "status": "no", "note": "On the Ancestry tree only. No record checked yet. She would be about 15 at Minnie's birth."}, {"id": "rueben", "name": "Rueben Dandy", "dates": "1862–Deceased", "sex": "M", "father": null, "mother": null, "status": "no", "note": "On the Ancestry tree only. No record checked yet."}, {"id": "margaret", "name": "Margaret Dandy", "dates": "1868–1924", "sex": "F", "father": null, "mother": null, "status": "no", "note": "On the Ancestry tree only. No record checked yet."}, {"id": "philip", "name": "Philip Moore", "dates": "Deceased", "sex": "M", "father": null, "mother": null, "status": "ok", "note": "Family knowledge: Phillip Moore Sr. His parents are not on the tree."}, {"id": "roberta", "name": "Roberta Huntley-M…", "dates": "1940–2012", "sex": "F", "father": null, "mother": "marguerite", "status": "ok", "note": "Family knowledge. Dates come from the Ancestry tree. Her father is not on the tree."}, {"id": "marguerite", "name": "Marguerite Quivers", "dates": "1922–Deceased", "sex": "F", "father": "rmq", "mother": "irma", "status": "no", "note": "On the Ancestry tree only. No record checked yet."}, {"id": "rmq", "name": "Robert Mc Quivers", "dates": "1898–1943", "sex": "M", "father": "rgq", "mother": "lydia", "status": "no", "note": "On the Ancestry tree only. No record checked yet."}, {"id": "irma", "name": "Irma Minor Robinson", "dates": "1897–Deceased", "sex": "F", "father": "charles", "mother": "lillie", "status": "no", "note": "On the Ancestry tree only. No record checked yet."}, {"id": "rgq", "name": "Robert G Quivers", "dates": "1856–1912", "sex": "M", "father": "george", "mother": "matilda", "status": "no", "note": "On the Ancestry tree only. No record checked yet."}, {"id": "lydia", "name": "Lydia L L A Henry Qui…", "dates": "1861–1943", "sex": "F", "father": "levin", "mother": "annie", "status": "no", "note": "On the Ancestry tree only. No record checked yet."}, {"id": "george", "name": "George E Quivers", "dates": "1825–Deceased", "sex": "M", "father": "coy", "mother": "eleanor", "status": "no", "note": "On the Ancestry tree only. No record checked yet."}, {"id": "matilda", "name": "Matilda Quivus", "dates": "1836–1886", "sex": "F", "father": null, "mother": null, "status": "no", "note": "On the Ancestry tree only. No record checked yet."}, {"id": "coy", "name": "Coy Quivers m…", "dates": "1804–1899", "sex": "M", "father": null, "mother": null, "status": "no", "note": "On the Ancestry tree only. No record checked yet. Lead: Charles City County, Virginia records describe a Coy Quivers, son of Jonathan and Sarah Quivers. Same man unproven."}, {"id": "eleanor", "name": "Eleanor E Preston", "dates": "1805–Deceased", "sex": "F", "father": null, "mother": null, "status": "no", "note": "On the Ancestry tree only. No record checked yet."}, {"id": "levin", "name": "Levin Henry", "dates": "1823–1914", "sex": "M", "father": null, "mother": null, "status": "no", "note": "On the Ancestry tree only. No record checked yet."}, {"id": "annie", "name": "Annie Henry", "dates": "1820–Deceased", "sex": "F", "father": null, "mother": null, "status": "no", "note": "On the Ancestry tree only. No record checked yet."}, {"id": "charles", "name": "Charles W Robinson Sr", "dates": "1872–Deceased", "sex": "M", "father": "james", "mother": "virginia", "status": "no", "note": "On the Ancestry tree only. No record checked yet."}, {"id": "lillie", "name": "Lillie P Lomax", "dates": "1882–1928", "sex": "F", "father": "rlomax", "mother": null, "status": "no", "note": "On the Ancestry tree only. No record checked yet. She would be about 15 at Irma's birth."}, {"id": "james", "name": "James Robinson", "dates": "1846–Deceased", "sex": "M", "father": "wrob", "mother": "caroline", "status": "no", "note": "On the Ancestry tree only. No record checked yet. The whole colonial pedigree depends on his parentage."}, {"id": "virginia", "name": "Virginia Robinson", "dates": "1849–Deceased", "sex": "F", "father": null, "mother": null, "status": "no", "note": "On the Ancestry tree only. No record checked yet."}, {"id": "rlomax", "name": "Richard Lomax", "dates": "1851–Deceased", "sex": "M", "father": null, "mother": null, "status": "no", "note": "On the Ancestry tree only. No record checked yet."}, {"id": "wrob", "name": "William Robinson", "dates": "1807–1870", "sex": "M", "father": null, "mother": null, "status": "no", "note": "On the Ancestry tree only. No record checked yet."}, {"id": "caroline", "name": "Caroline Talmadge", "dates": "1805–1870", "sex": "F", "father": "drsam", "mother": "annfry", "status": "bad", "note": "Not among the recorded children of the documented Samuel Talmadge (b. 1760). Her parentage is unproven."}, {"id": "drsam", "name": "Dr. Samuel Talmage", "dates": "1760–1853", "sex": "M", "father": "josiah", "mother": "sybil", "status": "bad", "note": "The documented Samuel Talmadge (b. 2 Feb 1760) married Lucretia Todd and died in 1844. He does not match this entry."}, {"id": "annfry", "name": "Ann Fry Frey", "dates": "1780–1844", "sex": "F", "father": null, "mother": null, "status": "no", "note": "On the Ancestry tree only. No record checked yet."}, {"id": "josiah", "name": "Josiah Talmadge", "dates": "1736–1784", "sex": "M", "father": "josiahsr", "mother": "phebe", "status": "doc", "note": "Documented in published genealogies. Becomes your ancestor only if the Caroline Talmadge link is proven."}, {"id": "sybil", "name": "Sybil Todd", "dates": "1740–1778", "sex": "F", "father": "stephen", "mother": "lydiaives", "status": "doc", "note": "Documented in published genealogies. Becomes your ancestor only if the Caroline Talmadge link is proven."}, {"id": "josiahsr", "name": "Josiah Talmadge Sr.", "dates": "bp. 1713–1792", "sex": "M", "father": "john", "mother": "experience", "status": "doc", "note": "Documented in published genealogies. Becomes your ancestor only if the Caroline Talmadge link is proven. Missing from the Ancestry tree; added from research.", "added": true}, {"id": "phebe", "name": "Phebe Dibble", "dates": "m. 1735", "sex": "F", "father": null, "mother": null, "status": "doc", "note": "Documented in published genealogies. Becomes your ancestor only if the Caroline Talmadge link is proven. Missing from the Ancestry tree; added from research.", "added": true}, {"id": "john", "name": "John Talmadge", "dates": "1678–1764", "sex": "M", "father": "nathaniel", "mother": "rebecca", "status": "doc", "note": "Documented in published genealogies. Becomes your ancestor only if the Caroline Talmadge link is proven."}, {"id": "experience", "name": "Experience Miller (Tal…", "dates": "1685–1723", "sex": "F", "father": "ltmiller", "mother": "dimon", "status": "doc", "note": "Documented in published genealogies. Becomes your ancestor only if the Caroline Talmadge link is proven. The tree showed her as Josiah's mother; she is his grandmother."}, {"id": "nathaniel", "name": "Nathaniel Talmadge", "dates": "1643–1716", "sex": "M", "father": "thomasjr", "mother": "ebancroft", "status": "doc", "note": "Documented in published genealogies. Becomes your ancestor only if the Caroline Talmadge link is proven."}, {"id": "rebecca", "name": "Rebecca Osborn", "dates": "1658–1743", "sex": "F", "father": "osborne", "mother": "goatley", "status": "no", "note": "Appears as Nathaniel's wife in compiled trees only."}, {"id": "ltmiller", "name": "Lieutenant Miller", "dates": "1654–1723", "sex": "M", "father": null, "mother": null, "status": "hint", "note": "Ancestry hint, never accepted into the tree. No source found."}, {"id": "dimon", "name": "Elizabeth Dimon", "dates": "1658–1737", "sex": "F", "father": null, "mother": null, "status": "hint", "note": "Ancestry hint, never accepted into the tree. No source found."}, {"id": "thomasjr", "name": "Thomas Talmage.…", "dates": "1617–1691", "sex": "M", "father": "thomas", "mother": "ebancroft1590", "status": "doc", "note": "Documented in published genealogies. Becomes your ancestor only if the Caroline Talmadge link is proven."}, {"id": "ebancroft", "name": "Elizabeth T Bancroft", "dates": "1620–1704", "sex": "F", "father": null, "mother": "bohython", "status": "no", "note": "A wife named Elizabeth is confirmed by the 1691 will. The surname Bancroft is unproven."}, {"id": "osborne", "name": "Thomas I Osborne-", "dates": "1594–1677", "sex": "M", "father": null, "mother": null, "status": "bad", "note": "Ancestry hint. A real man, but his recorded daughter Rebecca (c. 1642–1704) is not this Rebecca."}, {"id": "goatley", "name": "Mary J Goatley", "dates": "1601–1687", "sex": "F", "father": null, "mother": null, "status": "bad", "note": "Ancestry hint. Her recorded daughter Rebecca (c. 1642–1704) is not this Rebecca."}, {"id": "thomas", "name": "Thomas Talmadge", "dates": "1580–1653", "sex": "M", "father": null, "mother": null, "status": "doc", "note": "Documented in published genealogies. Becomes your ancestor only if the Caroline Talmadge link is proven. The immigrant."}, {"id": "ebancroft1590", "name": "Elizabeth Bancroft", "dates": "1590–1660", "sex": "F", "father": null, "mother": null, "status": "bad", "note": "Ancestry hint. The immigrant's wife is unnamed in the records."}, {"id": "bohython", "name": "Jane Bohython i…", "dates": "1567–1644", "sex": "F", "father": null, "mother": null, "status": "no", "note": "On the Ancestry tree only. No source found."}, {"id": "stephen", "name": "Stephen Todd", "dates": "1702–1772", "sex": "M", "father": "samtodd", "mother": "susanna", "status": "doc", "note": "Documented in published genealogies. Becomes your ancestor only if the Caroline Talmadge link is proven."}, {"id": "lydiaives", "name": "Lydia Ives", "dates": "b. 1709", "sex": "F", "father": null, "mother": null, "status": "doc", "note": "Documented in published genealogies. Becomes your ancestor only if the Caroline Talmadge link is proven. Missing from the Ancestry tree; added from research.", "added": true}, {"id": "samtodd", "name": "Samuel Todd", "dates": "m. 1698", "sex": "M", "father": null, "mother": null, "status": "doc", "note": "Documented in published genealogies. Becomes your ancestor only if the Caroline Talmadge link is proven. Missing from the Ancestry tree; added from research.", "added": true}, {"id": "susanna", "name": "Susanna Todd (Tuttle)", "dates": "1680–1737", "sex": "F", "father": "joseph", "mother": "hannah", "status": "no", "note": "Published genealogy treats her as probably the daughter of Joseph and Hannah Tuttle."}, {"id": "joseph", "name": "Joseph Tuttle", "dates": "1640–1690", "sex": "M", "father": "william", "mother": "elizw", "status": "doc", "note": "Documented in published genealogies. Becomes your ancestor only if the Caroline Talmadge link is proven."}, {"id": "hannah", "name": "Hannah Munson", "dates": "1648–1695", "sex": "F", "father": "tmunson", "mother": "joanna", "status": "doc", "note": "Documented in published genealogies. Becomes your ancestor only if the Caroline Talmadge link is proven."}, {"id": "william", "name": "William P P Tuttle", "dates": "1607–1673", "sex": "M", "father": "simon", "mother": "isabel", "status": "doc", "note": "Documented in published genealogies. Becomes your ancestor only if the Caroline Talmadge link is proven. Sailed on the Planter, 1635."}, {"id": "elizw", "name": "Elizabeth", "dates": "b. c. 1612", "sex": "F", "father": null, "mother": null, "status": "doc", "note": "Documented in published genealogies. Becomes your ancestor only if the Caroline Talmadge link is proven. Wife of William Tuttle; maiden name unproven. Added from research.", "added": true}, {"id": "tmunson", "name": "Capt. Thomas Munson", "dates": "—", "sex": "M", "father": null, "mother": null, "status": "doc", "note": "Documented in published genealogies. Becomes your ancestor only if the Caroline Talmadge link is proven. Added from research.", "added": true}, {"id": "joanna", "name": "Joanna Munson", "dates": "—", "sex": "F", "father": null, "mother": null, "status": "doc", "note": "Documented in published genealogies. Becomes your ancestor only if the Caroline Talmadge link is proven. Added from research.", "added": true}, {"id": "simon", "name": "Simon S Tuttle / To…", "dates": "1560–1630", "sex": "M", "father": "richard", "mother": "lady", "status": "doc", "note": "Documented in published genealogies. Becomes your ancestor only if the Caroline Talmadge link is proven. Of Ringstead, Northamptonshire."}, {"id": "isabel", "name": "Isabel E Wells/Tuttle", "dates": "1565–1635", "sex": "F", "father": "welles", "mother": null, "status": "doc", "note": "Documented in published genealogies. Becomes your ancestor only if the Caroline Talmadge link is proven."}, {"id": "richard", "name": "Richard F H Tuttle / To…", "dates": "1530–1589", "sex": "M", "father": "totehyll", "mother": "mason", "status": "no", "note": "Named as Simon's father in compiled accounts only."}, {"id": "lady", "name": "Lady E L L Southcutt…", "dates": "1537–1589", "sex": "F", "father": "southcott", "mother": "barnhouse", "status": "no", "note": "Sources give Richard's wife only as Elizabeth. Southcott is not supported."}, {"id": "welles", "name": "Robert John Welles", "dates": "1537–1617", "sex": "M", "father": "viscount", "mother": "bryan", "status": "no", "note": "Sources name Isabel's father as John Wells. These dates and parents are not supported."}, {"id": "totehyll", "name": "Thomas F Totehyll /T…", "dates": "1506–1554", "sex": "M", "father": null, "mother": null, "status": "hint", "note": "Ancestry hint, never accepted into the tree. No source found."}, {"id": "mason", "name": "Elizabeth Mason", "dates": "1510–1590", "sex": "F", "father": null, "mother": null, "status": "hint", "note": "Ancestry hint, never accepted into the tree. No source found."}, {"id": "southcott", "name": "Sir T K B F Southcott,…", "dates": "1512–1600", "sex": "M", "father": null, "mother": null, "status": "hint", "note": "Ancestry hint, never accepted into the tree. No source found."}, {"id": "barnhouse", "name": "Grace S Barnhouse", "dates": "1523–1547", "sex": "F", "father": null, "mother": null, "status": "hint", "note": "Ancestry hint, never accepted into the tree. No source found. She would be 14 at her listed daughter's birth."}, {"id": "viscount", "name": "Viscount T De Elmha…", "dates": "1512–1558", "sex": "M", "father": null, "mother": null, "status": "no", "note": "On the Ancestry tree only. No source found."}, {"id": "bryan", "name": "Elisabeth Bryan Ha…", "dates": "1516–1553", "sex": "F", "father": null, "mother": null, "status": "no", "note": "On the Ancestry tree only. No source found."}, {"id": "genlee", "name": "General Lee Wimberly", "dates": "d. late 1949 or early 1950", "sex": "M", "parents": ["jane"], "spouse": "Mandy", "status": "ok", "note": "Second son of Jane Wimberly and brother of Crawford. Not found in the 1900 Mitchell County census; lived in Preston at one time.", "src": "Reunion book, General Lee chapter"}, {"id": "clarence", "name": "Clarence Wimberly Sr.", "dates": "1900–1967", "sex": "M", "parents": ["genlee"], "spouse": "Ruth (1905–1977)", "status": "ok", "note": "First child. Six children and an adopted daughter.", "src": "Reunion book, General Lee chapter"}, {"id": "clarence-2", "name": "Clarence Wimberly Jr.", "sex": "M", "parents": ["clarence"], "status": "ok", "note": "Father of six: Clarence III, Bobby, Mary, Patsy, Eddie, Phyllis.", "src": "Reunion book, General Lee chapter"}, {"id": "gentle", "name": "Gentle \"J.C.\" Wimberly", "sex": "M", "parents": ["clarence"], "status": "ok", "note": "Father of six: Jerry, Beth, Crystal, Ce'more, Jerry Jr., Thomas.", "src": "Reunion book, General Lee chapter"}, {"id": "annie-ruth-huff", "name": "Annie Ruth Wimberly-Huff", "sex": "F", "parents": ["clarence"], "spouse": "Jack Huff", "status": "ok", "note": "Seven children.", "src": "Reunion book, General Lee chapter"}, {"id": "annie-marie-jones", "name": "Annie Marie Wimberly-Jones", "sex": "F", "parents": ["clarence"], "spouse": "Herman Jones", "status": "ok", "note": "Eight children.", "src": "Reunion book, General Lee chapter"}, {"id": "gladys-martin-hunter", "name": "Gladys Wimberly Martin-Hunter", "sex": "F", "parents": ["clarence"], "spouse": "Frederick Hunter; Rev. Sylvester Martin", "status": "ok", "note": "Three children.", "src": "Reunion book, General Lee chapter"}, {"id": "willie-james", "name": "Willie James Wimberly", "sex": "M", "parents": ["clarence"], "status": "ok", "note": "Father of three: Aretha, Tammy, Curtis.", "src": "Reunion book, General Lee chapter"}, {"id": "bertha-mae-keaton-solo", "name": "Bertha Mae Keaton Solomon", "sex": "F", "parents": ["clarence"], "status": "ok", "note": "Adopted daughter (also printed as stepchild). Two children.", "rel": "Adopted daughter of Clarence Wimberly Sr.", "step": true, "src": "Reunion book, General Lee chapter"}, {"id": "willie", "name": "Willie \"Big Boy\" Wimberly", "dates": "deceased", "sex": "M", "parents": ["genlee"], "status": "ok", "note": "No family history recorded. Listed third in one place and called the 2nd child in another.", "src": "Reunion book, General Lee chapter"}, {"id": "mattie-barbry", "name": "Mattie Wimberly-Barbry", "dates": "deceased", "sex": "F", "parents": ["genlee"], "spouse": "Oscar Barbry", "status": "ok", "note": "One child.", "src": "Reunion book, General Lee chapter"}, {"id": "naomi-harrell", "name": "Naomi Harrell", "sex": "F", "parents": ["mattie-barbry"], "status": "ok", "note": "Lived in Philadelphia for many years before retiring to Cordele, Georgia.", "src": "Reunion book, General Lee chapter"}, {"id": "eddie-mcclain", "name": "Eddie McClain Sr.", "sex": "M", "parents": ["genlee"], "status": "ok", "note": "Son of Mandy and stepson of General Lee.", "rel": "Stepson of General Lee Wimberly", "step": true, "src": "Reunion book, General Lee chapter"}, {"id": "eddie-mcclain-2", "name": "Eddie McClain Jr.", "sex": "M", "parents": ["eddie-mcclain"], "spouse": "Evette Wilson McClain", "status": "ok", "rel": "Son of General Lee's stepson", "src": "Reunion book, General Lee chapter"}, {"id": "sally-jane-bell", "name": "Sally Jane Wimberly-Bell", "dates": "b. March 1876", "sex": "F", "parents": ["crawford", "francis"], "spouse": "Wade Bell (separated)", "status": "ok", "note": "First child. The contents page gives June 1876. Called \"Aunt Sally\" and \"Babe\". Raised three grandchildren on the family farm.", "order": 1, "src": "Reunion book, chapters I and III to XI"}, {"id": "ernest-bell", "name": "Ernest Bell Sr.", "sex": "M", "parents": ["sally-jane-bell"], "spouse": "Lizzie Ida Edmonds; Lillie Pearl Williams", "status": "ok", "note": "Only child, and the oldest grandchild of Crawford and Francis. Four children with Lizzie Ida, six with Lillie Pearl.", "src": "Reunion book, chapters I and III to XI"}, {"id": "rosie-lee-bell-johnson", "name": "Rosie Lee Bell-Johnson-Marcus", "sex": "F", "parents": ["ernest-bell"], "spouse": "Emmie C. Johnson", "status": "ok", "note": "Mother: Lizzie Ida Edmonds. Four daughters.", "src": "Reunion book, chapters I and III to XI"}, {"id": "lonzie-bell", "name": "Lonzie Bell Sr.", "sex": "M", "parents": ["ernest-bell"], "spouse": "Nora Williams; Felicia Dunlap", "status": "ok", "note": "Mother: Lizzie Ida Edmonds.", "src": "Reunion book, chapters I and III to XI"}, {"id": "henry-turner-bell", "name": "Henry Turner Bell", "sex": "M", "parents": ["ernest-bell"], "status": "ok", "note": "Mother: Lizzie Ida Edmonds. Two children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "lucille-bell-walker", "name": "Lucille Bell-Walker", "dates": "deceased", "sex": "F", "parents": ["ernest-bell"], "status": "ok", "note": "Mother: Lizzie Ida Edmonds. No family history recorded.", "src": "Reunion book, chapters I and III to XI"}, {"id": "mary-alice-bell-brimbe", "name": "Mary Alice Bell-Brimberry-Bonaparte", "sex": "F", "parents": ["ernest-bell"], "spouse": "Willie D. Bonaparte", "status": "ok", "note": "Mother: Lillie Pearl Williams. Five children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "eddie-j-bell", "name": "Eddie J. Bell", "dates": "deceased", "sex": "M", "parents": ["ernest-bell"], "spouse": "Earnestine Silas", "status": "ok", "note": "Mother: Lillie Pearl Williams. Two children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "linda-l-bell-amos", "name": "Linda L. Bell-Amos", "sex": "F", "parents": ["ernest-bell"], "spouse": "Charlie Amos Jr.", "status": "ok", "note": "Mother: Lillie Pearl Williams. Four children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "earnest-bell", "name": "Earnest Bell Jr.", "dates": "deceased", "sex": "M", "parents": ["ernest-bell"], "spouse": "Elizabeth Taylor", "status": "ok", "note": "Mother: Lillie Pearl Williams. Three children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "dorothy-jean-bell-ross", "name": "Dorothy Jean Bell-Ross", "sex": "F", "parents": ["ernest-bell"], "spouse": "Ulysses Ross", "status": "ok", "note": "Mother: Lillie Pearl Williams. Two children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "robert-lewis-bell", "name": "Robert Lewis Bell Sr.", "dates": "deceased", "sex": "M", "parents": ["ernest-bell"], "spouse": "Christine Jackson", "status": "ok", "note": "Mother: Lillie Pearl Williams. Seven children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "peter", "name": "Peter Wimberly", "dates": "b. September 1881", "sex": "M", "parents": ["crawford", "francis"], "spouse": "Suzie Johnson", "status": "ok", "note": "Third child. Minister. Six children with Suzie, and a daughter named Beulah. Family known in the Flint community of Baconton, Georgia.", "order": 3, "src": "Reunion book, chapters I and III to XI"}, {"id": "sylvester", "name": "Sylvester Wimberly", "dates": "deceased", "sex": "M", "parents": ["peter"], "status": "ok", "note": "His children are not on any scanned page.", "src": "Reunion book, chapters I and III to XI"}, {"id": "joseph-peter", "name": "Joseph Wimberly", "dates": "deceased", "sex": "M", "parents": ["peter"], "spouse": "Mary Ruth Dison", "status": "ok", "note": "The scan lists children lettered M to U; A to L are not on any scanned page.", "src": "Reunion book, chapters I and III to XI"}, {"id": "johnny", "name": "Johnny Wimberly", "sex": "M", "parents": ["joseph-peter"], "spouse": "Diane Frances", "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "virginia-lee", "name": "Virginia Wimberly-Lee", "sex": "F", "parents": ["joseph-peter"], "spouse": "Emmitt Lee", "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "williemae-peter", "name": "Willie Mae Wimberly", "sex": "F", "parents": ["joseph-peter"], "status": "ok", "note": "No children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "minnie-bess-king", "name": "Minnie Bess Wimberly-King", "dates": "deceased", "sex": "F", "parents": ["joseph-peter"], "spouse": "Roosevelt King", "status": "ok", "note": "Four children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "mary-esther", "name": "Mary Esther Wimberly", "dates": "deceased", "sex": "F", "parents": ["joseph-peter"], "status": "ok", "note": "No children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "ollie-mae", "name": "Ollie Mae Wimberly", "dates": "deceased", "sex": "F", "parents": ["joseph-peter"], "status": "ok", "note": "No children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "loretta-baker", "name": "Loretta Wimberly-Baker", "sex": "F", "parents": ["joseph-peter"], "status": "ok", "note": "One child.", "src": "Reunion book, chapters I and III to XI"}, {"id": "annie-grace-brown", "name": "Annie Grace Brown", "sex": "F", "parents": ["joseph-peter"], "status": "ok", "note": "Four children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "teresa-burley", "name": "Teresa Burley", "sex": "F", "parents": ["joseph-peter"], "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "douglas", "name": "Douglas Wimberly", "dates": "deceased", "sex": "M", "parents": ["peter"], "spouse": "Essie Mae Blackshear", "status": "ok", "note": "Twelve children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "ruby-williams", "name": "Ruby Williams", "sex": "F", "parents": ["douglas"], "status": "ok", "note": "Nine children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "david-douglas", "name": "David Wimberly", "sex": "M", "parents": ["douglas"], "spouse": "Isabel", "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "jessie", "name": "Jessie Wimberly", "parents": ["douglas"], "spouse": "Sandy", "status": "ok", "note": "Six children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "w-c", "name": "W.C. Wimberly", "dates": "deceased", "sex": "M", "parents": ["douglas"], "spouse": "Catherine Bell", "status": "ok", "note": "Seven children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "r-j", "name": "R.J. Wimberly", "sex": "M", "parents": ["douglas"], "spouse": "Laura Mae Walker", "status": "ok", "note": "Three children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "willie-d", "name": "Willie D. Wimberly", "sex": "M", "parents": ["douglas"], "spouse": "Mary Alice Walden", "status": "ok", "note": "Five children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "thomas-2", "name": "Thomas Wimberly", "sex": "M", "parents": ["douglas"], "spouse": "Chatty Haywood", "status": "ok", "note": "Three children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "jeraldene-robinson", "name": "Jeraldene Wimberly-Robinson", "dates": "deceased", "sex": "F", "parents": ["douglas"], "status": "ok", "note": "No children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "jeanette-williams", "name": "Jeanette Wimberly-Williams", "dates": "deceased", "sex": "F", "parents": ["douglas"], "spouse": "Lonnie C. Williams Sr.", "status": "ok", "note": "Three children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "jamie-douglas", "name": "Jamie Wimberly", "parents": ["douglas"], "spouse": "Von", "status": "ok", "note": "Two children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "jimmie-ray", "name": "Jimmie Ray Wimberly", "dates": "deceased", "sex": "M", "parents": ["douglas"], "spouse": "Sharon Porter", "status": "ok", "note": "Three children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "horace-douglas", "name": "Horace Wimberly", "sex": "M", "parents": ["douglas"], "status": "ok", "note": "Two children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "jamie-peter", "name": "Jamie Wimberly", "dates": "deceased", "parents": ["peter"], "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "beadie", "name": "Beadie Wimberly", "dates": "deceased", "parents": ["peter"], "status": "ok", "note": "No children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "salista", "name": "Salista Wimberly", "dates": "deceased", "parents": ["peter"], "status": "ok", "note": "No children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "beulah", "name": "Beulah Wimberly", "sex": "F", "parents": ["peter"], "status": "ok", "note": "Daughter of Peter, listed apart from the six children with Suzie.", "src": "Reunion book, chapters I and III to XI"}, {"id": "laura-irvin", "name": "Laura Wimberly-Irvin", "dates": "b. December 1882", "sex": "F", "parents": ["crawford", "francis"], "spouse": "Jim Irvin", "status": "ok", "note": "Fourth child. Died young. Her husband later moved to Norfolk, Virginia, and sent for the children in the 1920s. The family lost contact around World War II.", "order": 4, "src": "Reunion book, chapters I and III to XI"}, {"id": "willie-irvin", "name": "Willie Irvin", "dates": "b. March 1896", "sex": "M", "parents": ["laura-irvin"], "spouse": "Ella Neal", "status": "ok", "note": "Lived in Crawford and Francis's household in 1900.", "src": "Reunion book, chapters I and III to XI"}, {"id": "tevious-irvin", "name": "Tevious Irvin", "parents": ["willie-irvin"], "status": "ok", "note": "Mother Ella Neal was Flem Neal's daughter by an earlier marriage.", "src": "Reunion book, chapters I and III to XI"}, {"id": "jesse-irvin", "name": "Jesse Irvin", "dates": "b. April 1899", "sex": "M", "parents": ["laura-irvin"], "status": "ok", "note": "Lived in Crawford and Francis's household in 1900.", "src": "Reunion book, chapters I and III to XI"}, {"id": "may-francis-irvin", "name": "May Francis Irvin", "dates": "deceased", "sex": "F", "parents": ["laura-irvin"], "status": "ok", "note": "Her children were reared by her sister Lula.", "src": "Reunion book, chapters I and III to XI"}, {"id": "lula-irvin", "name": "Lula Irvin", "sex": "F", "parents": ["laura-irvin"], "status": "ok", "note": "Public school teacher.", "src": "Reunion book, chapters I and III to XI"}, {"id": "alice-hillery", "name": "Alice Wimberly-Hillery", "dates": "b. January 1884", "sex": "F", "parents": ["crawford", "francis"], "spouse": "Nelson Hillery (m. 1901)", "status": "ok", "note": "Fifth child. Worked at the peanut mill in Camilla. Nelson left Georgia in 1925 and retired from the Naval Hospital in St. Albans, New York.", "order": 5, "src": "Reunion book, chapters I and III to XI"}, {"id": "solomon-nelson-hillery", "name": "Solomon Nelson Hillery", "dates": "b. 6 September 1910", "sex": "M", "parents": ["alice-hillery"], "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "mamie-jane-hillery-byr", "name": "Mamie Jane Hillery-Byrd", "dates": "b. 21 February 1915", "sex": "F", "parents": ["alice-hillery"], "spouse": "Johnny Byrd", "status": "ok", "note": "Two children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "alice-jean-byrd-kelly", "name": "Alice Jean Byrd Kelly", "sex": "F", "parents": ["mamie-jane-hillery-byr"], "spouse": "John Douglas Kelly", "status": "ok", "note": "Family historian who compiled the 2005 reunion book. Three children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "claudette-marie-byrd-b", "name": "Claudette Marie Byrd Bullard", "sex": "F", "parents": ["mamie-jane-hillery-byr"], "spouse": "James Charles Bullard", "status": "ok", "note": "Two children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "henry-turner", "name": "Henry Turner Wimberly", "dates": "b. June 1887", "sex": "M", "parents": ["crawford", "francis"], "spouse": "Clara Morgan (d. February 1980)", "status": "ok", "note": "Sixth child. Minister on the southwest Georgia and north Florida circuit. Moved to Jacksonville, Florida in the 1930s. The contents page misprints his birth year as 1837.", "order": 6, "src": "Reunion book, chapters I and III to XI"}, {"id": "addie-j", "name": "Addie J. Wimberly", "sex": "F", "parents": ["henry-turner"], "status": "ok", "note": "Older than Lee Anna and Allie Mae. No children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "leanna-masten-nelson-w", "name": "LeAnna Wimberly-Masten-Nelson-Williams", "sex": "F", "parents": ["henry-turner"], "spouse": "Claude Masten; Rev. H.T. Nelson; Eddie Williams", "status": "ok", "note": "Also printed as Lee Anna. One child from each marriage.", "src": "Reunion book, chapters I and III to XI"}, {"id": "herschel-masten", "name": "Herschel Masten Sr.", "sex": "M", "parents": ["leanna-masten-nelson-w"], "spouse": "Dorothy; Marian", "status": "ok", "note": "Father: Claude Masten.", "src": "Reunion book, chapters I and III to XI"}, {"id": "gloria-t-nelson", "name": "Gloria T. Nelson", "sex": "F", "parents": ["leanna-masten-nelson-w"], "spouse": "Rythor Allen", "status": "ok", "note": "Father: Rev. H.T. Nelson. Four children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "mary-helen-williams-sk", "name": "Mary Helen Williams Skinner", "sex": "F", "parents": ["leanna-masten-nelson-w"], "status": "ok", "note": "Father: Eddie Williams.", "src": "Reunion book, chapters I and III to XI"}, {"id": "allie-mae-newton", "name": "Allie Mae Wimberly-Newton", "sex": "F", "parents": ["henry-turner"], "spouse": "Rev. C.M. Newton Sr.", "status": "ok", "note": "Two children; one is named on the scanned page.", "src": "Reunion book, chapters I and III to XI"}, {"id": "c-milton-newton", "name": "Rev. C. Milton Newton", "sex": "M", "parents": ["allie-mae-newton"], "spouse": "Aretha", "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "ida-whitty", "name": "Ida Wimberly-Whitty", "dates": "January 1890–1953", "sex": "F", "parents": ["crawford", "francis"], "spouse": "George Whitty", "status": "ok", "note": "Seventh child. Widowed with four boys. Later joined her sons in New York; brought home for burial in 1953.", "order": 7, "src": "Reunion book, chapters I and III to XI"}, {"id": "theodore-whitty", "name": "Theodore \"Ted\" Whitty", "dates": "deceased", "sex": "M", "parents": ["ida-whitty"], "spouse": "Beatrice; Eva", "status": "ok", "note": "Left for Orlando, then New York.", "src": "Reunion book, chapters I and III to XI"}, {"id": "theodore-whitty-2", "name": "Theodore \"Sonny\" Whitty Jr.", "sex": "M", "parents": ["theodore-whitty"], "status": "ok", "note": "Mother: Beatrice.", "src": "Reunion book, chapters I and III to XI"}, {"id": "ulysees-whitty", "name": "Ulysees Whitty", "dates": "deceased", "sex": "M", "parents": ["ida-whitty"], "spouse": "Florence Odolph", "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "earnestine-jones-simon", "name": "Earnestine Jones Simon", "sex": "F", "parents": ["ulysees-whitty"], "spouse": "Walter Simon", "status": "ok", "note": "Three children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "virginia-jones-william", "name": "Virginia Jones Williams", "dates": "deceased", "sex": "F", "parents": ["ulysees-whitty"], "spouse": "Mack Williams", "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "emory-whitty", "name": "Emory Whitty", "dates": "deceased", "sex": "M", "parents": ["ida-whitty"], "spouse": "Ida Chaulk", "status": "ok", "note": "Six grandchildren and two great-grandchildren.", "src": "Reunion book, chapters I and III to XI"}, {"id": "emory-whitty-2", "name": "Emory Whitty Jr.", "sex": "M", "parents": ["emory-whitty"], "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "margaret-whitty-waters", "name": "Margaret Whitty Waters", "sex": "F", "parents": ["emory-whitty"], "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "sharon-whitty-bullock", "name": "Sharon Whitty Bullock", "sex": "F", "parents": ["emory-whitty"], "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "cleveland-whitty", "name": "Cleveland Whitty", "dates": "deceased", "sex": "M", "parents": ["ida-whitty"], "spouse": "Lizzie", "status": "ok", "note": "No children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "lizzie-neal", "name": "Lizzie Wimberly-Neal", "dates": "12 March 1891–16 February 1983", "sex": "F", "parents": ["crawford", "francis"], "spouse": "Flem Neal", "status": "ok", "note": "Eighth child. The census gives December 1892. Moved to Miami in 1947; died in Camilla, Georgia.", "order": 8, "src": "Reunion book, chapters I and III to XI"}, {"id": "johnny-c-neal", "name": "Johnny C. Neal", "sex": "M", "parents": ["lizzie-neal"], "status": "ok", "note": "Oldest son. Served in World War II.", "src": "Reunion book, chapters I and III to XI"}, {"id": "fleming-neal", "name": "Fleming Neal", "sex": "M", "parents": ["lizzie-neal"], "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "david-neal", "name": "David Neal", "sex": "M", "parents": ["lizzie-neal"], "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "jacob-neal", "name": "Jacob Neal", "sex": "M", "parents": ["lizzie-neal"], "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "melvin-neal", "name": "Melvin Neal", "sex": "M", "parents": ["lizzie-neal"], "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "morris-neal", "name": "Morris Neal Sr.", "sex": "M", "parents": ["lizzie-neal"], "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "morris-neal-2", "name": "Morris Neal Jr.", "sex": "M", "parents": ["morris-neal"], "spouse": "Mary Ann", "status": "ok", "note": "Ten children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "sally-mae-neal-silas", "name": "Sally Mae Neal Silas", "sex": "F", "parents": ["lizzie-neal"], "spouse": "B.J. Silas", "status": "ok", "note": "Ten children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "vera-silas", "name": "Vera Silas", "sex": "F", "parents": ["sally-mae-neal-silas"], "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "freddie-mae-williams", "name": "Freddie Mae Williams", "sex": "F", "parents": ["sally-mae-neal-silas"], "spouse": "Lonnie Williams; Joe Knight", "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "annie-doris-williams", "name": "Annie Doris Williams", "sex": "F", "parents": ["sally-mae-neal-silas"], "spouse": "Boysie Williams", "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "annie-j-king", "name": "Annie J. King", "sex": "F", "parents": ["sally-mae-neal-silas"], "spouse": "Henry King", "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "benjamin-silas", "name": "Benjamin Silas", "sex": "M", "parents": ["sally-mae-neal-silas"], "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "shirley-l-silas-johnso", "name": "Shirley L. Silas-Johnson", "sex": "F", "parents": ["sally-mae-neal-silas"], "spouse": "Robert Johnson", "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "lizzie-p-silas-william", "name": "Lizzie P. Silas Williams", "sex": "F", "parents": ["sally-mae-neal-silas"], "spouse": "Cleveland Williams", "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "lucile-adams", "name": "Lucile Adams", "sex": "F", "parents": ["sally-mae-neal-silas"], "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "kaye-silas-logan", "name": "Kaye Silas-Logan", "sex": "F", "parents": ["sally-mae-neal-silas"], "spouse": "Kenneth Logan", "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "faye-silas", "name": "Faye Silas", "sex": "F", "parents": ["sally-mae-neal-silas"], "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "thelma-neal-rattray", "name": "Thelma Neal Rattray", "sex": "F", "parents": ["lizzie-neal"], "status": "ok", "note": "Seven children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "charles-rattray", "name": "Charles Rattray", "sex": "M", "parents": ["thelma-neal-rattray"], "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "richard-rattray", "name": "Richard Rattray", "sex": "M", "parents": ["thelma-neal-rattray"], "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "calvin-rattray", "name": "Calvin Rattray", "sex": "M", "parents": ["thelma-neal-rattray"], "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "edward-rattray", "name": "Edward Rattray Sr.", "sex": "M", "parents": ["thelma-neal-rattray"], "spouse": "Faye", "status": "ok", "note": "Four children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "beverly-davis", "name": "Beverly Davis", "sex": "F", "parents": ["thelma-neal-rattray"], "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "blanche-robinson", "name": "Blanche Robinson", "sex": "F", "parents": ["thelma-neal-rattray"], "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "sylvia-lawson", "name": "Sylvia Lawson", "sex": "F", "parents": ["thelma-neal-rattray"], "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "ida-neal-marcus", "name": "Ida Neal Marcus", "sex": "F", "parents": ["lizzie-neal"], "spouse": "Earnest Marcus Sr.", "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "earnest-marcus", "name": "Earnest Marcus Jr.", "sex": "M", "parents": ["ida-neal-marcus"], "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "brandon-marcus", "name": "Brandon Marcus", "parents": ["ida-neal-marcus"], "status": "ok", "note": "The scan's numbering is unclear; he may be a grandchild.", "src": "Reunion book, chapters I and III to XI"}, {"id": "frederick-jones", "name": "Frederick Jones", "sex": "M", "parents": ["ida-neal-marcus"], "status": "ok", "note": "The scan's numbering is unclear; he may be a grandchild.", "src": "Reunion book, chapters I and III to XI"}, {"id": "james-c-neal", "name": "James C. \"J.C.\" Neal", "sex": "M", "parents": ["lizzie-neal"], "spouse": "Creola Butler", "status": "ok", "note": "Nine children.", "src": "Reunion book, chapters I and III to XI"}, {"id": "james-neal", "name": "James Neal Jr.", "sex": "M", "parents": ["james-c-neal"], "spouse": "Etherine", "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "mary-e-neal", "name": "Mary E. Neal", "sex": "F", "parents": ["james-c-neal"], "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "floyd-neal", "name": "Floyd Neal", "sex": "M", "parents": ["james-c-neal"], "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "lizzie-garvin", "name": "Lizzie Garvin", "sex": "F", "parents": ["james-c-neal"], "spouse": "Eddie Garvin", "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "samuel-neal", "name": "Samuel Neal", "sex": "M", "parents": ["james-c-neal"], "spouse": "Sharon", "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "priscilla-ford", "name": "Priscilla Ford", "sex": "F", "parents": ["james-c-neal"], "spouse": "Evan Ford", "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "frederick-neal", "name": "Frederick Neal", "sex": "M", "parents": ["james-c-neal"], "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "steven-neal", "name": "Steven Neal", "sex": "M", "parents": ["james-c-neal"], "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "sandra-neal-welch", "name": "Sandra Neal Welch", "sex": "F", "parents": ["james-c-neal"], "spouse": "David Welch", "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "lillie-b-taylor", "name": "Lillie B. Wimberly-Taylor", "dates": "10 December 1894–November 1961", "sex": "F", "parents": ["crawford", "francis"], "spouse": "J.C. \"Jake\" Taylor", "status": "ok", "note": "Ninth child. Two children, both of whom died before their parents. Ran a hair care business in Orlando before returning to Mitchell County. The marriage year is hard to read in the scan.", "order": 9, "src": "Reunion book, chapters I and III to XI"}, {"id": "r-j-taylor", "name": "R.J. Taylor", "dates": "d. 1953", "sex": "M", "parents": ["lillie-b-taylor"], "status": "ok", "note": "Died in Miami, Florida; buried in Camilla, Georgia.", "src": "Reunion book, chapters I and III to XI"}, {"id": "essie-mae-taylor", "name": "Essie Mae Taylor", "dates": "deceased", "sex": "F", "parents": ["lillie-b-taylor"], "status": "ok", "note": "Died of pneumonia as a pre-teen or young teenager.", "src": "Reunion book, chapters I and III to XI"}, {"id": "j-c", "name": "J.C. Wimberly", "dates": "November 1896–1959", "sex": "M", "parents": ["crawford", "francis"], "spouse": "Ethel Mitchell (estranged)", "status": "ok", "note": "Tenth child. Ran the family farm with his sister Sally. His descendants are the Sessions family of Philadelphia.", "order": 10, "src": "Reunion book, chapters I and III to XI"}, {"id": "mattie-maude", "name": "Mattie Maude Wimberly", "sex": "F", "parents": ["j-c"], "status": "ok", "src": "Reunion book, chapters I and III to XI"}, {"id": "edgar-crawford", "name": "Edgar Wimberly", "dates": "birth date unknown", "sex": "M", "parents": ["crawford", "francis"], "spouse": "Indiana Haywood (estranged)", "status": "ok", "note": "Eleventh child. Left for New York as a young man. Died and was buried in Troy, New York.", "order": 11, "src": "Reunion book, chapters I and III to XI"}, {"id": "mamie", "name": "Mamie C. Daniels", "dates": "deceased", "sex": "F", "status": "ok", "note": "Second wife of Jim Wimberly. Died in childbirth.", "rel": "Wife of Jim Wimberly", "src": "Reunion book, chapter II"}, {"id": "marywilliams", "name": "Mary \"Mistress\" Williams", "dates": "deceased", "sex": "F", "status": "ok", "note": "Third wife of Jim Wimberly. The book says he \"married a third time\" to \"the former Mary (Mistress) Williams\".", "rel": "Wife of Jim Wimberly", "src": "Reunion book, chapter II"}, {"id": "narcissus", "name": "Narcissus Walker", "sex": "F", "status": "ok", "note": "Fourth wife of Jim Wimberly. Also printed as Narcissus Walker-Wimberly.", "rel": "Wife of Jim Wimberly", "src": "Reunion book, chapter II"}, {"id": "elizabeth-walker", "name": "Elizabeth Walker", "sex": "F", "parents": ["narcissus"], "status": "ok", "note": "Narcissus's child from before her marriage to Jim.", "rel": "Stepchild of Jim Wimberly", "src": "Reunion book, chapter II"}, {"id": "reatha-m-jones", "name": "Reatha M. Jones", "sex": "F", "parents": ["narcissus"], "status": "ok", "note": "Narcissus's child from before her marriage to Jim.", "rel": "Stepchild of Jim Wimberly", "src": "Reunion book, chapter II"}, {"id": "eva-edmonds", "name": "Eva Wimberly-Edmonds", "sex": "F", "parents": ["jim", "nora"], "spouse": "Prince Edmonds", "status": "ok", "note": "Second child of Jim and Nora.", "src": "Reunion book, chapter II"}, {"id": "willie-albert-edmonds", "name": "Willie Albert Edmonds", "sex": "M", "parents": ["eva-edmonds"], "spouse": "Ruby Smith", "status": "ok", "note": "Eight children.", "src": "Reunion book, chapter II"}, {"id": "mamie-jane-edmonds-she", "name": "Mamie Jane Edmonds-Shelton", "sex": "F", "parents": ["eva-edmonds"], "spouse": "Leroy Shelton", "status": "ok", "note": "Two children.", "src": "Reunion book, chapter II"}, {"id": "jimmy-frank-edmonds", "name": "Jimmy Frank Edmonds", "sex": "M", "parents": ["eva-edmonds"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "artie-c-edmonds", "name": "Artie C. Edmonds", "parents": ["eva-edmonds"], "spouse": "Suzette", "status": "ok", "src": "Reunion book, chapter II"}, {"id": "bernice-edmonds", "name": "Bernice Edmonds", "sex": "F", "parents": ["eva-edmonds"], "spouse": "James Roundtree", "status": "ok", "note": "Three children.", "src": "Reunion book, chapter II"}, {"id": "charlie-mae-edmonds-gi", "name": "Charlie Mae Edmonds-Gilbert", "sex": "F", "parents": ["eva-edmonds"], "spouse": "Fred Gilbert", "status": "ok", "note": "Twelve children.", "src": "Reunion book, chapter II"}, {"id": "betty-wilson", "name": "Betty Wimberly-Wilson", "sex": "F", "parents": ["jim", "nora"], "spouse": "Charlie \"Bubba\" Wilson", "status": "ok", "note": "Third child of Jim and Nora.", "src": "Reunion book, chapter II"}, {"id": "minnie-lee-wilson-butl", "name": "Minnie Lee Wilson-Butler-Huntley", "sex": "F", "parents": ["betty-wilson"], "status": "ok", "note": "Four children. The surname is hard to read in the scan.", "src": "Reunion book, chapter II"}, {"id": "mamie-lee-wilson", "name": "Mamie Lee Wilson", "sex": "F", "parents": ["betty-wilson"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "annie-ruth-hooks", "name": "Annie Ruth Hooks", "sex": "F", "parents": ["betty-wilson"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "james-2", "name": "James Wimberly Sr.", "sex": "M", "parents": ["jim", "mamie"], "spouse": "Hattie J. Kittle", "status": "ok", "note": "Only child of Jim and Mamie. Reared by his grandparents, Mr. and Mrs. Booker. Seven children. His wife is printed as both Hattie and Mattie.", "src": "Reunion book, chapter II"}, {"id": "mary-da-lois-stewart", "name": "Mary Da'Lois Wimberly-Stewart", "sex": "F", "parents": ["james-2"], "spouse": "Wesley Stewart", "status": "ok", "note": "One child.", "src": "Reunion book, chapter II"}, {"id": "james-edward", "name": "James Edward Wimberly", "sex": "M", "parents": ["james-2"], "spouse": "Dottie White; Deloris Brazil", "status": "ok", "note": "One son and one daughter.", "src": "Reunion book, chapter II"}, {"id": "robert-frank", "name": "Robert Frank \"Bobby\" Wimberly", "sex": "M", "parents": ["james-2"], "spouse": "Shirley Murray; Brenda Joyce", "status": "ok", "note": "Six children.", "src": "Reunion book, chapter II"}, {"id": "nathaniel-2", "name": "Nathaniel \"Nat\" Wimberly", "dates": "deceased", "sex": "M", "parents": ["james-2"], "spouse": "Shirley", "status": "ok", "note": "Three children.", "src": "Reunion book, chapter II"}, {"id": "jerry-lee", "name": "Jerry Lee Wimberly", "sex": "M", "parents": ["james-2"], "spouse": "Paulette Sims", "status": "ok", "note": "One daughter, and seven adopted children.", "src": "Reunion book, chapter II"}, {"id": "addie-james-garrick", "name": "Addie James Wimberly-Garrick", "sex": "F", "parents": ["james-2"], "spouse": "Worell Garrick", "status": "ok", "note": "One child.", "src": "Reunion book, chapter II"}, {"id": "rosa-yvonne", "name": "Rosa Yvonne Wimberly", "sex": "F", "parents": ["james-2"], "status": "ok", "note": "Two children.", "src": "Reunion book, chapter II"}, {"id": "ethel-lee-jenkins", "name": "Ethel Lee Wimberly-Jenkins", "dates": "deceased", "sex": "F", "parents": ["jim", "marywilliams"], "spouse": "Charlie Jenkins", "status": "ok", "note": "Five sons.", "src": "Reunion book, chapter II"}, {"id": "r-c-washington", "name": "R.C. Washington", "sex": "M", "parents": ["ethel-lee-jenkins"], "spouse": "Catherine Washington", "status": "ok", "src": "Reunion book, chapter II"}, {"id": "leroy-jenkins", "name": "Leroy Jenkins", "sex": "M", "parents": ["ethel-lee-jenkins"], "spouse": "Lillie", "status": "ok", "src": "Reunion book, chapter II"}, {"id": "corrie-lee-jenkins", "name": "Corrie Lee Jenkins", "sex": "M", "parents": ["ethel-lee-jenkins"], "spouse": "Mary Ann", "status": "ok", "src": "Reunion book, chapter II"}, {"id": "charlie-jenkins", "name": "Charlie Jenkins Jr.", "sex": "M", "parents": ["ethel-lee-jenkins"], "spouse": "Brenda Lammons", "status": "ok", "src": "Reunion book, chapter II"}, {"id": "donnell-jenkins", "name": "Donnell Jenkins", "sex": "M", "parents": ["ethel-lee-jenkins"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "josephine-ellis", "name": "Josephine \"Josie\" Wimberly-Ellis", "sex": "F", "parents": ["jim", "marywilliams"], "spouse": "Lil Baby Ellis", "status": "ok", "note": "Twin of Joseph; born at Christmas. Eight children.", "src": "Reunion book, chapter II"}, {"id": "mary-lee-davis-box", "name": "Mary Lee Davis-Box", "sex": "F", "parents": ["josephine-ellis"], "spouse": "James E. Box", "status": "ok", "note": "Five children.", "src": "Reunion book, chapter II"}, {"id": "charlies-c-ellis", "name": "Charlies C. Ellis Sr.", "sex": "M", "parents": ["josephine-ellis"], "spouse": "Diane Jackson", "status": "ok", "note": "Five children.", "src": "Reunion book, chapter II"}, {"id": "annie-laura-ellis-whit", "name": "Annie Laura Ellis White", "sex": "F", "parents": ["josephine-ellis"], "status": "ok", "note": "Three children.", "src": "Reunion book, chapter II"}, {"id": "sarah-jane-ellis-jones", "name": "Sarah Jane Ellis-Jones", "sex": "F", "parents": ["josephine-ellis"], "spouse": "Sylvester Jones", "status": "ok", "note": "Three children.", "src": "Reunion book, chapter II"}, {"id": "johnny-d-ellis", "name": "Johnny D. Ellis", "sex": "M", "parents": ["josephine-ellis"], "spouse": "Cheryl Thomas", "status": "ok", "note": "Six children.", "src": "Reunion book, chapter II"}, {"id": "bobby-lee-ellis", "name": "Bobby Lee Ellis", "sex": "M", "parents": ["josephine-ellis"], "spouse": "Nadine McCrae", "status": "ok", "src": "Reunion book, chapter II"}, {"id": "vera-mae-ellis", "name": "Vera Mae Ellis", "dates": "deceased", "sex": "F", "parents": ["josephine-ellis"], "status": "ok", "note": "Three children.", "src": "Reunion book, chapter II"}, {"id": "tommy-lee-ellis", "name": "Tommy Lee Ellis", "dates": "deceased", "sex": "M", "parents": ["josephine-ellis"], "status": "ok", "note": "Died in childhood.", "src": "Reunion book, chapter II"}, {"id": "joseph-jim", "name": "Joseph Wimberly Sr.", "dates": "deceased", "sex": "M", "parents": ["jim", "marywilliams"], "spouse": "Cora Lee Florence", "status": "ok", "note": "Twin of Josie; born at Christmas. Nine children.", "src": "Reunion book, chapter II"}, {"id": "alfred", "name": "Alfred \"Jimmy\" Wimberly", "sex": "M", "parents": ["joseph-jim"], "spouse": "Betty Lou (deceased)", "status": "ok", "note": "Three children.", "src": "Reunion book, chapter II"}, {"id": "william-2", "name": "Rev. William \"Billy\" Wimberly", "dates": "deceased", "sex": "M", "parents": ["joseph-jim"], "status": "ok", "note": "Four children.", "src": "Reunion book, chapter II"}, {"id": "joseph-2", "name": "Joseph \"Man\" Wimberly", "dates": "deceased", "sex": "M", "parents": ["joseph-jim"], "spouse": "Bonnie Ruth Graham", "status": "ok", "note": "Eight children.", "src": "Reunion book, chapter II"}, {"id": "cora-glenn-dewberry-ro", "name": "Cora Glenn Wimberly-Dewberry-Royal", "dates": "deceased", "sex": "F", "parents": ["joseph-jim"], "status": "ok", "note": "Four children.", "src": "Reunion book, chapter II"}, {"id": "lonnie-charles", "name": "Lonnie Charles \"L.C.\" Wimberly Sr.", "sex": "M", "parents": ["joseph-jim"], "spouse": "Dorothy Bryant", "status": "ok", "note": "Four children.", "src": "Reunion book, chapter II"}, {"id": "david-joseph", "name": "David Wimberly Sr.", "dates": "deceased", "sex": "M", "parents": ["joseph-jim"], "spouse": "Patricia Hopkins", "status": "ok", "note": "Four children.", "src": "Reunion book, chapter II"}, {"id": "geraldine", "name": "Geraldine Wimberly", "sex": "F", "parents": ["joseph-jim"], "status": "ok", "note": "Two children.", "src": "Reunion book, chapter II"}, {"id": "ruth-mozella", "name": "Ruth Mozella Wimberly", "sex": "F", "parents": ["joseph-jim"], "status": "ok", "note": "One child.", "src": "Reunion book, chapter II"}, {"id": "alfredia-denise-harris", "name": "Alfredia Denise Wimberly-Harris", "sex": "F", "parents": ["joseph-jim"], "spouse": "Jerry Harris", "status": "ok", "note": "Four children.", "src": "Reunion book, chapter II"}, {"id": "ralph", "name": "Elder Ralph Wimberly", "sex": "M", "parents": ["jim", "marywilliams"], "spouse": "Pearlie Mae Vickers", "status": "ok", "note": "His family page was not found in the scans; his wife's name comes from the earlier reading of the book.", "src": "Reunion book, chapter II"}, {"id": "hargrove", "name": "Hargrove Wimberly", "dates": "deceased", "sex": "M", "parents": ["jim", "marywilliams"], "spouse": "Bessie Hicks", "status": "ok", "note": "Nine children.", "src": "Reunion book, chapter II"}, {"id": "willie-hargrove", "name": "Willie Wimberly", "sex": "M", "parents": ["hargrove"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "james-hargrove", "name": "James Wimberly", "sex": "M", "parents": ["hargrove"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "ellis", "name": "Ellis Wimberly", "sex": "M", "parents": ["hargrove"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "arthur-lee", "name": "Arthur Lee Wimberly", "sex": "M", "parents": ["hargrove"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "jimmy", "name": "Jimmy Wimberly", "sex": "M", "parents": ["hargrove"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "andrew-lee", "name": "Andrew Lee Wimberly", "sex": "M", "parents": ["hargrove"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "curtis", "name": "Curtis Wimberly", "sex": "M", "parents": ["hargrove"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "georgia-hines", "name": "Georgia Wimberly-Hines", "sex": "F", "parents": ["hargrove"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "mary-louise-hurst", "name": "Mary Louise Wimberly-Hurst", "sex": "F", "parents": ["hargrove"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "matthew", "name": "Matthew Wimberly", "dates": "deceased", "sex": "M", "parents": ["jim", "marywilliams"], "spouse": "Claretha Williams", "status": "ok", "note": "Eight children.", "src": "Reunion book, chapter II"}, {"id": "martha-lee-hicks", "name": "Martha Lee Wimberly-Hicks", "sex": "F", "parents": ["matthew"], "spouse": "Arthur James Hicks", "status": "ok", "note": "Two children.", "src": "Reunion book, chapter II"}, {"id": "willie-b", "name": "Willie B. Wimberly", "sex": "M", "parents": ["matthew"], "spouse": "Glenda J. Harris", "status": "ok", "note": "Two children.", "src": "Reunion book, chapter II"}, {"id": "george-2", "name": "George Wimberly", "sex": "M", "parents": ["matthew"], "spouse": "Margie Worlds", "status": "ok", "src": "Reunion book, chapter II"}, {"id": "john-wayne", "name": "John Wayne Wimberly", "sex": "M", "parents": ["matthew"], "spouse": "Joann Fortson", "status": "ok", "note": "Two children.", "src": "Reunion book, chapter II"}, {"id": "delois-martin", "name": "Delois Wimberly-Martin", "sex": "F", "parents": ["matthew"], "spouse": "Edgar Martin", "status": "ok", "note": "Two children.", "src": "Reunion book, chapter II"}, {"id": "lillie-saxon", "name": "Lillie Wimberly-Saxon", "sex": "F", "parents": ["matthew"], "spouse": "Ronnie Warren Saxon", "status": "ok", "note": "Two children.", "src": "Reunion book, chapter II"}, {"id": "james-matthew", "name": "James Wimberly", "dates": "deceased", "sex": "M", "parents": ["matthew"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "barbara-jeanette", "name": "Barbara Jeanette Wimberly", "sex": "F", "parents": ["matthew"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "lawrence", "name": "Lawrence Wimberly", "sex": "M", "parents": ["jim", "narcissus"], "status": "ok", "note": "No family history recorded.", "src": "Reunion book, chapter II"}, {"id": "william-3", "name": "William Wimberly", "dates": "deceased", "sex": "M", "parents": ["jim", "narcissus"], "spouse": "Candis Turner (deceased)", "status": "ok", "note": "Nine children.", "src": "Reunion book, chapter II"}, {"id": "james-william", "name": "James Wimberly", "sex": "M", "parents": ["william-3"], "spouse": "Bernice Jackson", "status": "ok", "note": "Eight children.", "src": "Reunion book, chapter II"}, {"id": "edgar-william", "name": "Edgar Wimberly", "sex": "M", "parents": ["william-3"], "spouse": "Toy Ann Rogers", "status": "ok", "note": "Two children.", "src": "Reunion book, chapter II"}, {"id": "melton-turner", "name": "Melton Turner Wimberly", "sex": "M", "parents": ["william-3"], "spouse": "Diane Hopkins", "status": "ok", "note": "Four children.", "src": "Reunion book, chapter II"}, {"id": "norma-joe-clayton", "name": "Norma Joe Wimberly-Clayton", "dates": "deceased", "sex": "F", "parents": ["william-3"], "spouse": "Willmon Clayton", "status": "ok", "note": "Four children.", "src": "Reunion book, chapter II"}, {"id": "eddie-mae-smith", "name": "Eddie Mae Wimberly-Smith", "sex": "F", "parents": ["william-3"], "spouse": "Willie Smith", "status": "ok", "note": "Seven children, and three adopted children.", "src": "Reunion book, chapter II"}, {"id": "clemmie-lee", "name": "Clemmie Lee Wimberly", "sex": "M", "parents": ["william-3"], "spouse": "Emma Quimbley", "status": "ok", "note": "Seven children.", "src": "Reunion book, chapter II"}, {"id": "lynwood", "name": "Lynwood Wimberly", "sex": "M", "parents": ["william-3"], "status": "ok", "note": "Three children.", "src": "Reunion book, chapter II"}, {"id": "williemae-william", "name": "Willie Mae Wimberly", "dates": "deceased", "sex": "F", "parents": ["william-3"], "spouse": "Richard Earl Andrews", "status": "ok", "note": "Eight children.", "src": "Reunion book, chapter II"}, {"id": "command-master-sgt-l-c", "name": "Command Master Sgt. L.C. Wimberly", "dates": "deceased", "sex": "M", "parents": ["william-3"], "spouse": "Sharion Fernita Harris", "status": "ok", "note": "Three children.", "src": "Reunion book, chapter II"}, {"id": "flore-marcus", "name": "Flore Wimberly-Marcus", "dates": "deceased", "sex": "F", "parents": ["csr", "minnie"], "spouse": "Rufus Marcus", "status": "ok", "note": "Child A. No children. Given name as printed; it may be Flora or Florence.", "src": "Reunion book, chapter II"}, {"id": "myrtle-lee-mcnair", "name": "Myrtle Lee Wimberly-McNair", "sex": "F", "parents": ["csr", "minnie"], "spouse": "Tom McNair", "status": "ok", "note": "Child B. Six children.", "src": "Reunion book, chapter II"}, {"id": "lee-hardy-mitchell", "name": "Lee Hardy Mitchell", "sex": "M", "parents": ["myrtle-lee-mcnair"], "spouse": "Geneva Strum (deceased); Lavern Hopkins; Queen Mitchell", "status": "ok", "src": "Reunion book, chapter II"}, {"id": "karen-mitchell-sandova", "name": "Karen Mitchell Sandoval", "sex": "F", "parents": ["lee-hardy-mitchell"], "status": "ok", "note": "Mother: Geneva Strum. Three children.", "src": "Reunion book, chapter II"}, {"id": "arellano-mitchell", "name": "Arellano \"Chip\" Mitchell", "sex": "M", "parents": ["lee-hardy-mitchell"], "status": "ok", "note": "Mother: Lavern Hopkins.", "src": "Reunion book, chapter II"}, {"id": "ayshia-mitchell", "name": "Ayshia Mitchell", "parents": ["arellano-mitchell"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "azajanae-mitchell", "name": "Azajanae Mitchell", "parents": ["arellano-mitchell"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "tomeka-mitchell", "name": "Tomeka Mitchell", "sex": "F", "parents": ["lee-hardy-mitchell"], "status": "ok", "note": "Mother: Lavern Hopkins.", "src": "Reunion book, chapter II"}, {"id": "markya-thomas", "name": "Markya Thomas", "parents": ["tomeka-mitchell"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "xavier-wilcher", "name": "Xavier Wilcher", "parents": ["tomeka-mitchell"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "charlie-james-marcus", "name": "Charlie James \"C.J.\" Marcus Sr.", "dates": "deceased", "sex": "M", "parents": ["myrtle-lee-mcnair"], "spouse": "Glenda Jackson", "status": "ok", "note": "Six children.", "src": "Reunion book, chapter II"}, {"id": "anthony-jackson", "name": "Anthony Jackson", "sex": "M", "parents": ["charlie-james-marcus"], "spouse": "Glenda Spence", "status": "ok", "src": "Reunion book, chapter II"}, {"id": "jontae-jackson", "name": "Jontae Jackson", "parents": ["anthony-jackson"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "antonia-jackson", "name": "Antonia' Jackson", "parents": ["anthony-jackson"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "charles-marcus", "name": "Charles Marcus Sr.", "sex": "M", "parents": ["charlie-james-marcus"], "spouse": "Stephanie Stafford", "status": "ok", "src": "Reunion book, chapter II"}, {"id": "destiny-marcus", "name": "Destiny Marcus", "parents": ["charles-marcus"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "charles-marcus-2", "name": "Charles Marcus Jr.", "parents": ["charles-marcus"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "antiyonna-reese", "name": "Antiyonna Reese", "parents": ["charles-marcus"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "charlie-j-marcus", "name": "Charlie J. Marcus Jr.", "sex": "M", "parents": ["charlie-james-marcus"], "status": "ok", "note": "One child, not named.", "src": "Reunion book, chapter II"}, {"id": "marcresses-marcus", "name": "Marcresses Marcus", "parents": ["charlie-james-marcus"], "status": "ok", "note": "Two children; one is named.", "src": "Reunion book, chapter II"}, {"id": "kendra-marcus", "name": "Kendra Marcus", "parents": ["marcresses-marcus"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "frederick-marcus", "name": "Frederick Marcus", "sex": "M", "parents": ["charlie-james-marcus"], "status": "ok", "note": "No children.", "src": "Reunion book, chapter II"}, {"id": "pamela-marcus", "name": "Pamela Marcus", "sex": "F", "parents": ["charlie-james-marcus"], "status": "ok", "note": "No children.", "src": "Reunion book, chapter II"}, {"id": "john-mcnair", "name": "John McNair", "sex": "M", "parents": ["myrtle-lee-mcnair"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "mary-mcnair", "name": "Mary McNair", "sex": "F", "parents": ["myrtle-lee-mcnair"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "dorothy-mcnair", "name": "Dorothy McNair", "sex": "F", "parents": ["myrtle-lee-mcnair"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "shelia-mcnair", "name": "Shelia McNair", "dates": "deceased", "sex": "F", "parents": ["myrtle-lee-mcnair"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "anna-lou", "name": "Anna Lou Wimberly", "dates": "deceased", "sex": "F", "parents": ["csr", "minnie"], "status": "ok", "note": "Child C.", "src": "Reunion book, chapter II"}, {"id": "maple", "name": "Maple Wimberly", "dates": "deceased", "parents": ["csr", "minnie"], "status": "ok", "note": "Child D. Given name as printed; it may be Mabel.", "src": "Reunion book, chapter II"}, {"id": "hurbert", "name": "Hurbert Wimberly", "dates": "deceased", "sex": "M", "parents": ["csr", "minnie"], "status": "ok", "note": "Child E. Given name as printed; it may be Herbert or Hubert.", "src": "Reunion book, chapter II"}, {"id": "beulah-ann-houston", "name": "Beulah Ann Wimberly-Houston", "dates": "deceased", "sex": "F", "parents": ["csr", "minnie"], "spouse": "Willie Issac Houston", "status": "ok", "note": "Child F. Two children.", "src": "Reunion book, chapter II"}, {"id": "ophelia-houston", "name": "Ophelia Houston", "sex": "F", "parents": ["beulah-ann-houston"], "spouse": "Floyd Berry Sr.", "status": "ok", "note": "Four children.", "src": "Reunion book, chapter II"}, {"id": "daneen-williams", "name": "Daneen Williams", "sex": "F", "parents": ["ophelia-houston"], "spouse": "Giovanni Williams", "status": "ok", "note": "Four children, not named.", "src": "Reunion book, chapter II"}, {"id": "sophelia-williams", "name": "Sophelia Williams", "sex": "F", "parents": ["ophelia-houston"], "status": "ok", "note": "The scan also shows \"Ophelia Williams\" on the next line.", "src": "Reunion book, chapter II"}, {"id": "floyd-berry", "name": "Floyd Berry Jr.", "sex": "M", "parents": ["ophelia-houston"], "spouse": "Camille", "status": "ok", "note": "Two children, not named.", "src": "Reunion book, chapter II"}, {"id": "engrid-marie-berry-mul", "name": "Engrid Marie Berry-Mullins", "sex": "F", "parents": ["ophelia-houston"], "spouse": "Murray Mullins", "status": "ok", "note": "Two children, not named.", "src": "Reunion book, chapter II"}, {"id": "minnie-pearl-houston-s", "name": "Minnie Pearl Houston Strum", "sex": "F", "parents": ["beulah-ann-houston"], "spouse": "James Lee Strum", "status": "ok", "note": "Three children.", "src": "Reunion book, chapter II"}, {"id": "lashanne-c-strum-shedr", "name": "LaShanne C. Strum Shedrick", "sex": "F", "parents": ["minnie-pearl-houston-s"], "spouse": "Roger Jerome Shedrick", "status": "ok", "note": "No children.", "src": "Reunion book, chapter II"}, {"id": "lashane-c-strum", "name": "LaShane C. Strum", "parents": ["minnie-pearl-houston-s"], "spouse": "Jeffrey Wilburn", "status": "ok", "src": "Reunion book, chapter II"}, {"id": "samaria-wilburn", "name": "Samaria Wilburn", "parents": ["lashane-c-strum"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "charles-montgomery", "name": "Charles Montgomery Jr.", "parents": ["lashane-c-strum"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "lashay-yvette-brown", "name": "Lashay Yvette Brown", "sex": "F", "parents": ["minnie-pearl-houston-s"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "ethel-b-williams", "name": "Ethel B. Williams", "sex": "F", "parents": ["csr", "minnie"], "status": "ok", "note": "Listed as child H, although the book says seven children. Her surname differs from the others.", "src": "Reunion book, chapter II"}, {"id": "larry-gene", "name": "Larry Gene Wimberly", "sex": "M", "parents": ["cjr", "gladys"], "status": "ok", "note": "First child.", "src": "Reunion book, chapter II"}, {"id": "brenda-deloris-harris", "name": "Brenda Deloris Wimberly-Harris", "sex": "F", "parents": ["cjr", "gladys"], "spouse": "Al Harris", "status": "ok", "note": "Second child. Two children.", "src": "Reunion book, chapter II"}, {"id": "marquis-harris", "name": "Marquis Harris", "parents": ["brenda-deloris-harris"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "taleia-harris", "name": "TaLeia Harris", "parents": ["brenda-deloris-harris"], "status": "ok", "src": "Reunion book, chapter II"}, {"id": "darryl-cjr", "name": "Darryl Wimberly", "sex": "M", "parents": ["cjr", "gladys"], "status": "ok", "note": "Third child.", "src": "Reunion book, chapter II"}, {"id": "devon-love", "name": "Devon Love Wimberly", "parents": ["c3", "diana"], "status": "ok", "note": "Entered as a full sibling; correct this if either parent differs.", "src": "Family knowledge"}, {"id": "shawn-sylvester", "name": "Shawn Sylvester Wimberly", "parents": ["c3", "diana"], "status": "ok", "note": "Entered as a full sibling; correct this if either parent differs.", "src": "Family knowledge"}, {"id": "elking", "name": "El King", "sex": "M", "status": "ok", "note": "Father of Nathaniel Phillip Allen.", "rel": "Father of your half-brother", "src": "Family knowledge"}, {"id": "herald", "name": "Herald …", "sex": "M", "status": "ok", "note": "Father of Quan. Surname not given.", "rel": "Father of your cousin Quan", "src": "Family knowledge"}, {"id": "nathaniel-phillip-alle", "name": "Nathaniel Phillip Allen", "sex": "M", "parents": ["diana", "elking"], "status": "ok", "note": "Diana's son with El King.", "src": "Family knowledge"}, {"id": "lyn", "name": "Lynette Moore", "sex": "F", "parents": ["philip", "roberta"], "status": "ok", "note": "Known as Aunt Net. Diana's sister.", "src": "Family knowledge"}, {"id": "deryl", "name": "Deryl Wimberly", "parents": ["lyn"], "status": "ok", "note": "Father not named.", "src": "Family knowledge"}, {"id": "tasha", "name": "Tasha Wimberly", "sex": "F", "parents": ["lyn"], "status": "ok", "note": "Father not named.", "src": "Family knowledge"}, {"id": "jelah", "name": "Jelah Wimberly", "parents": ["lyn"], "status": "ok", "note": "Father not named.", "src": "Family knowledge"}, {"id": "devin", "name": "Devin Wimberly", "parents": ["lyn"], "status": "ok", "note": "Father not named.", "src": "Family knowledge"}, {"id": "quan", "name": "Quan", "parents": ["lyn", "herald"], "status": "ok", "note": "Father: Herald. Surname not given.", "src": "Family knowledge"}, {"id": "phillip-moore", "name": "Phillip Moore Jr.", "sex": "M", "parents": ["philip", "roberta"], "status": "ok", "note": "Diana's brother.", "src": "Family knowledge"}]}/*PG-DATA-END*/;
+var CW=136,CH=150,GX=18,ROW=204,PAD=24,P={},ORDER=[];
+DATA.people.forEach(function(r){ORDER.push(r.id);P[r.id]={id:r.id,n:r.name,d:r.dates||"",s:r.sex,f:r.father||null,m:r.mother||null,ps:r.parents||[],st:r.status,note:r.note||"",add:r.added,sp:r.spouse,rel:r.rel,step:r.step,order:r.order,src:r.src};});
+var LABEL={ok:"✓ Confirmed",no:"✗ Not confirmed",doc:"✗ Documented · link unproven",bad:"✗ Conflict",hint:"✗ Ancestry hint only"};
+function ord(n){var s=n%100>10&&n%100<14?"th":({1:"st",2:"nd",3:"rd"})[n%10]||"th";return n+s;}
+function rel(g,s){var b=s==="M"?"father":"mother";if(g===0)return "You";if(g===1)return s==="M"?"Father":"Mother";
+  if(g===2)return "Grand"+b;if(g===3)return "Great-grand"+b;return ord(g-2)+" great-grand"+b;}
+function el(tag,cls,txt){var e=document.createElement(tag);e.className=cls;if(txt!=null)e.textContent=txt;return e;}
+(function gen(id,g){var p=P[id];p.g=g;if(p.f)gen(p.f,g+1);if(p.m)gen(p.m,g+1);})(DATA.root,0);
+var PED=ORDER.filter(function(id){return P[id].g!=null;});
+var F={side:"all",st:"all",depth:99};
+function lay(id){var p=P[id],g=p.g,ks=[p.f,p.m];
+  if(g===0&&F.side==="pat")ks=[p.f];if(g===0&&F.side==="mat")ks=[p.m];
+  var subs=ks.filter(function(k){return k&&P[k].g<=F.depth&&(F.st!=="ok"||P[k].st==="ok");}).map(lay);
+  var out={nodes:[],cont:{}},x=0;
+  if(subs.length){var A=subs[0];
+    if(subs[1]){var B=subs[1],sh=-1e9,k;for(k in A.cont)if(B.cont[k])sh=Math.max(sh,A.cont[k][1]+GX-B.cont[k][0]);
+      B.nodes.forEach(function(n){n.x+=sh;});for(k in B.cont){B.cont[k][0]+=sh;B.cont[k][1]+=sh;}B.x+=sh;
+      for(k in B.cont){A.cont[k]=A.cont[k]?[Math.min(A.cont[k][0],B.cont[k][0]),Math.max(A.cont[k][1],B.cont[k][1])]:B.cont[k];}
+      A.nodes=A.nodes.concat(B.nodes);x=(A.x+B.x)/2;}else x=A.x;
+    out=A;}
+  out.nodes.push({id:id,x:x});out.cont[g]=[x-CW/2,x+CW/2];out.x=x;return out;}
+var canvas=document.getElementById("pg-canvas"),stage=document.getElementById("pg-stage"),view=document.getElementById("pg-view"),detail=document.getElementById("pg-detail");
+var NS="http://www.w3.org/2000/svg",W=0,H=0,z=1,sel=null,selId=DATA.root,moved=false,VIS={};
+function show(id){var p=P[id];selId=id;if(sel)sel.classList.remove("pg-sel");sel=p.el;if(sel)sel.classList.add("pg-sel");
+  detail.textContent="";detail.appendChild(el("h4","",p.n));
+  detail.appendChild(el("p","",p.d+" · "+rel(p.g,p.s)));
+  detail.appendChild(el("p","pg-dstat "+(p.st==="ok"?"ok":p.st==="bad"?"bad":"no"),LABEL[p.st]));
+  detail.appendChild(el("p","",p.note));
+  var par=[p.f,p.m].filter(Boolean).map(function(k){return P[k].n;});
+  detail.appendChild(el("p","","Parents: "+(par.length?par.join(" · "):"none recorded")));}
+function setZ(nz,cx,cy){var ox=(view.scrollLeft+(cx==null?view.clientWidth/2:cx))/z,oy=(view.scrollTop+(cy==null?view.clientHeight/2:cy))/z;
+  z=Math.min(1.4,Math.max(0.12,nz));canvas.style.transform="scale("+z+")";stage.style.width=W*z+"px";stage.style.height=H*z+"px";
+  view.scrollLeft=ox*z-(cx==null?view.clientWidth/2:cx);view.scrollTop=oy*z-(cy==null?view.clientHeight/2:cy);}
+function fit(){return Math.min(view.clientWidth/W,view.clientHeight/H);}
+function home(){var r=P[DATA.root];setZ(Math.min(1,Math.max(fit(),0.62)));view.scrollLeft=r.x*z-view.clientWidth/2;view.scrollTop=H*z;}
+function draw(){canvas.textContent="";VIS={};
+  var T=lay(DATA.root),minX=1e9,maxX=-1e9,maxG=0;
+  T.nodes.forEach(function(n){minX=Math.min(minX,n.x);maxX=Math.max(maxX,n.x);maxG=Math.max(maxG,P[n.id].g);VIS[n.id]=1;});
+  T.nodes.forEach(function(n){var p=P[n.id];p.x=n.x-minX+CW/2+PAD;p.y=(maxG-p.g)*ROW+PAD;});
+  W=maxX-minX+CW+PAD*2;H=maxG*ROW+CH+PAD*2;canvas.style.width=W+"px";canvas.style.height=H+"px";
+  var svg=document.createElementNS(NS,"svg");svg.setAttribute("width",W);svg.setAttribute("height",H);canvas.appendChild(svg);
+  function line(par,ch){var pa=document.createElementNS(NS,"path"),y1=par.y+CH,y2=ch.y,my=y1+(y2-y1)/2;
+    pa.setAttribute("d","M"+par.x+" "+y1+"V"+my+"H"+ch.x+"V"+y2);
+    pa.setAttribute("class",par.st==="ok"?"ok":par.st==="bad"?"bad":par.st==="hint"?"hint":"");svg.appendChild(pa);}
+  var n=0,nok=0;
+  T.nodes.forEach(function(nd){var id=nd.id,p=P[id];n++;if(p.st==="ok")nok++;
+    if(p.f&&VIS[p.f])line(P[p.f],p);if(p.m&&VIS[p.m])line(P[p.m],p);
+    var c=el("button","pg-card pg-"+p.s+" s-"+p.st+(p.g===0?" pg-root-p":""));c.type="button";c.style.left=(p.x-CW/2)+"px";c.style.top=p.y+"px";
+    c.appendChild(el("span","pg-badge",p.st==="ok"?"✓":"✗"));
+    var av=el("span","pg-av");av.innerHTML='<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="15" r="7"/><path d="M6 40c0-9 6-14 14-14s14 5 14 14z"/></svg>';c.appendChild(av);
+    c.appendChild(el("span","pg-name",p.n));c.appendChild(el("span","pg-dates",p.d));
+    c.appendChild(el("span","pg-rel",rel(p.g,p.s)));c.appendChild(el("span","pg-st",LABEL[p.st].slice(2)+(p.add?" · added":"")));
+    c.setAttribute("aria-label",p.n+", "+p.d+", "+rel(p.g,p.s)+", "+LABEL[p.st].slice(2));
+    c.addEventListener("click",function(){if(!moved)show(id);});p.el=c;canvas.appendChild(c);});
+  PED.forEach(function(id){if(!VIS[id])P[id].el=null;});
+  document.getElementById("pg-count").textContent=(n<PED.length?n+" of "+PED.length:n)+" people shown · "+nok+" confirmed · "+(n-nok)+" not confirmed";
+  sel=null;show(VIS[selId]?selId:DATA.root);home();}
+document.getElementById("pg-in").onclick=function(){setZ(z*1.25);};
+document.getElementById("pg-out").onclick=function(){setZ(z/1.25);};
+document.getElementById("pg-fit").onclick=function(){setZ(fit());view.scrollLeft=0;view.scrollTop=0;};
+document.getElementById("pg-home").onclick=home;
+[["pg-side","side"],["pg-st","st"],["pg-depth","depth"]].forEach(function(t){var e=document.getElementById(t[0]);if(e)e.onchange=function(){F[t[1]]=t[1]==="depth"?+e.value:e.value;draw();};});
+var drag=null;
+view.addEventListener("mousedown",function(e){if(e.button)return;moved=false;drag={x:e.clientX,y:e.clientY,l:view.scrollLeft,t:view.scrollTop};});
+window.addEventListener("mousemove",function(e){if(!drag)return;var dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+  if(!moved&&Math.abs(dx)+Math.abs(dy)<5)return;moved=true;view.classList.add("pg-drag");view.scrollLeft=drag.l-dx;view.scrollTop=drag.t-dy;});
+window.addEventListener("mouseup",function(){drag=null;view.classList.remove("pg-drag");});
+view.addEventListener("wheel",function(e){if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();var r=view.getBoundingClientRect();
+  setZ(z*(e.deltaY<0?1.1:1/1.1),e.clientX-r.left,e.clientY-r.top);},{passive:false});
+draw();
+function parentsOf(p){var a=[];[p.f,p.m].concat(p.ps).forEach(function(k){if(k&&P[k]&&a.indexOf(k)<0)a.push(k);});return a;}
+var KIDS={};ORDER.forEach(function(id){parentsOf(P[id]).forEach(function(k){(KIDS[k]=KIDS[k]||[]).push(id);});});
+Object.keys(KIDS).forEach(function(k){KIDS[k]=KIDS[k].map(function(id,i){return [P[id].order||999,i,id];}).sort(function(x,y){return x[0]-y[0]||x[1]-y[1];}).map(function(t){return t[2];});});
+function sx(p,m,f,u){return p.s==="M"?m:p.s==="F"?f:u;}
+function relOf(id){var p=P[id];if(p.g!=null)return rel(p.g,p.s);if(p.rel)return p.rel;
+  var dist={},via={},q=[id],best=null,hits=[];dist[id]=0;
+  while(q.length){var x=q.shift(),px=P[x];
+    if(px.g!=null){if(best==null)best=dist[x];if(dist[x]===best)hits.push(x);continue;}
+    if(best!=null&&dist[x]>=best)continue;if(px.step)continue;
+    parentsOf(px).forEach(function(k){if(dist[k]==null){dist[k]=dist[x]+1;via[k]=x;q.push(k);}});}
+  if(!hits.length)return "";
+  var a=Math.min.apply(null,hits.map(function(h){return P[h].g;}));hits=hits.filter(function(h){return P[h].g===a;});
+  var b=best,half=hits.length===1&&parentsOf(P[via[hits[0]]]).length>1?"half-":"",t;
+  if(a===0)t=b===1?sx(p,"son","daughter","child"):"descendant";
+  else if(b===1){if(a===1)t=sx(p,"brother","sister","sibling");
+    else{var u=sx(p,"uncle","aunt","uncle or aunt");t=a===2?u:a===3?"great-"+u:a===4?"great-grand-"+u:ord(a-3)+" great-grand-"+u;}}
+  else if(a===1){var nn=sx(p,"nephew","niece","niece or nephew");t=b===2?nn:b===3?"grand-"+nn:"great-grand-"+nn;}
+  else{var deg=Math.min(a,b)-1,rem=Math.abs(a-b);t=ord(deg)+" cousin"+(rem===0?"":rem===1?" once removed":rem===2?" twice removed":" "+rem+" times removed");}
+  t=half+t;return t.charAt(0).toUpperCase()+t.slice(1);}
+function coNames(id){var seen=[];(KIDS[id]||[]).forEach(function(k){parentsOf(P[k]).forEach(function(x){if(x!==id&&P[x].st!=="bad"&&seen.indexOf(P[x].n)<0)seen.push(P[x].n);});});return seen.join("; ");}
+function descCount(id,seen){seen=seen||{};var n=0;(KIDS[id]||[]).forEach(function(k){if(!seen[k]){seen[k]=1;n+=1+descCount(k,seen);}});return n;}
+function mark(p){return el("span","ft-mark "+(p.st==="ok"?"ok":p.st==="bad"?"bad":"no"),p.st==="ok"?"✓":"✗");}
+var SHOWN={};
+function lineFor(id){SHOWN[id]=1;var p=P[id],d=el("div","ft-line"+(p.g!=null?" ft-direct":""));d.setAttribute("data-name",p.n.toLowerCase());
+  d.appendChild(mark(p));d.appendChild(el("span","ft-name",p.n));if(p.d)d.appendChild(el("span","ft-dates",p.d));
+  var r=relOf(id);if(r)d.appendChild(el("span","ft-rel",r));
+  var sp=p.sp||coNames(id);if(sp)d.appendChild(el("span","ft-sp","with "+sp));
+  var k=(KIDS[id]||[]).length,dc=descCount(id);if(dc>k)d.appendChild(el("span","ft-n",dc+" descendants recorded"));
+  if(p.note)d.appendChild(el("div","ft-note",p.note));return d;}
+function nodeFor(id){var li=el("li",""),kids=KIDS[id]||[],line=lineFor(id);
+  if(!kids.length){li.appendChild(line);return li;}
+  var det=document.createElement("details"),sm=document.createElement("summary");sm.appendChild(line);det.appendChild(sm);
+  if(P[id].g!=null)det.open=true;
+  var groups=[],gi={};kids.forEach(function(k){var o=parentsOf(P[k]).filter(function(x){return x!==id&&P[x].st!=="bad";}).join("+");if(gi[o]==null){gi[o]=groups.length;groups.push({o:o,k:[]});}groups[gi[o]].k.push(k);});
+  var ul=el("ul","ft");
+  groups.forEach(function(g){var tgt=ul;if(groups.length>1){var gl=el("li","ft-group");
+      gl.appendChild(el("div","ft-glabel",g.o?"With "+g.o.split("+").map(function(x){return P[x].n;}).join(" and "):"Other children"));tgt=el("ul","ft");gl.appendChild(tgt);ul.appendChild(gl);}
+    g.k.forEach(function(k){tgt.appendChild(nodeFor(k));});});
+  det.appendChild(ul);li.appendChild(det);return li;}
+var G=document.getElementById("sec-groups"),FB=document.getElementById("ft-body");
+if(G&&FB){var bs=document.getElementById("ft-branch"),nb=document.getElementById("ft-notes"),si=document.getElementById("ft-search"),sc=document.getElementById("ft-found");
+  var opts=[["all","Whole family"]];(KIDS.crawford||[]).concat(["genlee","csr","cjr","roberta","lyn"]).forEach(function(id){if(P[id]&&(KIDS[id]||[]).length&&!opts.some(function(o){return o[0]===id;}))opts.push([id,P[id].n]);});
+  opts.forEach(function(o){var e=document.createElement("option");e.value=o[0];e.textContent=o[1];bs.appendChild(e);});
+  function sect(title,rootId){if(!P[rootId])return;FB.appendChild(el("div","ft-h",title));var ul=el("ul","ft ft-root"),li=nodeFor(rootId),d=li.querySelector("details");if(d)d.open=true;ul.appendChild(li);FB.appendChild(ul);}
+  function search(){var q=si.value.trim().toLowerCase(),n=0;
+    [].forEach.call(FB.querySelectorAll(".ft-line"),function(l){var hit=q.length>1&&l.getAttribute("data-name").indexOf(q)>=0;l.classList.toggle("ft-hit",hit);
+      if(hit){n++;var e=l.parentNode;while(e&&e!==FB){if(e.tagName==="DETAILS")e.open=true;e=e.parentNode;}}});
+    sc.textContent=q.length>1?n+(n===1?" match":" matches")+(bs.value==="all"?"":" in this branch"):"";}
+  function renderGroups(){FB.textContent="";SHOWN={};var b=bs.value;
+    if(b==="all"){sect("Descendants of Jane Wimberly — from the 2005 reunion book","jane");sect("Moore family — Philip Moore and Roberta Huntley","roberta");
+      var rest=ORDER.filter(function(id){return P[id].g==null&&!SHOWN[id];});
+      if(rest.length){FB.appendChild(el("div","ft-h","Connected by marriage"));var ou=el("ul","ft ft-root");rest.forEach(function(id){var li=el("li","");li.appendChild(lineFor(id));ou.appendChild(li);});FB.appendChild(ou);}}
+    else sect(P[b].n+" — family group",b);
+    search();}
+  bs.onchange=renderGroups;si.addEventListener("input",search);
+  nb.onchange=function(){G.classList.toggle("ft-nonotes",!nb.checked);};G.classList.toggle("ft-nonotes",!nb.checked);
+  document.getElementById("ft-open").onclick=function(){[].forEach.call(FB.querySelectorAll("details"),function(d){d.open=true;});};
+  document.getElementById("ft-close").onclick=function(){[].forEach.call(FB.querySelectorAll("details"),function(d){d.open=false;});};
+  renderGroups();}
+var SB=document.querySelectorAll("[data-sec]"),SEC={chart:["sec-pedigree"],groups:["sec-groups"],tables:["sec-eleven","sec-roster"],notes:["sec-verify","sec-flags"]};
+[].forEach.call(SB,function(b){b.onclick=function(){var v=b.getAttribute("data-sec");
+  Object.keys(SEC).forEach(function(k){SEC[k].forEach(function(id){var e=document.getElementById(id);if(e)e.hidden=!(v==="all"||v===k);});});
+  [].forEach.call(SB,function(x){x.setAttribute("aria-pressed",x===b?"true":"false");});if(v==="all"||v==="chart")home();};});
+var VB=document.querySelectorAll("[data-view]");
+if(VB.length){var setView=function(v){["chart","groups"].forEach(function(n){document.getElementById("view-"+n).hidden=n!==v;});
+    [].forEach.call(VB,function(b){b.setAttribute("aria-pressed",b.getAttribute("data-view")===v?"true":"false");});if(v==="chart")home();};
+  [].forEach.call(VB,function(b){b.onclick=function(){setView(b.getAttribute("data-view"));};});}
+function row(tb,cells){var tr=document.createElement("tr");cells.forEach(function(c){var td=document.createElement("td");if(c&&c.nodeType)td.appendChild(c);else{td.textContent=c==null?"":c;}tr.appendChild(td);});tb.appendChild(tr);return tr;}
+var te=document.getElementById("tbl-eleven");
+if(te)(KIDS.crawford||[]).forEach(function(id){var p=P[id],tr=row(te,[p.order||"",p.n,p.d,p.sp||coNames(id),(KIDS[id]||[]).length||"—",p.note]);
+  if(p.g!=null)tr.children[1].className="gold";tr.children[2].className="dim";tr.children[5].className="dim";});
+var ta=document.getElementById("tbl-anc");
+if(ta)ORDER.filter(function(id){return P[id].g!=null;}).sort(function(x,y){return P[x].g-P[y].g||P[x].x-P[y].x;}).forEach(function(id){var p=P[id];
+  var st=el("span","tag "+(p.st==="ok"?"ok":p.st==="bad"?"warn":p.st==="hint"?"pot":""),LABEL[p.st]+(p.add?" · added":""));
+  var tr=row(ta,[p.n,p.d,rel(p.g,p.s),[p.f,p.m].filter(Boolean).map(function(k){return P[k].n;}).join(" · ")||"—",st,p.note]);
+  if(p.st==="ok")tr.children[0].className="gold";tr.children[1].className="dim";tr.children[3].className="dim";tr.children[5].className="dim";});
+var dc=document.getElementById("data-count");
+if(dc){var tot=ORDER.length,okn=ORDER.filter(function(id){return P[id].st==="ok";}).length;dc.textContent=tot+" people in the master data · "+okn+" confirmed · "+(tot-okn)+" not confirmed";}
+
+})();
+</script>
+
+</body>
+</html>
