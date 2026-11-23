@@ -31,7 +31,7 @@ The **TMAR (Trust Master Account Register)** system — a comprehensive legal do
 |---|---|
 | **Live app (GitHub Pages)** | `https://slickvicious.github.io/TMAR-Accrual-Ledger/TMAR-Accrual-Ledger.html` |
 | **GitHub repo** | `https://github.com/SlickVicious/TMAR-Accrual-Ledger` |
-| **Google Sheet (GAS backend)** | `https://docs.google.com/spreadsheets/d/1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ` |
+| **Google Sheet (GAS backend)** | `https://docs.google.com/spreadsheets/d/1aj86dabbSV5lcK-RvGvjBi98RsmgTM8To9AD2X9ks1k` (post-cutover 2026-10-21; prior book archived as `TMAR_PreCutover_Original_20261021`) |
 | **GAS Script ID** | `1fIfAfYbMw8udn2AggFnMDc-dwVNvrQeJT6qVOdJI1VdehZQzDoCdoyYr` |
 | **Audit Dashboard** | `https://slickvicious.github.io/TMAR-Accrual-Ledger/TMAR_Audit_Dashboard.html` |
 | **System Status Dashboard** | `https://slickvicious.github.io/TMAR-Accrual-Ledger/TMAR-System-Status-Dashboard.html` |
@@ -61,7 +61,7 @@ Legacy vaults (PDKB, PPP) are archived to `D:\_Archive\` as of April 2026. They 
 | Directory | Role | Key contents |
 |---|---|---|
 | `C:\Users\rhyme\Documents\Legal-Document-Generator\` | **LDG v2 Obsidian vault** (active) | TMAR dev tree, Claude Skills, GAS project, templates, Dev Sessions, knowledge reference. `.obsidian/` configured. |
-| `C:\Users\rhyme\Documents\TMAR-Accrual-Ledger\` | **TMAR GitHub repo clone** (VSC project) | Live app HTML (4.16 MB), GAS deployment source, audit artifacts, Function Reference Cards (17 cards), entity verifier, CORS proxy, guides. Has `.clasp.json` in `gas/`. |
+| `C:\Users\rhyme\Documents\TMAR-Accrual-Ledger\` | **TMAR GitHub repo clone** (VSC project) | Live app HTML (4.19 MB), GAS deployment source, audit artifacts, Function Reference Cards (17 cards), entity verifier, CORS proxy, guides. Has `.clasp.json` in `gas/`. |
 | `C:\Users\rhyme\Desktop\FileCabinet\` | **Personal records vault** | Tax returns by year (2015–2025), credit reports, estate docs, status correction affidavits, FWM course materials, business entity filings |
 | `C:\Users\rhyme\Documents\_HH Classes\` | **Private law course content** | Trust templates, status correction, treasury direct, FOIA, bankruptcy, mortgage discharge, canon law |
 | `D:\_ScriptSalad\` | **Dev toolkit / scratch pad** | Python/GAS/PowerShell scripts, MCP servers, Claude artifacts, price targets. Contains older GAS iterations (e.g. `BankOfAmericaCashFlow.gs`) |
@@ -121,7 +121,7 @@ export PATH='/Users/animatedastronaut/.npm-global/bin:/opt/homebrew/bin:/usr/loc
 
 ### Web App — `TMAR-Accrual-Ledger.html`
 
-- **60 app tabs (data-tab) / 12 HUB sections** — Core Accounting, Tax & Compliance, Trust Estate, Operations, Reports & Intelligence, Tools, RedressRight Libraries, Verification, Data Integration, PDKB Tools (workbook: 57 tabs, 28 visible + 29 hidden)
+- **59 app tabs (data-tab) / 10 workbook HUB sections** — Index & Dashboard, Core Registers, Ledgers & Accounting, Income & Assets, Tax & 1099, Contacts & Accounts, Mailings & Authority, Trust Instruments, Documents, Reference (workbook: 43 tabs, 34 visible + 9 hidden — `listWorkbookTabs`, 2026-11-23)
 - **211/211 GUI elements verified** (100%) — tracked in System Status Dashboard
 - **246/246 functions verified** (100%) — tracked in Audit Dashboard (`audit_report.json` v2)
 - **17 custom functions** documented in `Function_Reference_Cards/` (17 individual `.md` cards)

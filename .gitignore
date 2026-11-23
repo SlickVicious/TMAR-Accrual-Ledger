@@ -86,6 +86,7 @@ scripts/*
 !scripts/tmar-reality-baseline.py
 !scripts/tmar-docs-scan.py
 !scripts/tmar-doc-watchdog.py
+!scripts/laa-sync-dictionary.mjs
 tmar_cleanup.ps1
 
 # Hermes Agent vault context — share the vault identity file, ignore runtime state
@@ -114,6 +115,9 @@ client_secret_*.json
 
 # Local workbook snapshot dumps (safety record lives on disk + Archive workbook, not in git)
 _snapshots/
+
+# Licensed dictionary text — local copy for the Legal Authority Analyzer tab, must never reach this public repo
+tools/DTB_Legal_Dictionary_Study_Module.html
 
 # Runtime HTML backups (transient, not source)
 *.bak

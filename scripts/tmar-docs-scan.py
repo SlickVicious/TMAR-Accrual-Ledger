@@ -22,16 +22,51 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOCS = os.path.join(ROOT, "docs")
 SELF = os.path.basename(__file__)
 
-# anchor -> (reason, correction). Regex, applied with re.search (case-sensitive).
+# anchor -> (reason, correction[, exemption]). Regex, applied with re.search (case-sensitive).
 # Order matters: put longer/more-specific patterns before shorter ones.
+# An optional 4th element is a substring that marks the line as already-corrected — the
+# scan skips it (used where a doc deliberately preserves an old figure beside the new one).
 STALE_ANCHORS = [
     (r"Household Obligations", "tab renamed to Business Obligations (2026-10-10)", "Business Obligations"),
-    (r"~52 tabs|52 tabs|52\+ tabs|52-tab", "workbook is now 57 tabs (28 visible + 29 hidden)", "57 tabs"),
-    (r"23-function hard-allowlist|23 hard-allowlisted|23-function allowlist|of the 23 ", "allowlist is now 29 functions", "29 functions"),
-    (r"3\.9 MB|3\.9MB|3\.9 megabytes", "app HTML is now ~4.17 MB", "4.17 MB"),
+    (
+        r"~52 tabs|52 tabs|52\+ tabs|52-tab|57 tabs|57 workbook tabs|28 visible|29 hidden|28 visible \+ 29 hidden|12 HUB sections",
+        "workbook is 43 tabs (34 visible + 9 hidden) — listWorkbookTabs 2026-11-23",
+        "43 tabs",
+        "43 tabs",
+    ),
+    (
+        r"84 GAS doGet/doPost actions|84 doGet/doPost|of the 84 ",
+        "GAS app has 131 doGet/doPost actions",
+        "131 actions",
+        "131 doGet/doPost",
+    ),
+    (
+        r"23-function hard-allowlist|23 hard-allowlisted|23-function allowlist|of the 23 |29-function allowlist|allowlist is now 29|29 functions",
+        "runnable allowlist is 31 functions",
+        "31 functions",
+        "31 functions",
+    ),
+    (
+        r"3\.9 MB|3\.9MB|3\.9 megabytes|4\.16 MB|4\.17 MB|61,377 lines",
+        "app HTML is ~4.19 MB / 61,722 lines (2026-11-23)",
+        "4.19 MB",
+        "61,722",
+    ),
     (r"Register Summary", "tab folded into 📋 Dashboard (2026-10-08)", "📋 Dashboard"),
     (r"Chart of Accounts\s*\(CoA\)|CoA \(Chart of Accounts\)", "CoA renamed to TIN Registry (2026-10-08)", "TIN Registry"),
     (r"TMAR_AestheticsAndAudit\.gs", "superseded by FormattingComplement.gs", "FormattingComplement.gs"),
+    (
+        r"1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ",
+        "system of record is 1aj86dabbSV5lcK-RvGvjBi98RsmgTM8To9AD2X9ks1k (post-cutover 2026-10-21)",
+        "1aj86dabb",
+        "1aj86dabb",
+    ),
+    (
+        r"127\.0\.0\.1:8642/v1/chat",
+        "profile-scoped Hermes route is /p/law/v1/chat/completions",
+        "(/p/law/v1",
+        "/p/law/v1",
+    ),
 ]
 
 # Files that are point-in-time historical records — the scanner reports them as
@@ -52,6 +87,7 @@ POINT_IN_TIME = {
     "GAAPCLAW-Parity-Implementation.md",
     "tmar-filecabinet-enhanced-audit.md",
     "plans/Excel-vs-Google-Sheets-Comparison.md",
+    "Start TMAR Servers & Provide Shareable URL.md",
 }
 
 IGNORE_FILES = {"_TMAR-REALITY-BASELINE.md"}
@@ -71,13 +107,19 @@ def scan(show_hint=False):
             with open(path, "r", encoding="utf-8", errors="replace") as f:
                 lines = f.readlines()
             for i, line in enumerate(lines, 1):
-                for pattern, reason, correction in STALE_ANCHORS:
+                for anchor in STALE_ANCHORS:
+                    pattern, reason, correction = anchor[0], anchor[1], anchor[2]
+                    exempt = anchor[3] if len(anchor) > 3 else None
                     m = re.search(pattern, line)
                     if m:
                         # Already-annotated "superseded" references are not drift.
                         if pattern.startswith("TMAR_AestheticsAndAudit") and (
                             "superseded" in line.lower() or "FormattingComplement" in line
                         ):
+                            break
+                        # A line that also carries the current figure is a deliberate
+                        # before/after record, not drift.
+                        if exempt and exempt in line:
                             break
                         hits += 1
                         tag = "HISTORICAL" if rel in POINT_IN_TIME else "LIVING"

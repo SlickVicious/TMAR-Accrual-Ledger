@@ -4,8 +4,8 @@
 > This file is the machine-readable snapshot of the *current* TMAR reality that other
 > docs are reconciled against. When code changes, re-run the extractor and re-scan docs.
 
-**Generated:** 2026-11-17
-**App:** `TMAR-Accrual-Ledger.html` — 4,210,043 bytes (~4.21 MB), 62,068 lines
+**Generated:** 2026-11-23
+**App:** `TMAR-Accrual-Ledger.html` — 4,185,448 bytes (~4.19 MB), 61,722 lines
 **Title:** TMAR Universal Accrual Ledger
 
 ---
@@ -27,8 +27,8 @@
 | Documents | Document Inventory · Document Registry · AppScripts Canvas & Workflow Board |
 | Reference | AppScripts · Script Executions |
 
-NOTE: total tab count (incl. hidden) is workbook runtime state, not derivable from the
-repo. `listWorkbookTabs` returns the live count; the standing figure is 57 (28 visible + 29 hidden).
+NOTE: total tab count (incl. hidden) is workbook runtime state, not derivable from the repo.
+ `listWorkbookTabs` on 2026-11-23 returned 43 tabs: 34 visible + 9 hidden. This table lists what `HUB_SECTIONS_` maps, which is not the same set: a section entry whose sheet is hidden (e.g. `Entities`, hidden in Core Registers) does not appear in `📋 HUB INDEX`, and a visible tab outside every section (`CPA Questions`, plus the stray backup `MR_PreDelete_*`) is absent from the index until it is added to `HUB_SECTIONS_`. Re-pull before quoting a count.
 
 ---
 

@@ -174,7 +174,7 @@ To use any AI feature you must configure at least one provider API key. Navigate
 | OpenRouter         | `stg_key_openrouter` | Default model:`openai/gpt-4o-mini`. Aggregates 200+ models.    |
 | Ollama (Local)     | URL + Model fields     | Runs locally. No API key required.                               |
 | Custom Provider    | `keyCustom`          | Any OpenAI-compatible endpoint.                                  |
-| Hermes Agent (WSL) | (no key — local)     | Routes to the Hermes API server at `http://127.0.0.1:8642/v1/chat/completions`, model `law`. Runs the full law-profile agent (SOUL.md persona + memory + skills), not a raw model. |
+| Hermes Agent (WSL) | (no key — local)     | Routes to the Hermes API server at `http://127.0.0.1:8642/p/law/v1/chat/completions` (profile-scoped route; the bare `/v1` path serves the default profile), model `law`. Runs the full law-profile agent (SOUL.md persona + memory + skills), not a raw model. |
 
 **Steps:**
 
@@ -1560,6 +1560,14 @@ The AI provides:
 - Historical legal usage
 - Current legal/UCC definition
 - Distinguishing notes (how the legal meaning differs from the common meaning)
+
+**Legal Dictionary tab (Legal Authority Analyzer tool).** `tools/Legal_Authority_Analyzer.html` carries a `📖 Legal Dictionary` tab that embeds the DTB Legal Dictionary study module in an iframe and passes the app's light/dark theme to it by `postMessage`. The module file (`tools/DTB_Legal_Dictionary_Study_Module.html`) is **licensed third-party text and is gitignored** — it is never committed. Install or refresh it beside the tool:
+
+```
+node scripts/laa-sync-dictionary.mjs "<path to study module.html>"
+```
+
+If the module is absent the tab shows the install hint and the app falls back to the Analyze tab on a plain open (a `?mode=` link or `?embed=1` open stays on the analyzer).
 
 ### 15.3 PDF/MD Converter
 
@@ -3591,4 +3599,4 @@ Opens a modal showing the formatted lines of the journal entry with the given ID
 
 ---
 
-This document was generated from a complete reading of `TMAR-Accrual-Ledger.html` (61,377 lines).
+This document was generated from a complete reading of `TMAR-Accrual-Ledger.html` (61,377 lines at first reading; 61,722 lines as of 2026-11-23 — see `_TMAR-REALITY-BASELINE.md`).

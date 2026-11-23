@@ -93,7 +93,11 @@ def main():
     title = title_m.group(1) if title_m else "?"
 
     visible = sum(len(s[1]) for s in sections)
-    total = 57  # total tab count is workbook-state, not derivable from repo — see note
+    # Workbook tab state is runtime data, not derivable from the repo. Refreshed by hand from
+    # ?action=listWorkbookTabs — the same endpoint the app uses. Update these four lines when
+    # the live book changes, and cite them nowhere else.
+    LIVE_TABS = dict(verified="2026-11-23", total=43, visible=34, hidden=9)
+    total = LIVE_TABS["total"]
 
     lines = []
     A = lines.append
@@ -111,8 +115,13 @@ def main():
     A("|---|---|")
     for name, tabs_ in sections:
         A(f"| {name} | {' · '.join(tabs_)} |")
-    A("\nNOTE: total tab count (incl. hidden) is workbook runtime state, not derivable from the")
-    A("repo. `listWorkbookTabs` returns the live count; the standing figure is 57 (28 visible + 29 hidden).\n")
+    A("\nNOTE: total tab count (incl. hidden) is workbook runtime state, not derivable from the repo.")
+    A(f" `listWorkbookTabs` on {LIVE_TABS['verified']} returned {LIVE_TABS['total']} tabs:"
+      f" {LIVE_TABS['visible']} visible + {LIVE_TABS['hidden']} hidden. This table lists what"
+      " `HUB_SECTIONS_` maps, which is not the same set: a section entry whose sheet is hidden"
+      " (e.g. `Entities`, hidden in Core Registers) does not appear in `📋 HUB INDEX`, and a visible"
+      " tab outside every section (`CPA Questions`, plus the stray backup `MR_PreDelete_*`) is absent"
+      " from the index until it is added to `HUB_SECTIONS_`. Re-pull before quoting a count.\n")
     A("---\n")
     A("## 2. GAS Web App — %d doGet/doPost actions\n" % len(actions))
     A("\n`" + " · ".join(actions) + "`\n")

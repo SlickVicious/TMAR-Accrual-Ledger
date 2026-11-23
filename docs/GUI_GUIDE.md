@@ -11,7 +11,7 @@
 ### Opening the Control Panel
 
 1. **Open your TMAR Google Sheet:**
-   https://docs.google.com/spreadsheets/d/1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ/
+   https://docs.google.com/spreadsheets/d/1aj86dabbSV5lcK-RvGvjBi98RsmgTM8To9AD2X9ks1k/
 
 2. **Refresh the page** (Cmd+Shift+R / Ctrl+Shift+R)
 

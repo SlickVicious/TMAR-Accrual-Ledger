@@ -1,7 +1,7 @@
 
 ## Context
 
-User wants to start the TMAR servers and get a shareable URL for a colleague to review functionality. The TMAR Accrual Ledger is a single-file HTML app (`TMAR-Accrual-Ledger.html`, ~61,377 lines (~4.16 MB)) already pushed to GitHub at `SlickVicious/TMAR-Accrual-Ledger`.
+**⚠️ Session log (point-in-time).** This is a record of a past working session, not current guidance. User wants to start the TMAR servers and get a shareable URL for a colleague to review functionality. The TMAR Accrual Ledger is a single-file HTML app (`TMAR-Accrual-Ledger.html`, ~61,377 lines (~4.16 MB)) already pushed to GitHub at `SlickVicious/TMAR-Accrual-Ledger`.
 
 ## Current State
 

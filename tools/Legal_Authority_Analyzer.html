@@ -134,6 +134,8 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .modal-bg.show{display:flex}
 .modal{background:var(--panel);border:1px solid var(--border);padding:20px;max-width:720px;width:100%;max-height:85vh;overflow:auto}
 .field{margin-bottom:12px}
+#dictFrame{display:block;width:100%;height:calc(100vh - 210px);min-height:640px;border:0;background:var(--panel);color-scheme:dark}
+[data-theme="light"] #dictFrame{color-scheme:light}
 .footer{margin-top:16px;font-size:.72rem;color:var(--faint);text-align:center;line-height:1.7}
 .hidden{display:none !important}
 </style>
@@ -156,12 +158,21 @@ input[type=range]{width:100%;accent-color:var(--accent)}
   </header>
 
   <div class="tabs" id="tabs">
+    <button class="tabbtn" data-tab="dictionary">📖 Legal Dictionary</button>
     <button class="tabbtn active" data-tab="analyzer">🔤 Analyze</button>
     <button class="tabbtn" data-tab="bridge">🏛️ Authority Bridge</button>
     <button class="tabbtn" data-tab="history">🗂️ History</button>
     <button class="tabbtn" data-tab="settings">⚙️ Settings</button>
     <span class="engine-pill" id="enginePill"></span>
   </div>
+
+  <!-- ================= LEGAL DICTIONARY =================
+       DTB_Legal_Dictionary_Study_Module.html beside this file. It is gitignored (not ours to publish);
+       create or refresh it with scripts/laa-sync-dictionary.mjs. -->
+  <section class="panel hidden" id="tab-dictionary">
+    <iframe id="dictFrame" title="DTB Legal Dictionary — Study Module"></iframe>
+    <p class="status info" id="dictMissing">The Legal Dictionary is not installed beside this file. Run <span class="mono">node scripts/laa-sync-dictionary.mjs "&lt;path to study module&gt;"</span>, then reload.</p>
+  </section>
 
   <!-- ================= ANALYZE ================= -->
   <section class="panel" id="tab-analyzer">
@@ -796,7 +807,26 @@ function boot(qp){
     (DATA.dictionaries || []).map(d => d.label).join(' • ') + ' — ' + (DATA.sources || []).length + ' bridge sources';
 
   renderDicts(); renderSymbols(); wireEvents(); setMode(mode); renderEngine();
+  // TMAR embeds and ?mode= links ask for the analyzer; a plain open lands on the far-left tab.
+  autoLanded = !(qm || qp.get('embed') === '1');
+  showTab(autoLanded ? 'dictionary' : 'analyzer');
 }
+
+/* ---------- legal dictionary (lazy iframe; postMessage because file:// frames are cross-origin) ---------- */
+let dictReady = false, autoLanded = false;
+function currentTheme(){ return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark'; }
+function mountDictionary(){
+  const f = $('dictFrame');
+  if(f.getAttribute('src')) return;
+  f.src = 'DTB_Legal_Dictionary_Study_Module.html?theme=' + currentTheme();
+  // ponytail: a timer, since a 404 frame fires load like any page; raise it if a slow disk trips it (ready still undoes it)
+  setTimeout(() => { if(!dictReady){ $('dictMissing').classList.add('show'); f.classList.add('hidden'); if(autoLanded) showTab('analyzer'); } }, 4000);
+}
+window.addEventListener('message', e => {
+  if(e.source !== $('dictFrame').contentWindow || !e.data || e.data.type !== 'laa-dict-ready') return;
+  dictReady = true; $('dictMissing').classList.remove('show'); $('dictFrame').classList.remove('hidden'); sendDictTheme();
+});
+function sendDictTheme(){ if(dictReady) $('dictFrame').contentWindow.postMessage({ type:'laa-theme', theme:currentTheme() }, '*'); }
 
 function renderEngine(){
   const s = loadSettings();
@@ -805,7 +835,8 @@ function renderEngine(){
 
 function showTab(id){
   document.querySelectorAll('.tabbtn').forEach(b => b.classList.toggle('active', b.dataset.tab === id));
-  ['analyzer','bridge','history','settings'].forEach(t => $('tab-' + t).classList.toggle('hidden', t !== id));
+  ['dictionary','analyzer','bridge','history','settings'].forEach(t => $('tab-' + t).classList.toggle('hidden', t !== id));
+  if(id === 'dictionary') mountDictionary();
   if(id === 'bridge') renderBridge();
   if(id === 'history') renderHistory();
   if(id === 'settings') renderSettings();
@@ -1168,7 +1199,7 @@ async function testConn(){
 
 /* ---------- wiring ---------- */
 function wireEvents(){
-  $('tabs').addEventListener('click', e => { const b = e.target.closest('.tabbtn'); if(b) showTab(b.dataset.tab); });
+  $('tabs').addEventListener('click', e => { const b = e.target.closest('.tabbtn'); if(b){ autoLanded = false; showTab(b.dataset.tab); } });
   $('modeSeg').addEventListener('click', e => { const b = e.target.closest('button'); if(b) setMode(b.dataset.mode); });
   $('inputTerms').addEventListener('input', onInput);
   $('inputTerms').addEventListener('keydown', e => { if(e.key === 'Enter' && (e.ctrlKey || e.metaKey)) analyze(); });
@@ -1226,7 +1257,7 @@ function wireEvents(){
   if(saved) document.documentElement.setAttribute('data-theme', saved);
   $('themeToggle').addEventListener('click', () => {
     const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next); lsSet(LSK.theme, next);
+    document.documentElement.setAttribute('data-theme', next); lsSet(LSK.theme, next); sendDictTheme();
   });
 })();
 

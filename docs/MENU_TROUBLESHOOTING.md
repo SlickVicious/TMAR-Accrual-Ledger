@@ -12,7 +12,7 @@ Custom menus in Google Sheets require authorization before they appear. Follow t
 
 ### Step 1: Open Apps Script Editor
 
-1. Open your TMAR Google Sheet: https://docs.google.com/spreadsheets/d/1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ/
+1. Open your TMAR Google Sheet: https://docs.google.com/spreadsheets/d/1aj86dabbSV5lcK-RvGvjBi98RsmgTM8To9AD2X9ks1k/
 2. Click **Extensions → Apps Script**
 3. You should see the Apps Script editor with your code
 
@@ -162,7 +162,7 @@ Once you see the "TMAR Tools" menu:
 
 ## Direct Links
 
-- **Google Sheet:** https://docs.google.com/spreadsheets/d/1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ/
+- **Google Sheet:** https://docs.google.com/spreadsheets/d/1aj86dabbSV5lcK-RvGvjBi98RsmgTM8To9AD2X9ks1k/
 - **Apps Script Editor:** Use `clasp open` or Extensions → Apps Script
 
 ---

@@ -1,6 +1,6 @@
 # GAAP Source — Complete Association Chart
 
-**Source**: `TMAR-Accrual-Ledger.html` (~61,377 lines, ~4.16 MB)
+**Source**: `TMAR-Accrual-Ledger.html` (~61,722 lines, ~4.19 MB as of 2026-11-23 — see `_TMAR-REALITY-BASELINE.md`)
 **Date**: 2026-03-04 (v1.4.0 — Sync Center added)
 **Purpose**: Map every GUI element to its function, document navigation flow, and break down all core/sub/remote functions.
 

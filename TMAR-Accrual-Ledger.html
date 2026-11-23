@@ -14967,7 +14967,7 @@ function exportFilingPDF(formType, data) {
           <div style="font-size:12px;font-weight:700;color:#a78bfa;margin-bottom:8px">🤖 Hermes Agent (Local) — Your Real Agent, Not a Model</div>
           <div style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;line-height:1.6">Routes chat to your <b>actual Hermes CLI agent</b> running locally (law profile): its own SOUL.md persona, persistent memory, and all skills (fiduciary-doc-factory, legal drafting, etc.). Requires the Hermes gateway's API server to be running — <code style="background:rgba(255,255,255,.08);padding:2px 6px;border-radius:4px">hermes gateway run</code>.</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <div><label style="font-size:10px;color:var(--text-secondary);display:block;margin-bottom:4px">Endpoint URL</label><input id="keyHermesUrl" placeholder="http://127.0.0.1:8642/v1/chat/completions" style="width:100%;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(139,92,246,.25);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
+            <div><label style="font-size:10px;color:var(--text-secondary);display:block;margin-bottom:4px">Endpoint URL</label><input id="keyHermesUrl" placeholder="http://127.0.0.1:8642/p/law/v1/chat/completions" style="width:100%;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(139,92,246,.25);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
             <div><label style="font-size:10px;color:var(--text-secondary);display:block;margin-bottom:4px">API Server Key (API_SERVER_KEY)</label><input type="password" id="keyHermes" placeholder="auto-filled from law profile" style="width:100%;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(139,92,246,.25);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
             <div><label style="font-size:10px;color:var(--text-secondary);display:block;margin-bottom:4px">Model (advertised)</label><input id="keyHermesModel" placeholder="law" style="width:100%;padding:8px;background:var(--bg-tertiary,rgba(255,255,255,.08));border:1px solid rgba(139,92,246,.25);border-radius:6px;color:var(--text-primary);font-size:12px;box-sizing:border-box"></div>
           </div>
@@ -45316,7 +45316,7 @@ var TMAR_PROVIDERS = {
     // persona + persistent memory + all skills (fiduciary-doc-factory, etc.). Endpoint is
     // OpenAI-compatible, but auth:'hermes' triggers a dedicated branch in callLLMStream()
     // that skips TMAR's own system prompt so the agent's real persona governs.
-    hermes:    { name:'Hermes Agent (Local)', auth:'hermes', url:'http://127.0.0.1:8642/v1/chat/completions', model:'law' }
+    hermes:    { name:'Hermes Agent (Local)', auth:'hermes', url:'http://127.0.0.1:8642/p/law/v1/chat/completions', model:'law' }
 };
 var TMAR_PROVIDER_KEYMAP = {
     openai:'eeon_key_openai', anthropic:'eeon_key_claude', claude:'eeon_key_claude',
@@ -45361,7 +45361,7 @@ function resolveProvider() {
   // Hermes Agent (Local): local endpoint. API_SERVER_KEY must be entered in Settings —
   // no default, same as every other provider (never hardcode secrets in source).
   if (pid === 'hermes') {
-    url = localStorage.getItem('eeon_hermes_url') || 'http://127.0.0.1:8642/v1/chat/completions';
+    url = localStorage.getItem('eeon_hermes_url') || 'http://127.0.0.1:8642/p/law/v1/chat/completions';
     model = localStorage.getItem('eeon_hermes_model') || 'law';
   }
   // A provider you explicitly selected with no key is an error — NOT a reason to
@@ -46272,7 +46272,7 @@ async function testConnection() {
       };
     } else if (provider === 'hermes') {
       apiKey = localStorage.getItem('eeon_key_hermes') || '';
-      testEndpoint = localStorage.getItem('eeon_hermes_url') || 'http://127.0.0.1:8642/v1/chat/completions';
+      testEndpoint = localStorage.getItem('eeon_hermes_url') || 'http://127.0.0.1:8642/p/law/v1/chat/completions';
       testHeaders = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey };
       testBody = { model: 'law', max_tokens: 10, messages: [{ role: 'user', content: 'Reply with the single word: online' }] };
     } else if (provider === 'ollama') {
@@ -49800,7 +49800,7 @@ function settingsSaveKey(provider, value) {
 // Test the local Hermes API server connection (health + a one-word agent probe).
 async function hermesTestConnection() {
   var statusEl = document.getElementById('hermesTestStatus');
-  var url = (document.getElementById('keyHermesUrl').value || '').trim() || 'http://127.0.0.1:8642/v1/chat/completions';
+  var url = (document.getElementById('keyHermesUrl').value || '').trim() || 'http://127.0.0.1:8642/p/law/v1/chat/completions';
   var key = (document.getElementById('keyHermes').value || '').trim();
   if (!key) { if (statusEl) statusEl.innerHTML = '<span style="color:#ef4444">✗ Enter API_SERVER_KEY first</span>'; return; }
   if (statusEl) statusEl.innerHTML = '⏳ Testing…';

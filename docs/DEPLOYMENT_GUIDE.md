@@ -1,7 +1,8 @@
 # TMAR Unified Menu - Deployment Guide
 
 **Last Updated:** 2026-03-04
-**Google Sheet:** https://docs.google.com/spreadsheets/d/1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ/
+**Google Sheet:** https://docs.google.com/spreadsheets/d/1aj86dabbSV5lcK-RvGvjBi98RsmgTM8To9AD2X9ks1k/
+*(post-cutover system of record, `TMAR_CONFIG.liveBookId`; the pre-cutover book `1k6J2s0x…WInQ` is archived as `TMAR_PreCutover_Original_20261021`)*
 **Apps Script ID:** `1fIfAfYbMw8udn2AggFnMDc-dwVNvrQeJT6qVOdJI1VdehZQzDoCdoyYr`
 
 ---
@@ -27,7 +28,7 @@ The unified TMAR menu has been successfully deployed using `clasp push`. The men
 
 ## Quick Test
 
-1. Open your TMAR Google Sheet: https://docs.google.com/spreadsheets/d/1k6J2s0xV5x8K5C6SyjGMNdIwVrUGbiKgPT97rwlWInQ/
+1. Open your TMAR Google Sheet: https://docs.google.com/spreadsheets/d/1aj86dabbSV5lcK-RvGvjBi98RsmgTM8To9AD2X9ks1k/
 2. Refresh the page (Ctrl+R / Cmd+R)
 3. Look for **"TMAR Tools"** in the menu bar
 4. Click **TMAR Tools → Setup & Administration**
@@ -116,7 +117,7 @@ clasp pull
 - **Lines:** 1,002
 - **Contains:**
   - **Phase 1 (Tier 1):** Import sidebar (`showLedgerImportDialog`, `importFromLedger` router, 4 import handlers)
-  - **Phase 2 (Tier 2):** Web App Bridge (`doGet`, `doPost`, 84 doGet/doPost actions)
+  - **Phase 2 (Tier 2):** Web App Bridge (`doGet`/`doPost` — 131 doGet/doPost actions as of 2026-11-23)
   - Spreadsheet ID constant, EIN masking, _SyncMeta tracking, payload validation
   - Deploy as Web App to enable Live Sync from Accrual Ledger
 
@@ -241,7 +242,7 @@ cat .clasp.json
 
 | Date | Version | Changes |
 |------|---------|---------|
-| 2026-03-04 | 3.1 | **Web App Bridge** — Added `SyncCenter.gs` (1,002 lines) with `doGet`/`doPost` endpoints, 84 doGet/doPost actions, `_SyncMeta` tracking. Deploy as Web App for Live Sync. |
+| 2026-03-04 | 3.1 | **Web App Bridge** — Added `SyncCenter.gs` (1,002 lines) with `doGet`/`doPost` endpoints, 84 doGet/doPost actions at that date (131 doGet/doPost actions as of 2026-11-23), `_SyncMeta` tracking. Deploy as Web App for Live Sync. |
 | 2026-03-04 | 3.0 | **Sync Center integration** — Added Accrual Ledger import sidebar (6 functions), Import menu item in Code.gs |
 | 2026-02-28 | 2.0 | **Unified menu deployed via clasp** — Added Trust Admin Tools submenu with 3 functions |
 | Previous | 1.0 | Original TMAR Tools menu |
