@@ -10,7 +10,7 @@ var HUB_SECTIONS_ = [
   ['Core Registers',      ['Lists', 'Accounts', 'Statements', 'Entities', 'Master Register', 'TIN Registry', 'Chart of Accounts']],
   ['Ledgers & Accounting',['Transactions', 'Ledgers', 'Journal', 'Cash Flow', 'Tax Lines']],
   ['Income & Assets',     ['W-2 & Income Detail', 'Asset & Investment Accounts']],
-  ['Tax & 1099',          ['Schedule A', '📄 Tax Forms', '1099 Filings']],
+  ['Tax & 1099',          ['Schedule A', '📄 Tax Forms', '1099 Filings', 'CPA Questions']],
   ['Contacts & Accounts', ['Contacts', 'Website Accounts', 'Business Obligations', 'Subscriptions & Services']],
   ['Mailings & Authority',['Proof of Mailing', 'Tab 5 — Minutes & Resolutions O']],
   ['Trust Instruments',   ['📜 Trustee Resolutions', '📦 Asset Transfer Log', 'Valuations']],
@@ -18,8 +18,14 @@ var HUB_SECTIONS_ = [
   ['Reference',           ['AppScripts', 'Script Executions']]
 ];
 
+// Mapped section entries that are DELIBERATELY hidden (they ship hidden by design: the Apps Script
+// inventory and the execution log are reference material, not working tabs). They stay in the map so
+// that showing one puts it straight back into the index, but they do not count as drift — otherwise
+// every rebuild reports a false alarm and a real one stops being visible.
+var HUB_HIDDEN_OK_ = ['AppScripts', 'Script Executions'];
+
 function finalizeWorkbookReorg_(ss) {
-  var out = { renames: [], hidden: [], skipRename: [] };
+  var out = { renames: [], hidden: [], shown: [], skipRename: [] };
 
   // (1) Rename — guarded: only if source exists and target name is free.
   var coa = ss.getSheetByName('Chart of Accounts');
@@ -43,18 +49,45 @@ function finalizeWorkbookReorg_(ss) {
   }
 
   // (2) Hide redundant source tabs (data already merged into survivors or archived).
+  //     Explicit names keep the 2026-10-08 fold behaviour; the pattern sweep below catches
+  //     EVERY dated backup tab, so a new *_PreDelete_<ts> does not sit visible in the tab strip
+  //     where an edit can land on the backup instead of the live table.
   var hideNames = [
     'Acct Ledger', 'Creditor Registry', 'Documents',
-    'A Provident Private Creditor Dashboard',
-    'F1040_PreDelete_20261007_220304', 'WA_PreDelete_20260803_135115'
+    'A Provident Private Creditor Dashboard'
   ];
   hideNames.forEach(function (name) {
     var sh = ss.getSheetByName(name);
     if (sh && !sh.isSheetHidden()) { sh.hideSheet(); out.hidden.push(name); }
   });
+  hideBackupTabs_(ss).forEach(function (name) { out.hidden.push(name); });
+
+  // (3) Restore live core tabs that the section map expects to be visible. `Entities` is a
+  //     Core Register (31 rows, retire-protected), but was hidden — so it silently dropped
+  //     out of the HUB INDEX. Showing it puts the index back in step with HUB_SECTIONS_.
+  var showNames = ['Entities'];
+  showNames.forEach(function (name) {
+    var sh = ss.getSheetByName(name);
+    if (sh && sh.isSheetHidden()) { sh.showSheet(); out.shown.push(name); }
+  });
 
   SpreadsheetApp.flush();
   return out;
+}
+
+// Dated auto-backup tabs written by the delete/import helpers (F1040_PreDelete_…,
+// MR_PreDelete_…, WA_PreDelete_…). Hidden, never deleted — they are the rollback copy.
+var BACKUP_TAB_RE_ = /_PreDelete_\d{8}(_\d{6})?$/;
+
+function hideBackupTabs_(ss) {
+  var hidden = [];
+  ss.getSheets().forEach(function (sh) {
+    if (BACKUP_TAB_RE_.test(sh.getName()) && !sh.isSheetHidden()) {
+      sh.hideSheet();
+      hidden.push(sh.getName());
+    }
+  });
+  return hidden;
 }
 
 function regenerateHubIndex_(ss) {
@@ -70,32 +103,73 @@ function regenerateHubIndex_(ss) {
   hub.getRange(r, 1, 1, 3).setValues([['TAB NAME', 'SECTION', 'SHEET #']])
     .setFontWeight('bold').setBackground('#1B2A4A').setFontColor('#FFFFFF'); r++;
 
+  // Walk the section map once and record every way it can disagree with the live book:
+  // a section entry with no sheet, an entry whose sheet is hidden (so it drops out of this
+  // index), and a visible sheet that no section claims. The index must never quietly omit a
+  // tab — twice now the count in these docs came from the code while the book said otherwise.
+  var mapped = {};
   var sheetNo = 0, listed = 0;
+  var mappedHidden = [], missing = [];
   HUB_SECTIONS_.forEach(function (sec) {
     sec[1].forEach(function (name) {
+      mapped[name] = true;
       var sh = ss.getSheetByName(name);
-      if (!sh) return;
-      if (sh.isSheetHidden()) return;
+      if (!sh) { missing.push({ name: name, section: sec[0] }); return; }
+      if (sh.isSheetHidden()) { mappedHidden.push({ name: name, section: sec[0] }); return; }
       sheetNo++;
       hub.getRange(r, 1, 1, 3).setValues([[name, sec[0], sheetNo]]);
       r++; listed++;
     });
   });
 
-  // Hidden/archived reference block.
-  var hiddenTabs = [];
-  ss.getSheets().forEach(function (sh) { if (sh.isSheetHidden()) hiddenTabs.push(sh.getName()); });
+  var hiddenTabs = [], unlistedVisible = [], visibleCount = 0;
+  ss.getSheets().forEach(function (sh) {
+    var n = sh.getName();
+    if (sh.isSheetHidden()) { hiddenTabs.push(n); return; }
+    visibleCount++;
+    if (!mapped[n] && n !== '📋 HUB INDEX') unlistedVisible.push(n);
+  });
   hiddenTabs.sort();
+  unlistedVisible.sort();
+
+  // Expected-hidden mapped tabs are reported as "by design", everything else is drift.
+  var expectedHidden = mappedHidden.filter(function (d) { return HUB_HIDDEN_OK_.indexOf(d.name) !== -1; });
+  var unexpectedHidden = mappedHidden.filter(function (d) { return HUB_HIDDEN_OK_.indexOf(d.name) === -1; });
+
   if (hiddenTabs.length) {
     r++;
     hub.getRange(r, 1).setValue('HIDDEN / ARCHIVED (' + hiddenTabs.length + '):').setFontWeight('bold'); r++;
-    hiddenTabs.forEach(function (n) { hub.getRange(r, 1).setValue('  · ' + n); r++; });
+    hiddenTabs.forEach(function (n) {
+      var mappedd = null;
+      for (var i = 0; i < expectedHidden.length; i++) { if (expectedHidden[i].name === n) mappedd = expectedHidden[i].section; }
+      hub.getRange(r, 1).setValue('  · ' + n + (mappedd ? '   [by design — section "' + mappedd + '"]' : '')); r++;
+    });
+  }
+
+  var drift = missing.length + unexpectedHidden.length + unlistedVisible.length;
+  if (drift) {
+    r++;
+    hub.getRange(r, 1).setValue('⚠ SECTION-MAP DRIFT (' + drift + ') — fix HUB_SECTIONS_ in gas/WorkbookReorg.gs:')
+      .setFontWeight('bold').setFontColor('#B00020'); r++;
+    unexpectedHidden.forEach(function (d) {
+      hub.getRange(r, 1).setValue('  · hidden but mapped to "' + d.section + '": ' + d.name); r++;
+    });
+    unlistedVisible.forEach(function (n) {
+      hub.getRange(r, 1).setValue('  · visible but in no section: ' + n); r++;
+    });
+    missing.forEach(function (d) {
+      hub.getRange(r, 1).setValue('  · mapped to "' + d.section + '" but no such tab: ' + d.name); r++;
+    });
   }
 
   hub.autoResizeColumns(1, 3);
-  hub.setTabColor('#2E7D32');
+  hub.setTabColor(drift ? '#B00020' : '#2E7D32');
   SpreadsheetApp.flush();
-  return { listed: listed, hiddenCount: hiddenTabs.length, hidden: hiddenTabs };
+  return {
+    listed: listed, visible: visibleCount, hiddenCount: hiddenTabs.length, hidden: hiddenTabs,
+    mappedHidden: mappedHidden, expectedHidden: expectedHidden, unlistedVisible: unlistedVisible,
+    missing: missing, drift: drift
+  };
 }
 
 // ── Stage 3b: fold the 3 binder/metrics guides into their survivors ──────────

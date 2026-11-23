@@ -54,6 +54,13 @@ def hub_sections():
     return sections
 
 
+def hub_by_design_hidden():
+    """Section entries that ship hidden on purpose (HUB_HIDDEN_OK_)."""
+    src = read(os.path.join(GAS_DIR, "WorkbookReorg.gs"))
+    m = re.search(r"var\s+HUB_HIDDEN_OK_\s*=\s*\[(.*?)\];", src, re.S)
+    return re.findall(r"'([^']+)'", m.group(1)) if m else []
+
+
 def allowlist_functions():
     """Extract the RUNNABLE_FUNCTIONS_ keys."""
     src = read(os.path.join(GAS_DIR, "RunnableFunctionsAllowlist.gs"))
@@ -96,7 +103,8 @@ def main():
     # Workbook tab state is runtime data, not derivable from the repo. Refreshed by hand from
     # ?action=listWorkbookTabs — the same endpoint the app uses. Update these four lines when
     # the live book changes, and cite them nowhere else.
-    LIVE_TABS = dict(verified="2026-11-23", total=43, visible=34, hidden=9)
+    LIVE_TABS = dict(verified="2026-11-23", total=43, visible=34, hidden=9,
+                     by_design=["AppScripts", "Script Executions"])
     total = LIVE_TABS["total"]
 
     lines = []
@@ -110,18 +118,26 @@ def main():
     A(f"**Title:** {title}\n")
     A("---\n")
     A("## 1. Workbook (Google Sheets)\n")
-    A(f"{visible} visible tabs across {len(sections)} HUB sections (source of truth: `gas/WorkbookReorg.gs` → `HUB_SECTIONS_`):\n")
-    A("| Section | Visible tabs |")
+    by_design = hub_by_design_hidden()
+    A(f"{LIVE_TABS['visible']} visible tabs across {len(sections)} HUB sections "
+      f"(`gas/WorkbookReorg.gs` → `HUB_SECTIONS_` maps {visible} entries; "
+      f"{len(by_design)} of them ship hidden by design — {', '.join('`' + n + '`' for n in by_design)} — "
+      f"and `regenerateHubIndex_` skips hidden sheets):\n")
+    A("| Section | Tabs |")
     A("|---|---|")
     for name, tabs_ in sections:
-        A(f"| {name} | {' · '.join(tabs_)} |")
-    A("\nNOTE: total tab count (incl. hidden) is workbook runtime state, not derivable from the repo.")
+        cells = [t + " *(hidden by design)*" if t in by_design else t for t in tabs_]
+        A(f"| {name} | {' · '.join(cells)} |")
+    A("\nNOTE: every figure above beyond the section map is workbook runtime state, not derivable")
+    A(" from the repo.")
     A(f" `listWorkbookTabs` on {LIVE_TABS['verified']} returned {LIVE_TABS['total']} tabs:"
-      f" {LIVE_TABS['visible']} visible + {LIVE_TABS['hidden']} hidden. This table lists what"
-      " `HUB_SECTIONS_` maps, which is not the same set: a section entry whose sheet is hidden"
-      " (e.g. `Entities`, hidden in Core Registers) does not appear in `📋 HUB INDEX`, and a visible"
-      " tab outside every section (`CPA Questions`, plus the stray backup `MR_PreDelete_*`) is absent"
-      " from the index until it is added to `HUB_SECTIONS_`. Re-pull before quoting a count.\n")
+      f" {LIVE_TABS['visible']} visible + {LIVE_TABS['hidden']} hidden — matching the {visible - len(by_design)}"
+      " mapped entries that are not hidden by design.")
+    A(" `regenerateHubIndex_` writes the index from `HUB_SECTIONS_`, skipping hidden sheets, and now")
+    A(" reports any disagreement on the sheet itself (red tab + `⚠ SECTION-MAP DRIFT` block) and in")
+    A(" the `rebuildHubIndex` response: a section entry whose sheet is missing or unexpectedly hidden,")
+    A(" and any visible tab no section claims. Dated rollback tabs (`*_PreDelete_YYYYMMDD[_HHMMSS]`)")
+    A(" are hidden automatically by `hideBackupTabs_`. Re-pull before quoting a count.\n")
     A("---\n")
     A("## 2. GAS Web App — %d doGet/doPost actions\n" % len(actions))
     A("\n`" + " · ".join(actions) + "`\n")

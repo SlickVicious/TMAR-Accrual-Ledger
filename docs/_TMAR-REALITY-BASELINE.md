@@ -12,23 +12,29 @@
 
 ## 1. Workbook (Google Sheets)
 
-35 visible tabs across 10 HUB sections (source of truth: `gas/WorkbookReorg.gs` → `HUB_SECTIONS_`):
+34 visible tabs across 10 HUB sections (`gas/WorkbookReorg.gs` → `HUB_SECTIONS_` maps 36 entries; 2 of them ship hidden by design — `AppScripts`, `Script Executions` — and `regenerateHubIndex_` skips hidden sheets):
 
-| Section | Visible tabs |
+| Section | Tabs |
 |---|---|
 | Index & Dashboard | 📋 HUB INDEX · 📋 Dashboard · Live Dashboard · Checks |
 | Core Registers | Lists · Accounts · Statements · Entities · Master Register · TIN Registry · Chart of Accounts |
 | Ledgers & Accounting | Transactions · Ledgers · Journal · Cash Flow · Tax Lines |
 | Income & Assets | W-2 & Income Detail · Asset & Investment Accounts |
-| Tax & 1099 | Schedule A · 📄 Tax Forms · 1099 Filings |
+| Tax & 1099 | Schedule A · 📄 Tax Forms · 1099 Filings · CPA Questions |
 | Contacts & Accounts | Contacts · Website Accounts · Business Obligations · Subscriptions & Services |
 | Mailings & Authority | Proof of Mailing · Tab 5 — Minutes & Resolutions O |
 | Trust Instruments | 📜 Trustee Resolutions · 📦 Asset Transfer Log · Valuations |
 | Documents | Document Inventory · Document Registry · AppScripts Canvas & Workflow Board |
-| Reference | AppScripts · Script Executions |
+| Reference | AppScripts *(hidden by design)* · Script Executions *(hidden by design)* |
 
-NOTE: total tab count (incl. hidden) is workbook runtime state, not derivable from the repo.
- `listWorkbookTabs` on 2026-11-23 returned 43 tabs: 34 visible + 9 hidden. This table lists what `HUB_SECTIONS_` maps, which is not the same set: a section entry whose sheet is hidden (e.g. `Entities`, hidden in Core Registers) does not appear in `📋 HUB INDEX`, and a visible tab outside every section (`CPA Questions`, plus the stray backup `MR_PreDelete_*`) is absent from the index until it is added to `HUB_SECTIONS_`. Re-pull before quoting a count.
+NOTE: every figure above beyond the section map is workbook runtime state, not derivable
+ from the repo.
+ `listWorkbookTabs` on 2026-11-23 returned 43 tabs: 34 visible + 9 hidden — matching the 34 mapped entries that are not hidden by design.
+ `regenerateHubIndex_` writes the index from `HUB_SECTIONS_`, skipping hidden sheets, and now
+ reports any disagreement on the sheet itself (red tab + `⚠ SECTION-MAP DRIFT` block) and in
+ the `rebuildHubIndex` response: a section entry whose sheet is missing or unexpectedly hidden,
+ and any visible tab no section claims. Dated rollback tabs (`*_PreDelete_YYYYMMDD[_HHMMSS]`)
+ are hidden automatically by `hideBackupTabs_`. Re-pull before quoting a count.
 
 ---
 
